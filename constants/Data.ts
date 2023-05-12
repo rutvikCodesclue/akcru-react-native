@@ -1,5 +1,5 @@
 import { COLORS, FONTS } from "./Theme";
-import imageindex from "../assets/images/imageindex";
+
 
 export const CATEGORIES = [
   {
