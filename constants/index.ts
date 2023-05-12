@@ -1,7 +1,8 @@
-import { COLORS, SIZES, FONTS } from "./Theme";
+import { COLORS, SIZES, FONTS, AKCRUBADGES } from "./Theme";
 
 export {
     COLORS,
     SIZES,
-    FONTS
+    FONTS, 
+    AKCRUBADGES
 }

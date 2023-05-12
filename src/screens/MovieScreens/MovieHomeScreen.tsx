@@ -10,16 +10,17 @@ import { AkcruDollarAmount } from '../../../constants/Mockusers';
 
 
 const MovieHomeScreen = () => {
+
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
         </View>
         <View>
           <MovieHomeScreenHero />
         </View>
-        <View style={{marginTop: 10}}>
+        <View style={{ marginTop: 10 }}>
           <CategoriesList />
         </View>
         <View style={{ marginHorizontal: 15 }}>
