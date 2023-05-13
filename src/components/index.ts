@@ -12,7 +12,6 @@ import RecommendedForYouList from "./RecommendedForYouList";
 import MovieHomeScreenHero from "./MovieHomeScreenHero";
 import AkcruBadge from "./AkcruBadges";
 import MedButton from "./MedButton";
-import HexagonProfilePicture from "./ProfilePicture";
 import SearchInput from "./SearchInput";
 import MovieGenresList from "./MovieGenresList";
 import GenreCard from "./GenreCard";
@@ -40,5 +39,5 @@ export {
     GenreCard, 
     SearchMovieResultList,
     MovieDetailScreenCard,
-    HexagonProfilePicture
+   
 }

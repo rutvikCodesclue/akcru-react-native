@@ -1,21 +1,143 @@
+import * as React from "react";
 import {
   View,
+  useWindowDimensions,
   Text,
+  ImageBackground,
   TouchableOpacity,
   Image,
-  ImageBackground,
 } from "react-native";
-import React from "react";
-import { AKCRUBADGES, COLORS, FONTS, SIZES } from "../../../constants";
-import { AkcruBadge, HexagonProfilePicture } from "../../components";
-import { Icon, Avatar } from "@rneui/base";
-import imageindex from "../../../assets/images/imageindex";
+import { TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps } from "react-native-tab-view";
+import {
+  UserProfileCruInvites,
+  UserProfileDatesTab,
+  UserProfileDetailsTab,
+} from "./UserProfileTabs";
 import { DIGITAL_PASS } from "../../../constants/Mockusers";
+import { SIZES, COLORS, FONTS, AKCRUBADGES } from "../../../constants";
 import { LinearGradient } from "expo-linear-gradient";
+import { Avatar, Icon } from "@rneui/themed";
+import { AkcruBadge } from "../../components";
+import imageindex from "../../../assets/images/imageindex";
+import UserWalletScreen from "./UserWalletScreen";
+import { PressableAndroidRippleConfig } from "react-native";
+import { StyleProp } from "react-native";
+import { ViewStyle } from "react-native";
+import { TextStyle } from "react-native";
+import { Route } from "react-native";
+import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
 
-const UserProfileScreen = () => {
+const FirstRoute = () => (
+  <View>
+    <UserProfileDetailsTab />
+  </View>
+);
+
+const SecondRoute = () => <UserProfileDatesTab />;
+
+const ThirdRoute = () => (
+  <View>
+    <UserProfileDatesTab />
+  </View>
+);
+
+const FourthRoute = () => <UserWalletScreen/>;
+
+const renderScene = SceneMap({
+  first: FirstRoute,
+  second: SecondRoute,
+  third: ThirdRoute,
+  fourth: FourthRoute
+});
+
+export default function TabViewExample() {
+  const renderTabBar = (
+    props: JSX.IntrinsicAttributes &
+      SceneRendererProps & {
+        navigationState: NavigationState<Route>;
+        scrollEnabled?: boolean | undefined;
+        bounces?: boolean | undefined;
+        activeColor?: string | undefined;
+        inactiveColor?: string | undefined;
+        pressColor?: string | undefined;
+        pressOpacity?: number | undefined;
+        getLabelText?:
+          | ((scene: Scene<Route>) => string | undefined)
+          | undefined;
+        getAccessible?:
+          | ((scene: Scene<Route>) => boolean | undefined)
+          | undefined;
+        getAccessibilityLabel?:
+          | ((scene: Scene<Route>) => string | undefined)
+          | undefined;
+        getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined;
+        renderLabel?:
+          | ((
+              scene: Scene<Route> & { focused: boolean; color: string }
+            ) => React.ReactNode)
+          | undefined;
+        renderIcon?:
+          | ((
+              scene: Scene<Route> & { focused: boolean; color: string }
+            ) => React.ReactNode)
+          | undefined;
+        renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined;
+        renderIndicator?:
+          | ((props: TabBarIndicatorProps<Route>) => React.ReactNode)
+          | undefined;
+        renderTabBarItem?:
+          | ((
+              props: TabBarItemProps<Route> & { key: string }
+            ) => React.ReactElement<
+              any,
+              string | React.JSXElementConstructor<any>
+            >)
+          | undefined;
+        onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined;
+        onTabLongPress?: ((scene: Scene<Route>) => void) | undefined;
+        tabStyle?: StyleProp<ViewStyle>;
+        indicatorStyle?: StyleProp<ViewStyle>;
+        indicatorContainerStyle?: StyleProp<ViewStyle>;
+        labelStyle?: StyleProp<TextStyle>;
+        contentContainerStyle?: StyleProp<ViewStyle>;
+        style?: StyleProp<ViewStyle>;
+        gap?: number | undefined;
+        testID?: string | undefined;
+        android_ripple?: PressableAndroidRippleConfig | undefined;
+      }
+  ) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: COLORS.DARKORANGE }}
+      scrollEnabled={false}
+      tabStyle={{ width: SIZES.ScreenWidth / 4 }}
+      labelStyle={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
+      style={{
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        justifyContent: "space-between",
+        
+      }}
+      contentContainerStyle={{
+        alignItems: "center",
+        alignContent: "center",
+        justifyContent: "center",
+      }}
+      activeColor={COLORS.MIDORANGE}
+    />
+  );
+
+  const layout = useWindowDimensions();
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: "first", title: "Details" },
+    { key: "second", title: "Dates" },
+    { key: "third", title: "Invites" },
+    { key: "fourth", title: "Wallet" },
+  ]);
+
   return (
-    <View style={{ flex: 1, backgroundColor: "green" }}>
+    <View style={{ flex: 1 }}>
       <View>
         <ImageBackground
           source={{ uri: DIGITAL_PASS[0].SuperHeroPass }}
@@ -38,7 +160,7 @@ const UserProfileScreen = () => {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              marginTop: 50,
+              marginTop: 65,
               marginHorizontal: 15,
             }}
           >
@@ -139,9 +261,14 @@ const UserProfileScreen = () => {
           </View>
         </ImageBackground>
       </View>
-      <HexagonProfilePicture />
+      <TabView
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        swipeEnabled={true}
+        renderTabBar={renderTabBar}
+      />
     </View>
   );
-};
-
-export default UserProfileScreen;
+}

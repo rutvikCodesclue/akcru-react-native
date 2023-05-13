@@ -45,6 +45,9 @@ const Overlay = styled(LinearGradient)`
 
 
 const MovieHomeScreen = () => {
+const video = React.useRef(null);
+const [status, setStatus] = React.useState({});
+
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>

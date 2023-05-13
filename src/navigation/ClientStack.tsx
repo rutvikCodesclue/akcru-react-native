@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import { SearchMovieScreen, SearchMovieResultScreen, MovieDetailScreen, MovieHomeScreen } from '../screens';
+import { SearchMovieScreen, SearchMovieResultScreen, MovieDetailScreen, MovieHomeScreen, UserProfileScreen } from '../screens';
 import ClientTabNavigator from './ClientTabNavigator';
 import { COLORS } from '../../constants';
 
@@ -11,6 +11,7 @@ export type ClientStackParams = {
   SearchMovieResultScreen: any;
   MovieDetailScreen: any;
   MovieHomeScreen: any;
+  UserProfileScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -48,6 +49,13 @@ export function ClientStack () {
       <ClientSearch.Screen
         name="MovieDetailScreen"
         component={MovieDetailScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="UserProfileScreen"
+        component={UserProfileScreen}
         options={() => ({
           headerShown: false,
         })}
