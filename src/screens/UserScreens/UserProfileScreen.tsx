@@ -188,7 +188,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                   rounded
                   size={70}
                   source={{
-                    uri: "https://lh3.googleusercontent.com/p/AF1QipNvFlRlQcAzAEb-G3fpXtEvVYYQslyVY4fxmj-3=w1080-h608-p-no-v0",
+                    uri: "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
                   }}
                   avatarStyle={{
                     borderWidth: 2,
