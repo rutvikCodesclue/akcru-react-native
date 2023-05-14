@@ -25,7 +25,26 @@ import { StyleProp } from "react-native";
 import { ViewStyle } from "react-native";
 import { TextStyle } from "react-native";
 import { Route } from "react-native";
+import { ClientStackParams } from "../../navigation/ClientStack";
 import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
+import { RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+
+type UserProfileScreenNavigationProp = StackNavigationProp<
+  ClientStackParams,
+  "UserProfileScreen"
+>;
+
+type UserProfileScreenRouteProp = RouteProp<
+  ClientStackParams,
+  "UserProfileScreen"
+>;
+
+type Props = {
+  navigation: UserProfileScreenNavigationProp;
+  route: UserProfileScreenRouteProp;
+};
+
 
 const FirstRoute = () => (
   <View>
@@ -50,7 +69,7 @@ const renderScene = SceneMap({
   fourth: FourthRoute
 });
 
-export default function TabViewExample() {
+export default function UserProfileScreen({navigation, route}: Props) {
   const renderTabBar = (
     props: JSX.IntrinsicAttributes &
       SceneRendererProps & {
@@ -111,11 +130,10 @@ export default function TabViewExample() {
       indicatorStyle={{ backgroundColor: COLORS.DARKORANGE }}
       scrollEnabled={false}
       tabStyle={{ width: SIZES.ScreenWidth / 4 }}
-      labelStyle={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
+      labelStyle={{ ...FONTS.Title2, color: COLORS.LIGHTGREY,}}
       style={{
         backgroundColor: COLORS.AKCRUBACKGROUND,
         justifyContent: "space-between",
-        
       }}
       contentContainerStyle={{
         alignItems: "center",

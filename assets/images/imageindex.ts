@@ -12,6 +12,11 @@ const Comedy = require('./moviecomedy.jpg')
 const Crime = require('./moviecrime.jpg')
 const Drama = require('./moviedrama.jpg')
 const Family = require('./moviefamily.jpg')
+const Graph1 = require('./graph1.png')
+const GraphMetric = require('./GraphMetric.png')
+const SmileyBuffalo = require('./SmileyBuffalo.png')
+const Cru = require('./Cru.png')
+const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
 const WitnessForTheProsecution = require('./WitnessForTheProsecution.jpg')
 
@@ -32,5 +37,10 @@ export default {
     Crime,
     Drama,
     Family,
-    Thriller
+    Thriller,
+    Graph1,
+    GraphMetric,
+    Cru,
+    SmileyBuffaloAlvin,
+    SmileyBuffalo
 }
