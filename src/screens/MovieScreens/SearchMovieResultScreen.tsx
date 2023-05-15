@@ -6,6 +6,7 @@ import { RouteProp } from '@react-navigation/native';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { MOVIES } from '../../../constants/Data';
+import { AkcruDollarAmount } from '../../../constants/Mockusers';
 
 
 type SearchMovieResultScreenNavigationProp = StackNavigationProp<
@@ -30,19 +31,19 @@ const SearchMovieResultScreen = ({ navigation, route }: Props) => {
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
         </View>
-        <View style={{marginHorizontal: SIZES.marginhorizontal, marginBottom: 10}}>
-          <Text style={{...FONTS.Title2}}>
+        <View
+          style={{ marginHorizontal: SIZES.marginhorizontal, marginBottom: 10 }}
+        >
+          <Text style={{ ...FONTS.Title2 }}>
             {MOVIES.length} results for {route.params?.item}:
           </Text>
         </View>
         <View style={{ marginBottom: 75 }}>
           <SearchMovieResultList />
         </View>
-        <View>
-          
-        </View>
+        <View></View>
       </ScrollView>
     </View>
   );

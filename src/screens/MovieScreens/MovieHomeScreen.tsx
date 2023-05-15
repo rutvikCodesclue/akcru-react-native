@@ -45,14 +45,14 @@ const Overlay = styled(LinearGradient)`
 
 
 const MovieHomeScreen = () => {
+const video = React.useRef(null);
+const [status, setStatus] = React.useState({});
 
-  const video = React.useRef(null);
-  const [status, setStatus] = React.useState({});
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
         </View>
         <View>
 
@@ -98,7 +98,7 @@ const MovieHomeScreen = () => {
           {/* End */}
           {/* <MovieHomeScreenHero /> */}
         </View>
-        <View style={{marginTop: 10}}>
+        <View style={{ marginTop: 10 }}>
           <CategoriesList />
         </View>
         <View style={{ marginHorizontal: 15 }}>
