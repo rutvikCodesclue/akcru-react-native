@@ -14,6 +14,8 @@ const Drama = require('./moviedrama.jpg')
 const Family = require('./moviefamily.jpg')
 const Graph1 = require('./graph1.png')
 const GraphMetric = require('./GraphMetric.png')
+const GRAPHwallet2 = require('./GRAPHwallet2.png')
+const GRAPHwallet1 = require('./GRAPHWallet1.png')
 const SmileyBuffalo = require('./SmileyBuffalo.png')
 const Cru = require('./Cru.png')
 const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
@@ -42,5 +44,7 @@ export default {
     GraphMetric,
     Cru,
     SmileyBuffaloAlvin,
-    SmileyBuffalo
+    SmileyBuffalo,
+    GRAPHwallet1,
+    GRAPHwallet2
 }

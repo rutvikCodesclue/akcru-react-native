@@ -54,11 +54,23 @@ export const FAKE_USER_PROFILES = [
     userDesc: "My name is Jenny 2x, cause I like to watch movies 2x's lol",
     userFollowerAmount: 12001,
     akcruBadge: BADGES[0].badgeid,
-    ADAmount: 46789,
+    ADAmount: 46800,
     userMITAmount: 3,
     movieReview: "It was a great movie but I've seen better. I truly wish there was better acting, sorry but not sorry",
     crummunityPost: "Who wants to watch a movie 2x's with me?",
-    userID: "1",
+    userID: "0",
+  },
+  {
+    userName: "Anthoni Styvens", 
+    userPicture: "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
+    userDesc: "My name is Jenny 2x, cause I like to watch movies 2x's lol",
+    userFollowerAmount: 110231,
+    akcruBadge: BADGES[0].badgeid,
+    ADAmount: 345700,
+    userMITAmount: 6,
+    movieReview: "It was a great movie but I've seen better. I truly wish there was better acting, sorry but not sorry",
+    crummunityPost: "I wanna watch with somone new.",
+    userID: "2",
   },
 
 ];
@@ -70,4 +82,11 @@ export const DIGITAL_PASS = [
     HeroPass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
     AkcruitPass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png", 
   }
-]
+];
+
+export const AKCRUAPP_TOTAL_AD =[
+  {
+    akcruTotalADAmount: 58646770,
+    percentageChange: 7
+  }
+];

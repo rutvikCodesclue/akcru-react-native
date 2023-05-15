@@ -12,14 +12,14 @@ import {
   UserProfileCruInvites,
   UserProfileDatesTab,
   UserProfileDetailsTab,
+  UserProfileWalletTab
 } from "./UserProfileTabs";
-import { DIGITAL_PASS } from "../../../constants/Mockusers";
+import { AkcruDollarAmount, DIGITAL_PASS } from "../../../constants/Mockusers";
 import { SIZES, COLORS, FONTS, AKCRUBADGES } from "../../../constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar, Icon } from "@rneui/themed";
-import { AkcruBadge } from "../../components";
+import { AkcruBadge, Header } from "../../components";
 import imageindex from "../../../assets/images/imageindex";
-import UserWalletScreen from "./UserWalletScreen";
 import { PressableAndroidRippleConfig } from "react-native";
 import { StyleProp } from "react-native";
 import { ViewStyle } from "react-native";
@@ -60,7 +60,7 @@ const ThirdRoute = () => (
   </View>
 );
 
-const FourthRoute = () => <UserWalletScreen/>;
+const FourthRoute = () => <UserProfileWalletTab/>;
 
 const renderScene = SceneMap({
   first: FirstRoute,
@@ -162,6 +162,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
           resizeMode="cover"
           style={{ height: SIZES.ScreenHeight / 3.7 }}
         >
+          <View style={{zIndex: 20}}>
+            <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
+          </View>
           <LinearGradient
             // Background Linear Gradient
             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -178,7 +181,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              marginTop: 65,
+              
               marginHorizontal: 15,
             }}
           >

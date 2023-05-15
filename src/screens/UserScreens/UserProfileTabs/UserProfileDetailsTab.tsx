@@ -13,7 +13,7 @@ const UserProfileDetailsTab = () => {
 
   return (
     <View style={{ marginHorizontal: SIZES.marginhorizontal }}>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View>
           <Text
             style={{
@@ -104,7 +104,7 @@ const UserProfileDetailsTab = () => {
 
         <View
           style={{
-            borderBottomWidth: 2,
+            borderBottomWidth: 1.5,
             borderColor: COLORS.DARKERGREY,
             marginTop: 20,
             marginBottom: 10,
@@ -150,7 +150,7 @@ const UserProfileDetailsTab = () => {
 
         <View
           style={{
-            borderBottomWidth: 2,
+            borderBottomWidth: 1.5,
             borderColor: COLORS.DARKERGREY,
             marginTop: 20,
             marginBottom: 10,

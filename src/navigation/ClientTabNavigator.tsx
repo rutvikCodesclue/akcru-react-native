@@ -15,6 +15,7 @@ import {
 import { COLORS, SIZES } from "../../constants";
 
 import { ClientStack } from "./ClientStack";
+import { UserProfileStack } from "./UserProfileStack";
 
 export type ClientTabsParams = {
   SearchMovieScreen: any;
@@ -25,6 +26,7 @@ export type ClientTabsParams = {
   MovieDetailScreen: any;
   CruChewScreen: any;
   ClientStack: any;
+  UserProfileStack: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -94,8 +96,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="UserProfileScreen"
-        component={UserProfileScreen}
+        name="UserProfileStack"
+        component={UserProfileStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
