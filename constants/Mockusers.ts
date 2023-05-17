@@ -90,3 +90,47 @@ export const AKCRUAPP_TOTAL_AD =[
     percentageChange: 7
   }
 ];
+
+export const JENNY_SCHEDULE = [
+  {
+    movieName: 'Whiplash',
+    moviePoster: 'https://m.media-amazon.com/images/M/MV5BOTA5NDZlZGUtMjAxOS00YTRkLTkwYmMtYWQ0NWEwZDZiNjEzXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg' ,
+    movieYear: 2014, length:"1h 46m" , movieRated: "R" , movieGenre: "Drama", movieRating: 8.5,
+    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "11/2/2023", scheduleTime: "7:30 PM",
+    scheduleWith: "Anthoni Styvens",
+    dateID: '0'
+  },
+  {
+    movieName: 'Warrior',
+    moviePoster:  'https://m.media-amazon.com/images/M/MV5BMTk4ODk5MTMyNV5BMl5BanBnXkFtZTcwMDMyNTg0Ng@@._V1_.jpg' ,
+    movieYear: 2011, length:"2h 20m" , movieRated: "PG-13" , movieGenre: "Action", movieRating: 8.2,
+    scheduleType: {MIT: false, CRUView: true}, scheduleDate: "10/30/2023", scheduleTime: "9:00 PM",
+    scheduleWith: "",
+    dateID: '1'
+  },
+  {
+    movieName: 'WALL-E',
+    moviePoster: 'https://m.media-amazon.com/images/M/MV5BMjExMTg5OTU0NF5BMl5BanBnXkFtZTcwMjMxMzMzMw@@._V1_.jpg' ,
+    movieYear: 2008, length:"1h 38m" , movieRated: "G" , movieGenre: "Animation", movieRating: 8.4,
+    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "11/1/2023", scheduleTime: "6:45 PM",
+    scheduleWith: "Jessie's Girl",
+    dateID: '2'
+  },
+  {
+    movieName: 'V for Vendetta',
+    moviePoster: 'https://m.media-amazon.com/images/M/MV5BOTI5ODc3NzExNV5BMl5BanBnXkFtZTcwNzYxNzQzMw@@._V1_.jpg' ,
+    movieYear: 2006, length:"2h 12m" , movieRated: "R" , movieGenre: "Action", movieRating: 8.2,
+    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "10/28/2023", scheduleTime: "7:00 PM",
+    scheduleWith: "Jimmy Conway",
+    dateID: '3'
+  },
+  {
+    movieName: 'There Will Be Blood',
+    moviePoster:  'https://m.media-amazon.com/images/M/MV5BMjAxODQ4MDU5NV5BMl5BanBnXkFtZTcwMDU4MjU1MQ@@._V1_.jpg' ,
+    movieYear: 2008, length:"2h 38m" , movieRated: "R" , movieGenre: "Drama", movieRating: 8.2,
+    scheduleType: {MIT: false, CRUView: true}, scheduleDate: "10/30/2023", scheduleTime: "6:00 PM",
+    scheduleWith: "",
+    dateID: '4'
+  },
+
+];

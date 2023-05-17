@@ -1,16 +1,27 @@
-import { View, Text, ScrollView, Image, TextInput, StyleSheet } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import React, { useState } from "react";
 import { FONTS, SIZES, COLORS } from "../../../../constants";
 import imageindex from "../../../../assets/images/imageindex";
-import { FAKE_USER_PROFILES, AKCRUAPP_TOTAL_AD } from "../../../../constants/Mockusers";
+import {
+  FAKE_USER_PROFILES,
+  AKCRUAPP_TOTAL_AD,
+} from "../../../../constants/Mockusers";
 import { Icon } from "@rneui/base";
 import { MedButton } from "../../../components";
 
 const UserProfileWalletTab = () => {
+  const [toUSD, setToUSD] = useState(true);
+
   return (
-    <View
-      style={{ marginHorizontal: SIZES.marginhorizontal}}
-    >
+    <View style={{ marginHorizontal: SIZES.marginhorizontal }}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View>
           <Text style={styles.titleText1}>WALLET</Text>
@@ -19,7 +30,7 @@ const UserProfileWalletTab = () => {
           style={{
             alignItems: "center",
             borderColor: COLORS.DARKERGREY,
-            borderWidth: 1.5,
+            borderWidth: .8,
             borderRadius: 8,
             height: 175,
             justifyContent: "center",
@@ -75,23 +86,27 @@ const UserProfileWalletTab = () => {
             </View>
           </View>
 
-          <View style={{ marginTop: 10 }}>
-            <View style={{ marginBottom: -10 }}>
-              <Icon
-                name="arrow-left-thin"
-                type="material-community"
-                size={35}
-                color={COLORS.LIGHTGREY}
-              />
-            </View>
-            <View style={{ marginTop: -10 }}>
-              <Icon
-                name="arrow-right-thin"
-                type="material-community"
-                size={35}
-                color={COLORS.LIGHTGREY}
-              />
-            </View>
+          <View>
+            <TouchableOpacity onPress={()=>{setToUSD(false), setToUSD(true)}}>
+              <View style={{ marginTop: 10 }}>
+                <View style={{ marginBottom: -10 }}>
+                  <Icon
+                    name="arrow-left-thin"
+                    type="material-community"
+                    size={35}
+                    color={ toUSD? COLORS.LIGHTGREY: "green"}
+                  />
+                </View>
+                <View style={{ marginTop: -10 }}>
+                  <Icon
+                    name="arrow-right-thin"
+                    type="material-community"
+                    size={35}
+                    color={toUSD ? "green" : COLORS.LIGHTGREY}
+                  />
+                </View>
+              </View>
+            </TouchableOpacity>
           </View>
 
           <View style={{ alignItems: "center" }}>
@@ -169,7 +184,13 @@ const UserProfileWalletTab = () => {
             Total AKCRU Dollars in Circulation
           </Text>
         </View>
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+        >
           <Image
             source={imageindex.AkcruHexLogo}
             style={{ width: 26, height: 20, marginRight: 10 }}
@@ -183,7 +204,7 @@ const UserProfileWalletTab = () => {
             +{AKCRUAPP_TOTAL_AD[0].percentageChange}%
           </Text>
         </View>
-        <View style={{marginBottom: 75}}>
+        <View style={{ marginBottom: 75 }}>
           <Image
             source={imageindex.GRAPHwallet2}
             style={{ width: SIZES.ScreenWidth / 1.1, height: 170 }}
