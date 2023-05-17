@@ -7,6 +7,7 @@ import {
   FlatList,
 } from 'react-native';
 
+
 import {useSelector} from 'react-redux';
 import styled from 'styled-components/native';
 import searchIcon from '../../assets/search.png';
