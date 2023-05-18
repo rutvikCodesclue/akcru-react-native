@@ -10,7 +10,8 @@ import {
   CruChewScreen,
   MovieDetailScreen,
   SearchMovieScreen,
-  SearchMovieResultScreen
+  SearchMovieResultScreen,
+  WatchPartyTestScreen
 } from "../screens";
 import { COLORS, SIZES } from "../../constants";
 
@@ -27,6 +28,7 @@ export type ClientTabsParams = {
   CruChewScreen: any;
   ClientStack: any;
   UserProfileStack: any;
+  WatchPartyTestScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -47,7 +49,6 @@ export default function ClientTabNavigator() {
         tabBarActiveTintColor: COLORS.AKCRUBLUE,
         tabBarInactiveTintColor: COLORS.LIGHTGREY,
         tabBarShowLabel: false,
-        
       }}
     >
       <ClientTabs.Screen
@@ -73,6 +74,21 @@ export default function ClientTabNavigator() {
           tabBarIcon: ({ color }) => (
             <Icon
               name="people-outline"
+              type="ionicon"
+              color={color}
+              size={SIZES.SmallIcon}
+            />
+          ),
+        }}
+      />
+      <ClientTabs.Screen
+        name="WatchPartyTestScreen"
+        component={WatchPartyTestScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ color }) => (
+            <Icon
+              name="eye-outline"
               type="ionicon"
               color={color}
               size={SIZES.SmallIcon}
