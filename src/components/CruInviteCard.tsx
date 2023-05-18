@@ -42,7 +42,7 @@ const CruInviteCard = ({
           />
         </View>
         <View>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", width: 290 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", width: 280 }}>
             <View>
               <Text style={styles.paragraphText2}>{inviteeName}</Text>
             </View>
@@ -61,7 +61,7 @@ const CruInviteCard = ({
                 style={{
                   width: 125,
                   height: 30,
-                  backgroundColor: "green",
+                  backgroundColor: COLORS.AKCRUBLUE,
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: 3,
@@ -76,13 +76,13 @@ const CruInviteCard = ({
                 style={{
                   width: 125,
                   height: 30,
-                  backgroundColor: "red",
+                  backgroundColor: COLORS.CATPURPDRK,
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: 3,
                 }}
               >
-                <Text style={{ ...FONTS.Title2 }}>DECLINE</Text>
+                <Text style={styles.declineButton}>DECLINE</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -105,19 +105,24 @@ const styles = StyleSheet.create({
   },
   paragraphText: {
     ...FONTS.Title2,
-    color: COLORS.AKCRUBLUE,
+    color: COLORS.LIGHTGREY,
     fontSize: 12,
+    marginHorizontal: 5
   },
   paragraphText2: {
     ...FONTS.Title2,
     color: COLORS.AKCRUBLUE,
     fontSize: 12,
-    marginRight: 5
+    
   },
   paragraphText3: {
     ...FONTS.Title2,
-    color: COLORS.AKCRUBLUE,
+    color: COLORS.MIDORANGE,
     fontSize: 12,
-    marginLeft: 5
+   
+  },
+  declineButton: {
+    ...FONTS.Title2,
+    color: COLORS.AKCRUBLUE
   },
 });
