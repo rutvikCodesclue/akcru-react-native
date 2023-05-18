@@ -56,7 +56,7 @@ const SecondRoute = () => <UserProfileDatesTab />;
 
 const ThirdRoute = () => (
   <View>
-    <UserProfileDatesTab />
+    <UserProfileCruInvites />
   </View>
 );
 

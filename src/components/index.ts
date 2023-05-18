@@ -17,6 +17,8 @@ import MovieGenresList from "./MovieGenresList";
 import GenreCard from "./GenreCard";
 import SearchMovieResultList from "./SearchMovieResultList";
 import MovieDetailScreenCard from "./MovieDetailScreenCard";
+import UserDatesCard from "./UserDatesCard";
+import CruInviteCard from "./CruInviteCard";
 
 
 export {
@@ -39,5 +41,6 @@ export {
     GenreCard, 
     SearchMovieResultList,
     MovieDetailScreenCard,
-   
+   UserDatesCard, 
+   CruInviteCard
 }
