@@ -41,6 +41,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     actors,
     directors,
     image_url,
+    id: movieid,
   } = MOVIES[id ?? 0];
 
   return (

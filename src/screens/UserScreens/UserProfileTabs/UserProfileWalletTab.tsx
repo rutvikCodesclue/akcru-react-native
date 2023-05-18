@@ -30,7 +30,7 @@ const UserProfileWalletTab = () => {
           style={{
             alignItems: "center",
             borderColor: COLORS.DARKERGREY,
-            borderWidth: .8,
+            borderWidth: 1,
             borderRadius: 8,
             height: 175,
             justifyContent: "center",

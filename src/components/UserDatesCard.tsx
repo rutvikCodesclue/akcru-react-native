@@ -3,7 +3,6 @@ import React from 'react'
 import { COLORS, FONTS, SIZES } from '../../constants'
 import imageindex from '../../assets/images/imageindex'
 import { JENNY_SCHEDULE } from '../../constants/Mockusers'
-import { LinearGradient } from 'expo-linear-gradient'
 
 type UserDatesCardProps = {
   moviePoster: string;
