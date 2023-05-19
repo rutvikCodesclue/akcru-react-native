@@ -89,45 +89,103 @@ const UserCruChatScreen = () => {
                     )}
                   </View>
                 </View>
+                <View
+                  style={{
+                    borderLeftWidth: 2,
+                    borderRightWidth: 2,
+                    borderColor: COLORS.DARKGREY,
+                    width: 100,
+                    height: 60,
+                    justifyContent: "center",
+                    paddingLeft: 10,
+                  }}
+                >
+                  <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
+                    {FAKE_USER_PROFILES[0].userFollowerAmount}
+                  </Text>
+                  <Text style={{ ...FONTS.Title2 }}>Followers</Text>
+                </View>
+                <View
+                  style={{
+                    height: 50,
+                    justifyContent: "center",
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <View>
+                    <Image
+                      source={imageindex.MITticket}
+                      style={{ width: 55, height: 40 }}
+                    />
+                  </View>
+                  <View style={{ position: "absolute", right: 0, top: 0 }}>
+                    <View
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: COLORS.WHITE,
+                        width: 20,
+                        height: 20,
+                        borderRadius: 15,
+                      }}
+                    >
+                      <Text>5</Text>
+                    </View>
+                  </View>
+                </View>
               </View>
             </ImageBackground>
           </View>
           <View style={{ marginHorizontal: 15 }}>
-            <View style={{ marginTop: 10, marginBottom: 25 }}>
-              <Text style={styles.titleText2}>YOUR CRU</Text>
+            <View
+              style={{ marginTop: 10, marginBottom: 10, alignItems: "center" }}
+            >
+              <Text style={styles.titleText2}>Schedule a CRU View below</Text>
             </View>
+
             <View>
-              <Text style={styles.titleText3}>
-                {FAKE_USER_PROFILES[0].CRUName}
-              </Text>
-            </View>
-            <View style={{ marginTop: 10, width: 200, marginBottom: 10 }}>
-              <Text style={styles.titleText2}>
-                Watch with your CRU and earn 2x more Akcru Dollars
-              </Text>
-            </View>
-            <TouchableOpacity>
-              <View style={{ flexDirection: "row" }}>
+              <View style={{ marginBottom: -10 }}>
+                <Text style={styles.titleText1}>CRU View Scheduler</Text>
+              </View>
+              <TouchableOpacity>
                 <Icon
-                  name="square-edit-outline"
-                  type="material-community"
-                  color={COLORS.DARKGREY}
-                  size={15}
-                  style={{ marginRight: 5 }}
+                  name="calendar-sharp"
+                  type="ionicon"
+                  color={COLORS.LIGHTGREY}
+                  size={75}
                 />
-                <Text
-                  style={{
-                    ...FONTS.Title2,
-                    color: COLORS.LIGHTGREY,
-                    fontSize: 12,
-                  }}
-                >
-                  Edit Your CRU
+              </TouchableOpacity>
+            </View>
+            <View style={styles.CruImageContainer}>
+              <View style={{ marginBottom: 10 }}>
+                <Text style={styles.titleText3}>
+                  {FAKE_USER_PROFILES[0].CRUName}
                 </Text>
               </View>
-            </TouchableOpacity>
-            <View style={styles.CruImageContainer}>
               <Image source={imageindex.CruLarge} style={styles.CruImage} />
+              <TouchableOpacity>
+                <View style={{ flexDirection: "row", marginTop: 10 }}>
+                  <Icon
+                    name="square-edit-outline"
+                    type="material-community"
+                    color={COLORS.DARKGREY}
+                    size={15}
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text
+                    style={{
+                      ...FONTS.Title2,
+                      color: COLORS.LIGHTGREY,
+                      fontSize: 12,
+                    }}
+                  >
+                    Edit Your CRU
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={{ marginBottom: -10 }}>
+              <Text style={styles.titleText1}>CRU Chat</Text>
             </View>
             <View>
               {FAKE_USER_PROFILES.map((item) => (
@@ -143,7 +201,7 @@ const UserCruChatScreen = () => {
                 </View>
               ))}
             </View>
-            <View style={{marginBottom: 75}}>
+            <View style={{ marginBottom: 75 }}>
               <View style={styles.input}>
                 <TextInput
                   placeholder={"placeholder"}
@@ -204,7 +262,7 @@ const styles = StyleSheet.create({
   input: {
     flexDirection: "row",
     borderWidth: 0.8,
-    borderColor: COLORS.WHITE,
+    borderColor: COLORS.DARKGREY,
     borderRadius: 5,
     justifyContent: "space-between",
     marginVertical: 10,

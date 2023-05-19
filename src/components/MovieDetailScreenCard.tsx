@@ -102,6 +102,7 @@ const MovieDetailScreenCard = ({
             <Text style={{ ...FONTS.Title3 }}>{name}</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
+            
             <View>
               <TouchableOpacity>
                 <Icon
