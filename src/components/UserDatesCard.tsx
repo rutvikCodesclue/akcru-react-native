@@ -35,9 +35,11 @@ const UserDatesCard = ({
   return (
     <View
       style={{
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 8,
+        backgroundColor: "#1C202A",
+        borderColor: "#1C202A",
+        borderWidth: 0.5,
+        borderRadius: 5,
+        
       }}
     >
       <View style={{ margin: 10 }}>

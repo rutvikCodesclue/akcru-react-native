@@ -1,4 +1,18 @@
 import { FONTS, COLORS, SIZES } from "./Theme";
+import { AkcruLevels } from "../src/components";
+import { LoremIpsum } from "lorem-ipsum";
+
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 8,
+    min: 3,
+  },
+});
 
 export const BADGES = [
   {
@@ -27,6 +41,15 @@ export const BADGES = [
   },
 ];
 
+export const DIGITAL_PASS = [
+  {
+    GuardianPass : "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
+    SuperHeroPass: "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
+    HeroPass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
+    AkcruitPass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png", 
+  }
+];
+
 export const AkcruDollarAmount = [
   {
     ADAmount: 46800
@@ -45,6 +68,16 @@ export const FAKE_AVATARS = [
   "https://img.freepik.com/free-photo/closeup-portrait-beautiful-smiling-brunette-model-trendy-girl-posing-street_158538-17019.jpg",
   "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
   "https://images.unsplash.com/photo-1565148343401-5e4aa8f9c2cf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8YmxhY2slMjBtYW4lMjBzbWlsZXxlbnwwfHwwfHw%3D&w=1000&q=80",
+  "https://cdn.pixabay.com/photo/2014/09/25/22/14/profile-461076_960_720.jpg",
+  "https://cdn.pixabay.com/photo/2015/01/15/13/06/woman-600238_960_720.jpg",
+  "https://cdn.pixabay.com/photo/2022/12/24/21/14/portrait-7676482_960_720.jpg",
+  "https://images.unsplash.com/photo-1551927636-1ea2a74bdc1c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=398&q=80",
+  "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+  "https://images.unsplash.com/photo-1504199367641-aba8151af406?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80",
+  "https://images.unsplash.com/photo-1561505457-3bcad021f8ee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80",
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80",
+  "https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=423&q=80",
+  "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80", 
 ];
 
 export const FAKE_USER_PROFILES = [
@@ -53,38 +86,103 @@ export const FAKE_USER_PROFILES = [
     userPicture: "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
     userDesc: "My name is Jenny 2x, cause I like to watch movies 2x's lol, #moviebuff #akcrurecruiter",
     userFollowerAmount: 12001,
-    akcruBadge: BADGES[0].badgeid,
+    akcruBadge: {superhero: true},
     ADAmount: 46800,
     userMITAmount: 3,
-    movieReview: "It was a great movie but I've seen better. I truly wish there was better acting, sorry but not sorry",
-    crummunityPost: "Who wants to watch a movie 2x's with me?",
-    CRUName: "Cru 2x's",
+    movieReview: lorem.generateSentences(3),
+    crummunityPost: lorem.generateSentences(1),
+    CRUChat: lorem.generateSentences(2), CruChatTime: "9:30 AM", CruChatDate: "9/20/2023",
+    CRUName: "Jenny 2x Cru",
     userID: "0",
   },
   {
     userName: "Anthoni Styvens", 
-    userPicture: "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
-    userDesc: "My name is Jenny 2x, cause I like to watch movies 2x's lol",
+    userPicture: "https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=423&q=80",
+    userDesc: lorem.generateSentences(1),
     userFollowerAmount: 110231,
-    akcruBadge: BADGES[0].badgeid,
+    akcruBadge: {guardian: true},
     ADAmount: 345700,
     userMITAmount: 6,
-    movieReview: "It was a great movie but I've seen better. I truly wish there was better acting, sorry but not sorry",
-    crummunityPost: "I wanna watch with somone new.",
+    movieReview: lorem.generateSentences(3),
+    crummunityPost: lorem.generateSentences(2),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "9:35 AM", CruChatDate: "9/20/2023",
     CRUName: "Apex CRU",
     userID: "1",
+  },
+  {
+    userName: "Jessie's Girl", 
+    userPicture: "https://images.unsplash.com/photo-1623184663110-89ba5b565eb6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 1131,
+    akcruBadge: {hero: true},
+    ADAmount: 5700,
+    userMITAmount: 1,
+    movieReview: lorem.generateSentences(3),
+    crummunityPost: lorem.generateSentences(2),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "9:40 AM", CruChatDate: "9/20/2023",
+    CRUName: "Jessie's CRU",
+    userID: "2",
+  },
+  {
+    userName: "IronClad Chad", 
+    userPicture: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
+    userDesc: lorem.generateSentences(2),
+    userFollowerAmount: 45231,
+    akcruBadge: {akcruit: true},
+    ADAmount: 3409,
+    userMITAmount: 2,
+    movieReview: lorem.generateSentences(3),
+    crummunityPost: lorem.generateSentences(2),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "9:30 AM", CruChatDate: "9/21/2023",
+    CRUName: "IronClad CRU",
+    userID: "3",
+  },
+  {
+    userName: "Movie Queen", 
+    userPicture: "https://images.unsplash.com/photo-1551927636-1ea2a74bdc1c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=398&q=80",
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 110231,
+    akcruBadge: {superhero: true},
+    ADAmount: 5700,
+    userMITAmount: 2,
+    movieReview: lorem.generateSentences(3),
+    crummunityPost: lorem.generateSentences(1),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "9:40 AM", CruChatDate: "9/21/2023",
+    CRUName: "Queen CRU",
+    userID: "4",
+  },
+  {
+    userName: "Def Jeff", 
+    userPicture: "https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=423&q=80",
+    userDesc: lorem.generateSentences(2),
+    userFollowerAmount: 110231,
+    akcruBadge: {hero: true},
+    ADAmount: 4457,
+    userMITAmount: 3,
+    movieReview: lorem.generateSentences(4),
+    crummunityPost: lorem.generateSentences(1),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "9:45 AM", CruChatDate: "9/21/2023",
+    CRUName: "Def Jeff CRU",
+    userID: "5",
+  },
+  {
+    userName: "Stella's Groove", 
+    userPicture: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80",
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 110231,
+    akcruBadge: {guardian: true},
+    ADAmount: 23567,
+    userMITAmount: 7,
+    movieReview: lorem.generateSentences(2),
+    crummunityPost: lorem.generateSentences(3),
+    CRUChat: lorem.generateSentences(1), CruChatTime: "10:30 AM", CruChatDate: "9/21/2023",
+    CRUName: "Groovy CRU",
+    userID: "6",
   },
 
 ];
 
-export const DIGITAL_PASS = [
-  {
-    GuardianPass : "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
-    SuperHeroPass: "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
-    HeroPass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
-    AkcruitPass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png", 
-  }
-];
+
 
 export const AKCRUAPP_TOTAL_AD =[
   {

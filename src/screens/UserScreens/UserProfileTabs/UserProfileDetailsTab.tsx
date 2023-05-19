@@ -4,11 +4,16 @@ import { FONTS, SIZES, COLORS } from '../../../../constants';
 import imageindex from '../../../../assets/images/imageindex';
 import { Icon } from '@rneui/base';
 import { TrendingNowList } from '../../../components';
+import { useNavigation } from '@react-navigation/native';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
 
 
 const UserProfileDetailsTab = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
 
   return (
@@ -83,10 +88,10 @@ const UserProfileDetailsTab = () => {
           </View>
 
           <View style={{ alignItems: "center" }}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("UserCruChatScreen")}>
               <Image
-                source={imageindex.Cru}
-                style={{ width: 150, height: 75 }}
+                source={imageindex.CruLarge}
+                style={{ width: 150, height: 65 }}
                 resizeMode="cover"
               />
             </TouchableOpacity>
@@ -195,7 +200,7 @@ const UserProfileDetailsTab = () => {
               </Text>
             </View>
           </TouchableOpacity>
-          <View style={{marginBottom: 75}}>
+          <View style={{ marginBottom: 75 }}>
             <TrendingNowList />
           </View>
         </View>

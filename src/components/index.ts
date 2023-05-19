@@ -10,7 +10,6 @@ import LargeMovieCard from "./LargeMovieCard";
 import NewOnAkcruList from "./NewOnAkcruList";
 import RecommendedForYouList from "./RecommendedForYouList";
 import MovieHomeScreenHero from "./MovieHomeScreenHero";
-import AkcruBadge from "./AkcruBadges";
 import MedButton from "./MedButton";
 import SearchInput from "./SearchInput";
 import MovieGenresList from "./MovieGenresList";
@@ -18,7 +17,9 @@ import GenreCard from "./GenreCard";
 import SearchMovieResultList from "./SearchMovieResultList";
 import MovieDetailScreenCard from "./MovieDetailScreenCard";
 import UserDatesCard from "./UserDatesCard";
+import UserCruChatCard from "./UserCruChatCard";
 import CruInviteCard from "./CruInviteCard";
+import AkcruLevels from "./AkcruBadges";
 
 
 export {
@@ -34,13 +35,14 @@ export {
     NewOnAkcruList,
     RecommendedForYouList,
     MovieHomeScreenHero,
-    AkcruBadge,
     MedButton,
     SearchInput,
     MovieGenresList,
     GenreCard, 
     SearchMovieResultList,
     MovieDetailScreenCard,
-   UserDatesCard, 
-   CruInviteCard
+   UserDatesCard,
+   UserCruChatCard, 
+   CruInviteCard,
+   AkcruLevels
 }

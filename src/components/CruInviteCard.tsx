@@ -22,16 +22,17 @@ const CruInviteCard = ({
   return (
     <View
       style={{
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 8,
+        backgroundColor: "#1C202A",
+        borderColor: "#1C202A",
+        borderWidth: 0.5,
+        borderRadius: 5,
       }}
     >
       <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
         <View style={{ marginRight: 10 }}>
           <Avatar
             source={{
-              uri: inviteePicture
+              uri: inviteePicture,
             }}
             size={50}
             rounded

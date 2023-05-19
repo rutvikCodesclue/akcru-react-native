@@ -1,16 +1,37 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-import { COLORS, FONTS, SIZES, AKCRUBADGES } from '../../constants'
+import { View, Text } from "react-native";
+import React from "react";
+import { COLORS, FONTS, SIZES, AKCRUBADGES } from "../../constants";
 
-interface Props {
-  color: string;
-  background: string;
-  label: string;
+const AkcruBadgeGuardian = () => {
+  return (
+    <View>
+      <View
+        style={{
+          backgroundColor: AKCRUBADGES.Guardian.background,
+          width: 95,
+          height: 18,
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 5,
+          marginBottom: 10,
+          marginTop: 5,
+        }}
+      >
+        <Text
+          style={{
+            ...FONTS.Title1,
+            fontSize: 12,
+            color: AKCRUBADGES.Guardian.color,
+          }}
+        >
+          {AKCRUBADGES.Guardian.label}
+        </Text>
+      </View>
+    </View>
+  );
+};
 
-}
-
-
-const AkcruBadge: React.FC<Props> = ({color, background, label}) => {
+const AkcruBadgeSuperHero = () => {
   return (
     <View>
       <View
@@ -22,7 +43,7 @@ const AkcruBadge: React.FC<Props> = ({color, background, label}) => {
           alignItems: "center",
           borderRadius: 5,
           marginBottom: 10,
-          marginTop: 5
+          marginTop: 5,
         }}
       >
         <Text
@@ -39,4 +60,69 @@ const AkcruBadge: React.FC<Props> = ({color, background, label}) => {
   );
 };
 
-export default AkcruBadge
+const AkcruBadgeHero = () => {
+  return (
+    <View>
+      <View
+        style={{
+          backgroundColor: AKCRUBADGES.Hero.background,
+          width: 95,
+          height: 18,
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 5,
+          marginBottom: 10,
+          marginTop: 5,
+        }}
+      >
+        <Text
+          style={{
+            ...FONTS.Title1,
+            fontSize: 12,
+            color: AKCRUBADGES.Hero.color,
+          }}
+        >
+          {AKCRUBADGES.Hero.label}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const AkcruBadgeAkcruit = () => {
+  return (
+    <View>
+      <View
+        style={{
+          backgroundColor: AKCRUBADGES.Akcruit.background,
+          width: 95,
+          height: 18,
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: 5,
+          marginBottom: 10,
+          marginTop: 5,
+        }}
+      >
+        <Text
+          style={{
+            ...FONTS.Title1,
+            fontSize: 12,
+            color: AKCRUBADGES.Akcruit.color,
+          }}
+        >
+          {AKCRUBADGES.Akcruit.label}
+        </Text>
+      </View>
+    </View>
+  );
+};
+
+const AkcruLevels = {
+  AkcruBadgeSuperHero,
+  AkcruBadgeHero,
+  AkcruBadgeAkcruit,
+  AkcruBadgeGuardian,
+};
+
+export default AkcruLevels;

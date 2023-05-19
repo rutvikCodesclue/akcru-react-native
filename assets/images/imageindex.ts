@@ -18,6 +18,7 @@ const GRAPHwallet2 = require('./GRAPHwallet2.png')
 const GRAPHwallet1 = require('./GRAPHWallet1.png')
 const SmileyBuffalo = require('./SmileyBuffalo.png')
 const Cru = require('./Cru.png')
+const CruLarge = require('./CruLarge.png')
 const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
 const WitnessForTheProsecution = require('./WitnessForTheProsecution.jpg')
@@ -43,6 +44,7 @@ export default {
     Graph1,
     GraphMetric,
     Cru,
+    CruLarge,
     SmileyBuffaloAlvin,
     SmileyBuffalo,
     GRAPHwallet1,

@@ -2,8 +2,8 @@ import { View, Text } from "react-native";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
-  
-    MovieDetailScreen,
+  UserCruChatScreen,
+  MovieDetailScreen,
   SearchMovieResultScreen,
   SearchMovieScreen,
   UserProfileScreen,
@@ -17,7 +17,7 @@ export type UserProfileStackParams = {
   ClientTabNavigator: any;
   SearchMovieResultScreen: any;
   MovieDetailScreen: any;
-  
+  UserCruChatScreen: any;
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
 };
@@ -64,6 +64,13 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="UserProfileDetailsTab"
         component={UserProfileDetailsTab}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="UserCruChatScreen"
+        component={UserCruChatScreen}
         options={() => ({
           headerShown: false,
         })}

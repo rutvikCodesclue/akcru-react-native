@@ -55,45 +55,42 @@ const [status, setStatus] = React.useState({});
           <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
         </View>
         <View>
-
-
-
           {/* Tom Cruise */}
 
           <VideoContainer>
-              <TouchableWithoutFeedback
-                onPress={() =>
-                  status.isPlaying
-                    ? video.current.pauseAsync()
-                    : video.current.playAsync()
-                }>
-                <View>
-                  <VideoPlayer
-                    ref={video}
-                    source={{
-                      uri: 'https://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
-                    }}
-                    resizeMode={ResizeMode.COVER}
-                    isLooping
-                    volume={0}
-                    onPlaybackStatusUpdate={status => setStatus(() => status)}
-                  />
-                  <Overlay
-                    colors={[
-                      '#000000',
-                      '#000000af',
-                      '#00000055',
-                      '#00000016',
-                      'transparent',
-                    ]}
-                    start={{x: 0, y: 1}}
-                    end={{x: 0, y: 0}}
-                    locations={[0, 0.25, 0.5, 0.75, 1]}
-                  />
-                </View>
-              </TouchableWithoutFeedback>
-            </VideoContainer>
-
+            <TouchableWithoutFeedback
+              onPress={() =>
+                status.isPlaying
+                  ? video.current.pauseAsync()
+                  : video.current.playAsync()
+              }
+            >
+              <View>
+                <VideoPlayer
+                  ref={video}
+                  source={{
+                    uri: "https://priymuscontent.s3.amazonaws.com/Movie+folder/AmericanApocalypse_L33_2ch.mp4",
+                  }}
+                  resizeMode={ResizeMode.COVER}
+                  isLooping
+                  volume={0}
+                  onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+                />
+                <Overlay
+                  colors={[
+                    "#000000",
+                    "#000000af",
+                    "#00000055",
+                    "#00000016",
+                    "transparent",
+                  ]}
+                  start={{ x: 0, y: 1 }}
+                  end={{ x: 0, y: 0 }}
+                  locations={[0, 0.25, 0.5, 0.75, 1]}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </VideoContainer>
 
           {/* End */}
           {/* <MovieHomeScreenHero /> */}
