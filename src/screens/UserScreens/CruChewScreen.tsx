@@ -3,14 +3,13 @@ import React from 'react';
 import imageindex from '../../../assets/images/imageindex';
 import { SIZES, COLORS, FONTS } from '../../../constants';
 import { Header } from '../../components';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const CruChewScreen = () => {
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header />
         </View>
         <View style={{ marginTop: -70 }}>
           <View>
@@ -66,30 +65,6 @@ const CruChewScreen = () => {
             </TouchableOpacity>
           </View>
         </View>
-        {/* <View
-          style={{
-            height: 200,
-            justifyContent: "flex-end",
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1
-          }}
-        >
-          <LinearGradient
-            // Background Linear Gradient
-            colors={["transparent", COLORS.AKCRUBACKGROUND]}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 200,
-              zIndex: 1
-            }}
-          />
-        </View> */}
       </ScrollView>
     </View>
   );

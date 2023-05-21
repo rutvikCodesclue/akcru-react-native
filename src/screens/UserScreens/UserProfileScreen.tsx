@@ -166,7 +166,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
           style={{ height: SIZES.ScreenHeight / 3.7 }}
         >
           <View style={{ zIndex: 20 }}>
-            <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
+            <Header />
           </View>
           <LinearGradient
             // Background Linear Gradient

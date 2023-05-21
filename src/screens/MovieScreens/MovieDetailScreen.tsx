@@ -48,7 +48,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header />
         </View>
         <View style={{ marginTop: -65 }}>
           <MovieDetailScreenCard

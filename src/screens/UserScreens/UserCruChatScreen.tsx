@@ -22,16 +22,15 @@ import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 const UserCruChatScreen = () => {
   return (
     <View>
-      <ScrollView>
+      <ScrollView stickyHeaderIndices={[1]}>
         <KeyboardAvoidingView>
-          <View>
             <ImageBackground
               source={{ uri: DIGITAL_PASS[0].SuperHeroPass }}
               resizeMode="cover"
               style={{ height: SIZES.ScreenHeight / 3.7 }}
             >
               <View style={{ zIndex: 20 }}>
-                <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
+                <Header />
               </View>
               <LinearGradient
                 // Background Linear Gradient
@@ -134,8 +133,18 @@ const UserCruChatScreen = () => {
                   </View>
                 </View>
               </View>
-            </ImageBackground>
-          </View>
+              <View style={{ marginTop: 20, marginHorizontal: 15 }}>
+                <Text
+                  style={{
+                    ...FONTS.Title2,
+                    color: COLORS.LIGHTGREY,
+                    fontSize: 12,
+                  }}
+                >
+                  {FAKE_USER_PROFILES[0].userDesc}
+                </Text>
+              </View>
+            </ImageBackground>   
           <View style={{ marginHorizontal: 15 }}>
             <View
               style={{ marginTop: 10, marginBottom: 10, alignItems: "center" }}

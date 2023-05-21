@@ -6,7 +6,7 @@ import { SIZES } from "../../constants";
 import styles from "./Styles/styles";
 import imageindex from "../../assets/images/imageindex";
 import { LinearGradient } from "expo-linear-gradient";
-import MedButton from "./MedButton";
+import AkcruButtons from "./Buttons";
 
 type MovieDetailScreenCardProps = {
   image_url: string;
@@ -76,12 +76,12 @@ const MovieDetailScreenCard = ({
               marginHorizontal: 10,
             }}
           >
-            <MedButton
+            <AkcruButtons.MedButton
               btnname={"Watch Movie"}
               onPress={function (): void {}}
               color={COLORS.AKCRUBLUE}
             />
-            <MedButton
+            <AkcruButtons.MedButton
               btnname={"Watch Trailer"}
               onPress={function (): void {}}
               color={COLORS.TAGCOLOR}

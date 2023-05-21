@@ -8,13 +8,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParams } from '../navigation/AuthNavigation';
 import { ClientStackParams } from '../navigation/ClientStack';
 import { useNavigation } from '@react-navigation/native';
+import { FAKE_USER_PROFILES } from '../../constants/Mockusers';
 
 
 interface Props {
-  ADAmount: number;
+
 }
 
-const Header: React.FC<Props> = ({ ADAmount }) => {
+const Header: React.FC<Props> = () => {
   const NotificationBadgeIcon = withBadge(0)(Icon);
 
   const navigation =
@@ -74,7 +75,7 @@ const Header: React.FC<Props> = ({ ADAmount }) => {
               resizeMode="contain"
             />
           </View>
-          <Text style={{ ...FONTS.Title1 }}>{ADAmount}</Text>
+          <Text style={{ ...FONTS.Title1 }}>{FAKE_USER_PROFILES[0].ADAmount}</Text>
         </View>
       </View>
     </View>

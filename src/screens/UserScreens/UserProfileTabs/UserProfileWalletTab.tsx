@@ -15,7 +15,7 @@ import {
   AKCRUAPP_TOTAL_AD,
 } from "../../../../constants/Mockusers";
 import { Icon } from "@rneui/base";
-import { MedButton } from "../../../components";
+import { AkcruButtons} from "../../../components";
 
 const UserProfileWalletTab = () => {
   const [toUSD, setToUSD] = useState(true);
@@ -129,7 +129,7 @@ const UserProfileWalletTab = () => {
           </View>
         </View>
         <View style={{ alignItems: "center", marginTop: 30, marginBottom: 20 }}>
-          <MedButton
+          <AkcruButtons.MedButton
             btnname={"Exchange"}
             onPress={function (): void {}}
             color={COLORS.AKCRUBLUE}
@@ -172,7 +172,7 @@ const UserProfileWalletTab = () => {
           </View>
         </View>
         <View style={{ alignItems: "center", marginTop: 30, marginBottom: 20 }}>
-          <MedButton
+          <AkcruButtons.MedButton
             btnname={"Send"}
             onPress={function (): void {}}
             color={COLORS.AKCRUBLUE}

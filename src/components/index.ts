@@ -1,5 +1,4 @@
 import Inputs from "./Inputs";
-import LrgButton from "./LrgButton";
 import Header from "./Header";
 import CategoriesBtn from "./CategoriesBtn";
 import CategoriesList from "./CategoriesList";
@@ -9,8 +8,7 @@ import TrendingNowList from "./TrendingNowList";
 import LargeMovieCard from "./LargeMovieCard";
 import NewOnAkcruList from "./NewOnAkcruList";
 import RecommendedForYouList from "./RecommendedForYouList";
-import MovieHomeScreenHero from "./MovieHomeScreenHero";
-import MedButton from "./MedButton";
+import HomeScreenHeroCard from "./HomeScreenHeroCard";
 import SearchInput from "./SearchInput";
 import MovieGenresList from "./MovieGenresList";
 import GenreCard from "./GenreCard";
@@ -20,11 +18,12 @@ import UserDatesCard from "./UserDatesCard";
 import UserCruChatCard from "./UserCruChatCard";
 import CruInviteCard from "./CruInviteCard";
 import AkcruLevels from "./AkcruBadges";
+import AkcruButtons from "./Buttons";
 
 
 export {
     Inputs,
-    LrgButton,
+    
     Header,
     CategoriesBtn,
     CategoriesList,
@@ -34,8 +33,8 @@ export {
     LargeMovieCard,
     NewOnAkcruList,
     RecommendedForYouList,
-    MovieHomeScreenHero,
-    MedButton,
+    HomeScreenHeroCard,
+    
     SearchInput,
     MovieGenresList,
     GenreCard, 
@@ -44,5 +43,6 @@ export {
    UserDatesCard,
    UserCruChatCard, 
    CruInviteCard,
-   AkcruLevels
+   AkcruLevels,
+   AkcruButtons
 }

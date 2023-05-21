@@ -31,7 +31,7 @@ const SearchMovieResultScreen = ({ navigation, route }: Props) => {
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
+          <Header />
         </View>
         <View
           style={{ marginHorizontal: SIZES.marginhorizontal, marginBottom: 10 }}
