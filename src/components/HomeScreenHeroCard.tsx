@@ -68,7 +68,7 @@ export default function HomeScreenHeroCard() {
               resizeMode={ResizeMode.COVER}
               isLooping
               volume={0}
-              onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+              onPlaybackStatusUpdate={(status: {}) => setStatus(() => status)}
             />
             <LinearGradient
               // Background Linear Gradient

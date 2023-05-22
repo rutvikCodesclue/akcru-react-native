@@ -67,14 +67,6 @@ export default function AuthStack() {
           gestureDirection: "horizontal",
         }}
       />
-      <Auth.Screen
-        name="MovieDetailScreen"
-        component={MovieDetailScreen}
-        options={{
-          headerShown: false,
-          gestureDirection: "horizontal",
-        }}
-      />
     </Auth.Navigator>
   );
 };

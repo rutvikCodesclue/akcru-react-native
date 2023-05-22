@@ -6,6 +6,7 @@ import { Rating } from '@rneui/base'
 const WatchPartyTestScreen = () => {
   return (
     <View>
+      
       <Text style={{ ...FONTS.Title2 }}>WatchPartyTestScreen</Text>
       <View>
         <Rating
@@ -14,7 +15,7 @@ const WatchPartyTestScreen = () => {
           ratingCount={20}
           readonly={true}
           startingValue={3}
-          style={{ }}
+          style={{}}
         />
       </View>
     </View>

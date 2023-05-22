@@ -7,11 +7,10 @@ import {
   AkcruReviewCard
 } from "../../components";
 import { FONTS, COLORS, SIZES } from "../../../constants";
-import { MOVIES } from "../../../constants/Data";
+import { MOVIES, TOP_AKCRU_WATCHLIST, NEW_ON_AKCRU } from "../../../constants/Data";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ClientStackParams } from "../../navigation/ClientStack";
-import { AkcruDollarAmount } from "../../../constants/Mockusers";
 import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 
 type MovieDetailScreenNavigationProp = StackNavigationProp<
@@ -44,7 +43,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     directors,
     image_url,
     id: movieid,
-  } = MOVIES[id ?? 0];
+  } = MOVIES [id ?? 0];
 
   return (
     <View>

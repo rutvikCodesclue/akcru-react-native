@@ -91,8 +91,8 @@ const handleSearch = (text: any) => {
           </View>
         </TouchableWithoutFeedback>
 
-        <Modal animationType="fade" transparent={false} visible={modalVisible}>
-          <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND }}>
+        <Modal animationType="fade" transparent={false} visible={modalVisible} >
+          <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1 }}>
             <View style={styles.searchmodal}>
               <View style={styles.searchinput}>
                 <View>
@@ -142,16 +142,12 @@ const handleSearch = (text: any) => {
             </View>
             <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND }}>
               <FlatList
-                data={MOVIES}
-                keyExtractor={(item, index) => index.toString()}
+                data={data}
                 renderItem={({ item, index }) => (
                   <TouchableOpacity
                     onPress={() => {
                       Keyboard.dismiss;
-                      navigation.navigate("MovieDetailScreen", {
-                        item: index,
-                        movie: item.name,
-                      });
+                      navigation.navigate("MovieDetailScreen", { item: index });
                       setModalVisible(false);
                       setTextInputFocused(true);
                     }}
@@ -166,7 +162,7 @@ const handleSearch = (text: any) => {
                     </View>
                   </TouchableOpacity>
                 )}
-                
+                keyExtractor={ item  => item.id}
               />
             </View>
           </View>

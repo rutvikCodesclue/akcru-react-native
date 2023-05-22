@@ -18,6 +18,7 @@ import { COLORS, SIZES } from "../../constants";
 import { ClientStack } from "./ClientStack";
 import { UserProfileStack } from "./UserProfileStack";
 
+
 export type ClientTabsParams = {
   SearchMovieScreen: any;
   UserProfileScreen: any;
@@ -32,6 +33,7 @@ export type ClientTabsParams = {
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
+
 
 export default function ClientTabNavigator() {
   return (
