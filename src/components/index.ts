@@ -19,30 +19,29 @@ import UserCruChatCard from "./UserCruChatCard";
 import CruInviteCard from "./CruInviteCard";
 import AkcruLevels from "./AkcruBadges";
 import AkcruButtons from "./Buttons";
-
+import AkcruReviewCard from "./AkcruReviewCard";
 
 export {
-    Inputs,
-    
-    Header,
-    CategoriesBtn,
-    CategoriesList,
-    BasicMovieCard,
-    TopAkcruWatchList,
-    TrendingNowList,
-    LargeMovieCard,
-    NewOnAkcruList,
-    RecommendedForYouList,
-    HomeScreenHeroCard,
-    
-    SearchInput,
-    MovieGenresList,
-    GenreCard, 
-    SearchMovieResultList,
-    MovieDetailScreenCard,
-   UserDatesCard,
-   UserCruChatCard, 
-   CruInviteCard,
-   AkcruLevels,
-   AkcruButtons
-}
+  Inputs,
+  Header,
+  CategoriesBtn,
+  CategoriesList,
+  BasicMovieCard,
+  TopAkcruWatchList,
+  TrendingNowList,
+  LargeMovieCard,
+  NewOnAkcruList,
+  RecommendedForYouList,
+  HomeScreenHeroCard,
+  AkcruReviewCard,
+  SearchInput,
+  MovieGenresList,
+  GenreCard,
+  SearchMovieResultList,
+  MovieDetailScreenCard,
+  UserDatesCard,
+  UserCruChatCard,
+  CruInviteCard,
+  AkcruLevels,
+  AkcruButtons,
+};

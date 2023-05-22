@@ -1,16 +1,18 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import {
   Header,
   MovieDetailScreenCard,
   RecommendedForYouList,
+  AkcruReviewCard
 } from "../../components";
-import { FONTS } from "../../../constants";
+import { FONTS, COLORS, SIZES } from "../../../constants";
 import { MOVIES } from "../../../constants/Data";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ClientStackParams } from "../../navigation/ClientStack";
 import { AkcruDollarAmount } from "../../../constants/Mockusers";
+import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 
 type MovieDetailScreenNavigationProp = StackNavigationProp<
   ClientStackParams,
@@ -76,8 +78,63 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
           <Text style={{ ...FONTS.Title2, marginVertical: 10 }}>
             Akcru Review
           </Text>
+          <View style={{ marginBottom: 75 }}>
+            <View>
+              {FAKE_USER_PROFILES.map((item) => (
+                <View key={item.userID} style={{ marginBottom: 10 }}>
+                  <AkcruReviewCard
+                    userPicture={item.userPicture}
+                    userName={item.userName}
+                    movieReview={item.movieReview}
+                    movieReviewDate={item.movieReviewDate}
+                    userID={item.userID}
+                  />
+                </View>
+              ))}
+            </View>
+            <View style={styles.input}>
+              <TextInput
+                placeholder={"placeholder"}
+                placeholderTextColor={"transparent"}
+                style={styles.textinput}
+              />
+            </View>
+            <View style = {{alignItems: "flex-end"}}>
+              <TouchableOpacity>
+                <View style={styles.sendbutton}>
+                  <Text style={{ ...FONTS.Title2 }}>POST</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
       </ScrollView>
     </View>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  input: {
+    flexDirection: "row",
+    borderWidth: 0.8,
+    borderColor: COLORS.DARKGREY,
+    borderRadius: 5,
+    justifyContent: "space-between",
+    marginVertical: 10,
+    paddingLeft: 10,
+    alignItems: 'flex-start',
+    height: 150,
+  },
+  textinput: {
+    color: COLORS.LIGHTGREY,
+    
+  },
+  sendbutton: {
+    backgroundColor: COLORS.AKCRUBLUE,
+    height: 35,
+    justifyContent: "center",
+    width: 90,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+});

@@ -69,6 +69,21 @@ const MovieDetailScreenCard = ({
               height: 200,
             }}
           />
+          <View style={{ marginBottom: 10, alignItems: "flex-end", marginRight: 5 }}>
+            <View style={{ justifyContent: "center", flexDirection: "row", alignItems: 'center' }}>
+              <Text style={{ ...FONTS.Title3, textAlign: "center", marginRight: 10 }}>
+                Add to watchlist
+              </Text>
+              <TouchableOpacity>
+                <Icon
+                  name="add-circle-outline"
+                  type="ionicon"
+                  color={COLORS.MIDORANGE}
+                  size={50}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
           <View
             style={{
               flexDirection: "row",
@@ -96,41 +111,36 @@ const MovieDetailScreenCard = ({
             flexDirection: "row",
             marginHorizontal: 15,
             justifyContent: "space-between",
+            marginBottom: 10,
           }}
         >
-          <View style={{ width: 243, justifyContent: "center" }}>
-            <Text style={{ ...FONTS.Title3 }}>{name}</Text>
+          <View style={{ width: 175 }}>
+            <Text style={{ ...FONTS.Title3, fontSize: 20 }}>{name}</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
-            
-            <View>
-              <TouchableOpacity>
-                <Icon
-                  name="add-circle-outline"
-                  type="ionicon"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                />
-              </TouchableOpacity>
-            </View>
             <View style={{ flexDirection: "row", marginLeft: 15 }}>
-              <TouchableOpacity>
-                <Icon
-                  name="thumb-up-outline"
-                  type="material-community"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Icon
-                  name="thumb-down-outline"
-                  type="material-community"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                  style={{ marginLeft: 8 }}
-                />
-              </TouchableOpacity>
+              <View style={{ marginRight: 25 }}>
+                <TouchableOpacity>
+                  <Icon
+                    name="thumb-up-outline"
+                    type="material-community"
+                    color={"green"}
+                    size={SIZES.MedIcon}
+                  />
+                </TouchableOpacity>
+                <Text style={{ ...FONTS.Title2 }}>I Like</Text>
+              </View>
+              <View>
+                <TouchableOpacity>
+                  <Icon
+                    name="thumb-down-outline"
+                    type="material-community"
+                    color={"red"}
+                    size={SIZES.MedIcon}
+                  />
+                </TouchableOpacity>
+                <Text style={{ ...FONTS.Title2 }}>Nah</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -150,14 +160,14 @@ const MovieDetailScreenCard = ({
           >
             <Text
               style={{
-                ...FONTS.Title2Orange,
+                ...FONTS.Title2,
                 color: COLORS.LIGHTGREY,
                 marginRight: 10,
               }}
             >
               {year}
             </Text>
-            <Text style={{ ...FONTS.Title2Orange, color: COLORS.LIGHTGREY }}>
+            <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
               {length}
             </Text>
           </View>

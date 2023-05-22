@@ -965,7 +965,7 @@ export const MOVIES = [
     thumb_url:
       'https://m.media-amazon.com/images/I/81v18fCWa6L._RI_.jpg',
     imdb_url: '/title/tt2292196/',
-    name: 'American Apocolypse',
+    name: 'American Apocalypse',
     rating: 5,
     year: 2013,
     rated: 'NR',

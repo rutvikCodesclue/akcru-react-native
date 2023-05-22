@@ -51,8 +51,8 @@ export default StyleSheet.create({
   },
   drawfonttag: {
     ...FONTS.Title2Orange,
-    color: COLORS.DARKGREY,
-    backgroundColor: COLORS.TAGCOLOR,
+    color: COLORS.BLACK,
+    backgroundColor: COLORS.STARGOLD,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginHorizontal: 2,
