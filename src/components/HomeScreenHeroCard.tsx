@@ -114,7 +114,7 @@ export default function HomeScreenHeroCard() {
                 <Text style={styles.desc}>{MOVIES[21].desc}</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <View style={{marginRight: 25}}>
+                <View style={{marginRight: 10}}>
                   <AkcruButtons.SmallButton
                     btnname={"Watch Movie"}
                     color={COLORS.AKCRUBLUE}

@@ -88,22 +88,32 @@ const UserProfileDetailsTab = () => {
           </View>
 
           <View style={{ alignItems: "center" }}>
-            <TouchableOpacity onPress={() => navigation.navigate("UserCruChatScreen")}>
+            <View>
               <Image
                 source={imageindex.CruLarge}
                 style={{ width: 150, height: 65 }}
                 resizeMode="cover"
               />
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.Title2,
-                color: COLORS.MIDORANGE,
-                fontSize: 12,
-              }}
+            </View>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("UserCruChatScreen")}
             >
-              Tap to CRU Chat
-            </Text>
+              <View
+                style={{
+                  width: 125,
+                  height: 30,
+                  backgroundColor: COLORS.MIDORANGE,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 3,
+                  marginTop: 15
+          
+                }}
+              >
+                <Text style={{ ...FONTS.Title2 }}>CRU CHAT</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
