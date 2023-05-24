@@ -13,6 +13,7 @@ const Crime = require('./moviecrime.jpg')
 const Drama = require('./moviedrama.jpg')
 const Family = require('./moviefamily.jpg')
 const Graph1 = require('./graph1.png')
+const GraphPurp = require ('./GraphPurp.png')
 const GraphMetric = require('./GraphMetric.png')
 const GRAPHwallet2 = require('./GRAPHwallet2.png')
 const GRAPHwallet1 = require('./GRAPHWallet1.png')
@@ -22,6 +23,7 @@ const CruLarge = require('./CruLarge.png')
 const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
 const WitnessForTheProsecution = require('./WitnessForTheProsecution.jpg')
+const TurquoiseDog = require('./TurquoiseDog.png')
 
 
 export default {
@@ -48,5 +50,7 @@ export default {
     SmileyBuffaloAlvin,
     SmileyBuffalo,
     GRAPHwallet1,
-    GRAPHwallet2
+    GRAPHwallet2,
+    GraphPurp,
+    TurquoiseDog
 }

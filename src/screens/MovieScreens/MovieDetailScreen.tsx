@@ -4,7 +4,8 @@ import {
   Header,
   MovieDetailScreenCard,
   RecommendedForYouList,
-  AkcruReviewCard
+  AkcruReviewCard,
+  AkcruButtons
 } from "../../components";
 import { FONTS, COLORS, SIZES } from "../../../constants";
 import { MOVIES, TOP_AKCRU_WATCHLIST, NEW_ON_AKCRU } from "../../../constants/Data";
@@ -98,12 +99,12 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
                 style={styles.textinput}
               />
             </View>
-            <View style = {{alignItems: "flex-end"}}>
-              <TouchableOpacity>
-                <View style={styles.sendbutton}>
-                  <Text style={{ ...FONTS.Title2 }}>POST</Text>
-                </View>
-              </TouchableOpacity>
+            <View style={{ alignItems: "flex-end" }}>
+              <AkcruButtons.XSmallButton
+                btnname={"POST"}
+                onPress={function (): void {}}
+                color=""
+              />
             </View>
           </View>
         </View>

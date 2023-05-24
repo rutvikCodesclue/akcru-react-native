@@ -7,6 +7,7 @@ import {
   SearchMovieResultScreen,
   SearchMovieScreen,
   UserProfileScreen,
+  ViewUserScreen
 } from "../screens";
 import ClientTabNavigator from "./ClientTabNavigator";
 import { UserProfileDetailsTab } from "../screens/UserScreens/UserProfileTabs";
@@ -20,6 +21,7 @@ export type UserProfileStackParams = {
   UserCruChatScreen: any;
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
+  ViewUserScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -71,6 +73,13 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="UserCruChatScreen"
         component={UserCruChatScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="ViewUserScreen"
+        component={ViewUserScreen}
         options={() => ({
           headerShown: false,
         })}

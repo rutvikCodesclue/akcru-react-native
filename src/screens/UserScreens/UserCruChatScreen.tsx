@@ -11,7 +11,7 @@ import {
   FlatList,
 } from "react-native";
 import React from "react";
-import { Header, AkcruLevels, UserCruChatCard } from "../../components";
+import { Header, AkcruLevels, UserCruChatCard, AkcruButtons } from "../../components";
 import { LinearGradient } from "expo-linear-gradient";
 import { SIZES, COLORS, FONTS } from "../../../constants";
 import { DIGITAL_PASS, AkcruDollarAmount } from "../../../constants/Mockusers";
@@ -193,7 +193,7 @@ const UserCruChatScreen = () => {
                 </View>
               </TouchableOpacity>
             </View>
-            <View style={{ marginBottom: -10 }}>
+            <View >
               <Text style={styles.titleText1}>CRU Chat</Text>
             </View>
             <View>
@@ -217,11 +217,12 @@ const UserCruChatScreen = () => {
                   placeholderTextColor={"transparent"}
                   style={styles.textinput}
                 />
-                <TouchableOpacity>
-                  <View style={styles.sendbutton}>
-                    <Text style={{ ...FONTS.Title2 }}>SEND</Text>
-                  </View>
-                </TouchableOpacity>
+      
+              <AkcruButtons.XSmallButton
+                btnname={"SEND"}
+                onPress={function (): void {}}
+                color=""
+              />
               </View>
             </View>
           </View>

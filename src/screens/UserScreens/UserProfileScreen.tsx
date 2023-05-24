@@ -255,11 +255,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 width: 100,
                 height: 60,
                 justifyContent: "center",
-                paddingLeft: 10,
+                
+                alignItems: 'center'
               }}
             >
               <Text style={{ ...FONTS.Title3, fontSize: 14 }}>{FAKE_USER_PROFILES[0].userFollowerAmount}</Text>
-              <Text style={{ ...FONTS.Title2 }}>Followers</Text>
+              <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE  }}>Followers</Text>
             </View>
             <View
               style={{

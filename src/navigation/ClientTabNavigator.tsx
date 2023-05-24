@@ -5,31 +5,33 @@ import { Icon } from "@rneui/base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   MovieHomeScreen,
-  CrummunityScreen,
+
   UserProfileScreen,
   CruChewScreen,
   MovieDetailScreen,
   SearchMovieScreen,
   SearchMovieResultScreen,
-  WatchPartyTestScreen
+
+  ViewUserScreen
 } from "../screens";
 import { COLORS, SIZES } from "../../constants";
 
 import { ClientStack } from "./ClientStack";
 import { UserProfileStack } from "./UserProfileStack";
+import { CrummunityStack } from "./CrummunityStack";
 
 
 export type ClientTabsParams = {
   SearchMovieScreen: any;
   UserProfileScreen: any;
   SearchMovieResultScreen: any;
-  CrummunityScreen: any;
   MovieHomeScreen: any;
   MovieDetailScreen: any;
   CruChewScreen: any;
   ClientStack: any;
   UserProfileStack: any;
-  WatchPartyTestScreen: any;
+  CrummunityStack: any;
+  ViewUserScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -69,8 +71,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="CrummunityScreen"
-        component={CrummunityScreen}
+        name="CrummunityStack"
+        component={CrummunityStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
@@ -84,8 +86,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="WatchPartyTestScreen"
-        component={WatchPartyTestScreen}
+        name="ViewUserScreen"
+        component={ViewUserScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (

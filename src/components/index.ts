@@ -20,6 +20,7 @@ import CruInviteCard from "./CruInviteCard";
 import AkcruLevels from "./AkcruBadges";
 import AkcruButtons from "./Buttons";
 import AkcruReviewCard from "./AkcruReviewCard";
+import CrummunityFeedPostCard from "./CrummunityFeedPostCard";
 
 export {
   Inputs,
@@ -44,4 +45,5 @@ export {
   CruInviteCard,
   AkcruLevels,
   AkcruButtons,
+  CrummunityFeedPostCard
 };

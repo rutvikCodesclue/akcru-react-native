@@ -4,6 +4,7 @@ import { Avatar } from "@rneui/base";
 import { FAKE_USER_PROFILES } from "../../constants/Mockusers";
 import { COLORS, FONTS, SIZES } from "../../constants";
 import AkcruLevels from "./AkcruBadges";
+import { Icon } from "@rneui/base";
 
 type UserCruChatCardProps = {
   userPicture: string;
@@ -31,7 +32,7 @@ const UserCruChatCard = ({
               rounded
               size={40}
               source={{
-                uri: userPicture
+                uri: userPicture,
               }}
               avatarStyle={{
                 borderWidth: 2,
@@ -40,9 +41,17 @@ const UserCruChatCard = ({
             />
           </View>
           <View>
-            <Text style={{ ...FONTS.Title2 }}>
-              { userName}
-            </Text>
+            <View style={{flexDirection: 'row', alignItems:'center'}}>
+              <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+              {FAKE_USER_PROFILES[userID].influencer && (<Icon
+                name="ribbon"
+                type="ionicon"
+                color={COLORS.AKCRUBLUE}
+                size={20}
+                style={{marginLeft: 5}}
+              />)}
+            </View>
+
             {FAKE_USER_PROFILES[userID].akcruBadge.akcruit && (
               <View>
                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -68,9 +77,7 @@ const UserCruChatCard = ({
 
         <View>
           <Text style={styles.stamps}>{CruChatDate}</Text>
-          <Text style={styles.stamps2}>
-            {CruChatTime}
-          </Text>
+          <Text style={styles.stamps2}>{CruChatTime}</Text>
         </View>
       </View>
       <View>
@@ -90,7 +97,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   cruchat: {
-    ...FONTS.paragraph1,
+    ...FONTS.paragraph1, fontSize: 12,
   },
   cardcontainer: {
     backgroundColor: "#1C202A",

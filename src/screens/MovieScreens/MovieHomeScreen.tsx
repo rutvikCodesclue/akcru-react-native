@@ -49,26 +49,6 @@ const MovieHomeScreen = () => {
             Top Akcru Watchlist
           </Text>
         </View>
-        {/* <View>
-          <FlatList
-            data={TOP_AKCRU_WATCHLIST}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View>
-                <BasicMovieCard
-                  image={item.image_url}
-                  onPress={() => {
-                    navigation.navigate("MovieDetailScreen", {
-                      tawid: index,
-                    });
-                  }}
-                />
-              </View>
-            )}
-          />
-        </View> */}
         <View>
           <TopAkcruWatchList />
         </View>

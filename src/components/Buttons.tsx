@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import styles from "./Styles/styles";
 import { COLORS, FONTS, SIZES } from "../../constants";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface Props {
   btnname: string;
@@ -24,6 +24,18 @@ const SmallButton: React.FC<Props> = ({ btnname, onPress, color }) => {
             borderRadius: 5,
           }}
         >
+          <LinearGradient
+            // Background Linear Gradient
+            colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 40,
+              borderRadius: 5,
+            }}
+          />
           <Text style={{ ...FONTS.Title1, textAlign: "center" }}>
             {btnname}
           </Text>
@@ -48,6 +60,18 @@ const MedButton: React.FC<Props> = ({ btnname, onPress, color }) => {
             borderRadius: 5,
           }}
         >
+          <LinearGradient
+            // Background Linear Gradient
+            colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 40,
+              borderRadius: 5,
+            }}
+          />
           <Text style={{ ...FONTS.Title1, textAlign: "center" }}>
             {btnname}
           </Text>
@@ -72,6 +96,18 @@ const LrgButton: React.FC<Props> = ({ btnname, onPress, color }) => {
             borderRadius: 5,
           }}
         >
+          <LinearGradient
+            // Background Linear Gradient
+            colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 40,
+              borderRadius: 5,
+            }}
+          />
           <Text style={{ ...FONTS.Title1, textAlign: "center" }}>
             {btnname}
           </Text>
@@ -81,10 +117,43 @@ const LrgButton: React.FC<Props> = ({ btnname, onPress, color }) => {
   );
 };
 
+const XSmallButton = ({ btnname, onPress } : Props) => {
+  return (
+    <View>
+      <TouchableOpacity onPress={onPress}>
+        <View
+          style={{
+            backgroundColor: COLORS.AKCRUBLUE,
+            height: 35,
+            justifyContent: "center",
+            width: 90,
+            borderRadius: 5,
+            alignItems: "center",
+          }}
+        >
+          <LinearGradient
+            // Background Linear Gradient
+            colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 35,
+              borderRadius: 5,
+            }}
+          />
+          <Text style={{ ...FONTS.Title2 }}>{btnname}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 
 
 const AkcruButtons = {
-    SmallButton, MedButton, LrgButton
+    SmallButton, MedButton, LrgButton, XSmallButton
 }
 
 export default AkcruButtons;
