@@ -16,9 +16,9 @@ const CrummunityPostList = () => {
       <FlatList
         data={FAKE_USER_PROFILES}
         horizontal={false}
-        scrollEnabled= {false}
-        keyExtractor={(item) => item.userID}
-        renderItem={({ item }) => (
+        scrollEnabled={false}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => (
           <View style={{ marginVertical: 5 }}>
             <CrummunityFeedPostCard
               userID={item.userID}
@@ -29,7 +29,7 @@ const CrummunityPostList = () => {
               Crummunityreplies={item.Crummunityreplies}
               onPress={() =>
                 navigation.navigate("ViewUserScreen", {
-                  item: item.userID,
+                  userID: index
                 })
               }
               influencer={item.influencer}

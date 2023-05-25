@@ -19,7 +19,6 @@ import { CrummunityStackParams } from "../../navigation/CrummunityStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 
-
 type ViewUserScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
   "ViewUserScreen"
@@ -35,24 +34,21 @@ type Props = {
   route: ViewUserScreenRouteProp;
 };
 
-export default function ViewUserScreen ({route, navigation}: Props) {
+export default function ViewUserScreen({ route, navigation }: Props) {
+  const userID: number | undefined = route.params?.userID ?? null;
+  const userprofile: string | undefined = route.params?.userName ?? null;
 
- const userID: number | undefined = route.params?.userID ?? null;
- const userprofile: string | undefined =
-   route.params?.userName ?? null;
-
-   const {
-     digitalpass,
-     userPicture,
-     privateaccount,
-     online,
-     userName,
-     akcruBadge,
-     status,
-     userFollowerAmount,
-     userDesc,
-   } = FAKE_USER_PROFILES [userID ?? 0];
-
+  const {
+    digitalpass,
+    userPicture,
+    privateaccount,
+    online,
+    userName,
+    akcruBadge,
+    status,
+    userFollowerAmount,
+    userDesc,
+  } = FAKE_USER_PROFILES[userID ?? 0];
 
   return (
     <View>
@@ -61,7 +57,7 @@ export default function ViewUserScreen ({route, navigation}: Props) {
           <Header />
         </View>
         <ImageBackground
-          source={{ uri: digitalpass}}
+          source={{ uri: digitalpass }}
           resizeMode="cover"
           style={{ height: SIZES.ScreenHeight / 3.7, marginTop: -60 }}
         >
@@ -77,11 +73,32 @@ export default function ViewUserScreen ({route, navigation}: Props) {
             }}
           />
           <View
+            style={{ marginTop: 60, marginHorizontal: 15, marginBottom: 10 }}
+          >
+            <TouchableOpacity onPress={() => navigation.pop()}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="chevron-back"
+                  type="ionicon"
+                  size={20}
+                  color={COLORS.LIGHTGREY}
+                />
+                <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              marginTop: 60,
+
               marginHorizontal: 15,
             }}
           >
@@ -126,10 +143,8 @@ export default function ViewUserScreen ({route, navigation}: Props) {
                   )
                 ) : null}
               </View>
-              <View style={{width: SIZES.ScreenWidth / 2.5}}>
-                <Text style={{ ...FONTS.Title2 }}>
-                  {userName}
-                </Text>
+              <View style={{ width: SIZES.ScreenWidth / 2.5 }}>
+                <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
                 {akcruBadge.akcruit && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
@@ -427,7 +442,6 @@ export default function ViewUserScreen ({route, navigation}: Props) {
       </ScrollView>
     </View>
   );
-};
-
+}
 
 const styles = StyleSheet.create({});

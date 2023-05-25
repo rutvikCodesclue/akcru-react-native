@@ -7,6 +7,9 @@ import styles from "./Styles/styles";
 import imageindex from "../../assets/images/imageindex";
 import { LinearGradient } from "expo-linear-gradient";
 import AkcruButtons from "./Buttons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ClientStackParams } from "../navigation/ClientStack";
 
 type MovieDetailScreenCardProps = {
   image_url: string;
@@ -34,6 +37,8 @@ const MovieDetailScreenCard = ({
   actors,
   directors,
 }: MovieDetailScreenCardProps) => {
+
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>()
     
   return (
     <View>
@@ -48,6 +53,25 @@ const MovieDetailScreenCard = ({
             resizeMode="cover"
           />
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.pop()}
+          style={{ position: "absolute", left: 0, right: 0, top: 60, marginHorizontal: 15}}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              name="chevron-back"
+              type="ionicon"
+              size={20}
+              color={COLORS.LIGHTGREY}
+            />
+            <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+          </View>
+        </TouchableOpacity>
         <View
           style={{
             height: 200,
@@ -69,9 +93,23 @@ const MovieDetailScreenCard = ({
               height: 200,
             }}
           />
-          <View style={{ marginBottom: 10, alignItems: "flex-end", marginRight: 5 }}>
-            <View style={{ justifyContent: "center", flexDirection: "row", alignItems: 'center' }}>
-              <Text style={{ ...FONTS.Title3, textAlign: "center", marginRight: 10 }}>
+          <View
+            style={{ marginBottom: 10, alignItems: "flex-end", marginRight: 5 }}
+          >
+            <View
+              style={{
+                justifyContent: "center",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  ...FONTS.Title3,
+                  textAlign: "center",
+                  marginRight: 10,
+                }}
+              >
                 Add to watchlist
               </Text>
               <TouchableOpacity>

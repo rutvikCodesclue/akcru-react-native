@@ -13,6 +13,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ClientStackParams } from "../../navigation/ClientStack";
 import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
+import { Icon } from "@rneui/base";
 
 type MovieDetailScreenNavigationProp = StackNavigationProp<
   ClientStackParams,
@@ -54,7 +55,9 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
         <View>
           <Header />
         </View>
+
         <View style={{ marginTop: -65 }}>
+          
           <MovieDetailScreenCard
             image_url={image_url}
             name={name}
@@ -81,7 +84,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
             Akcru Review
           </Text>
           <View style={{ marginBottom: 75 }}>
-            <View >
+            <View>
               {FAKE_USER_PROFILES.map((item) => (
                 <View key={item.userID} style={{ marginBottom: 10 }}>
                   <AkcruReviewCard

@@ -105,7 +105,7 @@ export const FAKE_USER_PROFILES = [
     status: "Watching 'Avengers'",
     privateaccount: false,
     online: true,
-    USDtoAkcruDollar: true,
+    USDtoAkcruDollar: false,
     influencer: false,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
@@ -131,7 +131,7 @@ export const FAKE_USER_PROFILES = [
     userID: "1",
     status: "Watching 'Top Gun Maverick'",
     privateaccount: false,
-    online: true,
+    online: false,
     USDtoAkcruDollar: true,
     influencer: false,
     digitalpass:
