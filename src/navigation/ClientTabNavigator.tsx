@@ -11,6 +11,7 @@ import {
   MovieDetailScreen,
   SearchMovieScreen,
   SearchMovieResultScreen,
+  PurchaseMITScreen,
 
   ViewUserScreen
 } from "../screens";
@@ -32,6 +33,7 @@ export type ClientTabsParams = {
   UserProfileStack: any;
   CrummunityStack: any;
   ViewUserScreen: any;
+  PurchaseMITScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -86,8 +88,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="ViewUserScreen"
-        component={ViewUserScreen}
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (

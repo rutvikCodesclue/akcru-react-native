@@ -24,6 +24,11 @@ const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
 const WitnessForTheProsecution = require('./WitnessForTheProsecution.jpg')
 const TurquoiseDog = require('./TurquoiseDog.png')
+const MIT1 = require('./MIT1.png')
+const MIT2 = require("./MIT2.png")
+const MIT3 = require("./MIT3.png")
+const MIT4 = require("./MIT4.png")
+
 
 
 export default {
@@ -52,5 +57,9 @@ export default {
     GRAPHwallet1,
     GRAPHwallet2,
     GraphPurp,
-    TurquoiseDog
+    TurquoiseDog,
+    MIT1,
+    MIT2,
+    MIT3,
+    MIT4
 }
