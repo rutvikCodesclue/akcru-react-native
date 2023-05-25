@@ -10,23 +10,50 @@ import {
 } from "react-native";
 import React from "react";
 import { FONTS, COLORS, SIZES } from "../../../constants";
-import { DIGITAL_PASS, FAKE_USER_PROFILES } from "../../../constants/Mockusers";
+import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 import { Header, AkcruLevels, TrendingNowList } from "../../components";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar, Icon } from "@rneui/base";
 import imageindex from "../../../assets/images/imageindex";
+import { CrummunityStackParams } from "../../navigation/CrummunityStack";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RouteProp } from "@react-navigation/native";
 
-interface Props {
-  digitalpass: string;
-  userId: any;
-  userPicture: string;
-  userName: string;
-  status: string;
-  userFollowerAmount: number;
-  userDesc: string;
-}
 
-const ViewUserScreen = ({userId}: Props) => {
+type ViewUserScreenNavigationProp = StackNavigationProp<
+  CrummunityStackParams,
+  "ViewUserScreen"
+>;
+
+type ViewUserScreenRouteProp = RouteProp<
+  CrummunityStackParams,
+  "ViewUserScreen"
+>;
+
+type Props = {
+  navigation: ViewUserScreenNavigationProp;
+  route: ViewUserScreenRouteProp;
+};
+
+export default function ViewUserScreen ({route, navigation}: Props) {
+
+ const userID: number | undefined = route.params?.userID ?? null;
+ const userprofile: string | undefined =
+   route.params?.userName ?? null;
+
+   const {
+     digitalpass,
+     userPicture,
+     privateaccount,
+     online,
+     userName,
+     akcruBadge,
+     status,
+     userFollowerAmount,
+     userDesc,
+   } = FAKE_USER_PROFILES [userID ?? 0];
+
+
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
@@ -34,7 +61,7 @@ const ViewUserScreen = ({userId}: Props) => {
           <Header />
         </View>
         <ImageBackground
-          source={{ uri: FAKE_USER_PROFILES[1].digitalpass}}
+          source={{ uri: digitalpass}}
           resizeMode="cover"
           style={{ height: SIZES.ScreenHeight / 3.7, marginTop: -60 }}
         >
@@ -64,7 +91,7 @@ const ViewUserScreen = ({userId}: Props) => {
                   rounded
                   size={70}
                   source={{
-                    uri: FAKE_USER_PROFILES[1].userPicture,
+                    uri: userPicture,
                   }}
                   avatarStyle={{
                     borderWidth: 2,
@@ -73,8 +100,8 @@ const ViewUserScreen = ({userId}: Props) => {
                 />
                 <View />
 
-                {!FAKE_USER_PROFILES[1].privateaccount ? (
-                  FAKE_USER_PROFILES[1].online ? (
+                {!privateaccount ? (
+                  online ? (
                     <View
                       style={{
                         backgroundColor: "green",
@@ -101,24 +128,24 @@ const ViewUserScreen = ({userId}: Props) => {
               </View>
               <View style={{width: SIZES.ScreenWidth / 2.5}}>
                 <Text style={{ ...FONTS.Title2 }}>
-                  {FAKE_USER_PROFILES[1].userName}
+                  {userName}
                 </Text>
-                {FAKE_USER_PROFILES[1].akcruBadge.akcruit && (
+                {akcruBadge.akcruit && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[1].akcruBadge.guardian && (
+                {akcruBadge.guardian && (
                   <View>
                     <AkcruLevels.AkcruBadgeGuardian />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[1].akcruBadge.hero && (
+                {akcruBadge.hero && (
                   <View>
                     <AkcruLevels.AkcruBadgeHero />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[1].akcruBadge.superhero && (
+                {akcruBadge.superhero && (
                   <View>
                     <AkcruLevels.AkcruBadgeSuperHero />
                   </View>
@@ -135,7 +162,7 @@ const ViewUserScreen = ({userId}: Props) => {
                     Status:
                   </Text>
 
-                  {FAKE_USER_PROFILES[1].privateaccount ? (
+                  {privateaccount ? (
                     <View>
                       <Text
                         style={{
@@ -158,7 +185,7 @@ const ViewUserScreen = ({userId}: Props) => {
                           marginLeft: 8,
                         }}
                       >
-                        {FAKE_USER_PROFILES[1].status}
+                        {status}
                       </Text>
                     </View>
                   )}
@@ -173,7 +200,7 @@ const ViewUserScreen = ({userId}: Props) => {
                       marginTop: 5,
                     }}
                   >
-                    Block {FAKE_USER_PROFILES[1].userName}
+                    Block {userName}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -227,7 +254,7 @@ const ViewUserScreen = ({userId}: Props) => {
               }}
             >
               <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                {FAKE_USER_PROFILES[1].userFollowerAmount}
+                {userFollowerAmount}
               </Text>
               <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
                 Followers
@@ -268,7 +295,7 @@ const ViewUserScreen = ({userId}: Props) => {
           </View>
         </ImageBackground>
 
-        {FAKE_USER_PROFILES[1].privateaccount ? (
+        {privateaccount ? (
           <View
             style={{ marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7 }}
           >
@@ -294,7 +321,7 @@ const ViewUserScreen = ({userId}: Props) => {
                   fontSize: 12,
                 }}
               >
-                {FAKE_USER_PROFILES[1].userDesc}
+                {userDesc}
               </Text>
             </View>
             <View>
@@ -363,7 +390,7 @@ const ViewUserScreen = ({userId}: Props) => {
                     fontSize: 14,
                   }}
                 >
-                  {FAKE_USER_PROFILES[1].userName} Watchlist
+                  {userName} Watchlist
                 </Text>
                 <View style={{ flexDirection: "row", marginLeft: 15 }}>
                   <View style={{ marginRight: 25 }}>
@@ -402,6 +429,5 @@ const ViewUserScreen = ({userId}: Props) => {
   );
 };
 
-export default ViewUserScreen;
 
 const styles = StyleSheet.create({});

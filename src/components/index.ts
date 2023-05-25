@@ -21,6 +21,7 @@ import AkcruLevels from "./AkcruBadges";
 import AkcruButtons from "./Buttons";
 import AkcruReviewCard from "./AkcruReviewCard";
 import CrummunityFeedPostCard from "./CrummunityFeedPostCard";
+import CrummunityPostList from "./CrummunityPostList";
 
 export {
   Inputs,
@@ -45,5 +46,6 @@ export {
   CruInviteCard,
   AkcruLevels,
   AkcruButtons,
-  CrummunityFeedPostCard
+  CrummunityFeedPostCard,
+  CrummunityPostList
 };

@@ -11,7 +11,7 @@ import {
   FlatList,
 } from "react-native";
 import React, { useState } from "react";
-import { Header, AkcruButtons, CrummunityFeedPostCard } from "../../components";
+import { Header, AkcruButtons, CrummunityPostList } from "../../components";
 import { FONTS, COLORS, SIZES } from "../../../constants";
 import { Icon } from "@rneui/base";
 
@@ -92,28 +92,7 @@ const CrummunityScreen = () => {
           </View>
         </View>
         <View style={styles.postcontainer}>
-          <FlatList
-            data={FAKE_USER_PROFILES}
-            horizontal={false}
-            keyExtractor={(item) => item.userID}
-            renderItem={({ item, index }) => (
-              <View style={{ marginVertical: 5 }}>
-                <CrummunityFeedPostCard
-                  userID={item.userID}
-                  userPicture={item.userPicture}
-                  userName={item.userName}
-                  CrummunityFeedPostLikes={item.CrummunityFeedPostLikes}
-                  crummunityPost={item.crummunityPost}
-                  Crummunityreplies={item.Crummunityreplies}
-                  onPress={() =>
-                    navigation.navigate("ViewUserScreen", {
-                      item: item.userID,
-                    })
-                  }
-                />
-              </View>
-            )}
-          />
+          <CrummunityPostList />
         </View>
       </ScrollView>
     </View>

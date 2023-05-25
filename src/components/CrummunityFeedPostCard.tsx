@@ -11,8 +11,10 @@ type CrummunityFeedPostCardProps = {
   userName: string;
   userID: any;
   CrummunityFeedPostLikes: number;
-  crummunityPost: any;
+  crummunityPost: string;
   Crummunityreplies: string;
+  influencer: boolean;
+  akcruBadge: any;
   onPress: () => void;
 };
 
@@ -23,6 +25,8 @@ const CrummunityFeedPostCard = ({
   CrummunityFeedPostLikes,
   crummunityPost,
   Crummunityreplies,
+  influencer,
+  akcruBadge,
   onPress
 }: CrummunityFeedPostCardProps) => {
   return (
@@ -47,7 +51,7 @@ const CrummunityFeedPostCard = ({
           <View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
-              {FAKE_USER_PROFILES[userID].influencer && (
+              {influencer && (
                 <Icon
                   name="ribbon"
                   type="ionicon"
@@ -58,22 +62,22 @@ const CrummunityFeedPostCard = ({
               )}
             </View>
 
-            {FAKE_USER_PROFILES[userID].akcruBadge.akcruit && (
+            {akcruBadge.akcruit && (
               <View>
                 <AkcruLevels.AkcruBadgeAkcruit />
               </View>
             )}
-            {FAKE_USER_PROFILES[userID].akcruBadge.guardian && (
+            {akcruBadge.guardian && (
               <View>
                 <AkcruLevels.AkcruBadgeGuardian />
               </View>
             )}
-            {FAKE_USER_PROFILES[userID].akcruBadge.hero && (
+            {akcruBadge.hero && (
               <View>
                 <AkcruLevels.AkcruBadgeHero />
               </View>
             )}
-            {FAKE_USER_PROFILES[userID].akcruBadge.superhero && (
+            {akcruBadge.superhero && (
               <View>
                 <AkcruLevels.AkcruBadgeSuperHero />
               </View>

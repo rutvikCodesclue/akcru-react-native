@@ -38,7 +38,19 @@ const AkcruReviewCard = ({
             />
           </View>
           <View>
-            <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+              {FAKE_USER_PROFILES[userID].influencer && (
+                <Icon
+                  name="ribbon"
+                  type="ionicon"
+                  color={COLORS.AKCRUBLUE}
+                  size={20}
+                  style={{ marginLeft: 5 }}
+                />
+              )}
+            </View>
+
             {FAKE_USER_PROFILES[userID].akcruBadge.akcruit && (
               <View>
                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -82,8 +94,8 @@ const AkcruReviewCard = ({
         </View>
       </View>
       <View>
-        <Text style = {styles.review}>{movieReview}</Text>
-        <Text style = {styles.datestamp}>{movieReviewDate}</Text>
+        <Text style={styles.review}>{movieReview}</Text>
+        <Text style={styles.datestamp}>{movieReviewDate}</Text>
       </View>
     </View>
   );
@@ -101,11 +113,12 @@ const styles = StyleSheet.create({
   },
   review: {
     ...FONTS.paragraph1,
+    fontSize: 12,
   },
   datestamp: {
     ...FONTS.Title2Orange,
     marginBottom: 3,
-    textAlign: 'right',
-    marginTop: 10
+    textAlign: "right",
+    marginTop: 10,
   },
 });

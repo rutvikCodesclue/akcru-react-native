@@ -43,8 +43,10 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     actors,
     directors,
     image_url,
-    id: movieid,
+    
   } = MOVIES [id ?? 0];
+
+  
 
   return (
     <View>
@@ -79,7 +81,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
             Akcru Review
           </Text>
           <View style={{ marginBottom: 75 }}>
-            <View>
+            <View >
               {FAKE_USER_PROFILES.map((item) => (
                 <View key={item.userID} style={{ marginBottom: 10 }}>
                   <AkcruReviewCard
