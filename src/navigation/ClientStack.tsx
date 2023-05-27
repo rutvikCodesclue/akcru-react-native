@@ -1,7 +1,14 @@
 
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import { SearchMovieScreen, SearchMovieResultScreen, MovieDetailScreen, MovieHomeScreen, UserProfileScreen, } from '../screens';
+import {
+  PurchaseMITScreen,
+  SearchMovieScreen,
+  SearchMovieResultScreen,
+  MovieDetailScreen,
+  MovieHomeScreen,
+  UserProfileScreen,
+} from "../screens";
 import ClientTabNavigator from './ClientTabNavigator';
 import { UserProfileDetailsTab } from '../screens/UserScreens/UserProfileTabs';
 import { COLORS } from '../../constants';
@@ -14,6 +21,7 @@ export type ClientStackParams = {
   MovieHomeScreen: any;
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
+  PurchaseMITScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -65,6 +73,13 @@ export function ClientStack () {
       <ClientSearch.Screen
         name="UserProfileDetailsTab"
         component={UserProfileDetailsTab}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={() => ({
           headerShown: false,
         })}

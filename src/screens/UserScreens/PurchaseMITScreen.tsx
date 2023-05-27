@@ -5,13 +5,22 @@ import {
   ImageBackground,
   ScrollView,
   Image,
+  TouchableOpacity
 } from "react-native";
 import React from "react";
 import { SIZES, COLORS, FONTS } from "../../../constants";
 import { Header, AkcruButtons } from "../../components";
 import imageindex from "../../../assets/images/imageindex";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { CrummunityStackParams } from "../../navigation/CrummunityStack";
+import { useNavigation } from "@react-navigation/native";
+import { Icon } from "@rneui/base";
 
 const PurchaseMITScreen = () => {
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+
   return (
     <View>
       <ImageBackground
@@ -25,8 +34,37 @@ const PurchaseMITScreen = () => {
           <View>
             <Header />
           </View>
-          <View style={{marginBottom: 100}}>
-            <Text style={{...FONTS.Title3, marginHorizontal: 15, marginVertical: 10}}>Create a date to watch a movie with someone outside of your CRU.</Text>
+          <View
+            style={{ marginHorizontal: 15, marginBottom: 10 }}
+          >
+            <TouchableOpacity onPress={() => navigation.pop()}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <Icon
+                  name="chevron-back"
+                  type="ionicon"
+                  size={20}
+                  color={COLORS.LIGHTGREY}
+                />
+                <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View style={{ marginBottom: 100 }}>
+            <Text
+              style={{
+                ...FONTS.Title2,
+                marginHorizontal: 15,
+                marginVertical: 10,
+                color: COLORS.MIDORANGE
+              }}
+            >
+              Create a date to watch a movie with someone outside of your CRU.
+            </Text>
             <View style={styles.pricecontainer}>
               <Image source={imageindex.MIT2} style={styles.mitimage} />
               <View style={{ flexDirection: "row", marginVertical: 10 }}>

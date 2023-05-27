@@ -3,7 +3,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import {
   CrummunityScreen,
   ViewUserScreen,
-  UserSearchResultScreen
+  UserSearchResultScreen,
+  PurchaseMITScreen
+  
 } from "../screens";
 import { COLORS } from "../../constants";
 
@@ -11,6 +13,7 @@ export type CrummunityStackParams = {
   CrummunityScreen: any;
   ViewUserScreen: any;
   UserSearchResultScreen: any;
+  PurchaseMITScreen: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -41,6 +44,13 @@ export function CrummunityStack() {
       <Crummunity.Screen
         name="ViewUserScreen"
         component={ViewUserScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={() => ({
           headerShown: false,
         })}

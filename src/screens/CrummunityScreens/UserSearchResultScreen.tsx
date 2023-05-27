@@ -13,7 +13,7 @@ import filter from "lodash/filter";
 const UserSearchResultScreen = () => {
   
 const [data, setData] = useState([...FAKE_USER_PROFILES]);
-const [modalVisible, setModalVisible] = useState(false);
+
 const [textInputFocused, setTextInputFocused] = useState(false);
 const textInputRef = useRef(null);
     const navigation =
@@ -72,6 +72,7 @@ const textInputRef = useRef(null);
             placeholderTextColor={COLORS.DARKGREY}
             autoCorrect={false}      
             autoFocus={false}
+            
             ref={textInputRef}
             onFocus={() => {
               setTextInputFocused(true);

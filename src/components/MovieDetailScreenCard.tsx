@@ -55,7 +55,13 @@ const MovieDetailScreenCard = ({
         </View>
         <TouchableOpacity
           onPress={() => navigation.pop()}
-          style={{ position: "absolute", left: 0, right: 0, top: 60, marginHorizontal: 15}}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 60,
+            marginHorizontal: 15,
+          }}
         >
           <View
             style={{
@@ -221,7 +227,9 @@ const MovieDetailScreenCard = ({
           </View>
         </View>
         <View style={{ marginHorizontal: 15, marginVertical: 10 }}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("PurchaseMITScreen")}
+          >
             <View
               style={{
                 borderColor: COLORS.AKCRUBLUE,

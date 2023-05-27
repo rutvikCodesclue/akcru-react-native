@@ -33,10 +33,13 @@ type Props = {
   navigation: ViewUserScreenNavigationProp;
   route: ViewUserScreenRouteProp;
 };
+const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({ route, navigation }: Props) {
   const userID: number | undefined = route.params?.userID ?? null;
   const userprofile: string | undefined = route.params?.userName ?? null;
+
+
 
   const {
     digitalpass,
@@ -49,6 +52,11 @@ export default function ViewUserScreen({ route, navigation }: Props) {
     userFollowerAmount,
     userDesc,
   } = FAKE_USER_PROFILES[userID ?? 0];
+
+  const truncatedstatus =
+    status.length > MAX_STATUS_LENGTH
+      ? status.slice(0, MAX_STATUS_LENGTH) + "..."
+      : status;
 
   return (
     <View>
@@ -200,7 +208,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
                           marginLeft: 8,
                         }}
                       >
-                        {status}
+                        {truncatedstatus}
                       </Text>
                     </View>
                   )}
@@ -235,10 +243,15 @@ export default function ViewUserScreen({ route, navigation }: Props) {
                   paddingLeft: 10,
                 }}
               >
-                <Image
-                  source={imageindex.MITticket}
-                  style={{ width: 55, height: 40 }}
-                />
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("PurchaseMITScreen")}
+                >
+                  <Image
+                    source={imageindex.MITticket}
+                    style={{ width: 55, height: 40 }}
+                  />
+                </TouchableOpacity>
+
                 <Text
                   style={{
                     ...FONTS.Title2,
@@ -277,32 +290,13 @@ export default function ViewUserScreen({ route, navigation }: Props) {
             </View>
             <View style={{ flexDirection: "row" }}>
               <TouchableOpacity>
-                <View
-                  style={{
-                    width: 125,
-                    height: 30,
-                    backgroundColor: COLORS.AKCRUBLUE,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: 3,
-                    marginRight: 10,
-                  }}
-                >
+                <View style={styles.cruinvitebutton}>
                   <Text style={{ ...FONTS.Title2 }}>CRU INVITE</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity>
-                <View
-                  style={{
-                    width: 125,
-                    height: 30,
-                    backgroundColor: COLORS.TAGCOLOR,
-                    justifyContent: "center",
-                    alignItems: "center",
-                    borderRadius: 3,
-                  }}
-                >
+                <View style={styles.followbutton}>
                   <Text style={{ ...FONTS.Title2 }}>FOLLOW</Text>
                 </View>
               </TouchableOpacity>
@@ -444,4 +438,22 @@ export default function ViewUserScreen({ route, navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  cruinvitebutton: {
+    width: 125,
+    height: 30,
+    backgroundColor: COLORS.AKCRUBLUE,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 3,
+    marginRight: 10,
+  },
+  followbutton: {
+    width: 125,
+    height: 30,
+    backgroundColor: COLORS.TAGCOLOR,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 3,
+  },
+});
