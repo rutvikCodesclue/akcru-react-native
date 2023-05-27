@@ -147,7 +147,7 @@ const handleSearch = (text: any) => {
                   <TouchableOpacity
                     onPress={() => {
                       Keyboard.dismiss;
-                      navigation.navigate("MovieDetailScreen", { item: index });
+                      navigation.navigate("MovieDetailScreen", { id: index });
                       setModalVisible(false);
                       setTextInputFocused(true);
                     }}

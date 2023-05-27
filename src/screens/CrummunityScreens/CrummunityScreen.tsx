@@ -25,7 +25,7 @@ import { useNavigation } from "@react-navigation/native";
 import { CrummunityStackParams } from "../../navigation/CrummunityStack";
 
 const CrummunityScreen = () => {
-  const [modalVisible, setModalVisible] = useState(false);
+  
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
@@ -56,7 +56,7 @@ const CrummunityScreen = () => {
           <View style={{ alignItems: "center" }}>
             <TouchableWithoutFeedback
               onPress={() => {
-                setModalVisible(true);
+                navigation.navigate('UserSearchResultScreen')
               }}
             >
               <View style={styles.searchinput}>

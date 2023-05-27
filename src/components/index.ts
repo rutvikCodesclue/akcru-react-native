@@ -22,6 +22,8 @@ import AkcruButtons from "./Buttons";
 import AkcruReviewCard from "./AkcruReviewCard";
 import CrummunityFeedPostCard from "./CrummunityFeedPostCard";
 import CrummunityPostList from "./CrummunityPostList";
+import UserSearchCard from "./UserSearchCard";
+import UserSearchCardList from "./UserSearchCardList";
 
 export {
   Inputs,
@@ -47,5 +49,7 @@ export {
   AkcruLevels,
   AkcruButtons,
   CrummunityFeedPostCard,
-  CrummunityPostList
+  CrummunityPostList,
+  UserSearchCard,
+  UserSearchCardList
 };

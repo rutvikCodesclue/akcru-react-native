@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
 
 import { Icon } from "@rneui/base";
@@ -12,6 +12,7 @@ import {
   SearchMovieScreen,
   SearchMovieResultScreen,
   PurchaseMITScreen,
+  UserSearchResultScreen,
 
   ViewUserScreen
 } from "../screens";
@@ -34,6 +35,7 @@ export type ClientTabsParams = {
   CrummunityStack: any;
   ViewUserScreen: any;
   PurchaseMITScreen: any;
+  UserSearchResultScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -88,11 +90,11 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="PurchaseMITScreen"
-        component={PurchaseMITScreen}
+        name="UserSearchResultScreen"
+        component={UserSearchResultScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <Icon
               name="eye-outline"
               type="ionicon"
@@ -135,3 +137,4 @@ export default function ClientTabNavigator() {
     </ClientTabs.Navigator>
   );
 }
+

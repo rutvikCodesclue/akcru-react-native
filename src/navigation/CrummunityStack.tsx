@@ -2,13 +2,15 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
   CrummunityScreen,
-  ViewUserScreen
+  ViewUserScreen,
+  UserSearchResultScreen
 } from "../screens";
 import { COLORS } from "../../constants";
 
 export type CrummunityStackParams = {
   CrummunityScreen: any;
   ViewUserScreen: any;
+  UserSearchResultScreen: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -25,6 +27,13 @@ export function CrummunityStack() {
       <Crummunity.Screen
         name="CrummunityScreen"
         component={CrummunityScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="UserSearchResultScreen"
+        component={UserSearchResultScreen}
         options={() => ({
           headerShown: false,
         })}
