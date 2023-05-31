@@ -15,7 +15,7 @@ const TopAkcruWatchList = () => {
       <FlatList
         data={TOP_AKCRU_WATCHLIST}
         horizontal={true}
-        showsHorizontalScrollIndicator={true}
+        showsHorizontalScrollIndicator={false}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
           <View>
@@ -24,7 +24,7 @@ const TopAkcruWatchList = () => {
               onPress={() => {
                 navigation.navigate("MovieDetailScreen", {
                   id: index,
-                  movie: item.name,
+                  
                 });
               }}
             />

@@ -2,11 +2,15 @@ import { View, Text } from "react-native";
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
-  
-    MovieDetailScreen,
+  UserCruChatScreen,
+  MovieDetailScreen,
   SearchMovieResultScreen,
   SearchMovieScreen,
   UserProfileScreen,
+  ViewUserScreen,
+  UserSearchResultScreen,
+  ChooseMITScreen
+
 } from "../screens";
 import ClientTabNavigator from "./ClientTabNavigator";
 import { UserProfileDetailsTab } from "../screens/UserScreens/UserProfileTabs";
@@ -17,9 +21,12 @@ export type UserProfileStackParams = {
   ClientTabNavigator: any;
   SearchMovieResultScreen: any;
   MovieDetailScreen: any;
-  
+  UserCruChatScreen: any;
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
+  ViewUserScreen: any;
+  UserSearchResultScreen: any;
+  ChooseMITScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -64,6 +71,34 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="UserProfileDetailsTab"
         component={UserProfileDetailsTab}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="UserCruChatScreen"
+        component={UserCruChatScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="ViewUserScreen"
+        component={ViewUserScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="UserSearchResultScreen"
+        component={UserSearchResultScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="ChooseMITScreen"
+        component={ChooseMITScreen}
         options={() => ({
           headerShown: false,
         })}

@@ -4,11 +4,16 @@ import { FONTS, SIZES, COLORS } from '../../../../constants';
 import imageindex from '../../../../assets/images/imageindex';
 import { Icon } from '@rneui/base';
 import { TrendingNowList } from '../../../components';
+import { useNavigation } from '@react-navigation/native';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
 
 
 const UserProfileDetailsTab = () => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
 
   return (
@@ -83,22 +88,32 @@ const UserProfileDetailsTab = () => {
           </View>
 
           <View style={{ alignItems: "center" }}>
-            <TouchableOpacity>
+            <View>
               <Image
-                source={imageindex.Cru}
-                style={{ width: 150, height: 75 }}
+                source={imageindex.CruLarge}
+                style={{ width: 150, height: 65 }}
                 resizeMode="cover"
               />
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.Title2,
-                color: COLORS.MIDORANGE,
-                fontSize: 12,
-              }}
+            </View>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate("UserCruChatScreen")}
             >
-              Tap to CRU Chat
-            </Text>
+              <View
+                style={{
+                  width: 125,
+                  height: 30,
+                  backgroundColor: COLORS.MIDORANGE,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  borderRadius: 3,
+                  marginTop: 15
+          
+                }}
+              >
+                <Text style={{ ...FONTS.Title2 }}>CRU CHAT</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -195,7 +210,7 @@ const UserProfileDetailsTab = () => {
               </Text>
             </View>
           </TouchableOpacity>
-          <View style={{marginBottom: 75}}>
+          <View style={{ marginBottom: 75 }}>
             <TrendingNowList />
           </View>
         </View>

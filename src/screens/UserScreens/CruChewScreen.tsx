@@ -3,14 +3,23 @@ import React from 'react';
 import imageindex from '../../../assets/images/imageindex';
 import { SIZES, COLORS, FONTS } from '../../../constants';
 import { Header } from '../../components';
-import { LinearGradient } from 'expo-linear-gradient';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CruChewStackParams } from '../../navigation/CruChewStack';
+import { useNavigation } from '@react-navigation/native';
+import { AuthStackParams } from '../../navigation/AuthNavigation';
+
 
 const CruChewScreen = () => {
+
+  
+  const navigation =
+    useNavigation<NativeStackNavigationProp<CruChewStackParams>>();
+  
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <Header ADAmount={46789} />
+          <Header />
         </View>
         <View style={{ marginTop: -70 }}>
           <View>
@@ -31,7 +40,7 @@ const CruChewScreen = () => {
               left: 0,
               right: 0,
               top: 225,
-              zIndex: 100
+              zIndex: 100,
             }}
           >
             <Image
@@ -53,43 +62,18 @@ const CruChewScreen = () => {
               favorite restaurant and have it delivered to your door while
               you're enjoying your favorite content.
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('CruChewOrder')}>
               <Image
                 source={imageindex.CruChew3}
                 style={{
                   width: 200,
                   height: 200,
-    
                 }}
                 resizeMode="contain"
               />
             </TouchableOpacity>
           </View>
         </View>
-        {/* <View
-          style={{
-            height: 200,
-            justifyContent: "flex-end",
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 1
-          }}
-        >
-          <LinearGradient
-            // Background Linear Gradient
-            colors={["transparent", COLORS.AKCRUBACKGROUND]}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 200,
-              zIndex: 1
-            }}
-          />
-        </View> */}
       </ScrollView>
     </View>
   );

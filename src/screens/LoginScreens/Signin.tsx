@@ -4,7 +4,7 @@ import imageindex from '../../../assets/images/imageindex';
 import { COLORS, SIZES, FONTS } from '../../../constants/Theme';
 import styles from './Styles/styles';
 import { AkcruLogo, Fblogo, Googlelogo, Applelogo } from '../../../assets';
-import { Inputs, LrgButton } from '../../components';
+import { Inputs, AkcruButtons } from '../../components';
 
 import { useNavigation } from "@react-navigation/native";
 
@@ -43,7 +43,7 @@ const Signin = () => {
             />
           </View>
           <View style={{ marginVertical: 10 }}>
-            <LrgButton
+            <AkcruButtons.LrgButton
               color={COLORS.AKCRUBLUE}
               btnname={"Login"}
               onPress={() => navigation.navigate('ClientTabNavigator')}

@@ -6,7 +6,10 @@ import { SIZES } from "../../constants";
 import styles from "./Styles/styles";
 import imageindex from "../../assets/images/imageindex";
 import { LinearGradient } from "expo-linear-gradient";
-import MedButton from "./MedButton";
+import AkcruButtons from "./Buttons";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ClientStackParams } from "../navigation/ClientStack";
 
 type MovieDetailScreenCardProps = {
   image_url: string;
@@ -34,6 +37,8 @@ const MovieDetailScreenCard = ({
   actors,
   directors,
 }: MovieDetailScreenCardProps) => {
+
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>()
     
   return (
     <View>
@@ -48,6 +53,31 @@ const MovieDetailScreenCard = ({
             resizeMode="cover"
           />
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.pop()}
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            top: 60,
+            marginHorizontal: 15,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Icon
+              name="chevron-back"
+              type="ionicon"
+              size={20}
+              color={COLORS.LIGHTGREY}
+            />
+            <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+          </View>
+        </TouchableOpacity>
         <View
           style={{
             height: 200,
@@ -70,18 +100,47 @@ const MovieDetailScreenCard = ({
             }}
           />
           <View
+            style={{ marginBottom: 10, alignItems: "flex-end", marginRight: 5 }}
+          >
+            <View
+              style={{
+                justifyContent: "center",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Text
+                style={{
+                  ...FONTS.Title3,
+                  textAlign: "center",
+                  marginRight: 10,
+                }}
+              >
+                Add to watchlist
+              </Text>
+              <TouchableOpacity>
+                <Icon
+                  name="add-circle-outline"
+                  type="ionicon"
+                  color={COLORS.MIDORANGE}
+                  size={50}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
               marginHorizontal: 10,
             }}
           >
-            <MedButton
+            <AkcruButtons.MedButton
               btnname={"Watch Movie"}
               onPress={function (): void {}}
               color={COLORS.AKCRUBLUE}
             />
-            <MedButton
+            <AkcruButtons.MedButton
               btnname={"Watch Trailer"}
               onPress={function (): void {}}
               color={COLORS.TAGCOLOR}
@@ -96,40 +155,36 @@ const MovieDetailScreenCard = ({
             flexDirection: "row",
             marginHorizontal: 15,
             justifyContent: "space-between",
+            marginBottom: 10,
           }}
         >
-          <View style={{ width: 243, justifyContent: "center" }}>
-            <Text style={{ ...FONTS.Title3 }}>{name}</Text>
+          <View style={{ width: 175 }}>
+            <Text style={{ ...FONTS.Title3, fontSize: 20 }}>{name}</Text>
           </View>
           <View style={{ flexDirection: "row" }}>
-            <View>
-              <TouchableOpacity>
-                <Icon
-                  name="add-circle-outline"
-                  type="ionicon"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                />
-              </TouchableOpacity>
-            </View>
             <View style={{ flexDirection: "row", marginLeft: 15 }}>
-              <TouchableOpacity>
-                <Icon
-                  name="thumb-up-outline"
-                  type="material-community"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Icon
-                  name="thumb-down-outline"
-                  type="material-community"
-                  color={COLORS.LIGHTGREY}
-                  size={SIZES.MedIcon}
-                  style={{ marginLeft: 8 }}
-                />
-              </TouchableOpacity>
+              <View style={{ marginRight: 25 }}>
+                <TouchableOpacity>
+                  <Icon
+                    name="thumb-up-outline"
+                    type="material-community"
+                    color={"green"}
+                    size={SIZES.MedIcon}
+                  />
+                </TouchableOpacity>
+                <Text style={{ ...FONTS.Title2 }}>I Like</Text>
+              </View>
+              <View>
+                <TouchableOpacity>
+                  <Icon
+                    name="thumb-down-outline"
+                    type="material-community"
+                    color={"red"}
+                    size={SIZES.MedIcon}
+                  />
+                </TouchableOpacity>
+                <Text style={{ ...FONTS.Title2 }}>Nah</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -149,14 +204,14 @@ const MovieDetailScreenCard = ({
           >
             <Text
               style={{
-                ...FONTS.Title2Orange,
+                ...FONTS.Title2,
                 color: COLORS.LIGHTGREY,
                 marginRight: 10,
               }}
             >
               {year}
             </Text>
-            <Text style={{ ...FONTS.Title2Orange, color: COLORS.LIGHTGREY }}>
+            <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
               {length}
             </Text>
           </View>
@@ -172,7 +227,9 @@ const MovieDetailScreenCard = ({
           </View>
         </View>
         <View style={{ marginHorizontal: 15, marginVertical: 10 }}>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("PurchaseMITScreen")}
+          >
             <View
               style={{
                 borderColor: COLORS.AKCRUBLUE,

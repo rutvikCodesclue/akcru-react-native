@@ -2,12 +2,12 @@ import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { COLORS } from '../../constants';
 
-interface Props {
+type BasicMovieCardProps = {
   image: string;
   onPress: () => void;
 }
 
-const BasicMovieCard: React.FC<Props> = ({image, onPress}) => {
+const BasicMovieCard = ({image, onPress}: BasicMovieCardProps) => {
   return (
     <View>
       <TouchableOpacity onPress = {onPress}>

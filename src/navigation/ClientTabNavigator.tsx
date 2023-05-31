@@ -1,39 +1,101 @@
-import { View, Text } from "react-native";
-import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import React, {useEffect, useState, useRef} from "react";
 
 import { Icon } from "@rneui/base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
   MovieHomeScreen,
-  CrummunityScreen,
   UserProfileScreen,
   CruChewScreen,
   MovieDetailScreen,
   SearchMovieScreen,
   SearchMovieResultScreen,
-  WatchPartyTestScreen
+  PurchaseMITScreen,
+  UserSearchResultScreen,
+  ChooseMITScreen,
+  
+
+  ViewUserScreen
 } from "../screens";
 import { COLORS, SIZES } from "../../constants";
+import { useNavigation } from "@react-navigation/native";
 
 import { ClientStack } from "./ClientStack";
 import { UserProfileStack } from "./UserProfileStack";
+import { CrummunityStack } from "./CrummunityStack";
+import { Animated, Easing } from "react-native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { AkcruControlBtn } from "../../assets";
+import CruChewStack from "./CruChewStack";
+
 
 export type ClientTabsParams = {
   SearchMovieScreen: any;
   UserProfileScreen: any;
   SearchMovieResultScreen: any;
-  CrummunityScreen: any;
   MovieHomeScreen: any;
   MovieDetailScreen: any;
   CruChewScreen: any;
   ClientStack: any;
   UserProfileStack: any;
-  WatchPartyTestScreen: any;
+  CrummunityStack: any;
+  ViewUserScreen: any;
+  PurchaseMITScreen: any;
+  UserSearchResultScreen: any;
+  ChooseMITScreen: any;
+  CruChewStack: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
 
+
 export default function ClientTabNavigator() {
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+
+  const [animation] = useState(new Animated.Value(0));
+
+  useEffect(() => {
+    const floatUpAnimation = Animated.timing(animation, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    });
+
+    const floatDownAnimation = Animated.timing(animation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    });
+
+    // Execute the float up animation when the tab is focused
+    const focusListener = navigation.addListener("focus", () => {
+      floatUpAnimation.start();
+    });
+
+    // Execute the float down animation when the tab loses focus
+    const blurListener = navigation.addListener("blur", () => {
+      floatDownAnimation.start();
+    });
+
+    return () => {
+      focusListener.remove();
+      blurListener.remove();
+    };
+  }, []);
+
+  const floatingStyle = {
+    transform: [
+      {
+        translateY: animation.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, -26], // Adjust the translateY value to control the floating effect
+        }),
+      },
+    ],
+  };
+
   return (
     <ClientTabs.Navigator
       sceneContainerStyle={{ backgroundColor: COLORS.AKCRUBACKGROUND }}
@@ -67,8 +129,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="CrummunityScreen"
-        component={CrummunityScreen}
+        name="CrummunityStack"
+        component={CrummunityStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (
@@ -82,17 +144,14 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="WatchPartyTestScreen"
-        component={WatchPartyTestScreen}
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({ color }) => (
-            <Icon
-              name="eye-outline"
-              type="ionicon"
-              color={color}
-              size={SIZES.SmallIcon}
-            />
+          tabBarIcon: ({ color, focused }) => (
+            <Animated.View style={focused ? floatingStyle : null}>
+              <AkcruControlBtn />
+            </Animated.View>
           ),
         }}
       />
@@ -129,3 +188,4 @@ export default function ClientTabNavigator() {
     </ClientTabs.Navigator>
   );
 }
+

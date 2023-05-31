@@ -14,11 +14,13 @@ import {
   UserProfileDetailsTab,
   UserProfileWalletTab
 } from "./UserProfileTabs";
-import { AkcruDollarAmount, DIGITAL_PASS } from "../../../constants/Mockusers";
+import { AkcruDollarAmount, DIGITAL_PASS, FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 import { SIZES, COLORS, FONTS, AKCRUBADGES } from "../../../constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar, Icon } from "@rneui/themed";
-import { AkcruBadge, Header } from "../../components";
+import {
+  Header, AkcruLevels
+} from "../../components";
 import imageindex from "../../../assets/images/imageindex";
 import { PressableAndroidRippleConfig } from "react-native";
 import { StyleProp } from "react-native";
@@ -29,6 +31,7 @@ import { ClientStackParams } from "../../navigation/ClientStack";
 import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
   ClientStackParams,
@@ -162,8 +165,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
           resizeMode="cover"
           style={{ height: SIZES.ScreenHeight / 3.7 }}
         >
-          <View style={{zIndex: 20}}>
-            <Header ADAmount={AkcruDollarAmount[0].ADAmount} />
+          <View style={{ zIndex: 20 }}>
+            <Header />
           </View>
           <LinearGradient
             // Background Linear Gradient
@@ -181,7 +184,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
               flexDirection: "row",
               justifyContent: "space-between",
               alignItems: "center",
-              
+
               marginHorizontal: 15,
             }}
           >
@@ -191,7 +194,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                   rounded
                   size={70}
                   source={{
-                    uri: "https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg",
+                    uri: FAKE_USER_PROFILES[0].userPicture,
                   }}
                   avatarStyle={{
                     borderWidth: 2,
@@ -200,12 +203,29 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 />
               </View>
               <View>
-                <Text style={{ ...FONTS.Title2 }}>Jenny 2x</Text>
-                <AkcruBadge
-                  color={AKCRUBADGES.SuperHero.label}
-                  background={AKCRUBADGES.SuperHero.background}
-                  label={AKCRUBADGES.SuperHero.label}
-                />
+                <Text style={{ ...FONTS.Title2 }}>
+                  {FAKE_USER_PROFILES[0].userName}
+                </Text>
+                {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
+                  <View>
+                    <AkcruLevels.AkcruBadgeAkcruit />
+                  </View>
+                )}
+                {FAKE_USER_PROFILES[0].akcruBadge.guardian && (
+                  <View>
+                    <AkcruLevels.AkcruBadgeGuardian />
+                  </View>
+                )}
+                {FAKE_USER_PROFILES[0].akcruBadge.hero && (
+                  <View>
+                    <AkcruLevels.AkcruBadgeHero />
+                  </View>
+                )}
+                {FAKE_USER_PROFILES[0].akcruBadge.superhero && (
+                  <View>
+                    <AkcruLevels.AkcruBadgeSuperHero />
+                  </View>
+                )}
                 <TouchableOpacity>
                   <View style={{ flexDirection: "row" }}>
                     <Icon
@@ -237,11 +257,16 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 width: 100,
                 height: 60,
                 justifyContent: "center",
-                paddingLeft: 10,
+
+                alignItems: "center",
               }}
             >
-              <Text style={{ ...FONTS.Title3, fontSize: 14 }}>11200</Text>
-              <Text style={{ ...FONTS.Title2 }}>Followers</Text>
+              <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
+                {FAKE_USER_PROFILES[0].userFollowerAmount}
+              </Text>
+              <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
+                Followers
+              </Text>
             </View>
             <View
               style={{
@@ -250,34 +275,37 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 alignItems: "flex-end",
               }}
             >
-              <View>
-                <Image
-                  source={imageindex.MITticket}
-                  style={{ width: 55, height: 40 }}
-                />
-              </View>
-              <View style={{ position: "absolute", right: 0, top: 0 }}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: COLORS.WHITE,
-                    width: 20,
-                    height: 20,
-                    borderRadius: 15,
-                  }}
-                >
-                  <Text>5</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("UserMITHubScreen")} //Navigate to MITHub
+              >
+                <View>
+                  <Image
+                    source={imageindex.LrgMIT}
+                    style={{ width: 55, height: 25 }}
+                  />
                 </View>
-              </View>
+                <View style={{ position: "absolute", right: 0, bottom: 10 }}>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: COLORS.WHITE,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 15,
+                    }}
+                  >
+                    <Text>5</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={{ marginTop: 20, marginHorizontal: 15 }}>
             <Text
               style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
             >
-              Hey my name is Jenny 2x's because I like to watch movies 2 times.
-              #moviebuff #acrkrurecruiter
+              {FAKE_USER_PROFILES[0].userDesc}
             </Text>
           </View>
         </ImageBackground>

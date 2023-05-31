@@ -26,6 +26,7 @@ export const COLORS = {
   LIGHTORANGE: "#F88163",
   DARKAKCRUBLUE: "#0A92C2",
   AKCRUBLUE: "#2FBFF1",
+  TRANSAKCRUBLUE: "#2FBFF150",
   LIGHTGREY: "#E8E8E8",
   TRANSLIGHTGREY: "#E8E8E8A6",
   DARKGREY: "#A19C9C",
@@ -62,6 +63,11 @@ export const FONTS = {
     fontSize: 14,
     color: COLORS.LIGHTGREY,
   },
+  paragraph1: {
+    fontFamily: "Montserrat-Regular",
+    fontSize: 14,
+    color: COLORS.LIGHTGREY,
+  },
   Title3: {
     fontFamily: "Montserrat-Bold",
     fontSize: 16,
@@ -89,13 +95,13 @@ export const AKCRUBADGES = {
     badgeid: "guardian",
     label: "GUARDIAN",
     color: "#ED54ED",
-    background: "#A620D740",
+    background: COLORS.CATPURPDRK,
   },
   Hero: {
     badgeid: "hero",
     label: "HERO",
     color: "#F88163",
-    background: "#A7464040",
+    background: "#A74640",
   },
   SuperHero: {
     badgeid: "superhero",
@@ -106,8 +112,8 @@ export const AKCRUBADGES = {
   Akcruit: {
     badgeid: "ackruit",
     label: "AKCRUIT",
-    color: "#2FBFF1",
-    background: "#0A92C240",
+    color: COLORS.AKCRUBLUE,
+    background: "#076d91",
   },
 };
 

@@ -15,7 +15,7 @@ import {
   AKCRUAPP_TOTAL_AD,
 } from "../../../../constants/Mockusers";
 import { Icon } from "@rneui/base";
-import { MedButton } from "../../../components";
+import { AkcruButtons} from "../../../components";
 
 const UserProfileWalletTab = () => {
   const [toUSD, setToUSD] = useState(true);
@@ -87,14 +87,16 @@ const UserProfileWalletTab = () => {
           </View>
 
           <View>
-            <TouchableOpacity onPress={()=>{setToUSD(false), setToUSD(true)}}>
-              <View style={{ marginTop: 10 }}>
+            <TouchableOpacity>
+
+              {FAKE_USER_PROFILES[0].USDtoAkcruDollar ?
+              (<View style={{ marginTop: 10 }}>
                 <View style={{ marginBottom: -10 }}>
                   <Icon
                     name="arrow-left-thin"
                     type="material-community"
                     size={35}
-                    color={ toUSD? COLORS.LIGHTGREY: "green"}
+                    color={ COLORS.LIGHTGREY }
                   />
                 </View>
                 <View style={{ marginTop: -10 }}>
@@ -102,10 +104,30 @@ const UserProfileWalletTab = () => {
                     name="arrow-right-thin"
                     type="material-community"
                     size={35}
-                    color={toUSD ? "green" : COLORS.LIGHTGREY}
+                    color={ "green"}
                   />
                 </View>
-              </View>
+              </View>) :
+
+              (<View style={{ marginTop: 10 }}>
+                <View style={{ marginBottom: -10 }}>
+                  <Icon
+                    name="arrow-left-thin"
+                    type="material-community"
+                    size={35}
+                    color={ "green" }
+                  />
+                </View>
+                <View style={{ marginTop: -10 }}>
+                  <Icon
+                    name="arrow-right-thin"
+                    type="material-community"
+                    size={35}
+                    color={COLORS.LIGHTGREY}
+                  />
+                </View>
+              </View>)}
+
             </TouchableOpacity>
           </View>
 
@@ -129,7 +151,7 @@ const UserProfileWalletTab = () => {
           </View>
         </View>
         <View style={{ alignItems: "center", marginTop: 30, marginBottom: 20 }}>
-          <MedButton
+          <AkcruButtons.MedButton
             btnname={"Exchange"}
             onPress={function (): void {}}
             color={COLORS.AKCRUBLUE}
@@ -172,7 +194,7 @@ const UserProfileWalletTab = () => {
           </View>
         </View>
         <View style={{ alignItems: "center", marginTop: 30, marginBottom: 20 }}>
-          <MedButton
+          <AkcruButtons.MedButton
             btnname={"Send"}
             onPress={function (): void {}}
             color={COLORS.AKCRUBLUE}

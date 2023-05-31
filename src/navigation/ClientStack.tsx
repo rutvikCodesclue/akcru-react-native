@@ -1,7 +1,18 @@
-import { View, Text } from 'react-native'
+
 import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
-import { SearchMovieScreen, SearchMovieResultScreen, MovieDetailScreen, MovieHomeScreen, UserProfileScreen, } from '../screens';
+import {
+  PurchaseMITScreen,
+  SearchMovieScreen,
+  SearchMovieResultScreen,
+  MovieDetailScreen,
+  MovieHomeScreen,
+  UserProfileScreen,
+  AcceptMITScreen,
+  DeclineMITScreen,
+  UserMITHubScreen,
+  CruChewOrder
+} from "../screens";
 import ClientTabNavigator from './ClientTabNavigator';
 import { UserProfileDetailsTab } from '../screens/UserScreens/UserProfileTabs';
 import { COLORS } from '../../constants';
@@ -14,6 +25,11 @@ export type ClientStackParams = {
   MovieHomeScreen: any;
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
+  PurchaseMITScreen: any;
+  AcceptMITScreen: any;
+  DeclineMITScreen: any;
+  UserMITHubScreen: any;
+  CruChewOrder:any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -65,6 +81,41 @@ export function ClientStack () {
       <ClientSearch.Screen
         name="UserProfileDetailsTab"
         component={UserProfileDetailsTab}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="UserMITHubScreen"
+        component={UserMITHubScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="AcceptMITScreen"
+        component={AcceptMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="DeclineMITScreen"
+        component={DeclineMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="CruChewOrder"
+        component={CruChewOrder}
         options={() => ({
           headerShown: false,
         })}

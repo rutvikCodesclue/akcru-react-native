@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Avatar } from '@rneui/base';
 import { COLORS, FONTS } from '../../constants';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 type CruInviteCardProp = {
@@ -22,16 +23,29 @@ const CruInviteCard = ({
   return (
     <View
       style={{
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 8,
+        backgroundColor: "#1C202A",
+        borderRadius: 5,
+        height: 95,
       }}
     >
+      <LinearGradient
+        // Background Linear Gradient
+        colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+
+          borderRadius: 5,
+          height: 95,
+        }}
+      />
       <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
         <View style={{ marginRight: 10 }}>
           <Avatar
             source={{
-              uri: inviteePicture
+              uri: inviteePicture,
             }}
             size={50}
             rounded
@@ -42,7 +56,7 @@ const CruInviteCard = ({
           />
         </View>
         <View>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", width: 290 }}>
+          <View style={{ flexDirection: "row", flexWrap: "wrap", width: 280 }}>
             <View>
               <Text style={styles.paragraphText2}>{inviteeName}</Text>
             </View>
@@ -61,7 +75,7 @@ const CruInviteCard = ({
                 style={{
                   width: 125,
                   height: 30,
-                  backgroundColor: "green",
+                  backgroundColor: COLORS.AKCRUBLUE,
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: 3,
@@ -76,13 +90,13 @@ const CruInviteCard = ({
                 style={{
                   width: 125,
                   height: 30,
-                  backgroundColor: "red",
+                  backgroundColor: COLORS.CATPURPDRK,
                   justifyContent: "center",
                   alignItems: "center",
                   borderRadius: 3,
                 }}
               >
-                <Text style={{ ...FONTS.Title2 }}>DECLINE</Text>
+                <Text style={styles.declineButton}>DECLINE</Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -105,19 +119,24 @@ const styles = StyleSheet.create({
   },
   paragraphText: {
     ...FONTS.Title2,
-    color: COLORS.AKCRUBLUE,
+    color: COLORS.LIGHTGREY,
     fontSize: 12,
+    marginHorizontal: 5
   },
   paragraphText2: {
     ...FONTS.Title2,
     color: COLORS.AKCRUBLUE,
     fontSize: 12,
-    marginRight: 5
+    
   },
   paragraphText3: {
     ...FONTS.Title2,
-    color: COLORS.AKCRUBLUE,
+    color: COLORS.MIDORANGE,
     fontSize: 12,
-    marginLeft: 5
+   
+  },
+  declineButton: {
+    ...FONTS.Title2,
+    color: COLORS.AKCRUBLUE
   },
 });
