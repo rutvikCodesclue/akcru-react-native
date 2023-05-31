@@ -1,10 +1,15 @@
 import React from "react";
-import { createStackNavigator } from '@react-navigation/stack';
-import { Signin, MovieHomeScreen, SearchMovieScreen, MovieDetailScreen, SearchMovieResultScreen } from "../screens";
+import { createStackNavigator } from "@react-navigation/stack";
+import {
+  Signin,
+  MovieHomeScreen,
+  SearchMovieScreen,
+  MovieDetailScreen,
+  SearchMovieResultScreen,
+} from "../screens";
 import { COLORS } from "../../constants";
 import ClientTabNavigator from "./ClientTabNavigator";
 import { ClientStack } from "./ClientStack";
-
 
 export type AuthStackParams = {
   Signin: any;
@@ -69,4 +74,4 @@ export default function AuthStack() {
       />
     </Auth.Navigator>
   );
-};
+}

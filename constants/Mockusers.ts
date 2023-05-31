@@ -2,7 +2,6 @@ import { FONTS, COLORS, SIZES } from "./Theme";
 import { AkcruLevels } from "../src/components";
 import { LoremIpsum } from "lorem-ipsum";
 
-
 const lorem = new LoremIpsum({
   sentencesPerParagraph: {
     max: 8,
@@ -16,44 +15,46 @@ const lorem = new LoremIpsum({
 
 export const BADGES = [
   {
-    badgeid: 'guardian',
-    label: 'Guardian',
-    color: '#ED54ED',
-    bg: '#A620D740',
+    badgeid: "guardian",
+    label: "Guardian",
+    color: "#ED54ED",
+    bg: "#A620D740",
   },
   {
-    badgeid: 'hero',
-    label: 'Hero',
-    color: '#F88163',
-    bg: '#A7464040',
+    badgeid: "hero",
+    label: "Hero",
+    color: "#F88163",
+    bg: "#A7464040",
   },
   {
-    badgeid: 'superhero',
-    label: 'SuperHero',
-    color: '#5689FF',
-    bg: '#01003A40',
+    badgeid: "superhero",
+    label: "SuperHero",
+    color: "#5689FF",
+    bg: "#01003A40",
   },
   {
-    badgeid: 'ackruit',
-    label: 'Acrkuit',
-    color: '#2FBFF1',
-    bg: '#0A92C240',
+    badgeid: "ackruit",
+    label: "Acrkuit",
+    color: "#2FBFF1",
+    bg: "#0A92C240",
   },
 ];
 
 export const DIGITAL_PASS = [
   {
-    GuardianPass : "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
-    SuperHeroPass: "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
+    GuardianPass:
+      "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
+    SuperHeroPass:
+      "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
     HeroPass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
-    AkcruitPass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png", 
-  }
+    AkcruitPass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png",
+  },
 ];
 
 export const AkcruDollarAmount = [
   {
-    ADAmount: 46800
-  }
+    ADAmount: 46800,
+  },
 ];
 
 export const FAKE_AVATARS = [
@@ -118,7 +119,7 @@ export const FAKE_USER_PROFILES = [
     userFollowerAmount: 110231,
     akcruBadge: { guardian: true },
     ADAmount: 345700,
-    userMITAmount: 6,
+    userMITAmount: 0,
     movieReview: lorem.generateSentences(5),
     movieReviewDate: "12/1/2023",
     crummunityPost: lorem.generateSentences(2),
@@ -140,7 +141,7 @@ export const FAKE_USER_PROFILES = [
   {
     userName: "Jessie's Girl",
     userPicture:
-      "https://images.unsplash.com/photo-1623184663110-89ba5b565eb6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
+      "https://cdn.pixabay.com/photo/2015/01/15/13/06/woman-600238_960_720.jpg",
     userDesc: lorem.generateSentences(1),
     userFollowerAmount: 1131,
     akcruBadge: { hero: true },
@@ -219,7 +220,7 @@ export const FAKE_USER_PROFILES = [
   {
     userName: "Def Jeff",
     userPicture:
-      "https://images.unsplash.com/photo-1521119989659-a83eee488004?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=423&q=80",
+      "https://images.unsplash.com/photo-1623184663110-89ba5b565eb6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
     userDesc: lorem.generateSentences(2),
     userFollowerAmount: 110231,
     akcruBadge: { hero: true },
@@ -236,7 +237,7 @@ export const FAKE_USER_PROFILES = [
     CRUName: "Def Jeff CRU",
     userID: "5",
     status: "Watching 'Avengers'",
-    privateaccount: false,
+    privateaccount: true,
     online: true,
     USDtoAkcruDollar: true,
     influencer: false,
@@ -250,7 +251,7 @@ export const FAKE_USER_PROFILES = [
     userFollowerAmount: 110231,
     akcruBadge: { guardian: true },
     ADAmount: 23567,
-    userMITAmount: 7,
+    userMITAmount: 0,
     movieReview: lorem.generateSentences(8),
     movieReviewDate: "1/2/2023",
     crummunityPost: lorem.generateSentences(3),
@@ -298,88 +299,237 @@ export const FAKE_USER_PROFILES = [
   },
 ];
 
-
-
-export const AKCRUAPP_TOTAL_AD =[
+export const AKCRUAPP_TOTAL_AD = [
   {
     akcruTotalADAmount: 58646770,
-    percentageChange: 7
-  }
+    percentageChange: 7,
+  },
 ];
 
 export const JENNY_SCHEDULE = [
   {
-    movieName: 'Whiplash',
-    moviePoster: 'https://m.media-amazon.com/images/M/MV5BOTA5NDZlZGUtMjAxOS00YTRkLTkwYmMtYWQ0NWEwZDZiNjEzXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg' ,
-    movieYear: 2014, length:"1h 46m" , movieRated: "R" , movieGenre: "Drama", movieRating: 8.5,
-    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "11/2/2023", scheduleTime: "7:30 PM",
+    movieName: "Whiplash",
+    moviePoster:
+      "https://m.media-amazon.com/images/M/MV5BOTA5NDZlZGUtMjAxOS00YTRkLTkwYmMtYWQ0NWEwZDZiNjEzXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_.jpg",
+    movieYear: 2014,
+    length: "1h 46m",
+    movieRated: "R",
+    movieGenre: "Drama",
+    movieRating: 8.5,
+    scheduleType: { MIT: true, CRUView: false },
+    scheduleDate: "11/2/2023",
+    scheduleTime: "7:30 PM",
     scheduleWith: "Anthoni Styvens",
-    dateID: '0'
+    dateID: "0",
   },
   {
-    movieName: 'Warrior',
-    moviePoster:  'https://m.media-amazon.com/images/M/MV5BMTk4ODk5MTMyNV5BMl5BanBnXkFtZTcwMDMyNTg0Ng@@._V1_.jpg' ,
-    movieYear: 2011, length:"2h 20m" , movieRated: "PG-13" , movieGenre: "Action", movieRating: 8.2,
-    scheduleType: {MIT: false, CRUView: true}, scheduleDate: "10/30/2023", scheduleTime: "9:00 PM",
+    movieName: "Warrior",
+    moviePoster:
+      "https://m.media-amazon.com/images/M/MV5BMTk4ODk5MTMyNV5BMl5BanBnXkFtZTcwMDMyNTg0Ng@@._V1_.jpg",
+    movieYear: 2011,
+    length: "2h 20m",
+    movieRated: "PG-13",
+    movieGenre: "Action",
+    movieRating: 8.2,
+    scheduleType: { MIT: false, CRUView: true },
+    scheduleDate: "10/30/2023",
+    scheduleTime: "9:00 PM",
     scheduleWith: "",
-    dateID: '1'
+    dateID: "1",
   },
   {
-    movieName: 'WALL-E',
-    moviePoster: 'https://m.media-amazon.com/images/M/MV5BMjExMTg5OTU0NF5BMl5BanBnXkFtZTcwMjMxMzMzMw@@._V1_.jpg' ,
-    movieYear: 2008, length:"1h 38m" , movieRated: "G" , movieGenre: "Animation", movieRating: 8.4,
-    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "11/1/2023", scheduleTime: "6:45 PM",
+    movieName: "WALL-E",
+    moviePoster:
+      "https://m.media-amazon.com/images/M/MV5BMjExMTg5OTU0NF5BMl5BanBnXkFtZTcwMjMxMzMzMw@@._V1_.jpg",
+    movieYear: 2008,
+    length: "1h 38m",
+    movieRated: "G",
+    movieGenre: "Animation",
+    movieRating: 8.4,
+    scheduleType: { MIT: true, CRUView: false },
+    scheduleDate: "11/1/2023",
+    scheduleTime: "6:45 PM",
     scheduleWith: "Jessie's Girl",
-    dateID: '2'
+    dateID: "2",
   },
   {
-    movieName: 'V for Vendetta',
-    moviePoster: 'https://m.media-amazon.com/images/M/MV5BOTI5ODc3NzExNV5BMl5BanBnXkFtZTcwNzYxNzQzMw@@._V1_.jpg' ,
-    movieYear: 2006, length:"2h 12m" , movieRated: "R" , movieGenre: "Action", movieRating: 8.2,
-    scheduleType: {MIT: true, CRUView: false}, scheduleDate: "10/28/2023", scheduleTime: "7:00 PM",
+    movieName: "V for Vendetta",
+    moviePoster:
+      "https://m.media-amazon.com/images/M/MV5BOTI5ODc3NzExNV5BMl5BanBnXkFtZTcwNzYxNzQzMw@@._V1_.jpg",
+    movieYear: 2006,
+    length: "2h 12m",
+    movieRated: "R",
+    movieGenre: "Action",
+    movieRating: 8.2,
+    scheduleType: { MIT: true, CRUView: false },
+    scheduleDate: "10/28/2023",
+    scheduleTime: "7:00 PM",
     scheduleWith: "Jimmy Conway",
-    dateID: '3'
+    dateID: "3",
   },
   {
-    movieName: 'There Will Be Blood',
-    moviePoster:  'https://m.media-amazon.com/images/M/MV5BMjAxODQ4MDU5NV5BMl5BanBnXkFtZTcwMDU4MjU1MQ@@._V1_.jpg' ,
-    movieYear: 2008, length:"2h 38m" , movieRated: "R" , movieGenre: "Drama", movieRating: 8.2,
-    scheduleType: {MIT: false, CRUView: true}, scheduleDate: "10/30/2023", scheduleTime: "6:00 PM",
+    movieName: "There Will Be Blood",
+    moviePoster:
+      "https://m.media-amazon.com/images/M/MV5BMjAxODQ4MDU5NV5BMl5BanBnXkFtZTcwMDU4MjU1MQ@@._V1_.jpg",
+    movieYear: 2008,
+    length: "2h 38m",
+    movieRated: "R",
+    movieGenre: "Drama",
+    movieRating: 8.2,
+    scheduleType: { MIT: false, CRUView: true },
+    scheduleDate: "10/30/2023",
+    scheduleTime: "6:00 PM",
     scheduleWith: "",
-    dateID: '4'
+    dateID: "4",
   },
-
 ];
 
 export const JENNY_INVITES = [
   {
     inviteeName: "Jerry Loves Movies",
-    inviteePicture: "https://media.istockphoto.com/id/1152603284/photo/african-woman-looking-at-camera.jpg?s=612x612&w=0&k=20&c=oAlZhgAkn0WmU3XClcbnNRNJh5Q19i4wVa-Qk8t_Mhc=",
+    inviteePicture:
+      "https://media.istockphoto.com/id/1152603284/photo/african-woman-looking-at-camera.jpg?s=612x612&w=0&k=20&c=oAlZhgAkn0WmU3XClcbnNRNJh5Q19i4wVa-Qk8t_Mhc=",
     inviteDate: "11/20/2023",
-    cruInviteID: "0"
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 23900,
+    akcruBadge: { hero: true },
+    ADAmount: 23567,
+    status: "Watching 'Avengers'",
+    userMITAmount: 7,
+    MITID: "0",
+    influencer: false,
+    privateaccount: false,
+    online: true,
+    MITMoviechoice: "V for Vendetta",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BOTI5ODc3NzExNV5BMl5BanBnXkFtZTcwNzYxNzQzMw@@._V1_.jpg",
+    MITDate: "11/1/2023",
+    MITTime: "9:30 PM",
   },
   {
     inviteeName: "Jessie",
-    inviteePicture: "https://media.istockphoto.com/id/1207856385/photo/joyful-happy-african-american-young-man-in-eyeglasses-portrait.jpg?s=612x612&w=0&k=20&c=M5sUFPE5xlF1fMxvNYgAqdpSZYKxSor3-SlF-o6IiJ0=",
+    inviteePicture:
+      "https://media.istockphoto.com/id/1207856385/photo/joyful-happy-african-american-young-man-in-eyeglasses-portrait.jpg?s=612x612&w=0&k=20&c=M5sUFPE5xlF1fMxvNYgAqdpSZYKxSor3-SlF-o6IiJ0=",
     inviteDate: "11/10/2023",
-    cruInviteID: "1"
+    userDesc: lorem.generateSentences(2),
+    userFollowerAmount: 110231,
+    akcruBadge: { akcruit: true },
+    ADAmount: 150985,
+    status: "Watching 'Avengers'",
+    userMITAmount: 7,
+    MITID: "1",
+    influencer: false,
+    privateaccount: false,
+    online: true,
+    MITMoviechoice: "Unforgiven",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BODM3YWY4NmQtN2Y3Ni00OTg0LWFhZGQtZWE3ZWY4MTJlOWU4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg",
+    MITDate: "11/2/2023",
+    MITTime: "9:50 PM",
   },
   {
     inviteeName: "Mooo-Vee",
-    inviteePicture: "https://images.unsplash.com/photo-1623184663110-89ba5b565eb6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
+    inviteePicture:
+      "https://images.unsplash.com/photo-1623184663110-89ba5b565eb6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
     inviteDate: "10/28/2023",
-    cruInviteID: "2"
+    userDesc: lorem.generateSentences(3),
+    userFollowerAmount: 2351,
+    akcruBadge: { guardian: true },
+    ADAmount: 8235675,
+    status: "Watching 'Avengers'",
+    userMITAmount: 7,
+    MITID: "2",
+    influencer: true,
+    privateaccount: false,
+    online: false,
+    MITMoviechoice: "Up",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BMTk3NDE2NzI4NF5BMl5BanBnXkFtZTgwNzE1MzEyMTE@._V1_.jpg",
+    MITDate: "10/29/2023",
+    MITTime: "7:30 PM",
   },
   {
     inviteeName: "Sex, Drugs, and Movies",
-    inviteePicture: "https://images.unsplash.com/photo-1562124638-724e13052daf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fHNtaWxpbmclMjBtYW58ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60",
+    inviteePicture:
+      "https://images.unsplash.com/photo-1562124638-724e13052daf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fHNtaWxpbmclMjBtYW58ZW58MHx8MHx8&auto=format&fit=crop&w=600&q=60",
     inviteDate: "9/29/2023",
-    cruInviteID: "3"
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 110231,
+    akcruBadge: { superhero: true },
+    ADAmount: 150985,
+    status: "Best Man Holiday",
+    userMITAmount: 7,
+    MITID: "3",
+    influencer: false,
+    privateaccount: false,
+    online: true,
+    MITMoviechoice: "Top Gun: Maverick",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BZWYzOGEwNTgtNWU3NS00ZTQ0LWJkODUtMmVhMjIwMjA1ZmQwXkEyXkFqcGdeQXVyMjkwOTAyMDU@._V1_.jpg",
+    MITDate: "10/1/2023",
+    MITTime: "8:00 PM",
   },
   {
     inviteeName: "Queen Alexandra",
-    inviteePicture: "https://images.unsplash.com/photo-1603208636525-8825c33ed34b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
+    inviteePicture:
+      "https://images.unsplash.com/photo-1603208636525-8825c33ed34b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OXx8c21pbGluZyUyMG1hbnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=600&q=60",
     inviteDate: "11/23/2023",
-    cruInviteID: "4"
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 110231,
+    akcruBadge: { akcruit: true },
+    ADAmount: 150985,
+    status: "Watching 'Avengers'",
+    userMITAmount: 7,
+    MITID: "4",
+    influencer: false,
+    privateaccount: false,
+    online: true,
+    MITMoviechoice: "To Kill a Mockingbird",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BNmVmYzcwNzMtMWM1NS00MWIyLThlMDEtYzUwZDgzODE1NmE2XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_.jpg",
+    MITDate: "10/1/2023",
+    MITTime: "10:00 PM",
+  },
+  {
+    inviteeName: "Cool Chad",
+    inviteePicture:
+      "https://images.unsplash.com/photo-1561505457-3bcad021f8ee?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=435&q=80",
+    inviteDate: "11/20/2023",
+    userDesc: lorem.generateSentences(2),
+    userFollowerAmount: 231,
+    akcruBadge: { superhero: true },
+    ADAmount: 50985,
+    status: "Best Man Holiday",
+    userMITAmount: 7,
+    MITID: "5",
+    influencer: false,
+    privateaccount: false,
+    online: false,
+    MITMoviechoice: "There Will Be Blood",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BMjAxODQ4MDU5NV5BMl5BanBnXkFtZTcwMDU4MjU1MQ@@._V1_.jpg",
+    MITDate: "11/18/2023",
+    MITTime: "9:50 PM",
+  },
+  {
+    inviteeName: "Brook",
+    inviteePicture:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=387&q=80",
+    inviteDate: "11/10/2023",
+    userDesc: lorem.generateSentences(1),
+    userFollowerAmount: 1231,
+    akcruBadge: { hero: true },
+    ADAmount: 1585,
+    status: "Watching 'Avengers'",
+    userMITAmount: 7,
+    MITID: "6",
+    influencer: false,
+    privateaccount: false,
+    online: true,
+    MITMoviechoice: "The Wolf of Wall Street",
+    MITMovieposter:
+      "https://m.media-amazon.com/images/M/MV5BNjUyMTc4MDExMV5BMl5BanBnXkFtZTgwNDg0NDIwMjE@._V1_.jpg",
+    MITDate: "11/20/2023",
+    MITTime: "9:00 PM",
   },
 ];

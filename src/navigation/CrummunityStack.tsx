@@ -4,7 +4,10 @@ import {
   CrummunityScreen,
   ViewUserScreen,
   UserSearchResultScreen,
-  PurchaseMITScreen
+  PurchaseMITScreen,
+  AcceptMITScreen,
+  DeclineMITScreen
+
   
 } from "../screens";
 import { COLORS } from "../../constants";
@@ -14,6 +17,8 @@ export type CrummunityStackParams = {
   ViewUserScreen: any;
   UserSearchResultScreen: any;
   PurchaseMITScreen: any;
+  AcceptMITScreen: any;
+  DeclineMITScreen: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -51,6 +56,20 @@ export function CrummunityStack() {
       <Crummunity.Screen
         name="PurchaseMITScreen"
         component={PurchaseMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="AcceptMITScreen"
+        component={AcceptMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="DeclineMITScreen"
+        component={DeclineMITScreen}
         options={() => ({
           headerShown: false,
         })}

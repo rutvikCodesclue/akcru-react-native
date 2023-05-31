@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Avatar } from '@rneui/base';
 import { COLORS, FONTS } from '../../constants';
+import { LinearGradient } from 'expo-linear-gradient';
 
 
 type CruInviteCardProp = {
@@ -23,11 +24,23 @@ const CruInviteCard = ({
     <View
       style={{
         backgroundColor: "#1C202A",
-        borderColor: "#1C202A",
-        borderWidth: 0.5,
         borderRadius: 5,
+        height: 95,
       }}
     >
+      <LinearGradient
+        // Background Linear Gradient
+        colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+
+          borderRadius: 5,
+          height: 95,
+        }}
+      />
       <View style={{ flexDirection: "row", alignItems: "center", margin: 10 }}>
         <View style={{ marginRight: 10 }}>
           <Avatar

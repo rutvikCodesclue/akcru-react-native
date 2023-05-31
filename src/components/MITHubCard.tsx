@@ -1,45 +1,66 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Avatar } from "@rneui/base";
-import { FAKE_USER_PROFILES } from "../../constants/Mockusers";
+import { JENNY_INVITES } from "../../constants/Mockusers";
 import { COLORS, FONTS, SIZES } from "../../constants";
 import AkcruLevels from "./AkcruBadges";
 import { Icon } from "@rneui/base";
+import imageindex from "../../assets/images/imageindex";
+import { LinearGradient } from "expo-linear-gradient";
 
-type CrummunityFeedPostCardProps = {
-  userPicture: string;
-  userName: string;
-  userID: any;
-  CrummunityFeedPostLikes: number;
-  crummunityPost: string;
-  Crummunityreplies: string;
-  influencer: boolean;
-  akcruBadge: any;
+type MITHubCardProps = {
+  inviteePicture: string;
+  inviteeName: string;
+  MITDate: string;
+  MITMoviechoice: string;
   onPress: () => void;
+  akcruBadge: any;
+  influencer: boolean;
 };
 
-const CrummunityFeedPostCard = ({
-  userPicture,
-  userID,
-  userName,
-  CrummunityFeedPostLikes,
-  crummunityPost,
-  Crummunityreplies,
-  influencer,
-  akcruBadge,
-  onPress
-}: CrummunityFeedPostCardProps) => {
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length > maxLength) {
+    return text.substring(0, maxLength) + "...";
+  } else {
+    return text;
+  }
+};
+
+const MITHubCard = ({
+ inviteePicture,
+ inviteeName,
+ MITDate,
+ MITMoviechoice,
+ onPress,
+ akcruBadge,
+ influencer
+
+}: MITHubCardProps) => {
   return (
     <View style={styles.cardcontainer}>
+      <LinearGradient
+        // Background Linear Gradient
+        colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+
+          borderRadius: 5,
+          height: 95,
+        }}
+      />
+
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flexDirection: "row" }}>
           <View style={{ marginRight: 8 }}>
-            <TouchableOpacity onPress = {onPress}>
+            <TouchableOpacity>
               <Avatar
                 rounded
                 size={40}
                 source={{
-                  uri: userPicture,
+                  uri: inviteePicture,
                 }}
                 avatarStyle={{
                   borderWidth: 2,
@@ -50,7 +71,7 @@ const CrummunityFeedPostCard = ({
           </View>
           <View>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+              <Text style={{ ...FONTS.Title2 }}>{inviteeName}</Text>
               {influencer && (
                 <Icon
                   name="ribbon"
@@ -85,56 +106,30 @@ const CrummunityFeedPostCard = ({
           </View>
         </View>
 
-        <View style={{ alignItems: "center" }}>
-          <TouchableOpacity>
-            <Icon
-              name="thumb-up-outline"
-              type="material-community"
-              color={COLORS.LIGHTGREY}
-              size={22}
-              style={{ marginLeft: 5 }}
+        <View>
+          <Text style={styles.stamps}>{MITDate}</Text>
+          <TouchableOpacity onPress={onPress}>
+            <Image
+              source={imageindex.LrgMIT}
+              style={{ width: 55, height: 25 }}
             />
           </TouchableOpacity>
-
-          <Text style={styles.stamps2}>{CrummunityFeedPostLikes}</Text>
         </View>
       </View>
-      <View>
-        <Text style={styles.post}>{crummunityPost}</Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          marginTop: 10,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            width: 100,
-            justifyContent: "space-between",
-          }}
-        >
-          <TouchableOpacity>
-            <Text style={styles.reply}>Reply</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.reply}>Send</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View>
-          <TouchableOpacity>
-            <Text style={styles.viewreply}>{Crummunityreplies}</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={{ flexDirection: "row", marginTop: 5 }}>
+        <Text style={styles.cruchat2} numberOfLines={1} ellipsizeMode="tail">
+          {truncateText(
+            inviteeName + ' invites you to watch "' + MITMoviechoice + '"',
+            65
+          )}
+        </Text>
       </View>
     </View>
   );
 };
 
-export default CrummunityFeedPostCard;
+
+export default MITHubCard;
 
 const styles = StyleSheet.create({
   topContainer: {
@@ -143,14 +138,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 15,
   },
-  post: {
+  cruchat: {
+    ...FONTS.paragraph1,
+    fontSize: 12,
+    color: COLORS.AKCRUBLUE
+  },
+  cruchat2: {
     ...FONTS.paragraph1,
     fontSize: 12,
   },
   cardcontainer: {
     backgroundColor: "#1C202A",
+    borderColor: "#1C202A",
+    borderWidth: 0.5,
     borderRadius: 5,
     padding: 10,
+    height: 95,
   },
   stamps: {
     ...FONTS.Title2Orange,
@@ -158,17 +161,6 @@ const styles = StyleSheet.create({
   },
   stamps2: {
     ...FONTS.Title2AkcruBlue,
-    fontSize: 14,
-    color: COLORS.LIGHTGREY
+    fontSize: 12,
   },
-  reply: {
-    ...FONTS.Title1,
-    color: COLORS.AKCRUBLUE,
-    fontSize: 14
-  },
-  viewreply: {
-    ...FONTS.Title1,
-    color: COLORS.CATPURPLGT,
-    fontSize: 14
-  }
 });

@@ -62,7 +62,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{ zIndex: 20 }}>
-          <Header />
+          <Header /> 
         </View>
         <ImageBackground
           source={{ uri: digitalpass }}
@@ -70,7 +70,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
           style={{ height: SIZES.ScreenHeight / 3.7, marginTop: -60 }}
         >
           <LinearGradient
-            // Background Linear Gradient
+            // Digitalpass Linear Gradient overlay
             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
             style={{
               position: "absolute",
@@ -265,45 +265,43 @@ export default function ViewUserScreen({ route, navigation }: Props) {
               </View>
             </View>
           </View>
+        </ImageBackground>
+        <View
+          style={{marginTop: -15,
+            marginHorizontal: 15,
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
           <View
             style={{
-              marginTop: 20,
-              marginHorizontal: 15,
-              flexDirection: "row",
+              width: 100,
+              height: 60,
+              justifyContent: "center",
               alignItems: "center",
             }}
           >
-            <View
-              style={{
-                width: 100,
-                height: 60,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                {userFollowerAmount}
-              </Text>
-              <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
-                Followers
-              </Text>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity>
-                <View style={styles.cruinvitebutton}>
-                  <Text style={{ ...FONTS.Title2 }}>CRU INVITE</Text>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity>
-                <View style={styles.followbutton}>
-                  <Text style={{ ...FONTS.Title2 }}>FOLLOW</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
+            <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
+              {userFollowerAmount}
+            </Text>
+            <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
+              Followers
+            </Text>
           </View>
-        </ImageBackground>
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity>
+              <View style={styles.cruinvitebutton}>
+                <Text style={{ ...FONTS.Title2 }}>CRU INVITE</Text>
+              </View>
+            </TouchableOpacity>
 
+            <TouchableOpacity>
+              <View style={styles.followbutton}>
+                <Text style={{ ...FONTS.Title2 }}>FOLLOW</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
         {privateaccount ? (
           <View
             style={{ marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7 }}
@@ -322,7 +320,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
           </View>
         ) : (
           <View>
-            <View style={{ marginHorizontal: 15, marginTop: 50 }}>
+            <View style={{ marginHorizontal: 15}}>
               <Text
                 style={{
                   ...FONTS.Title2,

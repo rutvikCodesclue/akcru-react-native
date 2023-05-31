@@ -7,7 +7,10 @@ import {
   SearchMovieResultScreen,
   SearchMovieScreen,
   UserProfileScreen,
-  ViewUserScreen
+  ViewUserScreen,
+  UserSearchResultScreen,
+  ChooseMITScreen
+
 } from "../screens";
 import ClientTabNavigator from "./ClientTabNavigator";
 import { UserProfileDetailsTab } from "../screens/UserScreens/UserProfileTabs";
@@ -22,6 +25,8 @@ export type UserProfileStackParams = {
   UserProfileScreen: any;
   UserProfileDetailsTab: any;
   ViewUserScreen: any;
+  UserSearchResultScreen: any;
+  ChooseMITScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -80,6 +85,20 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="ViewUserScreen"
         component={ViewUserScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="UserSearchResultScreen"
+        component={UserSearchResultScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="ChooseMITScreen"
+        component={ChooseMITScreen}
         options={() => ({
           headerShown: false,
         })}

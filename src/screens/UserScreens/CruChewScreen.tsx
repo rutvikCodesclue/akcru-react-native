@@ -3,8 +3,18 @@ import React from 'react';
 import imageindex from '../../../assets/images/imageindex';
 import { SIZES, COLORS, FONTS } from '../../../constants';
 import { Header } from '../../components';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CruChewStackParams } from '../../navigation/CruChewStack';
+import { useNavigation } from '@react-navigation/native';
+import { AuthStackParams } from '../../navigation/AuthNavigation';
+
 
 const CruChewScreen = () => {
+
+  
+  const navigation =
+    useNavigation<NativeStackNavigationProp<CruChewStackParams>>();
+  
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
@@ -30,7 +40,7 @@ const CruChewScreen = () => {
               left: 0,
               right: 0,
               top: 225,
-              zIndex: 100
+              zIndex: 100,
             }}
           >
             <Image
@@ -52,13 +62,12 @@ const CruChewScreen = () => {
               favorite restaurant and have it delivered to your door while
               you're enjoying your favorite content.
             </Text>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('CruChewOrder')}>
               <Image
                 source={imageindex.CruChew3}
                 style={{
                   width: 200,
                   height: 200,
-    
                 }}
                 resizeMode="contain"
               />

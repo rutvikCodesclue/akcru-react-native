@@ -203,7 +203,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 />
               </View>
               <View>
-                <Text style={{ ...FONTS.Title2 }}>{FAKE_USER_PROFILES[0].userName}</Text>
+                <Text style={{ ...FONTS.Title2 }}>
+                  {FAKE_USER_PROFILES[0].userName}
+                </Text>
                 {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
@@ -255,12 +257,16 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 width: 100,
                 height: 60,
                 justifyContent: "center",
-                
-                alignItems: 'center'
+
+                alignItems: "center",
               }}
             >
-              <Text style={{ ...FONTS.Title3, fontSize: 14 }}>{FAKE_USER_PROFILES[0].userFollowerAmount}</Text>
-              <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE  }}>Followers</Text>
+              <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
+                {FAKE_USER_PROFILES[0].userFollowerAmount}
+              </Text>
+              <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
+                Followers
+              </Text>
             </View>
             <View
               style={{
@@ -269,26 +275,30 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 alignItems: "flex-end",
               }}
             >
-              <View>
-                <Image
-                  source={imageindex.MITticket}
-                  style={{ width: 55, height: 40 }}
-                />
-              </View>
-              <View style={{ position: "absolute", right: 0, top: 0 }}>
-                <View
-                  style={{
-                    alignItems: "center",
-                    justifyContent: "center",
-                    backgroundColor: COLORS.WHITE,
-                    width: 20,
-                    height: 20,
-                    borderRadius: 15,
-                  }}
-                >
-                  <Text>5</Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("UserMITHubScreen")} //Navigate to MITHub
+              >
+                <View>
+                  <Image
+                    source={imageindex.LrgMIT}
+                    style={{ width: 55, height: 25 }}
+                  />
                 </View>
-              </View>
+                <View style={{ position: "absolute", right: 0, bottom: 10 }}>
+                  <View
+                    style={{
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: COLORS.WHITE,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 15,
+                    }}
+                  >
+                    <Text>5</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
             </View>
           </View>
           <View style={{ marginTop: 20, marginHorizontal: 15 }}>

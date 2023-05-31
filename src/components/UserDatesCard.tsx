@@ -3,6 +3,7 @@ import React from 'react'
 import { COLORS, FONTS, SIZES } from '../../constants'
 import imageindex from '../../assets/images/imageindex'
 import { JENNY_SCHEDULE } from '../../constants/Mockusers'
+import { LinearGradient } from 'expo-linear-gradient'
 
 type UserDatesCardProps = {
   moviePoster: string;
@@ -36,12 +37,23 @@ const UserDatesCard = ({
     <View
       style={{
         backgroundColor: "#1C202A",
-        borderColor: "#1C202A",
-        borderWidth: 0.5,
         borderRadius: 5,
-        
+        height: 155,
       }}
     >
+      <LinearGradient
+        // Background Linear Gradient
+        colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+          
+          borderRadius: 5,
+          height: 155,
+        }}
+      />
       <View style={{ margin: 10 }}>
         <View style={{ flexDirection: "row" }}>
           <View style={{ marginRight: 10 }}>
