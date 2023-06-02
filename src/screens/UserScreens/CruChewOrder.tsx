@@ -13,17 +13,16 @@ const CruChewOrder = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
   return (
-  
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View>
         <Header />
       </View>
       <WebView
         source={{
-          uri: "https://sdk.mealme.ai/store?api=ackru-sandbox&storeType=restaurant&primaryColor=2FBFF1",
+          uri: "https://sdk.mealme.ai/store?api=akcru&storeType=restaurant&primaryColor=2FBFF1&hidePoweredBy=true&hideQuote=true&combineServiceAndDeliveryFee=true",
         }}
         style={{
-          marginBottom: 40
+          marginBottom: 40,
         }}
       />
     </SafeAreaView>

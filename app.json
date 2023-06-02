@@ -9,7 +9,7 @@
     "splash": {
       "image": "./assets/images/splash.jpg",
       "resizeMode": "cover",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#0D182A"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,12 +19,12 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/AkcruHexLogo.png",
+        "backgroundColor": "#0D182A"
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/AkcruHexLogo.png"
     }
   }
 }

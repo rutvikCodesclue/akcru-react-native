@@ -8,35 +8,75 @@ import {
   ImageBackground,
   Image,
   TouchableOpacity,
+  Pressable,
   Modal,
-  Pressable
+  TextInput
 } from "react-native";
 import { COLORS, FONTS, SIZES } from "../../../constants";
-import { useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CrummunityStackParams } from "../../navigation/CrummunityStack";
 import { Icon, Avatar } from "@rneui/base";
-import { MITSwipe, Header, AkcruLevels, MITMessageModal } from "../../components";
+import { MITSwipe, Header, AkcruLevels, MITMessages, AkcruButtons } from "../../components";
 import { LinearGradient } from "expo-linear-gradient";
 import { DIGITAL_PASS } from "../../../constants/Mockusers";
 import imageindex from "../../../assets/images/imageindex";
 import { JENNY_INVITES } from "../../../constants/Mockusers";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetHandleProps,
+  BottomSheetView,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
+import { CruChewStackParams } from "../../navigation/CruChewStack";
+import { UserProfileStackParams } from "../../navigation/UserProfileStack";
+import { StackNavigationProp } from "@react-navigation/stack";
 
-const ChooseMITScreen = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+type ChooseMITScreenNavigationProp = StackNavigationProp<
+  UserProfileStackParams,
+  "ChooseMITScreen"
+>;
 
-    const sheetRef = useRef<BottomSheet>(null);
-    const [isOpen, setIsOpen] = useState(false);
+type ChooseMITScreenRouteProp = RouteProp<
+  UserProfileStackParams,
+  "ChooseMITScreen"
+>;
 
-    const snapPoints = ["85"];
+type Props = {
+  navigation: ChooseMITScreenNavigationProp;
+  route: ChooseMITScreenRouteProp;
+};
 
-    const handleSnapPress = useCallback((index: number)=>{
-      sheetRef.current?. snapToIndex(index);
-      setIsOpen(true);
-    }, []);
+const ChooseMITScreen = ({ navigation, route}: Props) => {
 
+  const MITID: number | undefined = route.params?.MITID ?? null;
+  const invitee: string | undefined = route.params?. inviteeName ?? null;
+
+  const {
+    inviteePicture,
+    privateaccount,
+    online,
+    inviteeName,
+    akcruBadge,
+    status,
+    userFollowerAmount,
+    userDesc,
+    influencer,
+    MITMovieposter,
+    MITMoviechoice,
+    MITDate,
+    MITTime,
+  } = JENNY_INVITES[MITID ?? 0];
+   
+
+  const sheetRef = useRef<BottomSheet>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const snapPoints = ["1", "85"];
+
+  const handleSnapPress = useCallback((index: number) => {
+    sheetRef.current?.snapToIndex(index);
+    setIsOpen(true);
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -67,7 +107,9 @@ const ChooseMITScreen = () => {
                 }}
               />
               <View style={styles.topcontainer}>
-                <TouchableOpacity onPress={() => navigation.pop()}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate ("UserMITHubScreen")}
+                >
                   <View
                     style={{
                       flexDirection: "row",
@@ -85,7 +127,7 @@ const ChooseMITScreen = () => {
                 </TouchableOpacity>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <Text style={styles.screenTitle}>
-                    Movie Invite Ticket Hub
+                    Movie Invite Ticket
                   </Text>
                   <Image
                     source={imageindex.LrgMIT}
@@ -109,7 +151,7 @@ const ChooseMITScreen = () => {
                     rounded
                     size={70}
                     source={{
-                      uri: JENNY_INVITES[0].inviteePicture,
+                      uri: inviteePicture,
                     }}
                     avatarStyle={{
                       borderWidth: 2,
@@ -118,8 +160,8 @@ const ChooseMITScreen = () => {
                   />
                   <View />
 
-                  {!JENNY_INVITES[0].privateaccount ? (
-                    JENNY_INVITES[0].online ? (
+                  {!privateaccount ? (
+                    online ? (
                       <View
                         style={{
                           backgroundColor: "green",
@@ -146,24 +188,24 @@ const ChooseMITScreen = () => {
                 </View>
                 <View style={{ width: SIZES.ScreenWidth / 2.5 }}>
                   <Text style={{ ...FONTS.Title2 }}>
-                    {JENNY_INVITES[0].inviteeName}
+                    {inviteeName}
                   </Text>
-                  {JENNY_INVITES[0].akcruBadge.akcruit && (
+                  {akcruBadge.akcruit && (
                     <View>
                       <AkcruLevels.AkcruBadgeAkcruit />
                     </View>
                   )}
-                  {JENNY_INVITES[0].akcruBadge.guardian && (
+                  {akcruBadge.guardian && (
                     <View>
                       <AkcruLevels.AkcruBadgeGuardian />
                     </View>
                   )}
-                  {JENNY_INVITES[0].akcruBadge.hero && (
+                  {akcruBadge.hero && (
                     <View>
                       <AkcruLevels.AkcruBadgeHero />
                     </View>
                   )}
-                  {JENNY_INVITES[0].akcruBadge.superhero && (
+                  {akcruBadge.superhero && (
                     <View>
                       <AkcruLevels.AkcruBadgeSuperHero />
                     </View>
@@ -188,7 +230,7 @@ const ChooseMITScreen = () => {
                     }}
                   >
                     <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                      {JENNY_INVITES[0].userFollowerAmount}
+                      {userFollowerAmount}
                     </Text>
                     <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
                       Followers
@@ -202,7 +244,7 @@ const ChooseMITScreen = () => {
                 <View style={{ alignItems: "center", marginBottom: 10 }}>
                   <TouchableOpacity>
                     <Image
-                      source={{ uri: JENNY_INVITES[0].MITMovieposter }}
+                      source={{ uri: MITMovieposter }}
                       style={styles.poster}
                     />
                   </TouchableOpacity>
@@ -215,17 +257,17 @@ const ChooseMITScreen = () => {
                     textAlign: "center",
                   }}
                 >
-                  "{JENNY_INVITES[0].inviteeName}" wants to watch "
-                  {JENNY_INVITES[0].MITMoviechoice}" with you on:
+                  "{inviteeName}" wants to watch "
+                  {MITMoviechoice}" with you on:
                 </Text>
               </View>
               <View style={{ alignItems: "center", marginVertical: 20 }}>
                 <View style={styles.datebox}>
                   <Text style={styles.datetext}>
-                    {JENNY_INVITES[0].MITDate}
+                    {MITDate}
                   </Text>
                   <Text style={styles.datetext}>
-                    @ {JENNY_INVITES[0].MITTime}
+                    @ {MITTime}
                   </Text>
                 </View>
                 <TouchableOpacity>
@@ -239,15 +281,14 @@ const ChooseMITScreen = () => {
           </View>
         </ScrollView>
         <View style={styles.opensheet}>
-          <Pressable onPress={()=>handleSnapPress(0)}>
+          <Pressable onPress={() => handleSnapPress(1)}>
             <Icon
-            name="chevron-up"
-            type="ionicon"
-            size={30}
-            color={COLORS.DARKGREY}
-          />
+              name="chevron-up"
+              type="ionicon"
+              size={30}
+              color={COLORS.DARKGREY}
+            />
           </Pressable>
-          
         </View>
 
         <BottomSheet
@@ -255,11 +296,26 @@ const ChooseMITScreen = () => {
           snapPoints={snapPoints}
           enablePanDownToClose={true}
           backgroundStyle={{ backgroundColor: COLORS.TAGCOLOR }}
-          onClose={()=>setIsOpen(false)}
+          onClose={() => setIsOpen(true)}
         >
-          <BottomSheetView>
-            <Text>Hello</Text>
-          </BottomSheetView>
+          <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
+            <MITMessages inviteePicture={inviteePicture} inviteeName={inviteeName} akcruBadge={akcruBadge} influencer={influencer} />
+          </BottomSheetScrollView>
+          <View style={{ marginBottom: 75, marginHorizontal: 15 }}>
+            <View style={styles.input}>
+              <TextInput
+                placeholder={"placeholder"}
+                placeholderTextColor={"transparent"}
+                style={styles.textinput}
+              />
+
+              <AkcruButtons.XSmallButton
+                btnname={"SEND"}
+                onPress={function (): void {}}
+                color=""
+              />
+            </View>
+          </View>
         </BottomSheet>
       </View>
     </View>
@@ -297,7 +353,6 @@ const styles = StyleSheet.create({
     color: COLORS.AKCRUBLUE,
   },
   sheetcontainer: {
-   
     flex: 1,
   },
   sheetview: {},
@@ -306,6 +361,20 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.TAGCOLOR,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
+  },
+  input: {
+    flexDirection: "row",
+    borderWidth: 0.8,
+    borderColor: COLORS.DARKGREY,
+    borderRadius: 5,
+    justifyContent: "space-between",
+    marginVertical: 10,
+    paddingLeft: 10,
+    alignItems: "center",
+    height: 35,
+  },
+  textinput: {
+    color: COLORS.LIGHTGREY,
   },
 });
 
