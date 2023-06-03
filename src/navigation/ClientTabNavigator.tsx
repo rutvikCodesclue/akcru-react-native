@@ -144,8 +144,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="MovieTrailerScreen"
-        component={MovieTrailerScreen}
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
