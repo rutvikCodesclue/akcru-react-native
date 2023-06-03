@@ -13,9 +13,8 @@ import {
   PurchaseMITScreen,
   UserSearchResultScreen,
   ChooseMITScreen,
-  
-
-  ViewUserScreen
+  ViewUserScreen,
+  MovieTrailerScreen
 } from "../screens";
 import { COLORS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
@@ -44,6 +43,7 @@ export type ClientTabsParams = {
   UserSearchResultScreen: any;
   ChooseMITScreen: any;
   CruChewStack: any;
+  MovieTrailerScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -156,8 +156,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="CruChewScreen"
-        component={CruChewScreen}
+        name="CruChewStack"
+        component={CruChewStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ color }) => (

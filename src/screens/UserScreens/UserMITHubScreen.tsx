@@ -5,18 +5,36 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { SIZES, FONTS, COLORS } from '../../../constants'
 import { DIGITAL_PASS } from '../../../constants/Mockusers'
 import { Icon } from '@rneui/base'
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { UserProfileStackParams } from '../../navigation/UserProfileStack'
 import { CrummunityStackParams } from '../../navigation/CrummunityStack'
-import imageindex from '../../../assets/images/imageindex'
+import imageindex from '../../../assets/images/imageindex';
+import { JENNY_INVITES } from '../../../constants/Mockusers'
+import { StackNavigationProp } from '@react-navigation/stack'
+
+type UserMITHubScreenNavigationProp = StackNavigationProp<
+  UserProfileStackParams,
+  "UserMITHubScreen"
+>;
+
+type UserMITHubScreenRouteProp = RouteProp<
+  UserProfileStackParams,
+  "UserMITHubScreen"
+>;
+
+type Props = {
+  navigation: UserMITHubScreenNavigationProp;
+  route: UserMITHubScreenRouteProp;
+};
 
 const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 
-const UserMITHubScreen = () => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+const UserMITHubScreen = ({navigation, route}: Props) => {
+    
+
+  
   return (
     <View>
       <ScrollView stickyHeaderIndices={[0]}>

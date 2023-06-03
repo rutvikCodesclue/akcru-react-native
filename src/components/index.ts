@@ -29,7 +29,7 @@ import MaskedViews from "./MaskedViews";
 import MITSwipe from "./MITSwipe";
 import MITHubCard from "./MITHubCard";
 import MITHubList from "./MITHubList";
-import MITMessageModal from "./MITMessageModal";
+import MITMessages from "./MITMessagesCard";
 
 
 export {
@@ -64,5 +64,5 @@ export {
   MITSwipe,
   MITHubCard,
   MITHubList,
-  MITMessageModal,
+  MITMessages,
 };

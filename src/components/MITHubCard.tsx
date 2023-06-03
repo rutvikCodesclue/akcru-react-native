@@ -14,6 +14,7 @@ type MITHubCardProps = {
   MITDate: string;
   MITMoviechoice: string;
   onPress: () => void;
+  onPressIn: () => void;
   akcruBadge: any;
   influencer: boolean;
 };
@@ -32,6 +33,7 @@ const MITHubCard = ({
  MITDate,
  MITMoviechoice,
  onPress,
+ onPressIn,
  akcruBadge,
  influencer
 
@@ -55,7 +57,7 @@ const MITHubCard = ({
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flexDirection: "row" }}>
           <View style={{ marginRight: 8 }}>
-            <TouchableOpacity>
+            <TouchableOpacity onPressIn={onPressIn}>
               <Avatar
                 rounded
                 size={40}

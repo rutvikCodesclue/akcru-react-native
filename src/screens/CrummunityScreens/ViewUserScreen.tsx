@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React from "react";
 import { FONTS, COLORS, SIZES } from "../../../constants";
-import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
+import { FAKE_USER_PROFILES, JENNY_INVITES } from "../../../constants/Mockusers";
 import { Header, AkcruLevels, TrendingNowList } from "../../components";
 import { LinearGradient } from "expo-linear-gradient";
 import { Avatar, Icon } from "@rneui/base";
@@ -51,6 +51,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
     status,
     userFollowerAmount,
     userDesc,
+    influencer
   } = FAKE_USER_PROFILES[userID ?? 0];
 
   const truncatedstatus =
@@ -62,7 +63,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{ zIndex: 20 }}>
-          <Header /> 
+          <Header />
         </View>
         <ImageBackground
           source={{ uri: digitalpass }}
@@ -152,7 +153,19 @@ export default function ViewUserScreen({ route, navigation }: Props) {
                 ) : null}
               </View>
               <View style={{ width: SIZES.ScreenWidth / 2.5 }}>
-                <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <Text style={{ ...FONTS.Title2 }}>{userName}</Text>
+                  {influencer && (
+                    <Icon
+                      name="ribbon"
+                      type="ionicon"
+                      color={COLORS.AKCRUBLUE}
+                      size={20}
+                      style={{ marginLeft: 5 }}
+                    />
+                  )}
+                </View>
+
                 {akcruBadge.akcruit && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
@@ -267,7 +280,8 @@ export default function ViewUserScreen({ route, navigation }: Props) {
           </View>
         </ImageBackground>
         <View
-          style={{marginTop: -15,
+          style={{
+            marginTop: -15,
             marginHorizontal: 15,
             flexDirection: "row",
             alignItems: "center",
@@ -320,7 +334,7 @@ export default function ViewUserScreen({ route, navigation }: Props) {
           </View>
         ) : (
           <View>
-            <View style={{ marginHorizontal: 15}}>
+            <View style={{ marginHorizontal: 15 }}>
               <Text
                 style={{
                   ...FONTS.Title2,

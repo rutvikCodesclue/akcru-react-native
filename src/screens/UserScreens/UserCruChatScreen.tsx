@@ -38,7 +38,9 @@ const UserCruChatScreen = () => {
             <View style={{ zIndex: 20 }}>
               <Header />
             </View>
-            <View style={{ marginHorizontal: 15, marginBottom: 10, zIndex: 21 }}>
+            <View
+              style={{ marginHorizontal: 15, marginBottom: 10, zIndex: 21 }}
+            >
               <TouchableOpacity onPress={() => navigation.pop()}>
                 <View
                   style={{
@@ -117,12 +119,13 @@ const UserCruChatScreen = () => {
                   height: 60,
                   justifyContent: "center",
                   paddingLeft: 10,
+                  alignItems: "center",
                 }}
               >
                 <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
                   {FAKE_USER_PROFILES[0].userFollowerAmount}
                 </Text>
-                <Text style={{ ...FONTS.Title2 }}>Followers</Text>
+                <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>Followers</Text>
               </View>
               <View
                 style={{
@@ -131,26 +134,30 @@ const UserCruChatScreen = () => {
                   alignItems: "flex-end",
                 }}
               >
-                <View>
-                  <Image
-                    source={imageindex.MITticket}
-                    style={{ width: 55, height: 40 }}
-                  />
-                </View>
-                <View style={{ position: "absolute", right: 0, top: 0 }}>
-                  <View
-                    style={{
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: COLORS.WHITE,
-                      width: 20,
-                      height: 20,
-                      borderRadius: 15,
-                    }}
-                  >
-                    <Text>5</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("UserMITHubScreen")} //Navigate to MITHub
+                >
+                  <View>
+                    <Image
+                      source={imageindex.LrgMIT}
+                      style={{ width: 55, height: 25 }}
+                    />
                   </View>
-                </View>
+                  <View style={{ position: "absolute", right: 0, bottom: 10 }}>
+                    <View
+                      style={{
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: COLORS.WHITE,
+                        width: 20,
+                        height: 20,
+                        borderRadius: 15,
+                      }}
+                    >
+                      <Text>5</Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
               </View>
             </View>
             <View style={{ marginTop: 20, marginHorizontal: 15 }}>

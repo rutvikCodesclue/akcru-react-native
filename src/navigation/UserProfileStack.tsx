@@ -9,7 +9,8 @@ import {
   UserProfileScreen,
   ViewUserScreen,
   UserSearchResultScreen,
-  ChooseMITScreen
+  ChooseMITScreen,
+  UserMITHubScreen
 
 } from "../screens";
 import ClientTabNavigator from "./ClientTabNavigator";
@@ -27,6 +28,7 @@ export type UserProfileStackParams = {
   ViewUserScreen: any;
   UserSearchResultScreen: any;
   ChooseMITScreen: any;
+  UserMITHubScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -92,6 +94,13 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="UserSearchResultScreen"
         component={UserSearchResultScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="UserMITHubScreen"
+        component={UserMITHubScreen}
         options={() => ({
           headerShown: false,
         })}

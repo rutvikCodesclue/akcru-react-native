@@ -26,10 +26,13 @@ const navigation =
               inviteePicture={item.inviteePicture}
               MITDate={item.MITDate}
               MITMoviechoice={item.MITMoviechoice}
+              onPressIn={() => navigation.navigate ("ViewUserScreen",{
+                userID: index
+              })}
 
               onPress={() =>
                 navigation.navigate("ChooseMITScreen", {
-                  userID: index,
+                  MITID: index,
                 })
               }
               influencer={item.influencer}
