@@ -44,7 +44,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     actors,
     directors,
     image_url,
-    
+    youtubeID
   } = MOVIES [id ?? 0];
 
   
@@ -68,7 +68,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
             desc={desc}
             actors={actors.join(", ")}
             directors={directors.join(", ")}
-            id={""}
+            id={""} youtubeID={youtubeID}            
           />
         </View>
         <View style={{ marginHorizontal: 15 }}>

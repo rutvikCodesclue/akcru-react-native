@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image, SafeAreaView, ScrollView } from "react-native";
-import React from "react";
+import { View, Text, TouchableOpacity, Image, SafeAreaView, ScrollView, TextInput, Button, Alert } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
 import { COLORS, FONTS } from "../../constants";
 import { Icon } from "@rneui/base";
 import { SIZES } from "../../constants";
@@ -10,6 +10,10 @@ import AkcruButtons from "./Buttons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../navigation/ClientStack";
+import { MOVIES } from "../../constants/Data";
+import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import MITMessages from "./MITMessagesCard";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 type MovieDetailScreenCardProps = {
   image_url: string;
@@ -22,6 +26,7 @@ type MovieDetailScreenCardProps = {
   actors: string;
   directors: string;
   id: string;
+  youtubeID: string;
 };
 
 
@@ -36,9 +41,33 @@ const MovieDetailScreenCard = ({
   desc,
   actors,
   directors,
+  youtubeID
 }: MovieDetailScreenCardProps) => {
 
   const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>()
+
+  const sheetRef = useRef<BottomSheet>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const snapPoints = ["1","50"];
+
+  const handleSnapPress = useCallback((index: number) => {
+    sheetRef.current?.snapToIndex(index);
+    setIsOpen(true);
+  }, []);
+
+  const [playing, setPlaying] = useState(false);
+
+  const onStateChange = useCallback((state: string) => {
+    if (state === "ended") {
+      setPlaying(false);
+      Alert.alert("video has finished playing!");
+    }
+  }, []);
+
+  const togglePlaying = useCallback(() => {
+    setPlaying((prev) => !prev);
+  }, []);
     
   return (
     <View>
@@ -142,7 +171,7 @@ const MovieDetailScreenCard = ({
             />
             <AkcruButtons.MedButton
               btnname={"Watch Trailer"}
-              onPress={function (): void {}}
+              onPress={() => handleSnapPress(1)}
               color={COLORS.TAGCOLOR}
             />
           </View>
@@ -320,6 +349,24 @@ const MovieDetailScreenCard = ({
           </View>
         </View>
       </View>
+      <BottomSheet
+        ref={sheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose={true}
+        backgroundStyle={{ backgroundColor: COLORS.AKCRUBACKGROUND }}
+        onClose={() => setIsOpen(true)}
+      >
+        <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
+          <YoutubePlayer
+            height={300}
+            play={playing}
+            videoId={youtubeID}
+            onChangeState={onStateChange}
+          />
+          {/* <Button title={playing ? "pause" : "play"} onPress={togglePlaying} /> */}
+        </BottomSheetScrollView>
+        <View style={{ marginBottom: 75, marginHorizontal: 15 }}></View>
+      </BottomSheet>
     </View>
   );
 };

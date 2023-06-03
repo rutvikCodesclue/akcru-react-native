@@ -19,7 +19,7 @@ const CruChewOrder = () => {
       </View>
       <WebView
         source={{
-          uri: "https://sdk.mealme.ai/store?api=akcru&storeType=restaurant&primaryColor=2FBFF1&hidePoweredBy=true&hideQuote=true&combineServiceAndDeliveryFee=true",
+          uri: "https://sdk.mealme.ai/store?api=akcru&storeType=restaurant&primaryColor=2FBFF1&hidePoweredBy=true&combineServiceAndDeliveryFee=true",
         }}
         style={{
           marginBottom: 40,

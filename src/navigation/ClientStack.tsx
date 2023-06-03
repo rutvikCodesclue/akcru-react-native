@@ -11,7 +11,8 @@ import {
   AcceptMITScreen,
   DeclineMITScreen,
   UserMITHubScreen,
-  CruChewOrder
+  CruChewOrder,
+  MovieTrailerScreen,
 } from "../screens";
 import ClientTabNavigator from './ClientTabNavigator';
 import { UserProfileDetailsTab } from '../screens/UserScreens/UserProfileTabs';
@@ -29,7 +30,8 @@ export type ClientStackParams = {
   AcceptMITScreen: any;
   DeclineMITScreen: any;
   UserMITHubScreen: any;
-  CruChewOrder:any;
+  CruChewOrder: any;
+  MovieTrailerScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -67,6 +69,13 @@ export function ClientStack () {
       <ClientSearch.Screen
         name="MovieDetailScreen"
         component={MovieDetailScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <ClientSearch.Screen
+        name="MovieTrailerScreen"
+        component={MovieTrailerScreen}
         options={() => ({
           headerShown: false,
         })}

@@ -10,14 +10,20 @@ import {
   TouchableOpacity,
   Pressable,
   Modal,
-  TextInput
+  TextInput,
 } from "react-native";
 import { COLORS, FONTS, SIZES } from "../../../constants";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CrummunityStackParams } from "../../navigation/CrummunityStack";
 import { Icon, Avatar } from "@rneui/base";
-import { MITSwipe, Header, AkcruLevels, MITMessages, AkcruButtons } from "../../components";
+import {
+  MITSwipe,
+  Header,
+  AkcruLevels,
+  MITMessages,
+  AkcruButtons,
+} from "../../components";
 import { LinearGradient } from "expo-linear-gradient";
 import { DIGITAL_PASS } from "../../../constants/Mockusers";
 import imageindex from "../../../assets/images/imageindex";
@@ -46,10 +52,9 @@ type Props = {
   route: ChooseMITScreenRouteProp;
 };
 
-const ChooseMITScreen = ({ navigation, route}: Props) => {
-
+const ChooseMITScreen = ({ navigation, route }: Props) => {
   const MITID: number | undefined = route.params?.MITID ?? null;
-  const invitee: string | undefined = route.params?. inviteeName ?? null;
+  const invitee: string | undefined = route.params?.inviteeName ?? null;
 
   const {
     inviteePicture,
@@ -66,7 +71,6 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
     MITDate,
     MITTime,
   } = JENNY_INVITES[MITID ?? 0];
-   
 
   const sheetRef = useRef<BottomSheet>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -108,7 +112,7 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
               />
               <View style={styles.topcontainer}>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate ("UserMITHubScreen")}
+                  onPress={() => navigation.navigate("UserMITHubScreen")}
                 >
                   <View
                     style={{
@@ -126,9 +130,7 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
                   </View>
                 </TouchableOpacity>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Text style={styles.screenTitle}>
-                    Movie Invite Ticket
-                  </Text>
+                  <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
                   <Image
                     source={imageindex.LrgMIT}
                     style={{ width: 55, height: 25 }}
@@ -187,9 +189,7 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
                   ) : null}
                 </View>
                 <View style={{ width: SIZES.ScreenWidth / 2.5 }}>
-                  <Text style={{ ...FONTS.Title2 }}>
-                    {inviteeName}
-                  </Text>
+                  <Text style={{ ...FONTS.Title2 }}>{inviteeName}</Text>
                   {akcruBadge.akcruit && (
                     <View>
                       <AkcruLevels.AkcruBadgeAkcruit />
@@ -257,18 +257,13 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
                     textAlign: "center",
                   }}
                 >
-                  "{inviteeName}" wants to watch "
-                  {MITMoviechoice}" with you on:
+                  "{inviteeName}" wants to watch "{MITMoviechoice}" with you on:
                 </Text>
               </View>
               <View style={{ alignItems: "center", marginVertical: 20 }}>
                 <View style={styles.datebox}>
-                  <Text style={styles.datetext}>
-                    {MITDate}
-                  </Text>
-                  <Text style={styles.datetext}>
-                    @ {MITTime}
-                  </Text>
+                  <Text style={styles.datetext}>{MITDate}</Text>
+                  <Text style={styles.datetext}>@ {MITTime}</Text>
                 </View>
                 <TouchableOpacity>
                   <Text style={styles.datetext}>Request change</Text>
@@ -299,7 +294,12 @@ const ChooseMITScreen = ({ navigation, route}: Props) => {
           onClose={() => setIsOpen(true)}
         >
           <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
-            <MITMessages inviteePicture={inviteePicture} inviteeName={inviteeName} akcruBadge={akcruBadge} influencer={influencer} />
+            <MITMessages
+              inviteePicture={inviteePicture}
+              inviteeName={inviteeName}
+              akcruBadge={akcruBadge}
+              influencer={influencer}
+            />
           </BottomSheetScrollView>
           <View style={{ marginBottom: 75, marginHorizontal: 15 }}>
             <View style={styles.input}>
