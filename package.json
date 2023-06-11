@@ -5,10 +5,10 @@
     "author": "",
     "license": "MIT",
     "scripts": {
-        "dev": "run-s dev:* --print-label",
+        "dev": "run-p dev:* --print-label",
         "db-migrate-dev": "npx prisma migrate dev",
-        "dev:next": "yarn --cwd apps/next dev",
-        "dev:expo": "yarn --cwd apps/expo dev",
+        "dev:expo": "yarn --cwd apps/mobile-app start",
+        "dev:api": "yarn --cwd packages/api dev",
         "init:prisma": "prisma migrate dev && prisma generate"
     },
     "workspaces": {
