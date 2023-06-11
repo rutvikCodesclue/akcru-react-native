@@ -1,14 +1,15 @@
 import express from 'express';
 import * as trpcExpress from '@trpc/server/adapters/express';
+var morgan = require ('morgan');
+import helmet from 'helmet';
 
 import { createContext } from "./_context";
 import { appRouter } from "./_router";
-var morgan = require ('morgan');
-
 
 // EXPRESS
 const app = express();
-app.use(morgan('combined'))
+app.use(helmet()) // use helmet for security
+app.use(morgan('combined')) // use morgan for logging
 
 // MIDDLEWARE: USE TRPC
 app.use(
@@ -21,4 +22,4 @@ app.use(
 
 // RUN THE SERVER w/ some logs
 app.listen(3000);
-console.log('Server running on port 3000');
+console.log('Server running on port 3000 (http://localhost:3000)');
