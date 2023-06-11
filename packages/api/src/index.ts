@@ -1,27 +1,16 @@
 import express from 'express';
-import { initTRPC, inferAsyncReturnType } from "@trpc/server" 
 import * as trpcExpress from '@trpc/server/adapters/express';
 
-// CONTEXT: created for each request
-type Context = inferAsyncReturnType<typeof createContext>;
-const createContext = ({
-    // req,
-    // res,
-}: trpcExpress.CreateExpressContextOptions) => ({ }); // no context
+import { createContext } from "./_context";
+import { appRouter } from "./_router";
+var morgan = require ('morgan');
 
-// TRPC (T INSTANCE)
-const t = initTRPC.context<Context>().create();
 
-// ROUTER
-const appRouter = t.router({
-    sayHi: t.procedure.query(() => {
-        return 'hi'
-    })
-})
-
+// EXPRESS
 const app = express();
+app.use(morgan('combined'))
 
-// USE TRPC
+// MIDDLEWARE: USE TRPC
 app.use(
     '/trpc',
     trpcExpress.createExpressMiddleware({
@@ -30,7 +19,6 @@ app.use(
     }),
 );
 
-
+// RUN THE SERVER w/ some logs
 app.listen(3000);
-
 console.log('Server running on port 3000');
