@@ -1,3 +1,6 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 // EXTENDED CONFIG (on top of app.json)
 module.exports = ({ config }) => {
   return {
