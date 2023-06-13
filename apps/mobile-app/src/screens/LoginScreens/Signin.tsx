@@ -124,21 +124,21 @@ const Signin = () => {
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TouchableOpacity>
-              <Googlelogo width={42} height={42} onPress={() => {}} />
+              <Googlelogo width={42} height={42} onPress={() => {navigation.navigate('ClientTabNavigator')}} />
             </TouchableOpacity>
             <TouchableOpacity>
               <Fblogo
                 width={40}
                 height={40}
                 style={{ marginLeft: 25, marginRight: 25 }}
-                onPress={() => {}}
+                onPress={() => {navigation.navigate('ClientTabNavigator')}}
               />
             </TouchableOpacity>
             <TouchableOpacity>
               <Applelogo 
                 width={48} 
                 height={48} 
-                onPress={() => {}} />
+                onPress={() => {navigation.navigate('ClientTabNavigator')}} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity>
