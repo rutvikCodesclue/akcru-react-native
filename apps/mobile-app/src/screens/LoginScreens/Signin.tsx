@@ -1,4 +1,3 @@
-// import 'react-native-url-polyfill/auto'
 import { Text, Button, View, ImageBackground, TouchableOpacity, ScrollView, KeyboardAvoidingView } from 'react-native';
 import React, { useState } from 'react';
 import imageindex from '../../../assets/images/imageindex';
@@ -8,14 +7,16 @@ import { AkcruLogo, Fblogo, Googlelogo, Applelogo } from '../../../assets';
 import { Inputs, AkcruButtons } from '../../components';
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabase } from '../../lib/supabase';
 import { useNavigation } from "@react-navigation/native";
-import { styled } from "nativewind";
-const StyledView = styled(View);
 import {
   Text as RapiText,
   TextInput as RapiTextInput,
 } from "react-native-rapi-ui";
 import { AuthStackParams } from "../../navigation/AuthNavigation";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { styled } from "nativewind";
+
+const StyledView = styled(View);
+
 
 const Signin = () => {
   const [email, setEmail] = useState<string>("");
@@ -29,7 +30,6 @@ const Signin = () => {
   async function attemptSignup() {
     setLoading(true)
     console.log("Attempting to Signup w/ Email/Password:",email, password);
-
     
     const { error } = await supabase.auth.signUp({
       email: email,
@@ -41,6 +41,7 @@ const Signin = () => {
       console.log("Signup Successful!");
       setLoading(false)
       // navigation.navigate('ClientTabNavigator')
+      // FIXME: push to sign up page
     }
   }
   
@@ -77,7 +78,7 @@ const Signin = () => {
           <View style={{ marginBottom: 10 }}>
             <Text style={{ ...FONTS.Title1 }}>Welcome back, sign in below</Text>
           </View>
-          <StyledView className=''>
+          <StyledView className='w-[265px] text-white'>
             {/* EMAIL ADDRESS */}
             <RapiTextInput
               containerStyle={{ marginTop: 15 }}
@@ -90,7 +91,7 @@ const Signin = () => {
             />
             {/* PASSWORD */}
             <RapiTextInput
-              containerStyle={{ marginTop: 15 }}
+              containerStyle={{ marginTop: 15, }}
               placeholder="Enter your password"
               value={password}
               autoCapitalize="none"
@@ -98,7 +99,7 @@ const Signin = () => {
               secureTextEntry={true}
               onChangeText={(text) => setPassword(text)}
             />
-            <Inputs
+            {/* <Inputs
               placeholdername={"Email"}
               iconname={"email"}
               iconcolor={COLORS.LIGHTGREY}
@@ -107,7 +108,7 @@ const Signin = () => {
               placeholdername={"Password"}
               iconname={"lock"}
               iconcolor={COLORS.LIGHTGREY}
-            />
+            /> */}
           </StyledView>
           <View style={{ marginVertical: 10, gap: 10 }}>
             <AkcruButtons.LrgButton
