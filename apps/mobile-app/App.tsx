@@ -4,7 +4,6 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { COLORS } from "./constants";
 import AppLoading from "expo-app-loading";
-import { store } from './src/store/index';
 
 import useFonts from "./hooks/useFonts";
 import RootNavigator from "./src/navigation/RootNavigator";
@@ -32,9 +31,7 @@ export default function App() {
     <ThemeProvider theme="light">
       <View style={styles.container}>
         <StatusBar style="light" translucent={false} />
-        <Provider store={store}>
         <RootNavigator/>
-        </Provider>
       </View>
     </ThemeProvider>
   );
