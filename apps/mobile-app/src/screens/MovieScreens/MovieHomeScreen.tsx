@@ -1,4 +1,4 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, SafeAreaView } from "react-native";
 import React, { useRef, useState } from "react";
 import {
   Header,
@@ -33,12 +33,12 @@ const MovieHomeScreen = () => {
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <Header />
         </View>
-        <View style={{ marginTop: -50 }}>
+        <View style={{ marginTop: -65 }}>
           <HomeScreenHeroCard />
         </View>
         <View style={{ marginTop: 10, marginHorizontal: 15 }}>
@@ -77,7 +77,7 @@ const MovieHomeScreen = () => {
           <RecommendedForYouList />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

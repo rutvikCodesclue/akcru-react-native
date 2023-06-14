@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   FlatList,
+  SafeAreaView
 } from "react-native";
 import React from "react";
 import { Header, AkcruLevels, UserCruChatCard, AkcruButtons } from "../../components";
@@ -27,7 +28,7 @@ const UserCruChatScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[1]}>
         <KeyboardAvoidingView>
           <ImageBackground
@@ -255,7 +256,7 @@ const UserCruChatScreen = () => {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

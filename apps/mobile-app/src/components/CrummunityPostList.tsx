@@ -11,6 +11,8 @@ const CrummunityPostList = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
+    
+
   return (
     <View>
       <FlatList

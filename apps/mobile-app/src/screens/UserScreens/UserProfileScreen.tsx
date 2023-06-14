@@ -6,6 +6,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Image,
+  SafeAreaView
 } from "react-native";
 import { TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps } from "react-native-tab-view";
 import {
@@ -28,18 +29,19 @@ import { ViewStyle } from "react-native";
 import { TextStyle } from "react-native";
 import { Route } from "react-native";
 import { ClientStackParams } from "../../navigation/ClientStack";
+import { UserProfileStackParams } from "@app/navigation/UserProfileStack";
 import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
-  ClientStackParams,
+  UserProfileStackParams,
   "UserProfileScreen"
 >;
 
 type UserProfileScreenRouteProp = RouteProp<
-  ClientStackParams,
+  UserProfileStackParams,
   "UserProfileScreen"
 >;
 
@@ -158,7 +160,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
   ]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <View>
         <ImageBackground
           source={{ uri: DIGITAL_PASS[0].SuperHeroPass }}
@@ -318,6 +320,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
         swipeEnabled={true}
         renderTabBar={renderTabBar}
       />
-    </View>
+    </SafeAreaView>
   );
 }

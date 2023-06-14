@@ -110,6 +110,7 @@ export const FAKE_USER_PROFILES = [
     influencer: false,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
+    host: true,
   },
   {
     userName: "Anthoni Styvens",
@@ -131,12 +132,13 @@ export const FAKE_USER_PROFILES = [
     CRUName: "Apex CRU",
     userID: "1",
     status: "Watching 'Top Gun Maverick'",
-    privateaccount: true,
+    privateaccount: false,
     online: false,
     USDtoAkcruDollar: true,
     influencer: false,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
+    host: false,
   },
   {
     userName: "Jessie's Girl",
@@ -163,6 +165,7 @@ export const FAKE_USER_PROFILES = [
     USDtoAkcruDollar: true,
     influencer: false,
     digitalpass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
+    host: false,
   },
   {
     userName: "IronClad Chad",
@@ -189,6 +192,7 @@ export const FAKE_USER_PROFILES = [
     USDtoAkcruDollar: true,
     influencer: false,
     digitalpass: "https://akcru.com/wp-content/uploads/2023/05/AkcruitCard.png",
+    host: false,
   },
   {
     userName: "Movie Queen",
@@ -216,6 +220,7 @@ export const FAKE_USER_PROFILES = [
     influencer: false,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/SuperHeroCard.png",
+    host: false,
   },
   {
     userName: "Def Jeff",
@@ -242,6 +247,7 @@ export const FAKE_USER_PROFILES = [
     USDtoAkcruDollar: true,
     influencer: false,
     digitalpass: "https://akcru.com/wp-content/uploads/2023/05/HeroCard.png",
+    host: false,
   },
   {
     userName: "Stella's Groove",
@@ -269,6 +275,7 @@ export const FAKE_USER_PROFILES = [
     influencer: false,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
+    host: false,
   },
   {
     userName: "Nia Long",
@@ -296,6 +303,7 @@ export const FAKE_USER_PROFILES = [
     influencer: true,
     digitalpass:
       "https://akcru.com/wp-content/uploads/2023/05/GuardianCard.png",
+    host: false,
   },
 ];
 

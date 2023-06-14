@@ -10,9 +10,13 @@ import {
   ViewUserScreen,
   UserSearchResultScreen,
   ChooseMITScreen,
-  UserMITHubScreen
-
+  UserMITHubScreen,
+  AcceptMITScreen,
+  DeclineMITScreen,
+  StartCRUViewDate,
+  StartMITDate,
 } from "../screens";
+
 import ClientTabNavigator from "./ClientTabNavigator";
 import { UserProfileDetailsTab } from "../screens/UserScreens/UserProfileTabs";
 import { COLORS } from "../../constants";
@@ -29,6 +33,10 @@ export type UserProfileStackParams = {
   UserSearchResultScreen: any;
   ChooseMITScreen: any;
   UserMITHubScreen: any;
+  DeclineMITScreen: any;
+  AcceptMITScreen: any;
+  StartCRUViewDate: any;
+  StartMITDate: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -108,6 +116,34 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="ChooseMITScreen"
         component={ChooseMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="AcceptMITScreen"
+        component={AcceptMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="DeclineMITScreen"
+        component={DeclineMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="StartMITDate"
+        component={StartMITDate}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="StartCRUViewDate"
+        component={StartCRUViewDate}
         options={() => ({
           headerShown: false,
         })}

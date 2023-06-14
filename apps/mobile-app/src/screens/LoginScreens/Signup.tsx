@@ -18,7 +18,7 @@ import { styled } from "nativewind";
 const StyledView = styled(View);
 
 
-const Signin = () => {
+export const SignUp = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -38,31 +38,13 @@ const Signin = () => {
 
     if (error) console.error(error.message)
     if (!error) {
-      console.log("Signup Successful!");
+      alert("Signup Successful!");
       setLoading(false)
-      // navigation.navigate('ClientTabNavigator')
-      // FIXME: push to sign up page
+      // FIXME: push to log in page
+      navigation.navigate('Signin')
     }
   }
   
-  async function attemptLogin() {
-    setLoading(true)
-    console.log("Attempting to LOGIN w/ Email/Password:",email, password);
-
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    })
-
-    if (error) console.error(error.message)
-    if (!error) {
-      console.log("LOGIN Successful!");
-      setLoading(false)
-      navigation.navigate('ClientTabNavigator')
-    }
-  }
-
 
   return (
     <KeyboardAvoidingView style={{ width: "100%", height: "100%" }}>
@@ -76,7 +58,7 @@ const Signin = () => {
         >
           <AkcruLogo width={200} height={60} />
           <View style={{ marginBottom: 10 }}>
-            <Text style={{ ...FONTS.Title1 }}>Welcome back, sign in below</Text>
+            <Text style={{ ...FONTS.Title1 }}>Sign Up</Text>
           </View>
           <StyledView className='w-[265px] text-white'>
             {/* EMAIL ADDRESS */}
@@ -99,22 +81,12 @@ const Signin = () => {
               secureTextEntry={true}
               onChangeText={(text) => setPassword(text)}
             />
-            {/* <Inputs
-              placeholdername={"Email"}
-              iconname={"email"}
-              iconcolor={COLORS.LIGHTGREY}
-            />
-            <Inputs
-              placeholdername={"Password"}
-              iconname={"lock"}
-              iconcolor={COLORS.LIGHTGREY}
-            /> */}
           </StyledView>
           <View style={{ marginVertical: 10, gap: 10 }}>
             <AkcruButtons.LrgButton
-              color={COLORS.AKCRUBLUE}
-              btnname={"Login"}
-              onPress={() => attemptLogin()}
+              color={COLORS.MIDORANGE}
+              btnname={"Sign Up"}
+              onPress={() => attemptSignup()}
             />
           </View>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -158,7 +130,7 @@ const Signin = () => {
               Not a subscriber?
             </Text>
 
-            <TouchableOpacity onPress={() => {navigation.navigate("SignUp")}}>
+            <TouchableOpacity>
               <Text
                 style={{
                   ...FONTS.Title2AkcruBlue,
@@ -174,4 +146,5 @@ const Signin = () => {
   );
 }
 
-export default Signin
+
+export default SignUp;

@@ -12,10 +12,10 @@ const UserProfileCruInvites = () => {
         <View>
           <Text style={styles.titleText1}>CRU INVITES</Text>
         </View>
-        <View style={{marginBottom: 75}}>
+        <View style={{ marginBottom: 75 }}>
           {JENNY_INVITES.map((item) => (
             <View
-              key={item.cruInviteID}
+              key={item.MITID}
               style={{ marginHorizontal: 15, marginBottom: 10 }}
             >
               <CruInviteCard

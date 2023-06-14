@@ -4,6 +4,9 @@ import { COLORS, FONTS, SIZES } from '../../constants'
 import imageindex from '../../assets/images/imageindex'
 import { JENNY_SCHEDULE } from '../../constants/Mockusers'
 import { LinearGradient } from 'expo-linear-gradient'
+import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { UserProfileStackParams } from '@app/navigation/UserProfileStack'
 
 type UserDatesCardProps = {
   moviePoster: string;
@@ -33,6 +36,10 @@ const UserDatesCard = ({
   scheduleWith,
   dateID,
 }: UserDatesCardProps) => {
+
+const navigation =
+  useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
   return (
     <View
       style={{
@@ -49,7 +56,7 @@ const UserDatesCard = ({
           left: 0,
           right: 0,
           top: 0,
-          
+
           borderRadius: 5,
           height: 155,
         }}
@@ -61,9 +68,9 @@ const UserDatesCard = ({
           </View>
           <View>
             <Text style={{ ...FONTS.Title2 }}>{movieName}</Text>
-            <View style={{ flexDirection: "row", marginBottom: 5 }}>
-              <Text style={{ ...FONTS.Title2 }}>{movieYear}</Text>
-              <Text style={{ ...FONTS.Title2, marginHorizontal: 10 }}>
+            <View style={{ flexDirection: "row", marginBottom: 5, alignItems: 'center' }}>
+              <Text style={{ ...FONTS.Title2, fontSize: 12 }}>{movieYear}</Text>
+              <Text style={{ ...FONTS.Title2, fontSize: 12, marginHorizontal: 10 }}>
                 {length}
               </Text>
               <Text style={styles.drawfonttag}>{movieRated}</Text>
@@ -145,7 +152,9 @@ const UserDatesCard = ({
           </View>
 
           {JENNY_SCHEDULE[dateID].scheduleType.MIT && (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("StartMITDate")}
+            >
               <View
                 style={{
                   width: 125,
@@ -162,7 +171,9 @@ const UserDatesCard = ({
           )}
 
           {JENNY_SCHEDULE[dateID].scheduleType.CRUView && (
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("StartCRUViewDate")}
+            >
               <View
                 style={{
                   width: 125,

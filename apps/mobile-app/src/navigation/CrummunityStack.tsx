@@ -6,7 +6,8 @@ import {
   UserSearchResultScreen,
   PurchaseMITScreen,
   AcceptMITScreen,
-  DeclineMITScreen
+  DeclineMITScreen,
+  TestScreen
 
   
 } from "../screens";
@@ -19,6 +20,7 @@ export type CrummunityStackParams = {
   PurchaseMITScreen: any;
   AcceptMITScreen: any;
   DeclineMITScreen: any;
+  TestScreen: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -70,6 +72,13 @@ export function CrummunityStack() {
       <Crummunity.Screen
         name="DeclineMITScreen"
         component={DeclineMITScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="TestScreen"
+        component={TestScreen}
         options={() => ({
           headerShown: false,
         })}

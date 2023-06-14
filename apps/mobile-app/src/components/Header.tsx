@@ -6,7 +6,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import imageindex from '../../assets/images/imageindex'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AuthStackParams } from '../navigation/AuthNavigation';
-import { ClientStackParams } from '../navigation/ClientStack';
 import { useNavigation } from '@react-navigation/native';
 import { FAKE_USER_PROFILES } from '../../constants/Mockusers';
 
@@ -29,7 +28,7 @@ const Header: React.FC<Props> = () => {
     >
       <LinearGradient
         // Background Linear Gradient
-        colors={[COLORS.BLACK, "transparent"]}
+        colors={[COLORS.AKCRUBACKGROUND, "transparent"]}
         style={{ position: "absolute", left: 0, right: 0, top: 0, height: 65 }}
       />
       <View

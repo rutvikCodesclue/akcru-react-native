@@ -1,19 +1,30 @@
-import { View, Text, TouchableOpacity, Image, SafeAreaView, ScrollView, TextInput, Button, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Alert,
+  StyleSheet,
+  Dimensions
+} from "react-native";
 import React, { useCallback, useRef, useState } from "react";
 import { COLORS, FONTS } from "../../constants";
 import { Icon } from "@rneui/base";
 import { SIZES } from "../../constants";
-import styles from "./Styles/styles";
+// import styles from "./Styles/styles";
 import imageindex from "../../assets/images/imageindex";
 import { LinearGradient } from "expo-linear-gradient";
 import AkcruButtons from "./Buttons";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../navigation/ClientStack";
-import { MOVIES } from "../../constants/Data";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import MITMessages from "./MITMessagesCard";
 import YoutubePlayer from "react-native-youtube-iframe";
+import * as ScreenOrientation from 'expo-screen-orientation'
+
+//import { ResizeMode, Video } from 'expo-av';
+import { Video, ResizeMode } from "expo-av";
+
 
 type MovieDetailScreenCardProps = {
   image_url: string;
@@ -27,8 +38,9 @@ type MovieDetailScreenCardProps = {
   directors: string;
   id: string;
   youtubeID: string;
+  thumb_url: string;
+  movie_url: string;
 };
-
 
 const MovieDetailScreenCard = ({
   image_url,
@@ -41,15 +53,31 @@ const MovieDetailScreenCard = ({
   desc,
   actors,
   directors,
-  youtubeID
+  youtubeID,
+  thumb_url,
+  movie_url
+  
 }: MovieDetailScreenCardProps) => {
+  const video = React.useRef(null);
+  const [status, setStatus] = React.useState({}); //Video Player Status
 
-  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>()
+  function setOrientation() {
+    if (Dimensions.get("window").height > Dimensions.get("window").width) {
+      //Device is in portrait mode, rotate to landscape mode.
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+    } else {
+      //Device is in landscape mode, rotate to portrait mode.
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+    }
+  }
 
-  const sheetRef = useRef<BottomSheet>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+
+  const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
   const [isOpen, setIsOpen] = useState(false);
 
-  const snapPoints = ["1","50"];
+  const snapPoints = ["1", "75"];
 
   const handleSnapPress = useCallback((index: number) => {
     sheetRef.current?.snapToIndex(index);
@@ -61,14 +89,14 @@ const MovieDetailScreenCard = ({
   const onStateChange = useCallback((state: string) => {
     if (state === "ended") {
       setPlaying(false);
-      Alert.alert("video has finished playing!");
+      Alert.alert("Trailer has finished playing!");
     }
   }, []);
 
-  const togglePlaying = useCallback(() => {
+  const toggleTrailerPlaying = useCallback(() => {
     setPlaying((prev) => !prev);
   }, []);
-    
+
   return (
     <View>
       <View>
@@ -82,31 +110,7 @@ const MovieDetailScreenCard = ({
             resizeMode="cover"
           />
         </View>
-        <TouchableOpacity
-          onPress={() => navigation.pop()}
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            top: 60,
-            marginHorizontal: 15,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-            }}
-          >
-            <Icon
-              name="chevron-back"
-              type="ionicon"
-              size={20}
-              color={COLORS.LIGHTGREY}
-            />
-            <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
-          </View>
-        </TouchableOpacity>
+
         <View
           style={{
             height: 200,
@@ -119,15 +123,64 @@ const MovieDetailScreenCard = ({
         >
           <LinearGradient
             // Background Linear Gradient
-            colors={["transparent", COLORS.AKCRUBACKGROUND]}
+            colors={[COLORS.BLACK, "transparent", COLORS.AKCRUBACKGROUND]}
             style={{
               position: "absolute",
               left: 0,
               right: 0,
-              top: 0,
-              height: 200,
+              bottom: 0,
+              height: SIZES.ScreenHeight / 1.5,
             }}
           />
+          <TouchableOpacity
+            onPress={() => navigation.pop()}
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: -250,
+              marginHorizontal: 15,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <Icon
+                name="chevron-back"
+                type="ionicon"
+                size={20}
+                color={COLORS.LIGHTGREY}
+              />
+              <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+            </View>
+          </TouchableOpacity>
+          <View
+            style={{ position: "absolute", left: 0, right: 0, bottom: 150 }}
+          >
+            <View style={styles.videocontain}>
+              <View>
+                <Video
+                  ref={video}
+                  source={{
+                    uri: "https://priymuscontent.s3.amazonaws.com/Movie+folder/Attack+of+the+Lederhosen+Zombies_Feature+subtitles.mp4",
+                  }}
+                  posterSource={{ uri: thumb_url }}
+                  usePoster={true}
+                  resizeMode={ResizeMode.CONTAIN}
+                  useNativeControls
+                  onFullscreenUpdate={setOrientation}
+                  volume={100}
+                  onPlaybackStatusUpdate={(status: {}) =>
+                    setStatus(() => status)
+                  }
+                  style={styles.videoplayer}
+                />
+              </View>
+            </View>
+          </View>
           <View
             style={{ marginBottom: 10, alignItems: "flex-end", marginRight: 5 }}
           >
@@ -165,8 +218,12 @@ const MovieDetailScreenCard = ({
             }}
           >
             <AkcruButtons.MedButton
-              btnname={"Watch Movie"}
-              onPress={function (): void {}}
+              btnname={status.isPlaying ? "Pause Movie" : "Play Movie"}
+              onPress={() =>
+                status.isPlaying
+                  ? video.current.pauseAsync()
+                  : video.current.playAsync()
+              }
               color={COLORS.AKCRUBLUE}
             />
             <AkcruButtons.MedButton
@@ -298,6 +355,7 @@ const MovieDetailScreenCard = ({
             Earn up to 500 AKCRU dollars
           </Text>
         </View>
+
         <View style={{ marginHorizontal: 15, marginTop: 15 }}>
           <Text
             style={{
@@ -349,6 +407,7 @@ const MovieDetailScreenCard = ({
           </View>
         </View>
       </View>
+
       <BottomSheet
         ref={sheetRef}
         snapPoints={snapPoints}
@@ -358,17 +417,121 @@ const MovieDetailScreenCard = ({
       >
         <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
           <YoutubePlayer
-            height={300}
+            height={225}
             play={playing}
             videoId={youtubeID}
             onChangeState={onStateChange}
           />
-          {/* <Button title={playing ? "pause" : "play"} onPress={togglePlaying} /> */}
+          <View style={{ alignItems: "center" }}>
+            <AkcruButtons.LrgButton
+              btnname={playing ? "Pause" : "Play"}
+              onPress={toggleTrailerPlaying}
+              color={COLORS.AKCRUBLUE}
+            />
+          </View>
+          <View>
+            <Text style={{ ...FONTS.Title3, fontSize: 20, marginVertical: 15 }}>
+              {name} - Trailer
+            </Text>
+          </View>
+          <View>
+            <Text
+              style={{
+                ...FONTS.Title2Orange,
+                color: COLORS.LIGHTGREY,
+                lineHeight: 18,
+                marginBottom: 10,
+              }}
+            >
+              {desc}
+            </Text>
+            <View style={{ flexDirection: "row", marginBottom: 5 }}>
+              <Text
+                style={{
+                  ...FONTS.Title2Orange,
+                  color: COLORS.DARKGREY,
+                  marginRight: 10,
+                }}
+              >
+                Cast:
+              </Text>
+              <Text
+                style={{
+                  ...FONTS.Title2Orange,
+                  color: COLORS.AKCRUBLUE,
+                }}
+              >
+                {actors}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text
+                style={{
+                  ...FONTS.Title2Orange,
+                  color: COLORS.DARKGREY,
+                  marginRight: 10,
+                }}
+              >
+                Director:
+              </Text>
+              <Text
+                style={{
+                  ...FONTS.Title2Orange,
+                  color: COLORS.AKCRUBLUE,
+                }}
+              >
+                {directors}
+              </Text>
+            </View>
+          </View>
         </BottomSheetScrollView>
-        <View style={{ marginBottom: 75, marginHorizontal: 15 }}></View>
       </BottomSheet>
     </View>
   );
 };
 
+
 export default MovieDetailScreenCard
+
+const styles = StyleSheet.create({
+  video: {
+    alignSelf: "center",
+    width: SIZES.ScreenWidth,
+    height: 200,
+  },
+  buttons: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  drawfonttag: {
+    ...FONTS.Title2Orange,
+    color: COLORS.BLACK,
+    backgroundColor: COLORS.STARGOLD,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    marginHorizontal: 2,
+    borderRadius: 4,
+    textAlign: "center",
+  },
+  bigTitle: {
+    ...FONTS.Title3,
+    fontSize: 25,
+    width: 250,
+  },
+  desc: {
+    ...FONTS.Title2,
+    marginBottom: 10,
+  },
+  videocontain: {
+    flex: 1,
+    zIndex: 1,
+    justifyContent: 'center'  
+  },
+  videoplayer : {
+alignSelf: 'center',
+aspectRatio: 16/9,
+width: "100%"
+
+  }
+});
