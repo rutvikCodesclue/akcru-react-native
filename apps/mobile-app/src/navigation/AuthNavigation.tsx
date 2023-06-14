@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
   Signin,
+  SignUp,
   MovieHomeScreen,
   SearchMovieScreen,
   MovieDetailScreen,
@@ -13,6 +14,7 @@ import { ClientStack } from "./ClientStack";
 
 export type AuthStackParams = {
   Signin: any;
+  SignUp: any;
   MovieHomeScreen: any;
   ClientTabNavigator: any;
   ClientStack: any;
@@ -35,6 +37,14 @@ export default function AuthStack() {
       <Auth.Screen
         name="Signin"
         component={Signin}
+        options={{
+          headerShown: false,
+          gestureDirection: "horizontal",
+        }}
+      />
+      <Auth.Screen
+        name="SignUp"
+        component={SignUp}
         options={{
           headerShown: false,
           gestureDirection: "horizontal",
