@@ -30,6 +30,11 @@ import MITSwipe from "./MITSwipe";
 import MITHubCard from "./MITHubCard";
 import MITHubList from "./MITHubList";
 import MITMessages from "./MITMessagesCard";
+import UserVideoBlock from "./UserVideoBlock";
+import MITChatCard from "./MITChatCard";
+import GroupViewMovieCard from "./GroupViewMovieCard";
+import MITUserVideoList from "./MITUserVideoList";
+import CRUUserVideoList from "./CRUUserVideoList";
 
 
 export {
@@ -65,4 +70,9 @@ export {
   MITHubCard,
   MITHubList,
   MITMessages,
+  UserVideoBlock,
+  MITChatCard,
+  GroupViewMovieCard,
+  MITUserVideoList,
+  CRUUserVideoList,
 };

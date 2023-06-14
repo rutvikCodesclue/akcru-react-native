@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from "react-native";
 import React from "react";
 import {
   Header,
@@ -7,13 +7,14 @@ import {
   AkcruReviewCard,
   AkcruButtons
 } from "../../components";
-import { FONTS, COLORS, SIZES } from "../../../constants";
+import { FONTS, COLORS, SIZES} from "../../../constants";
 import { MOVIES, TOP_AKCRU_WATCHLIST, NEW_ON_AKCRU } from "../../../constants/Data";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
 import { ClientStackParams } from "../../navigation/ClientStack";
 import { FAKE_USER_PROFILES } from "../../../constants/Mockusers";
 import { Icon } from "@rneui/base";
+
 
 type MovieDetailScreenNavigationProp = StackNavigationProp<
   ClientStackParams,
@@ -44,13 +45,15 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
     actors,
     directors,
     image_url,
-    youtubeID
+    youtubeID,
+    thumb_url,
+    movie_url
   } = MOVIES [id ?? 0];
 
   
 
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <Header />
@@ -68,7 +71,10 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
             desc={desc}
             actors={actors.join(", ")}
             directors={directors.join(", ")}
-            id={""} youtubeID={youtubeID}            
+            id={""} youtubeID={youtubeID}
+            thumb_url={thumb_url}
+            movie_url={movie_url}
+                    
           />
         </View>
         <View style={{ marginHorizontal: 15 }}>
@@ -114,7 +120,7 @@ export default function MovieDetailScreen({ navigation, route }: Props) {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

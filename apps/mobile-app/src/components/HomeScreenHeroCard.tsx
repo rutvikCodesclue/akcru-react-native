@@ -5,7 +5,8 @@ import {
   Button,
   TouchableWithoutFeedback,
   Dimensions,
-  Text
+  Text,
+  Alert
 } from "react-native";
 //import { ResizeMode, Video } from 'expo-av';
 import { Video, ResizeMode } from "expo-av";
@@ -15,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import AkcruButtons from "./Buttons";
 import { Rating, Icon } from "@rneui/base";
 import { MOVIES } from "../../constants/Data";
+
 
 
 
@@ -29,28 +31,27 @@ const VideoContainer = styled(View)`
   overflow: hidden;
 `;
 
-const VideoPlayer = styled(Video)`
-  align-self: center;
-  width: 100%;
-  height: 100%;
-`;
+// const VideoPlayer = styled(Video)`
+//   align-self: center;
+//   width: 100%;
+//   height: 100%;
+// `;
 
-const Overlay = styled(LinearGradient)`
-  width: 100%;
-  position: absolute;
-  height: 56%;
-  padding: 27px 0px;
-  bottom: 0;
-`;
+// const Overlay = styled(LinearGradient)`
+//   width: 100%;
+//   position: absolute;
+//   height: 56%;
+//   padding: 27px 0px;
+//   bottom: 0;
+// `;
 
 
 export default function HomeScreenHeroCard() {
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({});
+
   return (
     <View>
-      {/* Tom Cruise */}
-
       <VideoContainer>
         <TouchableWithoutFeedback
           onPress={() =>
@@ -60,7 +61,7 @@ export default function HomeScreenHeroCard() {
           }
         >
           <View>
-            <VideoPlayer
+            <Video
               ref={video}
               source={{
                 uri: "https://priymuscontent.s3.amazonaws.com/Movie+folder/AmericanApocalypse_L33_2ch.mp4",
@@ -69,6 +70,7 @@ export default function HomeScreenHeroCard() {
               isLooping
               volume={0}
               onPlaybackStatusUpdate={(status: {}) => setStatus(() => status)}
+              style = {styles.video}
             />
             <LinearGradient
               // Background Linear Gradient
@@ -114,15 +116,15 @@ export default function HomeScreenHeroCard() {
                 <Text style={styles.desc}>{MOVIES[21].desc}</Text>
               </View>
               <View style={{ flexDirection: "row" }}>
-                <View style={{marginRight: 10}}>
-                  <AkcruButtons.SmallButton
+                <View style={{ marginRight: 10 }}>
+                  <AkcruButtons.MedButton
                     btnname={"Watch Movie"}
                     color={COLORS.AKCRUBLUE}
                     onPress={function (): void {}}
                   />
                 </View>
                 <View>
-                  <AkcruButtons.SmallButton
+                  <AkcruButtons.MedButton
                     btnname={"Watch Trailer"}
                     color={COLORS.TAGCOLOR}
                     onPress={function (): void {}}
@@ -135,7 +137,7 @@ export default function HomeScreenHeroCard() {
       </VideoContainer>
 
       {/* End */}
-      {/* <MovieHomeScreenHero /> */}
+      
     </View>
   );
 }
@@ -149,7 +151,7 @@ const styles = StyleSheet.create({
   video: {
     alignSelf: "center",
     width: SIZES.ScreenWidth,
-    height: 200,
+    height: SIZES.ScreenHeight / 1.63,
   },
   buttons: {
     flexDirection: "row",

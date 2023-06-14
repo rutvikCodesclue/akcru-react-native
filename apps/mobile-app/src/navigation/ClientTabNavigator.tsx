@@ -4,17 +4,9 @@ import React, {useEffect, useState, useRef} from "react";
 import { Icon } from "@rneui/base";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import {
-  MovieHomeScreen,
-  UserProfileScreen,
-  CruChewScreen,
-  MovieDetailScreen,
-  SearchMovieScreen,
-  SearchMovieResultScreen,
   PurchaseMITScreen,
-  UserSearchResultScreen,
-  ChooseMITScreen,
-  ViewUserScreen,
-  MovieTrailerScreen
+  TestScreen
+  
 } from "../screens";
 import { COLORS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
@@ -44,6 +36,7 @@ export type ClientTabsParams = {
   ChooseMITScreen: any;
   CruChewStack: any;
   MovieTrailerScreen: any;
+  TestScreen:any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -104,7 +97,7 @@ export default function ClientTabNavigator() {
         tabBarStyle: {
           position: "absolute",
           backgroundColor: COLORS.TRANSDARKGREY,
-          height: 60,
+          height: SIZES.ScreenHeight / 12,
           borderTopRightRadius: 10,
           borderTopLeftRadius: 10,
         },
@@ -144,8 +137,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="PurchaseMITScreen"
-        component={PurchaseMITScreen}
+        name="TestScreen"
+        component={TestScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (

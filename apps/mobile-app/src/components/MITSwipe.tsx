@@ -11,6 +11,7 @@ import { COLORS, FONTS, SIZES } from "../../constants";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CrummunityStackParams } from "../navigation/CrummunityStack";
+import { UserProfileStackParams } from "@app/navigation/UserProfileStack";
 import { Icon } from "@rneui/base";
 import { AkcruControlBtn } from "../../assets";
 
@@ -18,7 +19,7 @@ const { width } = Dimensions.get("window");
 
 const MITSwipe = () => {
   const navigation =
-    useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
   const [swipeValue] = useState(new Animated.Value(0));
 
@@ -34,9 +35,11 @@ const MITSwipe = () => {
           toValue: width / 5.5, // Move button to the right edge
           duration: 400,
           useNativeDriver: false,
-        }).start(() => {
-          navigation.navigate("DeclineMITScreen"); // Navigate to the DeclinedScreen
-        });
+        }).start(() => 
+          navigation.navigate("DeclineMITScreen", {
+            
+          }) // Navigate to the DeclinedScreen
+        );
       } else if (gesture.dx < -50) {
         // Swiped to the left
         Animated.timing(swipeValue, {
@@ -44,7 +47,9 @@ const MITSwipe = () => {
           duration: 400,
           useNativeDriver: false,
         }).start(() => {
-          navigation.navigate("AcceptMITScreen"); // Navigate to the DeclinedScreen
+          navigation.navigate("AcceptMITScreen", {
+            
+          }); // Navigate to the DeclinedScreen
         });
       } else {
         // Reset to the middle
