@@ -1,0 +1,3 @@
+import {COLORS, SIZES, FONTS, AKCRUBADGES} from './theme';
+
+export {COLORS, SIZES, FONTS, AKCRUBADGES};
