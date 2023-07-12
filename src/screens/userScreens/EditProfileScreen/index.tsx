@@ -13,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import React from "react";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 // import * as ImagePicker from "expo-image-picker";
 
 const gallery = FAKE_USER_PROFILES[0].gallery
@@ -27,6 +28,8 @@ export default function EditAccount({ session }: { session: Session }) {
   const [desc, setDesc] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
+
+  const [response, setResponse] = React.useState<any>(null);
 
   console.log(
     "Attempting to Signup w/ Email/Password userName:", userName
@@ -98,16 +101,16 @@ export default function EditAccount({ session }: { session: Session }) {
     }
   }
 
-  // const deleteImage = (index) => {
-  //   const updatedGallery = [...gallery];
-  //   updatedGallery.splice(index, 1);
-  //   setGallery(updatedGallery);
-  // };
+  const deleteImage = (index) => {
+    const updatedGallery = [...gallery];
+    updatedGallery.splice(index, 1);
+    setGallery(updatedGallery);
+  };
 
   const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
   const [isOpen, setIsOpen] = useState(false);
 
-  const snapPoints = ["1", "75"];
+  const snapPoints = ["1", "50"];
 
   const handleSnapPress = useCallback((index: number) => {
     sheetRef.current?.snapToIndex(index);
@@ -116,48 +119,31 @@ export default function EditAccount({ session }: { session: Session }) {
 
   const [image, setImage] = useState(null);
 
-  // const pickImage = async () => {
-  //   // No permissions request is necessary for launching the image library
-  //   let result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.All,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
-
-  //   console.log(result);
-
-  //   if (!result.canceled) {
-  //     setImage(result.assets[0].uri);
-  //   }
-  // };
-
   return (
     <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
-        <View style={{ zIndex: 20 }}>
+        <View style={{zIndex: 20}}>
           <Header />
         </View>
         <View style={styles.container}>
           <TouchableOpacity onPress={() => navigation.pop()}>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
               <Icon
                 name="chevron-back"
                 type="ionicon"
                 size={20}
                 color={COLORS.LIGHTGREY}
               />
-              <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
             </View>
           </TouchableOpacity>
           <View>
             <Text style={styles.title}>EDIT PROFILE</Text>
-            <View style={{ alignItems: "center" }}>
+            <View style={{alignItems: 'center'}}>
               <Avatar
                 rounded
                 size={100}
@@ -175,8 +161,7 @@ export default function EditAccount({ session }: { session: Session }) {
                     ...FONTS.Title2AkcruBlue,
                     marginTop: 10,
                     color: COLORS.MIDORANGE,
-                  }}
-                >
+                  }}>
                   Edit profile photo
                 </Text>
               </TouchableOpacity>
@@ -187,24 +172,22 @@ export default function EditAccount({ session }: { session: Session }) {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.galleryImagesContainer}
-              bounces={false}
-            >
+              bounces={false}>
               {gallery.map((imageUri, index) => {
                 return (
-                  <View style={{ flexDirection: "row" }}>
+                  <View style={{flexDirection: 'row'}} key={index}>
                     <Image
-                      source={{ uri: imageUri }}
+                      source={{uri: imageUri}}
                       style={styles.galleryImage}
                     />
                     <TouchableOpacity
                       style={{
-                        position: "absolute",
+                        position: 'absolute',
                         right: 15,
                         top: 0,
                         zIndex: 20,
                       }}
-                      // onPress={() => deleteImage(index)}
-                    >
+                      onPress={() => deleteImage(index)}>
                       <Icon
                         name="close-circle"
                         type="ionicon"
@@ -221,10 +204,9 @@ export default function EditAccount({ session }: { session: Session }) {
                 style={{
                   ...FONTS.Title2AkcruBlue,
                   marginTop: 15,
-                  textAlign: "center",
+                  textAlign: 'center',
                   color: COLORS.MIDORANGE,
-                }}
-              >
+                }}>
                 Upload to gallery
               </Text>
             </TouchableOpacity>
@@ -237,8 +219,8 @@ export default function EditAccount({ session }: { session: Session }) {
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
-                onChangeText={(text) => setUserName(text)}
-                value={userName || ""}
+                onChangeText={text => setUserName(text)}
+                value={userName || ''}
               />
             </View>
           </View>
@@ -251,8 +233,8 @@ export default function EditAccount({ session }: { session: Session }) {
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
-                onChangeText={(text) => setDesc(text)}
-                value={desc || ""}
+                onChangeText={text => setDesc(text)}
+                value={desc || ''}
               />
             </View>
           </View>
@@ -289,13 +271,13 @@ export default function EditAccount({ session }: { session: Session }) {
             />
           </View> */}
 
-          <View style={{ alignItems: "center", marginTop: 20 }}>
+          <View style={{alignItems: 'center', marginTop: 20}}>
             <AkcruButtons.LrgButton
-              btnname={loading ? "Loading ..." : "Update"}
+              btnname={loading ? 'Loading ...' : 'Update'}
               disabled={loading}
               color={COLORS.AKCRUBLUE}
               onPress={() =>
-                UpdateProfile({ userName, desc, avatar_url: avatarUrl })
+                UpdateProfile({userName, desc, avatar_url: avatarUrl})
               }
             />
           </View>
@@ -309,7 +291,7 @@ export default function EditAccount({ session }: { session: Session }) {
               disabled={loading}
             />
           </View> */}
-          <View style={{ alignItems: "center", marginVertical: 20 }}>
+          <View style={{alignItems: 'center', marginVertical: 20}}>
             <TouchableOpacity>
               <Text style={styles.settingslabel}>Account Settings</Text>
             </TouchableOpacity>
@@ -326,25 +308,45 @@ export default function EditAccount({ session }: { session: Session }) {
           ref={sheetRef}
           snapPoints={snapPoints}
           enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: COLORS.AKCRUBACKGROUND }}
-          onClose={() => setIsOpen(true)}
-        >
-          <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
+          backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+          onClose={() => setIsOpen(true)}>
+          <BottomSheetScrollView style={{marginHorizontal: 15}}>
             <View
               style={{
                 flex: 1,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
               <Button
                 title="Pick an image from camera roll"
-                // onPress={pickImage}
+                onPress={() => {
+                  launchImageLibrary(
+                    {
+                      selectionLimit: 0,
+                      mediaType: 'photo',
+                      includeBase64: false,
+                    },
+                    setResponse,
+                  );
+                }}
+              />
+              <Button
+                title="Take picture using Camera"
+                onPress={() => {
+                  launchCamera(
+                    {
+                      saveToPhotos: true,
+                      mediaType: 'photo',
+                      includeBase64: false,
+                    },
+                    setResponse,
+                  );
+                }}
               />
               {image && (
                 <Image
-                  source={{ uri: image }}
-                  style={{ width: 200, height: 200 }}
+                  source={{uri: image}}
+                  style={{width: 200, height: 200}}
                 />
               )}
             </View>

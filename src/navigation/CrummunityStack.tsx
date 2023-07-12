@@ -6,6 +6,7 @@ import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 import CruChewOrder from '../screens/crummunityScreens/CruChewScreens/CruChewOrder';
 import CruChewScreen from '../screens/crummunityScreens/CruChewScreens/CruChewScreen';
+import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import { SendMITSchedule, SendMITSearchResult, SendMITViewUser, SendMITSearchInput } from '../screens/crummunityScreens/SendViewUserMITScreens';
 import { COLORS } from '../../assets/constants';
 
@@ -14,7 +15,7 @@ export type CrummunityStackParams = {
   UserSearchResultScreen: any;
   ViewUserScreen: any;
   ViewUserDetailScreen: any;
-  //   PurchaseMITScreen: any;
+  PurchaseMITScreen: any;
   //   AcceptMITScreen: any;
   //   DeclineMITScreen: any;
   //   TestScreen: any;
@@ -102,6 +103,13 @@ export function CrummunityStack() {
       <Crummunity.Screen
         name="CruChewOrder"
         component={CruChewOrder}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Crummunity.Screen
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={() => ({
           headerShown: false,
         })}

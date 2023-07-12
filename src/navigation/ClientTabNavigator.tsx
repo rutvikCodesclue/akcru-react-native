@@ -11,7 +11,8 @@ import {ClientStack} from './ClientStack';
 import { CrummunityStack } from './CrummunityStack';
 import CruChewStack from './CruChewStack';
 import { UserProfileStack } from './UserProfileStack';
-
+import TestScreen from '../screens/userScreens/TestScreen';
+import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
@@ -22,6 +23,8 @@ export type ClientTabsParams = {
   ClientStack: any;
   CruChewStack: any;
   CrummunityStack: any;
+  TestScreen: any;
+  PurchaseMITScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -115,6 +118,18 @@ export default function ClientTabNavigator() {
               color={color}
               size={SIZES.SmallIcon}
             />
+          ),
+        }}
+      />
+      <ClientTabs.Screen
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({color, focused}) => (
+            <Animated.View style={focused ? floatingStyle : null}>
+              <AkcruControlBtn />
+            </Animated.View>
           ),
         }}
       />

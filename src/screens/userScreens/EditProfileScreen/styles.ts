@@ -44,7 +44,7 @@ export default StyleSheet.create({
     borderColor: COLORS.LIGHTGREY,
     marginBottom: 20,
     alignSelf: "center",
-    height: 35,
+    height: 40,
   },
   textinput: {
     color: COLORS.WHITE,
