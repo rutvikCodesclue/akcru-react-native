@@ -10,6 +10,7 @@ interface Props {
   disabled: boolean;
 }
 
+
 const SmallButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
