@@ -263,7 +263,7 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
             <View>
               <View style={styles.videocontain}>
                 <View>
-                  <Video
+                  {/* <Video
                     ref={video}
                     source={{
                       uri: JENNY_SCHEDULE[id].movieUrl,
@@ -280,7 +280,7 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
                       setStreamStatus(() => status)
                     }
                     style={styles.videoplayer}
-                  />
+                  /> */}
                 </View>
               </View>
               <View style={{ marginTop: 15, alignItems: "center" }}>

@@ -19,6 +19,7 @@ import {RouteProp} from '@react-navigation/native';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import imageindex from '../../../../assets/images/imageindex';
 import Header from '../../../components/header';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 const data = Akcru_Content[7].movies;
 
@@ -34,7 +35,7 @@ type ContentSwipeNavigationProp = StackNavigationProp<
   'ContentSwipe'
 >;
 
-type ContentSwipeRouteProp = RouteProp<ClientStackParams, 'ContentSwipe'>;
+type ContentSwipeRouteProp = RouteProp<NoBottomTabStackParams, 'ContentSwipe'>;
 
 type Props = {
   navigation: ContentSwipeNavigationProp;
@@ -335,7 +336,7 @@ export default function ContentSwipe({navigation, route}: Props) {
       />
       <Pagination
         scrollX={_scrollX}
-        onPress2={() => navigation.navigate('HomeScreen')}
+        onPress2={() => navigation.navigate('ClientTabNavigator')}
       />
       <Ticker scrollX={_scrollX} />
     </SafeAreaView>

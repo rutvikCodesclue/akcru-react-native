@@ -19,6 +19,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Icon} from '@rneui/themed';
 import { AkcruLogo, Applelogo, Googlelogo, Fblogo } from '../../../../assets/svg';
 import { supabase } from "../../../../lib/supabase";
+import NoBottomStack from '../../../navigation/NoBottomTabStack';
+
 
 const Signin = () => {
 
@@ -61,7 +63,7 @@ async function attemptLogin() {
   if (!error) {
     console.log('LOGIN Successful!', email);
     setLoading(false);
-    navigation.navigate('ClientTabNavigator');
+    navigation.navigate('NoBottomStack');
   }
 }
 
@@ -111,7 +113,7 @@ async function attemptLogin() {
                 <Googlelogo
                   width={42}
                   height={42}
-                  onPress={() => navigation.navigate('ClientTabNavigator')}
+                  onPress={() => navigation.navigate('NoBottomStack')}
                 />
               </TouchableOpacity>
               <TouchableOpacity>
