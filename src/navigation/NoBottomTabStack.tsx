@@ -9,6 +9,7 @@ import {ClientStack} from './ClientStack';
 import ContentSwipe from '../screens/contentScreens/contentSwipe';
 import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
+import StartMITDate from '../screens/userScreens/StartMITDate';
 
 export type NoBottomTabStackParams = {
   ContentSwipe: any;
@@ -16,6 +17,7 @@ export type NoBottomTabStackParams = {
   ClientStack: any;
   ContentPlayer: any;
   ContentDetailScreen: any;
+  StartMITDate: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -63,6 +65,14 @@ export default function NoBottomStack() {
       <NoBottom.Screen
         name="ClientTabNavigator"
         component={ClientTabNavigator}
+        options={{
+          headerShown: false,
+          gestureDirection: 'horizontal',
+        }}
+      />
+      <NoBottom.Screen
+        name="StartMITDate"
+        component={StartMITDate}
         options={{
           headerShown: false,
           gestureDirection: 'horizontal',

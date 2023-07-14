@@ -31,6 +31,8 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
+import VideoPlayer from "react-native-media-console";
+import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
 //import { ResizeMode, Video } from 'expo-av';
 // import { Video, ResizeMode } from "expo-av";
@@ -96,9 +98,8 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
     <SafeAreaView>
       <ScrollView
         stickyHeaderIndices={[0]}
-        style={{ marginBottom: SIZES.ScreenHeight / 12 }}
-      >
-        <View style={{ zIndex: 20 }}>
+        style={{marginBottom: SIZES.ScreenHeight / 12}}>
+        <View style={{zIndex: 20}}>
           <Header />
         </View>
 
@@ -106,34 +107,32 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
           <TouchableOpacity onPress={() => navigation.pop()}>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
               <Icon
                 name="chevron-back"
                 type="ionicon"
                 size={20}
                 color={COLORS.LIGHTGREY}
               />
-              <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Leave Room</Text>
+              <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
             </View>
           </TouchableOpacity>
           {!isStreamOpen && (
             <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
               <View
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
                 <Icon
                   name="close-circle"
                   type="ionicon"
                   size={20}
                   color={COLORS.LIGHTGREY}
                 />
-                <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>
+                <Text style={{...FONTS.Title3, marginLeft: 5}}>
                   Close Movie
                 </Text>
               </View>
@@ -146,9 +145,9 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
             <View style={styles.moviecontainer}>
               <LinearGradient
                 // Background Linear Gradient
-                colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   left: 0,
                   right: 0,
                   top: 0,
@@ -157,24 +156,23 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
                   height: SIZES.ScreenHeight / 7,
                 }}
               />
-              <View style={{ marginRight: 10 }}>
+              <View style={{marginRight: 10}}>
                 <Image
-                  source={{ uri: JENNY_SCHEDULE[id].moviePoster }}
+                  source={{uri: JENNY_SCHEDULE[id].moviePoster}}
                   style={styles.poster}
                 />
               </View>
               <View>
-                <Text style={{ ...FONTS.Title3 }}>
+                <Text style={{...FONTS.Title3}}>
                   {JENNY_SCHEDULE[id].movieName}
                 </Text>
                 <View
                   style={{
-                    flexDirection: "row",
+                    flexDirection: 'row',
                     marginVertical: 8,
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ ...FONTS.Title2, fontSize: 12 }}>
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{...FONTS.Title2, fontSize: 12}}>
                     {JENNY_SCHEDULE[id].movieYear}
                   </Text>
                   <Text
@@ -182,8 +180,7 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
                       ...FONTS.Title2,
                       fontSize: 12,
                       marginHorizontal: 10,
-                    }}
-                  >
+                    }}>
                     {JENNY_SCHEDULE[id].length}
                   </Text>
                   <Text style={styles.drawfonttag}>
@@ -196,26 +193,24 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
                     {JENNY_SCHEDULE[id].movieRating}/10
                   </Text>
                 </View>
-                <View style={{ flexDirection: "row" }}>
+                <View style={{flexDirection: 'row'}}>
                   <TouchableWithoutFeedback>
                     <View
                       style={{
-                        flexDirection: "row",
+                        flexDirection: 'row',
                         backgroundColor: COLORS.TAGCOLOR,
                         marginRight: 10,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 5,
-                        alignItems: "center",
-                      }}
-                    >
+                        alignItems: 'center',
+                      }}>
                       <Text
                         style={{
                           ...FONTS.paragraph1,
                           marginRight: 5,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         Link Device
                       </Text>
                       <Icon
@@ -227,25 +222,22 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
                     </View>
                   </TouchableWithoutFeedback>
                   <TouchableWithoutFeedback
-                    onPress={() => setIsStreamOpen(false)}
-                  >
+                    onPress={() => setIsStreamOpen(false)}>
                     <View
                       style={{
-                        flexDirection: "row",
+                        flexDirection: 'row',
                         backgroundColor: COLORS.TAGCOLOR,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 5,
-                        alignItems: "center",
-                      }}
-                    >
+                        alignItems: 'center',
+                      }}>
                       <Text
                         style={{
                           ...FONTS.paragraph1,
                           marginRight: 10,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         Play Stream
                       </Text>
                       <Icon
@@ -260,40 +252,18 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
               </View>
             </View>
           ) : (
-            <View>
-              <View style={styles.videocontain}>
-                <View>
-                  {/* <Video
-                    ref={video}
-                    source={{
-                      uri: JENNY_SCHEDULE[id].movieUrl,
-                    }}
-                    posterSource={{
-                      uri: JENNY_SCHEDULE[id].movieLSposter,
-                    }}
-                    usePoster={true}
-                    resizeMode={ResizeMode.CONTAIN}
-                    useNativeControls
-                    onFullscreenUpdate={setOrientation}
-                    volume={100}
-                    onPlaybackStatusUpdate={(status: {}) =>
-                      setStreamStatus(() => status)
-                    }
-                    style={styles.videoplayer}
-                  /> */}
-                </View>
-              </View>
-              <View style={{ marginTop: 15, alignItems: "center" }}>
-                <AkcruButtons.MedButton
-                  btnname={
-                    streamStatus.isPlaying ? "Pause Movie" : "Play Movie"
-                  }
-                  onPress={() =>
-                    streamStatus.isPlaying
-                      ? video.current.pauseAsync()
-                      : video.current.playAsync()
-                  }
-                  color={COLORS.AKCRUBLUE}
+            <View style={styles.videocontain}>
+              <View style={{height: SIZES.ScreenHeight / 4}}>
+                <VideoPlayer
+                  source={{
+                    uri: JENNY_SCHEDULE[id].movieUrl,
+                  }}
+                  tapAnywhereToPause={true}
+                  toggleResizeModeOnFullscreen={true}
+                  isFullscreen={false}
+                  disableBack
+                  posterResizeMode="cover"
+                  poster={JENNY_SCHEDULE[id].movieLSposter}
                 />
               </View>
             </View>
@@ -301,102 +271,106 @@ const StartMITDate = ({ navigation, route, dateID }: Props) => {
         </View>
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
             marginVertical: 15,
-          }}
-        >
-          <Image source={imageindex.LrgMIT} style={{ width: 50, height: 20 }} />
-          <Text style={{ ...FONTS.Title2Orange }}>Enjoy your MIT date</Text>
+          }}>
+          <Image source={imageindex.LrgMIT} style={{width: 50, height: 20}} />
+          <Text style={{...FONTS.Title2Orange}}>Enjoy your MIT date</Text>
         </View>
         <View
           style={{
             marginHorizontal: 15,
-          }}
-        >
+          }}>
           <MITUserVideoList />
         </View>
 
         {isStreamOpen ? (
-          <View style={{ height: SIZES.ScreenHeight / 4.2 }}></View>
+          <View
+            style={{
+         
+              height: SIZES.ScreenHeight * 0.25,
+            }}></View>
         ) : (
-          <View style={{ marginTop: 20 }}></View>
+          <View
+            style={{
+      
+              height: SIZES.ScreenHeight * 0.14,
+            }}></View>
         )}
-
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
-          }}
-        >
-          <Pressable onPress={toggleVideo}>
-            {isUserVideoOn ? (
+        <View style={{position: 'relative'}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+            }}>
+            <Pressable onPress={toggleVideo}>
+              {isUserVideoOn ? (
+                <Icon
+                  name="video"
+                  type="material-community"
+                  size={40}
+                  color={COLORS.CATPURPLGT}
+                />
+              ) : (
+                <Icon
+                  name="video-off"
+                  type="material-community"
+                  size={40}
+                  color={COLORS.CATREDLGT}
+                />
+              )}
+            </Pressable>
+            <Pressable onPress={() => handleSnapPress(1)}>
               <Icon
-                name="video"
-                type="material-community"
-                size={40}
-                color={COLORS.CATPURPLGT}
-              />
-            ) : (
-              <Icon
-                name="video-off"
-                type="material-community"
-                size={40}
-                color={COLORS.CATREDLGT}
-              />
-            )}
-          </Pressable>
-          <Pressable onPress={() => handleSnapPress(1)}>
-            <Icon
-              name="chatbox-ellipses"
-              type="ionicon"
-              size={40}
-              color={COLORS.CATPURPLGT}
-            />
-          </Pressable>
-          <Pressable onPress={toggleMic}>
-            {isMicOn ? (
-              <Icon
-                name="mic-circle"
+                name="chatbox-ellipses"
                 type="ionicon"
                 size={40}
                 color={COLORS.CATPURPLGT}
               />
-            ) : (
-              <Icon
-                name="mic-off-circle"
-                type="ionicon"
-                size={40}
-                color={COLORS.CATREDLGT}
-              />
-            )}
-          </Pressable>
+            </Pressable>
+            <Pressable onPress={toggleMic}>
+              {isMicOn ? (
+                <Icon
+                  name="mic-circle"
+                  type="ionicon"
+                  size={40}
+                  color={COLORS.CATPURPLGT}
+                />
+              ) : (
+                <Icon
+                  name="mic-off-circle"
+                  type="ionicon"
+                  size={40}
+                  color={COLORS.CATREDLGT}
+                />
+              )}
+            </Pressable>
+          </View>
         </View>
-
         <BottomSheet //Chat Modal
           ref={sheetRef}
           snapPoints={snapPoints}
           enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: COLORS.AKCRUBACKGROUND }}
-          onClose={() => setIsChatOpen(true)}
-        >
-          <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
+          backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+          onClose={() => setIsChatOpen(true)}>
+          <BottomSheetScrollView style={{marginHorizontal: 15}}>
             <MITChatCard />
             <MITChatCard />
             <MITChatCard />
             <MITChatCard />
           </BottomSheetScrollView>
-          <View style={{ marginHorizontal: 15 }}>
+          <View style={{marginHorizontal: 15}}>
             <View style={styles.input}>
               <TextInput
-                placeholder={"placeholder"}
-                placeholderTextColor={"transparent"}
+                placeholder={'placeholder'}
+                placeholderTextColor={'transparent'}
                 style={styles.textinput}
               />
 
               <AkcruButtons.XSmallButton
-                btnname={"REPLY"}
+                btnname={'REPLY'}
                 onPress={function (): void {}}
                 color=""
               />

@@ -14,7 +14,7 @@ const CRUUserVideoList = () => {
   const dataToShow = FAKE_USER_PROFILES.slice(0, 6); // Select the first two items from the list
 
   return (
-    <View style={{alignItems: 'center'}}>
+    <View style={{flex: 1, alignItems: 'center', }}>
       <FlatList
         data={dataToShow}
         horizontal={false}

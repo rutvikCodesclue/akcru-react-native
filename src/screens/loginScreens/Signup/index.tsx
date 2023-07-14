@@ -25,11 +25,11 @@ const Signup = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+  // const [firstName, setFirstName] = useState('');
+  // const [lastName, setLastName] = useState('');
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
+  // const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -40,13 +40,13 @@ const Signup = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleFirstNameChange = text => {
-    setFirstName(text);
-  };
+  // const handleFirstNameChange = text => {
+  //   setFirstName(text);
+  // };
 
-  const handleLastNameChange = text => {
-    setLastName(text);
-  };
+  // const handleLastNameChange = text => {
+  //   setLastName(text);
+  // };
 
   const handleUserNameChange = text => {
     setUserName(text);
@@ -57,9 +57,9 @@ const Signup = () => {
     setEmailError(!isEmailValid(text));
   };
 
-  const handlePhoneChange = number => {
-    setPhone(number);
-  };
+  // const handlePhoneChange = number => {
+  //   setPhone(number);
+  // };
 
   const handleDobChange = text => {
     setDob(text);
@@ -91,11 +91,11 @@ const Signup = () => {
 
   const checkFormCompletion = () => {
     if (
-      firstName &&
-      lastName &&
+      // firstName &&
+      // lastName &&
       userName &&
       email &&
-      phone &&
+      // phone &&
       dob &&
       password &&
       confirmPassword &&
@@ -112,10 +112,10 @@ const Signup = () => {
     checkFormCompletion();
     checkPasswordMatch();
   }, [
-    firstName,
-    lastName,
+    // firstName,
+    // lastName,
     email,
-    phone,
+    // phone,
     dob,
     password,
     confirmPassword,
@@ -129,14 +129,14 @@ const Signup = () => {
       'Attempting to Signup w/ Email/Password:',
       email,
       password,
-      phone,
+      // phone,
       userName,
     );
 
     const {error} = await supabase.auth.signUp({
       email: email,
       password: password,
-      phone: phone,
+      // phone: phone,
     });
 
     if (error) console.error(error.message);
@@ -189,7 +189,7 @@ const Signup = () => {
               </View>
 
               <View style={{alignItems: 'center', marginTop: 20}}>
-                <Inputs
+                {/* <Inputs
                   placeholdername={'First Name'}
                   iconname={''}
                   iconcolor={COLORS.LIGHTGREY}
@@ -204,7 +204,7 @@ const Signup = () => {
                   secureTextEntry={false}
                   onChangeText={handleLastNameChange}
                   value={lastName}
-                />
+                /> */}
                 <Inputs
                   placeholdername={'User Name'}
                   iconname={''}
@@ -224,14 +224,14 @@ const Signup = () => {
                 {emailError && (
                   <Text style={styles.warningText}>Invalid email format</Text>
                 )}
-                <Inputs
+                {/* <Inputs
                   placeholdername={'Telephone'}
                   iconname={'call'}
                   iconcolor={COLORS.LIGHTGREY}
                   secureTextEntry={false}
                   onChangeText={handlePhoneChange}
                   value={phone}
-                />
+                /> */}
                 <Inputs
                   placeholdername={'DOB'}
                   iconname={'calendar'}

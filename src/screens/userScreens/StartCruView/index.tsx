@@ -37,6 +37,7 @@ import BottomSheet, {
 // import { Video, ResizeMode } from "expo-av";
 // import * as ScreenOrientation from "expo-screen-orientation";
 import { StackNavigationProp } from "@react-navigation/stack";
+import VideoPlayer from "react-native-media-console";
 
 function setOrientation() {
   if (Dimensions.get("window").height > Dimensions.get("window").width) {
@@ -100,9 +101,8 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
     <SafeAreaView>
       <ScrollView
         stickyHeaderIndices={[0]}
-        style={{ marginBottom: SIZES.ScreenHeight / 12 }}
-      >
-        <View style={{ zIndex: 20 }}>
+        style={{marginBottom: SIZES.ScreenHeight / 12}}>
+        <View style={{zIndex: 20}}>
           <Header />
         </View>
 
@@ -110,34 +110,32 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
           <TouchableOpacity onPress={() => navigation.pop()}>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
               <Icon
                 name="chevron-back"
                 type="ionicon"
                 size={20}
                 color={COLORS.LIGHTGREY}
               />
-              <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Leave Room</Text>
+              <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
             </View>
           </TouchableOpacity>
           {!isStreamOpen && (
             <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
               <View
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
                 <Icon
                   name="close-circle"
                   type="ionicon"
                   size={20}
                   color={COLORS.LIGHTGREY}
                 />
-                <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>
+                <Text style={{...FONTS.Title3, marginLeft: 5}}>
                   Close Movie
                 </Text>
               </View>
@@ -150,9 +148,9 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
             <View style={styles.moviecontainer}>
               <LinearGradient
                 // Background Linear Gradient
-                colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
-                  position: "absolute",
+                  position: 'absolute',
                   left: 0,
                   right: 0,
                   top: 0,
@@ -161,24 +159,23 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                   height: SIZES.ScreenHeight / 7,
                 }}
               />
-              <View style={{ marginRight: 10 }}>
+              <View style={{marginRight: 10}}>
                 <Image
-                  source={{ uri: JENNY_SCHEDULE[id].moviePoster }}
+                  source={{uri: JENNY_SCHEDULE[id].moviePoster}}
                   style={styles.poster}
                 />
               </View>
               <View>
-                <Text style={{ ...FONTS.Title3 }}>
+                <Text style={{...FONTS.Title3}}>
                   {JENNY_SCHEDULE[id].movieName}
                 </Text>
                 <View
                   style={{
-                    flexDirection: "row",
+                    flexDirection: 'row',
                     marginVertical: 8,
-                    alignItems: "center",
-                  }}
-                >
-                  <Text style={{ ...FONTS.Title2, fontSize: 12 }}>
+                    alignItems: 'center',
+                  }}>
+                  <Text style={{...FONTS.Title2, fontSize: 12}}>
                     {JENNY_SCHEDULE[id].movieYear}
                   </Text>
                   <Text
@@ -186,8 +183,7 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                       ...FONTS.Title2,
                       fontSize: 12,
                       marginHorizontal: 10,
-                    }}
-                  >
+                    }}>
                     {JENNY_SCHEDULE[id].length}
                   </Text>
                   <Text style={styles.drawfonttag}>
@@ -200,26 +196,24 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                     {JENNY_SCHEDULE[id].movieRating}/10
                   </Text>
                 </View>
-                <View style={{ flexDirection: "row" }}>
+                <View style={{flexDirection: 'row'}}>
                   <TouchableWithoutFeedback>
                     <View
                       style={{
-                        flexDirection: "row",
+                        flexDirection: 'row',
                         backgroundColor: COLORS.TAGCOLOR,
                         marginRight: 10,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 5,
-                        alignItems: "center",
-                      }}
-                    >
+                        alignItems: 'center',
+                      }}>
                       <Text
                         style={{
                           ...FONTS.paragraph1,
                           marginRight: 5,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         Link Device
                       </Text>
                       <Icon
@@ -231,25 +225,22 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                     </View>
                   </TouchableWithoutFeedback>
                   <TouchableWithoutFeedback
-                    onPress={() => setIsStreamOpen(false)}
-                  >
+                    onPress={() => setIsStreamOpen(false)}>
                     <View
                       style={{
-                        flexDirection: "row",
+                        flexDirection: 'row',
                         backgroundColor: COLORS.TAGCOLOR,
                         paddingHorizontal: 10,
                         paddingVertical: 5,
                         borderRadius: 5,
-                        alignItems: "center",
-                      }}
-                    >
+                        alignItems: 'center',
+                      }}>
                       <Text
                         style={{
                           ...FONTS.paragraph1,
                           marginRight: 10,
                           fontSize: 12,
-                        }}
-                      >
+                        }}>
                         Play Stream
                       </Text>
                       <Icon
@@ -266,80 +257,59 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
           ) : (
             <View>
               <View style={styles.videocontain}>
-                <View>
-                  {/* <Video
-                    ref={video}
-                    source={{
-                      uri: JENNY_SCHEDULE[id].movieUrl,
-                    }}
-                    posterSource={{
-                      uri: JENNY_SCHEDULE[id].movieLSposter,
-                    }}
-                    usePoster={true}
-                    resizeMode={ResizeMode.CONTAIN}
-                    useNativeControls
-                    onFullscreenUpdate={setOrientation}
-                    volume={100}
-                    onPlaybackStatusUpdate={(status: {}) =>
-                      setStreamStatus(() => status)
-                    }
-                    style={styles.videoplayer}
-                  /> */}
+                <View style={{flex: 1}}>
+                  <View style={{height: SIZES.ScreenHeight / 4}}>
+                    <VideoPlayer
+                      source={{
+                        uri: JENNY_SCHEDULE[id].movieUrl,
+                      }}
+                      tapAnywhereToPause={true}
+                      toggleResizeModeOnFullscreen={true}
+                      isFullscreen={false}
+                      posterResizeMode="cover"
+                      poster={JENNY_SCHEDULE[id].movieLSposter}
+                    />
+                  </View>
+                  <View style={{backgroundColor: 'red', flex: 1}}></View>
                 </View>
-              </View>
-              <View style={{ marginTop: 15, alignItems: "center" }}>
-                <AkcruButtons.MedButton
-                  btnname={
-                    streamStatus.isPlaying ? "Pause Movie" : "Play Movie"
-                  }
-                  onPress={() =>
-                    streamStatus.isPlaying
-                      ? video.current.pauseAsync()
-                      : video.current.playAsync()
-                  }
-                  color={COLORS.AKCRUBLUE}
-                />
               </View>
             </View>
           )}
         </View>
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
             marginVertical: 15,
-          }}
-        >
+          }}>
           <Image
             source={imageindex.AkcruHexLogo}
-            style={{ width: 25, height: 25 }}
+            style={{width: 25, height: 25}}
           />
-          <Text style={{ ...FONTS.Title2Orange, marginLeft: 5 }}>
+          <Text style={{...FONTS.Title2Orange, marginLeft: 5}}>
             Enjoy the CRU View
           </Text>
         </View>
 
         <View
-          style={{
+          style={{ flex: 1,
             marginHorizontal: 15,
-          }}
-        >
+          }}>
           <CRUUserVideoList />
         </View>
 
         {isStreamOpen ? (
-          <View style={{ height: SIZES.ScreenHeight / 6.5 }}></View>
+          <View style={{height: SIZES.ScreenHeight * 0.16}}></View>
         ) : (
-          <View style={{ height: SIZES.ScreenHeight / 50 }}></View>
+          <View style={{height: SIZES.ScreenHeight * 0.055}}></View>
         )}
-        <View style={{ position: "relative" }}>
+        <View style={styles.bottombtn}>
           <View
             style={{
-              flexDirection: "row",
-              justifyContent: "space-around",
-            }}
-          >
+              flexDirection: 'row',
+              justifyContent: 'space-around',
+            }}>
             <Pressable onPress={toggleVideo}>
               {isUserVideoOn ? (
                 <Icon
@@ -388,25 +358,24 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
           ref={sheetRef}
           snapPoints={snapPoints}
           enablePanDownToClose={true}
-          backgroundStyle={{ backgroundColor: COLORS.AKCRUBACKGROUND }}
-          onClose={() => setIsChatOpen(true)}
-        >
-          <BottomSheetScrollView style={{ marginHorizontal: 15 }}>
+          backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+          onClose={() => setIsChatOpen(true)}>
+          <BottomSheetScrollView style={{marginHorizontal: 15}}>
             <MITChatCard />
             <MITChatCard />
             <MITChatCard />
             <MITChatCard />
           </BottomSheetScrollView>
-          <View style={{ marginHorizontal: 15 }}>
+          <View style={{marginHorizontal: 15}}>
             <View style={styles.input}>
               <TextInput
-                placeholder={"placeholder"}
-                placeholderTextColor={"transparent"}
+                placeholder={'placeholder'}
+                placeholderTextColor={'transparent'}
                 style={styles.textinput}
               />
 
               <AkcruButtons.XSmallButton
-                btnname={"REPLY"}
+                btnname={'REPLY'}
                 onPress={function (): void {}}
                 color=""
               />
@@ -475,4 +444,7 @@ const styles = StyleSheet.create({
     aspectRatio: 16 / 9,
     width: "100%",
   },
+  bottombtn: {
+
+  }
 });
