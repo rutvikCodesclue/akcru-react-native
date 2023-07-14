@@ -5,12 +5,12 @@ import {
   Image,
   Alert,
   Dimensions,
-  Pressable,
 } from 'react-native';
 import React, {useCallback, useRef, useState, useEffect} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
+// import styles from "./Styles/styles";
 import imageindex from '../../../assets/images/imageindex';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruButtons from '../akcruButtons';
@@ -19,6 +19,10 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import YoutubePlayer from 'react-native-youtube-iframe';
+// import * as ScreenOrientation from 'expo-screen-orientation';
+
+//import { ResizeMode, Video } from 'expo-av';
+// import {Video, ResizeMode} from 'expo-av';
 
 type MovieDetailCardProps = {
   name: string;
@@ -37,10 +41,9 @@ type MovieDetailCardProps = {
   genre1: string;
   genre2: string;
   onPress: () => void;
-  onPressin: () => void;
 };
 
-const MovieDetailCard = ({
+const MovieDetailCardCopy = ({
   id,
   name,
   year,
@@ -57,12 +60,19 @@ const MovieDetailCard = ({
   genre1,
   genre2,
   onPress,
-  onPressin
 }: MovieDetailCardProps) => {
-
-
   const video = React.useRef(null);
   const [status, setStatus] = React.useState({}); //Video Player Status
+
+//   function setOrientation() {
+//     if (Dimensions.get('window').height > Dimensions.get('window').width) {
+//       //Device is in portrait mode, rotate to landscape mode.
+//       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+//     } else {
+//       //Device is in landscape mode, rotate to portrait mode.
+//       ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+//     }
+//   }
 
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
@@ -90,6 +100,19 @@ const MovieDetailCard = ({
     setPlaying(prev => !prev);
   }, []);
 
+  //Point system
+
+  // const [points, setPoints] = useState(0);
+
+  // const updatePoints = () => {
+  //   setPoints(prevPoints => prevPoints + 1);
+  // };
+
+  // useEffect(() => {
+  //   const interval = setInterval(updatePoints, 60000); // Update points every minute
+  //   return () => clearInterval(interval); // Clean up the interval on component unmount
+  // }, []);
+
   return (
     <View>
       <View>
@@ -97,6 +120,7 @@ const MovieDetailCard = ({
           <Image
             source={{uri: portrait_poster}}
             style={{
+            
               height: SIZES.ScreenHeight / 1.5,
             }}
             resizeMode="cover"
@@ -146,6 +170,28 @@ const MovieDetailCard = ({
               <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
             </View>
           </TouchableOpacity>
+          <View style={{position: 'absolute', left: 0, right: 0, bottom: 150}}>
+            <View style={styles.videocontain}>
+              {/* <View>
+                <Video
+                  ref={video}
+                  source={{
+                    uri: movie_url,
+                  }}
+                  posterSource={{uri: landscape_poster}}
+                  usePoster={true}
+                  resizeMode={ResizeMode.CONTAIN}
+                  useNativeControls
+                  onFullscreenUpdate={setOrientation}
+                  volume={100}
+                  onPlaybackStatusUpdate={(status: {}) =>
+                    setStatus(() => status)
+                  }
+                  style={styles.videoplayer}
+                />
+              </View> */}
+            </View>
+          </View>
           <View
             style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
             <View
@@ -154,6 +200,9 @@ const MovieDetailCard = ({
                 flexDirection: 'row',
                 alignItems: 'center',
               }}>
+              {/* <Text style={{...FONTS.Title2Orange}}>
+                Earned Points: {points}
+              </Text> */}
               <Text
                 style={{
                   ...FONTS.Title3,
@@ -178,12 +227,15 @@ const MovieDetailCard = ({
               justifyContent: 'space-between',
               marginHorizontal: 10,
             }}>
-              <AkcruButtons.MedButton
-                btnname={'Play Movie'}
-                onPress={onPressin}
-                color={COLORS.AKCRUBLUE}
-              />
-
+            <AkcruButtons.MedButton
+              btnname={status.isPlaying ? 'Pause Movie' : 'Play Movie'}
+              onPress={() =>
+                status.isPlaying
+                  ? video.current.pauseAsync()
+                  : video.current.playAsync()
+              }
+              color={COLORS.AKCRUBLUE}
+            />
             <AkcruButtons.MedButton
               btnname={'Watch Trailer'}
               onPress={() => handleSnapPress(1)}
@@ -417,4 +469,4 @@ const MovieDetailCard = ({
   );
 };
 
-export default MovieDetailCard;
+export default MovieDetailCardCopy;

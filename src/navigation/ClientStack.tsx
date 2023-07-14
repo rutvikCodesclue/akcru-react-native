@@ -31,13 +31,13 @@ export function ClientStack() {
         cardOverlayEnabled: true,
         cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
       }}>
-      <ClientSearch.Screen
+      {/* <ClientSearch.Screen
         name="ContentSwipe"
         component={ContentSwipe}
         options={() => ({
           headerShown: false,
         })}
-      />
+      /> */}
       <ClientSearch.Screen
         name="HomeScreen"
         component={HomeScreen}

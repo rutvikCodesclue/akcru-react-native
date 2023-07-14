@@ -1,59 +1,66 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import { COLORS } from '../../assets/constants';
+import {COLORS} from '../../assets/constants';
 import Signin from '../screens/loginScreens/Signin';
 import ForgotPassword from '../screens/loginScreens/resetPassword';
 import Signup from '../screens/loginScreens/Signup';
 import ClientTabNavigator from './ClientTabNavigator';
-import { ClientStack } from './ClientStack';
-import NoBottomStack from './NoBottomTabStack';
+import {ClientStack} from './ClientStack';
+import ContentSwipe from '../screens/contentScreens/contentSwipe';
+import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
+import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 
-
-
-export type AuthStackParams = {
-  Signin: any;
-  Signup: any;
-  ForgotPassword: any;
+export type NoBottomTabStackParams = {
+  ContentSwipe: any;
   ClientTabNavigator: any;
   ClientStack: any;
-  NoBottomStack: any;
+  ContentPlayer: any;
+  ContentDetailScreen: any;
 };
 
-const Auth = createStackNavigator<AuthStackParams>();
+const NoBottom = createStackNavigator<NoBottomTabStackParams>();
 
-export default function AuthStack() {
+export default function NoBottomStack() {
   return (
-    <Auth.Navigator
+    <NoBottom.Navigator
       screenOptions={{
         animationEnabled: true,
         cardOverlayEnabled: true,
         cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
       }}>
-      <Auth.Screen
-        name="Signin"
-        component={Signin}
+      <NoBottom.Screen
+        name="ContentSwipe"
+        component={ContentSwipe}
         options={{
           headerShown: false,
           gestureDirection: 'horizontal',
         }}
       />
-      <Auth.Screen
-        name="ForgotPassword"
-        component={ForgotPassword}
+      <NoBottom.Screen
+        name="ContentPlayer"
+        component={ContentPlayer}
         options={{
           headerShown: false,
           gestureDirection: 'horizontal',
         }}
       />
-      <Auth.Screen
-        name="Signup"
-        component={Signup}
+      <NoBottom.Screen
+        name="ContentDetailScreen"
+        component={ContentDetailScreen}
         options={{
           headerShown: false,
           gestureDirection: 'horizontal',
         }}
       />
-      <Auth.Screen
+      <NoBottom.Screen
+        name="ClientStack"
+        component={ClientStack}
+        options={{
+          headerShown: false,
+          gestureDirection: 'horizontal',
+        }}
+      />
+      <NoBottom.Screen
         name="ClientTabNavigator"
         component={ClientTabNavigator}
         options={{
@@ -61,14 +68,6 @@ export default function AuthStack() {
           gestureDirection: 'horizontal',
         }}
       />
-      <Auth.Screen
-        name="NoBottomStack"
-        component={NoBottomStack}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-    </Auth.Navigator>
+    </NoBottom.Navigator>
   );
 }

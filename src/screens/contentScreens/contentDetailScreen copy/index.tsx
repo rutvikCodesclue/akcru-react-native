@@ -39,7 +39,7 @@ type Props = {
 
 const RecommendedForYou = Akcru_Content[4];
 
-export default function ContentDetailScreen({navigation, route}: Props) {
+export default function ContentDetailScreenCopy({navigation, route}: Props) {
   const id: string | undefined = route.params?.id ?? null;
   const movies: string | undefined = route.params?.movies ?? null;
 
@@ -83,13 +83,6 @@ export default function ContentDetailScreen({navigation, route}: Props) {
             movie_url={movie_url}
             genre1={genre[0]}
             genre2={genre[1]}
-            onPressin={() =>{
-              navigation.navigate ('ContentPlayer', {
-                id: id,
-                movie_url,
-                landscape_poster
-              })
-            }}
             onPress={() => {
               navigation.navigate('MITDateSchedule', {
                 id: id,
