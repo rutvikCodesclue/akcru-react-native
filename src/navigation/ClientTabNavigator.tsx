@@ -122,8 +122,8 @@ export default function ClientTabNavigator() {
         }}
       />
       <ClientTabs.Screen
-        name="TestScreen"
-        component={TestScreen}
+        name="PurchaseMITScreen"
+        component={PurchaseMITScreen}
         options={{
           headerShown: false,
           tabBarIcon: ({color, focused}) => (
