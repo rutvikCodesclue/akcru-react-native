@@ -12,6 +12,7 @@ interface Props {
   secureTextEntry: boolean;
   onChangeText: any;
   value: any;
+  editable: boolean;
 }
 
 const Inputs: React.FC<Props> = ({
@@ -21,6 +22,7 @@ const Inputs: React.FC<Props> = ({
   secureTextEntry,
   onChangeText,
   value,
+  editable
 }) => {
   return (
     <View style={styles.input}>
@@ -38,6 +40,7 @@ const Inputs: React.FC<Props> = ({
         secureTextEntry={secureTextEntry}
         onChangeText={onChangeText}
         value={value}
+        editable = {editable}
       />
     </View>
   );

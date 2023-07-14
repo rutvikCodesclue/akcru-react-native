@@ -11,7 +11,7 @@ import {ClientStack} from './ClientStack';
 import { CrummunityStack } from './CrummunityStack';
 import CruChewStack from './CruChewStack';
 import { UserProfileStack } from './UserProfileStack';
-import TestScreen from '../screens/userScreens/TestScreen';
+
 import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';

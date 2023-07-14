@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ImageBackground,
   Pressable,
+  Platform,
+  Modal,
   KeyboardAvoidingView
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
@@ -20,16 +22,46 @@ import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
 import {supabase} from '../../../../lib/supabase';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import Tos from './tos';
+
+
+const TOSModal = ({visible, children}) => {
+
+  const [showModal, setShowModal] = useState(visible);
+  React.useEffect(()=>{
+    togglemode()
+  }, [visible]);
+  const togglemode =()=>{
+    if (visible) {
+      setShowModal(true)
+    }else{
+      setShowModal(false)
+    }
+  };
+
+ return (
+   <Modal transparent visible={showModal}>
+     <View style={styles.tosmodal}>
+       <View style={styles.tosmodalcontainer}>
+         {children}
+       </View>
+     </View>
+   </Modal>
+ );
+};
+
+
+
 
 const Signup = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-  // const [firstName, setFirstName] = useState('');
-  // const [lastName, setLastName] = useState('');
+  const [visible, setVisible] = useState(false);
+  
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
-  // const [phone, setPhone] = useState('');
   const [dob, setDob] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,17 +69,28 @@ const Signup = () => {
   const [isFormComplete, setIsFormComplete] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
   const [emailError, setEmailError] = useState(false);
-
+  
   const [loading, setLoading] = useState<boolean>(false);
 
-  // const handleFirstNameChange = text => {
-  //   setFirstName(text);
-  // };
+  const [showPicker, setShowPicker] = useState(false);
+  const [date, setDate] = useState(new Date());
 
-  // const handleLastNameChange = text => {
-  //   setLastName(text);
-  // };
+  const toggleDatePicker =()=>{
+    setShowPicker(!showPicker);
+  };
 
+  const onChange = ({type}, selectedDate ) => {
+    if (type == "set") {
+      const currentDate = selectedDate; 
+      setDate(currentDate);
+
+      if (Platform.OS === 'android') {
+        toggleDatePicker();
+        setDob(currentDate.toDateString())
+      }
+    } else { toggleDatePicker()}
+  };
+ 
   const handleUserNameChange = text => {
     setUserName(text);
   };
@@ -56,10 +99,6 @@ const Signup = () => {
     setEmail(text);
     setEmailError(!isEmailValid(text));
   };
-
-  // const handlePhoneChange = number => {
-  //   setPhone(number);
-  // };
 
   const handleDobChange = text => {
     setDob(text);
@@ -91,11 +130,8 @@ const Signup = () => {
 
   const checkFormCompletion = () => {
     if (
-      // firstName &&
-      // lastName &&
       userName &&
       email &&
-      // phone &&
       dob &&
       password &&
       confirmPassword &&
@@ -112,10 +148,7 @@ const Signup = () => {
     checkFormCompletion();
     checkPasswordMatch();
   }, [
-    // firstName,
-    // lastName,
     email,
-    // phone,
     dob,
     password,
     confirmPassword,
@@ -123,20 +156,28 @@ const Signup = () => {
     userName,
   ]);
 
-  async function attemptSignup() {
+  const attemptSignup = async () => {
+    // Calculate the minimum date for 18 years ago
+    const minDate = new Date();
+    minDate.setFullYear(minDate.getFullYear() - 18);
+
+    // Check if the selected date of birth is valid
+    if (date > minDate) {
+      alert('You must be 18 years or older to sign up.');
+      return;
+    }
+
     setLoading(true);
     console.log(
       'Attempting to Signup w/ Email/Password:',
       email,
       password,
-      // phone,
       userName,
     );
 
     const {error} = await supabase.auth.signUp({
       email: email,
       password: password,
-      // phone: phone,
     });
 
     if (error) console.error(error.message);
@@ -148,7 +189,7 @@ const Signup = () => {
       // FIXME: push to log in page
       // navigation.navigate("Signin");
     }
-  }
+  };
 
   return (
     <SafeAreaView>
@@ -189,22 +230,6 @@ const Signup = () => {
               </View>
 
               <View style={{alignItems: 'center', marginTop: 20}}>
-                {/* <Inputs
-                  placeholdername={'First Name'}
-                  iconname={''}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handleFirstNameChange}
-                  value={firstName}
-                />
-                <Inputs
-                  placeholdername={'Last Name'}
-                  iconname={''}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handleLastNameChange}
-                  value={lastName}
-                /> */}
                 <Inputs
                   placeholdername={'User Name'}
                   iconname={''}
@@ -224,22 +249,30 @@ const Signup = () => {
                 {emailError && (
                   <Text style={styles.warningText}>Invalid email format</Text>
                 )}
-                {/* <Inputs
-                  placeholdername={'Telephone'}
-                  iconname={'call'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handlePhoneChange}
-                  value={phone}
-                /> */}
-                <Inputs
-                  placeholdername={'DOB'}
-                  iconname={'calendar'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handleDobChange}
-                  value={dob}
-                />
+
+                {showPicker && (
+                  <DateTimePicker
+                    display="spinner"
+                    mode="date"
+                    value={date}
+                    onChange={onChange}
+                  />
+                )}
+
+                {!showPicker && (
+                  <Pressable onPress={toggleDatePicker}>
+                    <Inputs
+                      placeholdername={'DOB'}
+                      iconname={'calendar'}
+                      iconcolor={COLORS.LIGHTGREY}
+                      secureTextEntry={false}
+                      onChangeText={setDob}
+                      value={dob}
+                      editable={false}
+                    />
+                  </Pressable>
+                )}
+
                 <Inputs
                   placeholdername={'Choose Password'}
                   iconname={'lock-closed'}
@@ -249,16 +282,18 @@ const Signup = () => {
                   value={password}
                 />
                 <Inputs
-                placeholdername={'Confirm Password'}
-                iconname={'lock-closed'}
-                iconcolor={COLORS.LIGHTGREY}
-                secureTextEntry={true}
-                onChangeText={handleConfirmPasswordChange}
-                value={confirmPassword}
-              />
-              {passwordError && (
-                <Text style={styles.warningText}>Passwords do not match.</Text>
-              )}
+                  placeholdername={'Confirm Password'}
+                  iconname={'lock-closed'}
+                  iconcolor={COLORS.LIGHTGREY}
+                  secureTextEntry={true}
+                  onChangeText={handleConfirmPasswordChange}
+                  value={confirmPassword}
+                />
+                {passwordError && (
+                  <Text style={styles.warningText}>
+                    Passwords do not match.
+                  </Text>
+                )}
               </View>
 
               <View>
@@ -281,14 +316,24 @@ const Signup = () => {
                     <Text style={styles.checkboxText}>
                       I have read and I agree to the
                     </Text>
-                    <Pressable>
+                    <Pressable onPress={() => setVisible(true)}>
                       <Text style={{...FONTS.Title2, marginLeft: 10}}>
                         terms and conditions
                       </Text>
                     </Pressable>
                   </View>
                 </View>
-
+                <TOSModal visible={visible}>
+                  <View>
+                    <Pressable onPress={()=> setVisible(false)}>
+                      <Icon name={'close'} color={COLORS.LIGHTGREY} />
+                    </Pressable>
+                  </View>
+                  <ScrollView>
+                    <Tos />
+                  </ScrollView>
+                  <View style={{height: 20 }}></View>
+                </TOSModal>
                 <View style={{alignItems: 'center', marginTop: 20}}>
                   <AkcruButtons.LrgButton
                     color={COLORS.AKCRUBLUE}
