@@ -4,7 +4,7 @@ import React from 'react';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import AkcruButtons from '../../../components/akcruButtons';
 import {FAB, Portal, Provider} from 'react-native-paper';
-import { COLORS } from '../../../../assets/constants';
+import { COLORS, SIZES } from '../../../../assets/constants';
 import Video from 'react-native-video';
 import VideoPlayer from 'react-native-media-console';
 
@@ -20,17 +20,21 @@ const TestScreen = () => {
   const {open} = state;
   return (
     <View style={{flex: 1}}>
-      <VideoPlayer
-        source={{
-          uri: 'https://priymuscontent.s3.amazonaws.com/Movie+folder/Widows.mp4',
-        }}
-        tapAnywhereToPause={false}
-       
-        toggleResizeModeOnFullscreen={true}
-        
-        poster="https://priymuscontent.s3.amazonaws.com/Beta+test+posters/WidowsLS.jpg"
-        containerStyle={{zIndex: 100}}
-      />
+      <View style={{height: SIZES.ScreenHeight / 4}}>
+        <VideoPlayer
+          source={{
+            uri: 'https://priymuscontent.s3.amazonaws.com/Movie+folder/Widows.mp4',
+          }}
+          tapAnywhereToPause={true}
+         
+          toggleResizeModeOnFullscreen={true}
+          isFullscreen={false}
+          posterResizeMode='cover'
+          poster="https://priymuscontent.s3.amazonaws.com/Beta+test+posters/widowsPT.jpg"
+         
+        />
+      </View>
+      <View style={{backgroundColor: 'red', flex: 1}}></View>
     </View>
   );
 }
