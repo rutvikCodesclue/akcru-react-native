@@ -140,7 +140,7 @@ async function attemptLogin() {
               </Text>
             </TouchableOpacity>
             <View
-              style={{flex: 1, justifyContent: 'flex-end', marginBottom: 10}}>
+              style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
               <View
                 style={{
                   marginBottom: 25,
