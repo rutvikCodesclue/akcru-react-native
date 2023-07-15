@@ -8,7 +8,8 @@ import {
   Pressable,
   Platform,
   Modal,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Alert
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
@@ -21,12 +22,13 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
-import {supabase} from '../../../../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Tos from './tos';
+import { API } from '../../../clients/api.client';
+import { supabase } from '../../../../lib/supabase';
 
 
-const TOSModal = ({visible, children}) => {
+const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
 
   const [showModal, setShowModal] = useState(visible);
   React.useEffect(()=>{
@@ -51,16 +53,12 @@ const TOSModal = ({visible, children}) => {
  );
 };
 
-
-
-
 const Signup = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
   const [visible, setVisible] = useState(false);
   
-  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [dob, setDob] = useState('');
   const [password, setPassword] = useState('');
@@ -73,13 +71,13 @@ const Signup = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [showPicker, setShowPicker] = useState(false);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState<Date>(new Date());
 
   const toggleDatePicker =()=>{
     setShowPicker(!showPicker);
   };
 
-  const onChange = ({type}, selectedDate ) => {
+  const onChange = ({type} : {type: string}, selectedDate: Date ) => {
     if (type == "set") {
       const currentDate = selectedDate; 
       setDate(currentDate);
@@ -90,29 +88,25 @@ const Signup = () => {
       }
     } else { toggleDatePicker()}
   };
- 
-  const handleUserNameChange = text => {
-    setUserName(text);
-  };
 
-  const handleEmailChange = text => {
+  const handleEmailChange = (text: string) => {
     setEmail(text);
     setEmailError(!isEmailValid(text));
   };
 
-  const handleDobChange = text => {
+  const handleDobChange = (text: string) => {
     setDob(text);
   };
 
-  const handlePasswordChange = text => {
+  const handlePasswordChange = (text: string) => {
     setPassword(text);
   };
 
-  const handleConfirmPasswordChange = text => {
+  const handleConfirmPasswordChange = (text: string) => {
     setConfirmPassword(text);
   };
 
-  const handleCheckboxChange = newValue => {
+  const handleCheckboxChange = (newValue: boolean)=> {
     setIsChecked(newValue);
   };
 
@@ -124,13 +118,13 @@ const Signup = () => {
     }
   };
 
-  const isEmailValid = email => {
+  const isEmailValid = (email: string) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const checkFormCompletion = () => {
     if (
-      userName &&
+      // userName &&
       email &&
       dob &&
       password &&
@@ -153,7 +147,6 @@ const Signup = () => {
     password,
     confirmPassword,
     isChecked,
-    userName,
   ]);
 
   const attemptSignup = async () => {
@@ -163,7 +156,8 @@ const Signup = () => {
 
     // Check if the selected date of birth is valid
     if (date > minDate) {
-      alert('You must be 18 years or older to sign up.');
+      // TODO: change this to a modal
+      Alert.alert('You must be 18 years or older to sign up.');
       return;
     }
 
@@ -172,23 +166,54 @@ const Signup = () => {
       'Attempting to Signup w/ Email/Password:',
       email,
       password,
-      userName,
+      // userName,
     );
 
-    const {error} = await supabase.auth.signUp({
+    // create an email signup
+    const signUpResponse = await API.post('/v1/auth/signup', {
+      type: 'email',
       email: email,
-      password: password,
-    });
+      password: password
+    })
 
-    if (error) console.error(error.message);
-    if (!error) {
-      alert('Signup Successful!');
-
+    // check for error in signup response
+    if (signUpResponse.status !== 200) {
+      console.log('Signup Error:', signUpResponse);
+      
+      Alert.alert(signUpResponse.data.message);
       setLoading(false);
-      navigation.navigate('ClientTabNavigator');
-      // FIXME: push to log in page
-      // navigation.navigate("Signin");
+      return;
     }
+
+    // if no error, navigate to login screen
+    // TODO: create onboarding screens (user picks username, interests, etc.)
+    console.log('Signup Successful!', signUpResponse.data);
+    
+    // now that user is signed up, sign them in
+    const signInResponse = await supabase.auth.signInWithPassword({
+      email: email,
+      password: password
+    })
+    
+    // TODO: save the JWT in secure storage
+    setLoading(false);
+    // move the user to the home screen
+    navigation.navigate('ClientTabNavigator');
+
+    // const {error} = await supabase.auth.signUp({
+    //   email: email,
+    //   password: password,
+    // });
+
+    // if (error) console.error(error.message);
+    // if (!error) {
+    //   alert('Signup Successful!');
+
+    //   setLoading(false);
+    //   navigation.navigate('ClientTabNavigator');
+    //   // FIXME: push to log in page
+    //   // navigation.navigate("Signin");
+    // }
   };
 
   return (
@@ -230,14 +255,14 @@ const Signup = () => {
               </View>
 
               <View style={{alignItems: 'center', marginTop: 20}}>
-                <Inputs
+                {/* <Inputs
                   placeholdername={'User Name'}
-                  iconname={''}
+                  iconname={'mail'}
                   iconcolor={COLORS.LIGHTGREY}
                   secureTextEntry={false}
                   onChangeText={handleUserNameChange}
                   value={userName}
-                />
+                /> */}
                 <Inputs
                   placeholdername={'Email'}
                   iconname={'mail'}
@@ -245,6 +270,7 @@ const Signup = () => {
                   secureTextEntry={false}
                   onChangeText={handleEmailChange}
                   value={email}
+                  editable={!loading}
                 />
                 {emailError && (
                   <Text style={styles.warningText}>Invalid email format</Text>
@@ -280,6 +306,7 @@ const Signup = () => {
                   secureTextEntry={true}
                   onChangeText={handlePasswordChange}
                   value={password}
+                  editable={!loading}
                 />
                 <Inputs
                   placeholdername={'Confirm Password'}
@@ -288,6 +315,7 @@ const Signup = () => {
                   secureTextEntry={true}
                   onChangeText={handleConfirmPasswordChange}
                   value={confirmPassword}
+                  editable={!loading}
                 />
                 {passwordError && (
                   <Text style={styles.warningText}>
