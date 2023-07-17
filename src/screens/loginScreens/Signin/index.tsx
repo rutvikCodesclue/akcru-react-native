@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Image,
-  ScrollView
+  ScrollView,
+  Alert
 } from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons'
 import Inputs from '../../../components/input'
@@ -20,52 +21,51 @@ import {Icon} from '@rneui/themed';
 import { AkcruLogo, Applelogo, Googlelogo, Fblogo } from '../../../../assets/svg';
 import { supabase } from "../../../../lib/supabase";
 import NoBottomStack from '../../../navigation/NoBottomTabStack';
+import { API } from '../../../clients/api.client';
 
 
 const Signin = () => {
 
-const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
 
-const [email, setEmail] = useState<string>('');
-const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
 
-const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-async function attemptSignup() {
-  setLoading(true);
-  console.log('Attempting to Signup w/ Email/Password:', email, password);
-
-  const {error} = await supabase.auth.signUp({
-    email: email,
-    password: password,
-  });
-
-  if (error) console.error(error.message);
-  if (!error) {
-    console.log('Signup Successful!');
-    setLoading(false);
-    // navigation.navigate('ClientTabNavigator')
-    // FIXME: push to sign up page
+  async function attemptLogin() {
+    try {
+      setLoading(true);
+      console.log('Attempting to LOGIN w/ Email/Password:', email, password);
+      // login through the API
+      const loginResponse = await API.post("/v1/auth/login", {
+        type: "email",
+        email: email,
+        password: password,
+      })
+  
+      if (loginResponse.status !== 200) {
+        console.error(loginResponse.data);
+        // Alert.alert("Error Logging In", loginResponse);
+        setLoading(false);
+        return null;
+      }
+  
+      console.log("Login Response:", loginResponse.data);
+  
+      // set the token in local storage
+      
+      
+      console.log('LOGIN Successful!', email);
+      setLoading(false);
+      navigation.navigate('NoBottomStack');
+      
+    } catch (error) {
+      console.log('LOGIN Error:', error);
+      
+    }
   }
-}
-
-async function attemptLogin() {
-  setLoading(true);
-  console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-
-  const {error} = await supabase.auth.signInWithPassword({
-    email: email,
-    password: password,
-  });
-
-  if (error) console.error(error.message);
-  if (!error) {
-    console.log('LOGIN Successful!', email);
-    setLoading(false);
-    navigation.navigate('NoBottomStack');
-  }
-}
 
   return (
     <SafeAreaView>
@@ -89,6 +89,7 @@ async function attemptLogin() {
                   setEmail(text)
                 }
                 value={email}
+                editable={true}
               />
               <Inputs
                 placeholdername={'Password'}
@@ -99,6 +100,7 @@ async function attemptLogin() {
                   setPassword(text)
                 }
                 value={password}
+                editable={true}
               />
             </View>
             <View style={{marginVertical: 10}}>
@@ -106,6 +108,7 @@ async function attemptLogin() {
                 color={COLORS.AKCRUBLUE}
                 btnname={'Login'}
                 onPress={() => attemptLogin()}
+                disabled={loading}
               />
             </View>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
