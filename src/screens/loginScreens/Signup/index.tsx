@@ -60,7 +60,7 @@ const Signup = () => {
   const [visible, setVisible] = useState(false);
   
   const [email, setEmail] = useState('');
-  const [dob, setDob] = useState('');
+  // const [dob, setDob] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isChecked, setIsChecked] = useState(false);
@@ -77,26 +77,26 @@ const Signup = () => {
     setShowPicker(!showPicker);
   };
 
-  const onChange = ({type} : {type: string}, selectedDate: Date ) => {
-    if (type == "set") {
-      const currentDate = selectedDate; 
-      setDate(currentDate);
+  // const onChange = ({type} : {type: string}, selectedDate: Date ) => {
+  //   if (type == "set") {
+  //     const currentDate = selectedDate; 
+  //     setDate(currentDate);
 
-      if (Platform.OS === 'android') {
-        toggleDatePicker();
-        setDob(currentDate.toDateString())
-      }
-    } else { toggleDatePicker()}
-  };
+  //     if (Platform.OS === 'android') {
+  //       toggleDatePicker();
+  //       setDob(currentDate.toDateString())
+  //     }
+  //   } else { toggleDatePicker()}
+  // };
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
     setEmailError(!isEmailValid(text));
   };
 
-  const handleDobChange = (text: string) => {
-    setDob(text);
-  };
+  // const handleDobChange = (text: string) => {
+  //   setDob(text);
+  // };
 
   const handlePasswordChange = (text: string) => {
     setPassword(text);
@@ -126,7 +126,7 @@ const Signup = () => {
     if (
       // userName &&
       email &&
-      dob &&
+      // dob &&
       password &&
       confirmPassword &&
       isChecked &&
@@ -143,7 +143,7 @@ const Signup = () => {
     checkPasswordMatch();
   }, [
     email,
-    dob,
+    // dob,
     password,
     confirmPassword,
     isChecked,
@@ -151,15 +151,15 @@ const Signup = () => {
 
   const attemptSignup = async () => {
     // Calculate the minimum date for 18 years ago
-    const minDate = new Date();
-    minDate.setFullYear(minDate.getFullYear() - 18);
+    // const minDate = new Date();
+    // minDate.setFullYear(minDate.getFullYear() - 18);
 
     // Check if the selected date of birth is valid
-    if (date > minDate) {
-      // TODO: change this to a modal
-      Alert.alert('You must be 18 years or older to sign up.');
-      return;
-    }
+    // if (date > minDate) {
+    //   // TODO: change this to a modal
+    //   Alert.alert('You must be 18 years or older to sign up.');
+    //   return;
+    // }
 
     setLoading(true);
     console.log(
@@ -276,16 +276,16 @@ const Signup = () => {
                   <Text style={styles.warningText}>Invalid email format</Text>
                 )}
 
-                {showPicker && (
+                {/* {showPicker && (
                   <DateTimePicker
                     display="spinner"
                     mode="date"
                     value={date}
                     onChange={onChange}
                   />
-                )}
+                )} */}
 
-                {!showPicker && (
+                {/* {!showPicker && (
                   <Pressable onPress={toggleDatePicker}>
                     <Inputs
                       placeholdername={'DOB'}
@@ -297,7 +297,7 @@ const Signup = () => {
                       editable={false}
                     />
                   </Pressable>
-                )}
+                )} */}
 
                 <Inputs
                   placeholdername={'Choose Password'}
