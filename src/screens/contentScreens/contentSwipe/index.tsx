@@ -297,12 +297,12 @@ export default function ContentSwipe({navigation, route}: Props) {
           }}>
           Watch any of our top 5 movies today and earn 2x the Akcru Dollars
         </Text>
-        <Pressable style={{zIndex: 100}} onPress={() => navigation.navigate('ClientTabNavigator')}>
+
           <Image
           source={imageindex.AkcruHexLogo}
           style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
         />
-        </Pressable>
+       
       </View>
       <Circle scrollX={_scrollX} />
       {/* <Image
@@ -468,5 +468,6 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
+    zIndex: 100
   },
 });
