@@ -22,6 +22,7 @@ import { AkcruLogo, Applelogo, Googlelogo, Fblogo } from '../../../../assets/svg
 import { supabase } from "../../../../lib/supabase";
 import NoBottomStack from '../../../navigation/NoBottomTabStack';
 import { API } from '../../../clients/api.client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Signin = () => {
@@ -47,19 +48,19 @@ const Signin = () => {
   
       if (loginResponse.status !== 200) {
         console.error(loginResponse.data);
-        // Alert.alert("Error Logging In", loginResponse);
+        Alert.alert("Error Logging In", loginResponse.data);
         setLoading(false);
         return null;
       }
   
-      console.log("Login Response:", loginResponse.data);
-  
-      // set the token in local storage
+      // set the acces_token in local storage
+      const accessToken = loginResponse.data.session.access_token;
+      AsyncStorage.setItem("access_token", accessToken);
       
       
-      console.log('LOGIN Successful!', email);
+      console.log(`LOGIN Successful for user: ${loginResponse.data.user.email}`);
       setLoading(false);
-      navigation.navigate('NoBottomStack');
+      navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
       
     } catch (error) {
       console.log('LOGIN Error:', error);
@@ -116,7 +117,7 @@ const Signin = () => {
                 <Googlelogo
                   width={42}
                   height={42}
-                  onPress={() => navigation.navigate('NoBottomStack')}
+                  onPress={() => navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'})}
                 />
               </TouchableOpacity>
               <TouchableOpacity>

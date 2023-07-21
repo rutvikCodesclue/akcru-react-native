@@ -31,6 +31,9 @@ import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
 import { RouteProp } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { API } from "../../../clients/api.client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -73,6 +76,32 @@ const renderScene = SceneMap({
 });
 
 export default function UserProfileScreen({navigation, route}: Props) {
+  const [username, setUsername]= useState("")
+
+  const getUserInfo = async () => {
+
+    // get access token from local storage
+    const accessToken = await AsyncStorage.getItem("access_token")
+    // console.log("Access Token:", accessToken);
+    
+    // make authenticated request to get user info
+    const getUserInfoRequest = await API.get("/v1/auth/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    // 
+    setUsername(getUserInfoRequest.data.user.username)
+    // setAvatar(getUserInfoRequest.data.user.avatar)
+
+    
+  }
+
+  React.useEffect(() => {
+    getUserInfo()
+  }, [navigation]);
+
   const renderTabBar = (
     props: JSX.IntrinsicAttributes &
       SceneRendererProps & {
@@ -204,7 +233,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
               </View>
               <View>
                 <Text style={{ ...FONTS.Title2 }}>
-                  {FAKE_USER_PROFILES[0].userName}
+                  {/* {FAKE_USER_PROFILES[0].userName} */}
+                  {username}
                 </Text>
                 {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
                   <View>

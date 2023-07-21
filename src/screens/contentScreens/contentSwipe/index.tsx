@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     borderRadius: DOT_SIZE / 2,
     borderWidth: 2,
     borderColor: COLORS.MIDORANGE,
-    position: 'absolute',
+    // position: 'absolute',
   },
   logo: {
     opacity: 0.9,

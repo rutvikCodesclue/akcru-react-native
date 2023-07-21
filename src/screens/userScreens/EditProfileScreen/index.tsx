@@ -15,6 +15,8 @@ import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import React from "react";
 import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 // import * as ImagePicker from "expo-image-picker";
+import { API } from "../../../clients/api.client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const gallery = FAKE_USER_PROFILES[0].gallery
 
@@ -23,19 +25,38 @@ export default function EditAccount({ session }: { session: Session }) {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("");
   const [desc, setDesc] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
+  const [username, setUsername]= useState("")
+
+  const getUserInfo = async () => {
+
+    // get access token from local storage
+    const accessToken = await AsyncStorage.getItem("access_token")
+    // console.log("Access Token:", accessToken);
+    
+    // make authenticated request to get user info
+    const getUserInfoRequest = await API.get("/v1/auth/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
+
+    // 
+    setUsername(getUserInfoRequest.data.user.username)
+    // setAvatar(getUserInfoRequest.data.user.avatar)
+
+    
+  }
 
   const [response, setResponse] = React.useState<any>(null);
 
-  console.log(
-    "Attempting to Signup w/ Email/Password userName:", userName
-  );
   useEffect(() => {
-    if (session) getProfile();
+    getUserInfo()
+    // if (session) getProfile();
   }, [session]);
 
   async function getProfile() {
@@ -77,25 +98,38 @@ export default function EditAccount({ session }: { session: Session }) {
   }) {
     try {
       setLoading(true);
-      if (!session?.user) throw new Error("No user on the session!");
+      
+      // get access token from local storage
+      const accessToken = await AsyncStorage.getItem("access_token")
+      
+      // make authenticated request to get user info
+      console.log("== making request to update user info ==");
+      
+      const updateUser = await API.put("/v1/user", {
+        username: userName,
+      },{
+        headers: {
+          'Authorization': `Bearer ${accessToken}` 
+        }
+      })
 
-      const updates = {
-        id: session?.user.id,
-        userName,
-        desc,
-        avatar_url,
-        updated_at: new Date(),
-      };
-
-      let { error } = await supabase.from("profiles").upsert(updates);
-
-      if (error) {
-        throw error;
+      // if there was an error, alert the user
+      if (updateUser.status !== 200) {
+        Alert.alert("Error Updating User", updateUser.data);
       }
+
+      if (updateUser.status === 200) {
+        console.log("== user info updated successfully ==");
+        console.log("== new user info: ==", updateUser.data);
+      }
+
+      // update the user profile and set the new username
+      const updatedUsername = updateUser.data.user.username;
+      setUsername(updatedUsername.data.user.username)
+      getProfile()
+
     } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
+
     } finally {
       setLoading(false);
     }
@@ -215,7 +249,7 @@ export default function EditAccount({ session }: { session: Session }) {
             <Text style={styles.inputlabel}>Username</Text>
             <View style={styles.input}>
               <TextInput
-                placeholder={FAKE_USER_PROFILES[0].userName}
+                placeholder={username}
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
@@ -276,8 +310,11 @@ export default function EditAccount({ session }: { session: Session }) {
               btnname={loading ? 'Loading ...' : 'Update'}
               disabled={loading}
               color={COLORS.AKCRUBLUE}
-              onPress={() =>
-                UpdateProfile({userName, desc, avatar_url: avatarUrl})
+              onPress={async () =>
+                {
+                  await UpdateProfile({userName, desc, avatar_url: avatarUrl})
+                  await navigation.pop();
+                }
               }
             />
           </View>
