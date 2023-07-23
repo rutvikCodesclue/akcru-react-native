@@ -33,20 +33,21 @@ function App(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container} >
       <StatusBar
         barStyle={'light-content'}
         backgroundColor={COLORS.AKCRUBACKGROUND}
       />
       <RootNavigator />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container:{
-  flex: 1,
-  backgroundColor: COLORS.AKCRUBACKGROUND
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.AKCRUBACKGROUND
+    
   },
 });
 

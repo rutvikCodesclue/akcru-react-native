@@ -5,7 +5,8 @@ import {
   ImageBackground,
   ScrollView,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  SafeAreaView
 } from "react-native";
 import React from "react";
 import styles from "./styles";
@@ -32,143 +33,145 @@ const PurchaseMITScreen = () => {
         resizeMode="cover"
         style={{ width: SIZES.ScreenWidth, height: SIZES.ScreenHeight }}
       >
-        <ScrollView stickyHeaderIndices={[0]}>
-          <View>
-            <Header />
-          </View>
-          <View
-            style={{ marginHorizontal: 15, marginBottom: 10 }}
-          >
-            <TouchableOpacity onPress={() => navigation.pop()}>
-              <View
+        <SafeAreaView>
+            <View>
+              <Header />
+            </View>
+          <ScrollView stickyHeaderIndices={[0]}>
+            <View
+              style={{ marginHorizontal: 15, marginBottom: 10 }}
+            >
+              <TouchableOpacity onPress={() => navigation.pop()}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Icon
+                    name="chevron-back"
+                    type="ionicon"
+                    size={20}
+                    color={COLORS.LIGHTGREY}
+                  />
+                  <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+            <View style={{ marginBottom: 100 }}>
+              <Text
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
+                  ...FONTS.Title2,
+                  marginHorizontal: 15,
+                  marginVertical: 10,
+                  color: COLORS.MIDORANGE
                 }}
               >
-                <Icon
-                  name="chevron-back"
-                  type="ionicon"
-                  size={20}
-                  color={COLORS.LIGHTGREY}
+                Create a date to watch a movie with someone outside of your CRU.
+              </Text>
+              <View style={styles.pricecontainer}>
+                <Image source={imageindex.MIT2} style={styles.mitimage} />
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  <Text
+                    style={{
+                      ...FONTS.Title3,
+                      fontSize: 20,
+                      marginRight: 10,
+                      color: COLORS.AKCRUBLUE,
+                    }}
+                  >
+                    10
+                  </Text>
+                  <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
+                    Movie Invite Tickets
+                  </Text>
+                </View>
+                <Text style={{ ...FONTS.Title2 }}>Save 150%</Text>
+                <Text style={styles.mitprice}>$10.00</Text>
+                <AkcruButtons.LrgButton
+                  btnname="PURCHASE"
+                  color={COLORS.CATPURPDRK}
+                  onPress={() => {}}
                 />
-                <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
               </View>
-            </TouchableOpacity>
-          </View>
-          <View style={{ marginBottom: 100 }}>
-            <Text
-              style={{
-                ...FONTS.Title2,
-                marginHorizontal: 15,
-                marginVertical: 10,
-                color: COLORS.MIDORANGE
-              }}
-            >
-              Create a date to watch a movie with someone outside of your CRU.
-            </Text>
-            <View style={styles.pricecontainer}>
-              <Image source={imageindex.MIT2} style={styles.mitimage} />
-              <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                <Text
-                  style={{
-                    ...FONTS.Title3,
-                    fontSize: 20,
-                    marginRight: 10,
-                    color: COLORS.AKCRUBLUE,
-                  }}
-                >
-                  10
-                </Text>
-                <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
-                  Movie Invite Tickets
-                </Text>
+              <View style={styles.pricecontainer}>
+                <Image source={imageindex.MIT1} style={styles.mitimage} />
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  <Text
+                    style={{
+                      ...FONTS.Title3,
+                      fontSize: 20,
+                      marginRight: 10,
+                      color: COLORS.AKCRUBLUE,
+                    }}
+                  >
+                    6
+                  </Text>
+                  <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
+                    Movie Invite Tickets
+                  </Text>
+                </View>
+                <Text style={{ ...FONTS.Title2 }}>Save 66%</Text>
+                <Text style={styles.mitprice}>$9.00</Text>
+                <AkcruButtons.LrgButton
+                  btnname="PURCHASE"
+                  color={COLORS.CATPURPDRK}
+                  onPress={() => {}}
+                />
               </View>
-              <Text style={{ ...FONTS.Title2 }}>Save 150%</Text>
-              <Text style={styles.mitprice}>$10.00</Text>
-              <AkcruButtons.LrgButton
-                btnname="PURCHASE"
-                color={COLORS.CATPURPDRK}
-                onPress={() => {}}
-              />
+              <View style={styles.pricecontainer}>
+                <Image source={imageindex.MIT3} style={styles.mitimage} />
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  <Text
+                    style={{
+                      ...FONTS.Title3,
+                      fontSize: 20,
+                      marginRight: 10,
+                      color: COLORS.AKCRUBLUE,
+                    }}
+                  >
+                    4
+                  </Text>
+                  <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
+                    Movie Invite Tickets
+                  </Text>
+                </View>
+                <Text style={{ ...FONTS.Title2 }}>Save 25%</Text>
+                <Text style={styles.mitprice}>$8.00</Text>
+                <AkcruButtons.LrgButton
+                  btnname="PURCHASE"
+                  color={COLORS.CATPURPDRK}
+                  onPress={() => {}}
+                />
+              </View>
+              <View style={styles.pricecontainer}>
+                <Image source={imageindex.MIT4} style={styles.mitimage} />
+                <View style={{ flexDirection: "row", marginVertical: 10 }}>
+                  <Text
+                    style={{
+                      ...FONTS.Title3,
+                      fontSize: 20,
+                      marginRight: 10,
+                      color: COLORS.AKCRUBLUE,
+                    }}
+                  >
+                    2
+                  </Text>
+                  <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
+                    Movie Invite Tickets
+                  </Text>
+                </View>
+                <Text style={{ ...FONTS.Title2 }}></Text>
+                <Text style={styles.mitprice}>$5.00</Text>
+                <AkcruButtons.LrgButton
+                  btnname="PURCHASE"
+                  color={COLORS.CATPURPDRK}
+                  onPress={() => {}}
+                />
+              </View>
             </View>
-            <View style={styles.pricecontainer}>
-              <Image source={imageindex.MIT1} style={styles.mitimage} />
-              <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                <Text
-                  style={{
-                    ...FONTS.Title3,
-                    fontSize: 20,
-                    marginRight: 10,
-                    color: COLORS.AKCRUBLUE,
-                  }}
-                >
-                  6
-                </Text>
-                <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
-                  Movie Invite Tickets
-                </Text>
-              </View>
-              <Text style={{ ...FONTS.Title2 }}>Save 66%</Text>
-              <Text style={styles.mitprice}>$9.00</Text>
-              <AkcruButtons.LrgButton
-                btnname="PURCHASE"
-                color={COLORS.CATPURPDRK}
-                onPress={() => {}}
-              />
-            </View>
-            <View style={styles.pricecontainer}>
-              <Image source={imageindex.MIT3} style={styles.mitimage} />
-              <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                <Text
-                  style={{
-                    ...FONTS.Title3,
-                    fontSize: 20,
-                    marginRight: 10,
-                    color: COLORS.AKCRUBLUE,
-                  }}
-                >
-                  4
-                </Text>
-                <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
-                  Movie Invite Tickets
-                </Text>
-              </View>
-              <Text style={{ ...FONTS.Title2 }}>Save 25%</Text>
-              <Text style={styles.mitprice}>$8.00</Text>
-              <AkcruButtons.LrgButton
-                btnname="PURCHASE"
-                color={COLORS.CATPURPDRK}
-                onPress={() => {}}
-              />
-            </View>
-            <View style={styles.pricecontainer}>
-              <Image source={imageindex.MIT4} style={styles.mitimage} />
-              <View style={{ flexDirection: "row", marginVertical: 10 }}>
-                <Text
-                  style={{
-                    ...FONTS.Title3,
-                    fontSize: 20,
-                    marginRight: 10,
-                    color: COLORS.AKCRUBLUE,
-                  }}
-                >
-                  2
-                </Text>
-                <Text style={{ ...FONTS.Title3, fontSize: 20 }}>
-                  Movie Invite Tickets
-                </Text>
-              </View>
-              <Text style={{ ...FONTS.Title2 }}></Text>
-              <Text style={styles.mitprice}>$5.00</Text>
-              <AkcruButtons.LrgButton
-                btnname="PURCHASE"
-                color={COLORS.CATPURPDRK}
-                onPress={() => {}}
-              />
-            </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </SafeAreaView>
       </ImageBackground>
     </View>
   );
