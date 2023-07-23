@@ -73,8 +73,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <SafeAreaView>
-        <ScrollView>
+    <View>
            <ImageBackground
         style={styles.bgimage}
         source={imageindex.BgImageSM}
@@ -126,9 +125,7 @@ const ForgotPassword = () => {
           </View>
         </View>
       </ImageBackground> 
-        </ScrollView>
-      
-    </SafeAreaView>
+    </View>
   );
 };
 
