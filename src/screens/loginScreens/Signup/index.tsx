@@ -217,7 +217,7 @@ const Signup = () => {
   };
 
   return (
-    <SafeAreaView>
+    <View>
       <ImageBackground
         style={styles.bgimage}
         source={imageindex.BgImageSM}
@@ -225,157 +225,155 @@ const Signup = () => {
         <KeyboardAvoidingView
           behavior="padding"
           style={{flex: 1, marginBottom: 50}}>
-          <ScrollView>
-            <View style={styles.container}>
-              <TouchableOpacity
-                onPress={() => navigation.pop()}
-                style={styles.backbutton}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}>
-                  <Icon
-                    name="chevron-back"
-                    type="ionicon"
-                    size={20}
-                    color={COLORS.LIGHTGREY}
-                  />
-                  <Text style={{...FONTS.Title3, marginLeft: 5}}>
-                    Back to Signin
-                  </Text>
-                </View>
-              </TouchableOpacity>
-              <View style={{alignItems: 'center', marginTop: 20}}>
-                <AkcruLogo width={200} height={60} />
-                <Text style={{...FONTS.Title2, textAlign: 'center'}}>
-                  Welcome to Akcru, please fill out the form below to enjoy your
-                  favorite content while earning.
+          <View style={styles.container}>
+            <TouchableOpacity
+              onPress={() => navigation.pop()}
+              style={styles.backbutton}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}>
+                <Icon
+                  name="chevron-back"
+                  type="ionicon"
+                  size={20}
+                  color={COLORS.LIGHTGREY}
+                />
+                <Text style={{...FONTS.Title3, marginLeft: 5}}>
+                  Back to Signin
                 </Text>
               </View>
+            </TouchableOpacity>
+            <View style={{alignItems: 'center', marginTop: 20}}>
+              <AkcruLogo width={200} height={60} />
+              <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                Welcome to Akcru, please fill out the form below to enjoy your
+                favorite content while earning.
+              </Text>
+            </View>
 
-              <View style={{alignItems: 'center', marginTop: 20}}>
-                {/* <Inputs
-                  placeholdername={'User Name'}
-                  iconname={'mail'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handleUserNameChange}
-                  value={userName}
-                /> */}
-                <Inputs
-                  placeholdername={'Email'}
-                  iconname={'mail'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={false}
-                  onChangeText={handleEmailChange}
-                  value={email}
-                  editable={!loading}
+            <View style={{alignItems: 'center', marginTop: 20}}>
+              {/* <Inputs
+                placeholdername={'User Name'}
+                iconname={'mail'}
+                iconcolor={COLORS.LIGHTGREY}
+                secureTextEntry={false}
+                onChangeText={handleUserNameChange}
+                value={userName}
+              /> */}
+              <Inputs
+                placeholdername={'Email'}
+                iconname={'mail'}
+                iconcolor={COLORS.LIGHTGREY}
+                secureTextEntry={false}
+                onChangeText={handleEmailChange}
+                value={email}
+                editable={!loading}
+              />
+              {emailError && (
+                <Text style={styles.warningText}>Invalid email format</Text>
+              )}
+
+              {/* {showPicker && (
+                <DateTimePicker
+                  display="spinner"
+                  mode="date"
+                  value={date}
+                  onChange={onChange}
                 />
-                {emailError && (
-                  <Text style={styles.warningText}>Invalid email format</Text>
-                )}
+              )} */}
 
-                {/* {showPicker && (
-                  <DateTimePicker
-                    display="spinner"
-                    mode="date"
-                    value={date}
-                    onChange={onChange}
+              {/* {!showPicker && (
+                <Pressable onPress={toggleDatePicker}>
+                  <Inputs
+                    placeholdername={'DOB'}
+                    iconname={'calendar'}
+                    iconcolor={COLORS.LIGHTGREY}
+                    secureTextEntry={false}
+                    onChangeText={setDob}
+                    value={dob}
+                    editable={false}
                   />
-                )} */}
+                </Pressable>
+              )} */}
 
-                {/* {!showPicker && (
-                  <Pressable onPress={toggleDatePicker}>
-                    <Inputs
-                      placeholdername={'DOB'}
-                      iconname={'calendar'}
-                      iconcolor={COLORS.LIGHTGREY}
-                      secureTextEntry={false}
-                      onChangeText={setDob}
-                      value={dob}
-                      editable={false}
-                    />
-                  </Pressable>
-                )} */}
+              <Inputs
+                placeholdername={'Choose Password'}
+                iconname={'lock-closed'}
+                iconcolor={COLORS.LIGHTGREY}
+                secureTextEntry={true}
+                onChangeText={handlePasswordChange}
+                value={password}
+                editable={!loading}
+              />
+              <Inputs
+                placeholdername={'Confirm Password'}
+                iconname={'lock-closed'}
+                iconcolor={COLORS.LIGHTGREY}
+                secureTextEntry={true}
+                onChangeText={handleConfirmPasswordChange}
+                value={confirmPassword}
+                editable={!loading}
+              />
+              {passwordError && (
+                <Text style={styles.warningText}>
+                  Passwords do not match.
+                </Text>
+              )}
+            </View>
 
-                <Inputs
-                  placeholdername={'Choose Password'}
-                  iconname={'lock-closed'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={true}
-                  onChangeText={handlePasswordChange}
-                  value={password}
-                  editable={!loading}
-                />
-                <Inputs
-                  placeholdername={'Confirm Password'}
-                  iconname={'lock-closed'}
-                  iconcolor={COLORS.LIGHTGREY}
-                  secureTextEntry={true}
-                  onChangeText={handleConfirmPasswordChange}
-                  value={confirmPassword}
-                  editable={!loading}
-                />
-                {passwordError && (
-                  <Text style={styles.warningText}>
-                    Passwords do not match.
+            <View>
+              <View style={styles.checkboxContainer}>
+                <TouchableOpacity
+                  onPress={() => handleCheckboxChange(!isChecked)}>
+                  <View style={styles.checkbox}>
+                    {isChecked && (
+                      <Icon
+                        name="checkmark-sharp"
+                        type="ionicon"
+                        size={18}
+                        color={COLORS.MIDORANGE}
+                        style={{marginTop: -3}}
+                      />
+                    )}
+                  </View>
+                </TouchableOpacity>
+                <View>
+                  <Text style={styles.checkboxText}>
+                    I have read and I agree to the
                   </Text>
-                )}
-              </View>
-
-              <View>
-                <View style={styles.checkboxContainer}>
-                  <TouchableOpacity
-                    onPress={() => handleCheckboxChange(!isChecked)}>
-                    <View style={styles.checkbox}>
-                      {isChecked && (
-                        <Icon
-                          name="checkmark-sharp"
-                          type="ionicon"
-                          size={18}
-                          color={COLORS.MIDORANGE}
-                          style={{marginTop: -3}}
-                        />
-                      )}
-                    </View>
-                  </TouchableOpacity>
-                  <View>
-                    <Text style={styles.checkboxText}>
-                      I have read and I agree to the
+                  <Pressable onPress={() => setVisible(true)}>
+                    <Text style={{...FONTS.Title2, marginLeft: 10}}>
+                      terms and conditions
                     </Text>
-                    <Pressable onPress={() => setVisible(true)}>
-                      <Text style={{...FONTS.Title2, marginLeft: 10}}>
-                        terms and conditions
-                      </Text>
-                    </Pressable>
-                  </View>
+                  </Pressable>
                 </View>
-                <TOSModal visible={visible}>
-                  <View>
-                    <Pressable onPress={()=> setVisible(false)}>
-                      <Icon name={'close'} color={COLORS.LIGHTGREY} />
-                    </Pressable>
-                  </View>
-                  <ScrollView>
-                    <Tos />
-                  </ScrollView>
-                  <View style={{height: 20 }}></View>
-                </TOSModal>
-                <View style={{alignItems: 'center', marginTop: 20}}>
-                  <AkcruButtons.LrgButton
-                    color={COLORS.AKCRUBLUE}
-                    btnname={'Next'}
-                    onPress={() => attemptSignup()}
-                    disabled={!isFormComplete || passwordError || emailError}
-                  />
+              </View>
+              <TOSModal visible={visible}>
+                <View>
+                  <Pressable onPress={()=> setVisible(false)}>
+                    <Icon name={'close'} color={COLORS.LIGHTGREY} />
+                  </Pressable>
                 </View>
+                <ScrollView>
+                  <Tos />
+                </ScrollView>
+                <View style={{height: 20 }}></View>
+              </TOSModal>
+              <View style={{alignItems: 'center', marginTop: 20}}>
+                <AkcruButtons.LrgButton
+                  color={COLORS.AKCRUBLUE}
+                  btnname={'Next'}
+                  onPress={() => attemptSignup()}
+                  disabled={!isFormComplete || passwordError || emailError}
+                />
               </View>
             </View>
-          </ScrollView>
+          </View>
         </KeyboardAvoidingView>
       </ImageBackground>
-    </SafeAreaView>
+    </View>
   );
 };
 
