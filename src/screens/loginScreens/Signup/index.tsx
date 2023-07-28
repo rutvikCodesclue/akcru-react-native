@@ -26,6 +26,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import Tos from './tos';
 import { API } from '../../../clients/api.client';
 import { supabase } from '../../../../lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
@@ -189,13 +190,24 @@ const Signup = () => {
     // TODO: create onboarding screens (user picks username, interests, etc.)
     console.log('Signup Successful!', signUpResponse.data);
     
-    // now that user is signed up, sign them in
-    const signInResponse = await supabase.auth.signInWithPassword({
+    // login through the API
+    const loginResponse = await API.post("/v1/auth/login", {
+      type: "email",
       email: email,
-      password: password
+      password: password,
     })
+
+    if (loginResponse.status !== 200) {
+      console.error(loginResponse.data);
+      Alert.alert("Error logging In after Signup", loginResponse.data);
+      setLoading(false);
+      return null;
+    }
     
     // TODO: save the JWT in secure storage
+    // set the acces_token in local storage
+    const accessToken = loginResponse.data.session.access_token;
+    AsyncStorage.setItem("access_token", accessToken);
     setLoading(false);
     // move the user to the home screen
     navigation.navigate('ClientTabNavigator');

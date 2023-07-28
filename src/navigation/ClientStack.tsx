@@ -10,6 +10,7 @@ import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MI
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 
 import {COLORS} from '../../assets/constants';
+import { supabaseRealtime } from '../../lib/supabase';
 
 export type ClientStackParams = {
   HomeScreen: any;
