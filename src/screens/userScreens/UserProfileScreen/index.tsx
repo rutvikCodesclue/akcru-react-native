@@ -297,7 +297,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
               }}
             >
               <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                {user?.followerCount}
+                {user?.followerCount ?? 0}
                 {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
               </Text>
               <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
@@ -331,7 +331,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                       borderRadius: 15,
                     }}
                   >
-                    <Text>{user?.MITCount}</Text>
+                    <Text>{user?.MITCount ?? 0}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -341,7 +341,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <Text
               style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
             >
-              {user?.description}
+              {user?.description ?? ( isAuth() ? "Click Edit Profile to add a description" : "Create an account and get started today")}
               {/* {FAKE_USER_PROFILES[0].userDesc} */}
             </Text>
           </View>

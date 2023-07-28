@@ -25,6 +25,7 @@ import { ClientStackParams } from '../../../navigation/ClientStack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
 import VideoPlayer from 'react-native-media-console';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AllMovies = Akcru_Content[0];
 const NewOnAkcru = Akcru_Content[1];
@@ -53,95 +54,97 @@ const HomeScreen = () => {
    };
 
   return (
-    <ScrollView stickyHeaderIndices={[0]}>
-      <View>
-        <Header />
-      </View>
-      <Pressable style={styles.videocontainer} onPress={handlePress}>
-        <View style={{height: SIZES.ScreenHeight / 1.63}}>
-          <VideoPlayer
-            source={{
-              uri: TopBox.movies[0].movie_url,
-            }}
-            muted={true}
-            tapAnywhereToPause={true}
-            disablePlayPause
-            disableSeekButtons
-            disableSeekbar
-            disableVolume
-            disableBack
-            disableFullscreen
-            disableTimer
-            toggleResizeModeOnFullscreen={true}
-            isFullscreen={true}
-            posterResizeMode="cover"
-            poster={TopBox.movies[0].portrait_poster}
-          />
-        </View>
+    <SafeAreaView>
+      <ScrollView stickyHeaderIndices={[0]}>
         <View>
-          <LinearGradient
-            // Background Linear Gradient
-            colors={['transparent', COLORS.AKCRUBACKGROUND]}
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 200,
-            }}
-          />
-          <View
-            style={{
-              marginHorizontal: 15,
-              marginBottom: 20,
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              left: 0,
-            }}>
-            <View>
-              <Text style={styles.bigTitle}>{TopBox.movies[0].name}</Text>
-              <View style={{flexDirection: 'row', marginVertical: 10}}>
-                <Text style={styles.drawfonttag}>{TopBox.movies[0].rated}</Text>
-                <Text style={styles.drawfonttag}>
-                  {TopBox.movies[0].genre[0]}
-                </Text>
-                <Text style={styles.drawfonttag}>
-                  {TopBox.movies[0].genre[1]}
-                </Text>
+          <Header />
+        </View>
+        <Pressable style={styles.videocontainer} onPress={handlePress}>
+          <View style={{height: SIZES.ScreenHeight / 1.63}}>
+            <VideoPlayer
+              source={{
+                uri: TopBox.movies[0].movie_url,
+              }}
+              muted={true}
+              tapAnywhereToPause={true}
+              disablePlayPause
+              disableSeekButtons
+              disableSeekbar
+              disableVolume
+              disableBack
+              disableFullscreen
+              disableTimer
+              toggleResizeModeOnFullscreen={true}
+              isFullscreen={true}
+              posterResizeMode="cover"
+              poster={TopBox.movies[0].portrait_poster}
+            />
+          </View>
+          <View>
+            <LinearGradient
+              // Background Linear Gradient
+              colors={['transparent', COLORS.AKCRUBACKGROUND]}
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 200,
+              }}
+            />
+            <View
+              style={{
+                marginHorizontal: 15,
+                marginBottom: 20,
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                left: 0,
+              }}>
+              <View>
+                <Text style={styles.bigTitle}>{TopBox.movies[0].name}</Text>
+                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                  <Text style={styles.drawfonttag}>{TopBox.movies[0].rated}</Text>
+                  <Text style={styles.drawfonttag}>
+                    {TopBox.movies[0].genre[0]}
+                  </Text>
+                  <Text style={styles.drawfonttag}>
+                    {TopBox.movies[0].genre[1]}
+                  </Text>
 
-                <Text style={styles.drawfonttag}>
-                  {TopBox.movies[0].rating}/10
-                </Text>
+                  <Text style={styles.drawfonttag}>
+                    {TopBox.movies[0].rating}/10
+                  </Text>
+                </View>
+                <Text style={styles.desc}>{TopBox.movies[0].desc}</Text>
               </View>
-              <Text style={styles.desc}>{TopBox.movies[0].desc}</Text>
             </View>
           </View>
+        </Pressable>
+        <View style={{marginHorizontal: 15, marginTop: 75, marginBottom: 75}}>
+          <View>
+            <FlatList
+              data={MOVIE_GENRES}
+              horizontal={true}
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={item => item.id}
+              renderItem={({item, index}) => (
+                <CategoriesBtn
+                  category={item.genre}
+                  color={item.color}
+                  onPress={() => handleGenrePress(item.genre)}
+                />
+              )}
+            />
+          </View>
+          <BasicListCategories Akcru_Content={NewOnAkcru} />
+          <BasicListCategories Akcru_Content={TopOnAkcru} />
+          <LargeListCategories Akcru_Content={TrendingNow} />
+          <BasicListCategories Akcru_Content={RecommendedForYou} />
+          {/* <FullPageCategories Akcru_Content={allcategory} /> */}
         </View>
-      </Pressable>
-      <View style={{marginHorizontal: 15, marginTop: 75, marginBottom: 75}}>
-        <View>
-          <FlatList
-            data={MOVIE_GENRES}
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
-            renderItem={({item, index}) => (
-              <CategoriesBtn
-                category={item.genre}
-                color={item.color}
-                onPress={() => handleGenrePress(item.genre)}
-              />
-            )}
-          />
-        </View>
-        <BasicListCategories Akcru_Content={NewOnAkcru} />
-        <BasicListCategories Akcru_Content={TopOnAkcru} />
-        <LargeListCategories Akcru_Content={TrendingNow} />
-        <BasicListCategories Akcru_Content={RecommendedForYou} />
-        {/* <FullPageCategories Akcru_Content={allcategory} /> */}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

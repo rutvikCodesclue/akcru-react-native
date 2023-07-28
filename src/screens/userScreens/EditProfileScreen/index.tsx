@@ -17,6 +17,7 @@ import { launchCamera, launchImageLibrary } from "react-native-image-picker";
 // import * as ImagePicker from "expo-image-picker";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useAuthStore from "../../../stores/auth.store";
 
 const gallery = FAKE_USER_PROFILES[0].gallery
 
@@ -24,6 +25,8 @@ export default function EditAccount({ session }: { session: Session }) {
 
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+  const { user, logout } = useAuthStore()
 
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("");
@@ -332,14 +335,14 @@ export default function EditAccount({ session }: { session: Session }) {
             <TouchableOpacity>
               <Text style={styles.settingslabel}>Account Settings</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => supabase.auth.signOut()}>
+            <TouchableOpacity onPress={() => {
+              logout()
+              navigation.navigate("Signin")
+            }}>
               <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
             </TouchableOpacity>
           </View>
 
-          {/* <View style={styles.verticallySpaced}>
-            <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
-          </View> */}
         </View>
         <BottomSheet
           ref={sheetRef}

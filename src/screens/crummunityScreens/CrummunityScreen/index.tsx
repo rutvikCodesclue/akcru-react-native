@@ -8,6 +8,7 @@ import {
   Modal,
   ImageBackground,
   FlatList,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../components/header';
@@ -30,6 +31,7 @@ const CrummunityScreen = () => {
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
   return (
+    <SafeAreaView>
     <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
@@ -94,6 +96,7 @@ const CrummunityScreen = () => {
         </View>
       </ScrollView>
     </View>
+    </SafeAreaView>
   );
 };
 

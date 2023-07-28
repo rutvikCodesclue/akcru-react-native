@@ -11,7 +11,7 @@ import {
 import AkcruButtons from '../../../components/akcruButtons'
 import Inputs from '../../../components/input'
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants'
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
@@ -27,7 +27,7 @@ import useAuthStore from '../../../stores/auth.store';
 
 
 const Signin = () => {
-
+  const authStore = useAuthStore();
   const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
 
@@ -36,8 +36,11 @@ const Signin = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
-  const authStore = useAuthStore();
-  
+  useEffect(() => {
+    if (authStore.isAuth()) {
+      navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
+    }
+  }, [])
 
   async function attemptLogin() {
     try {

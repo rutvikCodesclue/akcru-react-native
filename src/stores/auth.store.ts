@@ -4,6 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { AuthResponse, Session} from '@supabase/supabase-js'
 import { supabase } from "../../lib/supabase";
 import { API } from "../clients/api.client";
+import { useNavigation } from "@react-navigation/native";
 
 interface IAuthStore {
     session: Session | null;
@@ -54,7 +55,10 @@ const useAuthStore = create<IAuthStore>()(persist(
             // set params
             set({ session: null, user: null });
 
+            // route user to login page
             return true;
+
+
 
         },
         isAuth: (): boolean => {

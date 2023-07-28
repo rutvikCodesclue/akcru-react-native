@@ -19,8 +19,10 @@ import {
 
 import { Icon } from "@rneui/base";
 import AkcruButtons from "../../../components/akcruButtons";
+import useAuthStore from "../../../stores/auth.store";
 
 const UserProfileWalletTab = () => {
+  const { user } = useAuthStore();
   const [toUSD, setToUSD] = useState(true);
 
    const toggleToUSD = () => {
@@ -49,7 +51,7 @@ const UserProfileWalletTab = () => {
           />
           <Text style={styles.titleText2}>BALANCE</Text>
           <Text style={{ ...FONTS.Title3, fontSize: 18 }}>
-            {FAKE_USER_PROFILES[0].ADAmount} AD
+            {user?.adAmount} AD
           </Text>
         </View>
 

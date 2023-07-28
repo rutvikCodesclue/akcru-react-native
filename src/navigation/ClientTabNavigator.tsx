@@ -145,8 +145,8 @@ export default function ClientTabNavigator() {
         component={PurchaseMITScreen}
         options={{
           headerShown: false,
-          tabBarIcon: ({color, focused}) => (
-            <Animated.View style={focused ? floatingStyle : null}>
+          tabBarIcon: ({}) => (
+            <Animated.View>
               <AkcruControlBtn />
             </Animated.View>
           ),
