@@ -34,6 +34,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
+import useAuthStore from "../../../stores/auth.store";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -77,6 +78,7 @@ const renderScene = SceneMap({
 
 export default function UserProfileScreen({navigation, route}: Props) {
   const [username, setUsername]= useState("")
+  const { isAuth } = useAuthStore()
 
   const getUserInfo = async () => {
 
@@ -234,7 +236,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
               <View>
                 <Text style={{ ...FONTS.Title2 }}>
                   {/* {FAKE_USER_PROFILES[0].userName} */}
-                  {username}
+                  {isAuth() ? username : "Guest"}
                 </Text>
                 {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
                   <View>

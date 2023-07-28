@@ -23,6 +23,7 @@ import { supabase } from "../../../../lib/supabase";
 import NoBottomStack from '../../../navigation/NoBottomTabStack';
 import { API } from '../../../clients/api.client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useAuthStore from '../../../stores/auth.store';
 
 
 const Signin = () => {
@@ -35,30 +36,35 @@ const Signin = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
 
+  const authStore = useAuthStore();
+  
+
   async function attemptLogin() {
     try {
       setLoading(true);
       console.log('Attempting to LOGIN w/ Email/Password:', email, password);
       // login through the API
-      const loginResponse = await API.post("/v1/auth/login", {
-        type: "email",
-        email: email,
-        password: password,
-      })
+      const loginResponse = await authStore.loginWithEmail(email, password);
+      const session = loginResponse?.session;
+      const user = loginResponse?.user;
+      // const loginResponse = await API.post("/v1/auth/login", {
+      //   type: "email",
+      //   email: email,
+      //   password: password,
+      // })
   
-      if (loginResponse.status !== 200) {
-        console.error(loginResponse.data);
-        Alert.alert("Error Logging In", loginResponse.data);
+      if (!session || !user) {
+        Alert.alert("Error Logging In");
         setLoading(false);
         return null;
       }
-  
+      
       // set the acces_token in local storage
-      const accessToken = loginResponse.data.session.access_token;
+      const accessToken = session.access_token;
       AsyncStorage.setItem("access_token", accessToken);
       
       
-      console.log(`LOGIN Successful for user: ${loginResponse.data.user.email}`);
+      console.log(`LOGIN Successful for user: ${user.email}`);
       setLoading(false);
       navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
       
