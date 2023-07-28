@@ -78,7 +78,8 @@ const renderScene = SceneMap({
 
 export default function UserProfileScreen({navigation, route}: Props) {
   const [username, setUsername]= useState("")
-  const { isAuth } = useAuthStore()
+  const { isAuth, user } = useAuthStore()
+
 
   const getUserInfo = async () => {
 
@@ -238,22 +239,22 @@ export default function UserProfileScreen({navigation, route}: Props) {
                   {/* {FAKE_USER_PROFILES[0].userName} */}
                   {isAuth() ? username : "Guest"}
                 </Text>
-                {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
+                {user?.badge === "AKCRUIT" && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.guardian && (
+                {user?.badge === "GUARDIAN" && (
                   <View>
                     <AkcruLevels.AkcruBadgeGuardian />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.hero && (
+                {user?.badge === "HERO" && (
                   <View>
                     <AkcruLevels.AkcruBadgeHero />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.superhero && (
+                {user?.badge === "SUPERHERO" && (
                   <View>
                     <AkcruLevels.AkcruBadgeSuperHero />
                   </View>
@@ -296,7 +297,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
               }}
             >
               <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                {FAKE_USER_PROFILES[0].userFollowerAmount}
+                {user?.followerCount}
+                {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
               </Text>
               <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
                 Followers
@@ -329,7 +331,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                       borderRadius: 15,
                     }}
                   >
-                    <Text>5</Text>
+                    <Text>{user?.MITCount}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -339,7 +341,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <Text
               style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
             >
-              {FAKE_USER_PROFILES[0].userDesc}
+              {user?.description}
+              {/* {FAKE_USER_PROFILES[0].userDesc} */}
             </Text>
           </View>
         </ImageBackground>

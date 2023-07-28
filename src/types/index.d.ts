@@ -12,7 +12,7 @@ interface IUserProfile {
     followerCount?: number;
     MITCount?: number;
     adAmount?: number;
-    badge?: 'AKCRUIT' | "GUARDIAN"; // FIXME: add remianing badges
+    badge?: 'AKCRUIT' | "GUARDIAN" | "HERO" | "SUPERHERO"; // FIXME: add remianing badges
     gallery?: string[];
     lastReview?: string;
     published?: boolean;

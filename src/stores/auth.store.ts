@@ -9,12 +9,14 @@ interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
     isAuth: () => boolean;
+    getUser: () => IUserProfile | null;
     loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
     logout: () => Promise<boolean | null>;
 }
 
 
 const useAuthStore = create<IAuthStore>()(persist(
+    // FIXME: create handlers and import them here
     (set, get) => ({
         session: null,
         user: null,
@@ -57,6 +59,9 @@ const useAuthStore = create<IAuthStore>()(persist(
         },
         isAuth: (): boolean => {
             return get().session !== null ? true : false;
+        },
+        getUser: (): IUserProfile | null => {
+            return get().user;
         }
     }), 
     ({ name: "user-store", storage: createJSONStorage(() => AsyncStorage) })) );
