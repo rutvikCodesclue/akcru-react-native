@@ -9,6 +9,7 @@ import { AuthStackParams } from '../../navigation/AuthNavigation';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import {useNavigation} from '@react-navigation/native';
 import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
+import useAuthStore from '../../stores/auth.store';
 
 
 // interface Props {
@@ -20,6 +21,7 @@ const userpoints = FAKE_USER_PROFILES[0].ADAmount
 const Header = () => {
   const NotificationBadgeIcon = withBadge(0)(Icon);
   
+  const { user } = useAuthStore()
 
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -76,7 +78,7 @@ const Header = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={{...FONTS.Title1}}>{userpoints}</Text>
+          <Text style={{...FONTS.Title1}}>{user?.adAmount ?? 0}</Text>
         </View>
       </View>
     </View>

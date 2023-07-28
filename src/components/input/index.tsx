@@ -34,6 +34,7 @@ const Inputs: React.FC<Props> = ({
         style={{marginRight: 5}}
       />
       <TextInput
+        autoCapitalize='none'
         placeholder={placeholdername}
         placeholderTextColor={COLORS.DARKGREY}
         style={styles.textinput}

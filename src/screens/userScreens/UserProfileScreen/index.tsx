@@ -34,6 +34,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
+import useAuthStore from "../../../stores/auth.store";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -77,6 +78,8 @@ const renderScene = SceneMap({
 
 export default function UserProfileScreen({navigation, route}: Props) {
   const [username, setUsername]= useState("")
+  const { isAuth, user } = useAuthStore()
+
 
   const getUserInfo = async () => {
 
@@ -234,24 +237,24 @@ export default function UserProfileScreen({navigation, route}: Props) {
               <View>
                 <Text style={{ ...FONTS.Title2 }}>
                   {/* {FAKE_USER_PROFILES[0].userName} */}
-                  {username}
+                  {isAuth() ? username : "Guest"}
                 </Text>
-                {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
+                {user?.badge === "AKCRUIT" && (
                   <View>
                     <AkcruLevels.AkcruBadgeAkcruit />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.guardian && (
+                {user?.badge === "GUARDIAN" && (
                   <View>
                     <AkcruLevels.AkcruBadgeGuardian />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.hero && (
+                {user?.badge === "HERO" && (
                   <View>
                     <AkcruLevels.AkcruBadgeHero />
                   </View>
                 )}
-                {FAKE_USER_PROFILES[0].akcruBadge.superhero && (
+                {user?.badge === "SUPERHERO" && (
                   <View>
                     <AkcruLevels.AkcruBadgeSuperHero />
                   </View>
@@ -294,7 +297,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
               }}
             >
               <Text style={{ ...FONTS.Title3, fontSize: 14 }}>
-                {FAKE_USER_PROFILES[0].userFollowerAmount}
+                {user?.followerCount ?? 0}
+                {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
               </Text>
               <Text style={{ ...FONTS.Title2, color: COLORS.MIDORANGE }}>
                 Followers
@@ -327,7 +331,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                       borderRadius: 15,
                     }}
                   >
-                    <Text>5</Text>
+                    <Text>{user?.MITCount ?? 0}</Text>
                   </View>
                 </View>
               </TouchableOpacity>
@@ -337,7 +341,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <Text
               style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12 }}
             >
-              {FAKE_USER_PROFILES[0].userDesc}
+              {user?.description ?? ( isAuth() ? "Click Edit Profile to add a description" : "Create an account and get started today")}
+              {/* {FAKE_USER_PROFILES[0].userDesc} */}
             </Text>
           </View>
         </ImageBackground>
