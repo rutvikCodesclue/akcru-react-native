@@ -21,6 +21,8 @@ import AcceptMITScreen from '../screens/userScreens/MITAccept';
 import EditAccount from '../screens/userScreens/EditProfileScreen';
 import StartCRUViewDate from '../screens/userScreens/StartCruView';
 import StartMITDate from '../screens/userScreens/StartMITDate';
+import AccountSettings from '../screens/userScreens/AccountSettings';
+import EditCru from '../screens/userScreens/EditCru';
 
 import ClientTabNavigator from './ClientTabNavigator';
 import {COLORS, SIZES} from '../../assets/constants';
@@ -49,6 +51,8 @@ export type UserProfileStackParams = {
   CruViewMovieDetailScreen: any;
   //   SendMITViewUser: any;
     EditAccount: any;
+    AccountSettings: any;
+    EditCru: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -141,6 +145,20 @@ export function UserProfileStack() {
       <UserProfile.Screen
         name="EditAccount"
         component={EditAccount}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="AccountSettings"
+        component={AccountSettings}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <UserProfile.Screen
+        name="EditCru"
+        component={EditCru}
         options={() => ({
           headerShown: false,
         })}

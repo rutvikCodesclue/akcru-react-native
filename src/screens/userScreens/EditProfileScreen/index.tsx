@@ -120,7 +120,7 @@ export default function EditAccount({ session }: { session: Session }) {
   const [image, setImage] = useState(null);
 
   return (
-    <SafeAreaView>
+    <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{zIndex: 20}}>
           <Header />
@@ -292,7 +292,7 @@ export default function EditAccount({ session }: { session: Session }) {
             />
           </View> */}
           <View style={{alignItems: 'center', marginVertical: 20}}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("AccountSettings")}>
               <Text style={styles.settingslabel}>Account Settings</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => supabase.auth.signOut()}>
@@ -330,7 +330,7 @@ export default function EditAccount({ session }: { session: Session }) {
                   );
                 }}
               />
-              <Button
+              {/* <Button
                 title="Take picture using Camera"
                 onPress={() => {
                   launchCamera(
@@ -348,12 +348,12 @@ export default function EditAccount({ session }: { session: Session }) {
                   source={{uri: image}}
                   style={{width: 200, height: 200}}
                 />
-              )}
+              )} */}
             </View>
           </BottomSheetScrollView>
         </BottomSheet>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
