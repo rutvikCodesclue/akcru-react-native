@@ -72,7 +72,7 @@ const UserProfileDetailsTab = () => {
                 Schedule a CRU View through the CRU Chat
               </Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate("EditCru")}>
               <View style={{ flexDirection: "row" }}>
                 <Icon
                   name="square-edit-outline"

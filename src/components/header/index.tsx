@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Pressable} from 'react-native';
 import React from 'react';
 import {Icon, Badge, withBadge} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
@@ -44,11 +44,13 @@ const Header = () => {
           marginHorizontal: 15,
         }}>
         <View>
-          <Image
-            source={imageindex.AkcruLogo}
-            style={{width: 100, height: 70}}
-            resizeMode="contain"
-          />
+          <Pressable onPress={() => navigation.navigate('ClientTabNavigator')}>
+            <Image
+              source={imageindex.AkcruLogo}
+              style={{width: 100, height: 70}}
+              resizeMode="contain"
+            />
+          </Pressable>
         </View>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <View style={{marginRight: 15}}>

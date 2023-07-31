@@ -260,7 +260,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                   </View>
                 )}
                 <TouchableOpacity
-                  onPress={() => navigation.navigate("EditAccount")}
+                  onPress={() => navigation.navigate("EditProfile")}
                 >
                   <View style={{ flexDirection: "row" }}>
                     <Icon

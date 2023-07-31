@@ -129,8 +129,8 @@ export const FAKE_USER_PROFILES = [
     id: '100',
     location: 'San Diego, CA',
     gallery: [
-      'https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg',
-      'https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg',
+      'https://st2.depositphotos.com/3136457/5974/i/950/depositphotos_59743295-stock-photo-young-beautiful-teenage-girl-side.jpg',
+      'https://pbs.twimg.com/profile_images/3259243876/b526091d30ba1ccec4815118e5a4bc4f_400x400.jpeg',
       'https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg',
       'https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg',
       'https://www.annettaapol.com/wp-content/uploads/2020/08/happy-woman-smiling.jpg',

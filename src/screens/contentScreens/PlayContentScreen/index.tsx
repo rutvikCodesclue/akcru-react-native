@@ -54,6 +54,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         toggleResizeModeOnFullscreen={false}
         poster={landscape_poster}
         containerStyle={{zIndex: 100}}
+        onBack={() => navigation.pop()}
       />
     </View>
   );
