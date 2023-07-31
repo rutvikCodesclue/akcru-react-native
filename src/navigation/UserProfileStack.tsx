@@ -1,12 +1,6 @@
 import {View, Text} from 'react-native';
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import {
-  SearchMovieResultScreen,
-  SearchMovieScreen,
-  SendMITViewUser,
-} from '../screens';
-// import {UserProfileWalletTab, UserProfileCruInvites, UserProfileDatesTab, UserProfileDetailsTab }from '../screens/UserScreens/UserProfileTabs';
 import UserProfileScreen from '../screens/userScreens/UserProfileScreen';
 import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 import UserSearchResultScreen from '../screens/crummunityScreens/UserSearchResultScreen';
@@ -18,7 +12,7 @@ import CruViewSearchMovieScreen from '../screens/userScreens/CruViewScreens/CruV
 import ChooseMITScreen from '../screens/userScreens/MITChoice/ChooseMITScreen';
 import DeclineMITScreen from '../screens/userScreens/MITDecline';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
-import EditAccount from '../screens/userScreens/EditProfileScreen';
+import EditProfile from '../screens/userScreens/EditProfileScreen';
 import StartCRUViewDate from '../screens/userScreens/StartCruView';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import AccountSettings from '../screens/userScreens/AccountSettings';
@@ -50,7 +44,7 @@ export type UserProfileStackParams = {
   CruViewSearchMovieResultScreen: any;
   CruViewMovieDetailScreen: any;
   //   SendMITViewUser: any;
-    EditAccount: any;
+    EditProfile: any;
     AccountSettings: any;
     EditCru: any;
 };
@@ -143,8 +137,8 @@ export function UserProfileStack() {
         })}
       />
       <UserProfile.Screen
-        name="EditAccount"
-        component={EditAccount}
+        name="EditProfile"
+        component={EditProfile}
         options={() => ({
           headerShown: false,
         })}

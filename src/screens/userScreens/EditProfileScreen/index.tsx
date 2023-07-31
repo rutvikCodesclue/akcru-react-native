@@ -1,39 +1,47 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { supabase } from "../../../../lib/supabase";
-import styles from "./styles";
-import { View, Alert, Text, ScrollView, TouchableOpacity, Image, SafeAreaView, TextInput, Button } from "react-native";
-import { Session } from "@supabase/supabase-js";
-import AkcruButtons from "../../../components/akcruButtons";
-import Header from "../../../components/header";
+import {useState, useEffect, useRef, useCallback} from 'react';
+import {supabase} from '../../../../lib/supabase';
+import styles from './styles';
+import {
+  View,
+  Alert,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  TextInput,
+  Button,
+  Modal,
+} from 'react-native';
+import {Session} from '@supabase/supabase-js';
+import AkcruButtons from '../../../components/akcruButtons';
+import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
-import { Icon, Avatar } from "@rneui/base";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import BottomSheet, { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import React from "react";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
+import {Icon, Avatar} from '@rneui/base';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import React from 'react';
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import * as ImagePicker from "expo-image-picker";
 
-const gallery = FAKE_USER_PROFILES[0].gallery
+const gallery = FAKE_USER_PROFILES[0].gallery;
 
-export default function EditAccount({ session }: { session: Session }) {
-
+export default function EditProfile({session}: {session: Session}) {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
   const [loading, setLoading] = useState(true);
-  const [userName, setUserName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [userName, setUserName] = useState('');
+  const [desc, setDesc] = useState('');
+  const [email, setEmail] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
 
   const [response, setResponse] = React.useState<any>(null);
 
-  console.log(
-    "Attempting to Signup w/ Email/Password userName:", userName
-  );
+  console.log('Attempting to Signup w/ Email/Password userName:', userName);
   useEffect(() => {
     if (session) getProfile();
   }, [session]);
@@ -41,12 +49,12 @@ export default function EditAccount({ session }: { session: Session }) {
   async function getProfile() {
     try {
       setLoading(true);
-      if (!session?.user) throw new Error("No user on the session!");
+      if (!session?.user) throw new Error('No user on the session!');
 
-      let { data, error, status } = await supabase
-        .from("profiles")
+      let {data, error, status} = await supabase
+        .from('profiles')
         .select(`userName, desc, avatar_url`)
-        .eq("id", session?.user.id)
+        .eq('id', session?.user.id)
         .single();
       if (error && status !== 406) {
         throw error;
@@ -69,25 +77,23 @@ export default function EditAccount({ session }: { session: Session }) {
   async function UpdateProfile({
     userName,
     desc,
-    avatar_url,
   }: {
     userName: string;
     desc: string;
-    avatar_url: string;
   }) {
     try {
       setLoading(true);
-      if (!session?.user) throw new Error("No user on the session!");
+      if (!session?.user) throw new Error('No user on the session!');
 
       const updates = {
         id: session?.user.id,
         userName,
         desc,
-        avatar_url,
+
         updated_at: new Date(),
       };
 
-      let { error } = await supabase.from("profiles").upsert(updates);
+      let {error} = await supabase.from('profiles').upsert(updates);
 
       if (error) {
         throw error;
@@ -101,23 +107,54 @@ export default function EditAccount({ session }: { session: Session }) {
     }
   }
 
-  const deleteImage = (index) => {
-    const updatedGallery = [...gallery];
-    updatedGallery.splice(index, 1);
-    setGallery(updatedGallery);
+  const [image, setImage] = useState(null);
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
+
+  const deleteImage = index => {
+    setImageToDeleteIndex(index);
+    setShowDeleteConfirmation(true);
   };
 
-  const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
-  const [isOpen, setIsOpen] = useState(false);
+  const handleDeleteImage = () => {
+    // Delete the image at the specified index
+    const updatedGallery = [...gallery];
+    updatedGallery.splice(imageToDeleteIndex, 1);
+    setGallery(updatedGallery);
 
-  const snapPoints = ["1", "50"];
+    // Hide the confirmation modal
+    setShowDeleteConfirmation(false);
+  };
 
-  const handleSnapPress = useCallback((index: number) => {
-    sheetRef.current?.snapToIndex(index);
-    setIsOpen(true);
-  }, []);
+  const handleCancelDelete = () => {
+    // Hide the confirmation modal
+    setShowDeleteConfirmation(false);
+  };
 
-  const [image, setImage] = useState(null);
+  const [showImagePickerModal, setShowImagePickerModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  const handleSelectImage = imageUri => {
+    setSelectedImage(imageUri);
+    setAvatarUrl(imageUri); // Set the selected image URI to avatarUrl
+    setShowImagePickerModal(false);
+  };
+
+   const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+
+   const handleUpdateProfile = () => {
+     // Show the confirmation modal
+     setShowUpdateConfirmation(true);
+   };
+
+   const handleConfirmUpdate = () => {
+     // Hide the confirmation modal
+     setShowUpdateConfirmation(false);
+
+     // Call the UpdateProfile function to update the profile information
+     UpdateProfile({userName, desc});
+   };
 
   return (
     <View>
@@ -146,16 +183,16 @@ export default function EditAccount({ session }: { session: Session }) {
             <View style={{alignItems: 'center'}}>
               <Avatar
                 rounded
-                size={100}
+                size={125}
                 source={{
-                  uri: FAKE_USER_PROFILES[0].userPicture,
+                  uri: avatarUrl || FAKE_USER_PROFILES[0].userPicture,
                 }}
                 avatarStyle={{
                   borderWidth: 2,
                   borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
                 }}
               />
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
                 <Text
                   style={{
                     ...FONTS.Title2AkcruBlue,
@@ -166,6 +203,66 @@ export default function EditAccount({ session }: { session: Session }) {
                 </Text>
               </TouchableOpacity>
             </View>
+
+            {/* Modal to Select Profile Photo */}
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={showImagePickerModal}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'flex-end',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    padding: 15,
+                    borderTopLeftRadius: 20,
+                    borderTopRightRadius: 20,
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => setShowImagePickerModal(false)}
+                    style={{
+                      alignSelf: 'flex-end',
+                    }}>
+                    <Icon
+                      name="close-circle"
+                      type="ionicon"
+                      color={COLORS.CATREDLGT}
+                      size={25}
+                    />
+                  </TouchableOpacity>
+                  <Text style={{...FONTS.Title3, marginBottom: 10}}>
+                    Select Profile Photo
+                  </Text>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{flexDirection: 'row'}}>
+                    {gallery.map((imageUri, index) => {
+                      return (
+                        <TouchableOpacity
+                          key={index}
+                          onPress={() => handleSelectImage(imageUri)}>
+                          <Image
+                            source={{uri: imageUri}}
+                            style={[
+                              styles.galleryImage,
+                              selectedImage === imageUri && {
+                                borderColor: COLORS.AKCRUBLUE,
+                                borderWidth: 2,
+                              },
+                            ]}
+                          />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </ScrollView>
+                </View>
+              </View>
+            </Modal>
           </View>
           <View style={styles.gallerycontainer}>
             <ScrollView
@@ -183,8 +280,8 @@ export default function EditAccount({ session }: { session: Session }) {
                     <TouchableOpacity
                       style={{
                         position: 'absolute',
-                        right: 15,
-                        top: 0,
+                        right: 5,
+                        top: -3,
                         zIndex: 20,
                       }}
                       onPress={() => deleteImage(index)}>
@@ -192,14 +289,79 @@ export default function EditAccount({ session }: { session: Session }) {
                         name="close-circle"
                         type="ionicon"
                         color={COLORS.CATREDLGT}
-                        size={20}
+                        size={25}
                       />
                     </TouchableOpacity>
                   </View>
                 );
               })}
             </ScrollView>
-            <TouchableOpacity onPress={() => handleSnapPress(1)}>
+
+            <Modal
+              animationType="fade"
+              transparent={true}
+              visible={showDeleteConfirmation}>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                }}>
+                <View
+                  style={{
+                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    padding: 20,
+                    borderRadius: 10,
+                  }}>
+                  <View style={{alignItems: 'center'}}>
+                    <Text style={{...FONTS.Title3, marginBottom: 10}}>
+                      Confirm Deletion
+                    </Text>
+                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                      Are you sure you want to delete this picture?
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                    }}>
+                    <TouchableOpacity
+                      onPress={handleCancelDelete}
+                      style={{
+                        backgroundColor: 'red',
+                        padding: 10,
+                        borderRadius: 5,
+                      }}>
+                      <Text style={{...FONTS.Title3}}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={handleDeleteImage}
+                      style={{
+                        backgroundColor: 'green',
+                        padding: 10,
+                        borderRadius: 5,
+                      }}>
+                      <Text style={{...FONTS.Title3}}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+
+            <TouchableOpacity
+              onPress={() => {
+                launchImageLibrary(
+                  {
+                    selectionLimit: 0,
+                    mediaType: 'photo',
+                    includeBase64: false,
+                  },
+                  setResponse,
+                );
+              }}>
               <Text
                 style={{
                   ...FONTS.Title2AkcruBlue,
@@ -207,7 +369,7 @@ export default function EditAccount({ session }: { session: Session }) {
                   textAlign: 'center',
                   color: COLORS.MIDORANGE,
                 }}>
-                Upload to gallery
+                Upload a picture from your phone
               </Text>
             </TouchableOpacity>
           </View>
@@ -252,108 +414,81 @@ export default function EditAccount({ session }: { session: Session }) {
             </View>
           </View>
 
-          {/* <View>
-            <Input
-              label="Username"
-              value={userName || ""}
-              onChangeText={(text) => setUserName(text)}
-            />
-          </View>
-          <View style={[styles.verticallySpaced, styles.mt20]}>
-            <Input label="Email" value={session?.user?.email} disabled />
-          </View>
-
-          <View style={styles.verticallySpaced}>
-            <Input
-              label="Description"
-              value={desc || ""}
-              onChangeText={(text) => setDesc(text)}
-            />
-          </View> */}
-
           <View style={{alignItems: 'center', marginTop: 20}}>
             <AkcruButtons.LrgButton
               btnname={loading ? 'Loading ...' : 'Update'}
-              disabled={loading}
+              disabled={false}
               color={COLORS.AKCRUBLUE}
-              onPress={() =>
-                UpdateProfile({userName, desc, avatar_url: avatarUrl})
-              }
+              onPress={handleUpdateProfile} // Show the confirmation modal
             />
           </View>
 
-          {/* <View style={[styles.verticallySpaced, styles.mt20]}>
-            <Button
-              title={loading ? "Loading ..." : "Update"}
-              onPress={() =>
-                UpdateProfile({ userName, desc, avatar_url: avatarUrl })
-              }
-              disabled={loading}
-            />
-          </View> */}
+          {/* Confirmation Modal */}
+          <Modal
+            animationType="fade"
+            transparent={true}
+            visible={showUpdateConfirmation}>
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              }}>
+              <View
+                style={{
+                  backgroundColor: COLORS.AKCRUBACKGROUND,
+                  padding: 20,
+                  borderRadius: 10,
+                }}>
+                <View style={{alignItems: 'center'}}>
+                  <Text style={{...FONTS.Title3, marginBottom: 10}}>
+                    Confirm Update
+                  </Text>
+                  <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                    Are you sure you want to update your profile?
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <TouchableOpacity
+                    onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
+                    style={{
+                      backgroundColor: 'red',
+                      padding: 10,
+                      borderRadius: 5,
+                    }}>
+                    <Text style={{...FONTS.Title3}}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={handleConfirmUpdate} // Confirm the update
+                    style={{
+                      backgroundColor: 'green',
+                      padding: 10,
+                      borderRadius: 5,
+                    }}>
+                    <Text style={{...FONTS.Title3}}>Update</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
+
           <View style={{alignItems: 'center', marginVertical: 20}}>
-            <TouchableOpacity onPress={() => navigation.navigate("AccountSettings")}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AccountSettings')}>
               <Text style={styles.settingslabel}>Account Settings</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => supabase.auth.signOut()}>
               <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
             </TouchableOpacity>
           </View>
-
-          {/* <View style={styles.verticallySpaced}>
-            <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
-          </View> */}
         </View>
-        <BottomSheet
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          enablePanDownToClose={true}
-          backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-          onClose={() => setIsOpen(true)}>
-          <BottomSheetScrollView style={{marginHorizontal: 15}}>
-            <View
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <Button
-                title="Pick an image from camera roll"
-                onPress={() => {
-                  launchImageLibrary(
-                    {
-                      selectionLimit: 0,
-                      mediaType: 'photo',
-                      includeBase64: false,
-                    },
-                    setResponse,
-                  );
-                }}
-              />
-              {/* <Button
-                title="Take picture using Camera"
-                onPress={() => {
-                  launchCamera(
-                    {
-                      saveToPhotos: true,
-                      mediaType: 'photo',
-                      includeBase64: false,
-                    },
-                    setResponse,
-                  );
-                }}
-              />
-              {image && (
-                <Image
-                  source={{uri: image}}
-                  style={{width: 200, height: 200}}
-                />
-              )} */}
-            </View>
-          </BottomSheetScrollView>
-        </BottomSheet>
       </ScrollView>
     </View>
   );
 }
-

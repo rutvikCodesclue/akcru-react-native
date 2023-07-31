@@ -9,7 +9,7 @@ export default StyleSheet.create({
     width: SIZES.ScreenWidth / 3.7,
     height: SIZES.ScreenWidth / 3.7,
     marginRight: 10,
-    borderRadius: 8,
+    borderRadius: 4,
   },
   galleryImagesContainer: {
     flexDirection: "row",

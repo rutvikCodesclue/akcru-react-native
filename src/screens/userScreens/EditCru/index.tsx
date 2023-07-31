@@ -157,7 +157,7 @@ const EditCru = () => {
                 marginTop: 10,
                 textAlign: 'center',
                 fontSize: 14,
-                textDecorationLine: 'underline',
+                
               }}>
               EDIT YOUR CRU NAME
             </Text>
@@ -184,7 +184,6 @@ const EditCru = () => {
               marginBottom: 20,
               textAlign: 'center',
               fontSize: 14,
-              textDecorationLine: 'underline',
             }}>
             EDIT YOUR CRU MEMBERS
           </Text>
