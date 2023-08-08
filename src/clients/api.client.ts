@@ -1,5 +1,7 @@
 import axios from "axios";
 export const isProduction = process.env.NODE_ENV === "production";
+import { DEV_API_URL} from "@env"
+
 
 const determineBaseURL = (): string => {
     console.log("Current ENV:", process.env.NODE_ENV);
@@ -10,7 +12,7 @@ const determineBaseURL = (): string => {
         // case "staging":
         //     return "https://staging.api.akcru.com";
         default:
-            return process.env.DEV_API_URL ?? 'http://10.0.2.2:3000';
+            return DEV_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
 
