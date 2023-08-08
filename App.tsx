@@ -18,7 +18,6 @@ import {
 
 import {
   Colors,
- 
 } from 'react-native/Libraries/NewAppScreen';
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';

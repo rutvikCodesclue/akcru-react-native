@@ -8,8 +8,9 @@ import {
     TouchableHighlight,
     ActivityIndicator,
     Alert,
+    Platform,
 } from 'react-native';
-import { PERMISSIONS, request, requestMultiple, RESULTS } from 'react-native-permissions';
+import { Permission, PERMISSIONS, request, requestMultiple, RESULTS } from 'react-native-permissions';
 import {
     HMSSDK,
     HMSUpdateListenerActions,
@@ -483,7 +484,7 @@ export const usePeerTrackNodes = ({ navigate }) => {
  * @param {string[]} permissions
  * @returns {boolean} all permissions granted or not
  */
-export const checkPermissions = async (permissions) => {
+export const checkPermissions = async (permissions: Permission[]) => {
     console.log("Checking permissions");
   
     try {
@@ -491,7 +492,7 @@ export const checkPermissions = async (permissions) => {
             return true;
         }
         const requiredPermissions = permissions.filter(
-            (permission) => permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
+            (permission: Permission) => permission.toString() !== PERMISSIONS.ANDROID.BLUETOOTH_CONNECT
         );
 
         const results = await requestMultiple(requiredPermissions);
