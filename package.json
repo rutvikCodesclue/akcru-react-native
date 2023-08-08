@@ -12,7 +12,6 @@
     "test": "jest",
     "postinstall:ios": "npm run setup-ios-permissions && npx pod-install"
   },
-
   "dependencies": {
     "@100mslive/react-native-hms": "^1.7.0",
     "@gorhom/bottom-sheet": "^4.4.7",
