@@ -4,7 +4,7 @@ import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
 import CrummunityFeedPostCard from '../CrummunityFeedPostCard';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {CrummunityStackParams} from '../navigation/CrummunityStack';
+import { CrummunityStackParams } from '../../navigation/CrummunityStack';
 
 const CrummunityPostList = () => {
   const navigation =

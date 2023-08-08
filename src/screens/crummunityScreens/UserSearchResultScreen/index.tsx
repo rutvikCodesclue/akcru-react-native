@@ -44,7 +44,7 @@ const UserSearchResultScreen = () => {
   };
 
   return (
-    <SafeAreaView>
+    <View>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
           <Header />
@@ -139,7 +139,7 @@ const UserSearchResultScreen = () => {
           />
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
