@@ -24,7 +24,6 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';
 
 
-
 function App(): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
 

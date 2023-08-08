@@ -17,6 +17,7 @@ import StartCRUViewDate from '../screens/userScreens/StartCruView';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import AccountSettings from '../screens/userScreens/AccountSettings';
 import EditCru from '../screens/userScreens/EditCru';
+import VideoTestScreen from '../screens/userScreens/VideoTestScreen';
 
 import ClientTabNavigator from './ClientTabNavigator';
 import {COLORS, SIZES} from '../../assets/constants';
@@ -47,6 +48,7 @@ export type UserProfileStackParams = {
     EditProfile: any;
     AccountSettings: any;
     EditCru: any;
+    VideoTestScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -59,6 +61,13 @@ export function UserProfileStack() {
         cardOverlayEnabled: true,
         cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
       }}>
+      <UserProfile.Screen
+        name="VideoTestScreen"
+        component={VideoTestScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
       <UserProfile.Screen
         name="UserProfileScreen"
         component={UserProfileScreen}
