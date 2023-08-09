@@ -21,6 +21,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';
+import { getMyRoom } from './src/lib/api.lib';
 
 
 function App(): JSX.Element {

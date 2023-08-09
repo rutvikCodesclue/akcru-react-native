@@ -1,9 +1,13 @@
 import axios from "axios";
 export const isProduction = process.env.NODE_ENV === "production";
 import { DEV_API_URL} from "@env"
+import authStore from "../stores/auth.store";
 
+const isAuth = authStore.getState().isAuth;
+const accessToken = authStore.getState().session?.access_token;
 
 const determineBaseURL = (): string => {
+    
     console.log("Current ENV:", process.env.NODE_ENV);
 
     switch (process.env.NODE_ENV) {
@@ -21,6 +25,7 @@ const API = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        "Authorization": isAuth() ? `Bearer ${accessToken}` : undefined,
     },
 });
 
