@@ -9,6 +9,7 @@ import { Icon } from "@rneui/base";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import { getMovieGenres } from "../../../lib/api/movies.lib";
+import { capitalizeFirstLetterOfString } from "../../../util/util";
 
 const CruViewSearchMovieScreen = () => {
   const navigation =
@@ -21,8 +22,6 @@ const CruViewSearchMovieScreen = () => {
     const genres = await getMovieGenres();
     setGenres(genres);
     setIsLoading(false);
-    console.log("finished fetching genres");
-    
   }
 
   const handleGenrePress = (genre: IGenreItem) => {
@@ -86,7 +85,7 @@ const CruViewSearchMovieScreen = () => {
             }}
           >
             <FlatList
-              data={genres}
+              data={loading ? undefined : genres}
               horizontal={false}
               numColumns={2}
               scrollEnabled={false}
@@ -95,7 +94,7 @@ const CruViewSearchMovieScreen = () => {
                 <View>
                   <GenreCard
                     photo={item.image}
-                    genre={item.genre}
+                    genre={capitalizeFirstLetterOfString(item.genre)}
                     onPress={() => handleGenrePress(item)}
                   />
                 </View>
