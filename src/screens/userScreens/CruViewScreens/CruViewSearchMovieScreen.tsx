@@ -10,6 +10,7 @@ import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import { getMovieGenres } from "../../../lib/api/movies.lib";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
+import { IGenreItem } from "../../../../types";
 
 const CruViewSearchMovieScreen = () => {
   const navigation =
@@ -26,7 +27,7 @@ const CruViewSearchMovieScreen = () => {
 
   const handleGenrePress = (genre: IGenreItem) => {
     navigation.navigate("CruViewSearchMovieResultScreen", {
-      genre: genre.genre,
+      genre: capitalizeFirstLetterOfString(genre.genre),
     });
   }; 
 

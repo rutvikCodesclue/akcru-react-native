@@ -5,10 +5,18 @@ export const getMovieGenres = async () => {
     const { data } = await API.get(`/v1/movies/genres`);
     return data.genres;
 }
-export const joinMyRoom = async () => {
-    // POST /v1/rooms/join/me
-    const { data } = await API.post(`/v1/rooms/join/me`);
-    return data;
+export const findMovies = async (genre?: string): Promise<IMovie[] | []> => {
+    // GET /v1/movies?genre=action
+    const { data } = await API.get(`/v1/movies${genre ? `?genre=${genre.toUpperCase()}` : '/'}`);
+
+    if (data.success === false) {
+        return [];
+    }
+
+    // console.log("genre passed to findMovies:", genre);
+    // console.log("movies from findMovies:", data.movies);
+
+    return data.movies;
 }
 
 export const joinRoom = async (roomId: string) => {}

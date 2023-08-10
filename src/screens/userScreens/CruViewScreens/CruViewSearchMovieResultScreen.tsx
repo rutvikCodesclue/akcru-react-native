@@ -4,7 +4,8 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
-  Image
+  Image,
+  SafeAreaView
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -15,6 +16,8 @@ import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import { Icon } from "@rneui/base";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { Akcru_Content } from "../../../../assets/constants/ListData";
+import { findMovies } from "../../../lib/api/movies.lib";
+import { IMovie } from "../../../../types";
 
 type CruViewSearchMovieResultScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -34,8 +37,8 @@ type Props = {
 const AllMovies = Akcru_Content[0];
 
 const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
-  const [selectedGenre, setSelectedGenre] = useState(null);
-  const [filteredMovies, setFilteredMovies] = useState([]);
+  const [selectedGenre, setSelectedGenre] = useState("");
+  const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
 
   useEffect(() => {
     if (route.params && route.params.genre) {
@@ -43,12 +46,32 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
     }
   }, [route.params]);
 
-  const handleGenrePress = genre => {
+  const handleGenrePress = async (genre: string) => {
     setSelectedGenre(genre);
-    const filtered = AllMovies.movies.filter(movie =>
-      movie.genre.includes(genre),
-    );
-    setFilteredMovies(filtered);
+
+    let movies: IMovie[] = [];
+    if (genre === 'All') {
+      movies = await findMovies()
+    } else {
+      movies = await findMovies(genre)
+    }
+
+    if (movies.length === 0) {
+      console.log('No movies found...');
+      
+      setFilteredMovies([]);
+      return;
+    }
+
+    // console.log('Found movies: ', movies);
+    setFilteredMovies(movies);
+    return;
+
+    // 
+    // const filtered = AllMovies.movies.filter(movie =>
+    //   movie.genre.includes(genre),
+    // );
+    // setFilteredMovies(filtered);
   };
 
   const renderItem = ({item, index}) => {
@@ -71,9 +94,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
 
   return (
     <View>
-      {/* <View>
-          <Header />
-        </View> */}
+      <SafeAreaView>
       <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
         <TouchableOpacity
           onPress={() => navigation.pop()}
@@ -123,24 +144,24 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
       <View>
         <View style={{alignItems: 'center'}}>
           <FlatList
-            data={filteredMovies.length > 0 ? filteredMovies : AllMovies.movies}
+            data={filteredMovies}
             horizontal={false}
             numColumns={3}
             showsHorizontalScrollIndicator={false}
             ListFooterComponent={<View style={{marginBottom: 500}}></View>}
-            renderItem={({item, index}) => (
+            renderItem={({item}: {item: IMovie}) => (
               <View>
                 <TouchableOpacity
                   onPress={() => {
                     console.log('id:', item.id);
-                    console.log('movie:', item.name);
+                    console.log('movie:', item.title);
                     navigation.navigate('CruViewMovieDetailScreen', {
                       id: item.id,
                       movie: item.id,
                     });
                   }}>
                   <Image
-                    source={{uri: item.portrait_poster}}
+                    source={{uri: item.portraitURL }}
                     style={{
                       width: SIZES.ScreenWidth / 3.5,
                       height: SIZES.ScreenWidth / 2.35,
@@ -155,6 +176,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
           />
         </View>
       </View>
+      </SafeAreaView>
     </View>
   );
 };
