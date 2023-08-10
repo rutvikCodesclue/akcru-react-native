@@ -20,8 +20,6 @@ export const findMovies = async (genre?: string): Promise<IMovie[] | []> => {
 export const findMovieById = async (id: string): Promise<IMovie | null> => {
     // GET /v1/movies?id=id
     const { data } = await API.get(`/v1/movies?id=${id}`);
-    console.log("made request to", `/v1/movies?id=${id}`);
-    
 
     if (data.success === false) {
         return null;
