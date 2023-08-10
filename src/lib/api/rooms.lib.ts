@@ -1,4 +1,4 @@
-import { API } from "../clients/api.client";
+import { API } from "../../clients/api.client";
 
 export const getMyRoom = async () => {
     // GET /v1/rooms/me
