@@ -15,7 +15,6 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import { Icon } from "@rneui/base";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { Akcru_Content } from "../../../../assets/constants/ListData";
 import { findMovies } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 
@@ -33,8 +32,6 @@ type Props = {
   navigation: CruViewSearchMovieResultScreenNavigationProp;
   route: CruViewSearchMovieResultScreenRouteProp;
 };
-
-const AllMovies = Akcru_Content[0];
 
 const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
   const [selectedGenre, setSelectedGenre] = useState("");
@@ -66,15 +63,9 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
     // console.log('Found movies: ', movies);
     setFilteredMovies(movies);
     return;
-
-    // 
-    // const filtered = AllMovies.movies.filter(movie =>
-    //   movie.genre.includes(genre),
-    // );
-    // setFilteredMovies(filtered);
   };
 
-  const renderItem = ({item, index}) => {
+  const renderItem = ({item, index}: {item: any; index: number}) => {
     const isActive = item.genre === selectedGenre;
     return (
       <View style={{marginHorizontal: 10}}>
@@ -131,7 +122,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
               data={MOVIE_GENRES}
               horizontal={true}
               showsHorizontalScrollIndicator={false}
-              keyExtractor={item => item.id}
+              keyExtractor={item => item.genre}
               renderItem={renderItem}
               ItemSeparatorComponent={() => (
                 <Text style={{color: COLORS.DARKGREY}}> | </Text>
@@ -153,8 +144,6 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
               <View>
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('id:', item.id);
-                    console.log('movie:', item.title);
                     navigation.navigate('CruViewMovieDetailScreen', {
                       id: item.id,
                       movie: item.id,
