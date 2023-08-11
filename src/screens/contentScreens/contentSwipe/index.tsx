@@ -277,7 +277,7 @@ export default function ContentSwipe({navigation, route}: Props) {
   const _scrollX = React.useRef(new Animated.Value(0)).current;
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Header />
       </View>
@@ -341,7 +341,7 @@ export default function ContentSwipe({navigation, route}: Props) {
         onPress2={() => navigation.navigate('ClientTabNavigator')}
       />
       <Ticker scrollX={_scrollX} />
-    </SafeAreaView>
+    </View>
   );
 }
 
