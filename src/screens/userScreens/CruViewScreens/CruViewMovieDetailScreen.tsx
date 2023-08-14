@@ -19,7 +19,6 @@ import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 
 import { Icon } from "@rneui/base";
 import imageindex from "../../../../assets/images/imageindex";
-import { Akcru_Content } from "../../../../assets/constants/ListData";
 import styles from "./styles";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
@@ -44,11 +43,13 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
   const id: number | undefined = route.params?.id ?? null;
   // const movie: string | undefined = route.params?.movie ?? null;
   
+  const [loaded, setIsLoaded] = useState(false);
   const [movie, setMovie] = useState<IMovie | null>(null);
 
   const fetchMovie = async (id: string) => {
     const movie = await findMovieById(String(id));
     setMovie(movie);
+    setIsLoaded(true);
   }
 
   useEffect(() => {
@@ -278,7 +279,7 @@ useEffect(() => {
                       marginVertical: 10,
                     }}
                   >
-                    Cast: {renderActorsList(movie?.actors)}
+                    Cast: {loaded ? renderActorsList(movie?.actors) : null}
                   </Text>
                   <Text
                     style={{
@@ -287,7 +288,7 @@ useEffect(() => {
                       fontSize: 12,
                     }}
                   >
-                    Directors: {renderDirectorsList(movie?.director)}
+                    Directors: {loaded ? renderDirectorsList(movie?.director): null}
                   </Text>
                 </View>
               </View>

@@ -122,7 +122,8 @@ const HomeScreen = () => {
           </View>
         </Pressable>
         <View style={{marginHorizontal: 15, marginTop: 75, marginBottom: 75}}>
-          <View>
+          {/* TODO: remove this.  */}
+          {/* <View>
             <FlatList
               data={MOVIE_GENRES}
               horizontal={true}
@@ -136,11 +137,11 @@ const HomeScreen = () => {
                 />
               )}
             />
-          </View>
+          </View> */}
           <BasicListCategories Akcru_Content={NewOnAkcru} />
           <BasicListCategories Akcru_Content={TopOnAkcru} />
           <LargeListCategories Akcru_Content={TrendingNow} />
-          <BasicListCategories Akcru_Content={RecommendedForYou} />
+          {/* <BasicListCategories Akcru_Content={RecommendedForYou} /> */}
           {/* <FullPageCategories Akcru_Content={allcategory} /> */}
         </View>
       </ScrollView>
