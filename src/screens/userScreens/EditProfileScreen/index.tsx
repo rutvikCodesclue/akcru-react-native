@@ -195,11 +195,10 @@ export default function EditProfile({session}: {session: Session}) {
                     borderTopLeftRadius: 20,
                     borderTopRightRadius: 20,
                   }}>
-                  <TouchableOpacity
+                    <View style={{flexDirection: 'row-reverse', justifyContent: 'space-between', alignContent: 'center', marginBottom: 10}}>
+                       <TouchableOpacity
                     onPress={() => setShowImagePickerModal(false)}
-                    style={{
-                      alignSelf: 'flex-end',
-                    }}>
+                    >
                     <Icon
                       name="close-circle"
                       type="ionicon"
@@ -207,9 +206,11 @@ export default function EditProfile({session}: {session: Session}) {
                       size={25}
                     />
                   </TouchableOpacity>
-                  <Text style={{...FONTS.Title3, marginBottom: 10}}>
+                  <Text style={{...FONTS.Title3}}>
                     Select Profile Photo
                   </Text>
+                    </View>
+                 
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -253,7 +254,7 @@ export default function EditProfile({session}: {session: Session}) {
                     <TouchableOpacity
                       style={{
                         position: 'absolute',
-                        right: 5,
+                        right: 8,
                         top: -3,
                         zIndex: 20,
                       }}

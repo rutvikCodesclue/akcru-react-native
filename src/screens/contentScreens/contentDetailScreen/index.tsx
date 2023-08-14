@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import styles from './styles';
 
 import Header from '../../../components/header';
@@ -59,83 +59,93 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     youtubetrailer,
   } = Akcru_Content[0].movies[id ?? 0];
 
-  return (
-    <SafeAreaView>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View>
-          <Header />
-        </View>
+   const [showAddToWatchListConfirmationModal, setShowAddToWatchListConfirmationModal] = useState(false);
 
-        <View style={{marginTop: -65, marginBottom: 10}}>
-          <MovieDetailCard
-            portrait_poster={portrait_poster}
-            name={name}
-            year={year}
-            length={length}
-            rated={rated}
-            rating={rating}
-            desc={desc}
-            actors={actors.join(', ')}
-            directors={directors.join(', ')}
-            id={''}
-            youtubetrailer={youtubetrailer}
-            landscape_poster={landscape_poster}
-            movie_url={movie_url}
-            genre1={genre[0]}
-            genre2={genre[1]}
-            onPressin={() =>{
-              navigation.navigate ('ContentPlayer', {
-                id: id,
-                movie_url,
-                landscape_poster
-              })
-            }}
-            onPress={() => {
-              navigation.navigate('MITDateSchedule', {
-                id: id,
-                movie: name,
-              });
-            }}
-          />
-        </View>
-        <View style={{marginHorizontal: 15}}>
-          <BasicListCategories Akcru_Content={RecommendedForYou} />
-        </View>
-        <View style={{marginHorizontal: 15}}>
-          <Text style={{...FONTS.Title2, marginVertical: 10}}>
-            Akcru Review
-          </Text>
-          <View style={{marginBottom: 75}}>
-            <View>
-              {FAKE_USER_PROFILES.map(item => (
-                <View key={item.userID} style={{marginBottom: 10}}>
-                  <AkcruReviewCard
-                    userPicture={item.userPicture}
-                    userName={item.userName}
-                    movieReview={item.movieReview}
-                    movieReviewDate={item.movieReviewDate}
-                    userID={item.userID}
+   const handleCancelAddToWatchList = () => {
+       setShowAddToWatchListConfirmationModal(false);
+       // Handle cancel logic
+   };
+
+   const handleConfirmAddToWatchList = () => {
+       setShowAddToWatchListConfirmationModal(false);
+       // Handle confirm logic
+   };
+
+  return (
+      <View>
+          <ScrollView stickyHeaderIndices={[0]}>
+              <View>
+                  <Header />
+              </View>
+
+              <View style={{marginTop: -65, marginBottom: 10}}>
+                  <MovieDetailCard
+                      portrait_poster={portrait_poster}
+                      name={name}
+                      year={year}
+                      length={length}
+                      rated={rated}
+                      rating={rating}
+                      desc={desc}
+                      actors={actors.join(', ')}
+                      directors={directors.join(', ')}
+                      id={''}
+                      youtubetrailer={youtubetrailer}
+                      landscape_poster={landscape_poster}
+                      movie_url={movie_url}
+                      genre1={genre[0]}
+                      genre2={genre[1]}
+                      onPressin={() => {
+                          navigation.navigate('ContentPlayer', {
+                              id: id,
+                              movie_url,
+                              landscape_poster,
+                          });
+                      }}
+                      onPress={() => {
+                          navigation.navigate('MITDateSchedule', {
+                              id: id,
+                              movie: name,
+                          });
+                      }}
+                      onPressOut={() => {setShowAddToWatchListConfirmationModal(true)}}
+                      showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
+                      handleCancelAddToWatchList={handleCancelAddToWatchList}
+                      handleConfirmAddToWatchList={handleConfirmAddToWatchList}
                   />
-                </View>
-              ))}
-            </View>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={'placeholder'}
-                placeholderTextColor={'transparent'}
-                style={styles.textinput}
-              />
-            </View>
-            <View style={{alignItems: 'flex-end'}}>
-              <AkcruButtons.XSmallButton
-                btnname={'POST'}
-                onPress={function (): void {}}
-                color=""
-              />
-            </View>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+              </View>
+              <View style={{marginHorizontal: 15}}>
+                  <BasicListCategories Akcru_Content={RecommendedForYou} />
+              </View>
+              <View style={{marginHorizontal: 15}}>
+                  <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
+                  <View style={{marginBottom: 75}}>
+                      <View>
+                          {FAKE_USER_PROFILES.map(item => (
+                              <View key={item.userID} style={{marginBottom: 10}}>
+                                  <AkcruReviewCard
+                                      userPicture={item.userPicture}
+                                      userName={item.userName}
+                                      movieReview={item.movieReview}
+                                      movieReviewDate={item.movieReviewDate}
+                                      userID={item.userID}
+                                  />
+                              </View>
+                          ))}
+                      </View>
+                      <View style={styles.input}>
+                          <TextInput
+                              placeholder={'placeholder'}
+                              placeholderTextColor={'transparent'}
+                              style={styles.textinput}
+                          />
+                      </View>
+                      <View style={{alignItems: 'flex-end'}}>
+                          <AkcruButtons.XSmallButton btnname={'POST'} onPress={function (): void {}} color="" />
+                      </View>
+                  </View>
+              </View>
+          </ScrollView>
+      </View>
   );
 }

@@ -24,6 +24,8 @@ const PurchaseMITScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
+    
+
   return (
     <View>
       <ImageBackground

@@ -33,8 +33,8 @@ export default StyleSheet.create({
   },
   CruImageContainer: {
     alignItems: 'center',
-    marginTop: 25,
-    marginBottom: 50,
+    marginTop: 10,
+    marginBottom: 10,
   },
   input: {
     flexDirection: 'row',
