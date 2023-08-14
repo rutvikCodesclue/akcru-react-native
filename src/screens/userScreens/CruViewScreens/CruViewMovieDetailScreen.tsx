@@ -19,8 +19,9 @@ import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 
 import { Icon } from "@rneui/base";
 import imageindex from "../../../../assets/images/imageindex";
-import { Akcru_Content } from "../../../../assets/constants/ListData";
 import styles from "./styles";
+import { findMovieById } from "../../../lib/api/movies.lib";
+import { IMovie } from "../../../../types";
 
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<
@@ -40,23 +41,46 @@ type Props = {
 
 export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
   const id: number | undefined = route.params?.id ?? null;
-  const movie: string | undefined = route.params?.movie ?? null;
+  // const movie: string | undefined = route.params?.movie ?? null;
+  
+  const [loaded, setIsLoaded] = useState(false);
+  const [movie, setMovie] = useState<IMovie | null>(null);
 
-  const {
-    name,
-    year,
-    length,
-    rated,
-    rating,
-    desc,
-    actors,
-    directors,
-    portrait_poster,
-    youtubetrailer,
-    landscape_poster,
-    movie_url,
-    genre
-  } = Akcru_Content[0].movies[id ?? 0];
+  const fetchMovie = async (id: string) => {
+    const movie = await findMovieById(String(id));
+    setMovie(movie);
+    setIsLoaded(true);
+  }
+
+  useEffect(() => {
+    fetchMovie(String(id));
+  }, []);
+
+  const renderActorsList = (actors: Object[]) => {
+    let actorsList = ""
+    actors.map((actor, index) => {
+      if (index === actors.length - 1) {
+        actorsList += actor["name"];
+      } else {
+        actorsList += actor["name"] + ", ";
+      }
+    });
+
+    return actorsList;
+  }
+  const renderDirectorsList = (directors: Object[]) => {
+    let directorsList = ""
+    directors.map((director, index) => {
+      if (index === directors.length - 1) {
+        directorsList += director["name"];
+      } else {
+        directorsList += director["name"] + ", ";
+      }
+    });
+
+    return directorsList;
+  }
+
 
 const [selectedDate, setSelectedDate] = useState(new Date());
 const [selectedTime, setSelectedTime] = useState(new Date());
@@ -238,7 +262,7 @@ useEffect(() => {
             <View style={{ marginHorizontal: 15, marginTop: 10 }}>
               <View style={{ flexDirection: "row" }}>
                 <Image
-                  source={{ uri: portrait_poster }}
+                  source={{ uri: movie?.portraitURL }}
                   style={{
                     width: SIZES.ScreenWidth / 2.5,
                     height: SIZES.ScreenWidth / 1.7,
@@ -246,7 +270,7 @@ useEffect(() => {
                   }}
                 />
                 <View style={{ width: SIZES.ScreenWidth / 2, marginLeft: 10 }}>
-                  <Text style={{ ...FONTS.Title2, fontSize: 12 }}>{desc}</Text>
+                  <Text style={{ ...FONTS.Title2, fontSize: 12 }}>{movie?.description}</Text>
                   <Text
                     style={{
                       ...FONTS.Title2,
@@ -255,7 +279,7 @@ useEffect(() => {
                       marginVertical: 10,
                     }}
                   >
-                    Cast: {actors.join(", ")}
+                    Cast: {loaded ? renderActorsList(movie?.actors) : null}
                   </Text>
                   <Text
                     style={{
@@ -264,12 +288,12 @@ useEffect(() => {
                       fontSize: 12,
                     }}
                   >
-                    Directors: {directors.join(", ")}
+                    Directors: {loaded ? renderDirectorsList(movie?.director): null}
                   </Text>
                 </View>
               </View>
               <View style={{ marginTop: 10 }}>
-                <Text style={{ ...FONTS.Title3 }}>{name}</Text>
+                <Text style={{ ...FONTS.Title3 }}>{movie?.title}</Text>
                 <View
                   style={{
                     flexDirection: "row",
@@ -290,10 +314,10 @@ useEffect(() => {
                         marginRight: 10,
                       }}
                     >
-                      {year}
+                      {movie?.year}
                     </Text>
                     <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
-                      {length}
+                      {movie?.duration}
                     </Text>
                   </View>
                   <View
@@ -301,10 +325,10 @@ useEffect(() => {
                       flexDirection: "row",
                     }}
                   >
-                    <Text style={styles.drawfonttag}>{rated}</Text>
-                    <Text style={styles.drawfonttag}>{genre[0]}</Text>
+                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                    <Text style={styles.drawfonttag}>{movie?.genres[0]}</Text>
 
-                    <Text style={styles.drawfonttag}>{rating}/10</Text>
+                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
                   </View>
                 </View>
               </View>
@@ -483,7 +507,7 @@ useEffect(() => {
                             textAlign: "center",
                           }}
                         >
-                          "{name}"
+                          "{movie?.title}"
                         </Text>
                         <View>
                           <View
@@ -494,7 +518,7 @@ useEffect(() => {
                           >
                             <View style={{ margin: 10 }}>
                               <Image
-                                source={{ uri: portrait_poster }}
+                                source={{ uri: movie?.portraitURL }}
                                 style={{
                                   width: 65,
                                   height: 100,

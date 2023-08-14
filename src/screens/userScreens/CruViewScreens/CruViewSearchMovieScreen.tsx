@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, FlatList } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import CruViewSearchInput from "../../../components/CruViewSearchInput/CruViewSearchInput";
 import GenreCard from "../../../components/GenreCard";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -8,16 +8,32 @@ import { useNavigation } from "@react-navigation/native";
 import { Icon } from "@rneui/base";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
+import { getMovieGenres } from "../../../lib/api/movies.lib";
+import { capitalizeFirstLetterOfString } from "../../../util/util";
+import { IGenreItem } from "../../../../types";
 
 const CruViewSearchMovieScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-   const handleGenrePress = (genre) => {
-     navigation.navigate("CruViewSearchMovieResultScreen", {
-       genre: genre,
-     });
-   }; 
+  const [genres, setGenres] = React.useState<IGenreItem[]>([]);
+  const [loading, setIsLoading] = React.useState(true);
+
+  const fetchGenres = async () => {
+    const genres = await getMovieGenres();
+    setGenres(genres);
+    setIsLoading(false);
+  }
+
+  const handleGenrePress = (genre: IGenreItem) => {
+    navigation.navigate("CruViewSearchMovieResultScreen", {
+      genre: capitalizeFirstLetterOfString(genre.genre),
+    });
+  }; 
+
+  useEffect(() => {
+    fetchGenres();
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -70,6 +86,22 @@ const CruViewSearchMovieScreen = () => {
             }}
           >
             <FlatList
+              data={loading ? undefined : genres}
+              horizontal={false}
+              numColumns={2}
+              scrollEnabled={false}
+              // keyExtractor={(item) => item.genre}
+              renderItem={({ item, index }) => (
+                <View>
+                  <GenreCard
+                    photo={item.image}
+                    genre={capitalizeFirstLetterOfString(item.genre)}
+                    onPress={() => handleGenrePress(item)}
+                  />
+                </View>
+              )}
+            />
+            {/* <FlatList
               data={MOVIE_GENRES}
               horizontal={false}
               numColumns={2}
@@ -84,7 +116,7 @@ const CruViewSearchMovieScreen = () => {
                   />
                 </View>
               )}
-            />
+            /> */}
           </View>
         </View>
       </ScrollView>

@@ -77,33 +77,8 @@ const renderScene = SceneMap({
 });
 
 export default function UserProfileScreen({navigation, route}: Props) {
-  const [username, setUsername]= useState("")
   const { isAuth, user } = useAuthStore()
 
-
-  const getUserInfo = async () => {
-
-    // get access token from local storage
-    const accessToken = await AsyncStorage.getItem("access_token")
-    // console.log("Access Token:", accessToken);
-    
-    // make authenticated request to get user info
-    const getUserInfoRequest = await API.get("/v1/auth/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
-    // 
-    setUsername(getUserInfoRequest.data.user.username)
-    // setAvatar(getUserInfoRequest.data.user.avatar)
-
-    
-  }
-
-  React.useEffect(() => {
-    getUserInfo()
-  }, [navigation]);
 
   const renderTabBar = (
     props: JSX.IntrinsicAttributes &
@@ -191,6 +166,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
   return (
       <View style={{flex: 1}}>
+        <SafeAreaView style={{ flex: 1}}>
           <View>
               <ImageBackground
                   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
@@ -235,7 +211,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                           <View>
                               <Text style={{...FONTS.Title2}}>
                                   {/* {FAKE_USER_PROFILES[0].userName} */}
-                                  {isAuth() ? username : 'Guest'}
+                                  {isAuth() ? user?.username : 'Guest'}
                               </Text>
                               {user?.badge === 'AKCRUIT' && (
                                   <View>
@@ -342,13 +318,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
               </ImageBackground>
           </View>
           <TabView
-              navigationState={{index, routes}}
-              renderScene={renderScene}
-              onIndexChange={setIndex}
-              initialLayout={{width: layout.width}}
-              swipeEnabled={true}
-              renderTabBar={renderTabBar}
+            navigationState={{index, routes}}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{width: layout.width}}
+            swipeEnabled={true}
+            renderTabBar={renderTabBar}
           />
+        </SafeAreaView>
       </View>
   );
 }
