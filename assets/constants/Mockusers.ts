@@ -140,6 +140,17 @@ export const FAKE_USER_PROFILES = [
             {MITReceived: 'Def Jeff has sent you a MIT'},
             {CruInvite: 'Def Jeff sent you a CRU Invite'},
         ],
+        bulletin: [
+            {DeffJeffCru: 'Anthoni has posted a message'},
+            {JessieCru: 'IronClad Chad possted a message'},
+            {MovieQueenCru: 'Movie Queen has scheduled a CRU View on 10/31/2023'},
+            {AnthoniCru: 'Def Jeff posted a message'},
+            {IronCladChadCru: 'Movie Queen posted a message'},
+            {StellaCru: 'Stella posted a message'},
+            {DeffJeffCru: 'Anthoni has posted a message'},
+            {JessieCru: 'IronClad Chad possted a message'},
+            {AnthoniCru: 'Def Jeff posted a message'},
+        ],
     },
     {
         firstName: '',
