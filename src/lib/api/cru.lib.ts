@@ -1,4 +1,4 @@
-import { IMovie } from "../../../types";
+import { IMovie, ICruView } from "../../../types";
 import { API } from "../../clients/api.client";
 
 export const getMyCRU = async () => {
@@ -7,14 +7,19 @@ export const getMyCRU = async () => {
     return data.CRU;
 }
 
-export const getMyCRUViews = async (params?: { upcoming?: boolean, past?: boolean }) => {
+export const getMyCRUViews = async (params?: { upcoming?: boolean, past?: boolean }) : Promise<ICruView[] | undefined> => {
     // GET /v1/cru/views/me
 
     // if params is empty return all CRUViews
     if (!params) {
         const { data } = await API.get(`/v1/cru/views/me`);
-    
-        return data.CRUViews;
+        if (data.success === false) {
+            return []
+        }
+
+        const { CRUViews }: { CRUViews: ICruView[] } = data
+
+        return CRUViews;
     }
 
     const { upcoming, past } = params

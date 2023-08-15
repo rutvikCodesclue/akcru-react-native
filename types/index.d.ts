@@ -54,7 +54,7 @@ export interface IGenreItem {
 export interface ICru {
     id: string; 
     creatorId: string;
-    creator: object;
+    creator: IUserProfile;
     members:   object[];
     cruViews:  ICruView[]
     Room:      Object?
@@ -63,9 +63,16 @@ export interface ICru {
 export interface ICruView {
     id: string;
     cruId: string;
-    cru:       ICru;
+    cru:       {
+        id: string;
+        creatorId: string;
+        creator: {
+            firstName: string;
+            lastName: string;
+        }
+    };
     movieId: string;
     movie:     IMovie
     startDate: string;
-    timezone: string;
+    timezone: string
 }

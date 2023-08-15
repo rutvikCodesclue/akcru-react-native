@@ -5,13 +5,48 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
 import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
 import { getMyCRUViews } from "../../../lib/api/cru.lib";
+import { set } from "lodash";
+import { ICruView } from "../../../../types";
 
 const UserProfileDatesTab = () => {
+  const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
   useEffect(() => {
+    // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
     getMyCRUViews().then((res) => {
-      console.log(res);
+      if (res) {
+        setMyCRUViews(res);
+      }
     })
   }, []);
+
+  // TODO: change this to render CRUViews and MITs (when MITs are implemented)
+  const _renderMyCRUViews = () => {
+
+
+    return myCRUViews.map((item) => {
+        // scheduleWith  is either the CRU creator or yourself
+        const scheduleWith = item.cru.creator.firstName
+        return (
+          <View key={item.id} style={{marginBottom: 10}}>
+            <UserDatesCard
+              id={item.id}
+              moviePoster={item.movie.portraitURL}
+              movieName={item.movie.title}
+              length={String(item.movie.length)}
+              movieYear={item.movie.year}
+              movieRated={item.movie.rated}
+              movieGenre={item.movie.genres[0]}
+              movieRating={item.movie.rating}
+              scheduleDate={item.startDate}
+              scheduleTime={item.startDate}
+              scheduleWith={scheduleWith}
+              type="CRUView"
+              // dateID={item.dateID} id={""}              
+              />
+          </View>
+        )
+      })
+  }
 
   return (
     <View style={{ marginHorizontal: SIZES.marginhorizontal }}>
@@ -20,7 +55,8 @@ const UserProfileDatesTab = () => {
           <Text style={styles.titleText1}>YOUR SCHEDULE</Text>
         </View>
         <View style={{marginBottom: 75}}>
-          {JENNY_SCHEDULE.map((item) => (
+          {_renderMyCRUViews()}
+          {/* {JENNY_SCHEDULE.map((item) => (
             <View key={item.id} style={{marginBottom: 10}}>
               <UserDatesCard
                 moviePoster={item.moviePoster}
@@ -35,7 +71,7 @@ const UserProfileDatesTab = () => {
                 scheduleWith={item.scheduleWith}
                 dateID={item.dateID} id={""}              />
             </View>
-          ))}
+          ))} */}
         </View>
       </ScrollView>
     </View>
