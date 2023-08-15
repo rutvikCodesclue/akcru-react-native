@@ -35,69 +35,17 @@ export default function EditProfile({session}: {session: Session}) {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-  const [loading, setLoading] = useState(true);
+  // get user from auth store, also get the logout function
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
+
+  const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState('');
   const [desc, setDesc] = useState('');
-  const [email, setEmail] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
-  const [username, setUsername]= useState("")
-
-  const getUserInfo = async () => {
-
-    // get access token from local storage
-    const accessToken = await AsyncStorage.getItem("access_token")
-    // console.log("Access Token:", accessToken);
-    
-    // make authenticated request to get user info
-    const getUserInfoRequest = await API.get("/v1/auth/me", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
-    // 
-    setUsername(getUserInfoRequest.data.user.username)
-    // setAvatar(getUserInfoRequest.data.user.avatar)
-
-    
-  }
 
   const [response, setResponse] = React.useState<any>(null);
-
-  console.log('Attempting to Signup w/ Email/Password userName:', userName);
-  useEffect(() => {
-    getUserInfo()
-    // if (session) getProfile();
-  }, [session]);
-
-  async function getProfile() {
-    try {
-      setLoading(true);
-      if (!session?.user) throw new Error('No user on the session!');
-
-      let {data, error, status} = await supabase
-        .from('profiles')
-        .select(`userName, desc, avatar_url`)
-        .eq('id', session?.user.id)
-        .single();
-      if (error && status !== 406) {
-        throw error;
-      }
-
-      if (data) {
-        setUserName(data.userName);
-        setDesc(data.desc);
-        setAvatarUrl(data.avatar_url);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        Alert.alert(error.message);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function UpdateProfile({
     userName,
@@ -124,10 +72,6 @@ export default function EditProfile({session}: {session: Session}) {
         throw error;
       }
 
-      // update the user profile and set the new username
-      const updatedUsername = updateUser.data.user.username;
-      setUsername(updatedUsername.data.user.username)
-      getProfile()
 
     } catch (error) {
 
@@ -170,20 +114,20 @@ export default function EditProfile({session}: {session: Session}) {
     setShowImagePickerModal(false);
   };
 
-   const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+  const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
-   const handleUpdateProfile = () => {
-     // Show the confirmation modal
-     setShowUpdateConfirmation(true);
-   };
+  const handleUpdateProfile = () => {
+    // Show the confirmation modal
+    setShowUpdateConfirmation(true);
+  };
 
-   const handleConfirmUpdate = () => {
-     // Hide the confirmation modal
-     setShowUpdateConfirmation(false);
+  const handleConfirmUpdate = () => {
+    // Hide the confirmation modal
+    setShowUpdateConfirmation(false);
 
-     // Call the UpdateProfile function to update the profile information
-     UpdateProfile({userName, desc});
-   };
+    // Call the UpdateProfile function to update the profile information
+    UpdateProfile({userName, desc});
+  };
 
   return (
     <View>
@@ -251,11 +195,10 @@ export default function EditProfile({session}: {session: Session}) {
                     borderTopLeftRadius: 20,
                     borderTopRightRadius: 20,
                   }}>
-                  <TouchableOpacity
+                    <View style={{flexDirection: 'row-reverse', justifyContent: 'space-between', alignContent: 'center', marginBottom: 10}}>
+                       <TouchableOpacity
                     onPress={() => setShowImagePickerModal(false)}
-                    style={{
-                      alignSelf: 'flex-end',
-                    }}>
+                    >
                     <Icon
                       name="close-circle"
                       type="ionicon"
@@ -263,9 +206,11 @@ export default function EditProfile({session}: {session: Session}) {
                       size={25}
                     />
                   </TouchableOpacity>
-                  <Text style={{...FONTS.Title3, marginBottom: 10}}>
+                  <Text style={{...FONTS.Title3}}>
                     Select Profile Photo
                   </Text>
+                    </View>
+                 
                   <ScrollView
                     horizontal
                     showsHorizontalScrollIndicator={false}
@@ -309,7 +254,7 @@ export default function EditProfile({session}: {session: Session}) {
                     <TouchableOpacity
                       style={{
                         position: 'absolute',
-                        right: 5,
+                        right: 8,
                         top: -3,
                         zIndex: 20,
                       }}
@@ -406,7 +351,7 @@ export default function EditProfile({session}: {session: Session}) {
             <Text style={styles.inputlabel}>Username</Text>
             <View style={styles.input}>
               <TextInput
-                placeholder={username}
+                placeholder={user?.username}
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
@@ -420,7 +365,7 @@ export default function EditProfile({session}: {session: Session}) {
             <Text style={styles.inputlabel}>Description</Text>
             <View style={styles.input}>
               <TextInput
-                placeholder={FAKE_USER_PROFILES[0].userDesc}
+                placeholder={user?.description}
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
@@ -434,7 +379,7 @@ export default function EditProfile({session}: {session: Session}) {
             <Text style={styles.inputlabel}>Email</Text>
             <View style={styles.input}>
               <TextInput
-                placeholder={FAKE_USER_PROFILES[0].email}
+                placeholder={user?.email}
                 placeholderTextColor={COLORS.DARKGREY}
                 style={styles.textinput}
                 secureTextEntry={false}
@@ -512,8 +457,9 @@ export default function EditProfile({session}: {session: Session}) {
               onPress={() => navigation.navigate('AccountSettings')}>
               <Text style={styles.settingslabel}>Account Settings</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              logout()
+            <TouchableOpacity onPress={async () => {
+              await logout()
+              // after logging out, navigate to the Signin screen
               navigation.navigate("Signin")
             }}>
               <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>

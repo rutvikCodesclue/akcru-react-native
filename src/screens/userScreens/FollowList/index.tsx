@@ -44,11 +44,6 @@ const FirstRoute = () => (
 
 const SecondRoute = () => <FollowingTab />;
 
-const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-});
-
 const FollowList = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 

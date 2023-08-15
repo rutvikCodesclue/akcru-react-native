@@ -18,6 +18,7 @@ import StartMITDate from '../screens/userScreens/StartMITDate';
 import AccountSettings from '../screens/userScreens/AccountSettings';
 import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
+import EditWatchList from '../screens/userScreens/EditWatchList';
 import ClientTabNavigator from './ClientTabNavigator';
 import {COLORS, SIZES} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
@@ -41,6 +42,7 @@ export type UserProfileStackParams = {
     EditCru: any;
     FollowList: any;
     UserNotifications: any;
+    EditWatchList: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -175,6 +177,13 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="UserNotifications"
               component={UserNotifications}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="EditWatchList"
+              component={EditWatchList}
               options={() => ({
                   headerShown: false,
               })}

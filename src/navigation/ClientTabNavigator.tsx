@@ -18,6 +18,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
 import { supabaseRealtime } from '../../lib/supabase';
 import { createClient } from '@supabase/supabase-js';
+import TestScreen from '../screens/userScreens/TestScreen';
 
 export type ClientTabsParams = {
   UserProfileStack: any;
@@ -38,34 +39,34 @@ export default function ClientTabNavigator() {
 
   
 
-  useEffect(() => {
-    const floatUpAnimation = Animated.timing(animation, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    });
+  // useEffect(() => {
+  //   const floatUpAnimation = Animated.timing(animation, {
+  //     toValue: 1,
+  //     duration: 300,
+  //     useNativeDriver: true,
+  //   });
 
-    const floatDownAnimation = Animated.timing(animation, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    });
+  //   const floatDownAnimation = Animated.timing(animation, {
+  //     toValue: 0,
+  //     duration: 300,
+  //     useNativeDriver: true,
+  //   });
 
-    // Execute the float up animation when the tab is focused
-    const focusListener = navigation.addListener('focus', () => {
-      floatUpAnimation.start();
-    });
+  //   // Execute the float up animation when the tab is focused
+  //   const focusListener = navigation.addListener('focus', () => {
+  //     floatUpAnimation.start();
+  //   });
 
-    // Execute the float down animation when the tab loses focus
-    const blurListener = navigation.addListener('blur', () => {
-      floatDownAnimation.start();
-    });
+  //   // Execute the float down animation when the tab loses focus
+  //   const blurListener = navigation.addListener('blur', () => {
+  //     floatDownAnimation.start();
+  //   });
 
-    return () => {
-      focusListener.remove();
-      blurListener.remove();
-    };
-  }, []);
+  //   return () => {
+  //     focusListener.remove();
+  //     blurListener.remove();
+  //   };
+  // }, []);
 
   useEffect(() => {
     

@@ -1,7 +1,13 @@
 import axios from "axios";
 export const isProduction = process.env.NODE_ENV === "production";
+import { DEV_API_URL} from "@env"
+import authStore from "../stores/auth.store";
+
+const isAuth = authStore.getState().isAuth;
+const accessToken = authStore.getState().session?.access_token;
 
 const determineBaseURL = (): string => {
+    
     console.log("Current ENV:", process.env.NODE_ENV);
 
     switch (process.env.NODE_ENV) {
@@ -10,7 +16,7 @@ const determineBaseURL = (): string => {
         // case "staging":
         //     return "https://staging.api.akcru.com";
         default:
-            return process.env.DEV_API_URL ?? 'http://10.0.2.2:3000';
+            return DEV_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
 
@@ -19,6 +25,7 @@ const API = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
+        "Authorization": isAuth() ? `Bearer ${accessToken}` : undefined,
     },
 });
 
