@@ -11,6 +11,7 @@ import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
+  movieId: string;
   moviePoster: string;
   movieName: string;
   length: string;
@@ -21,12 +22,14 @@ type UserDatesCardProps = {
   scheduleDate: string;
   scheduleTime: string;
   scheduleWith: string;
-  dateID: any;
+  type: 'MIT' | 'CRUView';
+  dateID?: any;
   id: string;
 };
 
 
 const UserDatesCard = ({
+  movieId,
   moviePoster,
   movieName,
   length,
@@ -38,6 +41,7 @@ const UserDatesCard = ({
   scheduleTime,
   scheduleWith,
   dateID,
+  type,
   id
 }: UserDatesCardProps) => {
 
@@ -94,13 +98,13 @@ const navigation =
             >
               <Text style={styles.paragraphText}>You have a</Text>
 
-              {JENNY_SCHEDULE[dateID].scheduleType.MIT && (
+              {type === "MIT" && (
                 <View style={{ marginHorizontal: 5 }}>
                   <Text style={styles.paragraphText2}>MIT</Text>
                 </View>
               )}
 
-              {JENNY_SCHEDULE[dateID].scheduleType.CRUView && (
+              {type === "CRUView" && (
                 <View style={{ marginHorizontal: 5 }}>
                   <Text style={styles.paragraphText3}>CRU View</Text>
                 </View>
@@ -113,13 +117,13 @@ const navigation =
 
               <Text style={styles.paragraphText}>at</Text>
 
-              {JENNY_SCHEDULE[dateID].scheduleType.MIT && (
+              {type === "MIT" && (
                 <View style={{ marginRight: 5 }}>
                   <Text style={styles.paragraphText2}>{scheduleTime}</Text>
                 </View>
               )}
 
-              {JENNY_SCHEDULE[dateID].scheduleType.CRUView && (
+              {type === "CRUView" && (
                 <View style={{ marginRight: 5 }}>
                   <Text style={styles.paragraphText2}> {scheduleTime}</Text>
                 </View>
@@ -130,17 +134,17 @@ const navigation =
                 <Text style={styles.paragraphText}>"{movieName}"</Text>
               </View>
 
-              <Text style={styles.paragraphText}>with</Text>
+              <Text style={styles.paragraphText}>with </Text>
 
-              {JENNY_SCHEDULE[dateID].scheduleType.MIT && (
+              {type === "MIT" && (
                 <View>
-                  <Text style={styles.paragraphText2}>{scheduleWith}</Text>
+                  <Text style={styles.paragraphText2}> {scheduleWith}</Text>
                 </View>
               )}
 
-              {JENNY_SCHEDULE[dateID].scheduleType.CRUView && (
+              {type === "CRUView" && (
                 <View>
-                  <Text style={styles.paragraphText3}> your CRU</Text>
+                  <Text style={styles.paragraphText3}> {scheduleWith}</Text>
                 </View>
               )}
             </View>
@@ -163,12 +167,12 @@ const navigation =
             <Text style={styles.paragraphText3}>Earn AD on your date</Text>
           </View>
 
-          {JENNY_SCHEDULE[dateID].scheduleType.MIT && (
+          {type === "MIT" && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("StartMITDate", {
-                  id: dateID,
-                  movie: dateID,
+                  id: id,
+                  movie: movieId,
                 })
               }
             >
@@ -187,12 +191,12 @@ const navigation =
             </TouchableOpacity>
           )}
 
-          {JENNY_SCHEDULE[dateID].scheduleType.CRUView && (
+          {type === "CRUView" && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("StartCRUViewDate", {
-                  id: dateID,
-                  movie: dateID,
+                  id,
+                  movieId,
                 })
               }
             >

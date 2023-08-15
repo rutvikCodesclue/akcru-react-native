@@ -24,6 +24,7 @@ import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { API } from "../../../clients/api.client";
 import { createACRUView, getMyCRU } from "../../../lib/api/cru.lib";
+import { formatMovieDuration } from "../../../util/util";
 
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<
@@ -120,6 +121,8 @@ const handleNextMonth = () => {
 
 const handleDateChange = (day) => {
   const updatedDate = new Date(currentYear, currentMonth, day);
+  console.log("updatedDate from handleDateChange", updatedDate);
+  
   setSelectedDate(updatedDate);
 };
 
@@ -146,9 +149,6 @@ const handleSetDateTime = async () => {
       timezone: selectedTimeZone
     });
 
-    console.log("createdCruView:", createdCruView);
-    
-    
 
     setShowSendCRUView(true);
     // TODO: Move to the CRU View confirmation screen
@@ -332,7 +332,7 @@ useEffect(() => {
                       {movie?.year}
                     </Text>
                     <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
-                      {movie?.duration}
+                      {formatMovieDuration(movie?.duration)}
                     </Text>
                   </View>
                   <View
