@@ -120,6 +120,8 @@ const handleNextMonth = () => {
 
 const handleDateChange = (day) => {
   const updatedDate = new Date(currentYear, currentMonth, day);
+  console.log("updatedDate from handleDateChange", updatedDate);
+  
   setSelectedDate(updatedDate);
 };
 

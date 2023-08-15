@@ -196,7 +196,7 @@ const navigation =
               onPress={() =>
                 navigation.navigate("StartCRUViewDate", {
                   id,
-                  movie: movieId,
+                  movieId,
                 })
               }
             >

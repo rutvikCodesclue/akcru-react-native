@@ -14,6 +14,7 @@ const UserProfileDatesTab = () => {
   const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
   useEffect(() => {
     // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
+    // FIXME: change this to only show upcoming CRUViews
     getMyCRUViews().then((res) => {
       if (res) {
         setMyCRUViews(res);
