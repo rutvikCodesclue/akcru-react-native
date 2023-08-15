@@ -40,6 +40,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import VideoPlayer from "react-native-media-console";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
+import { formatMovieDuration } from "../../../util/util";
 
 // function setOrientation() {
 //   if (Dimensions.get("window").height > Dimensions.get("window").width) {
@@ -193,7 +194,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                       fontSize: 12,
                       marginHorizontal: 10,
                     }}>
-                    {movie?.duration}
+                    {formatMovieDuration(movie?.duration)}
                   </Text>
                   <Text style={styles.drawfonttag}>
                     {movie?.rated}

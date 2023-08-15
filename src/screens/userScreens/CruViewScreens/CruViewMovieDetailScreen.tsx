@@ -24,6 +24,7 @@ import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { API } from "../../../clients/api.client";
 import { createACRUView, getMyCRU } from "../../../lib/api/cru.lib";
+import { formatMovieDuration } from "../../../util/util";
 
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<
@@ -331,7 +332,7 @@ useEffect(() => {
                       {movie?.year}
                     </Text>
                     <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
-                      {movie?.duration}
+                      {formatMovieDuration(movie?.duration)}
                     </Text>
                   </View>
                   <View

@@ -8,6 +8,7 @@ import { getMyCRUViews } from "../../../lib/api/cru.lib";
 import { set } from "lodash";
 import { ICruView } from "../../../../types";
 import useAuthStore from "../../../stores/auth.store";
+import { formatMovieDuration } from "../../../util/util";
 
 const UserProfileDatesTab = () => {
   const user = useAuthStore.getState().user
@@ -34,7 +35,7 @@ const UserProfileDatesTab = () => {
               movieId={item.movie.id}
               moviePoster={item.movie.portraitURL}
               movieName={item.movie.title}
-              length={String(item.movie.duration)} // FIXME: make this render in hours and minutes
+              length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
               movieYear={item.movie.year}
               movieRated={item.movie.rated}
               movieGenre={item.movie.genres[0]}
