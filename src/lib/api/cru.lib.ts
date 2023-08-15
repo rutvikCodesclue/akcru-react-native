@@ -7,12 +7,28 @@ export const getMyCRU = async () => {
     return data.CRU;
 }
 
-export const getMyCRUViews = async () => {
+export const getMyCRUViews = async (params?: { upcoming?: boolean, past?: boolean }) => {
     // GET /v1/cru/views/me
-    const { data } = await API.get(`/v1/cru/views/me`);
-    console.log("cru view response:", data);
+
+    // if params is empty return all CRUViews
+    if (!params) {
+        const { data } = await API.get(`/v1/cru/views/me`);
     
-    return data.CRUViews;
+        return data.CRUViews;
+    }
+
+    const { upcoming, past } = params
+
+    if (upcoming) {
+        const { data } = await API.get(`/v1/cru/views/me?upcoming=${upcoming}`);
+    
+        return data.CRUViews;
+    }
+    if (past) {
+        const { data } = await API.get(`/v1/cru/views/me?past=${past}`);
+    
+        return data.CRUViews;
+    }
 }
 
 export const createACRUView = async (params: {movieId: string, startTime: string, timezone: string}) => {
