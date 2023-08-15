@@ -11,6 +11,7 @@ import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
+  movieId: string;
   moviePoster: string;
   movieName: string;
   length: string;
@@ -28,6 +29,7 @@ type UserDatesCardProps = {
 
 
 const UserDatesCard = ({
+  movieId,
   moviePoster,
   movieName,
   length,
@@ -169,8 +171,8 @@ const navigation =
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("StartMITDate", {
-                  id: dateID,
-                  movie: dateID,
+                  id: id,
+                  movie: movieId,
                 })
               }
             >
@@ -193,8 +195,8 @@ const navigation =
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate("StartCRUViewDate", {
-                  id: dateID,
-                  movie: dateID,
+                  id,
+                  movie: movieId,
                 })
               }
             >

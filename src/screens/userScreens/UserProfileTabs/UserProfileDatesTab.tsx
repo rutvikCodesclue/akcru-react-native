@@ -23,8 +23,6 @@ const UserProfileDatesTab = () => {
 
   // TODO: change this to render CRUViews and MITs (when MITs are implemented)
   const _renderMyCRUViews = () => {
-
-
     return myCRUViews.map((item) => {
         // scheduleWith  is either the CRU creator or yourself
         const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
@@ -32,9 +30,10 @@ const UserProfileDatesTab = () => {
           <View key={item.id} style={{marginBottom: 10}}>
             <UserDatesCard
               id={item.id}
+              movieId={item.movie.id}
               moviePoster={item.movie.portraitURL}
               movieName={item.movie.title}
-              length={String(item.movie.length)}
+              length={String(item.movie.duration)} // FIXME: make this render in hours and minutes
               movieYear={item.movie.year}
               movieRated={item.movie.rated}
               movieGenre={item.movie.genres[0]}
@@ -43,7 +42,6 @@ const UserProfileDatesTab = () => {
               scheduleTime={item.startDate}
               scheduleWith={scheduleWith}
               type="CRUView"
-              // dateID={item.dateID} id={""}              
               />
           </View>
         )
