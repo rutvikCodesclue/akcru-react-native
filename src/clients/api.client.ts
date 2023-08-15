@@ -29,7 +29,7 @@ const API = axios.create({
     },
 });
 
-console.log("Backend API Client Base URL:", API.defaults.baseURL);
+console.log('Backend API Client Base URL:', 'https://akcru-api.fly.dev/');
 
 
 export { API };
