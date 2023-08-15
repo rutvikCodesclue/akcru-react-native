@@ -5,6 +5,7 @@ import { AuthResponse, Session} from '@supabase/supabase-js'
 import { supabase } from "../../lib/supabase";
 import { API } from "../clients/api.client";
 import { useNavigation } from "@react-navigation/native";
+import { IUserProfile } from "../../types";
 
 interface IAuthStore {
     session: Session | null;
@@ -57,8 +58,6 @@ const useAuthStore = create<IAuthStore>()(persist(
 
             // route user to login page
             return true;
-
-
 
         },
         isAuth: (): boolean => {

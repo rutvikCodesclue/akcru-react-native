@@ -22,6 +22,8 @@ import imageindex from "../../../../assets/images/imageindex";
 import styles from "./styles";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
+import { API } from "../../../clients/api.client";
+import { createACRUView, getMyCRU } from "../../../lib/api/cru.lib";
 
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<
@@ -132,11 +134,24 @@ const handleTimeZoneChange = (timeZone) => {
   setSelectedTimeZone(timeZone);
 };
 
-const handleSetDateTime = () => {
+const handleSetDateTime = async () => {
   if (selectedDate && selectedTime && selectedTimeZone) {
     setIsDateTimeSelected(true);
     setIsSelectionDisabled(true);
+    
+    // TODO: Send CRU View to server
+    const createdCruView = await createACRUView({ 
+      movieId: String(movie?.id), 
+      startTime: selectedTime.toISOString(), 
+      timezone: selectedTimeZone
+    });
+
+    console.log("createdCruView:", createdCruView);
+    
+    
+
     setShowSendCRUView(true);
+    // TODO: Move to the CRU View confirmation screen
   }
 };
 
