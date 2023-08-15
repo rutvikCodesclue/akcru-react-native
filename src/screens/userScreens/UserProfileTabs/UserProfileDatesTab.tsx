@@ -7,8 +7,10 @@ import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
 import { getMyCRUViews } from "../../../lib/api/cru.lib";
 import { set } from "lodash";
 import { ICruView } from "../../../../types";
+import useAuthStore from "../../../stores/auth.store";
 
 const UserProfileDatesTab = () => {
+  const user = useAuthStore.getState().user
   const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
   useEffect(() => {
     // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
@@ -25,7 +27,7 @@ const UserProfileDatesTab = () => {
 
     return myCRUViews.map((item) => {
         // scheduleWith  is either the CRU creator or yourself
-        const scheduleWith = item.cru.creator.firstName
+        const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
         return (
           <View key={item.id} style={{marginBottom: 10}}>
             <UserDatesCard

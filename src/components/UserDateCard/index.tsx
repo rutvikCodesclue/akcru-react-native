@@ -132,17 +132,17 @@ const navigation =
                 <Text style={styles.paragraphText}>"{movieName}"</Text>
               </View>
 
-              <Text style={styles.paragraphText}>with</Text>
+              <Text style={styles.paragraphText}>with </Text>
 
               {type === "MIT" && (
                 <View>
-                  <Text style={styles.paragraphText2}>{scheduleWith}</Text>
+                  <Text style={styles.paragraphText2}> {scheduleWith}</Text>
                 </View>
               )}
 
               {type === "CRUView" && (
                 <View>
-                  <Text style={styles.paragraphText3}> your CRU</Text>
+                  <Text style={styles.paragraphText3}> {scheduleWith}</Text>
                 </View>
               )}
             </View>
