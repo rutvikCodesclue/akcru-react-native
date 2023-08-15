@@ -1,11 +1,18 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./styles";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
 import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
+import { getMyCRUViews } from "../../../lib/api/cru.lib";
 
 const UserProfileDatesTab = () => {
+  useEffect(() => {
+    getMyCRUViews().then((res) => {
+      console.log(res);
+    })
+  }, []);
+
   return (
     <View style={{ marginHorizontal: SIZES.marginhorizontal }}>
       <ScrollView>

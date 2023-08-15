@@ -7,6 +7,14 @@ export const getMyCRU = async () => {
     return data.CRU;
 }
 
+export const getMyCRUViews = async () => {
+    // GET /v1/cru/views/me
+    const { data } = await API.get(`/v1/cru/views/me`);
+    console.log("cru view response:", data);
+    
+    return data.CRUViews;
+}
+
 export const createACRUView = async (params: {movieId: string, startTime: string, timezone: string}) => {
     // POST /v1/cru/create-cru-view
     const { movieId, startTime, timezone } = params
@@ -14,7 +22,5 @@ export const createACRUView = async (params: {movieId: string, startTime: string
         {movieId, startTime, timezone}
     );
 
-    console.log("data from createACRUView", data);
-    
     return data.CRUView;
 }

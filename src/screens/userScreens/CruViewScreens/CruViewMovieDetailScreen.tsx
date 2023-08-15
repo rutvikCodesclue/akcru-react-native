@@ -146,9 +146,6 @@ const handleSetDateTime = async () => {
       timezone: selectedTimeZone
     });
 
-    console.log("createdCruView:", createdCruView);
-    
-    
 
     setShowSendCRUView(true);
     // TODO: Move to the CRU View confirmation screen
