@@ -64,6 +64,7 @@
 		<string>Montserrat-SemiBold.ttf</string>
 		<string>Montserrat-Thin.ttf</string>
 		<string>Ionicons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
 	</array>
 	<!--  -->
 	<key>NSAppleMusicUsageDescription</key>
