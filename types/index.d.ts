@@ -50,3 +50,22 @@ export interface IGenreItem {
     updatedAt: string;
     createdAt: string;
 }
+
+export interface ICru {
+    id: string; 
+    creatorId: string;
+    creator: object;
+    members:   object[];
+    cruViews:  ICruView[]
+    Room:      Object?
+}
+
+export interface ICruView {
+    id: string;
+    cruId: string;
+    cru:       ICru;
+    movieId: string;
+    movie:     IMovie
+    startDate: string;
+    timezone: string;
+}
