@@ -38,16 +38,19 @@ import BottomSheet, {
 // import * as ScreenOrientation from "expo-screen-orientation";
 import { StackNavigationProp } from "@react-navigation/stack";
 import VideoPlayer from "react-native-media-console";
+import { findMovieById } from "../../../lib/api/movies.lib";
+import { IMovie } from "../../../../types";
+import { formatMovieDuration } from "../../../util/util";
 
-function setOrientation() {
-  if (Dimensions.get("window").height > Dimensions.get("window").width) {
-    //Device is in portrait mode, rotate to landscape mode.
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-  } else {
-    //Device is in landscape mode, rotate to portrait mode.
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-  }
-}
+// function setOrientation() {
+//   if (Dimensions.get("window").height > Dimensions.get("window").width) {
+//     //Device is in portrait mode, rotate to landscape mode.
+//     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+//   } else {
+//     //Device is in landscape mode, rotate to portrait mode.
+//     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
+//   }
+// }
 
 type StartCRUViewDateNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -63,14 +66,21 @@ type Props = {
   navigation: StartCRUViewDateNavigationProp;
   route: StartCRUViewDateRouteProp;
   movieName: string;
-  dateID: string;
+  movieId: string;
 };
 
-const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
+const StartCRUViewDate = ({ navigation, route }: Props) => {
   const id: string | undefined = route.params?.id ?? null;
-  const movie: string | undefined = route.params?.moviePoster ?? null;
+  const movieId = route.params?.movieId;
+  const [movie, setMovie] = useState<IMovie | null>(null);
+  useEffect(() => {
+    findMovieById(movieId).then((res) => {
+      if (res) {
+        setMovie(res);
+      }
+    })
+  }, []);
 
-  const { moviePoster } = JENNY_SCHEDULE[dateID ?? 0];
 
   const [isStreamOpen, setIsStreamOpen] = useState(true);
 
@@ -161,13 +171,13 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
               />
               <View style={{marginRight: 10}}>
                 <Image
-                  source={{uri: JENNY_SCHEDULE[id].moviePoster}}
+                  source={{uri: movie?.portraitURL ?? ""}}
                   style={styles.poster}
                 />
               </View>
               <View>
                 <Text style={{...FONTS.Title3}}>
-                  {JENNY_SCHEDULE[id].movieName}
+                  {movie?.title ?? "Loading..."}
                 </Text>
                 <View
                   style={{
@@ -176,7 +186,7 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                     alignItems: 'center',
                   }}>
                   <Text style={{...FONTS.Title2, fontSize: 12}}>
-                    {JENNY_SCHEDULE[id].movieYear}
+                    {movie?.year}
                   </Text>
                   <Text
                     style={{
@@ -184,16 +194,16 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                       fontSize: 12,
                       marginHorizontal: 10,
                     }}>
-                    {JENNY_SCHEDULE[id].length}
+                    {formatMovieDuration(movie?.duration)}
                   </Text>
                   <Text style={styles.drawfonttag}>
-                    {JENNY_SCHEDULE[id].movieRated}
+                    {movie?.rated}
                   </Text>
                   <Text style={styles.drawfonttag}>
-                    {JENNY_SCHEDULE[id].movieGenre}
+                    {movie?.genres[0]}
                   </Text>
                   <Text style={styles.drawfonttag}>
-                    {JENNY_SCHEDULE[id].movieRating}/10
+                    {movie?.rating}/10
                   </Text>
                 </View>
                 <View style={{flexDirection: 'row'}}>
@@ -261,13 +271,13 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                   <View style={{height: SIZES.ScreenHeight / 4}}>
                     <VideoPlayer
                       source={{
-                        uri: JENNY_SCHEDULE[id].movieUrl,
+                        uri: movie?.movieURL,
                       }}
                       tapAnywhereToPause={true}
                       toggleResizeModeOnFullscreen={true}
                       isFullscreen={false}
                       posterResizeMode="cover"
-                      poster={JENNY_SCHEDULE[id].movieLSposter}
+                      poster={movie?.landscapeURL}
                     />
                   </View>
                   <View style={{backgroundColor: 'red', flex: 1}}></View>
@@ -378,6 +388,7 @@ const StartCRUViewDate = ({ navigation, route, movieName, dateID }: Props) => {
                 btnname={'REPLY'}
                 onPress={function (): void {}}
                 color=""
+                disabled={false}
               />
             </View>
           </View>
