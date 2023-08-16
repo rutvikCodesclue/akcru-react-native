@@ -146,7 +146,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
                   onPress={() => {
                     navigation.navigate('CruViewMovieDetailScreen', {
                       id: item.id,
-                      movie: item.id,
+                      movie: item.title,
                     });
                   }}>
                   <Image
