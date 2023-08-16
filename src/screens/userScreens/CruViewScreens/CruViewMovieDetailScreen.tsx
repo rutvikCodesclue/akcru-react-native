@@ -332,7 +332,7 @@ useEffect(() => {
                       {movie?.year}
                     </Text>
                     <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>
-                      {formatMovieDuration(movie?.duration)}
+                      {movie?.duration ? formatMovieDuration(movie?.duration) : "..."}
                     </Text>
                   </View>
                   <View

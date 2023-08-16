@@ -194,7 +194,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                       fontSize: 12,
                       marginHorizontal: 10,
                     }}>
-                    {formatMovieDuration(movie?.duration)}
+                    {movie?.duration ? formatMovieDuration(movie?.duration) : "..."}
                   </Text>
                   <Text style={styles.drawfonttag}>
                     {movie?.rated}
