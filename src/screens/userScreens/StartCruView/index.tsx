@@ -41,6 +41,7 @@ import VideoPlayer from "react-native-media-console";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
+import { supabaseRealtime } from "../../../../lib/supabase";
 
 // function setOrientation() {
 //   if (Dimensions.get("window").height > Dimensions.get("window").width) {
@@ -51,6 +52,7 @@ import { formatMovieDuration } from "../../../util/util";
 //     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
 //   }
 // }
+
 
 type StartCRUViewDateNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -73,12 +75,17 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
   const id: string | undefined = route.params?.id ?? null;
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
+
   useEffect(() => {
+    // load the movie
     findMovieById(movieId).then((res) => {
       if (res) {
         setMovie(res);
       }
     })
+
+    // TODO: setup the realtime channels for the room
+    
   }, []);
 
 
