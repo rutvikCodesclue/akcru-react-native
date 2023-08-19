@@ -10,7 +10,7 @@ import {
   Image,
 } from 'react-native';
 
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
@@ -20,10 +20,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import filter from 'lodash/filter';
 import { Akcru_Content } from '../../../assets/constants/ListData';
+import { findMovies } from '../../lib/api/movies.lib';
+import {IMovie} from '../../../types';
+import {findMovieById} from '../../lib/api/movies.lib';
 
 const SearchInput = () => {
   //search input function
-  const [data, setData] = useState([...Akcru_Content[0].movies]);
+  const [data, setData] = useState<IMovie[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
   const textInputRef = useRef(null);
@@ -31,20 +34,34 @@ const SearchInput = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
-  const contains = ({name}: {name: string}, query: string) => {
-    if (name.toLowerCase().includes(query.toLowerCase())) {
+  const contains = ({title}: {title: string}, query: string) => {
+    if (title.toLowerCase().includes(query.toLowerCase())) {
       return true;
     }
     return false;
   };
 
-  const handleSearch = (text: any) => {
-    const dataSearch = filter(Akcru_Content[0].movies, userSearch => {
-      return contains(userSearch, text.toLowerCase());
-    });
+  const handleSearch = (text: string) => {
+      const dataSearch = filter(data, userSearch => {
+          return contains(userSearch, text.toLowerCase());
+      });
 
-    setData([...dataSearch]);
+      setData([...dataSearch]);
   };
+
+  useEffect(() => {
+      // Fetch movies here using the findMovies function from your API
+      const fetchMovies = async () => {
+          try {
+              const fetchedMovies: IMovie[] = await findMovies(); // Replace this with the actual function to fetch movies
+              setData(fetchedMovies);
+          } catch (error) {
+              console.error('Error fetching movies:', error);
+          }
+      };
+
+      fetchMovies();
+  }, []);
 
   return (
     <View>
@@ -152,12 +169,12 @@ const SearchInput = () => {
                       }}>
                       <View style={{flexDirection: 'row'}}>
                         <Image
-                          source={{uri: item.portrait_poster}}
+                          source={{uri: item.portraitURL}}
                           style={{width: 30, height: 50, borderRadius: 3}}
                         />
                         <View style={{marginLeft: 10}}>
                           <Text style={{...FONTS.Title2, fontSize: 12}}>
-                            {item.name}
+                            {item.title}
                           </Text>
                           <Text style={{...FONTS.paragraph1, fontSize: 12}}>
                             {item.year}
