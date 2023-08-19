@@ -25,7 +25,7 @@ import { joinMyRoom } from "../../../lib/api/rooms.lib";
 import useRoomStore from "../../../stores/room.store";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
-import { set } from "lodash";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 type RoomPreviewNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -50,14 +50,12 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<boolean>(false);
   const [isMicOn, setIsMicOn] = useState(false);
-  const [isUserVideoOn, setIsUserVideoOn] = useState(false);
+  const [isUserVideoOn, setIsUserVideoOn] = useState(true);
   const [canJoinRoom, setCanJoinRoom] = useState(false);
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
-  const [trackIds, setTrackIds] = useState<string[]>([]);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
-  // const [hmsInstance, setHmsInstance] = useState<HMSSDK | null>(null);
 
   useEffect(() => {
     // load the movie
@@ -67,11 +65,79 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
       }
     })
   }, []);
+  
+  useEffect(() => {
+    // TODO: setup the realtime channels for the room
+    let roomChannel: RealtimeChannel | null = null
+    let syncChannel: RealtimeChannel | null = null
 
-  // const _initHMS = async () => {
-  //   // const hmsInstance = await HMSSDK.build();
-  //   setHmsInstance(hmsInstance);
-  // }
+    if (roomIdFrom100ms) {
+      roomChannel = supabaseRealtime.channel(`room`) 
+      syncChannel = supabaseRealtime.channel(`room-sync`) // TODO: make this a presence channel
+      console.log("Create room and sync channels");
+      // roomChannel = supabaseRealtime.channel(`room-${roomIdFrom100ms}`) 
+      // syncChannel = supabaseRealtime.channel(`room-sync-${roomIdFrom100ms}`) // TODO: make this a presence channel
+      // TODO: figure out how to store these globally
+
+      if (roomChannel) {
+        roomChannel
+        .on(
+          'broadcast',
+          { event: 'test' },
+          (payload) => console.log(payload)
+        )
+        .subscribe()
+    
+      }
+
+      if (syncChannel) {
+        syncChannel
+          .on(
+            'presence',
+            { event: 'sync' },
+            () => {
+              const newState = syncChannel?.presenceState()
+              console.log('sync', newState)
+            }
+          )
+          // .on(
+          //   'presence',
+          //   { event: 'join' },
+          //   ({ key, newPresences }) => {
+          //     console.log('join', key, newPresences)
+          //   }
+          // )
+          // .on(
+          //   'presence',
+          //   { event: 'leave' },
+          //   ({ key, leftPresences }) => {
+          //     console.log('leave [sync]:', key, leftPresences)
+          //   }
+          // )
+          .subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+              // const presenceTrackStatus = await syncChannel?.track({
+              //   role: "host",
+              //   user: user?.username ?? "Anonymous",
+              //   online_at: new Date().toISOString(),
+              // })
+              // console.log(presenceTrackStatus)
+            }
+          })
+      }
+
+      // every 2.5 seconds
+      setInterval(myFunction, 2500);
+      function myFunction() {
+        if (syncChannel) {
+          syncChannel?.track({
+            timestamp: new Date().toUTCString(),
+          })
+        }
+      }
+    }
+  }, [roomIdFrom100ms]);
+
 
   const _checkPermissions = async () => {
     // TODO: handle permissions for android as well
@@ -146,10 +212,10 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     console.log("Error previewing room", error);
   }
   const __onPreview = (data: { room: HMSRoom, previewTracks: HMSTrack[] }) => {
-    console.log("Previewing room...");
-    console.log("Room", data.room);
+    console.log("Previewing room..."); // FIXME: remove this
+    console.log("Room", data.room); // FIXME: remove this
     setRoomIdFrom100ms(data.room.id)
-    console.log("Preview Tracks", data.previewTracks);
+    console.log("Preview Tracks", data.previewTracks); // FIXME: remove this
     
     // Get Local Audio Track from preview tracks
     const regularAudioTrack = data.previewTracks.find((previewTrack) => {
@@ -167,7 +233,7 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
     setPreviewVideoTrack(regularVideoTrack)
 
-    // TODO: preview is successful, re-enable Join Room button
+    // preview is successful, re-enable Join Room button
     setCanJoinRoom(true)
   }
 
@@ -179,6 +245,7 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     console.log("Joining room...");
 
     // call join the room API endpoint to get the room Token
+    // FIXME: handle user joining a room that they aren't hosting
     const roomAuthToken = await joinMyRoom()
 
     // check permissions for microphone and camera
@@ -202,24 +269,22 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
       // starting room preview
       hmsInstance.preview(config)
   
-      // TODO: setup the realtime channels for the room
-      // TODO: make sync requests to the realtime channels for the room
       
     } else {
       // TODO: handle permissions not granted
       // TODO: handle no hmsInstance
+      console.error("=== Permissions not granted or no hmsInstance ===");
+      
     }
-
-    
   }
 
-  // FIXME: implement this
   const _handleJoinRoom = async () => {
     console.log("Joining the acutal room...");
-    // navigate to room and pass in the room auth token and camera/mic settings
+    console.log("Room ID", roomIdFrom100ms);
+    
+    // navigate to room and pass in the room auth token and current camera/mic settings
 
     // TODO: navigate to the room once joined to the 100ms room
-      
       // then navigate to the room
       // navigation.navigate("StartCRUViewDate", {
       //   id,
@@ -337,12 +402,13 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
               hmsInstanceRef.current &&
               previewVideoTrack ?
               (
-                <hmsInstanceRef.current.HmsView
-                  trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
-                  scaleType={HMSVideoViewMode.ASPECT_FILL}
-                  style={{ width: '100%', height: '100%' }}
-                  mirror={true}
-                />
+                isUserVideoOn ? 
+                  <hmsInstanceRef.current.HmsView
+                    trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
+                    scaleType={HMSVideoViewMode.ASPECT_FILL}
+                    style={{ width: '100%', height: '100%' }}
+                    mirror={true}
+                  /> : null
               ): (
                 <Text style={{ color: "#fff" }}>Loading....</Text>
               )
