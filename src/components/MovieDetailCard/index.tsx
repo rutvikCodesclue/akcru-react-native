@@ -287,7 +287,7 @@ const MovieDetailCard = ({
                         style={{
                             flexDirection: 'row',
                             alignSelf: 'center',
-                            marginRight: 20,
+                            marginRight: 10,
                         }}>
                         <Text
                             style={{
@@ -305,7 +305,7 @@ const MovieDetailCard = ({
                         }}>
                         <Text style={styles.drawfonttag}>{rated}</Text>
                         <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
-
+                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
                         <Text style={styles.drawfonttag}>{rating}/10</Text>
                     </View>
                 </View>
@@ -343,38 +343,22 @@ const MovieDetailCard = ({
                         }}>
                         {description}
                     </Text>
-                    <View style={{flexDirection: 'row', marginBottom: 5, flexWrap: 'wrap'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.DARKGREY,
-                                marginRight: 10,
-                            }}>
-                            Cast:
-                        </Text>
+                    <View style={{flexDirection: 'row', marginBottom: 5}}>
                         <Text
                             style={{
                                 ...FONTS.Title2Orange,
                                 color: COLORS.AKCRUBLUE,
                             }}>
-                            {actors}
+                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {actors}
                         </Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.DARKGREY,
-                                marginRight: 10,
-                            }}>
-                            Director:
-                        </Text>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                         <Text
                             style={{
                                 ...FONTS.Title2Orange,
                                 color: COLORS.AKCRUBLUE,
                             }}>
-                            {directors}
+                            <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
                         </Text>
                     </View>
                 </View>

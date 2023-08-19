@@ -161,8 +161,8 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                         />
                     </View>
                 ) : (
-                    <View style={styles.container}>
-                        <ActivityIndicator size="large" color="blue" />
+                    <View style={styles.activitycontainer}>
+                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                     </View>
                 )}
                 <View style={{marginHorizontal: 15}}>

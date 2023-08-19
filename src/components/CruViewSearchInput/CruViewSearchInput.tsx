@@ -12,7 +12,7 @@ import {
 
 import { SearchBar } from "react-native-screens";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 import { Icon } from "@rneui/base";
 import { useNavigation } from "@react-navigation/native";
@@ -22,14 +22,13 @@ import LinearGradient from "react-native-linear-gradient";
 import filter from "lodash/filter";
 import { UserProfileStackParams } from "../../navigation/UserProfileStack";
 import { Akcru_Content } from "../../../assets/constants/ListData";
-
-interface Props {
-  MovieDetailScreen: any;
-}
+import {findMovies} from '../../lib/api/movies.lib';
+import {IMovie} from '../../../types';
+import {findMovieById} from '../../lib/api/movies.lib';
 
 const CruViewSearchInput = () => {
   //search input function
-  const [data, setData] = useState([...Akcru_Content[0].movies]);
+  const [data, setData] = useState<IMovie[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [textInputFocused, setTextInputFocused] = useState(false);
   const textInputRef = useRef(null);
@@ -37,20 +36,34 @@ const CruViewSearchInput = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-  const contains = ({ name }: { name: string }, query: string) => {
-    if (name.toLowerCase().includes(query.toLowerCase())) {
-      return true;
-    }
-    return false;
+  const contains = ({title}: {title: string}, query: string) => {
+      if (title.toLowerCase().includes(query.toLowerCase())) {
+          return true;
+      }
+      return false;
   };
 
-  const handleSearch = (text: any) => {
-    const dataSearch = filter(Akcru_Content[0].movies, (userSearch) => {
-      return contains(userSearch, text.toLowerCase());
-    });
+  const handleSearch = (text: string) => {
+      const dataSearch = filter(data, userSearch => {
+          return contains(userSearch, text.toLowerCase());
+      });
 
-    setData([...dataSearch]);
+      setData([...dataSearch]);
   };
+
+  useEffect(() => {
+      // Fetch movies here using the findMovies function from your API
+      const fetchMovies = async () => {
+          try {
+              const fetchedMovies: IMovie[] = await findMovies(); // Replace this with the actual function to fetch movies
+              setData(fetchedMovies);
+          } catch (error) {
+              console.error('Error fetching movies:', error);
+          }
+      };
+
+      fetchMovies();
+  }, []);
 
   return (
       <View>
@@ -141,7 +154,8 @@ const CruViewSearchInput = () => {
                                       onPress={() => {
                                           Keyboard.dismiss;
                                           navigation.navigate('CruViewMovieDetailScreen', {
-                                              id: index,
+                                              id: item.id,
+                                              movie: item.id,
                                           });
 
                                           setModalVisible(false);
@@ -155,11 +169,11 @@ const CruViewSearchInput = () => {
                                           }}>
                                           <View style={{flexDirection: 'row'}}>
                                               <Image
-                                                  source={{uri: item.portrait_poster}}
+                                                  source={{uri: item.portraitURL}}
                                                   style={{width: 30, height: 50, borderRadius: 3}}
                                               />
                                               <View style={{marginLeft: 10}}>
-                                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{item.name}</Text>
+                                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{item.title}</Text>
                                                   <Text style={{...FONTS.paragraph1, fontSize: 12}}>{item.year}</Text>
                                               </View>
                                           </View>
