@@ -37,9 +37,18 @@ const Signin = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (authStore.isAuth()) {
-      navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
+    const checkAuth = async () => {
+        await authStore.hydrateAuth()
+        const isAuthed = authStore.user !== null && authStore.session !== null;
+        
+        if (isAuthed) {
+            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
+        }
     }
+
+    checkAuth().catch((err) => { 
+        console.error("Error checking auth", err) 
+    })
   }, [])
 
   async function attemptLogin() {

@@ -24,7 +24,7 @@ const API = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Authorization": isAuth() ? `Bearer ${accessToken}` : undefined,
+        "Authorization": accessToken ? `Bearer ${accessToken}` : undefined,
     },
 });
 
