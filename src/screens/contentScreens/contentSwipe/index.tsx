@@ -21,7 +21,13 @@ import imageindex from '../../../../assets/images/imageindex';
 import Header from '../../../components/header';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
-const data = Akcru_Content[7].movies;
+import {findMovieById, findMovies} from '../../../lib/api/movies.lib';
+import {IMovie} from '../../../../types';
+import { useEffect, useState } from 'react';
+import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
+
+// const data = Akcru_Content[7].movies;
+
 
 const {width, height} = Dimensions.get('window');
 const TICKER_HEIGHT = 20;
@@ -37,12 +43,11 @@ type ContentSwipeRouteProp = RouteProp<NoBottomTabStackParams, 'ContentSwipe'>;
 type Props = {
     navigation: ContentSwipeNavigationProp;
     route: ContentSwipeRouteProp;
-    portrait_poster: string;
-    genre: string;
+    movie: IMovie;
+    portraitURL: string;
+    genres: string;
     rated: string;
     rating: number;
-    desc: string;
-    length: string;
     onPress: () => void;
     onPress2: () => void;
     index: any;
@@ -50,12 +55,11 @@ type Props = {
 };
 
 const Item = ({
-    portrait_poster,
-    genre,
+    movie,
+    portraitURL,
+    genres,
     rated,
     rating,
-    desc,
-    length,
     scrollX,
     index,
     onPress,
@@ -83,7 +87,7 @@ const Item = ({
     return (
         <TouchableOpacity style={styles.itemStyle} onPress={onPress}>
             <Animated.Image
-                source={{uri: portrait_poster}}
+                source={{uri: portraitURL}}
                 style={[
                     styles.imageStyle,
                     {
@@ -112,7 +116,7 @@ const Item = ({
                                 transform: [{translateX: translateXHeading}],
                             },
                         ]}>
-                        {genre[0]}
+                        {capitalizeFirstLetterOfString(genres[0])}
                     </Animated.Text>
                     <Animated.Text
                         style={[
@@ -122,7 +126,7 @@ const Item = ({
                                 transform: [{translateX: translateXHeading}],
                             },
                         ]}>
-                        {genre[1]}
+                        {capitalizeFirstLetterOfString(genres[1])}
                     </Animated.Text>
                     <Animated.Text
                         style={[
@@ -135,27 +139,15 @@ const Item = ({
                         {rating}/10
                     </Animated.Text>
                 </View>
-
-                {/* <Animated.Text
-          style={[
-            styles.description,
-            {
-              opacity,
-              transform: [{ translateX: translateXDescription }],
-            },
-          ]}
-        >
-          {desc}
-        </Animated.Text> */}
             </View>
         </TouchableOpacity>
     );
 };
 
-const Circle = ({scrollX}) => {
+const Circle = ({scrollX, movies}) => {
     return (
         <View style={[StyleSheet.absoluteFillObject, styles.circleContainer]}>
-            {data.map((item, index) => {
+            {movies.map((item, index) => {
                 const inputRange = [(index - 0.55) * width, index * width, (index + 0.55) * width];
                 return (
                     <Animated.View
@@ -185,7 +177,7 @@ const Circle = ({scrollX}) => {
     );
 };
 
-const Ticker = ({scrollX}) => {
+const Ticker = ({scrollX, movies}) => {
     return (
         <View style={styles.tickerContainer}>
             <Animated.View
@@ -199,14 +191,14 @@ const Ticker = ({scrollX}) => {
                         },
                     ],
                 }}>
-                {data.map(({name, year, length}, index) => {
+                {movies.map(({title, year, duration}, index) => {
                     return (
                         <View key={index.toString()} style={{flexDirection: 'row'}}>
                             <Text key={index} style={styles.tickername}>
-                                {name}
+                                {title}
                             </Text>
                             <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{year}</Text>
-                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{length}</Text>
+                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{formatMovieDuration(duration)}</Text>
                         </View>
                     );
                 })}
@@ -215,10 +207,17 @@ const Ticker = ({scrollX}) => {
     );
 };
 
-const Pagination = ({scrollX, onPress2}) => {
+
+const Pagination = ({scrollX, onPress2, movies}) => {
+    const visibleMovies = movies.slice(0, 5); // Only consider the first five movies
+
+    if (visibleMovies.length < 2) {
+        return null; // Return null if there are fewer than two visible movies
+    }
+
     const translateX = scrollX.interpolate({
-        inputRange: data.map((_, i) => i * width),
-        outputRange: data.map((_, i) => i * 15),
+        inputRange: visibleMovies.map((_, i) => i * width),
+        outputRange: visibleMovies.map((_, i) => i * 15),
     });
 
     return (
@@ -232,7 +231,7 @@ const Pagination = ({scrollX, onPress2}) => {
                         },
                     ]}
                 />
-                {data.map(item => {
+                {visibleMovies.map((item, index) => {
                     return (
                         <View key={item.id} style={styles.paginationDotContainer}>
                             <View style={[styles.paginationDot, {backgroundColor: COLORS.TRANSLIGHTGREY}]} />
@@ -247,8 +246,25 @@ const Pagination = ({scrollX, onPress2}) => {
     );
 };
 
+
+
 export default function ContentSwipe({navigation, route}: Props) {
     const _scrollX = React.useRef(new Animated.Value(0)).current;
+
+    const [movies, setMovies] = useState<IMovie[]>([]);
+
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                setMovies(fetchedMovies);
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+            }
+        };
+
+        fetchMovies();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -277,11 +293,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
                 />
             </View>
-            <Circle scrollX={_scrollX} />
-            {/* <Image
-        style={styles.logo}
-        source={require("./assets/ue_black_logo.png")}
-      /> */}
+            <Circle scrollX={_scrollX} movies={movies} />
             <Animated.FlatList
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
@@ -289,7 +301,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                 horizontal
                 keyExtractor={item => item.id}
                 onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
-                data={data}
+                data={movies.slice(0, 5)}
                 renderItem={({item, index}) => (
                     <Item
                         {...item}
@@ -297,7 +309,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                         scrollX={_scrollX}
                         onPress={() => {
                             console.log('id:', item.id);
-                            console.log('movie:', item.name);
+                            console.log('movie:', item.title);
                             navigation.navigate('ContentDetailScreen', {
                                 id: item.id,
                                 movie: item.id,
@@ -306,8 +318,8 @@ export default function ContentSwipe({navigation, route}: Props) {
                     />
                 )}
             />
-            <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} />
-            <Ticker scrollX={_scrollX} />
+            <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} movies={movies} />
+            <Ticker scrollX={_scrollX} movies={movies} />
         </View>
     );
 }

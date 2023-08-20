@@ -24,7 +24,7 @@ import {Icon} from '@rneui/base';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { findMovieById } from '../../../lib/api/movies.lib';
+import { findMovieById, findMovies } from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
@@ -54,6 +54,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
+    const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
    useEffect(() => {
        const fetchMovie = async () => {
@@ -75,6 +76,26 @@ export default function ContentDetailScreen({navigation, route}: Props) {
            }
        };
 
+       const fetchRandomMovies = async () => {
+           try {
+               const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+               // Get 5 random movies from the list
+               const randomMovies: IMovie[] = [];
+               while (randomMovies.length < 5) {
+                   const randomIndex = Math.floor(Math.random() * allMovies.length);
+                   const randomMovie = allMovies[randomIndex];
+                   if (!randomMovies.includes(randomMovie)) {
+                       randomMovies.push(randomMovie);
+                   }
+               }
+
+               setRandomMovies(randomMovies);
+           } catch (error) {
+               console.error('Error fetching random movies:', error);
+           }
+       };
+       fetchRandomMovies();
        fetchMovie();
    }, [routeParams.params?.id]);
 
@@ -166,7 +187,9 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                     </View>
                 )}
                 <View style={{marginHorizontal: 15}}>
-                    <BasicListCategories Akcru_Content={RecommendedForYou} />
+                    <BasicListCategories
+                        Akcru_Content={{id: 'recommendedForYou', title: 'Recommended by Akcru', movies: randomMovies}}
+                    />
                 </View>
                 <View style={{marginHorizontal: 15}}>
                     <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
