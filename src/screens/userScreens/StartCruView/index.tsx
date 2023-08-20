@@ -69,11 +69,14 @@ type Props = {
   route: StartCRUViewDateRouteProp;
   movieName: string;
   movieId: string;
+  roomId: string;
+  roomAuthToken: string;
 };
 
 const StartCRUViewDate = ({ navigation, route }: Props) => {
-  const id: string | undefined = route.params?.id ?? null;
   const movieId = route.params?.movieId;
+  const roomId = route.params?.roomId;
+  const roomAuthToken = route.params?.roomAuthToken;
   const [movie, setMovie] = useState<IMovie | null>(null);
 
   useEffect(() => {
@@ -83,6 +86,9 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         setMovie(res);
       }
     })
+
+    console.log("details:", movieId, roomId, roomAuthToken);
+    
 
     // TODO: setup the realtime channels for the room
     

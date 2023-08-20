@@ -54,6 +54,7 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   const [canJoinRoom, setCanJoinRoom] = useState(false);
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
+  const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
@@ -66,77 +67,78 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     })
   }, []);
   
-  useEffect(() => {
-    // TODO: setup the realtime channels for the room
-    let roomChannel: RealtimeChannel | null = null
-    let syncChannel: RealtimeChannel | null = null
+  // FIXME: use in the active room, not the preview channel
+  // useEffect(() => {
+  //   // TODO: setup the realtime channels for the room
+  //   let roomChannel: RealtimeChannel | null = null
+  //   let syncChannel: RealtimeChannel | null = null
 
-    if (roomIdFrom100ms) {
-      roomChannel = supabaseRealtime.channel(`room`) 
-      syncChannel = supabaseRealtime.channel(`room-sync`) // TODO: make this a presence channel
-      console.log("Create room and sync channels");
-      // roomChannel = supabaseRealtime.channel(`room-${roomIdFrom100ms}`) 
-      // syncChannel = supabaseRealtime.channel(`room-sync-${roomIdFrom100ms}`) // TODO: make this a presence channel
-      // TODO: figure out how to store these globally
+  //   if (roomIdFrom100ms) {
+  //     roomChannel = supabaseRealtime.channel(`room`) 
+  //     syncChannel = supabaseRealtime.channel(`room-sync`) // TODO: make this a presence channel
+  //     console.log("Create room and sync channels");
+  //     // roomChannel = supabaseRealtime.channel(`room-${roomIdFrom100ms}`) 
+  //     // syncChannel = supabaseRealtime.channel(`room-sync-${roomIdFrom100ms}`) // TODO: make this a presence channel
+  //     // TODO: figure out how to store these globally
 
-      if (roomChannel) {
-        roomChannel
-        .on(
-          'broadcast',
-          { event: 'test' },
-          (payload) => console.log(payload)
-        )
-        .subscribe()
+  //     if (roomChannel) {
+  //       roomChannel
+  //       .on(
+  //         'broadcast',
+  //         { event: 'test' },
+  //         (payload) => console.log(payload)
+  //       )
+  //       .subscribe()
     
-      }
+  //     }
 
-      if (syncChannel) {
-        syncChannel
-          .on(
-            'presence',
-            { event: 'sync' },
-            () => {
-              const newState = syncChannel?.presenceState()
-              console.log('sync', newState)
-            }
-          )
-          // .on(
-          //   'presence',
-          //   { event: 'join' },
-          //   ({ key, newPresences }) => {
-          //     console.log('join', key, newPresences)
-          //   }
-          // )
-          // .on(
-          //   'presence',
-          //   { event: 'leave' },
-          //   ({ key, leftPresences }) => {
-          //     console.log('leave [sync]:', key, leftPresences)
-          //   }
-          // )
-          .subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-              // const presenceTrackStatus = await syncChannel?.track({
-              //   role: "host",
-              //   user: user?.username ?? "Anonymous",
-              //   online_at: new Date().toISOString(),
-              // })
-              // console.log(presenceTrackStatus)
-            }
-          })
-      }
+  //     if (syncChannel) {
+  //       syncChannel
+  //         .on(
+  //           'presence',
+  //           { event: 'sync' },
+  //           () => {
+  //             const newState = syncChannel?.presenceState()
+  //             console.log('sync', newState)
+  //           }
+  //         )
+  //         // .on(
+  //         //   'presence',
+  //         //   { event: 'join' },
+  //         //   ({ key, newPresences }) => {
+  //         //     console.log('join', key, newPresences)
+  //         //   }
+  //         // )
+  //         // .on(
+  //         //   'presence',
+  //         //   { event: 'leave' },
+  //         //   ({ key, leftPresences }) => {
+  //         //     console.log('leave [sync]:', key, leftPresences)
+  //         //   }
+  //         // )
+  //         .subscribe(async (status) => {
+  //           if (status === 'SUBSCRIBED') {
+  //             // const presenceTrackStatus = await syncChannel?.track({
+  //             //   role: "host",
+  //             //   user: user?.username ?? "Anonymous",
+  //             //   online_at: new Date().toISOString(),
+  //             // })
+  //             // console.log(presenceTrackStatus)
+  //           }
+  //         })
+  //     }
 
-      // every 2.5 seconds
-      setInterval(myFunction, 2500);
-      function myFunction() {
-        if (syncChannel) {
-          syncChannel?.track({
-            timestamp: new Date().toUTCString(),
-          })
-        }
-      }
-    }
-  }, [roomIdFrom100ms]);
+  //     // every 2.5 seconds
+  //     setInterval(myFunction, 2500);
+  //     function myFunction() {
+  //       if (syncChannel) {
+  //         syncChannel?.track({
+  //           timestamp: new Date().toUTCString(),
+  //         })
+  //       }
+  //     }
+  //   }
+  // }, [roomIdFrom100ms]);
 
 
   const _checkPermissions = async () => {
@@ -246,7 +248,8 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
     // call join the room API endpoint to get the room Token
     // FIXME: handle user joining a room that they aren't hosting
-    const roomAuthToken = await joinMyRoom()
+    const authTokenForRoom = await joinMyRoom()
+    setAuthRoomToken(authTokenForRoom)
 
     // check permissions for microphone and camera
     await _checkPermissions()
@@ -261,7 +264,7 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
       // 2. create an object of HMSConfig class using the available joining configurations.
       let config = new HMSConfig({
-        authToken: roomAuthToken, // client-side token generated from `getAuthTokenByRoomCode` method
+        authToken: authTokenForRoom, // client-side token generated from `getAuthTokenByRoomCode` method
         username: user?.username ?? "Anonymous", // username of the user joining the room
       });
 
@@ -285,11 +288,13 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     // navigate to room and pass in the room auth token and current camera/mic settings
 
     // TODO: navigate to the room once joined to the 100ms room
-      // then navigate to the room
-      // navigation.navigate("StartCRUViewDate", {
-      //   id,
-      //   movieId,
-      // })
+    if (roomIdFrom100ms && roomAuthToken) {
+      navigation.navigate("StartCRUViewDate", {
+        movieId,
+        roomId: roomIdFrom100ms,
+        roomAuthToken,
+      })
+    }
   }
 
   const toggleMic = () => {
