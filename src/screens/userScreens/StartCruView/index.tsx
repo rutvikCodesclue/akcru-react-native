@@ -485,7 +485,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         </View>
 
         {/* Movie Player */}
-        <View>
+        <View style={{ flex: 1, zIndex: 100 }}>
           {isStreamOpen ? (
             <View style={styles.moviecontainer}>
               <LinearGradient
@@ -635,19 +635,23 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
           </Text>
         </View> */}
 
+        {/* CHAT ROOM */}
         <View
           style={{ 
-            marginHorizontal: 15,
-            width: 400,
-            height: 550,
+            // flex: 1, 
+            // marginHorizontal: 15,
+            width: SIZES.ScreenWidth,
+            height: 240,
+            marginTop: 275,
             backgroundColor: "purple",
           }}>
             {
               hmsInstanceRef.current ? (
                 <FlatList
-                  style={{ flex: 1, backgroundColor: "blue" }}
+                  scrollEnabled={false}
+                  style={{ flex: 1 }}
                   key={trackIds.length}
-                  numColumns={2}
+                  numColumns={3}
                   data={trackIds} // trackIds is an array of trackIds of video tracks
                   keyExtractor={(trackId) => trackId}
                   renderItem={({ item }) => 
@@ -656,8 +660,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                       <hmsInstanceRef.current.HmsView 
                         key={item} 
                         trackId={item} 
-                        style={{ flex:1,  height: 200, backgroundColor: "red" }} 
-                        scaleType={HMSVideoViewMode.ASPECT_FILL}
+                        style={{ flex:1, maxWidth: (SIZES.ScreenWidth) / 3,  height: 120 }} 
+                        scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                         mirror={true}
                       /> 
                       : <View style={{ backgroundColor: "#fff", width: 200, height: 200 }}>nothings rendering</View>
@@ -672,11 +676,11 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
           {/* <CRUUserVideoList /> */}
         </View>
 
-        {isStreamOpen ? (
+        {/* {isStreamOpen ? (
           <View style={{height: SIZES.ScreenHeight * 0.16}}></View>
         ) : (
           <View style={{height: SIZES.ScreenHeight * 0.055}}></View>
-        )}
+        )} */}
         <View style={styles.bottombtn}>
           <View
             style={{
@@ -783,6 +787,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     height: SIZES.ScreenHeight / 7,
     alignItems: "center",
+    flex: 1,
   },
   drawfonttag: {
     ...FONTS.Title2Orange,
