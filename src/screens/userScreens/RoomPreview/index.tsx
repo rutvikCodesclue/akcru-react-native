@@ -207,16 +207,20 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   const _handleJoinRoom = async () => {
     // navigate to room and pass in the room auth token and current camera/mic settings
     if (roomIdFrom100ms && roomAuthToken) {
-      navigation.navigate("StartCRUViewDate", {
-        movieId,
-        roomId: roomIdFrom100ms,
-        roomAuthToken,
-        micInitialState: isMicOn,
-        cameraInitialState: isUserVideoOn,
-      })
-
       // leave the room preview (cleanup 100ms resources)
-      _handleRoomLeave()
+      const leaveRoomSuccessful = await _handleRoomLeave()
+
+      if (leaveRoomSuccessful) {
+        // navigate to the room
+        navigation.navigate("StartCRUViewDate", {
+          movieId,
+          roomId: roomIdFrom100ms,
+          roomAuthToken,
+          micInitialState: isMicOn,
+          cameraInitialState: isUserVideoOn,
+        })
+      }
+
     }
   }
 
@@ -234,18 +238,21 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
        * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
        */
       const leaveResult = await hmsInstance.leave();
-      console.log('Leave Success: ', leaveResult);
+      // console.log('Leave Success: ', leaveResult);
   
       /**
        * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
        */
       const destroyResult = await hmsInstance.destroy();
-      console.log('Destroy Success: ', destroyResult);
+      // console.log('Destroy Success: ', destroyResult);
   
       // Removing HMSSDK instance
       hmsInstanceRef.current = null;
+
+      return true
     } catch (error) {
       console.log('Leave or Destroy Error: ', error);
+      return false
     }
   };
 
