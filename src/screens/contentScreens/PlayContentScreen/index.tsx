@@ -31,6 +31,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     // const id: number | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
+    const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -40,6 +41,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                     const fetchedMovie: IMovie | undefined = await findMovieById(id); // Fetch movie by ID
                     if (fetchedMovie) {
                         setMovie([fetchedMovie]); // Set the fetched movie
+                        
                     } else {
                         setMovie([]); // Clear movie if not found
                     }
@@ -71,7 +73,8 @@ export default function ContentPlayer({navigation, route}: Props) {
     console.log('Movie URL:', movieURL); // Log movie URL for debugging
     console.log('Landscape URL:', landscapeURL); // Log landscape URL for debugging
     return (
-        <View style={styles.container}>
+        <View style={{flex: 1}}>
+            <View style={styles.container}>
             <VideoPlayer
                 source={{
                     uri: movieURL,
@@ -82,6 +85,8 @@ export default function ContentPlayer({navigation, route}: Props) {
                 containerStyle={{zIndex: 100}}
                 onBack={() => navigation.pop()}
             />
+            </View>
         </View>
+        
     );
 }
