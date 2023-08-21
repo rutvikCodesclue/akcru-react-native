@@ -20,12 +20,9 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
-import { supabaseRealtime } from "../../../../lib/supabase";
 import { joinMyRoom } from "../../../lib/api/rooms.lib";
-import useRoomStore from "../../../stores/room.store";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
-import { RealtimeChannel } from "@supabase/supabase-js";
 
 type RoomPreviewNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -67,80 +64,6 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     })
   }, []);
   
-  // FIXME: use in the active room, not the preview channel
-  // useEffect(() => {
-  //   // TODO: setup the realtime channels for the room
-  //   let roomChannel: RealtimeChannel | null = null
-  //   let syncChannel: RealtimeChannel | null = null
-
-  //   if (roomIdFrom100ms) {
-  //     roomChannel = supabaseRealtime.channel(`room`) 
-  //     syncChannel = supabaseRealtime.channel(`room-sync`) // TODO: make this a presence channel
-  //     console.log("Create room and sync channels");
-  //     // roomChannel = supabaseRealtime.channel(`room-${roomIdFrom100ms}`) 
-  //     // syncChannel = supabaseRealtime.channel(`room-sync-${roomIdFrom100ms}`) // TODO: make this a presence channel
-  //     // TODO: figure out how to store these globally
-
-  //     if (roomChannel) {
-  //       roomChannel
-  //       .on(
-  //         'broadcast',
-  //         { event: 'test' },
-  //         (payload) => console.log(payload)
-  //       )
-  //       .subscribe()
-    
-  //     }
-
-  //     if (syncChannel) {
-  //       syncChannel
-  //         .on(
-  //           'presence',
-  //           { event: 'sync' },
-  //           () => {
-  //             const newState = syncChannel?.presenceState()
-  //             console.log('sync', newState)
-  //           }
-  //         )
-  //         // .on(
-  //         //   'presence',
-  //         //   { event: 'join' },
-  //         //   ({ key, newPresences }) => {
-  //         //     console.log('join', key, newPresences)
-  //         //   }
-  //         // )
-  //         // .on(
-  //         //   'presence',
-  //         //   { event: 'leave' },
-  //         //   ({ key, leftPresences }) => {
-  //         //     console.log('leave [sync]:', key, leftPresences)
-  //         //   }
-  //         // )
-  //         .subscribe(async (status) => {
-  //           if (status === 'SUBSCRIBED') {
-  //             // const presenceTrackStatus = await syncChannel?.track({
-  //             //   role: "host",
-  //             //   user: user?.username ?? "Anonymous",
-  //             //   online_at: new Date().toISOString(),
-  //             // })
-  //             // console.log(presenceTrackStatus)
-  //           }
-  //         })
-  //     }
-
-  //     // every 2.5 seconds
-  //     setInterval(myFunction, 2500);
-  //     function myFunction() {
-  //       if (syncChannel) {
-  //         syncChannel?.track({
-  //           timestamp: new Date().toUTCString(),
-  //         })
-  //       }
-  //     }
-  //   }
-  // }, [roomIdFrom100ms]);
-
-
   const _checkPermissions = async () => {
     // TODO: handle permissions for android as well
 
@@ -214,17 +137,17 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
     console.log("Error previewing room", error);
   }
   const __onPreview = (data: { room: HMSRoom, previewTracks: HMSTrack[] }) => {
-    console.log("Previewing room..."); // FIXME: remove this
-    console.log("Room", data.room); // FIXME: remove this
+    // console.log("Previewing room..."); // FIXME: remove this
+    // console.log("Room", data.room); // FIXME: remove this
     setRoomIdFrom100ms(data.room.id)
-    console.log("Preview Tracks", data.previewTracks); // FIXME: remove this
+    // console.log("Preview Tracks", data.previewTracks); // FIXME: remove this
     
-    // Get Local Audio Track from preview tracks
-    const regularAudioTrack = data.previewTracks.find((previewTrack) => {
-      return (
-          previewTrack.source === HMSTrackSource.REGULAR && previewTrack.type === HMSTrackType.AUDIO
-      );
-    });
+    // Get Local Audio Track from preview tracks (we don't need this for preview)
+    // const regularAudioTrack = data.previewTracks.find((previewTrack) => {
+    //   return (
+    //       previewTrack.source === HMSTrackSource.REGULAR && previewTrack.type === HMSTrackType.AUDIO
+    //   );
+    // });
 
     // Get Local Video Track from preview tracks
     const regularVideoTrack = data.previewTracks.find((previewTrack) => {
@@ -282,20 +205,49 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   }
 
   const _handleJoinRoom = async () => {
-    console.log("Joining the acutal room...");
-    console.log("Room ID", roomIdFrom100ms);
-    
     // navigate to room and pass in the room auth token and current camera/mic settings
-
-    // TODO: navigate to the room once joined to the 100ms room
     if (roomIdFrom100ms && roomAuthToken) {
       navigation.navigate("StartCRUViewDate", {
         movieId,
         roomId: roomIdFrom100ms,
         roomAuthToken,
+        micInitialState: isMicOn,
+        cameraInitialState: isUserVideoOn,
       })
+
+      // leave the room preview (cleanup 100ms resources)
+      _handleRoomLeave()
     }
   }
+
+  const _handleRoomLeave = async () => {
+    try {
+      const hmsInstance = hmsInstanceRef.current;
+  
+      if (!hmsInstance) {
+        return Promise.reject('HMSSDK instance is null');
+      }
+      // Removing all registered listeners
+      hmsInstance.removeAllListeners();
+  
+      /**
+       * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
+       */
+      const leaveResult = await hmsInstance.leave();
+      console.log('Leave Success: ', leaveResult);
+  
+      /**
+       * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
+       */
+      const destroyResult = await hmsInstance.destroy();
+      console.log('Destroy Success: ', destroyResult);
+  
+      // Removing HMSSDK instance
+      hmsInstanceRef.current = null;
+    } catch (error) {
+      console.log('Leave or Destroy Error: ', error);
+    }
+  };
 
   const toggleMic = () => {
     setIsMicOn((prevState) => !prevState);
@@ -307,7 +259,17 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
   useEffect(() => {
     _startRoomPreview()
-  }, []);
+
+    return () => {
+      console.log("Leaving room preview...");
+      
+      // cleanup (if app crashes or user leaves the screen unexpectedly)
+      if (hmsInstanceRef.current) {
+        _handleRoomLeave()
+        // hmsInstanceRef.current.leave();
+      }
+    }
+  }, [navigation]);
 
 
   return (
@@ -418,12 +380,6 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
                 <Text style={{ color: "#fff" }}>Loading....</Text>
               )
             }
-            {/* <HmsView
-              trackId={previewVideoTrack?.trackId} // Render Video track by using its' trackId
-              scaleType={HMSVideoViewMode.ASPECT_FILL}
-              style={{ width: '100%', height: '100%' }}
-              mirror={true}
-            /> */}
           </View>
         </View>
 
