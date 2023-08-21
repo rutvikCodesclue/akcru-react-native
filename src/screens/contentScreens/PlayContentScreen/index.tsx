@@ -88,11 +88,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                         containerStyle={{zIndex: 100}}
                         onBack={() => navigation.pop()}
                     />
-                ) : (
-                    <View style={styles.activitycontainer}>
-                        <ActivityIndicator size="small" color={COLORS.LIGHTGREY} />
-                    </View>
-                )}
+                ) : (<View style={styles.activitycontainer}/>)}
             </View>
         </View>
     );

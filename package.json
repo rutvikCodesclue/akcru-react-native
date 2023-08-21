@@ -31,6 +31,7 @@
     "events": "^3.3.0",
     "lodash": "^4.17.21",
     "lorem-ipsum": "^2.0.8",
+    "lottie-react-native": "^6.2.0",
     "react": "18.2.0",
     "react-native": "0.72.1",
     "react-native-gesture-handler": "^2.12.0",
