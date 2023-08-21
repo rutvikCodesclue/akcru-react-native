@@ -47,8 +47,6 @@ type Props = {
   route: ContentDetailScreenRouteProp;
 };
 
-const RecommendedForYou = Akcru_Content[4];
-
 export default function ContentDetailScreen({navigation, route}: Props) {
     
     const [movie, setMovie] = useState<IMovie[]>([]);
@@ -171,6 +169,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                 navigation.navigate('MITDateSchedule', {
                                     id: id,
                                     movie: title,
+                                    portraitURL: portraitURL
                                 });
                             }}
                             onPressOut={() => {
