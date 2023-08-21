@@ -1,5 +1,5 @@
 import { ActivityIndicator, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styles from './styles'
 import VideoPlayer from 'react-native-media-console';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,8 +9,9 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { IMovie } from '../../../../types';
 import { findMovieById } from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
-import { COLORS } from '../../../../assets/constants';
-
+import { COLORS, SIZES } from '../../../../assets/constants';
+import LottieView from 'lottie-react-native';
+import Orientation from 'react-native-orientation-locker';
 
 type ContentPlayerNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
@@ -34,6 +35,9 @@ export default function ContentPlayer({navigation, route}: Props) {
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
 
+    const [isLottieAnimationFinished, setIsLottieAnimationFinished] = useState(false);
+    const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
+
     useEffect(() => {
         const fetchMovie = async () => {
             try {
@@ -53,6 +57,16 @@ export default function ContentPlayer({navigation, route}: Props) {
 
         fetchMovie();
     }, [routeParams.params?.id]);
+
+    useEffect(() => {
+        // Allow landscape orientation when entering this screen
+        Orientation.lockToLandscape();
+
+        // Lock the orientation back to portrait when leaving this screen
+        return () => {
+            Orientation.lockToPortrait();
+        };
+    }, []);
 
     const {
         title,
@@ -77,18 +91,36 @@ export default function ContentPlayer({navigation, route}: Props) {
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-                {movieURL ? (
-                    <VideoPlayer
-                        source={{
-                            uri: movieURL,
-                        }}
-                        tapAnywhereToPause={false}
-                        toggleResizeModeOnFullscreen={false}
-                        poster={landscapeURL}
-                        containerStyle={{zIndex: 100}}
-                        onBack={() => navigation.pop()}
-                    />
-                ) : (<View style={styles.activitycontainer}/>)}
+                {hasLottieFirstLoopCompleted ? (
+                    movieURL ? (
+                        <VideoPlayer
+                            source={{
+                                uri: movieURL,
+                            }}
+                            tapAnywhereToPause={false}
+                            toggleResizeModeOnFullscreen={false}
+                            // poster={landscapeURL}
+                            containerStyle={{zIndex: 100}}
+                            onBack={() => navigation.pop()}
+                        />
+                    ) : (
+                        <ActivityIndicator size="large" color={COLORS.BLACK} />
+                    )
+                ) : (
+                    <View style={styles.activitycontainer}>
+                        <LottieView
+                            source={require('../../../../assets/Akcruappopenerlottie.json')}
+                            autoPlay
+                            loop={false}
+                            style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
+                            onAnimationFinish={() => {
+                                if (!hasLottieFirstLoopCompleted) {
+                                    setHasLottieFirstLoopCompleted(true);
+                                }
+                            }}
+                        />
+                    </View>
+                )}
             </View>
         </View>
     );

@@ -7,8 +7,6 @@ export default StyleSheet.create({
     },
     activitycontainer: {
       backgroundColor: COLORS.BLACK,
-        height: SIZES.ScreenHeight,
-        width: SIZES.ScreenWidth,
         alignItems: 'center',
         justifyContent: 'center',
     },
