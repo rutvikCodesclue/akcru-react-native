@@ -41,7 +41,6 @@ export default function ContentPlayer({navigation, route}: Props) {
                     const fetchedMovie: IMovie | undefined = await findMovieById(id); // Fetch movie by ID
                     if (fetchedMovie) {
                         setMovie([fetchedMovie]); // Set the fetched movie
-                        
                     } else {
                         setMovie([]); // Clear movie if not found
                     }
@@ -85,7 +84,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                 containerStyle={{zIndex: 100}}
                 onBack={() => navigation.pop()}
             />
-            </View>
+        </View>
         </View>
         
     );
