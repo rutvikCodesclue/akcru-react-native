@@ -6,6 +6,7 @@ export default StyleSheet.create({
         flex: 1,
     },
     activitycontainer: {
+      backgroundColor: COLORS.BLACK,
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
         alignItems: 'center',

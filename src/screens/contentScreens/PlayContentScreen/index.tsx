@@ -1,4 +1,4 @@
-import { Text, View } from 'react-native'
+import { ActivityIndicator, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import styles from './styles'
 import VideoPlayer from 'react-native-media-console';
@@ -9,6 +9,7 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { IMovie } from '../../../../types';
 import { findMovieById } from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
+import { COLORS } from '../../../../assets/constants';
 
 
 type ContentPlayerNavigationProp = StackNavigationProp<
@@ -71,21 +72,28 @@ export default function ContentPlayer({navigation, route}: Props) {
 
     console.log('Movie URL:', movieURL); // Log movie URL for debugging
     console.log('Landscape URL:', landscapeURL); // Log landscape URL for debugging
+
+    
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-            <VideoPlayer
-                source={{
-                    uri: movieURL,
-                }}
-                tapAnywhereToPause={false}
-                toggleResizeModeOnFullscreen={false}
-                poster={landscapeURL}
-                containerStyle={{zIndex: 100}}
-                onBack={() => navigation.pop()}
-            />
+                {movieURL ? (
+                    <VideoPlayer
+                        source={{
+                            uri: movieURL,
+                        }}
+                        tapAnywhereToPause={false}
+                        toggleResizeModeOnFullscreen={false}
+                        poster={landscapeURL}
+                        containerStyle={{zIndex: 100}}
+                        onBack={() => navigation.pop()}
+                    />
+                ) : (
+                    <View style={styles.activitycontainer}>
+                        <ActivityIndicator size="small" color={COLORS.LIGHTGREY} />
+                    </View>
+                )}
+            </View>
         </View>
-        </View>
-        
     );
 }
