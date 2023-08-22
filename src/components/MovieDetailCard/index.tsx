@@ -20,21 +20,23 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import YoutubePlayer from 'react-native-youtube-iframe';
+import { formatMovieDuration } from '../../util/util';
+import { capitalizeFirstLetterOfString } from '../../util/util';
 
 type MovieDetailCardProps = {
-    name: string;
+    title: string;
     year: number;
-    length: string;
+    duration: number;
     rated: string;
     rating: number;
-    desc: string;
+    description: string;
     actors: string;
     directors: string;
     id: string;
-    youtubetrailer: string;
-    portrait_poster: string;
-    landscape_poster: string;
-    movie_url: string;
+    trailerURL: string;
+    portraitURL: string;
+    landscapeURL: string;
+    movieURL: string;
     genre1: string;
     genre2: string;
     onPress: () => void;
@@ -47,18 +49,18 @@ type MovieDetailCardProps = {
 
 const MovieDetailCard = ({
     id,
-    name,
+    title,
     year,
-    length,
+    duration,
     rated,
     rating,
-    desc,
+    description,
     actors,
     directors,
-    youtubetrailer,
-    portrait_poster,
-    landscape_poster,
-    movie_url,
+    trailerURL,
+    portraitURL,
+    landscapeURL,
+    movieURL,
     genre1,
     genre2,
     onPress,
@@ -66,8 +68,7 @@ const MovieDetailCard = ({
     onPressOut,
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
-    handleConfirmAddToWatchList
-    
+    handleConfirmAddToWatchList,
 }: MovieDetailCardProps) => {
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({}); //Video Player Status
@@ -97,14 +98,12 @@ const MovieDetailCard = ({
         setPlaying(prev => !prev);
     }, []);
 
-    
-
     return (
         <View>
             <View>
                 <View>
                     <Image
-                        source={{uri: portrait_poster}}
+                        source={{uri: portraitURL}}
                         style={{
                             height: SIZES.ScreenHeight / 1.5,
                         }}
@@ -193,7 +192,7 @@ const MovieDetailCard = ({
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Are you sure you want to add "${name}" to your watchlist?`}
+                                        {`Are you sure you want to add "${title}" to your watchlist?`}
                                     </Text>
                                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                         <TouchableOpacity
@@ -249,7 +248,7 @@ const MovieDetailCard = ({
                         marginBottom: 10,
                     }}>
                     <View style={{width: 175}}>
-                        <Text style={{...FONTS.Title3, fontSize: 20}}>{name}</Text>
+                        <Text style={{...FONTS.Title3, fontSize: 20}}>{title}</Text>
                     </View>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{flexDirection: 'row', marginLeft: 15}}>
@@ -288,7 +287,7 @@ const MovieDetailCard = ({
                         style={{
                             flexDirection: 'row',
                             alignSelf: 'center',
-                            marginRight: 20,
+                            marginRight: 10,
                         }}>
                         <Text
                             style={{
@@ -298,15 +297,15 @@ const MovieDetailCard = ({
                             }}>
                             {year}
                         </Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>{length}</Text>
+                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>{formatMovieDuration(duration)}</Text>
                     </View>
                     <View
                         style={{
                             flexDirection: 'row',
                         }}>
                         <Text style={styles.drawfonttag}>{rated}</Text>
-                        <Text style={styles.drawfonttag}>{genre1}</Text>
-
+                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
+                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
                         <Text style={styles.drawfonttag}>{rating}/10</Text>
                     </View>
                 </View>
@@ -342,40 +341,24 @@ const MovieDetailCard = ({
                             lineHeight: 18,
                             marginBottom: 10,
                         }}>
-                        {desc}
+                        {description}
                     </Text>
-                    <View style={{flexDirection: 'row', marginBottom: 5, flexWrap: 'wrap'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.DARKGREY,
-                                marginRight: 10,
-                            }}>
-                            Cast:
-                        </Text>
+                    <View style={{flexDirection: 'row', marginBottom: 5}}>
                         <Text
                             style={{
                                 ...FONTS.Title2Orange,
                                 color: COLORS.AKCRUBLUE,
                             }}>
-                            {actors}
+                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {actors}
                         </Text>
                     </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.DARKGREY,
-                                marginRight: 10,
-                            }}>
-                            Director:
-                        </Text>
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                         <Text
                             style={{
                                 ...FONTS.Title2Orange,
                                 color: COLORS.AKCRUBLUE,
                             }}>
-                            {directors}
+                            <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
                         </Text>
                     </View>
                 </View>
@@ -388,7 +371,7 @@ const MovieDetailCard = ({
                 backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
                 onClose={() => setIsOpen(true)}>
                 <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                    <YoutubePlayer height={225} play={playing} videoId={youtubetrailer} onChangeState={onStateChange} />
+                    <YoutubePlayer height={225} play={playing} videoId={trailerURL} onChangeState={onStateChange} />
                     <View style={{alignItems: 'center'}}>
                         <AkcruButtons.LrgButton
                             btnname={playing ? 'Pause' : 'Play'}
@@ -397,7 +380,7 @@ const MovieDetailCard = ({
                         />
                     </View>
                     <View>
-                        <Text style={{...FONTS.Title3, fontSize: 20, marginVertical: 15}}>{name} - Trailer</Text>
+                        <Text style={{...FONTS.Title3, fontSize: 20, marginVertical: 15}}>{title} - Trailer</Text>
                     </View>
                     <View>
                         <Text
@@ -407,7 +390,7 @@ const MovieDetailCard = ({
                                 lineHeight: 18,
                                 marginBottom: 10,
                             }}>
-                            {desc}
+                            {description}
                         </Text>
                         <View style={{flexDirection: 'row', marginBottom: 5}}>
                             <Text

@@ -2,6 +2,12 @@ import {StyleSheet} from 'react-native';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
+  activitycontainer: {
+
+height: SIZES.ScreenHeight,
+width: SIZES.ScreenWidth,
+alignItems: 'center'
+  },
   input: {
     flexDirection: 'row',
     borderWidth: 0.8,
