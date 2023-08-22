@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { AuthResponse, Session} from '@supabase/supabase-js'
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseAuth } from "../../lib/supabase";
 import { API } from "../clients/api.client";
 import { useNavigation } from "@react-navigation/native";
 import { IUserProfile } from "../../types";
@@ -10,10 +10,11 @@ import { IUserProfile } from "../../types";
 interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
-    isAuth: () => boolean;
     getUser: () => IUserProfile | null;
     loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
     logout: () => Promise<boolean | null>;
+    hydrateAuth: () => Promise<void>;
+    isAuth: () => Promise<boolean>;
 }
 
 
@@ -60,11 +61,35 @@ const useAuthStore = create<IAuthStore>()(persist(
             return true;
 
         },
-        isAuth: (): boolean => {
-            return get().session !== null ? true : false;
+        isAuth: async () => {
+            // hydrate auth
+            await get().hydrateAuth();
+
+            return get().session !== null && get().user !== null;
         },
         getUser: (): IUserProfile | null => {
             return get().user;
+        },
+        hydrateAuth: async () => {
+            // check if user is logged in
+            const currentSession = get().session
+            const timeNow = Math.round(Date.now() / 1000);
+
+            // check if session is expired
+            if (currentSession && currentSession?.expires_at) {
+                // check if now is past the session expiration
+                const hasSessionExpired = timeNow > currentSession.expires_at;
+
+                if (currentSession !== null && !hasSessionExpired) {
+                    // refresh the session
+                    const rereshedSession = await supabaseAuth.refreshSession(currentSession)
+                    set({ session: rereshedSession.data.session });
+                } else {
+                    // session is expired, logout
+                    console.log("session is expired, logging out...", currentSession);
+                    await get().logout();
+                }
+            }
         }
     }), 
     ({ name: "user-store", storage: createJSONStorage(() => AsyncStorage) })) );

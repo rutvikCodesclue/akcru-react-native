@@ -194,10 +194,15 @@ const navigation =
           {type === "CRUView" && (
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate("StartCRUViewDate", {
+                // TODO: navigate to WatchPartyPreviewScreen
+                navigation.navigate("RoomPreview", {
                   id,
                   movieId,
                 })
+                // navigation.navigate("StartCRUViewDate", {
+                //   id,
+                //   movieId,
+                // })
               }
             >
               <View

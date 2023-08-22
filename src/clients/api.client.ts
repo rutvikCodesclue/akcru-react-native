@@ -6,10 +6,9 @@ import authStore from "../stores/auth.store";
 const isAuth = authStore.getState().isAuth;
 const accessToken = authStore.getState().session?.access_token;
 
-const determineBaseURL = (): string => {
-    
-    console.log("Current ENV:", process.env.NODE_ENV);
+console.log("Current ENV for API:", process.env.NODE_ENV);
 
+const determineBaseURL = (): string => {
     switch (process.env.NODE_ENV) {
         case "production":
             return "https://akcru-api.fly.dev/";
@@ -25,7 +24,7 @@ const API = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Authorization": isAuth() ? `Bearer ${accessToken}` : undefined,
+        "Authorization": accessToken ? `Bearer ${accessToken}` : undefined,
     },
 });
 

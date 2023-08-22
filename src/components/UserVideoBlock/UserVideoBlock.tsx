@@ -15,7 +15,7 @@ interface Props {
   userPicture: string;
   userName: string;
   host: boolean;
-  onPress: () => void;
+  onPress?: () => void;
   userID: string;
 }
 
@@ -92,6 +92,7 @@ const UserCRUVideoBlock: React.FC<Props> = ({
   host,
   onPress,
   userID,
+  hmsView
 }) => {
   const [isUserMicOn, setIsUserMicOn] = useState(true);
 

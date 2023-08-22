@@ -14,6 +14,7 @@ import DeclineMITScreen from '../screens/userScreens/MITDecline';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
 import EditProfile from '../screens/userScreens/EditProfileScreen';
 import StartCRUViewDate from '../screens/userScreens/StartCruView';
+import RoomPreview from '../screens/userScreens/RoomPreview';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import AccountSettings from '../screens/userScreens/AccountSettings';
 import EditCru from '../screens/userScreens/EditCru';
@@ -33,6 +34,7 @@ export type UserProfileStackParams = {
     DeclineMITScreen: any;
     AcceptMITScreen: any;
     StartCRUViewDate: any;
+    RoomPreview: any;
     StartMITDate: any;
     CruViewSearchMovieScreen: any;
     CruViewSearchMovieResultScreen: any;
@@ -156,6 +158,13 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="StartMITDate"
               component={StartMITDate}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="RoomPreview"
+              component={RoomPreview}
               options={() => ({
                   headerShown: false,
               })}

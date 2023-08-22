@@ -36,7 +36,7 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string/>
+	<string>YOUR TEXT</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -64,42 +64,40 @@
 		<string>Montserrat-SemiBold.ttf</string>
 		<string>Montserrat-Thin.ttf</string>
 		<string>Ionicons.ttf</string>
+		<string>MaterialCommunityIcons.ttf</string>
 	</array>
-	<!--  -->
 	<key>NSAppleMusicUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSBluetoothAlwaysUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSBluetoothPeripheralUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSCalendarsUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSCameraUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSContactsUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSFaceIDUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSLocationAlwaysUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSLocationTemporaryUsageDescriptionDictionary</key>
-  <dict>
-    <key>YOUR-PURPOSE-KEY</key>
-    <string>YOUR TEXT</string>
-  </dict>
-  <key>NSLocationWhenInUseUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSMotionUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSPhotoLibraryAddUsageDescription</key>
-  <string>YOUR TEXT</string>
-  <key>NSRemindersUsageDescription</key>
-  <string>YOUR TEXT</string>
+	<string>YOUR TEXT</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This is used for sharing your camera during a Watchparty</string>
+	<key>NSContactsUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>YOUR-PURPOSE-KEY</key>
+		<string>YOUR TEXT</string>
+	</dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This is used for sharing audio during a Watchparty</string>
+	<key>NSMotionUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>YOUR TEXT</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>YOUR TEXT</string>
 </dict>
 </plist>
