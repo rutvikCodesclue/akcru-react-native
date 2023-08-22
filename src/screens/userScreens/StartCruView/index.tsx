@@ -58,8 +58,10 @@ import {
   HMSSpeaker,
   HMSMessage,
   HMSRemotePeer,
+  HMSTrackSettings,
   HMSAudioTrackSettings,
   HMSVideoTrackSettings,
+  HMSTrackSettingsInitState,
 } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 
@@ -107,9 +109,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
   const [trackIds, setTrackIds] = useState<string[]>([]);
   const { user } = useAuthStore();
 
-  const HMSView = hmsInstanceRef.current?.HmsView;
-  // const _keyExtractor = (item) => item.id;
-
+  // INITIAL LOAD
   useEffect(() => {
     // join the 100ms room
     _join100msRoom()
@@ -129,6 +129,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     // TODO: setup the realtime channels for the room
     
   }, []);
+
+  // useEffect(() => {
+  //   // if navigation changes, destroy the hmsInstance
+  //   return () => {
+  //     if (hmsInstanceRef.current) {
+  //       // leave the room
+  //       console.log("Leaving the call...");
+  //       hmsInstanceRef.current.leave();
+
+  //       console.log("Destroying hmsInstance...");
+  //       hmsInstanceRef.current.destroy();
+  //     }
+  //   }
+  // }, [navigation]);
 
   /**
    * returns `uniqueId` for a given `peer` and `track` combination
@@ -192,21 +206,25 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
   };
 
   const _join100msRoom = async () => {
-    // set track settings
-  //   let audioSettings = new HMSAudioTrackSettings({
-  //     initialState: HMSTrackSettingsInitState.MUTED
-  // });
-
-  // let videoSettings = new HMSVideoTrackSettings({
-  //     initialState: HMSTrackSettingsInitState.MUTED
-  // });
-  //   const trackSettings = new HMSTrackSettings({
-  //     video: videoSettings,
-  //     audio: audioSettings
-  //   });
     let hmsInstance: HMSSDK | null = null;
+    
     if (hmsInstanceRef.current == null) {
-      hmsInstance = await HMSSDK.build();
+      // set track settings
+      let audioSettings = new HMSAudioTrackSettings({
+        initialState: micInitialState ? HMSTrackSettingsInitState.UNMUTED : HMSTrackSettingsInitState.MUTED
+      });
+  
+      let videoSettings = new HMSVideoTrackSettings({
+        initialState: cameraInitialState ?  HMSTrackSettingsInitState.UNMUTED : HMSTrackSettingsInitState.MUTED
+      });
+  
+      const trackSettings = new HMSTrackSettings({
+        video: videoSettings,
+        audio: audioSettings
+      });
+      hmsInstance = await HMSSDK.build({
+        trackSettings
+      });
       // set the hmsInstanceRef
       hmsInstanceRef.current = hmsInstance;
     }
@@ -441,7 +459,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
   return (
     <SafeAreaView>
       <View
-        // stickyHeaderIndices={[0]}
         style={{marginBottom: SIZES.ScreenHeight / 12}}>
         <View style={{zIndex: 20}}>
           <Header />
@@ -600,11 +617,12 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             <View>
               <View style={styles.videocontain}>
                 <View style={{flex: 1}}>
-                  <View style={{height: SIZES.ScreenHeight / 4}}>
+                  <View style={{height: SIZES.ScreenHeight / 3}}>
                     <VideoPlayer
                       source={{
                         uri: movie?.movieURL,
                       }}
+                      fullscreenAutorotate={true}
                       tapAnywhereToPause={true}
                       toggleResizeModeOnFullscreen={true}
                       isFullscreen={false}
@@ -642,7 +660,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             // marginHorizontal: 15,
             width: SIZES.ScreenWidth,
             height: 240,
-            marginTop: 275,
+            marginTop: SIZES.ScreenHeight / 3,
             backgroundColor: "purple",
           }}>
             {
@@ -660,7 +678,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                       <hmsInstanceRef.current.HmsView 
                         key={item} 
                         trackId={item} 
-                        style={{ flex:1, maxWidth: (SIZES.ScreenWidth) / 3,  height: 120 }} 
+                        style={{ flex: 1, maxWidth: (SIZES.ScreenWidth) / 3,  height: 120 }} 
                         scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                         mirror={true}
                       /> 
@@ -769,6 +787,7 @@ export default StartCRUViewDate;
 
 const styles = StyleSheet.create({
   topcontainer: {
+    minHeight: 100,
     flexDirection: "row",
     justifyContent: "space-between",
     marginHorizontal: 15,
