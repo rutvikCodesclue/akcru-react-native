@@ -53,41 +53,46 @@ export const COLORS = {
 };
 
 export const FONTS = {
-  Title1: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 16,
-    color: COLORS.LIGHTGREY,
-  },
-  Title2: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 14,
-    color: COLORS.LIGHTGREY,
-  },
-  paragraph1: {
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 14,
-    color: COLORS.LIGHTGREY,
-  },
-  Title3: {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 16,
-    color: COLORS.LIGHTGREY,
-  },
-  Title2Orange: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 12,
-    color: COLORS.DARKORANGE,
-  },
-  Title2White: {
-    fontFamily: 'Montserrat-Medium',
-    fontSize: 14,
-    color: COLORS.LIGHTGREY,
-  },
-  Title2AkcruBlue: {
-    fontFamily: 'Montserrat-Medium',
-    fontSize: 14,
-    color: COLORS.AKCRUBLUE,
-  },
+    Title1: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 16,
+        color: COLORS.LIGHTGREY,
+    },
+    Title2: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        color: COLORS.LIGHTGREY,
+    },
+    paragraph1: {
+        fontFamily: 'Montserrat-Regular',
+        fontSize: 14,
+        color: COLORS.LIGHTGREY,
+    },
+    chart: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 10,
+        color: COLORS.LIGHTGREY,
+    },
+    Title3: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: 16,
+        color: COLORS.LIGHTGREY,
+    },
+    Title2Orange: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 12,
+        color: COLORS.DARKORANGE,
+    },
+    Title2White: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        color: COLORS.LIGHTGREY,
+    },
+    Title2AkcruBlue: {
+        fontFamily: 'Montserrat-Medium',
+        fontSize: 14,
+        color: COLORS.AKCRUBLUE,
+    },
 };
 
 export const AKCRUBADGES = {

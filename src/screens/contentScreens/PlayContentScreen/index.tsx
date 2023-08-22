@@ -13,6 +13,11 @@ import { COLORS, SIZES } from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 
+import Video from 'react-native-video';
+
+
+// import { OnSeekData } from 'react-native-video';
+
 type ContentPlayerNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
   'ContentPlayer'
@@ -33,21 +38,19 @@ export default function ContentPlayer({navigation, route}: Props) {
     // const id: number | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
-    const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
-
-    const [isLottieAnimationFinished, setIsLottieAnimationFinished] = useState(false);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
 
     useEffect(() => {
+        // Fetch movie data based on the route parameter ID
         const fetchMovie = async () => {
             try {
-                const id: string | undefined = routeParams.params?.id; // Extract the id from the route
+                const id: string | undefined = routeParams.params?.id;
                 if (id) {
-                    const fetchedMovie: IMovie | undefined = await findMovieById(id); // Fetch movie by ID
+                    const fetchedMovie: IMovie | undefined = await findMovieById(id);
                     if (fetchedMovie) {
-                        setMovie([fetchedMovie]); // Set the fetched movie
+                        setMovie([fetchedMovie]);
                     } else {
-                        setMovie([]); // Clear movie if not found
+                        setMovie([]);
                     }
                 }
             } catch (error) {
@@ -55,18 +58,22 @@ export default function ContentPlayer({navigation, route}: Props) {
             }
         };
 
+        // Fetch movie data
         fetchMovie();
-    }, [routeParams.params?.id]);
 
-    useEffect(() => {
-        // Allow landscape orientation when entering this screen
+        // Lock landscape orientation when entering this screen
         Orientation.lockToLandscape();
+
+        // Allow landscape orientation when entering this screen
+        // Orientation.unlockAllOrientations();
 
         // Lock the orientation back to portrait when leaving this screen
         return () => {
             Orientation.lockToPortrait();
         };
-    }, []);
+    }, [routeParams.params?.id]);
+
+
 
     const {
         title,
@@ -88,28 +95,39 @@ export default function ContentPlayer({navigation, route}: Props) {
     console.log('Landscape URL:', landscapeURL); // Log landscape URL for debugging
 
     
+    // function onSeek(data: OnSeekData): void {
+    //     throw new Error('Function not implemented.');
+    // }
+
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
                 {hasLottieFirstLoopCompleted ? (
                     movieURL ? (
-                        <VideoPlayer
-                            source={{
-                                uri: movieURL,
-                            }}
-                            tapAnywhereToPause={false}
-                            toggleResizeModeOnFullscreen={false}
-                            // poster={landscapeURL}
-                            containerStyle={{zIndex: 100}}
-                            onBack={() => navigation.pop()}
-                        />
+                        <>
+                            <VideoPlayer
+                                source={{
+                                    uri: movieURL,
+                                }}
+                                tapAnywhereToPause={false}
+                                toggleResizeModeOnFullscreen={false}
+                                // poster={landscapeURL}
+                                containerStyle={{zIndex: 100}}
+                                onBack={() => navigation.pop()}
+                                // onSeek={onSeek}
+                            />
+                        </>
                     ) : (
                         <ActivityIndicator size="large" color={COLORS.BLACK} />
                     )
                 ) : (
                     <View style={styles.activitycontainer}>
+                        <Video
+                            source={require('../../../../assets/sounds/akcrusound1.mp3')}
+                            repeat={false}                
+                        />
                         <LottieView
-                            source={require('../../../../assets/Akcruappopenerlottie.json')}
+                            source={require('../../../../assets/lottie/Akcruopener1.json')}
                             autoPlay
                             loop={false}
                             style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
