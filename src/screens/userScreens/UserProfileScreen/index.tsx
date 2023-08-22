@@ -211,7 +211,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                           <View>
                               <Text style={{...FONTS.Title2}}>
                                   {/* {FAKE_USER_PROFILES[0].userName} */}
-                                  {isAuth() ? user?.username : 'Guest'}
+                                  {user ? user?.username : 'Guest'}
                               </Text>
                               {user?.badge === 'AKCRUIT' && (
                                   <View>
@@ -309,7 +309,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                   <View style={{marginTop: 20, marginHorizontal: 15}}>
                       <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12}}>
                           {user?.description ??
-                              (isAuth()
+                              (user
                                   ? 'Click Edit Profile to add a description'
                                   : 'Create an account and get started today')}
                           {/* {FAKE_USER_PROFILES[0].userDesc} */}

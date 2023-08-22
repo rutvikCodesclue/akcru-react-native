@@ -134,7 +134,7 @@ const UserCruChatScreen = () => {
     });
 
     return (
-        <View style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1}}>
             <ScrollView stickyHeaderIndices={[0, 3]}>
                 <ImageBackground
                     source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
@@ -317,7 +317,7 @@ const UserCruChatScreen = () => {
                     )}
                 </View>
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 };
 
