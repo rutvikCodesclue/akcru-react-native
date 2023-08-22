@@ -29,82 +29,84 @@ export const CATEGORIES = [
 ];
 
 export const MOVIE_GENRES = [
-  {
-    genre: 'All',
-    photo:
-      'https://filmlifestyle.com/wp-content/uploads/2021/06/Movie-Genres-List.jpg',
-    id: '0',
-    color: COLORS.CATBLUELGT,
-  },
-  {
-    genre: 'Action',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-action.jpg',
-    id: '1',
-    color: COLORS.CATPURPLGT,
-  },
-  {
-    genre: 'Adventure',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-adventure.jpg',
-    id: '2',
-    color: COLORS.CATREDLGT,
-  },
-  {
-    genre: 'Comedy',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-comedy.jpg',
-    id: '3',
-    color: COLORS.CATGREENLGT,
-  },
-  {
-    genre: 'Animation',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-animation.jpg',
-    id: '4',
-    color: COLORS.AKCRUBLUE,
-  },
-  {
-    genre: 'Crime',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-crime.jpg',
-    id: '5',
-    color: COLORS.DARKORANGE,
-  },
-  {
-    genre: 'Drama',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-drama.jpg',
-    id: '6',
-    color: COLORS.DARKGREY,
-  },
-  {
-    genre: 'Family',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-family.jpg',
-    id: '7',
-    color: COLORS.DARKAKCRUBLUE,
-  },
-  {
-    genre: 'Thriller',
-    photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-thriller.jpg',
-    id: '8',
-    color: COLORS.GREEN,
-  },
-  {
-    genre: 'Mystery',
-    photo:
-      'https://hips.hearstapps.com/hmg-prod/images/murder-mystery-movies-1610111770.jpg?crop=1.00xw:1.00xh;0,0&resize=1200:*',
-    id: '9',
-    color: COLORS.LIGHTORANGE,
-  },
-  {
-    genre: 'Horror',
-    photo:
-      'https://static1.moviewebimages.com/wordpress/wp-content/uploads/2023/05/best-horror-movies-including-the-shining-suspiria-and-texas-chainsaw-massacre.jpg?q=50&fit=contain&w=1140&h=&dpr=1.5',
-    id: '10',
-    color: COLORS.PUREGOLD,
-  },
-  {
-    genre: 'Sci-Fi',
-    photo:
-      'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
-    id: '11',
-    color: COLORS.BLACK,
-  },
+    {
+        genre: 'All',
+        photo: 'https://filmlifestyle.com/wp-content/uploads/2021/06/Movie-Genres-List.jpg',
+        id: '0',
+        color: COLORS.CATBLUELGT,
+    },
+    {
+        genre: 'Action',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-action.jpg',
+        id: '1',
+        color: COLORS.CATPURPLGT,
+    },
+    {
+        genre: 'Adventure',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-adventure.jpg',
+        id: '2',
+        color: COLORS.CATREDLGT,
+    },
+    {
+        genre: 'Comedy',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-comedy.jpg',
+        id: '3',
+        color: COLORS.CATGREENLGT,
+    },
+    {
+        genre: 'Animation',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-animation.jpg',
+        id: '4',
+        color: COLORS.AKCRUBLUE,
+    },
+    {
+        genre: 'Crime',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-crime.jpg',
+        id: '5',
+        color: COLORS.DARKORANGE,
+    },
+    {
+        genre: 'Drama',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-drama.jpg',
+        id: '6',
+        color: COLORS.DARKGREY,
+    },
+    {
+        genre: 'Family',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-family.jpg',
+        id: '7',
+        color: COLORS.DARKAKCRUBLUE,
+    },
+    {
+        genre: 'Thriller',
+        photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-thriller.jpg',
+        id: '8',
+        color: COLORS.GREEN,
+    },
+    {
+        genre: 'Mystery',
+        photo: 'https://hips.hearstapps.com/hmg-prod/images/murder-mystery-movies-1610111770.jpg?crop=1.00xw:1.00xh;0,0&resize=1200:*',
+        id: '9',
+        color: COLORS.LIGHTORANGE,
+    },
+    {
+        genre: 'Horror',
+        photo: 'https://static1.moviewebimages.com/wordpress/wp-content/uploads/2023/05/best-horror-movies-including-the-shining-suspiria-and-texas-chainsaw-massacre.jpg?q=50&fit=contain&w=1140&h=&dpr=1.5',
+        id: '10',
+        color: COLORS.PUREGOLD,
+    },
+    {
+        genre: 'Sci-Fi',
+        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        id: '11',
+        color: COLORS.BLACK,
+    },
+    {
+        genre: 'Romance',
+        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        id: '12',
+        color: COLORS.CATREDDRK,
+    },
 ];
 
 export const TRENDING_NOW = [
