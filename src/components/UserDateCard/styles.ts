@@ -4,8 +4,8 @@ import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 export default StyleSheet.create({
   drawfonttag: {
     ...FONTS.Title2Orange,
-    color: COLORS.DARKGREY,
-    backgroundColor: COLORS.TAGCOLOR,
+    color: COLORS.BLACK,
+    backgroundColor: COLORS.STARGOLD,
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginHorizontal: 2,
@@ -13,9 +13,9 @@ export default StyleSheet.create({
     textAlign: 'center',
   },
   posterstyle: {
-    width: 60,
-    height: 90,
-    borderRadius: 5,
+    width: 65,
+    height: 100,
+    borderRadius: 4,
   },
   paragraphText: {
     ...FONTS.Title2,

@@ -19,14 +19,16 @@ import { AkcruControlBtn } from '../../assets/svg';
 import { supabaseRealtime } from '../../lib/supabase';
 import { createClient } from '@supabase/supabase-js';
 import TestScreen from '../screens/userScreens/TestScreen';
+import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
 
 export type ClientTabsParams = {
-  UserProfileStack: any;
-  ClientStack: any;
-  CruChewStack: any;
-  CrummunityStack: any;
-  TestScreen: any;
-  PurchaseMITScreen: any;
+    UserProfileStack: any;
+    ClientStack: any;
+    CruChewStack: any;
+    CrummunityStack: any;
+    TestScreen: any;
+    PurchaseMITScreen: any;
+    RoomPreviewScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -96,93 +98,73 @@ export default function ClientTabNavigator() {
   };
 
   return (
-    <ClientTabs.Navigator
-      sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-      initialRouteName="ClientStack"
-      screenOptions={{
-        tabBarStyle: {
-          position: 'absolute',
-          backgroundColor: COLORS.TRANSDARKGREY,
-          height: SIZES.ScreenHeight / 12,
-          borderTopRightRadius: 10,
-          borderTopLeftRadius: 10,
-        },
-        tabBarActiveTintColor: COLORS.AKCRUBLUE,
-        tabBarInactiveTintColor: COLORS.LIGHTGREY,
-        tabBarShowLabel: false,
-      }}>
-      <ClientTabs.Screen
-        name="ClientStack"
-        component={ClientStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Icon
-              name="home-outline"
-              type="ionicon"
-              color={color}
-              size={SIZES.SmallIcon}
-            />
-          ),
-        }}
-      />
-      <ClientTabs.Screen
-        name="CrummunityStack"
-        component={CrummunityStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Icon
-              name="people-outline"
-              type="ionicon"
-              color={color}
-              size={SIZES.SmallIcon}
-            />
-          ),
-        }}
-      />
-      <ClientTabs.Screen
-        name="PurchaseMITScreen"
-        component={PurchaseMITScreen}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({}) => (
-            <Animated.View>
-              <AkcruControlBtn />
-            </Animated.View>
-          ),
-        }}
-      />
-      <ClientTabs.Screen
-        name="CruChewStack"
-        component={CruChewStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Icon
-              name="fast-food-outline"
-              type="ionicon"
-              color={color}
-              size={SIZES.SmallIcon}
-            />
-          ),
-        }}
-      />
-      <ClientTabs.Screen
-        name="UserProfileStack"
-        component={UserProfileStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({color}) => (
-            <Icon
-              name="person-outline"
-              type="ionicon"
-              color={color}
-              size={SIZES.SmallIcon}
-            />
-          ),
-        }}
-      />
-    </ClientTabs.Navigator>
+      <ClientTabs.Navigator
+          sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+          initialRouteName="ClientStack"
+          screenOptions={{
+              tabBarStyle: {
+                  position: 'absolute',
+                  backgroundColor: COLORS.TRANSDARKGREY,
+                  height: SIZES.ScreenHeight / 12,
+                  borderTopRightRadius: 10,
+                  borderTopLeftRadius: 10,
+              },
+              tabBarActiveTintColor: COLORS.AKCRUBLUE,
+              tabBarInactiveTintColor: COLORS.LIGHTGREY,
+              tabBarShowLabel: false,
+          }}>
+          <ClientTabs.Screen
+              name="ClientStack"
+              component={ClientStack}
+              options={{
+                  headerShown: false,
+                  tabBarIcon: ({color}) => (
+                      <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                  ),
+              }}
+          />
+          <ClientTabs.Screen
+              name="CrummunityStack"
+              component={CrummunityStack}
+              options={{
+                  headerShown: false,
+                  tabBarIcon: ({color}) => (
+                      <Icon name="people-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                  ),
+              }}
+          />
+          <ClientTabs.Screen
+              name="PurchaseMITScreen"
+              component={PurchaseMITScreen}
+              options={{
+                  headerShown: false,
+                  tabBarIcon: ({}) => (
+                      <Animated.View>
+                          <AkcruControlBtn />
+                      </Animated.View>
+                  ),
+              }}
+          />
+          <ClientTabs.Screen
+              name="CruChewStack"
+              component={CruChewStack}
+              options={{
+                  headerShown: false,
+                  tabBarIcon: ({color}) => (
+                      <Icon name="fast-food-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                  ),
+              }}
+          />
+          <ClientTabs.Screen
+              name="UserProfileStack"
+              component={UserProfileStack}
+              options={{
+                  headerShown: false,
+                  tabBarIcon: ({color}) => (
+                      <Icon name="person-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                  ),
+              }}
+          />
+      </ClientTabs.Navigator>
   );
 }

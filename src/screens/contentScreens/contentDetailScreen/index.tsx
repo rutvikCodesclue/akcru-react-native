@@ -24,7 +24,7 @@ import {Icon} from '@rneui/base';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { findMovieById } from '../../../lib/api/movies.lib';
+import { findMovieById, findMovies } from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
@@ -47,13 +47,12 @@ type Props = {
   route: ContentDetailScreenRouteProp;
 };
 
-const RecommendedForYou = Akcru_Content[4];
-
 export default function ContentDetailScreen({navigation, route}: Props) {
     
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
+    const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
    useEffect(() => {
        const fetchMovie = async () => {
@@ -75,6 +74,26 @@ export default function ContentDetailScreen({navigation, route}: Props) {
            }
        };
 
+       const fetchRandomMovies = async () => {
+           try {
+               const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+               // Get 5 random movies from the list
+               const randomMovies: IMovie[] = [];
+               while (randomMovies.length < 5) {
+                   const randomIndex = Math.floor(Math.random() * allMovies.length);
+                   const randomMovie = allMovies[randomIndex];
+                   if (!randomMovies.includes(randomMovie)) {
+                       randomMovies.push(randomMovie);
+                   }
+               }
+
+               setRandomMovies(randomMovies);
+           } catch (error) {
+               console.error('Error fetching random movies:', error);
+           }
+       };
+       fetchRandomMovies();
        fetchMovie();
    }, [routeParams.params?.id]);
 
@@ -122,80 +141,94 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                 </View>
 
                 {isMovieDataLoaded ? (
-                    <View style={{marginTop: -65, marginBottom: 10}}>
-                        <MovieDetailCard
-                            portraitURL={portraitURL}
-                            title={title}
-                            year={year}
-                            duration={duration}
-                            rated={rated}
-                            rating={rating}
-                            description={description}
-                            actors={actors && actors.map(actor => actor.name).join(', ')}
-                            directors={director && director.map(director => director.name).join(', ')}
-                            id={id}
-                            trailerURL={trailerURL}
-                            landscapeURL={landscapeURL}
-                            movieURL={movieURL}
-                            genre1={genres[0]}
-                            genre2={genres[1]}
-                            onPressin={() => {
-                                navigation2.navigate('ContentPlayer', {
-                                    id: id,
-                                    movieURL: movieURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                            }}
-                            onPress={() => {
-                                navigation.navigate('MITDateSchedule', {
-                                    id: id,
-                                    movie: title,
-                                });
-                            }}
-                            onPressOut={() => {
-                                setShowAddToWatchListConfirmationModal(true);
-                            }}
-                            showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
-                            handleCancelAddToWatchList={handleCancelAddToWatchList}
-                            handleConfirmAddToWatchList={handleConfirmAddToWatchList}
-                        />
+                    <View>
+                        <View style={{marginTop: -65, marginBottom: 10}}>
+                            <MovieDetailCard
+                                portraitURL={portraitURL}
+                                title={title}
+                                year={year}
+                                duration={duration}
+                                rated={rated}
+                                rating={rating}
+                                description={description}
+                                actors={actors && actors.map(actor => actor.name).join(', ')}
+                                directors={director && director.map(director => director.name).join(', ')}
+                                id={id}
+                                trailerURL={trailerURL}
+                                landscapeURL={landscapeURL}
+                                movieURL={movieURL}
+                                genre1={genres[0]}
+                                genre2={genres[1]}
+                                onPressin={() => {
+                                    navigation2.navigate('ContentPlayer', {
+                                        id: id,
+                                        movieURL: movieURL,
+                                        landscapeURL: landscapeURL,
+                                    });
+                                }}
+                                onPress={() => {
+                                    navigation.navigate('MITDateSchedule', {
+                                        id: id,
+                                        movie: title,
+                                        portraitURL: portraitURL,
+                                    });
+                                }}
+                                onPressOut={() => {
+                                    setShowAddToWatchListConfirmationModal(true);
+                                }}
+                                showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
+                                handleCancelAddToWatchList={handleCancelAddToWatchList}
+                                handleConfirmAddToWatchList={handleConfirmAddToWatchList}
+                            />
+                        </View>
+
+                        <View style={{marginHorizontal: 15}}>
+                            <BasicListCategories
+                                Akcru_Content={{
+                                    id: 'recommendedForYou',
+                                    title: 'Recommended by Akcru',
+                                    movies: randomMovies,
+                                }}
+                            />
+                        </View>
+                        <View style={{marginHorizontal: 15}}>
+                            <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
+                            <View style={{marginBottom: 75}}>
+                                <View>
+                                    {FAKE_USER_PROFILES.map(item => (
+                                        <View key={item.userID} style={{marginBottom: 10}}>
+                                            <AkcruReviewCard
+                                                userPicture={item.userPicture}
+                                                userName={item.userName}
+                                                movieReview={item.movieReview}
+                                                movieReviewDate={item.movieReviewDate}
+                                                userID={item.userID}
+                                            />
+                                        </View>
+                                    ))}
+                                </View>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={'placeholder'}
+                                        placeholderTextColor={'transparent'}
+                                        style={styles.textinput}
+                                    />
+                                </View>
+                                <View style={{alignItems: 'flex-end'}}>
+                                    <AkcruButtons.XSmallButton
+                                        btnname={'POST'}
+                                        onPress={function (): void {}}
+                                        color=""
+                                    />
+                                </View>
+                            </View>
+                        </View>
                     </View>
                 ) : (
                     <View style={styles.activitycontainer}>
                         <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                     </View>
                 )}
-                <View style={{marginHorizontal: 15}}>
-                    <BasicListCategories Akcru_Content={RecommendedForYou} />
-                </View>
-                <View style={{marginHorizontal: 15}}>
-                    <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
-                    <View style={{marginBottom: 75}}>
-                        <View>
-                            {FAKE_USER_PROFILES.map(item => (
-                                <View key={item.userID} style={{marginBottom: 10}}>
-                                    <AkcruReviewCard
-                                        userPicture={item.userPicture}
-                                        userName={item.userName}
-                                        movieReview={item.movieReview}
-                                        movieReviewDate={item.movieReviewDate}
-                                        userID={item.userID}
-                                    />
-                                </View>
-                            ))}
-                        </View>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'placeholder'}
-                                placeholderTextColor={'transparent'}
-                                style={styles.textinput}
-                            />
-                        </View>
-                        <View style={{alignItems: 'flex-end'}}>
-                            <AkcruButtons.XSmallButton btnname={'POST'} onPress={function (): void {}} color="" />
-                        </View>
-                    </View>
-                </View>
             </ScrollView>
         </View>
     );

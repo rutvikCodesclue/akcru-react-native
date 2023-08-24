@@ -78,7 +78,7 @@ const Signin = () => {
       
       console.log(`LOGIN Successful for user: ${user.email}`);
       setLoading(false);
-      navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
+      navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
       
     } catch (error) {
       console.log('LOGIN Error:', error);

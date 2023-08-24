@@ -40,7 +40,7 @@ const AllMovies = Akcru_Content[0];
 
 const SendMITSearchResult = ({ navigation, route }: Props) => {
 const userID: number | undefined = route.params?.userID ?? null;
-const userprofile: string | undefined = route.params?.userName ?? null;
+// const userprofile: string | undefined = route.params?.userName ?? null;
 
    const [selectedGenre, setSelectedGenre] = useState("");
    const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);

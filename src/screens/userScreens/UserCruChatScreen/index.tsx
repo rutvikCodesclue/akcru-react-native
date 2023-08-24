@@ -40,6 +40,7 @@ import {Route} from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import UserCruChat from '../UserCruChatTabs/UserCruChat';
 import Bulletin from '../UserCruChatTabs/Bulletin';
+import useAuthStore from '../../../stores/auth.store';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -60,6 +61,7 @@ const SecondRoute = () => <Bulletin />;
 
 const UserCruChatScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const {isAuth, user} = useAuthStore();
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -180,23 +182,26 @@ const UserCruChatScreen = () => {
                                 />
                             </View>
                             <View>
-                                <Text style={{...FONTS.Title2}}>{FAKE_USER_PROFILES[0].userName}</Text>
-                                {FAKE_USER_PROFILES[0].akcruBadge.akcruit && (
+                                <Text style={{...FONTS.Title2}}>
+                                    {/* {FAKE_USER_PROFILES[0].userName} */}
+                                    {isAuth() ? user?.username : 'Guest'}
+                                </Text>
+                                {user?.badge === 'AKCRUIT' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeAkcruit />
                                     </View>
                                 )}
-                                {FAKE_USER_PROFILES[0].akcruBadge.guardian && (
+                                {user?.badge === 'GUARDIAN' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeGuardian />
                                     </View>
                                 )}
-                                {FAKE_USER_PROFILES[0].akcruBadge.hero && (
+                                {user?.badge === 'HERO' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeHero />
                                     </View>
                                 )}
-                                {FAKE_USER_PROFILES[0].akcruBadge.superhero && (
+                                {user?.badge === 'SUPERHERO' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeSuperHero />
                                     </View>
@@ -216,7 +221,8 @@ const UserCruChatScreen = () => {
                                     alignItems: 'center',
                                 }}>
                                 <Text style={{...FONTS.Title3, fontSize: 14}}>
-                                    {FAKE_USER_PROFILES[0].userFollowerAmount}
+                                    {user?.followerCount ?? 0}
+                                    {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
                                 </Text>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                             </View>

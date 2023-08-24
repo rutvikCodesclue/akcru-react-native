@@ -11,15 +11,35 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BasicListCategories from '../../../components/BasicListCategories';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
+import {LineChart} from 'react-native-gifted-charts';
 
 const gallery = FAKE_USER_PROFILES[0].gallery
 
 const Userwatchlist = Akcru_Content[5];
 
 
+
+
+
 const UserProfileDetailsTab = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+const data = [
+    {value: 10, label: 'FA'},
+    {value: 20, label: 'SC'},
+    {value: 30, label: 'DR'},
+    {value: 100, label: 'MY'},
+    {value: 40, label: 'TH'},
+    {value: 50, label: 'CO'},
+    {value: 10, label: 'SP'},
+    {value: 50, label: 'FM'},
+    {value: 50, label: 'HR'},
+    {value: 30, label: 'AC'},
+    {value: 50, label: 'CR'},
+    {value: 20, label: 'AD'},
+    {value: 100, label: 'RO'},
+];
 
 
   return (
@@ -132,17 +152,31 @@ const UserProfileDetailsTab = () => {
                       ARCHETYPE
                   </Text>
               </View>
-              <View
-                  style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                  }}>
-                  <View>
-                      <Image source={imageindex.Graph1} />
-                      <Image source={imageindex.GraphMetric} />
+              <View>
+                  <View style={{flex: 1, alignItems: 'center'}}>
+                      <LineChart
+                          data={data}
+                          hideDataPoints
+                          areaChart
+                          color={COLORS.AKCRUBLUE}
+                          startFillColor={COLORS.AKCRUBLUE}
+                          endFillColor={COLORS.AKCRUBLUE}
+                          startOpacity={0.4}
+                          endOpacity={0.02}
+                          thickness={3}
+                          showVerticalLines={false}
+                          initialSpacing={15}
+                          hideYAxisText
+                          hideAxesAndRules={true}
+                          xAxisLabelTextStyle={{...FONTS.chart}}
+                          spacing={30}
+                          height={80}
+                          curved={true}
+                      />
+                      {/* <Image source={imageindex.Graph1} />
+                      <Image source={imageindex.GraphMetric} /> */}
                   </View>
-                  <View style={{alignItems: 'center', marginRight: 20}}>
+                  <View style={{alignItems: 'center', marginTop: 10}}>
                       <View>
                           <Image source={imageindex.SmileyBuffalo} style={{width: 75, height: 75}} />
                       </View>

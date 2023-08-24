@@ -21,7 +21,13 @@ import imageindex from '../../../../assets/images/imageindex';
 import Header from '../../../components/header';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
-const data = Akcru_Content[7].movies;
+import {findMovieById, findMovies} from '../../../lib/api/movies.lib';
+import {IMovie} from '../../../../types';
+import { useEffect, useState } from 'react';
+import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
+
+// const data = Akcru_Content[7].movies;
+
 
 const {width, height} = Dimensions.get('window');
 const TICKER_HEIGHT = 20;
@@ -37,30 +43,34 @@ type ContentSwipeRouteProp = RouteProp<NoBottomTabStackParams, 'ContentSwipe'>;
 type Props = {
     navigation: ContentSwipeNavigationProp;
     route: ContentSwipeRouteProp;
-    portrait_poster: string;
-    genre: string;
+    movie: IMovie;
+    portraitURL: string;
+    genres: string;
     rated: string;
     rating: number;
-    desc: string;
-    length: string;
     onPress: () => void;
     onPress2: () => void;
     index: any;
     scrollX: any;
+    duration: number;
+    year: number;
+    title: string;
 };
 
 const Item = ({
-    portrait_poster,
-    genre,
+    movie,
+    portraitURL,
+    genres,
     rated,
     rating,
-    desc,
-    length,
     scrollX,
     index,
     onPress,
     navigation,
     route,
+    duration,
+    year,
+    title
 }: Props) => {
     const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
     const opacityInputRange = [(index - 0.4) * width, index * width, (index + 0.4) * width];
@@ -81,81 +91,105 @@ const Item = ({
         outputRange: [0.1, 0.5, 0.1],
     });
     return (
-        <TouchableOpacity style={styles.itemStyle} onPress={onPress}>
-            <Animated.Image
-                source={{uri: portrait_poster}}
-                style={[
-                    styles.imageStyle,
-                    {
-                        transform: [{scale: imageScale}],
-                    },
-                ]}
-            />
+        <View>
+            <View style={styles.itemStyle}>
+                <TouchableOpacity onPress={onPress}>
+                    <Animated.Image
+                        source={{uri: portraitURL}}
+                        style={[
+                            styles.imageStyle,
+                            {
+                                transform: [{scale: imageScale}],
+                            },
+                        ]}
+                    />
+                </TouchableOpacity>
 
-            <View style={styles.textContainer}>
-                <View style={{flexDirection: 'row'}}>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {rated}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {genre[0]}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {genre[1]}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {rating}/10
-                    </Animated.Text>
+                <View style={styles.textContainer}>
+                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <Animated.Text
+                            style={[
+                                styles.tickername,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {title}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.titlestyle,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {year}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.titlestyle,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {formatMovieDuration(duration)}
+                        </Animated.Text>
+                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {rated}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {capitalizeFirstLetterOfString(genres[0])}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {capitalizeFirstLetterOfString(genres[1])}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {rating}/10
+                        </Animated.Text>
+                    </View>
                 </View>
-
-                {/* <Animated.Text
-          style={[
-            styles.description,
-            {
-              opacity,
-              transform: [{ translateX: translateXDescription }],
-            },
-          ]}
-        >
-          {desc}
-        </Animated.Text> */}
             </View>
-        </TouchableOpacity>
+        </View>
     );
 };
 
-const Circle = ({scrollX}) => {
+const Circle = ({scrollX, movies}) => {
     return (
         <View style={[StyleSheet.absoluteFillObject, styles.circleContainer]}>
-            {data.map((item, index) => {
+            {movies.map((item, index) => {
                 const inputRange = [(index - 0.55) * width, index * width, (index + 0.55) * width];
                 return (
                     <Animated.View
@@ -185,40 +219,47 @@ const Circle = ({scrollX}) => {
     );
 };
 
-const Ticker = ({scrollX}) => {
-    return (
-        <View style={styles.tickerContainer}>
-            <Animated.View
-                style={{
-                    transform: [
-                        {
-                            translateY: scrollX.interpolate({
-                                inputRange: [-width * 2, -width, 0, width, width * 2],
-                                outputRange: [TICKER_HEIGHT * 2, TICKER_HEIGHT, 0, -TICKER_HEIGHT, -TICKER_HEIGHT * 2],
-                            }),
-                        },
-                    ],
-                }}>
-                {data.map(({name, year, length}, index) => {
-                    return (
-                        <View key={index.toString()} style={{flexDirection: 'row'}}>
-                            <Text key={index} style={styles.tickername}>
-                                {name}
-                            </Text>
-                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{year}</Text>
-                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{length}</Text>
-                        </View>
-                    );
-                })}
-            </Animated.View>
-        </View>
-    );
-};
+// const Ticker = ({scrollX, movies}) => {
+//     return (
+//         <View style={styles.tickerContainer}>
+//             <Animated.View
+//                 style={{
+//                     transform: [
+//                         {
+//                             translateY: scrollX.interpolate({
+//                                 inputRange: [-width * 2, -width, 0, width, width * 2],
+//                                 outputRange: [TICKER_HEIGHT * 2, TICKER_HEIGHT, 0, -TICKER_HEIGHT, -TICKER_HEIGHT * 2],
+//                             }),
+//                         },
+//                     ],
+//                 }}>
+//                 {movies.map(({title, year, duration}, index) => {
+//                     return (
+//                         <View key={index.toString()} style={{flexDirection: 'row', alignItems: 'center'}}>
+//                             <Text key={index} style={styles.tickername}>
+//                                 {title}
+//                             </Text>
+//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{year}</Text>
+//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{formatMovieDuration(duration)}</Text>
+//                         </View>
+//                     );
+//                 })}
+//             </Animated.View>
+//         </View>
+//     );
+// };
 
-const Pagination = ({scrollX, onPress2}) => {
+
+const Pagination = ({scrollX, onPress2, movies}) => {
+    const visibleMovies = movies.slice(0, 5); // Only consider the first five movies
+
+    if (visibleMovies.length < 2) {
+        return null; // Return null if there are fewer than two visible movies
+    }
+
     const translateX = scrollX.interpolate({
-        inputRange: data.map((_, i) => i * width),
-        outputRange: data.map((_, i) => i * 15),
+        inputRange: visibleMovies.map((_, i) => i * width),
+        outputRange: visibleMovies.map((_, i) => i * 15),
     });
 
     return (
@@ -232,7 +273,7 @@ const Pagination = ({scrollX, onPress2}) => {
                         },
                     ]}
                 />
-                {data.map(item => {
+                {visibleMovies.map((item, index) => {
                     return (
                         <View key={item.id} style={styles.paginationDotContainer}>
                             <View style={[styles.paginationDot, {backgroundColor: COLORS.TRANSLIGHTGREY}]} />
@@ -240,15 +281,32 @@ const Pagination = ({scrollX, onPress2}) => {
                     );
                 })}
             </View>
-            <Pressable onPress={onPress2}>
-                <Text style={{...FONTS.Title2Orange, marginTop: 10}}>Skip to Homepage</Text>
-            </Pressable>
+            <TouchableOpacity onPress={onPress2}>
+                <Text style={{...FONTS.Title2Orange, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999}}>Skip to Homepage</Text>
+            </TouchableOpacity>
         </View>
     );
 };
 
+
+
 export default function ContentSwipe({navigation, route}: Props) {
     const _scrollX = React.useRef(new Animated.Value(0)).current;
+
+    const [movies, setMovies] = useState<IMovie[]>([]);
+
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
+                const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                setMovies(fetchedMovies);
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+            }
+        };
+
+        fetchMovies();
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -277,11 +335,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
                 />
             </View>
-            <Circle scrollX={_scrollX} />
-            {/* <Image
-        style={styles.logo}
-        source={require("./assets/ue_black_logo.png")}
-      /> */}
+            <Circle scrollX={_scrollX} movies={movies} />
             <Animated.FlatList
                 pagingEnabled
                 showsHorizontalScrollIndicator={false}
@@ -289,7 +343,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                 horizontal
                 keyExtractor={item => item.id}
                 onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
-                data={data}
+                data={movies.slice(0, 5)}
                 renderItem={({item, index}) => (
                     <Item
                         {...item}
@@ -297,7 +351,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                         scrollX={_scrollX}
                         onPress={() => {
                             console.log('id:', item.id);
-                            console.log('movie:', item.name);
+                            console.log('movie:', item.title);
                             navigation.navigate('ContentDetailScreen', {
                                 id: item.id,
                                 movie: item.id,
@@ -306,8 +360,11 @@ export default function ContentSwipe({navigation, route}: Props) {
                     />
                 )}
             />
-            <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} />
-            <Ticker scrollX={_scrollX} />
+            
+                <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} movies={movies} />
+            
+            
+            {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
         </View>
     );
 }
@@ -322,23 +379,29 @@ const styles = StyleSheet.create({
     itemStyle: {
         width,
         height,
+        alignItems: 'center', 
+       
+    },
+    itemStyle2: {
+        width,
+        height,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: SIZES.ScreenHeight / 8,
+        
     },
     imageStyle: {
-        width: width * 1.1,
-        height: width * 0.75,
+        width: width * 1.35,
+        height: width * 1.90,
         resizeMode: 'cover',
-        flex: 1,
+       
         borderRadius: 10,
-        marginTop: -50,
+        
     },
     textContainer: {
         alignItems: 'center',
         alignSelf: 'center',
         flex: 0.55,
-        marginTop: -135,
+        marginTop: -170,
     },
     heading: {
         ...FONTS.Title2Orange,
@@ -350,6 +413,11 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         textAlign: 'center',
         marginBottom: 10,
+    },
+    titlestyle: {
+        ...FONTS.paragraph1, 
+        marginLeft: 10, 
+       
     },
     description: {
         color: '#ccc',
@@ -391,7 +459,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 50,
         left: 50,
-        bottom: SIZES.ScreenHeight / 5.5,
+        bottom: SIZES.ScreenHeight * 0.03,
         alignItems: 'center',
     },
 

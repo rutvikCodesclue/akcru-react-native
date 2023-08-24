@@ -79,7 +79,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
   };
 
   return (
-    <SafeAreaView>
+    <View>
       <ScrollView>
         <View>
           <ImageBackground
@@ -223,7 +223,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

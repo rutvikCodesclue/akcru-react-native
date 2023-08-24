@@ -10,74 +10,94 @@ import ContentSwipe from '../screens/contentScreens/contentSwipe';
 import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
+import StartCRUViewDate from '../screens/userScreens/StartCruView';
+import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
 
 export type NoBottomTabStackParams = {
-  ContentSwipe: any;
-  ClientTabNavigator: any;
-  ClientStack: any;
-  ContentPlayer: any;
-  ContentDetailScreen: any;
-  StartMITDate: any;
+    ContentSwipe: any;
+    ClientTabNavigator: any;
+    ClientStack: any;
+    ContentPlayer: any;
+    ContentDetailScreen: any;
+    StartMITDate: any;
+    StartCRUViewDate: any;
+    RoomPreviewScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
 
 export default function NoBottomStack() {
   return (
-    <NoBottom.Navigator
-      screenOptions={{
-        animationEnabled: true,
-        cardOverlayEnabled: true,
-        cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
-      }}>
-      <NoBottom.Screen
-        name="ContentSwipe"
-        component={ContentSwipe}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <NoBottom.Screen
-        name="ContentPlayer"
-        component={ContentPlayer}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <NoBottom.Screen
-        name="ContentDetailScreen"
-        component={ContentDetailScreen}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <NoBottom.Screen
-        name="ClientStack"
-        component={ClientStack}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <NoBottom.Screen
-        name="ClientTabNavigator"
-        component={ClientTabNavigator}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <NoBottom.Screen
-        name="StartMITDate"
-        component={StartMITDate}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-    </NoBottom.Navigator>
+      <NoBottom.Navigator
+          screenOptions={{
+              animationEnabled: true,
+              cardOverlayEnabled: true,
+              cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
+          }}>
+          <NoBottom.Screen
+              name="ContentSwipe"
+              component={ContentSwipe}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ContentPlayer"
+              component={ContentPlayer}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ContentDetailScreen"
+              component={ContentDetailScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ClientStack"
+              component={ClientStack}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ClientTabNavigator"
+              component={ClientTabNavigator}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="StartMITDate"
+              component={StartMITDate}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="StartCRUViewDate"
+              component={StartCRUViewDate}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="RoomPreviewScreen"
+              component={RoomPreviewScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+      </NoBottom.Navigator>
   );
 }

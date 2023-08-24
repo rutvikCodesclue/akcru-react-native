@@ -23,6 +23,7 @@ import EditWatchList from '../screens/userScreens/EditWatchList';
 import ClientTabNavigator from './ClientTabNavigator';
 import {COLORS, SIZES} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
+import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -45,6 +46,7 @@ export type UserProfileStackParams = {
     FollowList: any;
     UserNotifications: any;
     EditWatchList: any;
+    RoomPreviewScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -169,13 +171,7 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-          <UserProfile.Screen
-              name="StartCRUViewDate"
-              component={StartCRUViewDate}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
+         
           <UserProfile.Screen
               name="FollowList"
               component={FollowList}
@@ -197,6 +193,7 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
+         
       </UserProfile.Navigator>
   );
 }
