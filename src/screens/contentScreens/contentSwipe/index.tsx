@@ -52,6 +52,9 @@ type Props = {
     onPress2: () => void;
     index: any;
     scrollX: any;
+    duration: number;
+    year: number;
+    title: string;
 };
 
 const Item = ({
@@ -65,6 +68,9 @@ const Item = ({
     onPress,
     navigation,
     route,
+    duration,
+    year,
+    title
 }: Props) => {
     const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
     const opacityInputRange = [(index - 0.4) * width, index * width, (index + 0.4) * width];
@@ -85,62 +91,98 @@ const Item = ({
         outputRange: [0.1, 0.5, 0.1],
     });
     return (
-        <TouchableOpacity style={styles.itemStyle} onPress={onPress}>
-            <Animated.Image
-                source={{uri: portraitURL}}
-                style={[
-                    styles.imageStyle,
-                    {
-                        transform: [{scale: imageScale}],
-                    },
-                ]}
-            />
+        <View>
+            <View style={styles.itemStyle}>
+                <TouchableOpacity onPress={onPress}>
+                    <Animated.Image
+                        source={{uri: portraitURL}}
+                        style={[
+                            styles.imageStyle,
+                            {
+                                transform: [{scale: imageScale}],
+                            },
+                        ]}
+                    />
+                </TouchableOpacity>
 
-            <View style={styles.textContainer}>
-                <View style={{flexDirection: 'row'}}>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {rated}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {capitalizeFirstLetterOfString(genres[0])}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {capitalizeFirstLetterOfString(genres[1])}
-                    </Animated.Text>
-                    <Animated.Text
-                        style={[
-                            styles.heading,
-                            {
-                                opacity,
-                                transform: [{translateX: translateXHeading}],
-                            },
-                        ]}>
-                        {rating}/10
-                    </Animated.Text>
+                <View style={styles.textContainer}>
+                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                        <Animated.Text
+                            style={[
+                                styles.tickername,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {title}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.titlestyle,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {year}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.titlestyle,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {formatMovieDuration(duration)}
+                        </Animated.Text>
+                    </View>
+                    <View style={{flexDirection: 'row'}}>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {rated}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {capitalizeFirstLetterOfString(genres[0])}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {capitalizeFirstLetterOfString(genres[1])}
+                        </Animated.Text>
+                        <Animated.Text
+                            style={[
+                                styles.heading,
+                                {
+                                    opacity,
+                                    transform: [{translateX: translateXHeading}],
+                                },
+                            ]}>
+                            {rating}/10
+                        </Animated.Text>
+                    </View>
                 </View>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 };
 
@@ -177,35 +219,35 @@ const Circle = ({scrollX, movies}) => {
     );
 };
 
-const Ticker = ({scrollX, movies}) => {
-    return (
-        <View style={styles.tickerContainer}>
-            <Animated.View
-                style={{
-                    transform: [
-                        {
-                            translateY: scrollX.interpolate({
-                                inputRange: [-width * 2, -width, 0, width, width * 2],
-                                outputRange: [TICKER_HEIGHT * 2, TICKER_HEIGHT, 0, -TICKER_HEIGHT, -TICKER_HEIGHT * 2],
-                            }),
-                        },
-                    ],
-                }}>
-                {movies.map(({title, year, duration}, index) => {
-                    return (
-                        <View key={index.toString()} style={{flexDirection: 'row'}}>
-                            <Text key={index} style={styles.tickername}>
-                                {title}
-                            </Text>
-                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{year}</Text>
-                            <Text style={{...FONTS.paragraph1, marginLeft: 10}}>{formatMovieDuration(duration)}</Text>
-                        </View>
-                    );
-                })}
-            </Animated.View>
-        </View>
-    );
-};
+// const Ticker = ({scrollX, movies}) => {
+//     return (
+//         <View style={styles.tickerContainer}>
+//             <Animated.View
+//                 style={{
+//                     transform: [
+//                         {
+//                             translateY: scrollX.interpolate({
+//                                 inputRange: [-width * 2, -width, 0, width, width * 2],
+//                                 outputRange: [TICKER_HEIGHT * 2, TICKER_HEIGHT, 0, -TICKER_HEIGHT, -TICKER_HEIGHT * 2],
+//                             }),
+//                         },
+//                     ],
+//                 }}>
+//                 {movies.map(({title, year, duration}, index) => {
+//                     return (
+//                         <View key={index.toString()} style={{flexDirection: 'row', alignItems: 'center'}}>
+//                             <Text key={index} style={styles.tickername}>
+//                                 {title}
+//                             </Text>
+//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{year}</Text>
+//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{formatMovieDuration(duration)}</Text>
+//                         </View>
+//                     );
+//                 })}
+//             </Animated.View>
+//         </View>
+//     );
+// };
 
 
 const Pagination = ({scrollX, onPress2, movies}) => {
@@ -239,9 +281,9 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                     );
                 })}
             </View>
-            <Pressable onPress={onPress2}>
-                <Text style={{...FONTS.Title2Orange, marginTop: 10}}>Skip to Homepage</Text>
-            </Pressable>
+            <TouchableOpacity onPress={onPress2}>
+                <Text style={{...FONTS.Title2Orange, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999}}>Skip to Homepage</Text>
+            </TouchableOpacity>
         </View>
     );
 };
@@ -318,8 +360,11 @@ export default function ContentSwipe({navigation, route}: Props) {
                     />
                 )}
             />
-            <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} movies={movies} />
-            <Ticker scrollX={_scrollX} movies={movies} />
+            
+                <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} movies={movies} />
+            
+            
+            {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
         </View>
     );
 }
@@ -334,23 +379,29 @@ const styles = StyleSheet.create({
     itemStyle: {
         width,
         height,
+        alignItems: 'center', 
+       
+    },
+    itemStyle2: {
+        width,
+        height,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: SIZES.ScreenHeight / 8,
+        
     },
     imageStyle: {
-        width: width * 1.1,
-        height: width * 0.75,
+        width: width * 1.35,
+        height: width * 1.90,
         resizeMode: 'cover',
-        flex: 1,
+       
         borderRadius: 10,
-        marginTop: -50,
+        
     },
     textContainer: {
         alignItems: 'center',
         alignSelf: 'center',
         flex: 0.55,
-        marginTop: -135,
+        marginTop: -170,
     },
     heading: {
         ...FONTS.Title2Orange,
@@ -362,6 +413,11 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         textAlign: 'center',
         marginBottom: 10,
+    },
+    titlestyle: {
+        ...FONTS.paragraph1, 
+        marginLeft: 10, 
+       
     },
     description: {
         color: '#ccc',
@@ -403,7 +459,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 50,
         left: 50,
-        bottom: SIZES.ScreenHeight / 5.5,
+        bottom: SIZES.ScreenHeight * 0.03,
         alignItems: 'center',
     },
 

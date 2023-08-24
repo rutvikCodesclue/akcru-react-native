@@ -37,7 +37,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import VideoPlayer from "react-native-media-console";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
-import { formatMovieDuration } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
 import { supabaseRealtime } from "../../../../lib/supabase";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { 
@@ -64,6 +64,7 @@ import {
   HMSTrackSettingsInitState,
 } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
+import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
 // function setOrientation() {
 //   if (Dimensions.get("window").height > Dimensions.get("window").width) {
@@ -76,15 +77,9 @@ import useAuthStore from "../../../stores/auth.store";
 // }
 
 
-type StartCRUViewDateNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  "StartCRUViewDate"
->;
+type StartCRUViewDateNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
 
-type StartCRUViewDateRouteProp = RouteProp<
-  UserProfileStackParams,
-  "StartCRUViewDate"
->;
+type StartCRUViewDateRouteProp = RouteProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
 
 type Props = {
   navigation: StartCRUViewDateNavigationProp;
@@ -457,392 +452,316 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
   }, []);
 
   return (
-    <SafeAreaView>
-      <View
-        style={{marginBottom: SIZES.ScreenHeight / 12}}>
-        <View style={{zIndex: 20}}>
-          <Header />
-        </View>
+      <SafeAreaView>
+          <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
+              <View style={{zIndex: 20}}>
+                  <Header />
+              </View>
 
-        <View style={styles.topcontainer}>
-          <TouchableOpacity onPress={() => navigation.pop()}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Icon
-                name="chevron-back"
-                type="ionicon"
-                size={20}
-                color={COLORS.LIGHTGREY}
-              />
-              <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
-            </View>
-          </TouchableOpacity>
-          {!isStreamOpen && (
-            <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
+              <View style={styles.topcontainer}>
+                  <TouchableOpacity onPress={() => navigation.pop()}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                          }}>
+                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
+                      </View>
+                  </TouchableOpacity>
+                  {!isStreamOpen && (
+                      <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                              }}>
+                              <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
+                          </View>
+                      </TouchableOpacity>
+                  )}
+              </View>
+
+              {/* Movie Player */}
+              <View style={{flex: 1, zIndex: 100}}>
+                  {isStreamOpen ? (
+                      <View style={styles.moviecontainer}>
+                          <LinearGradient
+                              // Background Linear Gradient
+                              colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                              style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  right: 0,
+                                  top: 0,
+
+                                  borderRadius: 5,
+                                  height: SIZES.ScreenHeight * 0.18,
+                              }}
+                          />
+                          <View style={{marginRight: 10}}>
+                              <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
+                          </View>
+                          <View>
+                              <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      marginVertical: 4,
+                                      alignItems: 'center',
+                                  }}>
+                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                  <Text
+                                      style={{
+                                          ...FONTS.Title2,
+                                          fontSize: 12,
+                                          marginHorizontal: 10,
+                                      }}>
+                                      {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                  </Text>
+                              </View>
+                              <View style={{flexDirection: 'row', marginBottom: 8}}>
+                                  <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                  <Text style={styles.drawfonttag}>
+                                      {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                  </Text>
+                                  <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                              </View>
+                              <View style={{flexDirection: 'row'}}>
+                                  <TouchableWithoutFeedback>
+                                      <View
+                                          style={{
+                                              flexDirection: 'row',
+                                              backgroundColor: COLORS.TAGCOLOR,
+                                              marginRight: 5,
+                                              paddingHorizontal: 5,
+                                              paddingVertical: 5,
+                                              borderRadius: 5,
+                                              alignItems: 'center',
+                                          }}>
+                                          <Text
+                                              style={{
+                                                  ...FONTS.paragraph1,
+                                                  marginRight: 5,
+                                                  fontSize: 12,
+                                              }}>
+                                              Link Device
+                                          </Text>
+                                          <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
+                                      </View>
+                                  </TouchableWithoutFeedback>
+                                  <TouchableWithoutFeedback onPress={() => setIsStreamOpen(false)}>
+                                      <View
+                                          style={{
+                                              flexDirection: 'row',
+                                              backgroundColor: COLORS.TAGCOLOR,
+                                              paddingHorizontal: 5,
+                                              paddingVertical: 5,
+                                              borderRadius: 5,
+                                              alignItems: 'center',
+                                          }}>
+                                          <Text
+                                              style={{
+                                                  ...FONTS.paragraph1,
+                                                  marginRight: 5,
+                                                  fontSize: 12,
+                                              }}>
+                                              Play Stream
+                                          </Text>
+                                          <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
+                                      </View>
+                                  </TouchableWithoutFeedback>
+                              </View>
+                          </View>
+                      </View>
+                  ) : (
+                      <View>
+                          <View style={styles.videocontain}>
+                              <View style={{flex: 1}}>
+                                  <View style={{height: SIZES.ScreenHeight / 3}}>
+                                      <VideoPlayer
+                                          source={{
+                                              uri: movie?.movieURL,
+                                          }}
+                                          fullscreenAutorotate={true}
+                                          tapAnywhereToPause={true}
+                                          toggleResizeModeOnFullscreen={true}
+                                          isFullscreen={false}
+                                          posterResizeMode="cover"
+                                          poster={movie?.landscapeURL}
+                                      />
+                                  </View>
+                                  <View style={{backgroundColor: 'red', flex: 1}}></View>
+                              </View>
+                          </View>
+                      </View>
+                  )}
+              </View>
+
+              {/* CHAT ROOM */}
               <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <Icon
-                  name="close-circle"
-                  type="ionicon"
-                  size={20}
-                  color={COLORS.LIGHTGREY}
-                />
-                <Text style={{...FONTS.Title3, marginLeft: 5}}>
-                  Close Movie
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Movie Player */}
-        <View style={{ flex: 1, zIndex: 100 }}>
-          {isStreamOpen ? (
-            <View style={styles.moviecontainer}>
-              <LinearGradient
-                // Background Linear Gradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: 0,
-
-                  borderRadius: 5,
-                  height: SIZES.ScreenHeight / 7,
-                }}
-              />
-              <View style={{marginRight: 10}}>
-                <Image
-                  source={{uri: movie?.portraitURL ?? undefined}}
-                  style={styles.poster}
-                />
-              </View>
-              <View>
-                <Text style={{...FONTS.Title3}}>
-                  {movie?.title ?? "Loading..."}
-                </Text>
-                <View
                   style={{
-                    flexDirection: 'row',
-                    marginVertical: 8,
-                    alignItems: 'center',
+                      // flex: 1,
+                      // marginHorizontal: 15,
+                      width: SIZES.ScreenWidth,
+                      height: 240,
+                      marginTop: SIZES.ScreenHeight / 3,
+                      backgroundColor: 'purple',
                   }}>
-                  <Text style={{...FONTS.Title2, fontSize: 12}}>
-                    {movie?.year}
-                  </Text>
-                  <Text
-                    style={{
-                      ...FONTS.Title2,
-                      fontSize: 12,
-                      marginHorizontal: 10,
-                    }}>
-                    {movie?.duration ? formatMovieDuration(movie?.duration) : "..."}
-                  </Text>
-                  <Text style={styles.drawfonttag}>
-                    {movie?.rated}
-                  </Text>
-                  <Text style={styles.drawfonttag}>
-                    {movie?.genres[0]}
-                  </Text>
-                  <Text style={styles.drawfonttag}>
-                    {movie?.rating}/10
-                  </Text>
-                </View>
-                <View style={{flexDirection: 'row'}}>
-                  <TouchableWithoutFeedback>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        backgroundColor: COLORS.TAGCOLOR,
-                        marginRight: 10,
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
-                        borderRadius: 5,
-                        alignItems: 'center',
-                      }}>
-                      <Text
-                        style={{
-                          ...FONTS.paragraph1,
-                          marginRight: 5,
-                          fontSize: 12,
-                        }}>
-                        Link Device
-                      </Text>
-                      <Icon
-                        name="tv-outline"
-                        type="ionicon"
-                        size={20}
-                        color={COLORS.MIDORANGE}
+                  {hmsInstanceRef.current ? (
+                      <FlatList
+                          scrollEnabled={false}
+                          style={{flex: 1}}
+                          key={trackIds.length}
+                          numColumns={3}
+                          data={trackIds} // trackIds is an array of trackIds of video tracks
+                          keyExtractor={trackId => trackId}
+                          renderItem={({item}) =>
+                              hmsInstanceRef.current ? (
+                                  <hmsInstanceRef.current.HmsView
+                                      key={item}
+                                      trackId={item}
+                                      style={{flex: 1, maxWidth: SIZES.ScreenWidth / 3, height: 120}}
+                                      scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                      mirror={true}
+                                  />
+                              ) : (
+                                  <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                                      nothings rendering
+                                  </View>
+                              )
+                          }
                       />
-                    </View>
-                  </TouchableWithoutFeedback>
-                  <TouchableWithoutFeedback
-                    onPress={() => setIsStreamOpen(false)}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        backgroundColor: COLORS.TAGCOLOR,
-                        paddingHorizontal: 10,
-                        paddingVertical: 5,
-                        borderRadius: 5,
-                        alignItems: 'center',
-                      }}>
-                      <Text
-                        style={{
-                          ...FONTS.paragraph1,
-                          marginRight: 10,
-                          fontSize: 12,
-                        }}>
-                        Play Stream
-                      </Text>
-                      <Icon
-                        name="play"
-                        type="ionicon"
-                        size={20}
-                        color={COLORS.CATREDLGT}
-                      />
-                    </View>
-                  </TouchableWithoutFeedback>
-                </View>
+                  ) : (
+                      <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                          <Text>Loading...</Text>
+                      </View>
+                  )}
+                  {/* <CRUUserVideoList /> */}
               </View>
-            </View>
-          ) : (
-            <View>
-              <View style={styles.videocontain}>
-                <View style={{flex: 1}}>
-                  <View style={{height: SIZES.ScreenHeight / 3}}>
-                    <VideoPlayer
-                      source={{
-                        uri: movie?.movieURL,
-                      }}
-                      fullscreenAutorotate={true}
-                      tapAnywhereToPause={true}
-                      toggleResizeModeOnFullscreen={true}
-                      isFullscreen={false}
-                      posterResizeMode="cover"
-                      poster={movie?.landscapeURL}
-                    />
-                  </View>
-                  <View style={{backgroundColor: 'red', flex: 1}}></View>
-                </View>
-              </View>
-            </View>
-          )}
-        </View>
 
-        {/* <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginVertical: 15,
-          }}>
-          <Image
-            source={imageindex.AkcruHexLogo}
-            style={{width: 25, height: 25}}
-          />
-          <Text style={{...FONTS.Title2Orange, marginLeft: 5}}>
-            Enjoy the CRU View
-          </Text>
-        </View> */}
-
-        {/* CHAT ROOM */}
-        <View
-          style={{ 
-            // flex: 1, 
-            // marginHorizontal: 15,
-            width: SIZES.ScreenWidth,
-            height: 240,
-            marginTop: SIZES.ScreenHeight / 3,
-            backgroundColor: "purple",
-          }}>
-            {
-              hmsInstanceRef.current ? (
-                <FlatList
-                  scrollEnabled={false}
-                  style={{ flex: 1 }}
-                  key={trackIds.length}
-                  numColumns={3}
-                  data={trackIds} // trackIds is an array of trackIds of video tracks
-                  keyExtractor={(trackId) => trackId}
-                  renderItem={({ item }) => 
-                    (
-                      hmsInstanceRef.current ? 
-                      <hmsInstanceRef.current.HmsView 
-                        key={item} 
-                        trackId={item} 
-                        style={{ flex: 1, maxWidth: (SIZES.ScreenWidth) / 3,  height: 120 }} 
-                        scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                        mirror={true}
-                      /> 
-                      : <View style={{ backgroundColor: "#fff", width: 200, height: 200 }}>nothings rendering</View>
-                    )
-                  }
-                />
-              ): 
-              <View style={{ backgroundColor: "#fff", width: 200, height: 200 }}>
-                <Text>Loading...</Text>
-              </View>
-            }
-          {/* <CRUUserVideoList /> */}
-        </View>
-
-        {/* {isStreamOpen ? (
+              {/* {isStreamOpen ? (
           <View style={{height: SIZES.ScreenHeight * 0.16}}></View>
         ) : (
           <View style={{height: SIZES.ScreenHeight * 0.055}}></View>
         )} */}
-        <View style={styles.bottombtn}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-            }}>
-            <Pressable onPress={toggleVideo}>
-              {isUserVideoOn ? (
-                <Icon
-                  name="video"
-                  type="material-community"
-                  size={40}
-                  color={COLORS.CATPURPLGT}
-                />
-              ) : (
-                <Icon
-                  name="video-off"
-                  type="material-community"
-                  size={40}
-                  color={COLORS.CATREDLGT}
-                />
-              )}
-            </Pressable>
-            <Pressable onPress={() => handleSnapPress(1)}>
-              <Icon
-                name="chatbox-ellipses"
-                type="ionicon"
-                size={40}
-                color={COLORS.CATPURPLGT}
-              />
-            </Pressable>
-            <Pressable onPress={toggleMic}>
-              {isMicOn ? (
-                <Icon
-                  name="mic-circle"
-                  type="ionicon"
-                  size={40}
-                  color={COLORS.CATPURPLGT}
-                />
-              ) : (
-                <Icon
-                  name="mic-off-circle"
-                  type="ionicon"
-                  size={40}
-                  color={COLORS.CATREDLGT}
-                />
-              )}
-            </Pressable>
-          </View>
-        </View>
-        <BottomSheet //Chat Modal
-          ref={sheetRef}
-          snapPoints={snapPoints}
-          enablePanDownToClose={true}
-          backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-          onClose={() => setIsChatOpen(true)}>
-          <BottomSheetScrollView style={{marginHorizontal: 15}}>
-            <MITChatCard />
-            <MITChatCard />
-            <MITChatCard />
-            <MITChatCard />
-          </BottomSheetScrollView>
-          <View style={{marginHorizontal: 15}}>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={'placeholder'}
-                placeholderTextColor={'transparent'}
-                style={styles.textinput}
-              />
+              <View style={styles.bottombtn}>
+                  <View
+                      style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-around',
+                      }}>
+                      <Pressable onPress={toggleVideo}>
+                          {isUserVideoOn ? (
+                              <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                          ) : (
+                              <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                          )}
+                      </Pressable>
+                      <Pressable onPress={() => handleSnapPress(1)}>
+                          <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                      </Pressable>
+                      <Pressable onPress={toggleMic}>
+                          {isMicOn ? (
+                              <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                          ) : (
+                              <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                          )}
+                      </Pressable>
+                  </View>
+              </View>
+              <BottomSheet //Chat Modal
+                  ref={sheetRef}
+                  snapPoints={snapPoints}
+                  enablePanDownToClose={true}
+                  backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+                  onClose={() => setIsChatOpen(true)}>
+                  <BottomSheetScrollView style={{marginHorizontal: 15}}>
+                      <MITChatCard />
+                      <MITChatCard />
+                      <MITChatCard />
+                      <MITChatCard />
+                  </BottomSheetScrollView>
+                  <View style={{marginHorizontal: 15}}>
+                      <View style={styles.input}>
+                          <TextInput
+                              placeholder={'placeholder'}
+                              placeholderTextColor={'transparent'}
+                              style={styles.textinput}
+                          />
 
-              <AkcruButtons.XSmallButton
-                btnname={'REPLY'}
-                onPress={function (): void {}}
-                color=""
-                disabled={false}
-              />
-            </View>
+                          <AkcruButtons.XSmallButton
+                              btnname={'REPLY'}
+                              onPress={function (): void {}}
+                              color=""
+                              disabled={false}
+                          />
+                      </View>
+                  </View>
+              </BottomSheet>
           </View>
-        </BottomSheet>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
   );
 };
 
 export default StartCRUViewDate;
 
 const styles = StyleSheet.create({
-  topcontainer: {
-    minHeight: 100,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginHorizontal: 15,
-    marginBottom: 15,
-  },
-  poster: {
-    width: 60,
-    height: 90,
-    borderRadius: 5,
-  },
-  moviecontainer: {
-    marginHorizontal: 15,
-    padding: 10,
-    flexDirection: "row",
-    backgroundColor: "#1C202A",
-    borderRadius: 5,
-    height: SIZES.ScreenHeight / 7,
-    alignItems: "center",
-    flex: 1,
-  },
-  drawfonttag: {
-    ...FONTS.Title2Orange,
-    color: COLORS.DARKGREY,
-    backgroundColor: COLORS.TAGCOLOR,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginHorizontal: 2,
-    borderRadius: 4,
-    textAlign: "center",
-  },
-  input: {
-    flexDirection: "row",
-    borderWidth: 0.8,
-    borderColor: COLORS.DARKGREY,
-    borderRadius: 5,
-    justifyContent: "space-between",
-    marginVertical: 10,
-    paddingLeft: 10,
-    alignItems: "center",
-    height: 35,
-  },
-  textinput: {
-    color: COLORS.LIGHTGREY,
-  },
-  videocontain: {
-    flex: 1,
-    zIndex: 1,
-    justifyContent: "center",
-  },
-  videoplayer: {
-    alignSelf: "center",
-    aspectRatio: 16 / 9,
-    width: "100%",
-  },
-  bottombtn: {
-
-  }
+    topcontainer: {
+        
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 15,
+        marginBottom: 15,
+    },
+    poster: {
+        width: 70,
+        height: 110,
+        borderRadius: 5,
+    },
+    moviecontainer: {
+        marginHorizontal: 15,
+        padding: 10,
+        flexDirection: 'row',
+        backgroundColor: '#1C202A',
+        borderRadius: 5,
+        height: SIZES.ScreenHeight * 0.18,
+        alignItems: 'center',
+    },
+    drawfonttag: {
+        ...FONTS.Title2Orange,
+        color: COLORS.BLACK,
+        backgroundColor: COLORS.STARGOLD,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        marginRight: 4,
+        borderRadius: 4,
+        textAlign: 'center',
+    },
+    input: {
+        flexDirection: 'row',
+        borderWidth: 0.8,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        justifyContent: 'space-between',
+        marginVertical: 10,
+        paddingLeft: 10,
+        alignItems: 'center',
+        height: 35,
+    },
+    textinput: {
+        color: COLORS.LIGHTGREY,
+    },
+    videocontain: {
+        flex: 1,
+        zIndex: 1,
+        justifyContent: 'center',
+    },
+    videoplayer: {
+        alignSelf: 'center',
+        aspectRatio: 16 / 9,
+        width: '100%',
+    },
+    bottombtn: {},
 });

@@ -1,16 +1,22 @@
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./styles";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
 import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
 import { getMyCRUViews } from "../../../lib/api/cru.lib";
 import { set } from "lodash";
-import { ICruView } from "../../../../types";
+import { ICruView, IMovie } from "../../../../types";
 import useAuthStore from "../../../stores/auth.store";
 import { formatMovieDuration } from "../../../util/util";
+import { capitalizeFirstLetterOfString } from "../../../util/util";
+import {useNavigation} from '@react-navigation/native';
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { ClientStackParams } from "../../../navigation/ClientStack";
+
 
 const UserProfileDatesTab = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
   const user = useAuthStore.getState().user
   const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
   useEffect(() => {
@@ -29,24 +35,31 @@ const UserProfileDatesTab = () => {
         // scheduleWith  is either the CRU creator or yourself
         const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
         return (
-          <View key={item.id} style={{marginBottom: 10}}>
-            <UserDatesCard
-              id={item.id}
-              movieId={item.movie.id}
-              moviePoster={item.movie.portraitURL}
-              movieName={item.movie.title}
-              length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
-              movieYear={item.movie.year}
-              movieRated={item.movie.rated}
-              movieGenre={item.movie.genres[0]}
-              movieRating={item.movie.rating}
-              scheduleDate={item.startDate}
-              scheduleTime={item.startDate}
-              scheduleWith={scheduleWith}
-              type="CRUView"
-              />
-          </View>
-        )
+            <View key={item.id} style={{marginBottom: 10}}>
+                <UserDatesCard
+                    id={item.id}
+                    movieId={item.movie.id}
+                    moviePoster={item.movie.portraitURL}
+                    movieName={item.movie.title}
+                    length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
+                    movieYear={item.movie.year}
+                    movieRated={item.movie.rated}
+                    movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                    movieGenre2={capitalizeFirstLetterOfString(item.movie.genres[1])}
+                    movieRating={item.movie.rating}
+                    scheduleDate={item.startDate}
+                    scheduleTime={item.startDate}
+                    scheduleWith={scheduleWith}
+                    type="CRUView"
+                    onPressin={() =>
+                        navigation.navigate('ContentDetailScreen', {
+                            id: item.movie.id,
+                            movie: item.movie.title,
+                        })
+                    }
+                />
+            </View>
+        );
       })
   }
 
