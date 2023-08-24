@@ -66,6 +66,12 @@ import {
 import useAuthStore from "../../../stores/auth.store";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
+import LottieView from 'lottie-react-native';
+import Orientation from 'react-native-orientation-locker';
+import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
+
+
+
 // function setOrientation() {
 //   if (Dimensions.get("window").height > Dimensions.get("window").width) {
 //     //Device is in portrait mode, rotate to landscape mode.
@@ -451,37 +457,84 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     setIsChatOpen(true);
   }, []);
 
-  return (
-      <SafeAreaView>
-          <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
-              <View style={{zIndex: 20}}>
-                  <Header />
-              </View>
+  const navigation2 = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
 
-              <View style={styles.topcontainer}>
-                  <TouchableOpacity onPress={() => navigation.pop()}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                          }}>
-                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
-                      </View>
-                  </TouchableOpacity>
-                  {!isStreamOpen && (
-                      <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
+   const [isFullscreen, setIsFullscreen] = useState(false);
+
+   const handleEnterFullscreen = () => {
+       setIsFullscreen(true);
+       Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+   };
+
+   const handleExitFullscreen = () => {
+       setIsFullscreen(false);
+       Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+   };
+
+   const handleOnBack = () => {
+       setIsStreamOpen(true);
+       handleExitFullscreen();
+   };
+
+//   useEffect(() => {
+
+//       // Lock landscape orientation when entering this screen
+//     //   Orientation.lockToLandscape();
+
+//       // Allow landscape orientation when entering this screen
+//       Orientation.unlockAllOrientations();
+
+//       // Lock the orientation back to portrait when leaving this screen
+//       return () => {
+//           Orientation.lockToPortrait();
+//       };
+//   }, []);
+
+  return (
+      <View>
+          <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
+              {!isFullscreen && (
+                  <View style={{zIndex: 20}}>
+                      <Header />
+                  </View>
+              )}
+
+              {!isFullscreen && (
+                  <View style={styles.topcontainer}>
+                      <TouchableOpacity
+                          onPress={() =>
+                              navigation2.navigate('UserProfileStack', {
+                                  screen: 'UserProfileScreen',
+                                  //   movieId,
+                                  //     roomId: roomIdFrom100ms,
+                                  //     roomAuthToken,
+                                  //   micInitialState: isMicOn,
+                                  //   cameraInitialState: isUserVideoOn,
+                              })
+                          }>
                           <View
                               style={{
                                   flexDirection: 'row',
                                   alignItems: 'center',
                               }}>
-                              <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
+                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
                           </View>
                       </TouchableOpacity>
-                  )}
-              </View>
+                      {!isStreamOpen && (
+                          <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                  }}>
+                                  <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
+                              </View>
+                          </TouchableOpacity>
+                      )}
+                  </View>
+              )}
 
               {/* Movie Player */}
               <View style={{flex: 1, zIndex: 100}}>
@@ -579,17 +632,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                       <View>
                           <View style={styles.videocontain}>
                               <View style={{flex: 1}}>
-                                  <View style={{height: SIZES.ScreenHeight / 3}}>
+                                  <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
                                       <VideoPlayer
                                           source={{
                                               uri: movie?.movieURL,
                                           }}
-                                          fullscreenAutorotate={true}
-                                          tapAnywhereToPause={true}
+                                          fullscreenAutorotate={false}
+                                          tapAnywhereToPause={false}
                                           toggleResizeModeOnFullscreen={true}
-                                          isFullscreen={false}
+                                          isFullscreen={isFullscreen}
                                           posterResizeMode="cover"
                                           poster={movie?.landscapeURL}
+                                          onEnterFullscreen={handleEnterFullscreen}
+                                          onExitFullscreen={handleExitFullscreen}
+                                          onBack={handleOnBack}
                                       />
                                   </View>
                                   <View style={{backgroundColor: 'red', flex: 1}}></View>
@@ -603,11 +659,14 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
               <View
                   style={{
                       // flex: 1,
-                      // marginHorizontal: 15,
+                      //   marginHorizontal: 15,
                       width: SIZES.ScreenWidth,
                       height: 240,
-                      marginTop: SIZES.ScreenHeight / 3,
+                      marginTop: SIZES.ScreenHeight / 4,
                       backgroundColor: 'purple',
+                      alignSelf: 'center',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                   }}>
                   {hmsInstanceRef.current ? (
                       <FlatList
@@ -622,13 +681,13 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                   <hmsInstanceRef.current.HmsView
                                       key={item}
                                       trackId={item}
-                                      style={{flex: 1, maxWidth: SIZES.ScreenWidth / 3, height: 120}}
-                                      scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                      style={{flex: 1, width: SIZES.ScreenWidth / 3, height: 120}}
+                                      scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                                       mirror={true}
                                   />
                               ) : (
                                   <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                                      nothings rendering
+                                      <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
                                   </View>
                               )
                           }
@@ -701,7 +760,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                   </View>
               </BottomSheet>
           </View>
-      </SafeAreaView>
+      </View>
   );
 };
 
@@ -709,7 +768,6 @@ export default StartCRUViewDate;
 
 const styles = StyleSheet.create({
     topcontainer: {
-        
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 15,
@@ -757,6 +815,13 @@ const styles = StyleSheet.create({
         flex: 1,
         zIndex: 1,
         justifyContent: 'center',
+    },
+    movieview: {
+        height: SIZES.ScreenHeight / 3,
+    },
+    fullscreenmovie: {
+        width: SIZES.ScreenHeight,
+        height: SIZES.ScreenWidth
     },
     videoplayer: {
         alignSelf: 'center',
