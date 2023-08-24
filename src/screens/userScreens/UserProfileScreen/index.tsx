@@ -77,7 +77,7 @@ const renderScene = SceneMap({
 });
 
 export default function UserProfileScreen({navigation, route}: Props) {
-  const { isAuth, user } = useAuthStore()
+  const { user } = useAuthStore()
 
 
   const renderTabBar = (

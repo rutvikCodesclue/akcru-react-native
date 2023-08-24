@@ -61,7 +61,7 @@ const SecondRoute = () => <Bulletin />;
 
 const UserCruChatScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    const {isAuth, user} = useAuthStore();
+    const { user } = useAuthStore();
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
