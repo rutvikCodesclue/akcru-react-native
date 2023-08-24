@@ -12,7 +12,7 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 
-const AllMovies = Akcru_Content[0];
+// const AllMovies = Akcru_Content[0];
 
 type SearchMovieResultScreenNavigationProp = StackNavigationProp<
   ClientStackParams,

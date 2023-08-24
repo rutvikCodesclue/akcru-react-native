@@ -3,10 +3,9 @@ import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
   activitycontainer: {
-
 height: SIZES.ScreenHeight,
 width: SIZES.ScreenWidth,
-alignItems: 'center'
+justifyContent: 'center'
   },
   input: {
     flexDirection: 'row',

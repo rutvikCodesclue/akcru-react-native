@@ -23,31 +23,36 @@ import { formatMovieDuration } from "../../../util/util";
 import { joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
+import {capitalizeFirstLetterOfString} from '../../../util/util';
+import AkcruButtons from "../../../components/akcruButtons";
+import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
-type RoomPreviewNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  "RoomPreview"
->;
+
+type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'RoomPreviewScreen'>;
 
 type RoomPreviewRouteProp = RouteProp<
   UserProfileStackParams,
-  "RoomPreview"
+  "RoomPreviewScreen"
 >;
 
 type Props = {
-  navigation: RoomPreviewNavigationProp;
-  route: RoomPreviewRouteProp;
-  movieName: string;
-  movieId: string;
+    navigation: RoomPreviewNavigationProp;
+    route: RoomPreviewRouteProp;
+    movieName: string;
+    movieId: string;
 };
 
 const RoomPreviewScreen = ({ navigation, route }: Props) => {
+
+const micInitialState = route.params?.micInitialState;
+const cameraInitialState = route.params?.cameraInitialState;
+
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<boolean>(false);
-  const [isMicOn, setIsMicOn] = useState(false);
-  const [isUserVideoOn, setIsUserVideoOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(micInitialState);
+  const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
   const [canJoinRoom, setCanJoinRoom] = useState(false);
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
@@ -55,14 +60,45 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
+  const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
+
   useEffect(() => {
     // load the movie
     findMovieById(movieId).then((res) => {
       if (res) {
         setMovie(res);
-      }
+      } 
     })
   }, []);
+
+  useEffect(() => {
+      // Request microphone permission
+      request(PERMISSIONS.ANDROID.RECORD_AUDIO)
+          .then(audioResult => {
+              if (audioResult === RESULTS.GRANTED) {
+                  // Microphone permission granted
+                  console.log('Microphone permission granted');
+              }
+          })
+          .catch(audioError => {
+              // Handle microphone permission request error
+              console.log('Microphone permission request error:', audioError);
+          });
+
+      // Request camera permission
+      request(PERMISSIONS.ANDROID.CAMERA)
+          .then(cameraResult => {
+              if (cameraResult === RESULTS.GRANTED) {
+                  // Camera permission granted
+                  console.log('Camera permission granted');
+              }
+          })
+          .catch(cameraError => {
+              // Handle camera permission request error
+              console.log('Camera permission request error:', cameraError);
+          });
+  }, []);
+  
   
   const _checkPermissions = async () => {
     // TODO: handle permissions for android as well
@@ -257,10 +293,10 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
   };
 
   const toggleMic = () => {
-    setIsMicOn((prevState) => !prevState);
+      setIsMicOn((prevState: boolean) => !prevState);
   };
   const toggleVideo = () => {
-    setIsUserVideoOn((prevState) => !prevState);
+      setIsUserVideoOn((prevState: boolean) => !prevState);
   };
 
 
@@ -280,242 +316,224 @@ const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
 
   return (
-    <SafeAreaView>
-      <View
-        style={{ marginBottom: SIZES.ScreenHeight / 12, height: "100%"}}>
-        <View style={{zIndex: 20}}>
-          <Header />
-        </View>
-
-        <View style={styles.topcontainer}>
-          <TouchableOpacity onPress={() => navigation.pop()}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Icon
-                name="chevron-back"
-                type="ionicon"
-                size={20}
-                color={COLORS.LIGHTGREY}
-              />
-              <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {/* Video Info */}
-        <View>
-          <View style={styles.moviecontainer}>
-            <LinearGradient
-              // Background Linear Gradient
-              colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: 0,
-
-                borderRadius: 5,
-                height: SIZES.ScreenHeight / 7,
-              }}
-            />
-            <View style={{marginRight: 10}}>
-              <Image
-                source={{uri: movie?.portraitURL ?? undefined}}
-                style={styles.poster}
-              />
-            </View>
-            <View>
-              <Text style={{...FONTS.Title3}}>
-                {movie?.title ?? "Loading..."}
-              </Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginVertical: 8,
-                  alignItems: 'center',
-                }}>
-                <Text style={{...FONTS.Title2, fontSize: 12}}>
-                  {movie?.year}
-                </Text>
-                <Text
-                  style={{
-                    ...FONTS.Title2,
-                    fontSize: 12,
-                    marginHorizontal: 10,
-                  }}>
-                  {movie?.duration ? formatMovieDuration(movie?.duration) : "..."}
-                </Text>
-                <Text style={styles.drawfonttag}>
-                  {movie?.rated}
-                </Text>
-                <Text style={styles.drawfonttag}>
-                  {movie?.genres[0]}
-                </Text>
-                <Text style={styles.drawfonttag}>
-                  {movie?.rating}/10
-                </Text>
+      <SafeAreaView>
+          <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
+              <View style={{zIndex: 20}}>
+                  <Header />
               </View>
-              <View style={{flexDirection: 'row'}}>
+
+              <View style={styles.topcontainer}>
+                  <TouchableOpacity onPress={() => navigation.pop()}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                          }}>
+                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                      </View>
+                  </TouchableOpacity>
               </View>
-            </View>
+
+              {/* Video Info */}
+              <View>
+                  <View style={styles.moviecontainer}>
+                      <LinearGradient
+                          // Background Linear Gradient
+                          colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                          style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              top: 0,
+
+                              borderRadius: 5,
+                              height: SIZES.ScreenHeight / 7,
+                          }}
+                      />
+                      <View style={{marginRight: 10}}>
+                          <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
+                      </View>
+                      <View>
+                          <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  marginVertical: 8,
+                                  alignItems: 'center',
+                              }}>
+                              <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                              <Text
+                                  style={{
+                                      ...FONTS.Title2,
+                                      fontSize: 12,
+                                      marginHorizontal: 10,
+                                  }}>
+                                  {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                              </Text>
+                          </View>
+                          <View style={{flexDirection: 'row'}}>
+                              <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                              <Text style={styles.drawfonttag}>
+                                  {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                              </Text>
+                              <Text style={styles.drawfonttag}>
+                                  {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
+                              </Text>
+
+                              <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                          </View>
+                          <View style={{flexDirection: 'row'}}></View>
+                      </View>
+                  </View>
+              </View>
+
+              <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10}}>
+                  {/* Video Preview */}
+                  <View
+                      style={{
+                          width: '100%',
+                          height: 300,
+                          backgroundColor: '#000',
+                          marginBottom: 20,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                      }}>
+                      {/* Only show when  */}
+                      {hmsInstanceRef.current && previewVideoTrack ? (
+                          isUserVideoOn ? (
+                              <hmsInstanceRef.current.HmsView
+                                  trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
+                                  scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                  style={{width: '100%', height: '100%'}}
+                                  mirror={true}
+                              />
+                          ) : null
+                      ) : (
+                          <Text style={{color: '#fff'}}>Loading....</Text>
+                      )}
+                  </View>
+              </View>
+
+              <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
+                  {/* Join Room Button */}
+                  <TouchableOpacity>
+                      <AkcruButtons.LrgButton
+                          disabled={!canJoinRoom}
+                          onPress={() => {
+                              _handleJoinRoom();
+                          }}
+                          btnname="Join Room"
+                          color={COLORS.AKCRUBLUE}
+                      />
+                  </TouchableOpacity>
+                  {/* <TouchableOpacity
+                      disabled={!canJoinRoom}
+                      onPress={() => {
+                          _handleJoinRoom();
+                      }}
+                      style={{
+                          width: '100%',
+                          height: 50,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: '#000',
+                      }}>
+                      <Text style={{color: '#fff', textAlign: 'center', marginTop: 5}}>Join Room</Text>
+                  </TouchableOpacity> */}
+              </View>
+
+              <View style={styles.bottombtn}>
+                  <View
+                      style={{
+                          flexDirection: 'row',
+                          justifyContent: 'space-around',
+                      }}>
+                      <Pressable onPress={toggleVideo}>
+                          {isUserVideoOn ? (
+                              <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                          ) : (
+                              <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                          )}
+                      </Pressable>
+                      <Pressable onPress={toggleMic}>
+                          {isMicOn ? (
+                              <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                          ) : (
+                              <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                          )}
+                      </Pressable>
+                  </View>
+              </View>
           </View>
-        </View>
-
-        <View
-          style={{ flex: 1,
-            marginHorizontal: 15,
-            marginVertical: 10,
-          }}>
-          {/* Video Preview */}
-          <View style={{ width: '100%', height: 300, backgroundColor: "#000", marginBottom: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* Only show when  */}
-            {
-              hmsInstanceRef.current &&
-              previewVideoTrack ?
-              (
-                isUserVideoOn ? 
-                  <hmsInstanceRef.current.HmsView
-                    trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
-                    scaleType={HMSVideoViewMode.ASPECT_FILL}
-                    style={{ width: '100%', height: '100%' }}
-                    mirror={true}
-                  /> : null
-              ): (
-                <Text style={{ color: "#fff" }}>Loading....</Text>
-              )
-            }
-          </View>
-        </View>
-
-        <View
-          style={{ flex: 1,
-            marginHorizontal: 15,
-            marginVertical: 10,
-          }}>
-          {/* Join Room Button */}
-          <TouchableOpacity
-            disabled={!canJoinRoom}
-            onPress={() => {
-              _handleJoinRoom();
-            }}
-            style={{ width: '100%', height: 50, display: "flex", alignItems: "center", justifyContent: 'center', backgroundColor: "#000" }}>
-            <Text style={{ color: "#fff", textAlign: "center", marginTop: 5 }}>Join Room</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.bottombtn}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-            }}>
-            <Pressable onPress={toggleVideo}>
-              {cameraPermission && isUserVideoOn ? (
-                <Icon
-                  name="video"
-                  type="material-community"
-                  size={40}
-                  color={COLORS.CATPURPLGT}
-                />
-              ) : (
-                <Icon
-                  name="video-off"
-                  type="material-community"
-                  size={40}
-                  color={COLORS.CATREDLGT}
-                />
-              )}
-            </Pressable>
-            <Pressable onPress={toggleMic}>
-              {micPermission && isMicOn ? (
-                <Icon
-                  name="mic-circle"
-                  type="ionicon"
-                  size={40}
-                  color={COLORS.CATPURPLGT}
-                />
-              ) : (
-                <Icon
-                  name="mic-off-circle"
-                  type="ionicon"
-                  size={40}
-                  color={COLORS.CATREDLGT}
-                />
-              )}
-            </Pressable>
-          </View>
-        </View>
-
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
   );
 };
 
 export default RoomPreviewScreen;
 
 const styles = StyleSheet.create({
-  topcontainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginHorizontal: 15,
-    marginBottom: 15,
-  },
-  poster: {
-    width: 60,
-    height: 90,
-    borderRadius: 5,
-  },
-  moviecontainer: {
-    marginHorizontal: 15,
-    padding: 10,
-    flexDirection: "row",
-    backgroundColor: "#1C202A",
-    borderRadius: 5,
-    height: SIZES.ScreenHeight / 7,
-    alignItems: "center",
-  },
-  drawfonttag: {
-    ...FONTS.Title2Orange,
-    color: COLORS.DARKGREY,
-    backgroundColor: COLORS.TAGCOLOR,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    marginHorizontal: 2,
-    borderRadius: 4,
-    textAlign: "center",
-  },
-  input: {
-    flexDirection: "row",
-    borderWidth: 0.8,
-    borderColor: COLORS.DARKGREY,
-    borderRadius: 5,
-    justifyContent: "space-between",
-    marginVertical: 10,
-    paddingLeft: 10,
-    alignItems: "center",
-    height: 35,
-  },
-  textinput: {
-    color: COLORS.LIGHTGREY,
-  },
-  videocontain: {
-    flex: 1,
-    zIndex: 1,
-    justifyContent: "center",
-  },
-  videoplayer: {
-    alignSelf: "center",
-    aspectRatio: 16 / 9,
-    width: "100%",
-  },
-  bottombtn: {
-    position: "absolute",
-    height: 100,
-    bottom: 0,
-    width: "100%",
-    marginBottom: 100
-  }
+    topcontainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 15,
+        marginBottom: 15,
+    },
+    poster: {
+        width: 60,
+        height: 90,
+        borderRadius: 5,
+    },
+    moviecontainer: {
+        marginHorizontal: 15,
+        padding: 10,
+        flexDirection: 'row',
+        backgroundColor: '#1C202A',
+        borderRadius: 5,
+        height: SIZES.ScreenHeight / 7,
+        alignItems: 'center',
+    },
+    drawfonttag: {
+        ...FONTS.Title2Orange,
+        color: COLORS.BLACK,
+        backgroundColor: COLORS.STARGOLD,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        marginRight: 4,
+        borderRadius: 4,
+        textAlign: 'center',
+    },
+    input: {
+        flexDirection: 'row',
+        borderWidth: 0.8,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        justifyContent: 'space-between',
+        marginVertical: 10,
+        paddingLeft: 10,
+        alignItems: 'center',
+        height: 35,
+    },
+    textinput: {
+        color: COLORS.LIGHTGREY,
+    },
+    videocontain: {
+        flex: 1,
+        zIndex: 1,
+        justifyContent: 'center',
+    },
+    videoplayer: {
+        alignSelf: 'center',
+        aspectRatio: 16 / 9,
+        width: '100%',
+    },
+    bottombtn: {
+        position: 'absolute',
+        height: 100,
+        bottom: 0,
+        width: '100%',
+        marginBottom: 100,
+    },
 });
