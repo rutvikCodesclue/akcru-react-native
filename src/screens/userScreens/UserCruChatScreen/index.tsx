@@ -184,7 +184,7 @@ const UserCruChatScreen = () => {
                             <View>
                                 <Text style={{...FONTS.Title2}}>
                                     {/* {FAKE_USER_PROFILES[0].userName} */}
-                                    {isAuth() ? user?.username : 'Guest'}
+                                    {user ? user?.username : 'Guest'}
                                 </Text>
                                 {user?.badge === 'AKCRUIT' && (
                                     <View>
