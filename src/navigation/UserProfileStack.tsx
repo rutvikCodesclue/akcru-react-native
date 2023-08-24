@@ -59,13 +59,13 @@ export function UserProfileStack() {
               cardOverlayEnabled: true,
               cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
           }}>
-          {/* <UserProfile.Screen
+          <UserProfile.Screen
               name="UserProfileScreen"
               component={UserProfileScreen}
               options={() => ({
                   headerShown: false,
               })}
-          /> */}
+          />
           <UserProfile.Screen
               name="UserMITHubScreen"
               component={UserMITHubScreen}
