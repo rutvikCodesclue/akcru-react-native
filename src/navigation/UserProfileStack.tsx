@@ -166,7 +166,7 @@ export function UserProfileStack() {
           />
           <UserProfile.Screen
               name="RoomPreview"
-              component={RoomPreview}
+              component={RoomPreviewScreen}
               options={() => ({
                   headerShown: false,
               })}
