@@ -8,6 +8,7 @@ import {
   TextInput,
   Modal,
   FlatList,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
@@ -131,395 +132,362 @@ const EditCru = () => {
   };
 
   return (
-    <View>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
-          <Header />
-          <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.pop()}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <Icon
-                  name="chevron-back"
-                  type="ionicon"
-                  size={20}
-                  color={COLORS.LIGHTGREY}
-                />
-                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-              </View>
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.Title2,
-                marginTop: 10,
-                textAlign: 'center',
-                fontSize: 14,
-                
-              }}>
-              EDIT YOUR CRU NAME
-            </Text>
-          </View>
-          <View style={styles.container}>
-            <Text style={styles.inputlabel}>CRU Name</Text>
-            <View style={styles.input}>
-              <Pressable onPress={handleModalOpen}>
-                <TextInput
-                  placeholder={originalCruName}
-                  placeholderTextColor={COLORS.DARKGREY}
-                  style={styles.textinput}
-                  secureTextEntry={false}
-                  onChangeText={setModifiedCruName}
-                  value={originalCruName} // Display the original value, not the modified one
-                  editable={false}
-                />
-              </Pressable>
-            </View>
-          </View>
-          <Text
-            style={{
-              ...FONTS.Title2,
-              marginBottom: 20,
-              textAlign: 'center',
-              fontSize: 14,
-            }}>
-            EDIT YOUR CRU MEMBERS
-          </Text>
-        </View>
-
-        <View style={{marginBottom: 75, alignItems: 'center'}}>
-          <FlatList
-            data={members}
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-            numColumns={2}
-            keyExtractor={item => item.userID}
-            ListFooterComponent={
-              <View
-                style={{
-                  borderRadius: 5,
-                  backgroundColor: COLORS.AKCRUBACKGROUND,
-                  width: SIZES.ScreenWidth / 2.3,
-                  height: SIZES.ScreenHeight * 0.08,
-                  borderWidth: 1,
-                  borderColor: COLORS.AKCRUBLUE,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Pressable onPress={() => setShowAddMemberModal(true)}>
-                  <Icon
-                    name="add-circle"
-                    type="ionicon"
-                    size={25}
-                    color={COLORS.GREEN}
-                  />
-                  <Text style={{...FONTS.Title2}}>Add a member</Text>
-                </Pressable>
-              </View>
-            }
-            renderItem={({item, index}) => (
-              <View style={{marginVertical: 5, alignItems: 'center'}}>
-                <CruMemberCard
-                  userPicture={item.userPicture}
-                  userName={item.userName}
-                  onPress={() => {
-                    navigation.navigate('ViewUserScreen', {
-                      userID: index,
-                    });
-                  }}
-                  influencer={item.influencer}
-                  userID={item.userID}
-                  akcruBadge={item.akcruBadge}
-                  userDesc={item.userDesc}
-                  avatarbordercolor={item.avatarbordercolor}
-                  DeleteMember={() => handleDeleteMember(item.userID)}
-                />
-              </View>
-            )}
-          />
-        </View>
-        {/* Confirmation Modal */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={showConfirmationModal}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}>
-            <View
-              style={{
-                backgroundColor: COLORS.AKCRUBACKGROUND,
-                padding: 20,
-                borderRadius: 10,
-                alignItems: 'center',
-              }}>
-              <Text
-                style={{
-                  ...FONTS.Title3,
-                  marginBottom: 10,
-                  textAlign: 'center',
-                }}>
-                {`Are you sure you want to delete "${memberToDelete?.userName}" from your Cru?`}
-              </Text>
-              <View style={{flexDirection: 'row'}}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.CATREDLGT,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    marginRight: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={() => setShowConfirmationModal(false)}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.GREEN,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={handleConfirmDelete}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Delete
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal animationType="fade" transparent={false} visible={modalVisible}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: COLORS.AKCRUBACKGROUND,
-              paddingHorizontal: SIZES.ScreenWidth * 0.03,
-              paddingTop: 20,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 20,
-              }}>
-              <Pressable onPress={handleChangeCruName}>
-                <Icon
-                  name="checkmark-circle"
-                  type="ionicon"
-                  size={25}
-                  color={COLORS.GREEN}
-                />
-              </Pressable>
-              <Pressable onPress={() => setModalVisible(false)}>
-                <Icon
-                  name="close-circle"
-                  type="ionicon"
-                  size={25}
-                  color={COLORS.CATREDLGT}
-                />
-              </Pressable>
-            </View>
-
-            <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={originalCruName}
-                placeholderTextColor={COLORS.DARKGREY}
-                style={styles.textinput}
-                secureTextEntry={false}
-                onChangeText={setModifiedCruName}
-                value={modifiedCruName} // Use the modified value in the TextInput
-                editable={true}
-              />
-            </View>
-          </View>
-        </Modal>
-
-        {/* CRU Name Change Confirmation Modal */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={showChangeNameConfirmationModal}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: COLORS.AKCRUBACKGROUND,
-              paddingHorizontal: SIZES.ScreenWidth * 0.03,
-              paddingTop: 20,
-            }}>
-            <View>
-              <Text
-                style={{
-                  ...FONTS.Title3,
-                  marginBottom: 10,
-                  textAlign: 'center',
-                }}>
-                {`Are you sure you want to change your CRU's Name to "${modifiedCruName}"?`}
-              </Text>
-              <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.CATREDLGT,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    marginRight: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={handleCancelChangeName}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Cancel
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.GREEN,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={handleConfirmChangeName}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Confirm
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Add Member Modal */}
-        <Modal
-          animationType="fade"
-          transparent={false}
-          visible={showAddMemberModal}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: COLORS.AKCRUBACKGROUND,
-              paddingHorizontal: SIZES.ScreenWidth * 0.03,
-              paddingTop: 20,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 20,
-              }}>
-              <Pressable onPress={() => setShowAddMemberModal(false)}>
-                <Icon
-                  name="close-circle"
-                  type="ionicon"
-                  size={25}
-                  color={COLORS.CATREDLGT}
-                />
-              </Pressable>
-              <Text style={{...FONTS.Title1, marginLeft: 5}}>Cancel</Text>
-            </View>
-
-            <Text style={styles.inputlabel}>Add a new member</Text>
-
-            <View style={{marginBottom: 70, marginTop: 10}}>
-              <FlatList
-                data={getAvailableMembers()}
-                horizontal={false}
-                showsHorizontalScrollIndicator={false}
-                scrollEnabled={false}
-                keyExtractor={item => item.userID}
-                renderItem={({item, index}) => (
-                  <View style={{marginVertical: 5}}>
-                    <AddMemberCard
-                      userPicture={item.userPicture}
-                      userName={item.userName}
-                      onPress={() => {
-                        navigation.navigate('ViewUserScreen', {
-                          userID: index,
-                        });
-                      }}
-                      influencer={item.influencer}
-                      userID={item.userID}
-                      akcruBadge={item.akcruBadge}
-                      userDesc={item.userDesc}
-                      avatarbordercolor={item.avatarbordercolor}
-                      AddMember={() => {
-                        // Set the selected member when the user clicks on the "Add Member" button
-                        setSelectedMember(item);
-                        // Show the Add Member confirmation modal
-                        setShowAddMemberConfirmationModal(true);
-                      }}
-                    />
+      <View>
+          <ScrollView stickyHeaderIndices={[0]}>
+              <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                  <Header />
+                  <View style={styles.container}>
+                      <TouchableOpacity onPress={() => navigation.pop()}>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                              }}>
+                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                          </View>
+                      </TouchableOpacity>
+                      <View style={{alignItems: 'center', marginTop: 10}}>
+                          <TouchableWithoutFeedback
+                              onPress={() => {
+                                  navigation.navigate('UserSearchResultScreen');
+                              }}>
+                              <View style={styles.searchinput}>
+                                  <Icon
+                                      name="magnify"
+                                      type="material-community"
+                                      color={COLORS.AKCRUBLUE}
+                                      size={28}
+                                      style={{marginRight: 10}}
+                                  />
+                                  <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Search users</Text>
+                              </View>
+                          </TouchableWithoutFeedback>
+                      </View>
+                      <Text
+                          style={{
+                              ...FONTS.Title2,
+                              marginTop: 10,
+                              textAlign: 'center',
+                              fontSize: 14,
+                          }}>
+                          EDIT YOUR CRU NAME
+                      </Text>
                   </View>
-                )}
-              />
-            </View>
-
-            {/* Add other input fields for member picture, influencer, etc. */}
-          </View>
-        </Modal>
-
-        {/* Add Member Confirmation Modal */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={showAddMemberConfirmationModal}>
-          <View
-            style={{
-              flex: 1,
-              backgroundColor: COLORS.AKCRUBACKGROUND,
-              paddingHorizontal: SIZES.ScreenWidth * 0.03,
-              paddingTop: 20,
-            }}>
-            <View>
-              <Text
-                style={{
-                  ...FONTS.Title3,
-                  marginBottom: 10,
-                  textAlign: 'center',
-                }}>
-                {`Are you sure you want to add "${selectedMember?.userName}" to your Cru?`}
-              </Text>
-              <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.CATREDLGT,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    marginRight: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={handleCancelAddMember}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Cancel
+                  <View style={styles.container}>
+                      <Text style={styles.inputlabel}>CRU Name</Text>
+                      <View style={styles.input}>
+                          <Pressable onPress={handleModalOpen}>
+                              <TextInput
+                                  placeholder={originalCruName}
+                                  placeholderTextColor={COLORS.DARKGREY}
+                                  style={styles.textinput}
+                                  secureTextEntry={false}
+                                  onChangeText={setModifiedCruName}
+                                  value={originalCruName} // Display the original value, not the modified one
+                                  editable={false}
+                              />
+                          </Pressable>
+                      </View>
+                  </View>
+                  <Text
+                      style={{
+                          ...FONTS.Title2,
+                          marginBottom: 20,
+                          textAlign: 'center',
+                          fontSize: 14,
+                      }}>
+                      EDIT YOUR CRU MEMBERS
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.GREEN,
-                    paddingHorizontal: 20,
-                    paddingVertical: 10,
-                    borderRadius: 5,
-                  }}
-                  onPress={handleConfirmAddMember}>
-                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
-                    Add Member
-                  </Text>
-                </TouchableOpacity>
               </View>
-            </View>
-          </View>
-        </Modal>
-      </ScrollView>
-    </View>
+
+              <View style={{marginBottom: 75, alignItems: 'center'}}>
+                  <FlatList
+                      data={members}
+                      horizontal={false}
+                      showsHorizontalScrollIndicator={false}
+                      scrollEnabled={false}
+                      numColumns={2}
+                      keyExtractor={item => item.userID}
+                      ListFooterComponent={
+                          <View
+                              style={{
+                                  borderRadius: 5,
+                                  backgroundColor: COLORS.AKCRUBACKGROUND,
+                                  width: SIZES.ScreenWidth / 2.3,
+                                  height: SIZES.ScreenHeight * 0.08,
+                                  borderWidth: 1,
+                                  borderColor: COLORS.AKCRUBLUE,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                              }}>
+                              <Pressable onPress={() => setShowAddMemberModal(true)}>
+                                  <Icon name="add-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                  <Text style={{...FONTS.Title2}}>Add a member</Text>
+                              </Pressable>
+                          </View>
+                      }
+                      renderItem={({item, index}) => (
+                          <View style={{marginVertical: 5, alignItems: 'center'}}>
+                              <CruMemberCard
+                                  userPicture={item.userPicture}
+                                  userName={item.userName}
+                                  onPress={() => {
+                                      navigation.navigate('ViewUserScreen', {
+                                          userID: index,
+                                      });
+                                  }}
+                                  influencer={item.influencer}
+                                  userID={item.userID}
+                                  akcruBadge={item.akcruBadge}
+                                  userDesc={item.userDesc}
+                                  avatarbordercolor={item.avatarbordercolor}
+                                  DeleteMember={() => handleDeleteMember(item.userID)}
+                              />
+                          </View>
+                      )}
+                  />
+              </View>
+              {/* Confirmation Modal */}
+              <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
+                  <View
+                      style={{
+                          flex: 1,
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                      }}>
+                      <View
+                          style={{
+                              backgroundColor: COLORS.AKCRUBACKGROUND,
+                              padding: 20,
+                              borderRadius: 10,
+                              alignItems: 'center',
+                          }}>
+                          <Text
+                              style={{
+                                  ...FONTS.Title3,
+                                  marginBottom: 10,
+                                  textAlign: 'center',
+                              }}>
+                              {`Are you sure you want to delete "${memberToDelete?.userName}" from your Cru?`}
+                          </Text>
+                          <View style={{flexDirection: 'row'}}>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.CATREDLGT,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      marginRight: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={() => setShowConfirmationModal(false)}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.GREEN,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={handleConfirmDelete}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Delete</Text>
+                              </TouchableOpacity>
+                          </View>
+                      </View>
+                  </View>
+              </Modal>
+
+              <Modal animationType="fade" transparent={false} visible={modalVisible}>
+                  <View
+                      style={{
+                          flex: 1,
+                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                          paddingTop: 20,
+                      }}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              marginBottom: 20,
+                          }}>
+                          <Pressable onPress={handleChangeCruName}>
+                              <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                          </Pressable>
+                          <Pressable onPress={() => setModalVisible(false)}>
+                              <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                          </Pressable>
+                      </View>
+
+                      <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
+                      <View style={styles.input}>
+                          <TextInput
+                              placeholder={originalCruName}
+                              placeholderTextColor={COLORS.DARKGREY}
+                              style={styles.textinput}
+                              secureTextEntry={false}
+                              onChangeText={setModifiedCruName}
+                              value={modifiedCruName} // Use the modified value in the TextInput
+                              editable={true}
+                          />
+                      </View>
+                  </View>
+              </Modal>
+
+              {/* CRU Name Change Confirmation Modal */}
+              <Modal animationType="fade" transparent={true} visible={showChangeNameConfirmationModal}>
+                  <View
+                      style={{
+                          flex: 1,
+                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                          paddingTop: 20,
+                      }}>
+                      <View>
+                          <Text
+                              style={{
+                                  ...FONTS.Title3,
+                                  marginBottom: 10,
+                                  textAlign: 'center',
+                              }}>
+                              {`Are you sure you want to change your CRU's Name to "${modifiedCruName}"?`}
+                          </Text>
+                          <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.CATREDLGT,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      marginRight: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={handleCancelChangeName}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.GREEN,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={handleConfirmChangeName}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Confirm</Text>
+                              </TouchableOpacity>
+                          </View>
+                      </View>
+                  </View>
+              </Modal>
+
+              {/* Add Member Modal */}
+              <Modal animationType="fade" transparent={false} visible={showAddMemberModal}>
+                  <View
+                      style={{
+                          flex: 1,
+                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                          paddingTop: 20,
+                      }}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginBottom: 20,
+                          }}>
+                          <Pressable onPress={() => setShowAddMemberModal(false)}>
+                              <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                          </Pressable>
+                          <Text style={{...FONTS.Title1, marginLeft: 5}}>Cancel</Text>
+                      </View>
+
+                      <Text style={styles.inputlabel}>Add a new member</Text>
+
+                      <View style={{marginBottom: 70, marginTop: 10}}>
+                          <FlatList
+                              data={getAvailableMembers()}
+                              horizontal={false}
+                              showsHorizontalScrollIndicator={false}
+                              scrollEnabled={false}
+                              keyExtractor={item => item.userID}
+                              renderItem={({item, index}) => (
+                                  <View style={{marginVertical: 5}}>
+                                      <AddMemberCard
+                                          userPicture={item.userPicture}
+                                          userName={item.userName}
+                                          onPress={() => {
+                                              navigation.navigate('ViewUserScreen', {
+                                                  userID: index,
+                                              });
+                                          }}
+                                          influencer={item.influencer}
+                                          userID={item.userID}
+                                          akcruBadge={item.akcruBadge}
+                                          userDesc={item.userDesc}
+                                          avatarbordercolor={item.avatarbordercolor}
+                                          AddMember={() => {
+                                              // Set the selected member when the user clicks on the "Add Member" button
+                                              setSelectedMember(item);
+                                              // Show the Add Member confirmation modal
+                                              setShowAddMemberConfirmationModal(true);
+                                          }}
+                                      />
+                                  </View>
+                              )}
+                          />
+                      </View>
+
+                      {/* Add other input fields for member picture, influencer, etc. */}
+                  </View>
+              </Modal>
+
+              {/* Add Member Confirmation Modal */}
+              <Modal animationType="fade" transparent={true} visible={showAddMemberConfirmationModal}>
+                  <View
+                      style={{
+                          flex: 1,
+                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                          paddingTop: 20,
+                      }}>
+                      <View>
+                          <Text
+                              style={{
+                                  ...FONTS.Title3,
+                                  marginBottom: 10,
+                                  textAlign: 'center',
+                              }}>
+                              {`Are you sure you want to add "${selectedMember?.userName}" to your Cru?`}
+                          </Text>
+                          <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.CATREDLGT,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      marginRight: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={handleCancelAddMember}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                  style={{
+                                      backgroundColor: COLORS.GREEN,
+                                      paddingHorizontal: 20,
+                                      paddingVertical: 10,
+                                      borderRadius: 5,
+                                  }}
+                                  onPress={handleConfirmAddMember}>
+                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Add Member</Text>
+                              </TouchableOpacity>
+                          </View>
+                      </View>
+                  </View>
+              </Modal>
+          </ScrollView>
+      </View>
   );
 };
 
