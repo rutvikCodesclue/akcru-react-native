@@ -11,6 +11,7 @@ import {
     Pressable,
     Dimensions,
     FlatList,
+    ActivityIndicator,
 } from 'react-native';
 import React from 'react';
 import CRUUserVideoList from '../../../components/CruViewUserVideoList';
@@ -62,6 +63,8 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 
+import Video from 'react-native-video';
+
 type StartCRUViewDateNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
 
 type StartCRUViewDateRouteProp = RouteProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
@@ -77,7 +80,7 @@ type Props = {
     cameraInitialState: boolean;
 };
 
-const StartCRUViewDate = ({navigation, route}: Props) => {
+const StartCRUViewDateCopy = ({navigation, route}: Props) => {
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
     const roomAuthToken = route.params?.roomAuthToken;
@@ -438,6 +441,7 @@ const StartCRUViewDate = ({navigation, route}: Props) => {
     const navigation2 = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
 
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
 
     const handleEnterFullscreen = () => {
         setIsFullscreen(true);
@@ -591,23 +595,46 @@ const StartCRUViewDate = ({navigation, route}: Props) => {
                         <View>
                             <View style={styles.videocontain}>
                                 <View style={{flex: 1}}>
-                                    <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
-                                        <VideoPlayer
-                                            source={{
-                                                uri: movie?.movieURL,
-                                            }}
-                                            fullscreenAutorotate={false}
-                                            tapAnywhereToPause={false}
-                                            toggleResizeModeOnFullscreen={true}
-                                            isFullscreen={isFullscreen}
-                                            posterResizeMode="cover"
-                                            poster={movie?.landscapeURL}
-                                            onEnterFullscreen={handleEnterFullscreen}
-                                            onExitFullscreen={handleExitFullscreen}
-                                            onBack={handleOnBack}
-                                        />
-                                    </View>
-                                    <View style={{backgroundColor: 'red', flex: 1}}></View>
+                                    {hasLottieFirstLoopCompleted ? (
+                                        movie?.movieURL ? (
+                                            <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
+                                                <VideoPlayer
+                                                    source={{
+                                                        uri: movie?.movieURL,
+                                                    }}
+                                                    fullscreenAutorotate={false}
+                                                    tapAnywhereToPause={false}
+                                                    toggleResizeModeOnFullscreen={true}
+                                                    isFullscreen={isFullscreen}
+                                                    // posterResizeMode="cover"
+                                                    // poster={movie?.landscapeURL}
+                                                    onEnterFullscreen={handleEnterFullscreen}
+                                                    onExitFullscreen={handleExitFullscreen}
+                                                    onBack={handleOnBack}
+                                                />
+                                            </View>
+                                        ) : (
+                                            <ActivityIndicator size="large" color={COLORS.BLACK} />
+                                        )
+                                    ) : (
+                                        <View>
+                                            <Video
+                                                source={require('../../../../assets/sounds/akcrusound1.mp3')}
+                                                repeat={false}
+                                            />
+                                            <LottieView
+                                                source={require('../../../../assets/lottie/Akcruopener1.json')}
+                                                autoPlay
+                                                loop={false}
+                                                style={styles.movieview}
+                                                onAnimationFinish={() => {
+                                                    if (!hasLottieFirstLoopCompleted) {
+                                                        setHasLottieFirstLoopCompleted(true);
+                                                    }
+                                                }}
+                                            />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         </View>
@@ -623,7 +650,7 @@ const StartCRUViewDate = ({navigation, route}: Props) => {
                         height: 240,
                         marginTop: SIZES.ScreenHeight / 3,
                         backgroundColor: 'purple',
-                        alignSelf: 'center',
+
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -722,7 +749,7 @@ const StartCRUViewDate = ({navigation, route}: Props) => {
     );
 };
 
-export default StartCRUViewDate;
+export default StartCRUViewDateCopy;
 
 const styles = StyleSheet.create({
     topcontainer: {
@@ -754,6 +781,11 @@ const styles = StyleSheet.create({
         marginRight: 4,
         borderRadius: 4,
         textAlign: 'center',
+    },
+    activitycontainer: {
+        backgroundColor: COLORS.BLACK,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     input: {
         flexDirection: 'row',
