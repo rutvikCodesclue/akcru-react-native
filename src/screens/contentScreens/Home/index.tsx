@@ -148,7 +148,7 @@ const HomeScreen = () => {
    };
 
   return (
-      <View>
+      <SafeAreaView>
           {isMovieDataLoaded ? (
               <ScrollView stickyHeaderIndices={[0]}>
                   <View>
@@ -254,7 +254,7 @@ const HomeScreen = () => {
                   <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
               </View>
           )}
-      </View>
+      </SafeAreaView>
   );
 };
 

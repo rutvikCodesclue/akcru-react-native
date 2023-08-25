@@ -1,4 +1,4 @@
-import {View, Text, FlatList, TouchableOpacity, Image} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image, SafeAreaView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
@@ -80,7 +80,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
   };
 
   return (
-      <View>
+      <SafeAreaView>
           <View>
               <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                   <TouchableOpacity
@@ -157,7 +157,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                   </View>
               </View>
           </View>
-      </View>
+      </SafeAreaView>
   );
 };
 

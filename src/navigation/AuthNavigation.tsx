@@ -54,14 +54,6 @@ export default function AuthStack() {
         }}
       />
       <Auth.Screen
-        name="ClientTabNavigator"
-        component={ClientTabNavigator}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <Auth.Screen
         name="NoBottomStack"
         component={NoBottomStack}
         options={{

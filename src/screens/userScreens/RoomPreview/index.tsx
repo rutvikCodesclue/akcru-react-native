@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   Image,
   Pressable,
+  Platform,
 } from "react-native";
 import React, { useRef } from "react";
 import Header from "../../../components/header";
 import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
 import LinearGradient from "react-native-linear-gradient";
 import { Icon } from "@rneui/base";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { useState, useEffect } from "react";
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
@@ -71,102 +72,101 @@ const cameraInitialState = route.params?.cameraInitialState;
     })
   }, []);
 
-  useEffect(() => {
+  const _checkPermissions = async () => {
+    //check permissions for camera and microphone on android
+    if (Platform.OS === 'android') {
       // Request microphone permission
-      request(PERMISSIONS.ANDROID.RECORD_AUDIO)
-          .then(audioResult => {
-              if (audioResult === RESULTS.GRANTED) {
-                  // Microphone permission granted
-                  console.log('Microphone permission granted');
-              }
-          })
-          .catch(audioError => {
-              // Handle microphone permission request error
-              console.log('Microphone permission request error:', audioError);
-          });
+      check(PERMISSIONS.ANDROID.RECORD_AUDIO)
+      .then(audioResult => {
+          if (audioResult === RESULTS.GRANTED) {
+              // Microphone permission granted
+              console.log('Microphone permission granted');
+          }
+      })
+      .catch(audioError => {
+          // Handle microphone permission request error
+          console.log('Microphone permission request error:', audioError);
+      });
 
       // Request camera permission
-      request(PERMISSIONS.ANDROID.CAMERA)
-          .then(cameraResult => {
-              if (cameraResult === RESULTS.GRANTED) {
-                  // Camera permission granted
-                  console.log('Camera permission granted');
-              }
-          })
-          .catch(cameraError => {
-              // Handle camera permission request error
-              console.log('Camera permission request error:', cameraError);
-          });
-  }, []);
-  
-  
-  const _checkPermissions = async () => {
-    // TODO: handle permissions for android as well
-
+      check(PERMISSIONS.ANDROID.CAMERA)
+      .then(cameraResult => {
+          if (cameraResult === RESULTS.GRANTED) {
+              // Camera permission granted
+              console.log('Camera permission granted');
+          }
+      })
+      .catch(cameraError => {
+          // Handle camera permission request error
+          console.log('Camera permission request error:', cameraError);
+      });
+    }
     // check permissions for camera and microphone on iOS
-    check(PERMISSIONS.IOS.CAMERA)
-    .then((result) => {
-      switch (result) {
-        case RESULTS.UNAVAILABLE:
-          console.log('The camera is not available (on this device / in this context)');
-          break;
-        case RESULTS.DENIED:
-          console.log('The camera permission has not been requested / is denied but requestable');
-          request(PERMISSIONS.IOS.CAMERA).then((result) => {
-            // …
-            console.log("Requested camera permission", result);
-            if (result === RESULTS.GRANTED) {
-              setCameraPermission(true);
-            }
-          });
-          break;
-        case RESULTS.LIMITED:
-          console.log('The camera permission is limited: some actions are possible');
-          break;
-        case RESULTS.GRANTED:
-          console.log('The camera permission is granted', result);
-          setCameraPermission(true);
-          break;
-        case RESULTS.BLOCKED:
-          console.log('The camera permission is denied and not requestable anymore');
-          break;
-      }
-    })
-    .catch((error) => {
-      // display some error message for the user
-    });
-    
-    check(PERMISSIONS.IOS.MICROPHONE)
-    .then((result) => {
-      switch (result) {
-        case RESULTS.UNAVAILABLE:
-          console.log('The microphone is not available (on this device / in this context)');
-          break;
-        case RESULTS.DENIED:
-          console.log('The microphone permission has not been requested / is denied but requestable');
-          request(PERMISSIONS.IOS.MICROPHONE).then((result) => {
-            // …
-            console.log("Requested microphone permission");
-            if (result === RESULTS.GRANTED) {
-              setMicPermission(true);
-            }
-          });
-          break;
-        case RESULTS.LIMITED:
-          console.log('The microphone permission is limited: some actions are possible');
-          break;
-        case RESULTS.GRANTED:
-          console.log('The microphone permission is granted');
-          setMicPermission(true);
-          break;
-        case RESULTS.BLOCKED:
-          console.log('The microphone permission is denied and not requestable anymore');
-          break;
-      }
-    })
-    .catch((error) => {
-      // display some error message for the user
-    });
+    if (Platform.OS === 'ios') {
+      check(PERMISSIONS.IOS.CAMERA)
+      .then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            console.log('The camera is not available (on this device / in this context)');
+            break;
+          case RESULTS.DENIED:
+            console.log('The camera permission has not been requested / is denied but requestable');
+            request(PERMISSIONS.IOS.CAMERA).then((result) => {
+              // …
+              console.log("Requested camera permission", result);
+              if (result === RESULTS.GRANTED) {
+                setCameraPermission(true);
+              }
+            });
+            break;
+          case RESULTS.LIMITED:
+            console.log('The camera permission is limited: some actions are possible');
+            break;
+          case RESULTS.GRANTED:
+            console.log('The camera permission is granted', result);
+            setCameraPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            console.log('The camera permission is denied and not requestable anymore');
+            break;
+        }
+      })
+      .catch((error) => {
+        // display some error message for the user
+      });
+      
+      check(PERMISSIONS.IOS.MICROPHONE)
+      .then((result) => {
+        switch (result) {
+          case RESULTS.UNAVAILABLE:
+            console.log('The microphone is not available (on this device / in this context)');
+            break;
+          case RESULTS.DENIED:
+            console.log('The microphone permission has not been requested / is denied but requestable');
+            request(PERMISSIONS.IOS.MICROPHONE).then((result) => {
+              // …
+              console.log("Requested microphone permission");
+              if (result === RESULTS.GRANTED) {
+                setMicPermission(true);
+              }
+            });
+            break;
+          case RESULTS.LIMITED:
+            console.log('The microphone permission is limited: some actions are possible');
+            break;
+          case RESULTS.GRANTED:
+            console.log('The microphone permission is granted');
+            setMicPermission(true);
+            break;
+          case RESULTS.BLOCKED:
+            console.log('The microphone permission is denied and not requestable anymore');
+            break;
+        }
+      })
+      .catch((error) => {
+        // display some error message for the user
+      });
+    }
   }
 
   const __onError = (error: HMSException) => {
@@ -203,19 +203,19 @@ const cameraInitialState = route.params?.cameraInitialState;
     // set the hmsInstanceRef
     hmsInstanceRef.current = hmsInstance;
 
-    console.log("Joining room...");
+    console.log("Joining room preview [RoomPreviewScreen]...");
 
     // call join the room API endpoint to get the room Token
     // FIXME: handle user joining a room that they aren't hosting
     const authTokenForRoom = await joinMyRoom()
     setAuthRoomToken(authTokenForRoom)
 
-    // check permissions for microphone and camera
+    // check permissions for microphone and camera (iOS/Android)
     await _checkPermissions()
 
     // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
     if (hmsInstance) {
-      console.log("starting preview check...");
+      console.log("Registering Room Preview Event Listeners [RoomPreviewScreen]...");
       
       // 1. add Event Listeners to subscribe to Join Success or Failure updates
       hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onError); 
@@ -269,18 +269,20 @@ const cameraInitialState = route.params?.cameraInitialState;
       }
       // Removing all registered listeners
       hmsInstance.removeAllListeners();
+      console.log('All listeners removed [RoomPreviewScreen]');
+      
   
       /**
        * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
        */
       const leaveResult = await hmsInstance.leave();
-      // console.log('Leave Success: ', leaveResult);
+      console.log('Leave Success [RoomPreviewScreen]:', leaveResult);
   
       /**
        * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
        */
       const destroyResult = await hmsInstance.destroy();
-      // console.log('Destroy Success: ', destroyResult);
+      console.log('Destroy Success [RoomPreviewScreen]:', destroyResult);
   
       // Removing HMSSDK instance
       hmsInstanceRef.current = null;
@@ -300,19 +302,40 @@ const cameraInitialState = route.params?.cameraInitialState;
   };
 
 
-  useEffect(() => {
-    _startRoomPreview()
+  // useEffect(() => {
+  //   _startRoomPreview()
 
-    return () => {
-      console.log("Leaving room preview...");
+  //   return () => {
+  //     console.log("Leaving room preview...");
+      
+  //     // cleanup (if app crashes or user leaves the screen unexpectedly)
+  //     if (hmsInstanceRef.current) {
+  //       _handleRoomLeave()
+  //       // hmsInstanceRef.current.leave();
+  //     }
+  //   }
+  // }, [navigation]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+      console.log('Screen focused [RoomPreviewScreen]');
+      console.log("Starting room preview...");
+      _startRoomPreview()
+
+      return () => {
+        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+        console.log('Screen unfocused [RoomPreviewScreen]');
+        console.log("Leaving room preview...");
       
       // cleanup (if app crashes or user leaves the screen unexpectedly)
       if (hmsInstanceRef.current) {
         _handleRoomLeave()
         // hmsInstanceRef.current.leave();
       }
-    }
-  }, [navigation]);
+      };
+    }, [])
+  );
 
 
   return (
@@ -409,7 +432,7 @@ const cameraInitialState = route.params?.cameraInitialState;
                                   style={{width: '100%', height: '100%'}}
                                   mirror={true}
                               />
-                          ) : null
+                          ) : <Text style={{color: '#fff'}}>Camera Off</Text>
                       ) : (
                           <Text style={{color: '#fff'}}>Loading....</Text>
                       )}

@@ -82,17 +82,17 @@ export default function NoBottomStack() {
                   gestureDirection: 'horizontal',
               }}
           />
+        <NoBottom.Screen
+            name="RoomPreviewScreen"
+            component={RoomPreviewScreen}
+            options={{
+                headerShown: false,
+                gestureDirection: 'horizontal',
+            }}
+        />
           <NoBottom.Screen
               name="StartCRUViewDate"
               component={StartCRUViewDate}
-              options={{
-                  headerShown: false,
-                  gestureDirection: 'horizontal',
-              }}
-          />
-          <NoBottom.Screen
-              name="RoomPreviewScreen"
-              component={RoomPreviewScreen}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
