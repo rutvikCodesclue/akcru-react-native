@@ -302,20 +302,6 @@ const cameraInitialState = route.params?.cameraInitialState;
   };
 
 
-  // useEffect(() => {
-  //   _startRoomPreview()
-
-  //   return () => {
-  //     console.log("Leaving room preview...");
-      
-  //     // cleanup (if app crashes or user leaves the screen unexpectedly)
-  //     if (hmsInstanceRef.current) {
-  //       _handleRoomLeave()
-  //       // hmsInstanceRef.current.leave();
-  //     }
-  //   }
-  // }, [navigation]);
-
   useFocusEffect(
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
