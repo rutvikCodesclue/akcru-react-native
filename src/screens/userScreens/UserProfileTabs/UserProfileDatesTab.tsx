@@ -10,7 +10,7 @@ import { ICruView, IMovie } from "../../../../types";
 import useAuthStore from "../../../stores/auth.store";
 import { formatMovieDuration } from "../../../util/util";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 
@@ -19,15 +19,25 @@ const UserProfileDatesTab = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
   const user = useAuthStore.getState().user
   const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
-  useEffect(() => {
-    // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
-    // FIXME: change this to only show upcoming CRUViews
-    getMyCRUViews().then((res) => {
-      if (res) {
-        setMyCRUViews(res);
-      }
-    })
-  }, []);
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
+      // FIXME: change this to only show upcoming CRUViews
+      const fetchMyCRUViews = async () => {
+        try {
+            const myCRUViews = await getMyCRUViews()
+            if (myCRUViews) {
+              setMyCRUViews(myCRUViews);
+            }
+        } catch (error) {
+          console.error('Error getting my CRU Views:', error);
+        }
+      };
+      fetchMyCRUViews();
+    }, [])
+  );
 
   // TODO: change this to render CRUViews and MITs (when MITs are implemented)
   const _renderMyCRUViews = () => {
