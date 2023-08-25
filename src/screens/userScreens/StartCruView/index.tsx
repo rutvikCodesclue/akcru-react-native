@@ -20,7 +20,7 @@ import MITChatCard from "../../../components/MITChatCard/MITChatCard";
 import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
 import LinearGradient from "react-native-linear-gradient";
 import { Icon } from "@rneui/base";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RouteProp, useNavigation, useFocusEffect } from "@react-navigation/native";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -29,10 +29,6 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
-
-//import { ResizeMode, Video } from 'expo-av';
-// import { Video, ResizeMode } from "expo-av";
-// import * as ScreenOrientation from "expo-screen-orientation";
 import { StackNavigationProp } from "@react-navigation/stack";
 import VideoPlayer from "react-native-media-console";
 import { findMovieById } from "../../../lib/api/movies.lib";
@@ -70,17 +66,6 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
 
-
-
-// function setOrientation() {
-//   if (Dimensions.get("window").height > Dimensions.get("window").width) {
-//     //Device is in portrait mode, rotate to landscape mode.
-//     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-//   } else {
-//     //Device is in landscape mode, rotate to portrait mode.
-//     ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-//   }
-// }
 
 
 type StartCRUViewDateNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
@@ -128,6 +113,18 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     console.log("room details [cameraInitialState]:", cameraInitialState);
     
     // TODO: setup the realtime channels for the room
+
+    // close and destroy the hmsInstance when the component unmounts
+    return () => {
+        if (hmsInstanceRef.current) {
+            // leave the room
+            console.log("Leaving the watchparty room [startcruviewdate]...");
+            hmsInstanceRef.current.leave();
+
+            console.log("Destroying hmsInstance [startcruviewdate]...");
+            hmsInstanceRef.current.destroy();
+        }
+    }
     
   }, []);
 
@@ -476,20 +473,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
        handleExitFullscreen();
    };
 
-//   useEffect(() => {
-
-//       // Lock landscape orientation when entering this screen
-//     //   Orientation.lockToLandscape();
-
-//       // Allow landscape orientation when entering this screen
-//       Orientation.unlockAllOrientations();
-
-//       // Lock the orientation back to portrait when leaving this screen
-//       return () => {
-//           Orientation.lockToPortrait();
-//       };
-//   }, []);
-
   return (
       <View>
           <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
@@ -505,11 +488,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                           onPress={() =>
                               navigation2.navigate('UserProfileStack', {
                                   screen: 'UserProfileScreen',
-                                  //   movieId,
-                                  //     roomId: roomIdFrom100ms,
-                                  //     roomAuthToken,
-                                  //   micInitialState: isMicOn,
-                                  //   cameraInitialState: isUserVideoOn,
                               })
                           }>
                           <View
