@@ -474,7 +474,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
    };
 
   return (
-      <View>
+      <SafeAreaView>
           <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
               {!isFullscreen && (
                   <View style={{zIndex: 20}}>
@@ -737,7 +737,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                   </View>
               </BottomSheet>
           </View>
-      </View>
+      </SafeAreaView>
   );
 };
 
