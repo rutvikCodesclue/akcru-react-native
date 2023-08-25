@@ -432,7 +432,7 @@ const cameraInitialState = route.params?.cameraInitialState;
                                   style={{width: '100%', height: '100%'}}
                                   mirror={true}
                               />
-                          ) : null
+                          ) : <Text style={{color: '#fff'}}>Camera Off</Text>
                       ) : (
                           <Text style={{color: '#fff'}}>Loading....</Text>
                       )}
