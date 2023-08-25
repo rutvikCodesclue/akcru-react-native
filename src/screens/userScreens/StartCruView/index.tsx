@@ -114,17 +114,17 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     
     // TODO: setup the realtime channels for the room
 
-    // close and destroy the hmsInstance when the component unmounts
-    return () => {
-        if (hmsInstanceRef.current) {
-            // leave the room
-            console.log("Leaving the watchparty room [startcruviewdate]...");
-            hmsInstanceRef.current.leave();
+    // FIXME: close and destroy the hmsInstance when the component unmounts
+    // return () => {
+    //     if (hmsInstanceRef.current) {
+    //         // leave the room
+    //         console.log("Leaving the watchparty room [startcruviewdate]...");
+    //         hmsInstanceRef.current.leave();
 
-            console.log("Destroying hmsInstance [startcruviewdate]...");
-            hmsInstanceRef.current.destroy();
-        }
-    }
+    //         console.log("Destroying hmsInstance [startcruviewdate]...");
+    //         hmsInstanceRef.current.destroy();
+    //     }
+    // }
     
   }, []);
 
@@ -634,49 +634,48 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
               </View>
 
               {/* CHAT ROOM */}
-              <View
-                  style={{
-                      // flex: 1,
-                      //   marginHorizontal: 15,
-                      width: SIZES.ScreenWidth,
-                      height: 240,
-                      marginTop: SIZES.ScreenHeight / 4,
-                      backgroundColor: 'purple',
-                      alignSelf: 'center',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                  }}>
-                  {hmsInstanceRef.current ? (
-                      <FlatList
-                          scrollEnabled={false}
-                          style={{flex: 1}}
-                          key={trackIds.length}
-                          numColumns={3}
-                          data={trackIds} // trackIds is an array of trackIds of video tracks
-                          keyExtractor={trackId => trackId}
-                          renderItem={({item}) =>
-                              hmsInstanceRef.current ? (
-                                  <hmsInstanceRef.current.HmsView
-                                      key={item}
-                                      trackId={item}
-                                      style={{flex: 1, width: SIZES.ScreenWidth / 3, height: 120}}
-                                      scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                      mirror={true}
-                                  />
-                              ) : (
-                                  <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                                      <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
-                                  </View>
-                              )
-                          }
-                      />
-                  ) : (
-                      <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                          <Text>Loading...</Text>
-                      </View>
-                  )}
-                  {/* <CRUUserVideoList /> */}
-              </View>
+                <View
+                    style={{
+                        // flex: 1,
+                        //   marginHorizontal: 15,
+                        width: SIZES.ScreenWidth,
+                        height: 240,
+                        marginTop: SIZES.ScreenHeight / 3,
+                        backgroundColor: 'purple',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    {hmsInstanceRef.current ? (
+                        <FlatList
+                            scrollEnabled={false}
+                            style={{ height: "100%", width: "100%" }}
+                            key={trackIds.length}
+                            numColumns={3}
+                            data={trackIds} // trackIds is an array of trackIds of video tracks
+                            keyExtractor={trackId => trackId}
+                            renderItem={({item}) =>
+                                hmsInstanceRef.current ? (
+                                    <hmsInstanceRef.current.HmsView
+                                        key={item}
+                                        trackId={item}
+                                        style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000'}}
+                                        scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                        mirror={true}
+                                    />
+                                ) : (
+                                    <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                                        <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
+                                    </View>
+                                )
+                            }
+                        />
+                    ) : (
+                        <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                            <Text>Loading...</Text>
+                        </View>
+                    )}
+                </View>
 
               {/* {isStreamOpen ? (
           <View style={{height: SIZES.ScreenHeight * 0.16}}></View>
