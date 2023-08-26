@@ -177,7 +177,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
                 config: {
                     broadcast: {
-                        self: isHost ? true: false,
+                        // self: isHost ? true: false,
                     },
                 },
             })
@@ -315,6 +315,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 (payload) => {
                     console.log(payload)
                     // TODO: play video player if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        // play the video player, for host
+                        setIsStreamOpen(false);
+                    }
                 }
             )
             .on(
@@ -894,6 +898,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                             )
                                         }
                                         {/* USERNAME */}
+                                        {/* FIXME: render this w/ peer object */}
                                         <View style={{position: "absolute", bottom: 0, left: 0}}>
                                             <Text style={{color: '#fff', }}>{user?.username}</Text>
                                         </View>
