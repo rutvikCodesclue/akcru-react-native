@@ -9,12 +9,19 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import AkcruButtons from '../../../components/akcruButtons';
+import {MaskedTextInput} from 'react-native-mask-text';
 
 
 const AccountSettings = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+    const [privacySetting, setPrivacySetting] = useState('Public'); // Add state for privacy setting
+    const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [dob, setDob] = useState('');
 
     const handleUpdateProfile = () => {
         // Show the confirmation modal
@@ -28,8 +35,7 @@ const AccountSettings = () => {
         // Call the UpdateProfile function to update the profile information
         // UpdateProfile({userName, desc});
     };
-    const [privacySetting, setPrivacySetting] = useState('Public'); // Add state for privacy setting
-    const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
+    
 
     return (
         <View>
@@ -51,6 +57,77 @@ const AccountSettings = () => {
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.title}>ACCOUNT SETTINGS</Text>
+                    <Text style={{...FONTS.paragraph1, marginBottom: 10}}>
+                        ( This information will not be shared publicly )
+                    </Text>
+                    <View>
+                        <Text style={styles.inputlabel}>First name</Text>
+                        <View style={styles.input}>
+                            <TextInput
+                                placeholder={firstName}
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={text => setFirstName(text)}
+                                value={firstName || ''}
+                            />
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.inputlabel}>Last name</Text>
+                        <View style={styles.input}>
+                            <TextInput
+                                placeholder={lastName}
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={text => setLastName(text)}
+                                value={lastName || ''}
+                            />
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.inputlabel}>DOB</Text>
+                        <View style={styles.input}>
+                            <MaskedTextInput
+                                mask="99/99/9999"
+                                placeholder="MM/DD/YYYY"
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={text => setDob(text)}
+                                value={dob || ''}
+                                keyboardType="phone-pad" // Set keyboard type to phone-pad
+                            />
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.inputlabel}>Phone number</Text>
+                        <View style={styles.input}>
+                            <MaskedTextInput
+                                mask="1+999-999-9999"
+                                placeholder="1+123-456-7890"
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={text => setPhoneNumber(text)}
+                                value={phoneNumber || ''}
+                                keyboardType="phone-pad" // Set keyboard type to phone-pad
+                            />
+                        </View>
+                    </View>
+
+                    <View
+                        style={{
+                            borderBottomWidth: 0.8,
+                            borderColor: COLORS.LIGHTGREY,
+                            marginTop: 20,
+                            marginBottom: 40,
+                            width: SIZES.ScreenWidth / 4,
+                            alignSelf: 'center',
+                        }}
+                    />
+
                     <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
                         <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>Privacy settings</Text>
                         <View
