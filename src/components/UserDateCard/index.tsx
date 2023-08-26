@@ -11,6 +11,8 @@ import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
+    id: string;
+    cruId: string;
     isHost: boolean;
     movieId: string;
     moviePoster: string;
@@ -26,12 +28,13 @@ type UserDatesCardProps = {
     scheduleWith: string;
     type: 'MIT' | 'CRUView';
     dateID?: any;
-    id: string;
     onPressin: () => void;
 };
 
 
 const UserDatesCard = ({
+    id,
+    cruId,
     isHost,
     movieId,
     moviePoster,
@@ -47,7 +50,6 @@ const UserDatesCard = ({
     scheduleWith,
     dateID,
     type,
-    id,
     onPressin
 }: UserDatesCardProps) => {
 
@@ -202,7 +204,8 @@ const navigation =
                                     navigation.navigate('RoomPreview', {
                                         id,
                                         movieId,
-                                        isHost
+                                        isHost,
+                                        cruId
                                     })
                             }>
                             <View

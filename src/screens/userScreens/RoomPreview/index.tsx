@@ -21,7 +21,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
-import { joinMyRoom } from "../../../lib/api/rooms.lib";
+import { joinARoom, joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 import {capitalizeFirstLetterOfString} from '../../../util/util';
@@ -42,10 +42,12 @@ type Props = {
     movieName: string;
     movieId: string;
     isHost: boolean;
+    cruId: string;
 };
 
 const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
+const cruId = route.params?.cruId;
 const micInitialState = route.params?.micInitialState;
 const cameraInitialState = route.params?.cameraInitialState;
 const isHost = route.params?.isHost;
@@ -207,15 +209,22 @@ const isHost = route.params?.isHost;
     console.log("Joining room preview [RoomPreviewScreen]...");
 
     // call join the room API endpoint to get the room Token
-    // FIXME: handle user joining a room that they aren't hosting
-    const authTokenForRoom = await joinMyRoom()
-    setAuthRoomToken(authTokenForRoom)
+    let authTokenForRoom;
+    if (isHost) {
+      console.log("Generating auth token for room as HOST...");
+      authTokenForRoom = await joinMyRoom()
+      setAuthRoomToken(authTokenForRoom)
+    } else {
+      authTokenForRoom = await joinARoom(cruId)
+      setAuthRoomToken(authTokenForRoom)
+      console.log("Generating auth token for room as MEMBER...");
+    }
 
     // check permissions for microphone and camera (iOS/Android)
     await _checkPermissions()
 
     // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
-    if (hmsInstance) {
+    if (hmsInstance && authTokenForRoom) {
       console.log("Registering Room Preview Event Listeners [RoomPreviewScreen]...");
       
       // 1. add Event Listeners to subscribe to Join Success or Failure updates
@@ -319,7 +328,6 @@ const isHost = route.params?.isHost;
       // cleanup (if app crashes or user leaves the screen unexpectedly)
       if (hmsInstanceRef.current) {
         _handleRoomLeave()
-        // hmsInstanceRef.current.leave();
       }
       };
     }, [])
@@ -439,21 +447,6 @@ const isHost = route.params?.isHost;
                           color={COLORS.AKCRUBLUE}
                       />
                   </TouchableOpacity>
-                  {/* <TouchableOpacity
-                      disabled={!canJoinRoom}
-                      onPress={() => {
-                          _handleJoinRoom();
-                      }}
-                      style={{
-                          width: '100%',
-                          height: 50,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: '#000',
-                      }}>
-                      <Text style={{color: '#fff', textAlign: 'center', marginTop: 5}}>Join Room</Text>
-                  </TouchableOpacity> */}
               </View>
 
               <View style={styles.bottombtn}>

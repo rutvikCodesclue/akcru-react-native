@@ -15,10 +15,14 @@ export const createRoom = async () => {
 export const joinMyRoom = async () => {
     // POST /v1/rooms/join/me
     const { data } = await API.post(`/v1/rooms/join/me`);
-    // return the room auth token to be used for joining the room
+    // return the room auth token to be used for joining the room (as a HOST)
     return data.roomAuthToken.token;
 }
 
-export const joinRoom = async (roomId: string) => {
-    // TODO: same as joinMyRoom, but with specific prisma roomId
+export const joinARoom = async (cruId: string) => {
+    // POST /v1/rooms/join
+    // same as joinMyRoom, but with specific prisma cruId
+    const { data } = await API.post(`/v1/rooms/join`, { cruId });
+    // return the room auth token to be used for joining the room (as a MEMBER)
+    return data.roomAuthToken.token;
 }

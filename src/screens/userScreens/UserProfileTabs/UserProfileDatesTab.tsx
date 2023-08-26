@@ -48,6 +48,7 @@ const UserProfileDatesTab = () => {
             <View key={item.id} style={{marginBottom: 10}}>
                 <UserDatesCard
                     id={item.id}
+                    cruId={item.cru.id}
                     isHost={item.cru.creatorId === user?.id}
                     movieId={item.movie.id}
                     moviePoster={item.movie.portraitURL}
