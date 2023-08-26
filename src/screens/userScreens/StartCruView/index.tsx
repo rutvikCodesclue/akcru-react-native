@@ -105,6 +105,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
@@ -126,6 +127,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         findMovieById(movieId).then((res) => {
             if (res) {
                 setMovie(res);
+                setIsLoading(false);
             }
         })
 
@@ -321,9 +323,9 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 'broadcast',
                 { event: 'play-movie' },
                 (payload) => {
-                    console.log(payload)
-                    // TODO: play video player if not host
+                    // play video player if not host
                     if (!isHost && videoPlayerRef.current) {
+                        console.log(payload)
                         // play the video player, for host
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
@@ -334,17 +336,24 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 'broadcast',
                 { event: 'pause-movie' },
                 (payload) => {
-                    console.log(payload)
-                    // TODO: pause the video player if not host
-                    setIsMoviePlaying(false);
+                    if (!isHost && videoPlayerRef.current) {
+                        console.log(payload)
+                        // pause the video player if not host
+                        setIsMoviePlaying(false);
+                    }
                 }
             )
             .on(
                 'broadcast',
                 { event: 'seek-movie' },
                 (payload) => {
-                    console.log(payload)
                     // TODO: seek the video player if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        console.log(payload)
+                        // seek the video player if not host
+                        // TODO: TEST THIS
+                        videoPlayerRef.current.seek(payload.seekTime);
+                    }
                 }
             )
             .on(
@@ -355,14 +364,22 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     // TODO: close the video player if not host
                 }
             )
-            // .on(
-            //     'broadcast',
-            //     { event: 'show-controls' },
-            //     (payload) => {
-            //         console.log(payload)
-            //         // TODO: show the video player controls if not host
-            //     }
-            // )
+            .on(
+                'broadcast',
+                { event: 'show-controls' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: show the video player controls if not host
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'hide-controls' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: hide the video player controls if not host
+                }
+            )
             .on(
                 'broadcast',
                 { event: 'enter-fullscreen' },
@@ -415,7 +432,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     };
 
     // creates `PeerTrackNode` object for given `peer` and `track` combination
-    const createPeerTrackNode = (peer: HMSPeer, track: HMSTrack | undefined): PeerTrackNode  => {
+    const createPeerTrackNode = (peer: HMSPeer, track?: HMSTrack | undefined): PeerTrackNode  => {
         let isVideoTrack = false;
         if (track && track?.type === HMSTrackType.VIDEO) {
             isVideoTrack = true;
@@ -461,6 +478,29 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         return [...nodes, createPeerTrackNode(peer, track)];
     };
 
+    const _updateNodeWithPeer = (data: { nodes: PeerTrackNode[], peer: HMSPeer, createNew?: boolean}) => {
+        const { nodes, peer, createNew = false } = data;
+    
+        const peerExists = nodes.some((node) => node.peer.peerID === peer.peerID);
+    
+        if (peerExists) {
+            return nodes.map((node) => {
+                if (node.peer.peerID === peer.peerID) {
+                    return { ...node, peer };
+                }
+                return node;
+            });
+        }
+    
+        if (!createNew) return nodes;
+    
+        if (peer.isLocal) {
+            return [createPeerTrackNode(peer), ...nodes];
+        }
+    
+        return [...nodes, createPeerTrackNode(peer)];
+    };
+
     /*
         100ms Event Listeners
     */ 
@@ -488,6 +528,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     createNew: true
                 })
             );
+        } else {
+            console.log("localPeer is null");
         }
         
     };
@@ -495,6 +537,52 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const __onPeerListener = ({ peer, type }: { peer: HMSPeer, type: HMSPeerUpdate }) => {
         // gets triggered when peer leaves, joins, peer's audio or video is muted, starts or stops speaking, role is changed or becomes dominant speaker.
         // use these objects to update your local and remote peers.
+
+        // We will create Tile for the Joined Peer when we receive `HMSUpdateListenerActions.ON_TRACK_UPDATE` event.
+        // Note: We are chosing to not create Tiles for Peers which does not have any tracks
+        if (type === HMSPeerUpdate.PEER_JOINED) {
+
+            setPeerTrackNodes((prevPeerTrackNodes) =>
+                    _updateNode({
+                        nodes: prevPeerTrackNodes,
+                        peer,
+                        track: peer.videoTrack,
+                        createNew: true
+                    })
+                );
+
+            return;
+        };
+
+        if (type === HMSPeerUpdate.PEER_LEFT) {
+            // Remove all Tiles which has peer same as the peer which just left the room.
+            // `removeNodeWithPeerId` function removes peerTrackNodes which has given peerID and returns updated list.
+            setPeerTrackNodes((prevPeerTrackNodes) =>
+                removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID)
+            );
+            return;
+        }
+
+        if (peer.isLocal) {
+            // Updating the LocalPeer Tile.
+            // `updateNodeWithPeer` function updates Peer object in PeerTrackNodes and returns updated list.
+            // if none exist then we are "creating a new PeerTrackNode for the updated Peer".
+            setPeerTrackNodes((prevPeerTrackNodes) =>
+                _updateNodeWithPeer({ nodes: prevPeerTrackNodes, peer, createNew: true })
+            );
+            return;
+        }
+
+        if (
+            type === HMSPeerUpdate.ROLE_CHANGED ||
+            type === HMSPeerUpdate.METADATA_CHANGED ||
+            type === HMSPeerUpdate.NAME_CHANGED ||
+            type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
+        ) {
+            // Ignoring these update types because we want to keep this implementation simple.
+            return;
+        }
+
     };
 
     const __onTrackListener = ({
@@ -511,11 +599,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     if (track.type === HMSTrackType.VIDEO) {
         // If Video track is added, you can use `trackId` to render video
         if (type === HMSTrackUpdate.TRACK_ADDED) {
-            if (peer.isLocal) {
-                console.log(`OWN video track Added: ${track.trackId}`);
-                // FIXME: use peerTrackNodes to render the video
-                // setTrackIds(prevTrackIds => [...prevTrackIds, track.trackId]);
-            } else {
+            if (!peer.isLocal)  {
                 // FIXME: add the track to the peerTrackNodes if peer is not local
                 // Updating the Tiles with Track and Peer.
                 // `updateNode` function updates "Track and Peer objects" in PeerTrackNodes and returns updated list.
@@ -557,12 +641,14 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
 
     const __onRoomListener = ({ room, type }: { room: HMSRoom, type: HMSRoomUpdate }) => {
         // gets triggered when room is muted or unmuted.
+        // TODO: implement this
     };
 
     const __onRemovedFromRoomListener = (data: any) => {
     // const __onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
         // triggered whenever someone removes local peer from the room or the room is ended.
         // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
+        console.log("onRemovedFromRoomListener triggered");
     };
 
     const __onMessageListener = (data: HMSMessage) => {
@@ -573,6 +659,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const __onSpeakerListener = (data: HMSSpeaker[]) => {
         // gets triggered whenever someone speaks
         // an array of speakers is received. Use it to highlight the speakers.
+        // TODO: implement this
     };
 
     const __onReconnectedListener = (data: any) => {
@@ -598,8 +685,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     timestamp: new Date().toISOString(),
                 }
             })
-        } else {
-            console.log(`${user?.username} started playing the movie`)
         }
     };
     const ___onPause = () => {
@@ -615,8 +700,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     timestamp: new Date().toISOString(),
                 }
             })
-        } else {
-            console.log(`${user?.username} paused the movie`)
         }
     };
     const ___onSeek = (data: OnSeekData) => {
@@ -633,8 +716,32 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     timestamp: new Date().toISOString(),
                 }
             })
-        } else {
-            console.log(`${user?.username} is seeking the movie: currentTime: ${data.currentTime} / seekTime: ${data.seekTime}`)
+        }
+    };
+    const ___onShowControls = () => {
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} is showing the controls`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'show-controls',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                }
+            })
+        }
+    };
+    const ___onHideControls = () => {
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} hid the controls`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'hide-controls',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                }
+            })
         }
     };
     const ___onEnd = () => {
@@ -643,9 +750,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     };
     const ___onPlaybackResume = () => {
         console.log(`${user?.username} resumed playback of the movie`)
-    };
-    const ___onShowControls = () => {
-        console.log(`${user?.username} is showing the controls`)
     };
     const ___onEnterFullscreen = () => {
         if (isHost && videoPlayerRef.current) {
@@ -721,120 +825,94 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const watchPartyView = () => {
         return (
             <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
-            {!isFullscreen && (
-                <View style={{zIndex: 20}}>
-                    <Header />
-                </View>
-            )}
+                {!isFullscreen && (
+                    <View style={{zIndex: 20}}>
+                        <Header />
+                    </View>
+                )}
 
-            {/* Leave Room / Close Movie Buttons */}
-            {!isFullscreen && (
-                <View style={styles.topcontainer}>
-                    <TouchableOpacity
-                        onPress={_handleRoomLeave}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
-                        </View>
-                    </TouchableOpacity>
-                    {!isStreamOpen && (
-                        <TouchableOpacity onPress={_handleCloseMovie}>
+                {/* Leave Room / Close Movie Buttons */}
+                {!isFullscreen && (
+                    <View style={styles.topcontainer}>
+                        <TouchableOpacity
+                            onPress={_handleRoomLeave}>
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                 }}>
-                                <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
                             </View>
                         </TouchableOpacity>
-                    )}
-                </View>
-            )}
-
-            {/* Movie Player */}
-            <View style={{flex: 1, zIndex: 100}}>
-                {isStreamOpen ? (
-                    // MOVIE INFO
-                    <View style={styles.moviecontainer}>
-                        <LinearGradient
-                            // Background Linear Gradient
-                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-
-                                borderRadius: 5,
-                                height: SIZES.ScreenHeight * 0.18,
-                            }}
-                        />
-                        <View style={{marginRight: 10}}>
-                            <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
-                        </View>
-                        <View>
-                            <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    marginVertical: 4,
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                <Text
+                        {!isStreamOpen && (
+                            <TouchableOpacity onPress={_handleCloseMovie}>
+                                <View
                                     style={{
-                                        ...FONTS.Title2,
-                                        fontSize: 12,
-                                        marginHorizontal: 10,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
                                     }}>
-                                    {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                </Text>
+                                    <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
+
+                {/* Movie Player */}
+                <View style={{flex: 1, zIndex: 100}}>
+                    {isStreamOpen ? (
+                        // MOVIE INFO
+                        <View style={styles.moviecontainer}>
+                            <LinearGradient
+                                // Background Linear Gradient
+                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+
+                                    borderRadius: 5,
+                                    height: SIZES.ScreenHeight * 0.18,
+                                }}
+                            />
+                            <View style={{marginRight: 10}}>
+                                <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
                             </View>
-                            <View style={{flexDirection: 'row', marginBottom: 8}}>
-                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                <Text style={styles.drawfonttag}>
-                                    {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                                </Text>
-                                <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                            </View>
-                            <View style={{flexDirection: 'row'}}>
-                                <TouchableWithoutFeedback>
-                                    <View
+                            <View>
+                                <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        marginVertical: 4,
+                                        alignItems: 'center',
+                                    }}>
+                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                    <Text
                                         style={{
-                                            flexDirection: 'row',
-                                            backgroundColor: COLORS.TAGCOLOR,
-                                            marginRight: 5,
-                                            paddingHorizontal: 5,
-                                            paddingVertical: 5,
-                                            borderRadius: 5,
-                                            alignItems: 'center',
+                                            ...FONTS.Title2,
+                                            fontSize: 12,
+                                            marginHorizontal: 10,
                                         }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.paragraph1,
-                                                marginRight: 5,
-                                                fontSize: 12,
-                                            }}>
-                                            Link Device
-                                        </Text>
-                                        <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
-                                    </View>
-                                </TouchableWithoutFeedback>
-                                {/* START MOVIE BUTTON */}
-                                { isHost && roomChannelRef.current && (
-                                    <TouchableWithoutFeedback onPress={() => {
-                                        setIsStreamOpen(false)
-                                        setIsMoviePlaying(true)
-                                        }}>
+                                        {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                    </Text>
+                                </View>
+                                <View style={{flexDirection: 'row', marginBottom: 8}}>
+                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                    <Text style={styles.drawfonttag}>
+                                        {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                    </Text>
+                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                </View>
+                                <View style={{flexDirection: 'row'}}>
+                                    <TouchableWithoutFeedback>
                                         <View
                                             style={{
                                                 flexDirection: 'row',
                                                 backgroundColor: COLORS.TAGCOLOR,
+                                                marginRight: 5,
                                                 paddingHorizontal: 5,
                                                 paddingVertical: 5,
                                                 borderRadius: 5,
@@ -846,62 +924,90 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                                     marginRight: 5,
                                                     fontSize: 12,
                                                 }}>
-                                                Play Stream
+                                                Link Device
                                             </Text>
-                                            <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
+                                            <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
                                         </View>
                                     </TouchableWithoutFeedback>
-                                )}
-                            </View>
-                        </View>
-                    </View>
-                ) : (
-                    // VIDEO PLAYER
-                    <View>
-                        <View style={styles.videocontain}>
-                            <View style={{flex: 1}}>
-                                <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
-                                    <VideoPlayer
-                                        source={{
-                                            uri: movie?.movieURL,
-                                        }}
-                                        paused={isMoviePlaying ? false : true}
-                                        poster={movie?.landscapeURL}
-                                        posterResizeMode="cover"
-                                        // setup a videoPlayerRef to control playback
-                                        videoRef={videoPlayerRef}
-                                        isFullscreen={isFullscreen}
-                                        toggleResizeModeOnFullscreen={true}
-                                        fullscreenAutorotate={false}
-                                        tapAnywhereToPause={false}
-                                        // only show certain controls when you are host
-                                        // controls={isHost ? true : false}
-                                        disablePlayPause={isHost ? false : true}
-                                        disableBack={isHost ? false : true}
-                                        disableSeekButtons={isHost ? false : true}
-                                        disableSeekbar={isHost ? false : true}
-                                        disableFullscreen={isHost ? false : true}
-                                        onBack={___onBack}
-                                        onPlay={___onPlay}
-                                        onPause={___onPause}
-                                        onSeek={___onSeek}
-                                        onShowControls={___onShowControls}
-                                        onEnterFullscreen={___onEnterFullscreen}
-                                        onExitFullscreen={___onExitFullScreen}
-                                        // onEnd={___onEnd} // TODO: handle end of movie
-                                        // onPlaybackResume={___onPlaybackResume}
-                                        // onBuffer={___onBuffer} // TODO: handle buffering
-                                        // onError={___onError} // TODO: handle error
-                                    />
+                                    {/* START MOVIE BUTTON */}
+                                    { isHost && roomChannelRef.current && (
+                                        <TouchableWithoutFeedback onPress={() => {
+                                            setIsStreamOpen(false)
+                                            setIsMoviePlaying(true)
+                                            }}>
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    backgroundColor: COLORS.TAGCOLOR,
+                                                    paddingHorizontal: 5,
+                                                    paddingVertical: 5,
+                                                    borderRadius: 5,
+                                                    alignItems: 'center',
+                                                }}>
+                                                <Text
+                                                    style={{
+                                                        ...FONTS.paragraph1,
+                                                        marginRight: 5,
+                                                        fontSize: 12,
+                                                    }}>
+                                                    Play Stream
+                                                </Text>
+                                                <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
+                                            </View>
+                                        </TouchableWithoutFeedback>
+                                    )}
                                 </View>
-                                <View style={{backgroundColor: 'red', flex: 1}}></View>
                             </View>
                         </View>
-                    </View>
-                )}
-            </View>
+                    ) : (
+                        // VIDEO PLAYER
+                        <View>
+                            <View style={styles.videocontain}>
+                                <View style={{flex: 1}}>
+                                    <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
+                                        <VideoPlayer
+                                            source={{
+                                                uri: movie?.movieURL,
+                                            }}
+                                            paused={isMoviePlaying ? false : true}
+                                            poster={movie?.landscapeURL}
+                                            posterResizeMode="cover"
+                                            showOnStart={true}
+                                            // setup a videoPlayerRef to control playback
+                                            videoRef={videoPlayerRef}
+                                            isFullscreen={isFullscreen}
+                                            toggleResizeModeOnFullscreen={true}
+                                            fullscreenAutorotate={false}
+                                            tapAnywhereToPause={false}
+                                            // only show certain controls when you are host
+                                            // controls={isHost ? true : false}
+                                            disablePlayPause={isHost ? false : true}
+                                            disableBack={isHost ? false : true}
+                                            disableSeekButtons={isHost ? false : true}
+                                            disableSeekbar={isHost ? false : true}
+                                            disableFullscreen={isHost ? false : true}
+                                            onBack={___onBack}
+                                            onPlay={___onPlay}
+                                            onPause={___onPause}
+                                            onSeek={___onSeek}
+                                            onShowControls={___onShowControls}
+                                            onHideControls={___onHideControls}
+                                            onEnterFullscreen={___onEnterFullscreen}
+                                            onExitFullscreen={___onExitFullScreen}
+                                            // onEnd={___onEnd} // TODO: handle end of movie
+                                            // onPlaybackResume={___onPlaybackResume}
+                                            // onBuffer={___onBuffer} // TODO: handle buffering
+                                            // onError={___onError} // TODO: handle error
+                                        />
+                                    </View>
+                                    <View style={{backgroundColor: 'red', flex: 1}}></View>
+                                </View>
+                            </View>
+                        </View>
+                    )}
+                </View>
 
-            {/* CHAT ROOM */}
+                {/* CHAT ROOM */}
                 <View
                     style={{
                         width: SIZES.ScreenWidth,
@@ -925,16 +1031,18 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                     // console.log("item", JSON.stringify(item, null, 2));
                                     const isRoomHost = item.peer.role?.name === "host"; 
                                     
-                                    return hmsInstanceRef.current && item.peer.videoTrack?.trackId ? (
+                                    return hmsInstanceRef.current ? (
                                         <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
                                             {/* CAMERA SCREEN */}
-                                            <hmsInstanceRef.current.HmsView
-                                                key={item.id}
-                                                trackId={item.peer.videoTrack.trackId}
-                                                style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
-                                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                                mirror={true}
-                                            />
+                                            {item.peer.videoTrack ?  (
+                                                <hmsInstanceRef.current.HmsView
+                                                    key={item.id}
+                                                    trackId={item.peer.videoTrack.trackId}
+                                                    style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
+                                                    scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                                    mirror={true}
+                                                /> 
+                                            ): null }
                                             {/* HOST BADGE */}
                                             {
                                                 isRoomHost && (
@@ -955,44 +1063,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                 }
                             }
                         />
-                        // [OLD] -> trackID version
-                        // <FlatList
-                        //     scrollEnabled={false}
-                        //     style={{ height: "100%", width: "100%" }}
-                        //     key={trackIds.length}
-                        //     numColumns={3}
-                        //     data={trackIds} // trackIds is an array of trackIds of video tracks
-                        //     keyExtractor={trackId => trackId}
-                        //     renderItem={({item}) =>
-                        //         hmsInstanceRef.current ? (
-                        //             <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
-                        //                 {/* CAMERA SCREEN */}
-                        //                 <hmsInstanceRef.current.HmsView
-                        //                     key={item}
-                        //                     trackId={item}
-                        //                     style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
-                        //                     scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                        //                     mirror={true}
-                        //                 />
-                        //                 {/* HOST BADGE */}
-                        //                 {
-                        //                     isHost && (
-                        //                         <View style={{position: "absolute", top: 0, right: 0}}>
-                        //                             <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
-                        //                         </View>
-                        //                     )
-                        //                 }
-                        //                 {/* USERNAME */}
-                        //                 {/* FIXME: render this w/ peer object */}
-                        //                 <View style={{position: "absolute", bottom: 0, left: 0}}>
-                        //                     <Text style={{color: '#fff', }}>{user?.username}</Text>
-                        //                 </View>
-                        //             </View>
-                        //         ) : (
-                        //             null
-                        //         )
-                        //     }
-                        // />
                     ) : (
                         <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
                             <Text>Loading...</Text>
@@ -1000,61 +1070,61 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     )}
                 </View>
 
-            <View style={styles.bottombtn}>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                    <Pressable onPress={toggleVideo}>
-                        {isUserVideoOn ? (
-                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                        ) : (
-                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                        )}
-                    </Pressable>
-                    <Pressable onPress={() => handleSnapPress(1)}>
-                        <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                    </Pressable>
-                    <Pressable onPress={toggleMic}>
-                        {isMicOn ? (
-                            <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        ) : (
-                            <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                        )}
-                    </Pressable>
-                </View>
-            </View>
-            <BottomSheet //Chat Modal
-                ref={sheetRef}
-                snapPoints={snapPoints}
-                enablePanDownToClose={true}
-                backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                onClose={() => setIsChatOpen(true)}>
-                <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                    <MITChatCard />
-                    <MITChatCard />
-                    <MITChatCard />
-                    <MITChatCard />
-                </BottomSheetScrollView>
-                <View style={{marginHorizontal: 15}}>
-                    <View style={styles.input}>
-                        <TextInput
-                            placeholder={'placeholder'}
-                            placeholderTextColor={'transparent'}
-                            style={styles.textinput}
-                        />
-
-                        <AkcruButtons.XSmallButton
-                            btnname={'REPLY'}
-                            onPress={function (): void {}}
-                            color=""
-                            disabled={false}
-                        />
+                <View style={styles.bottombtn}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-around',
+                        }}>
+                        <Pressable onPress={toggleVideo}>
+                            {isUserVideoOn ? (
+                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                            ) : (
+                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                            )}
+                        </Pressable>
+                        <Pressable onPress={() => handleSnapPress(1)}>
+                            <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                        </Pressable>
+                        <Pressable onPress={toggleMic}>
+                            {isMicOn ? (
+                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                            ) : (
+                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                            )}
+                        </Pressable>
                     </View>
                 </View>
-            </BottomSheet>
-        </View>
+                <BottomSheet //Chat Modal
+                    ref={sheetRef}
+                    snapPoints={snapPoints}
+                    enablePanDownToClose={true}
+                    backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+                    onClose={() => setIsChatOpen(true)}>
+                    <BottomSheetScrollView style={{marginHorizontal: 15}}>
+                        <MITChatCard />
+                        <MITChatCard />
+                        <MITChatCard />
+                        <MITChatCard />
+                    </BottomSheetScrollView>
+                    <View style={{marginHorizontal: 15}}>
+                        <View style={styles.input}>
+                            <TextInput
+                                placeholder={'placeholder'}
+                                placeholderTextColor={'transparent'}
+                                style={styles.textinput}
+                            />
+
+                            <AkcruButtons.XSmallButton
+                                btnname={'REPLY'}
+                                onPress={function (): void {}}
+                                color=""
+                                disabled={false}
+                            />
+                        </View>
+                    </View>
+                </BottomSheet>
+            </View>
         )
     }
 
@@ -1065,7 +1135,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             </View>
         ) : (
             <SafeAreaView>
-                {watchPartyView()}
+                {isLoading ? null : watchPartyView()}
             </SafeAreaView>
         )
     );
