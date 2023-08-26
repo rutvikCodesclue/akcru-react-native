@@ -352,7 +352,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                         console.log(payload)
                         // seek the video player if not host
                         // TODO: TEST THIS
-                        videoPlayerRef.current.seek(payload.seekTime);
+                        videoPlayerRef.current.seek(Number(payload.payload.currentTime));
                     }
                 }
             )
