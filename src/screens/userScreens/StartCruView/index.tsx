@@ -50,6 +50,7 @@ import {
   HMSVideoViewMode, 
   HMSSpeaker,
   HMSMessage,
+  HMSRole,
   HMSRemotePeer,
   HMSTrackSettings,
   HMSAudioTrackSettings,
@@ -70,15 +71,21 @@ type StartCRUViewDateNavigationProp = StackNavigationProp<NoBottomTabStackParams
 type StartCRUViewDateRouteProp = RouteProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
 
 type Props = {
-  navigation: StartCRUViewDateNavigationProp;
-  route: StartCRUViewDateRouteProp;
-  movieName: string;
-  movieId: string;
-  roomId: string;
-  roomAuthToken: string;
-  micInitialState: boolean;
-  cameraInitialState: boolean;
-  isHost: boolean;
+    navigation: StartCRUViewDateNavigationProp;
+    route: StartCRUViewDateRouteProp;
+    movieName: string;
+    movieId: string;
+    roomId: string;
+    roomAuthToken: string;
+    micInitialState: boolean;
+    cameraInitialState: boolean;
+    isHost: boolean;
+};
+
+type PeerTrackNode = {
+    id: string;
+    peer: HMSPeer;
+    track: HMSTrack | undefined;
 };
 
 const StartCRUViewDate = ({ navigation, route }: Props) => {
@@ -89,8 +96,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
     const [movie, setMovie] = useState<IMovie | null>(null);
-    const [peerTrackNodes, setPeerTrackNodes] = useState([]); // Use this state to render Peer Tiles
     const [trackIds, setTrackIds] = useState<string[]>([]);
+    const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
     const { user } = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(true);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
@@ -145,9 +152,9 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     }, []);
 
     useEffect(() => {
-        console.log("TrackIds changed...");
-        console.log("Current track ids:", trackIds);
-    }, [trackIds]);
+        console.log("peerTrackNodes changed...");
+        console.log("Current track ids:", peerTrackNodes.map((node) => node.track?.trackId));
+    }, [peerTrackNodes]);
 
     /* 
         ROOM HANDLERS
@@ -177,7 +184,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
                 config: {
                     broadcast: {
-                        // self: isHost ? true: false,
+                        self: isHost ? true: false,
                     },
                 },
             })
@@ -318,6 +325,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     if (!isHost && videoPlayerRef.current) {
                         // play the video player, for host
                         setIsStreamOpen(false);
+                        videoPlayerRef.current.play()
                     }
                 }
             )
@@ -373,7 +381,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 (payload) => {
                     console.log(payload)
                     // TODO: test exit fullscreen if not host
-                    if (!isHost && videoPlayerRef.current) {
+                    if (!isHost && videoPlayerRef.current && isStreamOpen) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
                         // videoPlayerRef.current.dismissFullscreenPlayer();
@@ -400,12 +408,12 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     }
 
     //  returns `uniqueId` for a given `peer` and `track` combination
-    const getPeerTrackNodeId = (peer, track) => {
+    const getPeerTrackNodeId = (peer: HMSPeer, track: HMSTrack | undefined) => {
         return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
     };
 
     // creates `PeerTrackNode` object for given `peer` and `track` combination
-    const createPeerTrackNode = (peer, track) => {
+    const createPeerTrackNode = (peer: HMSPeer, track: HMSTrack | undefined): PeerTrackNode  => {
         let isVideoTrack = false;
         if (track && track?.type === HMSTrackType.VIDEO) {
             isVideoTrack = true;
@@ -417,18 +425,16 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             track: videoTrack
         };
     };
-
     // Removes all nodes which has `peer` with `id` same as the given `peerID`.
-    const removeNodeWithPeerId = (nodes, peerID) => {
+    const removeNodeWithPeerId = (nodes: PeerTrackNode[], peerID: string) => {
         return nodes.filter((node) => node.peer.peerID !== peerID);
     };
-
     //   Updates `track` and `peer` of `PeerTrackNode` objects which has `id` same as `uniqueId` generated from given `peer` and `track`.
     //  
     //   If `createNew` is passed as `true` and no `PeerTrackNode` exists with `id` same as `uniqueId` generated from given `peer` and `track`
     //   then new `PeerTrackNode` object will be created
     //  
-    const _updateNode = (data) => {
+    const _updateNode = (data: { nodes: PeerTrackNode[], peer: HMSPeer, track: HMSTrack | undefined, createNew?: boolean }): PeerTrackNode[] => {
         const { nodes, peer, track, createNew = false } = data;
 
         const uniqueId = getPeerTrackNodeId(peer, track);
@@ -467,9 +473,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const __onJoinListener = (data: { room: HMSRoom }) => {
         // gets triggered when join is successful. You can navigate to other screens.
         // use these objects to update your local and remote peers.
-        console.log("onJoinListener", data.room);
-        // console.log("onJoin [local peer / video]", localPeer.localVideoTrack);
-        // console.log("onJoin [local peer / audio]", localPeer.localAudioTrack);
+        const { localPeer } = data.room;
+
+        // ADD YOUR OWN VIDEO TRACK (no audio)
+        if (localPeer) {
+            console.log(`OWN video track Added [__onJoin]: ${localPeer.videoTrack?.trackId}`);
+            setPeerTrackNodes((prevPeerTrackNodes) =>
+                _updateNode({
+                    nodes: prevPeerTrackNodes,
+                    peer: localPeer,
+                    track: localPeer.videoTrack,
+                    createNew: true
+                })
+            );
+        }
         
     };
 
@@ -492,9 +509,24 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     if (track.type === HMSTrackType.VIDEO) {
         // If Video track is added, you can use `trackId` to render video
         if (type === HMSTrackUpdate.TRACK_ADDED) {
-            console.log(`${peer.name}s' video track Added: ${track.trackId}`);
-            console.log(`Render HMSView with trackId: ${track.trackId}`);
-            setTrackIds(prevTrackIds => [...prevTrackIds, track.trackId]);
+            if (peer.isLocal) {
+                console.log(`OWN video track Added: ${track.trackId}`);
+                // FIXME: use peerTrackNodes to render the video
+                // setTrackIds(prevTrackIds => [...prevTrackIds, track.trackId]);
+            } else {
+                // FIXME: add the track to the peerTrackNodes if peer is not local
+                // Updating the Tiles with Track and Peer.
+                // `updateNode` function updates "Track and Peer objects" in PeerTrackNodes and returns updated list.
+                // if none exist then we are "creating a new PeerTrackNode with the received Track and Peer".
+                setPeerTrackNodes((prevPeerTrackNodes) =>
+                    _updateNode({
+                        nodes: prevPeerTrackNodes,
+                        peer,
+                        track,
+                        createNew: true
+                    })
+                );
+            }
         }
 
         // If Video track is removed, remove `HMSView` which is using this `trackId`
@@ -502,6 +534,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             console.log(`${peer.name}s' video track Removed: ${track.trackId}`);
             console.log(`Remove HMSView rendering trackId: ${track.trackId}`);
             setTrackIds(prevTrackIds => prevTrackIds.filter(prevTrackId => prevTrackId !== track.trackId));
+            // FIXME: remove the track from the peerTrackNodes if peer is not local
+            // setTrackIds(prevTrackIds => prevTrackIds.filter(prevTrackId => prevTrackId !== track.trackId));
         }
 
         if (
@@ -628,7 +662,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     };
     const ___onExitFullScreen = () => {
-        if (isHost && videoPlayerRef.current) {
+        if (isHost && videoPlayerRef.current && isStreamOpen) {
             console.log(`HOST: ${user?.username} exited fullscreen`)
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
@@ -874,40 +908,83 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                         <FlatList
                             scrollEnabled={false}
                             style={{ height: "100%", width: "100%" }}
-                            key={trackIds.length}
+                            key={peerTrackNodes.length}
                             numColumns={3}
-                            data={trackIds} // trackIds is an array of trackIds of video tracks
-                            keyExtractor={trackId => trackId}
+                            data={peerTrackNodes} // peerTrackNodes is an array of PeerTrackNode objects
+                            keyExtractor={(node) => node.id}
                             renderItem={({item}) =>
-                                hmsInstanceRef.current ? (
-                                    <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
-                                        {/* CAMERA SCREEN */}
-                                        <hmsInstanceRef.current.HmsView
-                                            key={item}
-                                            trackId={item}
-                                            style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
-                                            scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                            mirror={true}
-                                        />
-                                        {/* HOST BADGE */}
-                                        {
-                                            isHost && (
-                                                <View style={{position: "absolute", top: 0, right: 0}}>
-                                                    <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
-                                                </View>
-                                            )
-                                        }
-                                        {/* USERNAME */}
-                                        {/* FIXME: render this w/ peer object */}
-                                        <View style={{position: "absolute", bottom: 0, left: 0}}>
-                                            <Text style={{color: '#fff', }}>{user?.username}</Text>
+                                {
+                                    // console.log("item", JSON.stringify(item, null, 2));
+                                    const isRoomHost = item.peer.role?.name === "host"; 
+                                    
+                                    return hmsInstanceRef.current && item.peer.videoTrack?.trackId ? (
+                                        <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
+                                            {/* CAMERA SCREEN */}
+                                            <hmsInstanceRef.current.HmsView
+                                                key={item.id}
+                                                trackId={item.peer.videoTrack.trackId}
+                                                style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
+                                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                                mirror={true}
+                                            />
+                                            {/* HOST BADGE */}
+                                            {
+                                                isRoomHost && (
+                                                    <View style={{position: "absolute", top: 0, right: 0}}>
+                                                        <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
+                                                    </View>
+                                                )
+                                            }
+                                            {/* USERNAME */}
+                                            {/* FIXME: render this w/ peer object */}
+                                            <View style={{position: "absolute", bottom: 0, left: 0}}>
+                                                <Text style={{color: '#fff', }}>{item.peer.name}</Text>
+                                            </View>
                                         </View>
-                                    </View>
-                                ) : (
-                                    null
-                                )
+                                    ) : (
+                                        null
+                                    )
+                                }
                             }
                         />
+                        // [OLD] -> trackID version
+                        // <FlatList
+                        //     scrollEnabled={false}
+                        //     style={{ height: "100%", width: "100%" }}
+                        //     key={trackIds.length}
+                        //     numColumns={3}
+                        //     data={trackIds} // trackIds is an array of trackIds of video tracks
+                        //     keyExtractor={trackId => trackId}
+                        //     renderItem={({item}) =>
+                        //         hmsInstanceRef.current ? (
+                        //             <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
+                        //                 {/* CAMERA SCREEN */}
+                        //                 <hmsInstanceRef.current.HmsView
+                        //                     key={item}
+                        //                     trackId={item}
+                        //                     style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
+                        //                     scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                        //                     mirror={true}
+                        //                 />
+                        //                 {/* HOST BADGE */}
+                        //                 {
+                        //                     isHost && (
+                        //                         <View style={{position: "absolute", top: 0, right: 0}}>
+                        //                             <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
+                        //                         </View>
+                        //                     )
+                        //                 }
+                        //                 {/* USERNAME */}
+                        //                 {/* FIXME: render this w/ peer object */}
+                        //                 <View style={{position: "absolute", bottom: 0, left: 0}}>
+                        //                     <Text style={{color: '#fff', }}>{user?.username}</Text>
+                        //                 </View>
+                        //             </View>
+                        //         ) : (
+                        //             null
+                        //         )
+                        //     }
+                        // />
                     ) : (
                         <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
                             <Text>Loading...</Text>
