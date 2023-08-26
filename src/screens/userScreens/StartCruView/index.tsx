@@ -99,7 +99,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const [trackIds, setTrackIds] = useState<string[]>([]);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
     const { user } = useAuthStore();
-    const [isStreamOpen, setIsStreamOpen] = useState(true);
+    const [isStreamOpen, setIsStreamOpen] = useState(false);
+    const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -184,7 +185,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
                 config: {
                     broadcast: {
-                        self: isHost ? true: false,
+                        // self: isHost ? true: false,
                     },
                 },
             })
@@ -325,7 +326,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     if (!isHost && videoPlayerRef.current) {
                         // play the video player, for host
                         setIsStreamOpen(false);
-                        videoPlayerRef.current.play()
+                        setIsMoviePlaying(true);
                     }
                 }
             )
@@ -335,6 +336,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 (payload) => {
                     console.log(payload)
                     // TODO: pause the video player if not host
+                    setIsMoviePlaying(false);
                 }
             )
             .on(
@@ -602,6 +604,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     };
     const ___onPause = () => {
         if (isHost && videoPlayerRef.current) {
+            setIsMoviePlaying(false)  
             console.log(`HOST: ${user?.username} paused the movie`)
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
@@ -635,6 +638,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     };
     const ___onEnd = () => {
+        setIsMoviePlaying(false)
         console.log(`${user?.username} ended the movie`)
     };
     const ___onPlaybackResume = () => {
@@ -823,7 +827,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                 </TouchableWithoutFeedback>
                                 {/* START MOVIE BUTTON */}
                                 { isHost && roomChannelRef.current && (
-                                    <TouchableWithoutFeedback onPress={() => setIsStreamOpen(false)}>
+                                    <TouchableWithoutFeedback onPress={() => {
+                                        setIsStreamOpen(false)
+                                        setIsMoviePlaying(true)
+                                        }}>
                                         <View
                                             style={{
                                                 flexDirection: 'row',
@@ -858,6 +865,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                         source={{
                                             uri: movie?.movieURL,
                                         }}
+                                        paused={isMoviePlaying ? false : true}
                                         poster={movie?.landscapeURL}
                                         posterResizeMode="cover"
                                         // setup a videoPlayerRef to control playback
