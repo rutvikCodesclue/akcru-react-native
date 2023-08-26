@@ -13,7 +13,6 @@ import {
   FlatList
 } from "react-native";
 import React from "react";
-import CRUUserVideoList from "../../../components/CruViewUserVideoList";
 import AkcruButtons from "../../../components/akcruButtons";
 import Header from "../../../components/header";
 import MITChatCard from "../../../components/MITChatCard/MITChatCard";
@@ -21,8 +20,6 @@ import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
 import LinearGradient from "react-native-linear-gradient";
 import { Icon } from "@rneui/base";
 import { RouteProp, useNavigation, useFocusEffect } from "@react-navigation/native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useState, useRef, useEffect, useCallback } from "react";
 import BottomSheet, {
   BottomSheetHandleProps,
@@ -129,6 +126,9 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         console.log("room details [roomAuthToken]:", roomAuthToken);
         console.log("room details [micInitialState]:", micInitialState);
         console.log("room details [cameraInitialState]:", cameraInitialState);
+
+
+
         
         // FIXME: close and destroy the hmsInstance when the component unmounts
         // return () => {
@@ -167,7 +167,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     }, []);
     
     /**
-     * 100ms ADDITIONAL METHODS
+     * ADDITIONAL METHODS
     */
     const _setupRoomChannels = async () => {
         // setup the realtime channels for the room
@@ -181,11 +181,18 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     },
                 },
             })
+
+            // subcribe to the room channel
+            // roomChannel.subscribe()
+
             roomChannelRef.current = roomChannel 
             console.log("Created room and sync channels");
 
+            // handle the room channel events
+            __handleRoomChannelEventsAndSubscribe();
 
-            // HEARBEAT message
+
+            // HEARBEAT message example
             // // every 2.5 seconds
             // setInterval(myFunction, 2500);
             // function myFunction() {
@@ -287,6 +294,105 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         navigation.navigate('UserProfileStack', {
             screen: 'UserProfileScreen',
         })
+    }
+
+    const _handleCloseMovie = async () => {
+        // close the movie
+        if (videoPlayerRef.current) {
+            videoPlayerRef.current.dismissFullscreenPlayer();
+            setIsFullscreen(false);
+        }
+        setIsStreamOpen(true);
+    }
+
+    const __handleRoomChannelEventsAndSubscribe = () => {
+        if (roomChannelRef.current) {
+            // subscribe to play event
+            roomChannelRef.current
+            .on(
+                'broadcast',
+                { event: 'play-movie' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: play video player if not host
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'pause-movie' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: pause the video player if not host
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'seek-movie' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: seek the video player if not host
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'close-movie' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: close the video player if not host
+                }
+            )
+            // .on(
+            //     'broadcast',
+            //     { event: 'show-controls' },
+            //     (payload) => {
+            //         console.log(payload)
+            //         // TODO: show the video player controls if not host
+            //     }
+            // )
+            .on(
+                'broadcast',
+                { event: 'enter-fullscreen' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: test enter fullscreen if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        // enter fullscreen, for host
+                        setIsFullscreen(true);
+                        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+                        // videoPlayerRef.current.presentFullscreenPlayer();
+                    }
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'exit-fullscreen' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: test exit fullscreen if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        setIsFullscreen(false);
+                        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+                        // videoPlayerRef.current.dismissFullscreenPlayer();
+                    }
+                }
+            )
+            .on(
+                'broadcast',
+                { event: 'exit-movie' },
+                (payload) => {
+                    console.log(payload)
+                    // TODO: test exit fullscreen if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        setIsFullscreen(false);
+                        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+                        // videoPlayerRef.current.dismissFullscreenPlayer();
+                    }
+                }
+            )
+            .subscribe()
+
+            console.log("Subscribed to room channel");
+        }
     }
 
     //  returns `uniqueId` for a given `peer` and `track` combination
@@ -443,10 +549,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
             console.log(`HOST: ${user?.username} started playing the movie`)
-            // TODO: send a message to the room that the host started playing the movie
+            // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
-                event: 'play',
+                event: 'play-movie',
                 payload: {
                     // send timestamp in seconds since epoch
                     timestamp: new Date().toISOString(),
@@ -457,7 +563,38 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     };
     const ___onPause = () => {
-        console.log(`${user?.username} paused the movie`)
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} paused the movie`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'pause-movie',
+                payload: {
+                    // send timestamp in seconds since epoch
+                    timestamp: new Date().toISOString(),
+                }
+            })
+        } else {
+            console.log(`${user?.username} paused the movie`)
+        }
+    };
+    const ___onSeek = (data: OnSeekData) => {
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} seeked the movie [currentTime: ${data.currentTime} / seekTime: ${data.seekTime}]]`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'seek-movie',
+                payload: {
+                    // send timestamp in seconds since epoch
+                    currentTime: data.currentTime,
+                    seekTime: data.seekTime,
+                    timestamp: new Date().toISOString(),
+                }
+            })
+        } else {
+            console.log(`${user?.username} is seeking the movie: currentTime: ${data.currentTime} / seekTime: ${data.seekTime}`)
+        }
     };
     const ___onEnd = () => {
         console.log(`${user?.username} ended the movie`)
@@ -465,25 +602,71 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const ___onPlaybackResume = () => {
         console.log(`${user?.username} resumed playback of the movie`)
     };
-    const ___onSeek = (data: OnSeekData) => {
-        console.log(`${user?.username} is seeking the movie: currentTime: ${data.currentTime} / seekTime: ${data.seekTime}`)
-    };
     const ___onShowControls = () => {
         console.log(`${user?.username} is showing the controls`)
     };
     const ___onEnterFullscreen = () => {
-        console.log(`${user?.username} entered fullscreen`);
-        setIsFullscreen(true);
-        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} entered fullscreen`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'enter-fullscreen',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                }
+            })
+            // enter fullscreen, for host
+            setIsFullscreen(true);
+            Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+        } else {
+            console.log(`${user?.username} is entering fullscreen`)
+        }
     };
     const ___onExitFullScreen = () => {
-        console.log(`${user?.username} exited fullscreen`);
-        setIsFullscreen(false);
-        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} exited fullscreen`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'exit-fullscreen',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                }
+            })
+            // exit fullscreen, for host
+            setIsFullscreen(false);
+            Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+        } else {
+            console.log(`${user?.username} is exiting fullscreen`)
+        }
+
     };
     const ___onBack = () => {
-        console.log(`${user?.username} exited the movie`);
-        setIsStreamOpen(true);
+        // console.log(`${user?.username} exited the movie`);
+        // if (isFullscreen) {
+        //     ___onExitFullScreen();
+        // }
+        // setIsStreamOpen(true);
+
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} exited the movie`)
+            // SYNC: send a message to the room that the host paused the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'exit-movie',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                }
+            })
+
+            if (isFullscreen) {
+                ___onExitFullScreen();
+            }
+            setIsStreamOpen(true);
+        } else {
+            console.log(`${user?.username} is exited the movie`)
+        }
     };
     const ___onBuffer = (data: OnBufferData) => {
         console.log(`${user?.username} is buffering the movie: ${data.isBuffering}`)
@@ -493,113 +676,115 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     };
     
 
-    return (
-        <SafeAreaView>
+    const watchPartyView = () => {
+        return (
             <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
-                {!isFullscreen && (
-                    <View style={{zIndex: 20}}>
-                        <Header />
-                    </View>
-                )}
+            {!isFullscreen && (
+                <View style={{zIndex: 20}}>
+                    <Header />
+                </View>
+            )}
 
-                {/* Leave Room / Close Movie Buttons */}
-                {!isFullscreen && (
-                    <View style={styles.topcontainer}>
-                        <TouchableOpacity
-                            onPress={_handleRoomLeave}>
+            {/* Leave Room / Close Movie Buttons */}
+            {!isFullscreen && (
+                <View style={styles.topcontainer}>
+                    <TouchableOpacity
+                        onPress={_handleRoomLeave}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
+                        </View>
+                    </TouchableOpacity>
+                    {!isStreamOpen && (
+                        <TouchableOpacity onPress={_handleCloseMovie}>
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                 }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
+                                <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
                             </View>
                         </TouchableOpacity>
-                        {!isStreamOpen && (
-                            <TouchableOpacity onPress={() => setIsStreamOpen(true)}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
-                                </View>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                )}
+                    )}
+                </View>
+            )}
 
-                {/* Movie Player */}
-                <View style={{flex: 1, zIndex: 100}}>
-                    {isStreamOpen ? (
-                        // MOVIE INFO
-                        <View style={styles.moviecontainer}>
-                            <LinearGradient
-                                // Background Linear Gradient
-                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+            {/* Movie Player */}
+            <View style={{flex: 1, zIndex: 100}}>
+                {isStreamOpen ? (
+                    // MOVIE INFO
+                    <View style={styles.moviecontainer}>
+                        <LinearGradient
+                            // Background Linear Gradient
+                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+
+                                borderRadius: 5,
+                                height: SIZES.ScreenHeight * 0.18,
+                            }}
+                        />
+                        <View style={{marginRight: 10}}>
+                            <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
+                        </View>
+                        <View>
+                            <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                            <View
                                 style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-
-                                    borderRadius: 5,
-                                    height: SIZES.ScreenHeight * 0.18,
-                                }}
-                            />
-                            <View style={{marginRight: 10}}>
-                                <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
-                            </View>
-                            <View>
-                                <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                                <View
+                                    flexDirection: 'row',
+                                    marginVertical: 4,
+                                    alignItems: 'center',
+                                }}>
+                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                <Text
                                     style={{
-                                        flexDirection: 'row',
-                                        marginVertical: 4,
-                                        alignItems: 'center',
+                                        ...FONTS.Title2,
+                                        fontSize: 12,
+                                        marginHorizontal: 10,
                                     }}>
-                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                    <Text
+                                    {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                </Text>
+                            </View>
+                            <View style={{flexDirection: 'row', marginBottom: 8}}>
+                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                <Text style={styles.drawfonttag}>
+                                    {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                </Text>
+                                <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <TouchableWithoutFeedback>
+                                    <View
                                         style={{
-                                            ...FONTS.Title2,
-                                            fontSize: 12,
-                                            marginHorizontal: 10,
+                                            flexDirection: 'row',
+                                            backgroundColor: COLORS.TAGCOLOR,
+                                            marginRight: 5,
+                                            paddingHorizontal: 5,
+                                            paddingVertical: 5,
+                                            borderRadius: 5,
+                                            alignItems: 'center',
                                         }}>
-                                        {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                    </Text>
-                                </View>
-                                <View style={{flexDirection: 'row', marginBottom: 8}}>
-                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                    <Text style={styles.drawfonttag}>
-                                        {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                                    </Text>
-                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                </View>
-                                <View style={{flexDirection: 'row'}}>
-                                    <TouchableWithoutFeedback>
-                                        <View
+                                        <Text
                                             style={{
-                                                flexDirection: 'row',
-                                                backgroundColor: COLORS.TAGCOLOR,
+                                                ...FONTS.paragraph1,
                                                 marginRight: 5,
-                                                paddingHorizontal: 5,
-                                                paddingVertical: 5,
-                                                borderRadius: 5,
-                                                alignItems: 'center',
+                                                fontSize: 12,
                                             }}>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.paragraph1,
-                                                    marginRight: 5,
-                                                    fontSize: 12,
-                                                }}>
-                                                Link Device
-                                            </Text>
-                                            <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
-                                        </View>
-                                    </TouchableWithoutFeedback>
+                                            Link Device
+                                        </Text>
+                                        <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
+                                    </View>
+                                </TouchableWithoutFeedback>
+                                {/* START MOVIE BUTTON */}
+                                { isHost && roomChannelRef.current && (
                                     <TouchableWithoutFeedback onPress={() => setIsStreamOpen(false)}>
                                         <View
                                             style={{
@@ -621,161 +806,178 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                             <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
                                         </View>
                                     </TouchableWithoutFeedback>
-                                </View>
+                                )}
                             </View>
                         </View>
-                    ) : (
-                        // VIDEO PLAYER
-                        <View>
-                            <View style={styles.videocontain}>
-                                <View style={{flex: 1}}>
-                                    <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
-                                        <VideoPlayer
-                                            source={{
-                                                uri: movie?.movieURL,
-                                            }}
-                                            poster={movie?.landscapeURL}
-                                            // setup a videoPlayerRef to control playback
-                                            videoRef={videoPlayerRef}
-                                            // only show controls when you are host
-                                            controls={isHost ? true : false}
-                                            disablePlayPause={isHost ? false : true}
-                                            fullscreenAutorotate={false}
-                                            tapAnywhereToPause={false}
-                                            toggleResizeModeOnFullscreen={true}
-                                            isFullscreen={isFullscreen}
-                                            posterResizeMode="cover"
-                                            onExitFullscreen={___onExitFullScreen}
-                                            onBack={___onBack}
-                                            onEnterFullscreen={___onEnterFullscreen}
-                                            onPlay={___onPlay}
-                                            onPause={___onPause}
-                                            onEnd={___onEnd}
-                                            onPlaybackResume={___onPlaybackResume}
-                                            onBuffer={___onBuffer}
-                                            onError={___onError}
-                                            onSeek={___onSeek}
-                                            onShowControls={___onShowControls}
-                                        />
-                                    </View>
-                                    <View style={{backgroundColor: 'red', flex: 1}}></View>
+                    </View>
+                ) : (
+                    // VIDEO PLAYER
+                    <View>
+                        <View style={styles.videocontain}>
+                            <View style={{flex: 1}}>
+                                <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
+                                    <VideoPlayer
+                                        source={{
+                                            uri: movie?.movieURL,
+                                        }}
+                                        poster={movie?.landscapeURL}
+                                        posterResizeMode="cover"
+                                        // setup a videoPlayerRef to control playback
+                                        videoRef={videoPlayerRef}
+                                        isFullscreen={isFullscreen}
+                                        toggleResizeModeOnFullscreen={true}
+                                        fullscreenAutorotate={false}
+                                        tapAnywhereToPause={false}
+                                        // only show certain controls when you are host
+                                        // controls={isHost ? true : false}
+                                        disablePlayPause={isHost ? false : true}
+                                        disableBack={isHost ? false : true}
+                                        disableSeekButtons={isHost ? false : true}
+                                        disableSeekbar={isHost ? false : true}
+                                        disableFullscreen={isHost ? false : true}
+                                        onBack={___onBack}
+                                        onPlay={___onPlay}
+                                        onPause={___onPause}
+                                        onSeek={___onSeek}
+                                        onShowControls={___onShowControls}
+                                        onEnterFullscreen={___onEnterFullscreen}
+                                        onExitFullscreen={___onExitFullScreen}
+                                        // onEnd={___onEnd} // TODO: handle end of movie
+                                        // onPlaybackResume={___onPlaybackResume}
+                                        // onBuffer={___onBuffer} // TODO: handle buffering
+                                        // onError={___onError} // TODO: handle error
+                                    />
                                 </View>
+                                <View style={{backgroundColor: 'red', flex: 1}}></View>
                             </View>
+                        </View>
+                    </View>
+                )}
+            </View>
+
+            {/* CHAT ROOM */}
+                <View
+                    style={{
+                        width: SIZES.ScreenWidth,
+                        height: 240,
+                        marginTop: SIZES.ScreenHeight / 3,
+                        backgroundColor: '#333',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    {hmsInstanceRef.current ? (
+                        <FlatList
+                            scrollEnabled={false}
+                            style={{ height: "100%", width: "100%" }}
+                            key={trackIds.length}
+                            numColumns={3}
+                            data={trackIds} // trackIds is an array of trackIds of video tracks
+                            keyExtractor={trackId => trackId}
+                            renderItem={({item}) =>
+                                hmsInstanceRef.current ? (
+                                    <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
+                                        {/* CAMERA SCREEN */}
+                                        <hmsInstanceRef.current.HmsView
+                                            key={item}
+                                            trackId={item}
+                                            style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
+                                            scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                            mirror={true}
+                                        />
+                                        {/* HOST BADGE */}
+                                        {
+                                            isHost && (
+                                                <View style={{position: "absolute", top: 0, right: 0}}>
+                                                    <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
+                                                </View>
+                                            )
+                                        }
+                                        {/* USERNAME */}
+                                        <View style={{position: "absolute", bottom: 0, left: 0}}>
+                                            <Text style={{color: '#fff', }}>{user?.username}</Text>
+                                        </View>
+                                    </View>
+                                ) : (
+                                    null
+                                )
+                            }
+                        />
+                    ) : (
+                        <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                            <Text>Loading...</Text>
                         </View>
                     )}
                 </View>
 
-                {/* CHAT ROOM */}
-                    <View
-                        style={{
-                            width: SIZES.ScreenWidth,
-                            height: 240,
-                            marginTop: SIZES.ScreenHeight / 3,
-                            backgroundColor: 'purple',
-                            alignSelf: 'center',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        {hmsInstanceRef.current ? (
-                            <FlatList
-                                scrollEnabled={false}
-                                style={{ height: "100%", width: "100%" }}
-                                key={trackIds.length}
-                                numColumns={3}
-                                data={trackIds} // trackIds is an array of trackIds of video tracks
-                                keyExtractor={trackId => trackId}
-                                renderItem={({item}) =>
-                                    hmsInstanceRef.current ? (
-                                        <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
-                                            {/* CAMERA SCREEN */}
-                                            <hmsInstanceRef.current.HmsView
-                                                key={item}
-                                                trackId={item}
-                                                style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
-                                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                                mirror={true}
-                                            />
-                                            {/* HOST BADGE */}
-                                            {
-                                                isHost && (
-                                                    <View style={{position: "absolute", top: 0, right: 0}}>
-                                                        <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
-                                                    </View>
-                                                )
-                                            }
-                                            {/* USERNAME */}
-                                            <View style={{position: "absolute", bottom: 0, left: 0}}>
-                                                <Text style={{color: '#fff', }}>{user?.username}</Text>
-                                            </View>
-                                        </View>
-                                    ) : (
-                                        null
-                                    )
-                                }
-                            />
+            <View style={styles.bottombtn}>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                    }}>
+                    <Pressable onPress={toggleVideo}>
+                        {isUserVideoOn ? (
+                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
                         ) : (
-                            <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                                <Text>Loading...</Text>
-                            </View>
+                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
                         )}
-                    </View>
+                    </Pressable>
+                    <Pressable onPress={() => handleSnapPress(1)}>
+                        <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                    </Pressable>
+                    <Pressable onPress={toggleMic}>
+                        {isMicOn ? (
+                            <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                        ) : (
+                            <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                        )}
+                    </Pressable>
+                </View>
+            </View>
+            <BottomSheet //Chat Modal
+                ref={sheetRef}
+                snapPoints={snapPoints}
+                enablePanDownToClose={true}
+                backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
+                onClose={() => setIsChatOpen(true)}>
+                <BottomSheetScrollView style={{marginHorizontal: 15}}>
+                    <MITChatCard />
+                    <MITChatCard />
+                    <MITChatCard />
+                    <MITChatCard />
+                </BottomSheetScrollView>
+                <View style={{marginHorizontal: 15}}>
+                    <View style={styles.input}>
+                        <TextInput
+                            placeholder={'placeholder'}
+                            placeholderTextColor={'transparent'}
+                            style={styles.textinput}
+                        />
 
-                <View style={styles.bottombtn}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-around',
-                        }}>
-                        <Pressable onPress={toggleVideo}>
-                            {isUserVideoOn ? (
-                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                            ) : (
-                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                            )}
-                        </Pressable>
-                        <Pressable onPress={() => handleSnapPress(1)}>
-                            <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        </Pressable>
-                        <Pressable onPress={toggleMic}>
-                            {isMicOn ? (
-                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                            ) : (
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                            )}
-                        </Pressable>
+                        <AkcruButtons.XSmallButton
+                            btnname={'REPLY'}
+                            onPress={function (): void {}}
+                            color=""
+                            disabled={false}
+                        />
                     </View>
                 </View>
-                <BottomSheet //Chat Modal
-                    ref={sheetRef}
-                    snapPoints={snapPoints}
-                    enablePanDownToClose={true}
-                    backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                    onClose={() => setIsChatOpen(true)}>
-                    <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                        <MITChatCard />
-                        <MITChatCard />
-                        <MITChatCard />
-                        <MITChatCard />
-                    </BottomSheetScrollView>
-                    <View style={{marginHorizontal: 15}}>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'placeholder'}
-                                placeholderTextColor={'transparent'}
-                                style={styles.textinput}
-                            />
+            </BottomSheet>
+        </View>
+        )
+    }
 
-                            <AkcruButtons.XSmallButton
-                                btnname={'REPLY'}
-                                onPress={function (): void {}}
-                                color=""
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
-                </BottomSheet>
+    return (
+        isFullscreen ? (
+            <View>
+                {watchPartyView()}
             </View>
-        </SafeAreaView>
+        ) : (
+            <SafeAreaView>
+                {watchPartyView()}
+            </SafeAreaView>
+        )
     );
 };
 
