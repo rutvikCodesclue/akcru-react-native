@@ -64,7 +64,7 @@ import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
-import { LoadError, OnBufferData, OnSeekData } from "react-native-video";
+import Video, { LoadError, OnBufferData, OnSeekData } from "react-native-video";
 
 
 
@@ -92,18 +92,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
     const [movie, setMovie] = useState<IMovie | null>(null);
-    const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState([]); // Use this state to render Peer Tiles
     const [trackIds, setTrackIds] = useState<string[]>([]);
     const { user } = useAuthStore();
-    const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const [isStreamOpen, setIsStreamOpen] = useState(true);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
-    const sheetRef = useRef<BottomSheet>(null); //Pop up chat
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
-
+    /* REFS */
+    const hmsInstanceRef = useRef<HMSSDK | null>(null);
+    const sheetRef = useRef<BottomSheet>(null); //Pop up chat
+    const roomChannelRef = useRef<RealtimeChannel | null>(null);
+    const videoPlayerRef = useRef<Video | null>(null);
+    
     /* 
         USE EFFECTS
     */
@@ -431,6 +433,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         WatchParty Video Player Sync Methods
     */ 
     const ___onPlay = () => {
+        if (videoPlayerRef.current) {
+            
+        }
+
         console.log(`${user?.username} started playing the movie`)
     };
     const ___onPause = () => {
@@ -464,7 +470,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         handleExitFullscreen();
     };
     const ___onBuffer = (data: OnBufferData) => {
-        console.log(`${user?.username} is buffering the movie`)
+        console.log(`${user?.username} is buffering the movie: ${data.isBuffering}`)
     };
     const ___onError = (error: LoadError) => {
         console.log(`${user?.username} encountered an error with the movie`)
@@ -614,12 +620,17 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                             source={{
                                                 uri: movie?.movieURL,
                                             }}
+                                            poster={movie?.landscapeURL}
+                                            // setup a videoPlayerRef to control playback
+                                            videoRef={videoPlayerRef}
+                                            // only show controls when you are host
+                                            controls={isHost ? true : false}
+                                            disablePlayPause={isHost ? false : true}
                                             fullscreenAutorotate={false}
                                             tapAnywhereToPause={false}
                                             toggleResizeModeOnFullscreen={true}
                                             isFullscreen={isFullscreen}
                                             posterResizeMode="cover"
-                                            poster={movie?.landscapeURL}
                                             onExitFullscreen={___onExitFullScreen}
                                             onBack={___onBack}
                                             onEnterFullscreen={___onEnterFullscreen}
@@ -643,8 +654,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 {/* CHAT ROOM */}
                     <View
                         style={{
-                            // flex: 1,
-                            //   marginHorizontal: 15,
                             width: SIZES.ScreenWidth,
                             height: 240,
                             marginTop: SIZES.ScreenHeight / 3,
@@ -663,17 +672,33 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                 keyExtractor={trackId => trackId}
                                 renderItem={({item}) =>
                                     hmsInstanceRef.current ? (
-                                        <hmsInstanceRef.current.HmsView
-                                            key={item}
-                                            trackId={item}
-                                            style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000'}}
-                                            scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                            mirror={true}
-                                        />
-                                    ) : (
-                                        <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                                            <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
+                                        <View style={{ width: SIZES.ScreenWidth / 3, height: 120, backgroundColor: '#000', position: "relative"}}>
+                                            {/* CAMERA SCREEN */}
+                                            <hmsInstanceRef.current.HmsView
+                                                key={item}
+                                                trackId={item}
+                                                style={{ width: "100%", height: "100%", backgroundColor: '#000'}}
+                                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                                mirror={true}
+                                            />
+                                            {/* HOST BADGE */}
+                                            {
+                                                isHost && (
+                                                    <View style={{position: "absolute", top: 0, right: 0}}>
+                                                        <Text style={{color: '#fff', backgroundColor: "blue", paddingHorizontal: 2 }}>{"Host"}</Text>
+                                                    </View>
+                                                )
+                                            }
+                                            {/* USERNAME */}
+                                            <View style={{position: "absolute", bottom: 0, left: 0}}>
+                                                <Text style={{color: '#fff', }}>{user?.username}</Text>
+                                            </View>
                                         </View>
+                                    ) : (
+                                        null
+                                        // <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                                        //     <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
+                                        // </View>
                                     )
                                 }
                             />
@@ -684,11 +709,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                         )}
                     </View>
 
-                {/* {isStreamOpen ? (
-            <View style={{height: SIZES.ScreenHeight * 0.16}}></View>
-            ) : (
-            <View style={{height: SIZES.ScreenHeight * 0.055}}></View>
-            )} */}
                 <View style={styles.bottombtn}>
                     <View
                         style={{
