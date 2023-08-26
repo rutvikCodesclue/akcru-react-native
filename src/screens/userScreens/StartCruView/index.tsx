@@ -106,14 +106,17 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
     
+    // FIXME: find a way to join & sync a room in progress
     /* 
         USE EFFECTS
     */
     // INITIAL LOAD
     useEffect(() => {
         // join the 100ms room
-        // FIXME: find a way to join a room in progress
-        _join100msRoom()
+        _join100msRoom().then(() => {
+            // setup the realtime channels for the room, once room is joined (needs roomId)
+            _setupRoomChannels()
+        })
         // load the movie
         findMovieById(movieId).then((res) => {
             if (res) {
@@ -127,9 +130,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         console.log("room details [micInitialState]:", micInitialState);
         console.log("room details [cameraInitialState]:", cameraInitialState);
         
-        // TODO: setup the realtime channels for the room
-        _setupRoomChannels()
-
         // FIXME: close and destroy the hmsInstance when the component unmounts
         // return () => {
         //     if (hmsInstanceRef.current) {
@@ -165,9 +165,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         sheetRef.current?.snapToIndex(index);
         setIsChatOpen(true);
     }, []);
-
     
-
     /**
      * 100ms ADDITIONAL METHODS
     */
@@ -187,26 +185,26 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             console.log("Created room and sync channels");
 
 
-
-            // every 2.5 seconds
-            setInterval(myFunction, 2500);
-            function myFunction() {
-                // if (syncChannel) {
-                //   syncChannel?.track({
-                //     timestamp: new Date().toUTCString(),
-                //   })
-                // }
-                if (roomChannel) {
-                    // roomChannel.send({
-                    //     type: 'broadcast',
-                    //     event: 'sync',
-                    //     payload: {
-                    //         // send timestamp in seconds since epoch
-                    //         timestamp: new Date().toISOString(),
-                    //     }
-                    // })
-                }
-            }
+            // HEARBEAT message
+            // // every 2.5 seconds
+            // setInterval(myFunction, 2500);
+            // function myFunction() {
+            //     // if (syncChannel) {
+            //     //   syncChannel?.track({
+            //     //     timestamp: new Date().toUTCString(),
+            //     //   })
+            //     // }
+            //     if (roomChannel) {
+            //         // roomChannel.send({
+            //         //     type: 'broadcast',
+            //         //     event: 'sync',
+            //         //     payload: {
+            //         //         // send timestamp in seconds since epoch
+            //         //         timestamp: new Date().toISOString(),
+            //         //     }
+            //         // })
+            //     }
+            // }
         }
     }
 
@@ -266,6 +264,29 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 }
             }
         }
+    }
+
+    const _handleRoomLeave = async () => {
+        if (hmsInstanceRef.current) {
+            // leave the room
+            console.log("Leaving the watchparty room [startcruviewdate]...");
+            hmsInstanceRef.current.leave();
+
+            console.log("Destroying hmsInstance [startcruviewdate]...");
+            hmsInstanceRef.current.destroy();
+        }
+
+        hmsInstanceRef.current = null;
+
+        // clear the navigation stack history
+        // reset navigation
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'UserProfileScreen' }],
+        });
+        navigation.navigate('UserProfileStack', {
+            screen: 'UserProfileScreen',
+        })
     }
 
     //  returns `uniqueId` for a given `peer` and `track` combination
@@ -463,7 +484,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const ___onBack = () => {
         console.log(`${user?.username} exited the movie`);
         setIsStreamOpen(true);
-        handleExitFullscreen();
     };
     const ___onBuffer = (data: OnBufferData) => {
         console.log(`${user?.username} is buffering the movie: ${data.isBuffering}`)
@@ -482,15 +502,11 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     </View>
                 )}
 
+                {/* Leave Room / Close Movie Buttons */}
                 {!isFullscreen && (
                     <View style={styles.topcontainer}>
                         <TouchableOpacity
-                            onPress={() =>
-                                // FIXME: handle room leave
-                                navigation.navigate('UserProfileStack', {
-                                    screen: 'UserProfileScreen',
-                                })
-                            }>
+                            onPress={_handleRoomLeave}>
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -518,6 +534,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 {/* Movie Player */}
                 <View style={{flex: 1, zIndex: 100}}>
                     {isStreamOpen ? (
+                        // MOVIE INFO
                         <View style={styles.moviecontainer}>
                             <LinearGradient
                                 // Background Linear Gradient
@@ -608,6 +625,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                             </View>
                         </View>
                     ) : (
+                        // VIDEO PLAYER
                         <View>
                             <View style={styles.videocontain}>
                                 <View style={{flex: 1}}>
