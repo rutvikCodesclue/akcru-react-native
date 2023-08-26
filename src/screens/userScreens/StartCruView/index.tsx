@@ -128,6 +128,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         console.log("room details [cameraInitialState]:", cameraInitialState);
         
         // TODO: setup the realtime channels for the room
+        _setupRoomChannels()
 
         // FIXME: close and destroy the hmsInstance when the component unmounts
         // return () => {
@@ -143,9 +144,35 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     
     }, []);
 
-    // FIXME: re-enable this when working on party sync
     useEffect(() => {
-        // TODO: setup the realtime channels for the room
+        console.log("TrackIds changed...");
+        console.log("Current track ids:", trackIds);
+    }, [trackIds]);
+
+    /* 
+        ROOM HANDLERS
+    */
+    const toggleMic = () => {
+        setIsMicOn((prevState: boolean) => !prevState);
+    };
+    const toggleVideo = () => {
+        setIsUserVideoOn((prevState: boolean) => !prevState);
+    };
+
+    const snapPoints = ["1", "40"];
+
+    const handleSnapPress = useCallback((index: number) => {
+        sheetRef.current?.snapToIndex(index);
+        setIsChatOpen(true);
+    }, []);
+
+    
+
+    /**
+     * 100ms ADDITIONAL METHODS
+    */
+    const _setupRoomChannels = async () => {
+        // setup the realtime channels for the room
         let roomChannel: RealtimeChannel | null = null
 
         if (roomId) {
@@ -181,48 +208,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 }
             }
         }
-    }, [roomId]);
+    }
 
-    useEffect(() => {
-        console.log("TrackIds changed...");
-        console.log("Current track ids:", trackIds);
-    }, [trackIds]);
-
-    /* 
-        ROOM HANDLERS
-    */
-    const handleEnterFullscreen = () => {
-       
-    };
-
-    const handleExitFullscreen = () => {
-        
-    };
-
-    const handleOnBack = () => {
-        setIsStreamOpen(true);
-        handleExitFullscreen();
-    };
-
-    const toggleMic = () => {
-        setIsMicOn((prevState: boolean) => !prevState);
-    };
-    const toggleVideo = () => {
-        setIsUserVideoOn((prevState: boolean) => !prevState);
-    };
-
-    const snapPoints = ["1", "40"];
-
-    const handleSnapPress = useCallback((index: number) => {
-        sheetRef.current?.snapToIndex(index);
-        setIsChatOpen(true);
-    }, []);
-
-    
-
-    /**
-     * 100ms ADDITIONAL METHODS
-    */
     const _join100msRoom = async () => {
         let hmsInstance: HMSSDK | null = null;
         
@@ -433,11 +420,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         WatchParty Video Player Sync Methods
     */ 
     const ___onPlay = () => {
-        if (videoPlayerRef.current) {
-            
+        if (isHost && videoPlayerRef.current) {
+            console.log(`HOST: ${user?.username} started playing the movie`)
+            // TODO: send a message to the room that the host started playing the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'play',
+                payload: {
+                    // send timestamp in seconds since epoch
+                    timestamp: new Date().toISOString(),
+                }
+            })
+        } else {
+            console.log(`${user?.username} started playing the movie`)
         }
-
-        console.log(`${user?.username} started playing the movie`)
     };
     const ___onPause = () => {
         console.log(`${user?.username} paused the movie`)
@@ -696,9 +692,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                         </View>
                                     ) : (
                                         null
-                                        // <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                                        //     <Text style={{...FONTS.Title1}}>Nothing is rendering</Text>
-                                        // </View>
                                     )
                                 }
                             />
