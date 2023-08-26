@@ -48,16 +48,14 @@ type Props = {
 const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
 const cruId = route.params?.cruId;
-const micInitialState = route.params?.micInitialState;
-const cameraInitialState = route.params?.cameraInitialState;
 const isHost = route.params?.isHost;
 
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<boolean>(false);
-  const [isMicOn, setIsMicOn] = useState(micInitialState);
-  const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
+  const [isMicOn, setIsMicOn] = useState(false);
+  const [isUserVideoOn, setIsUserVideoOn] = useState(true);
   const [canJoinRoom, setCanJoinRoom] = useState(false);
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
