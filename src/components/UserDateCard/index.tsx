@@ -11,6 +11,7 @@ import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
+    isHost: boolean;
     movieId: string;
     moviePoster: string;
     movieName: string;
@@ -31,6 +32,7 @@ type UserDatesCardProps = {
 
 
 const UserDatesCard = ({
+    isHost,
     movieId,
     moviePoster,
     movieName,
@@ -200,6 +202,7 @@ const navigation =
                                     navigation.navigate('RoomPreview', {
                                         id,
                                         movieId,
+                                        isHost
                                     })
                             }>
                             <View

@@ -41,12 +41,14 @@ type Props = {
     route: RoomPreviewRouteProp;
     movieName: string;
     movieId: string;
+    isHost: boolean;
 };
 
 const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
 const micInitialState = route.params?.micInitialState;
 const cameraInitialState = route.params?.cameraInitialState;
+const isHost = route.params?.isHost;
 
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
@@ -60,8 +62,7 @@ const cameraInitialState = route.params?.cameraInitialState;
   const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
-
-  const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
+  
 
   useEffect(() => {
     // load the movie
@@ -254,6 +255,7 @@ const cameraInitialState = route.params?.cameraInitialState;
           roomAuthToken,
           micInitialState: isMicOn,
           cameraInitialState: isUserVideoOn,
+          isHost
         })
       }
 

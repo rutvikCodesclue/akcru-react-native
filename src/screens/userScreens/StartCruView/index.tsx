@@ -61,10 +61,10 @@ import {
 } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
-
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
+import { LoadError, OnBufferData, OnSeekData } from "react-native-video";
 
 
 
@@ -81,9 +81,11 @@ type Props = {
   roomAuthToken: string;
   micInitialState: boolean;
   cameraInitialState: boolean;
+  isHost: boolean;
 };
 
 const StartCRUViewDate = ({ navigation, route }: Props) => {
+    const isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
     const roomAuthToken = route.params?.roomAuthToken;
@@ -102,22 +104,9 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-
-    const handleEnterFullscreen = () => {
-        setIsFullscreen(true);
-        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-    };
-
-    const handleExitFullscreen = () => {
-        setIsFullscreen(false);
-        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-    };
-
-    const handleOnBack = () => {
-        setIsStreamOpen(true);
-        handleExitFullscreen();
-    };
-
+    /* 
+        USE EFFECTS
+    */
     // INITIAL LOAD
     useEffect(() => {
         // join the 100ms room
@@ -156,33 +145,21 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     useEffect(() => {
         // TODO: setup the realtime channels for the room
         let roomChannel: RealtimeChannel | null = null
-        let syncChannel: RealtimeChannel | null = null
 
         if (roomId) {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
                 config: {
                     broadcast: {
-                        self: true,
+                        self: isHost ? true: false,
                     },
                 },
             })
             roomChannelRef.current = roomChannel 
-            // syncChannel = supabaseRealtime.channel(`room-sync-${roomId}`) // TODO: make this a presence channel
             console.log("Created room and sync channels");
 
-            if (roomChannel) {
-                roomChannel
-                .on(
-                    'broadcast',
-                    { event: 'sync' },
-                    (payload) => console.log(payload)
-                )
-                .subscribe()
-        
-            }
 
 
-        // every 2.5 seconds
+            // every 2.5 seconds
             setInterval(myFunction, 2500);
             function myFunction() {
                 // if (syncChannel) {
@@ -191,14 +168,14 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                 //   })
                 // }
                 if (roomChannel) {
-                    roomChannel.send({
-                        type: 'broadcast',
-                        event: 'sync',
-                        payload: {
-                            // send timestamp in seconds since epoch
-                            timestamp: new Date().toISOString(),
-                        }
-                    })
+                    // roomChannel.send({
+                    //     type: 'broadcast',
+                    //     event: 'sync',
+                    //     payload: {
+                    //         // send timestamp in seconds since epoch
+                    //         timestamp: new Date().toISOString(),
+                    //     }
+                    // })
                 }
             }
         }
@@ -209,67 +186,41 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         console.log("Current track ids:", trackIds);
     }, [trackIds]);
 
-    /**
-     * returns `uniqueId` for a given `peer` and `track` combination
-     */
-    const getPeerTrackNodeId = (peer, track) => {
-        return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
+    /* 
+        ROOM HANDLERS
+    */
+    const handleEnterFullscreen = () => {
+       
     };
 
-    /**
-     * creates `PeerTrackNode` object for given `peer` and `track` combination
-     */
-    const createPeerTrackNode = (peer, track) => {
-        let isVideoTrack = false;
-        if (track && track?.type === HMSTrackType.VIDEO) {
-            isVideoTrack = true;
-        }
-        const videoTrack = isVideoTrack ? track : undefined;
-        return {
-            id: getPeerTrackNodeId(peer, track),
-            peer: peer,
-            track: videoTrack
-        };
+    const handleExitFullscreen = () => {
+        
     };
 
-    /**
-     * Removes all nodes which has `peer` with `id` same as the given `peerID`.
-     */
-    const removeNodeWithPeerId = (nodes, peerID) => {
-        return nodes.filter((node) => node.peer.peerID !== peerID);
+    const handleOnBack = () => {
+        setIsStreamOpen(true);
+        handleExitFullscreen();
     };
 
-    /**
-     * Updates `track` and `peer` of `PeerTrackNode` objects which has `id` same as `uniqueId` generated from given `peer` and `track`.
-     *
-     * If `createNew` is passed as `true` and no `PeerTrackNode` exists with `id` same as `uniqueId` generated from given `peer` and `track`
-     * then new `PeerTrackNode` object will be created
-     */
-    const _updateNode = (data) => {
-        const { nodes, peer, track, createNew = false } = data;
-
-        const uniqueId = getPeerTrackNodeId(peer, track);
-
-        const nodeExists = nodes.some((node) => node.id === uniqueId);
-
-        if (nodeExists) {
-            return nodes.map((node) => {
-                if (node.id === uniqueId) {
-                    return { ...node, peer, track };
-                }
-                return node;
-            });
-        }
-
-        if (!createNew) return nodes;
-
-        if (peer.isLocal) {
-            return [createPeerTrackNode(peer, track), ...nodes];
-        }
-
-        return [...nodes, createPeerTrackNode(peer, track)];
+    const toggleMic = () => {
+        setIsMicOn((prevState: boolean) => !prevState);
+    };
+    const toggleVideo = () => {
+        setIsUserVideoOn((prevState: boolean) => !prevState);
     };
 
+    const snapPoints = ["1", "40"];
+
+    const handleSnapPress = useCallback((index: number) => {
+        sheetRef.current?.snapToIndex(index);
+        setIsChatOpen(true);
+    }, []);
+
+    
+
+    /**
+     * 100ms ADDITIONAL METHODS
+    */
     const _join100msRoom = async () => {
         let hmsInstance: HMSSDK | null = null;
         
@@ -328,8 +279,63 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     }
 
-    
+    //  returns `uniqueId` for a given `peer` and `track` combination
+    const getPeerTrackNodeId = (peer, track) => {
+        return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
+    };
 
+    // creates `PeerTrackNode` object for given `peer` and `track` combination
+    const createPeerTrackNode = (peer, track) => {
+        let isVideoTrack = false;
+        if (track && track?.type === HMSTrackType.VIDEO) {
+            isVideoTrack = true;
+        }
+        const videoTrack = isVideoTrack ? track : undefined;
+        return {
+            id: getPeerTrackNodeId(peer, track),
+            peer: peer,
+            track: videoTrack
+        };
+    };
+
+    // Removes all nodes which has `peer` with `id` same as the given `peerID`.
+    const removeNodeWithPeerId = (nodes, peerID) => {
+        return nodes.filter((node) => node.peer.peerID !== peerID);
+    };
+
+    //   Updates `track` and `peer` of `PeerTrackNode` objects which has `id` same as `uniqueId` generated from given `peer` and `track`.
+    //  
+    //   If `createNew` is passed as `true` and no `PeerTrackNode` exists with `id` same as `uniqueId` generated from given `peer` and `track`
+    //   then new `PeerTrackNode` object will be created
+    //  
+    const _updateNode = (data) => {
+        const { nodes, peer, track, createNew = false } = data;
+
+        const uniqueId = getPeerTrackNodeId(peer, track);
+
+        const nodeExists = nodes.some((node) => node.id === uniqueId);
+
+        if (nodeExists) {
+            return nodes.map((node) => {
+                if (node.id === uniqueId) {
+                    return { ...node, peer, track };
+                }
+                return node;
+            });
+        }
+
+        if (!createNew) return nodes;
+
+        if (peer.isLocal) {
+            return [createPeerTrackNode(peer, track), ...nodes];
+        }
+
+        return [...nodes, createPeerTrackNode(peer, track)];
+    };
+
+    /*
+        100ms Event Listeners
+    */ 
     const __onErrorListener = (data: HMSException) => {
         // gets triggered when join is successful. You can navigate to other screens.
         // use these objects to update your local and remote peers.
@@ -421,21 +427,49 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         // triggered whenever local peer is trying to reconnect to room, that is bad network.
     };
 
-
-    const toggleMic = () => {
-        setIsMicOn((prevState: boolean) => !prevState);
+    /*
+        WatchParty Video Player Sync Methods
+    */ 
+    const ___onPlay = () => {
+        console.log(`${user?.username} started playing the movie`)
     };
-    const toggleVideo = () => {
-        setIsUserVideoOn((prevState: boolean) => !prevState);
+    const ___onPause = () => {
+        console.log(`${user?.username} paused the movie`)
     };
-
-
-    const snapPoints = ["1", "40"];
-
-    const handleSnapPress = useCallback((index: number) => {
-        sheetRef.current?.snapToIndex(index);
-        setIsChatOpen(true);
-    }, []);
+    const ___onEnd = () => {
+        console.log(`${user?.username} ended the movie`)
+    };
+    const ___onPlaybackResume = () => {
+        console.log(`${user?.username} resumed playback of the movie`)
+    };
+    const ___onSeek = (data: OnSeekData) => {
+        console.log(`${user?.username} is seeking the movie: currentTime: ${data.currentTime} / seekTime: ${data.seekTime}`)
+    };
+    const ___onShowControls = () => {
+        console.log(`${user?.username} is showing the controls`)
+    };
+    const ___onEnterFullscreen = () => {
+        console.log(`${user?.username} entered fullscreen`);
+        setIsFullscreen(true);
+        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+    };
+    const ___onExitFullScreen = () => {
+        console.log(`${user?.username} exited fullscreen`);
+        setIsFullscreen(false);
+        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+    };
+    const ___onBack = () => {
+        console.log(`${user?.username} exited the movie`);
+        setIsStreamOpen(true);
+        handleExitFullscreen();
+    };
+    const ___onBuffer = (data: OnBufferData) => {
+        console.log(`${user?.username} is buffering the movie`)
+    };
+    const ___onError = (error: LoadError) => {
+        console.log(`${user?.username} encountered an error with the movie`)
+    };
+    
 
     return (
         <SafeAreaView>
@@ -586,9 +620,17 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                             isFullscreen={isFullscreen}
                                             posterResizeMode="cover"
                                             poster={movie?.landscapeURL}
-                                            onEnterFullscreen={handleEnterFullscreen}
-                                            onExitFullscreen={handleExitFullscreen}
-                                            onBack={handleOnBack}
+                                            onExitFullscreen={___onExitFullScreen}
+                                            onBack={___onBack}
+                                            onEnterFullscreen={___onEnterFullscreen}
+                                            onPlay={___onPlay}
+                                            onPause={___onPause}
+                                            onEnd={___onEnd}
+                                            onPlaybackResume={___onPlaybackResume}
+                                            onBuffer={___onBuffer}
+                                            onError={___onError}
+                                            onSeek={___onSeek}
+                                            onShowControls={___onShowControls}
                                         />
                                     </View>
                                     <View style={{backgroundColor: 'red', flex: 1}}></View>
