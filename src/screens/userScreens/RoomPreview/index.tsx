@@ -21,7 +21,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
-import { joinMyRoom } from "../../../lib/api/rooms.lib";
+import { joinARoom, joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 import {capitalizeFirstLetterOfString} from '../../../util/util';
@@ -41,27 +41,28 @@ type Props = {
     route: RoomPreviewRouteProp;
     movieName: string;
     movieId: string;
+    isHost: boolean;
+    cruId: string;
 };
 
 const RoomPreviewScreen = ({ navigation, route }: Props) => {
 
-const micInitialState = route.params?.micInitialState;
-const cameraInitialState = route.params?.cameraInitialState;
+const cruId = route.params?.cruId;
+const isHost = route.params?.isHost;
 
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<boolean>(false);
-  const [isMicOn, setIsMicOn] = useState(micInitialState);
-  const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
+  const [isMicOn, setIsMicOn] = useState(false);
+  const [isUserVideoOn, setIsUserVideoOn] = useState(true);
   const [canJoinRoom, setCanJoinRoom] = useState(false);
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
   const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
-
-  const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
+  
 
   useEffect(() => {
     // load the movie
@@ -206,15 +207,22 @@ const cameraInitialState = route.params?.cameraInitialState;
     console.log("Joining room preview [RoomPreviewScreen]...");
 
     // call join the room API endpoint to get the room Token
-    // FIXME: handle user joining a room that they aren't hosting
-    const authTokenForRoom = await joinMyRoom()
-    setAuthRoomToken(authTokenForRoom)
+    let authTokenForRoom;
+    if (isHost) {
+      console.log("Generating auth token for room as HOST...");
+      authTokenForRoom = await joinMyRoom()
+      setAuthRoomToken(authTokenForRoom)
+    } else {
+      authTokenForRoom = await joinARoom(cruId)
+      setAuthRoomToken(authTokenForRoom)
+      console.log("Generating auth token for room as MEMBER...");
+    }
 
     // check permissions for microphone and camera (iOS/Android)
     await _checkPermissions()
 
     // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
-    if (hmsInstance) {
+    if (hmsInstance && authTokenForRoom) {
       console.log("Registering Room Preview Event Listeners [RoomPreviewScreen]...");
       
       // 1. add Event Listeners to subscribe to Join Success or Failure updates
@@ -254,6 +262,7 @@ const cameraInitialState = route.params?.cameraInitialState;
           roomAuthToken,
           micInitialState: isMicOn,
           cameraInitialState: isUserVideoOn,
+          isHost
         })
       }
 
@@ -302,20 +311,6 @@ const cameraInitialState = route.params?.cameraInitialState;
   };
 
 
-  // useEffect(() => {
-  //   _startRoomPreview()
-
-  //   return () => {
-  //     console.log("Leaving room preview...");
-      
-  //     // cleanup (if app crashes or user leaves the screen unexpectedly)
-  //     if (hmsInstanceRef.current) {
-  //       _handleRoomLeave()
-  //       // hmsInstanceRef.current.leave();
-  //     }
-  //   }
-  // }, [navigation]);
-
   useFocusEffect(
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
@@ -331,7 +326,6 @@ const cameraInitialState = route.params?.cameraInitialState;
       // cleanup (if app crashes or user leaves the screen unexpectedly)
       if (hmsInstanceRef.current) {
         _handleRoomLeave()
-        // hmsInstanceRef.current.leave();
       }
       };
     }, [])
@@ -451,21 +445,6 @@ const cameraInitialState = route.params?.cameraInitialState;
                           color={COLORS.AKCRUBLUE}
                       />
                   </TouchableOpacity>
-                  {/* <TouchableOpacity
-                      disabled={!canJoinRoom}
-                      onPress={() => {
-                          _handleJoinRoom();
-                      }}
-                      style={{
-                          width: '100%',
-                          height: 50,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          backgroundColor: '#000',
-                      }}>
-                      <Text style={{color: '#fff', textAlign: 'center', marginTop: 5}}>Join Room</Text>
-                  </TouchableOpacity> */}
               </View>
 
               <View style={styles.bottombtn}>
