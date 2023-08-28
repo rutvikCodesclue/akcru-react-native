@@ -402,7 +402,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     if (!isHost && videoPlayerRef.current && isStreamOpen) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-                        // videoPlayerRef.current.dismissFullscreenPlayer();
+                        videoPlayerRef.current.dismissFullscreenPlayer();
                     }
                 }
             )
@@ -769,7 +769,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     };
     const ___onExitFullScreen = () => {
-        if (isHost && videoPlayerRef.current && isStreamOpen) {
+        if (isHost && videoPlayerRef.current) {
             console.log(`HOST: ${user?.username} exited fullscreen`)
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
