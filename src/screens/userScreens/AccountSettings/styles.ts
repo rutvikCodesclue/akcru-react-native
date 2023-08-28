@@ -24,7 +24,7 @@ export default StyleSheet.create({
     title: {
         ...FONTS.Title2,
         marginTop: 10,
-        marginBottom: 20,
+        marginBottom: 10,
         textAlign: 'center',
         fontSize: 14,
         textDecorationLine: 'underline',

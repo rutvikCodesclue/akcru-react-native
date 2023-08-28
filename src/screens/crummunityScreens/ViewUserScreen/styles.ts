@@ -27,4 +27,32 @@ export default StyleSheet.create({
         alignItems: 'center',
         borderRadius: 3,
     },
+    watchlisttext: {
+        ...FONTS.Title2,
+        marginTop: 10,
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 14,
+    },
+    watchlistcontainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginHorizontal: 15,
+        marginBottom: 20,
+    },
+    seperator: {
+        borderBottomWidth: 1.5,
+        borderColor: COLORS.DARKERGREY,
+        marginTop: 20,
+        marginBottom: 10,
+        marginHorizontal: 15,
+    },
+    desctext: {
+        ...FONTS.Title2,
+        marginTop: 25,
+        marginBottom: 20,
+        textAlign: 'center',
+        fontSize: 14,
+        textDecorationLine: 'underline',
+    },
 });

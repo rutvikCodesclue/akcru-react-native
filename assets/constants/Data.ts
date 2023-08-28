@@ -54,7 +54,7 @@ export const MOVIE_GENRES = [
         color: COLORS.CATGREENLGT,
     },
     {
-        genre: 'Animation',
+        genre: 'Fantasy',
         photo: 'https://priymus.com/wp-content/uploads/2022/08/movie-animation.jpg',
         id: '4',
         color: COLORS.AKCRUBLUE,

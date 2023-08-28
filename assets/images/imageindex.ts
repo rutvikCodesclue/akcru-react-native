@@ -19,6 +19,9 @@ const GRAPHwallet2 = require('./GRAPHwallet2.png')
 const GRAPHwallet1 = require('./GRAPHWallet1.png')
 const SmileyBuffalo = require('./SmileyBuffalo.png')
 const Cru = require('./Cru.png')
+const NewCru = require('./AkcruNewCru.png');
+const AkcruonboardBG = require('./AkcruonboardBG.png');
+const Akcruplaceholder = require('./Avatarplaceholder.png');
 const CruLarge = require('./CruLarge.png')
 const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
@@ -28,6 +31,7 @@ const MIT2 = require("./MIT2.png")
 const MIT3 = require("./MIT3.png")
 const MIT4 = require("./MIT4.png")
 const LrgMIT = require("./LrgMIT.png");
+
 
 
 
@@ -61,5 +65,8 @@ export default {
     MIT2,
     MIT3,
     MIT4,
-    LrgMIT
-}
+    LrgMIT,
+    NewCru,
+    AkcruonboardBG,
+    Akcruplaceholder,
+};

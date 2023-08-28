@@ -2,26 +2,37 @@ import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
-  container: {
-    marginBottom:20,
-    marginHorizontal: SIZES.ScreenWidth * 0.03,
-  },
-  input: {
-    width: SIZES.ScreenWidth * 0.92,
-    flexDirection: 'row',
+    container: {
+        marginBottom: 20,
+        marginHorizontal: SIZES.ScreenWidth * 0.03,
+    },
+    input: {
+        width: SIZES.ScreenWidth * 0.92,
+        flexDirection: 'row',
 
-    borderBottomWidth: 1,
-    borderColor: COLORS.LIGHTGREY,
-    marginBottom: 20,
-    alignSelf: 'center',
-    height: 40,
-  },
-  textinput: {
-    color: COLORS.LIGHTGREY,
-  },
-  inputlabel: {
-    ...FONTS.Title2White,
-    marginLeft: 5,
-    color: COLORS.LIGHTGREY,
-  },
+        borderBottomWidth: 1,
+        borderColor: COLORS.LIGHTGREY,
+        marginBottom: 20,
+        alignSelf: 'center',
+        height: 40,
+    },
+    textinput: {
+        color: COLORS.LIGHTGREY,
+    },
+    inputlabel: {
+        ...FONTS.Title2White,
+        marginLeft: 5,
+        color: COLORS.LIGHTGREY,
+    },
+    searchinput: {
+        width: SIZES.ScreenWidth / 1.08,
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        alignItems: 'center',
+        height: 35,
+    },
 });

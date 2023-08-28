@@ -7,6 +7,7 @@ import {
   Image,
   ScrollView,
   Pressable,
+  Modal
 } from 'react-native';
 import styles from './styles';
 import React, {useState} from 'react';
@@ -47,19 +48,19 @@ export default function ViewUserScreen({route, navigation}: Props) {
   const userprofile: string | undefined = route.params?.userName ?? null;
 
   const {
-    digitalpass,
-    userPicture,
-    privateaccount,
-    online,
-    userName,
-    akcruBadge,
-    status,
-    userFollowerAmount,
-    userDesc,
-    influencer,
-    ADAmount,
-    CRUName,
-    avatarbordercolor,
+      userPicture,
+      privateaccount,
+      online,
+      userName,
+      akcruBadge,
+      status,
+      userFollowerAmount,
+      userDesc,
+      influencer,
+      ADAmount,
+      CRUName,
+      avatarbordercolor,
+      digitalpass,
   } = FAKE_USER_PROFILES[userID ?? 0];
 
   const [scheduleIsShown, setScheduleIsShown] = useState(false);
@@ -74,8 +75,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
     useState('');
   const [selectedUserPicture, setSelectedUserPicture] = useState('');
   const [selectedInfluencer, setSelectedInfluencer] = useState('');
+  const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
 
   const [following, setFollowing] = useState(false)
+
  
 
   const handlePressMIT = (
@@ -84,6 +87,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     akcruBadge,
     userPicture,
     influencer,
+    digitalpass
   ) => {
     setScheduleIsShown(true);
     setSelectedUserName(userName);
@@ -93,6 +97,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     setSelectedAkcruBadgeSuperHero(akcruBadge.superhero);
     setSelectedUserPicture(userPicture);
     setSelectedInfluencer(influencer);
+    setSelectedDigitalPass(digitalpass);
     // Add your logic here to handle the onPress1 action
     // You can use the userID parameter or any other data from the item
 
@@ -103,6 +108,22 @@ export default function ViewUserScreen({route, navigation}: Props) {
     status.length > MAX_STATUS_LENGTH
       ? status.slice(0, MAX_STATUS_LENGTH) + '...'
       : status;
+
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [showCruInviteSent, setShowCruInviteSent] = useState(false);
+
+  const handleSendCruInvite = () => {
+      // Hide the confirmation modal without making any changes
+      setShowConfirmationModal(false);
+
+      // Show the CRU Invite sent modal
+      setShowCruInviteSent(true);
+
+      // Start a timer to hide the modal after 5 seconds
+      setTimeout(() => {
+          setShowCruInviteSent(false);
+      }, 6000); // 6000 milliseconds = 6 seconds
+  };
 
   return (
       <View>
@@ -153,7 +174,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       navigation.navigate('ViewUserDetailScreen', {
                                           userID,
                                       });
-                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer);
+                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer, digitalpass);
                                   }}>
                                   <Avatar
                                       rounded
@@ -299,7 +320,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       navigation.navigate('SendMITViewUser', {
                                           userID,
                                       });
-                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer);
+                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer, digitalpass);
                                   }}>
                                   <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
                               </TouchableOpacity>
@@ -335,25 +356,92 @@ export default function ViewUserScreen({route, navigation}: Props) {
                       <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                   </View>
                   <View style={{flexDirection: 'row'}}>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={() => setShowConfirmationModal(true)}>
                           <View style={styles.cruinvitebutton}>
                               <Text style={{...FONTS.Title2}}>CRU INVITE</Text>
                           </View>
                       </TouchableOpacity>
 
-                      {/* {!following? (
-                          <Pressable onPress={handleFollow}>
-                              <View style={styles.followbutton}>
-                                  <Text style={{...FONTS.Title2}}>FOLLOW</Text>
+                      {/* Cru Invite Confirmation Modal */}
+                      <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                      alignItems: 'center',
+                                      marginHorizontal: 15,
+                                  }}>
+                                  <Text
+                                      style={{
+                                          ...FONTS.Title3,
+                                          marginBottom: 10,
+                                          textAlign: 'center',
+                                      }}>
+                                      {`Are you sure you want to send "${userName}" a Cru invite?`}
+                                  </Text>
+                                  <View style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
+                                      <TouchableOpacity
+                                          style={{
+                                              backgroundColor: COLORS.GREEN,
+                                              paddingHorizontal: 20,
+                                              paddingVertical: 10,
+                                              borderRadius: 5,
+                                          }}
+                                          onPress={handleSendCruInvite}>
+                                          <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Yes</Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                          style={{
+                                              backgroundColor: COLORS.CATREDLGT,
+                                              paddingHorizontal: 20,
+                                              paddingVertical: 10,
+                                              marginRight: 10,
+                                              borderRadius: 5,
+                                          }}
+                                          onPress={() => setShowConfirmationModal(false)}>
+                                          <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>No</Text>
+                                      </TouchableOpacity>
+                                  </View>
                               </View>
-                          </Pressable>
-                      ) : (
-                          <Pressable onPress={() => setFollowing(true)}>
-                              <View style={styles.unfollowbutton}>
-                                  <Text style={{...FONTS.Title2}}>UNFOLLOW</Text>
+                          </View>
+                      </Modal>
+                      {/* Cru Invite Sent Modal */}
+                      <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                      alignItems: 'center',
+                                      marginHorizontal: 15,
+                                  }}>
+                                  <Text
+                                      style={{
+                                          ...FONTS.Title3,
+                                          marginBottom: 10,
+                                          textAlign: 'center',
+                                      }}>
+                                      {`You have sent "${userName}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
+                                  </Text>
                               </View>
-                          </Pressable>
-                      )} */}
+                          </View>
+                      </Modal>
+
                       <Pressable onPress={() => setFollowing(!following)}>
                           <View style={following ? styles.unfollowbutton : styles.followbutton}>
                               <Text style={{...FONTS.Title2}}>{following ? 'UNFOLLOW' : 'FOLLOW'}</Text>
@@ -381,17 +469,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           </Text>
                       </View>
                       <View>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-                                  marginTop: 25,
-                                  marginBottom: 20,
-                                  textAlign: 'center',
-                                  fontSize: 14,
-                                  textDecorationLine: 'underline',
-                              }}>
-                              ARCHETYPE
-                          </Text>
+                          <Text style={styles.desctext}>ARCHETYPE</Text>
                           <View
                               style={{
                                   flexDirection: 'row',
@@ -415,32 +493,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   <Text style={{...FONTS.Title2, fontSize: 12}}> Blood and Bullets</Text>
                               </View>
                           </View>
-                          <View
-                              style={{
-                                  borderBottomWidth: 1.5,
-                                  borderColor: COLORS.DARKERGREY,
-                                  marginTop: 20,
-                                  marginBottom: 10,
-                                  marginHorizontal: 15,
-                              }}
-                          />
-                          <View
-                              style={{
-                                  flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginHorizontal: 15,
-                                  marginBottom: 20,
-                              }}>
-                              <Text
-                                  style={{
-                                      ...FONTS.Title2,
-                                      marginTop: 10,
-                                      marginBottom: 20,
-                                      textAlign: 'center',
-                                      fontSize: 14,
-                                  }}>
-                                  {userName} Watchlist
-                              </Text>
+                          <View style={styles.seperator} />
+                          <View style={styles.watchlistcontainer}>
+                              <Text style={styles.watchlisttext}>{userName} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
                                   <View style={{marginRight: 25}}>
                                       <TouchableOpacity>

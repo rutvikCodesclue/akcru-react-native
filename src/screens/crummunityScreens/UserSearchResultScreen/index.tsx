@@ -12,7 +12,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
 import UserSearchCard from '../../../components/UserSearchCard';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
@@ -20,6 +20,8 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import filter from 'lodash/filter';
 import {ScrollView} from 'react-native-gesture-handler';
+
+
 
 const UserSearchResultScreen = () => {
   const [data, setData] = useState([...FAKE_USER_PROFILES]);
@@ -124,15 +126,17 @@ const UserSearchResultScreen = () => {
                   userName={item.userName}
                   onPress={() => {
                     navigation.navigate('ViewUserScreen', {
-                      userID: index,
+                        userID: item.userID,
                     });
                     setTextInputFocused(true);
+                    
                   }}
                   influencer={item.influencer}
                   userID={item.userID}
                   akcruBadge={item.akcruBadge}
                   userDesc={item.userDesc}
                   avatarbordercolor={item.avatarbordercolor}
+                  
                 />
               </View>
             )}
