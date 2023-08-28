@@ -151,81 +151,82 @@ const Signup = () => {
   ]);
 
   const attemptSignup = async () => {
-    // Calculate the minimum date for 18 years ago
-    // const minDate = new Date();
-    // minDate.setFullYear(minDate.getFullYear() - 18);
+      // Calculate the minimum date for 18 years ago
+      // const minDate = new Date();
+      // minDate.setFullYear(minDate.getFullYear() - 18);
 
-    // Check if the selected date of birth is valid
-    // if (date > minDate) {
-    //   // TODO: change this to a modal
-    //   Alert.alert('You must be 18 years or older to sign up.');
-    //   return;
-    // }
+      // Check if the selected date of birth is valid
+      // if (date > minDate) {
+      //   // TODO: change this to a modal
+      //   Alert.alert('You must be 18 years or older to sign up.');
+      //   return;
+      // }
 
-    setLoading(true);
-    console.log(
-      'Attempting to Signup w/ Email/Password:',
-      email,
-      password,
-      // userName,
-    );
+      setLoading(true);
+      console.log(
+          'Attempting to Signup w/ Email/Password:',
+          email,
+          password,
+          // userName,
+      );
 
-    // create an email signup
-    const signUpResponse = await API.post('/v1/auth/signup', {
-      type: 'email',
-      email: email,
-      password: password
-    })
+      // create an email signup
+      const signUpResponse = await API.post('/v1/auth/signup', {
+          type: 'email',
+          email: email,
+          password: password,
+      });
 
-    // check for error in signup response
-    if (signUpResponse.status !== 200) {
-      console.log('Signup Error:', signUpResponse);
-      
-      Alert.alert(signUpResponse.data.message);
+      // check for error in signup response
+      if (signUpResponse.status !== 200) {
+          console.log('Signup Error:', signUpResponse);
+
+          Alert.alert(signUpResponse.data.message);
+          setLoading(false);
+          return;
+      }
+
+      // if no error, navigate to login screen
+      // TODO: create onboarding screens (user picks username, interests, etc.)
+      console.log('Signup Successful!', signUpResponse.data);
+
+      // login through the API
+      const loginResponse = await API.post('/v1/auth/login', {
+          type: 'email',
+          email: email,
+          password: password,
+      });
+
+
+      if (loginResponse.status !== 200) {
+          console.error(loginResponse.data);
+          Alert.alert('Error logging In after Signup', loginResponse.data);
+          setLoading(false);
+          return null;
+      }
+
+      // TODO: save the JWT in secure storage
+      // set the acces_token in local storage
+      const accessToken = loginResponse.data.session.access_token;
+      AsyncStorage.setItem('access_token', accessToken);
       setLoading(false);
-      return;
-    }
+      // move the user to onboarding
+      navigation.navigate('OnBoard1');
 
-    // if no error, navigate to login screen
-    // TODO: create onboarding screens (user picks username, interests, etc.)
-    console.log('Signup Successful!', signUpResponse.data);
-    
-    // login through the API
-    const loginResponse = await API.post("/v1/auth/login", {
-      type: "email",
-      email: email,
-      password: password,
-    })
+      // const {error} = await supabase.auth.signUp({
+      //   email: email,
+      //   password: password,
+      // });
 
-    if (loginResponse.status !== 200) {
-      console.error(loginResponse.data);
-      Alert.alert("Error logging In after Signup", loginResponse.data);
-      setLoading(false);
-      return null;
-    }
-    
-    // TODO: save the JWT in secure storage
-    // set the acces_token in local storage
-    const accessToken = loginResponse.data.session.access_token;
-    AsyncStorage.setItem("access_token", accessToken);
-    setLoading(false);
-    // move the user to the home screen
-    navigation.navigate('ClientTabNavigator');
+      // if (error) console.error(error.message);
+      // if (!error) {
+      //   alert('Signup Successful!');
 
-    // const {error} = await supabase.auth.signUp({
-    //   email: email,
-    //   password: password,
-    // });
-
-    // if (error) console.error(error.message);
-    // if (!error) {
-    //   alert('Signup Successful!');
-
-    //   setLoading(false);
-    //   navigation.navigate('ClientTabNavigator');
-    //   // FIXME: push to log in page
-    //   // navigation.navigate("Signin");
-    // }
+      //   setLoading(false);
+      //   navigation.navigate('ClientTabNavigator');
+      //   // FIXME: push to log in page
+      //   // navigation.navigate("Signin");
+      // }
   };
 
   return (

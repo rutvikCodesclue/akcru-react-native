@@ -61,10 +61,11 @@ const data = [
               <View
                   style={{
                       flexDirection: 'row',
-                      justifyContent: 'center',
+                      justifyContent: 'space-around',
                       alignItems: 'center',
+                      
                   }}>
-                  <View style={{width: SIZES.ScreenWidth / 2}}>
+                  <View style={{width: SIZES.ScreenWidth / 2, flex: 1, }}>
                       <View>
                           <Text
                               style={{
@@ -82,7 +83,7 @@ const data = [
                                   ...FONTS.Title2,
                                   fontSize: 12,
                                   color: COLORS.LIGHTGREY,
-                                  marginVertical: 10,
+                                  marginVertical: 20,
                               }}>
                               Schedule a CRU View through the CRU Chat
                           </Text>
@@ -110,7 +111,7 @@ const data = [
 
                   <View style={{alignItems: 'center'}}>
                       <View>
-                          <Image source={imageindex.CruLarge} style={{width: 150, height: 65}} resizeMode="cover" />
+                          <Image source={imageindex.NewCru} style={{width: 90, height: 90}} resizeMode="cover" />
                       </View>
 
                       <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>

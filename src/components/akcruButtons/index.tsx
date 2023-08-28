@@ -110,6 +110,39 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   );
 };
 
+const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
+    return (
+        <View>
+            <TouchableOpacity
+                style={{width: SIZES.ScreenWidth * 0.8, height: 40}}
+                onPress={onPress}
+                disabled={disabled}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: color,
+                        justifyContent: 'center',
+                        borderRadius: 5,
+                    }}>
+                    <LinearGradient
+                        // Background Linear Gradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: 40,
+                            borderRadius: 5,
+                        }}
+                    />
+                    <Text style={{...FONTS.Title1, textAlign: 'center'}}>{btnname}</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const XSmallButton = ({btnname, onPress, disabled}: Props) => {
   return (
     <View>
@@ -143,10 +176,11 @@ const XSmallButton = ({btnname, onPress, disabled}: Props) => {
 };
 
 const AkcruButtons = {
-  SmallButton,
-  MedButton,
-  LrgButton,
-  XSmallButton,
+    SmallButton,
+    MedButton,
+    LrgButton,
+    XSmallButton,
+    XlLrgButton,
 };
 
 export default AkcruButtons;
