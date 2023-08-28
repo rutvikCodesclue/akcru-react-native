@@ -16,8 +16,6 @@ import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
-import { supabaseRealtime } from '../../lib/supabase';
-import { createClient } from '@supabase/supabase-js';
 import TestScreen from '../screens/userScreens/TestScreen';
 import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
 
@@ -70,22 +68,6 @@ export default function ClientTabNavigator() {
   //   };
   // }, []);
 
-  useEffect(() => {
-    
-    console.log('Supabase realtime state:', supabaseRealtime.connectionState());
-    
-
-
-  }, [supabaseRealtime]);
-
-  const testChannel = supabaseRealtime.channel('test');
-  testChannel
-  .on(
-    'broadcast',
-    { event: 'test' },
-    (payload) => console.log(payload)
-  )
-  .subscribe()
   const floatingStyle = {
     transform: [
       {

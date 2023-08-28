@@ -3,7 +3,6 @@ export const isProduction = process.env.NODE_ENV === "production";
 import { DEV_API_URL} from "@env"
 import authStore from "../stores/auth.store";
 
-const isAuth = authStore.getState().isAuth;
 const accessToken = authStore.getState().session?.access_token;
 
 console.log("Current ENV for API:", process.env.NODE_ENV);
@@ -28,7 +27,7 @@ const API = axios.create({
     },
 });
 
-console.log('Backend API Client Base URL:', 'https://akcru-api.fly.dev/');
+console.log('Backend API Client Base URL:', determineBaseURL());
 
 
 export { API };

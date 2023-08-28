@@ -47,7 +47,7 @@ target 'akcruapp' do
   )
 
   # HACK: this is untested from 100ms docs. if it doesn't work, comment it out
-  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+  # pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
 
   target 'akcruappTests' do

@@ -14,7 +14,6 @@ interface IAuthStore {
     loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
     logout: () => Promise<boolean | null>;
     hydrateAuth: () => Promise<void>;
-    isAuth: () => Promise<boolean>;
 }
 
 
@@ -60,12 +59,6 @@ const useAuthStore = create<IAuthStore>()(persist(
             // route user to login page
             return true;
 
-        },
-        isAuth: async () => {
-            // hydrate auth
-            await get().hydrateAuth();
-
-            return get().session !== null && get().user !== null;
         },
         getUser: (): IUserProfile | null => {
             return get().user;
