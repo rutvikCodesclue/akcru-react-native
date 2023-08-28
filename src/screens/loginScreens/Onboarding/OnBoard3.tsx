@@ -20,30 +20,17 @@ import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
-import Inputs from '../../../components/input';
-import InputsLrg from '../../../components/inputLrg';
+
 import {Icon} from '@rneui/base';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import {MaskedTextInput} from 'react-native-mask-text';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+
 import {API} from '../../../clients/api.client';
 import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
+import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
 
 const OnBoard3 = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
-    const [userName, setUserName] = useState('');
-
-    const [isFormComplete, setIsFormComplete] = useState(false);
-    const [loading, setLoading] = useState<boolean>(false);
-
-    const [isChecked, setIsChecked] = useState(false);
-
-    const handleUserNameChange = (text: string) => {
-        setUserName(text);
-    };
+    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
     
@@ -70,24 +57,38 @@ const OnBoard3 = () => {
         }
     };
 
-    const checkFormCompletion = () => {
-        if (userName) {
-            setIsFormComplete(true);
+    const handleFinishButton = () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+        console.log('Selected Genres:', selectedGenres);
+
+        if (selectedGenres.length === 2) {
+            const genreNames = selectedGenres.map(genreId => {
+                const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+                return genreObject ? genreObject.genre : '';
+            });
+
+            const archetypeKey = genreNames.sort().join(', ');
+
+            console.log('Archetype Key:', archetypeKey);
+
+            const selectedArchetype = archetypeMapping[archetypeKey];
+
+            if (selectedArchetype) {
+                console.log('Selected Archetype:', selectedArchetype);
+                // You can also navigate or perform any other action here
+            } else {
+                console.log('No matching archetype found for the selected genres.');
+            }
         } else {
-            setIsFormComplete(false);
+            console.log('Please select exactly 2 genres.');
         }
     };
 
-    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
-    useEffect(
-        () => {
-            checkFormCompletion();
-        },
-        [
-            // dob,
-        ],
-    );
+   
+
+    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
 
 
@@ -167,7 +168,7 @@ const OnBoard3 = () => {
                                 <AkcruButtons.XlLrgButton
                                     color={COLORS.MIDORANGE}
                                     btnname={'Finish'}
-                                    onPress={() => navigation.navigate('NoBottomStack')}
+                                    onPress={handleFinishButton}
                                     disabled={false}
                                 />
                             </View>
