@@ -17,7 +17,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   realtime: {
     log_level: 'debug', // FIXME: remove this for prod 
     params: {
-      eventsPerSecond: 5,
+      eventsPerSecond: 20,
     },
   },
   
