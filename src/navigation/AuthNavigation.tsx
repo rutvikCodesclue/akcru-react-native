@@ -7,6 +7,9 @@ import Signup from '../screens/loginScreens/Signup';
 import ClientTabNavigator from './ClientTabNavigator';
 import { ClientStack } from './ClientStack';
 import NoBottomStack from './NoBottomTabStack';
+import OnBoard1 from '../screens/loginScreens/Onboarding/OnBoard1';
+import OnBoard2 from '../screens/loginScreens/Onboarding/OnBoard2';
+import OnBoard3 from '../screens/loginScreens/Onboarding/OnBoard3';
 
 
 
@@ -17,58 +20,86 @@ export type AuthStackParams = {
   ClientTabNavigator: any;
   ClientStack: any;
   NoBottomStack: any;
+  OnBoard1: any;
+  OnBoard2: any;
+  OnBoard3: any;
 };
 
 const Auth = createStackNavigator<AuthStackParams>();
 
 export default function AuthStack() {
   return (
-    <Auth.Navigator
-      screenOptions={{
-        animationEnabled: true,
-        cardOverlayEnabled: true,
-        cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
-      }}>
-      <Auth.Screen
-        name="Signin"
-        component={Signin}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <Auth.Screen
-        name="ForgotPassword"
-        component={ForgotPassword}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <Auth.Screen
-        name="Signup"
-        component={Signup}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <Auth.Screen
-        name="ClientTabNavigator"
-        component={ClientTabNavigator}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-      <Auth.Screen
-        name="NoBottomStack"
-        component={NoBottomStack}
-        options={{
-          headerShown: false,
-          gestureDirection: 'horizontal',
-        }}
-      />
-    </Auth.Navigator>
+      <Auth.Navigator
+          screenOptions={{
+              animationEnabled: true,
+              cardOverlayEnabled: true,
+              cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
+          }}>
+          <Auth.Screen
+              name="Signin"
+              component={Signin}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="ForgotPassword"
+              component={ForgotPassword}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="Signup"
+              component={Signup}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="OnBoard1"
+              component={OnBoard1}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="OnBoard2"
+              component={OnBoard2}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="OnBoard3"
+              component={OnBoard3}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+       
+          <Auth.Screen
+              name="ClientTabNavigator"
+              component={ClientTabNavigator}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="NoBottomStack"
+              component={NoBottomStack}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+      </Auth.Navigator>
   );
 }
