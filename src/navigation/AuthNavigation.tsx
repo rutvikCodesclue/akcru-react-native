@@ -29,6 +29,7 @@ const Auth = createStackNavigator<AuthStackParams>();
 
 export default function AuthStack() {
   return (
+
       <Auth.Navigator
           screenOptions={{
               animationEnabled: true,
@@ -101,5 +102,6 @@ export default function AuthStack() {
               }}
           />
       </Auth.Navigator>
+
   );
 }

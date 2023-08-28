@@ -42,7 +42,7 @@ const Signin = () => {
         const isAuthed = authStore.user !== null && authStore.session !== null;
         
         if (isAuthed) {
-            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
+            navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
         }
     }
 

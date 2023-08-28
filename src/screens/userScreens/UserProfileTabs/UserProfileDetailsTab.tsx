@@ -55,7 +55,7 @@ const data = [
                           fontSize: 14,
                           textDecorationLine: 'underline',
                       }}>
-                      PROFILE DETAILS
+                      CRU DETAILS
                   </Text>
               </View>
               <View
