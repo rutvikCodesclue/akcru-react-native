@@ -21,7 +21,7 @@ import {COLORS, SIZES} from '../../../../assets/constants/index';
 import styles from './styles';
 import {CATEGORIES} from '../../../../assets/constants/Data';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
@@ -30,10 +30,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
-
-
-
-
 
 const HomeScreen = () => {
   
@@ -44,6 +40,7 @@ const HomeScreen = () => {
   const [topBox, setTopBox]= useState<IMovie[]>([]);
   const [topBoxIndex, setTopBoxIndex] = useState(2)
 
+  const [topBoxShouldAutoplay, setTopBoxShouldAutoplay] = useState(false);
   const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
 
   const navigation =
@@ -147,6 +144,20 @@ const HomeScreen = () => {
      });
    };
 
+   useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('Home Screen focused [HomeScreen]');
+            setTopBoxShouldAutoplay(true);
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Home Screen unfocused [HomeScreen]');
+                setTopBoxShouldAutoplay(false);
+            };
+        }, [])
+    );
+
   return (
       <SafeAreaView>
           {isMovieDataLoaded ? (
@@ -169,6 +180,7 @@ const HomeScreen = () => {
                               disableBack
                               disableFullscreen
                               disableTimer
+                              paused={!topBoxShouldAutoplay}
                               toggleResizeModeOnFullscreen={true}
                               isFullscreen={true}
                               posterResizeMode="cover"
