@@ -76,3 +76,21 @@ export interface ICruView {
     startDate: string;
     timezone: string
 }
+
+export type ICruInvite = {
+    id: string;
+    status: "PENDING" | "ACCEPTED" | "DECLINED";
+    cruId: string;
+    inviteeId: string;
+    cru: {
+        id: string;
+        creatorId: string;
+        creator: {
+            profilePicture?: string;
+            firstName: string;
+            lastName: string;
+        }
+    };
+    createdAt: string;
+    updatedAt?: string;
+}

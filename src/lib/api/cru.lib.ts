@@ -45,3 +45,25 @@ export const createACRUView = async (params: {movieId: string, startTime: string
 
     return data.CRUView;
 }
+
+
+export const getCRUInvites = async (params: { pending?: boolean, accepted?: boolean, declined?: boolean }) => {
+    // GET /v1/cru/invites/me
+    const { pending, accepted, declined } = params
+
+    if (pending) {
+        const { data } = await API.get(`/v1/cru/invite/me?pending=${pending}`);
+        return data.invites;
+    }
+    if (accepted) {
+        const { data } = await API.get(`/v1/cru/invite/me?accepted=${accepted}`);
+        return data.invites;
+    }
+    if (declined) {
+        const { data } = await API.get(`/v1/cru/invite/me?declined=${declined}`);
+        return data.invites;
+    }
+    
+    const { data } = await API.get(`/v1/cru/invite/me`);
+    return data.invites;
+}

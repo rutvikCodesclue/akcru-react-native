@@ -8,7 +8,7 @@ import styles from './styles';
 
 type CruInviteCardProp = {
     inviteeName: string;
-    inviteePicture: string;
+    inviteePicture?: string | undefined;
     inviteDate: string;
     cruInviteID: any;
 }
@@ -46,7 +46,7 @@ const CruInviteCard = ({
         <View style={{ marginRight: 10 }}>
           <Avatar
             source={{
-              uri: inviteePicture,
+              uri: inviteePicture ?? undefined,
             }}
             size={50}
             rounded
