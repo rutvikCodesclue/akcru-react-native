@@ -33,4 +33,8 @@ export default StyleSheet.create({
         marginBottom: 75,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
+    bgimage: {
+        height: SIZES.ScreenHeight,
+        // width: SIZES.ScreenWidth,
+    },
 });

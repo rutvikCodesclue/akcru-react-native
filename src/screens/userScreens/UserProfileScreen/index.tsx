@@ -166,166 +166,168 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
   return (
       <View style={{flex: 1}}>
-        <SafeAreaView style={{ flex: 1}}>
-          <View>
-              <ImageBackground
-                  source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                  resizeMode="cover"
-                  style={{height: SIZES.ScreenHeight / 3.7}}>
-                  <View style={{zIndex: 20}}>
-                      <Header />
-                  </View>
-                  <LinearGradient
-                      // Background Linear Gradient
-                      colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                      style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          height: SIZES.ScreenHeight / 3.7,
-                      }}
-                  />
-                  <View
-                      style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
+          <SafeAreaView style={{flex: 1}}>
+              <View>
+                  <ImageBackground
+                      source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                      resizeMode="cover"
+                      style={{height: SIZES.ScreenHeight / 3.7}}>
+                      <View style={{zIndex: 20}}>
+                          <Header />
+                      </View>
+                      <LinearGradient
+                          // Background Linear Gradient
+                          colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                          style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              top: 0,
+                              height: SIZES.ScreenHeight / 3.7,
+                          }}
+                      />
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
 
-                          marginHorizontal: 15,
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                          <View style={{marginRight: 8}}>
-                              <Avatar
-                                  rounded
-                                  size={70}
-                                  source={{
-                                      uri: FAKE_USER_PROFILES[0].userPicture,
-                                  }}
-                                  avatarStyle={{
-                                      borderWidth: 2,
-                                      borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
-                                  }}
-                              />
+                              marginHorizontal: 15,
+                          }}>
+                          <View style={{flexDirection: 'row'}}>
+                              <View style={{marginRight: 8}}>
+                                  <Avatar
+                                      rounded
+                                      size={70}
+                                      source={
+                                          user?.profilePicture
+                                              ? {uri: user.profilePicture}
+                                              : imageindex.Akcruplaceholder
+                                      }
+                                      avatarStyle={{
+                                          borderWidth: 2,
+                                          borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
+                                      }}
+                                  />
+                              </View>
+                              <View>
+                                  <Text style={{...FONTS.Title2}}>
+                                      {/* {FAKE_USER_PROFILES[0].userName} */}
+                                      {user ? user?.username : 'Guest'}
+                                  </Text>
+                                  {user?.badge === 'AKCRUIT' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeAkcruit />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'GUARDIAN' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeGuardian />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'HERO' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeHero />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'SUPERHERO' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeSuperHero />
+                                      </View>
+                                  )}
+                                  <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                                      <View style={{flexDirection: 'row'}}>
+                                          <Icon
+                                              name="square-edit-outline"
+                                              type="material-community"
+                                              color={COLORS.DARKGREY}
+                                              size={15}
+                                              style={{marginRight: 5}}
+                                          />
+                                          <Text
+                                              style={{
+                                                  ...FONTS.Title2,
+                                                  color: COLORS.LIGHTGREY,
+                                                  fontSize: 12,
+                                              }}>
+                                              Edit Profile
+                                          </Text>
+                                      </View>
+                                  </TouchableOpacity>
+                              </View>
                           </View>
-                          <View>
-                              <Text style={{...FONTS.Title2}}>
-                                  {/* {FAKE_USER_PROFILES[0].userName} */}
-                                  {user ? user?.username : 'Guest'}
-                              </Text>
-                              {user?.badge === 'AKCRUIT' && (
+
+                          <View
+                              style={{
+                                  borderLeftWidth: 2,
+                                  borderRightWidth: 2,
+                                  borderColor: COLORS.DARKGREY,
+                                  width: 100,
+                                  height: 60,
+                                  justifyContent: 'center',
+
+                                  alignItems: 'center',
+                              }}>
+                              <TouchableOpacity
+                                  onPress={() => navigation.navigate('FollowList')}
+                                  style={{
+                                      alignItems: 'center',
+                                  }}>
+                                  <Text style={{...FONTS.Title3, fontSize: 14}}>
+                                      {user?.followerCount ?? 0}
+                                      {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
+                                  </Text>
+                                  <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                              </TouchableOpacity>
+                          </View>
+                          <View
+                              style={{
+                                  height: 50,
+                                  justifyContent: 'center',
+                                  alignItems: 'flex-end',
+                              }}>
+                              <TouchableOpacity
+                                  onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
+                              >
                                   <View>
-                                      <AkcruLevels.AkcruBadgeAkcruit />
+                                      <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                   </View>
-                              )}
-                              {user?.badge === 'GUARDIAN' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeGuardian />
-                                  </View>
-                              )}
-                              {user?.badge === 'HERO' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeHero />
-                                  </View>
-                              )}
-                              {user?.badge === 'SUPERHERO' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeSuperHero />
-                                  </View>
-                              )}
-                              <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
-                                  <View style={{flexDirection: 'row'}}>
-                                      <Icon
-                                          name="square-edit-outline"
-                                          type="material-community"
-                                          color={COLORS.DARKGREY}
-                                          size={15}
-                                          style={{marginRight: 5}}
-                                      />
-                                      <Text
+                                  <View style={{position: 'absolute', right: 0, bottom: 10}}>
+                                      <View
                                           style={{
-                                              ...FONTS.Title2,
-                                              color: COLORS.LIGHTGREY,
-                                              fontSize: 12,
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                              backgroundColor: COLORS.WHITE,
+                                              width: 20,
+                                              height: 20,
+                                              borderRadius: 15,
                                           }}>
-                                          Edit Profile
-                                      </Text>
+                                          <Text>{user?.MITCount ?? 0}</Text>
+                                      </View>
                                   </View>
                               </TouchableOpacity>
                           </View>
                       </View>
-
-                      <View
-                          style={{
-                              borderLeftWidth: 2,
-                              borderRightWidth: 2,
-                              borderColor: COLORS.DARKGREY,
-                              width: 100,
-                              height: 60,
-                              justifyContent: 'center',
-
-                              alignItems: 'center',
-                          }}>
-                          <TouchableOpacity
-                              onPress={() => navigation.navigate('FollowList')}
-                              style={{
-                                  alignItems: 'center',
-                              }}>
-                              <Text style={{...FONTS.Title3, fontSize: 14}}>
-                                  {user?.followerCount ?? 0}
-                                  {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
-                              </Text>
-                              <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
-                          </TouchableOpacity>
+                      <View style={{marginTop: 20, marginHorizontal: 15}}>
+                          <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12}}>
+                              {user?.description ??
+                                  (user
+                                      ? 'Click Edit Profile to add a description'
+                                      : 'Create an account and get started today')}
+                              {/* {FAKE_USER_PROFILES[0].userDesc} */}
+                          </Text>
                       </View>
-                      <View
-                          style={{
-                              height: 50,
-                              justifyContent: 'center',
-                              alignItems: 'flex-end',
-                          }}>
-                          <TouchableOpacity
-                              onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
-                          >
-                              <View>
-                                  <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
-                              </View>
-                              <View style={{position: 'absolute', right: 0, bottom: 10}}>
-                                  <View
-                                      style={{
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          backgroundColor: COLORS.WHITE,
-                                          width: 20,
-                                          height: 20,
-                                          borderRadius: 15,
-                                      }}>
-                                      <Text>{user?.MITCount ?? 0}</Text>
-                                  </View>
-                              </View>
-                          </TouchableOpacity>
-                      </View>
-                  </View>
-                  <View style={{marginTop: 20, marginHorizontal: 15}}>
-                      <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12}}>
-                          {user?.description ??
-                              (user
-                                  ? 'Click Edit Profile to add a description'
-                                  : 'Create an account and get started today')}
-                          {/* {FAKE_USER_PROFILES[0].userDesc} */}
-                      </Text>
-                  </View>
-              </ImageBackground>
-          </View>
-          <TabView
-            navigationState={{index, routes}}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={{width: layout.width}}
-            swipeEnabled={true}
-            renderTabBar={renderTabBar}
-          />
-        </SafeAreaView>
+                  </ImageBackground>
+              </View>
+              <TabView
+                  navigationState={{index, routes}}
+                  renderScene={renderScene}
+                  onIndexChange={setIndex}
+                  initialLayout={{width: layout.width}}
+                  swipeEnabled={true}
+                  renderTabBar={renderTabBar}
+              />
+          </SafeAreaView>
       </View>
   );
 }
