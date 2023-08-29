@@ -34,7 +34,7 @@ const UserProfileCruInvites = () => {
           <Text style={styles.titleText1}>CRU INVITES</Text>
         </View>
         <View style={{ marginBottom: 75 }}>
-          {invites.map((item) => (
+          {invites.length > 0 ? invites.map((item) => (
             <View
               key={item.id}
               style={{ marginHorizontal: 15, marginBottom: 10 }}
@@ -46,7 +46,7 @@ const UserProfileCruInvites = () => {
                 inviteDate={item.createdAt}
               />
             </View>
-          ))}
+          )) : <Text style={styles.titleText2}>No invites</Text>}
           {/* {JENNY_INVITES.map((item) => (
             <View
               key={item.MITID}
