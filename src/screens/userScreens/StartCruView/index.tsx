@@ -315,10 +315,40 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         setIsStreamOpen(true);
     }
 
+    const _handleStartMovie = async () => {
+        setIsStreamOpen(false)
+        setIsMoviePlaying(true)
+
+        if (isHost && videoPlayerRef.current) {
+            // SYNC: send a message to the room that the host started playing the movie
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'start-movie',
+                payload: {
+                    // send timestamp in seconds since epoch
+                    timestamp: new Date().toISOString(),
+                }
+            })
+        }
+    }
+
     const __handleRoomChannelEventsAndSubscribe = () => {
         if (roomChannelRef.current) {
             // subscribe to play event
             roomChannelRef.current
+            .on(
+                'broadcast',
+                { event: 'start-movie' },
+                (payload) => {
+                    // play video player if not host
+                    if (!isHost && videoPlayerRef.current) {
+                        console.log(payload)
+                        // play the video player, for host
+                        setIsStreamOpen(false)
+                        setIsMoviePlaying(true)
+                    }
+                }
+            )
             .on(
                 'broadcast',
                 { event: 'play-movie' },
@@ -402,7 +432,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     if (!isHost && videoPlayerRef.current && isStreamOpen) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-                        // videoPlayerRef.current.dismissFullscreenPlayer();
+                        videoPlayerRef.current.dismissFullscreenPlayer();
                     }
                 }
             )
@@ -769,7 +799,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         }
     };
     const ___onExitFullScreen = () => {
-        if (isHost && videoPlayerRef.current && isStreamOpen) {
+        if (isHost && videoPlayerRef.current) {
             console.log(`HOST: ${user?.username} exited fullscreen`)
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
@@ -930,10 +960,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                     </TouchableWithoutFeedback>
                                     {/* START MOVIE BUTTON */}
                                     { isHost && roomChannelRef.current && (
-                                        <TouchableWithoutFeedback onPress={() => {
-                                            setIsStreamOpen(false)
-                                            setIsMoviePlaying(true)
-                                            }}>
+                                        <TouchableWithoutFeedback onPress={_handleStartMovie}>
                                             <View
                                                 style={{
                                                     flexDirection: 'row',
