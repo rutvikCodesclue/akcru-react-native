@@ -219,7 +219,7 @@ export default function EditProfile({session}: {session: Session}) {
                               source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
                               avatarStyle={{
                                   borderWidth: 2,
-                                  borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
+                                  borderColor: COLORS.AKCRUBLUE,
                               }}
                           />
                           <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
