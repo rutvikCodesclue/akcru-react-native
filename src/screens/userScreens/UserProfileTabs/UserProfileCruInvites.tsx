@@ -40,10 +40,10 @@ const UserProfileCruInvites = () => {
               style={{ marginHorizontal: 15, marginBottom: 10 }}
             >
               <CruInviteCard
+                cruInviteID={item.id}
                 inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName}`}
                 inviteePicture={item.cru.creator.profilePicture ?? undefined} 
                 inviteDate={item.createdAt}
-                cruInviteID={undefined}
               />
             </View>
           ))}

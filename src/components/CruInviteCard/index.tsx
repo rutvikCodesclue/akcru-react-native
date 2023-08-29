@@ -7,20 +7,25 @@ import styles from './styles';
 
 
 type CruInviteCardProp = {
+    cruInviteID: any;
     inviteeName: string;
     inviteePicture?: string | undefined;
     inviteDate: string;
-    cruInviteID: any;
 }
 
 
 const CruInviteCard = ({
+    cruInviteID,
     inviteeName,
     inviteePicture,
     inviteDate,
-    cruInviteID
 
 }: CruInviteCardProp) => {
+
+  const _acceptInvite = () => {};
+  const _declineInvite = () => {};
+
+
   return (
     <View
       style={{
@@ -66,7 +71,14 @@ const CruInviteCard = ({
               has sent you a CRU Invite on
             </Text>
             <View>
-              <Text style={styles.paragraphText3}>{inviteDate}</Text>
+              {/* display inviteDate datetimestring as month/day/year */}
+              <Text style={styles.paragraphText3}>{
+                new Date(inviteDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric'
+              })
+              }</Text>
             </View>
           </View>
 
