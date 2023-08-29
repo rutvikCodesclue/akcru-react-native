@@ -18,6 +18,7 @@ interface IUserProfile {
     published?: boolean;
     createdAt?: string;
     updatedAt?: string;
+    profilePicture?: string;
 }
 
 export interface IMovie {
