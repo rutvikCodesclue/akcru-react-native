@@ -15,7 +15,7 @@ const UserProfileCruInvites = () => {
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
       // console.log('User Profile Cru Invite Tab focused');
-      getCRUInvites({}).then((invites) => {
+      getCRUInvites({ pending: true }).then((invites) => {
         // console.log("invites: ", JSON.stringify(invites, null, 3));
         setInvites(invites);
       });

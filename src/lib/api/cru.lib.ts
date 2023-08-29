@@ -67,3 +67,13 @@ export const getCRUInvites = async (params: { pending?: boolean, accepted?: bool
     const { data } = await API.get(`/v1/cru/invite/me`);
     return data.invites;
 }
+
+export const acceptACRUInvite = async (params: { inviteId: string }) => {
+    const { data } = await API.post(`/v1/cru/invite/accept`, { inviteId: params.inviteId });
+    return data;
+}
+
+export const declineACRUInvite = async (params: { inviteId: string }) => {
+    const { data } = await API.post(`/v1/cru/invite/decline`, { inviteId: params.inviteId });
+    return data;
+}
