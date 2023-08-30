@@ -131,7 +131,7 @@ export default function EditProfile({session}: {session: Session}) {
   };
 
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{zIndex: 20}}>
           <Header />
@@ -468,6 +468,6 @@ export default function EditProfile({session}: {session: Session}) {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
