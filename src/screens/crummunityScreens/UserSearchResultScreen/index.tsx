@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import styles from './styles';
-import React, {useState, useRef, useEffect} from 'react';
+import React, {useState, useRef} from 'react';
 import Header from '../../../components/header';
 import UserSearchCard from '../../../components/UserSearchCard';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -16,9 +16,7 @@ import { useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
-import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
-import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
-import filter from 'lodash/filter';
+import {FONTS, COLORS} from '../../../../assets/constants';
 import {ScrollView} from 'react-native-gesture-handler';
 import { searchForUsers } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
@@ -26,7 +24,6 @@ import { IUserProfile } from '../../../../types';
 
 
 const UserSearchResultScreen = () => {
-  // const [data, setData] = useState([...FAKE_USER_PROFILES]);
   const [data, setData] = useState<IUserProfile[] | []>([]);
 
   const [textInputFocused, setTextInputFocused] = useState(false);
@@ -44,21 +41,11 @@ const UserSearchResultScreen = () => {
     if (text.length > 1) {
       // send search request to backend when text is 2 or more characte
       searchForUsers(text).then((res) => {
-        console.log(`search results [${text}]: `);
-        console.log(res);
-
         if (res.length > 0) {
           setData(res);
         }
       });
     } 
-
-
-    // const dataSearch = filter(FAKE_USER_PROFILES, userSearch => {
-    //   return contains(userSearch, text.toLowerCase());
-    // });
-
-    // setData([...dataSearch]);
   };
 
   return (
@@ -145,7 +132,6 @@ const UserSearchResultScreen = () => {
                         userID: item.id,
                     });
                     setTextInputFocused(true);
-                    
                   }}
                   // influencer={item.influencer} // TODO: handle this
                   userID={item.id}
