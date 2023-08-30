@@ -20,11 +20,14 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import filter from 'lodash/filter';
 import {ScrollView} from 'react-native-gesture-handler';
+import { searchForUsers } from '../../../lib/api/user.lib';
+import { IUserProfile } from '../../../../types';
 
 
 
 const UserSearchResultScreen = () => {
-  const [data, setData] = useState([...FAKE_USER_PROFILES]);
+  // const [data, setData] = useState([...FAKE_USER_PROFILES]);
+  const [data, setData] = useState<IUserProfile[] | []>([]);
 
   const [textInputFocused, setTextInputFocused] = useState(false);
   const textInputRef = useRef(null);
@@ -38,15 +41,28 @@ const UserSearchResultScreen = () => {
     return false;
   };
   const handleSearch = (text: any) => {
-    const dataSearch = filter(FAKE_USER_PROFILES, userSearch => {
-      return contains(userSearch, text.toLowerCase());
-    });
+    if (text.length > 1) {
+      // send search request to backend when text is 2 or more characte
+      searchForUsers(text).then((res) => {
+        console.log(`search results [${text}]: `);
+        console.log(res);
 
-    setData([...dataSearch]);
+        if (res.length > 0) {
+          setData(res);
+        }
+      });
+    } 
+
+
+    // const dataSearch = filter(FAKE_USER_PROFILES, userSearch => {
+    //   return contains(userSearch, text.toLowerCase());
+    // });
+
+    // setData([...dataSearch]);
   };
 
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
           <Header />
@@ -118,32 +134,30 @@ const UserSearchResultScreen = () => {
             horizontal={false}
             showsHorizontalScrollIndicator={false}
             scrollEnabled={false}
-            keyExtractor={item => item.userID}
+            keyExtractor={item => item.id}
             renderItem={({item, index}) => (
               <View style={{marginVertical: 5}}>
                 <UserSearchCard
-                  userPicture={item.userPicture}
-                  userName={item.userName}
+                  userPicture={item.profilePicture}
+                  userName={item.username}
                   onPress={() => {
                     navigation.navigate('ViewUserScreen', {
-                        userID: item.userID,
+                        userID: item.id,
                     });
                     setTextInputFocused(true);
                     
                   }}
-                  influencer={item.influencer}
-                  userID={item.userID}
-                  akcruBadge={item.akcruBadge}
-                  userDesc={item.userDesc}
-                  avatarbordercolor={item.avatarbordercolor}
-                  
+                  // influencer={item.influencer} // TODO: handle this
+                  userID={item.id}
+                  akcruBadge={item.badge}
+                  userDesc={item.description}
                 />
               </View>
             )}
           />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

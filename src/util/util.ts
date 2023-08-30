@@ -1,4 +1,5 @@
 import { format, formatDuration, intervalToDuration } from "date-fns";
+import { AKCRUBADGES, COLORS } from "../../assets/constants";
 
 export function capitalizeFirstLetterOfString(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -17,3 +18,17 @@ export function formatMovieDuration(seconds: number) {
 
     return formattedDurationWithAbbreviations;
 }
+
+export function selectAvatarBorderColor(akcruBadge: string) {
+    if (akcruBadge === "AKCRUIT") {
+      return AKCRUBADGES.Akcruit.color
+    } else if (akcruBadge === "GUARDIAN") {
+      return AKCRUBADGES.Guardian.color
+    } else if (akcruBadge === "HERO") {
+      return AKCRUBADGES.Hero.color
+    } else if (akcruBadge === "SUPERHERO") {
+      return AKCRUBADGES.SuperHero.color
+    } else {
+      return COLORS.AKCRUBLUE
+    }
+  }
