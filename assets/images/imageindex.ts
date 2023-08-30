@@ -21,7 +21,7 @@ const SmileyBuffalo = require('./SmileyBuffalo.png')
 const Cru = require('./Cru.png')
 const NewCru = require('./AkcruNewCru.png');
 const AkcruonboardBG = require('./AkcruonboardBG.png');
-const Akcruplaceholder = require('./Avatarplaceholder.png');
+const Akcruplaceholder = require('./akcruavatar.png');
 const CruLarge = require('./CruLarge.png')
 const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
@@ -31,6 +31,7 @@ const MIT2 = require("./MIT2.png")
 const MIT3 = require("./MIT3.png")
 const MIT4 = require("./MIT4.png")
 const LrgMIT = require("./LrgMIT.png");
+const hexbg = require('./hexbg.png');
 
 
 
@@ -69,4 +70,5 @@ export default {
     NewCru,
     AkcruonboardBG,
     Akcruplaceholder,
+    hexbg
 };

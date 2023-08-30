@@ -172,9 +172,9 @@ const UserCruChatScreen = () => {
                                 <Avatar
                                     rounded
                                     size={70}
-                                    source={{
-                                        uri: FAKE_USER_PROFILES[0].userPicture,
-                                    }}
+                                    source={
+                                        user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder
+                                    }
                                     avatarStyle={{
                                         borderWidth: 2,
                                         borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,

@@ -12,6 +12,8 @@ import {
   TextInput,
   Button,
   Modal,
+  FlatList,
+  ImageBackground,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -29,6 +31,10 @@ import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useAuthStore from "../../../stores/auth.store";
+import InputsLrg from '../../../components/inputLrg';
+import { MOVIE_GENRES } from '../../../../assets/constants/Data';
+import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
+import imageindex from '../../../../assets/images/imageindex';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -45,6 +51,8 @@ export default function EditProfile({session}: {session: Session}) {
   const [desc, setDesc] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
+  const [emailError, setEmailError] = useState(false);
+  const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
   const [response, setResponse] = React.useState<any>(null);
 
@@ -130,344 +138,400 @@ export default function EditProfile({session}: {session: Session}) {
     UpdateProfile({userName, desc});
   };
 
+  const handleCheckboxChange = (genreId: string) => {
+      // Check if the genre is already selected
+      if (checkedGenres[genreId]) {
+          // If it's selected, unselect it
+          setCheckedGenres(prevState => ({
+              ...prevState,
+              [genreId]: false,
+          }));
+      } else {
+          // Check if the limit of two genres is reached
+          if (Object.values(checkedGenres).filter(Boolean).length < 2) {
+              // If not reached, select the genre
+              setCheckedGenres(prevState => ({
+                  ...prevState,
+                  [genreId]: true,
+              }));
+          } else {
+              // If limit is reached, show a message or perform an action
+              console.log('You can only select up to two genres.');
+          }
+      }
+  };
+
+  const handleFinishButton = () => {
+      const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+      console.log('Selected Genres:', selectedGenres);
+
+      if (selectedGenres.length === 2) {
+          const genreNames = selectedGenres.map(genreId => {
+              const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+              return genreObject ? genreObject.genre : '';
+          });
+
+          const archetypeKey = genreNames.sort().join(', ');
+
+          console.log('Archetype Key:', archetypeKey);
+
+          const selectedArchetype = archetypeMapping[archetypeKey];
+
+          if (selectedArchetype) {
+              console.log('Selected Archetype:', selectedArchetype);
+              // You can also navigate or perform any other action here
+         
+          } else {
+              console.log('No matching archetype found for the selected genres.');
+          }
+      } else {
+          console.log('Please select exactly 2 genres.');
+      }
+  };
+
+  const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
+
+
   return (
-    <SafeAreaView>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View style={{zIndex: 20}}>
-          <Header />
-        </View>
-        <View style={styles.container}>
-          <TouchableOpacity onPress={() => navigation.pop()}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Icon
-                name="chevron-back"
-                type="ionicon"
-                size={20}
-                color={COLORS.LIGHTGREY}
-              />
-              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-            </View>
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.title}>EDIT PROFILE</Text>
-            <View style={{alignItems: 'center'}}>
-              <Avatar
-                rounded
-                size={125}
-                source={{
-                  uri: avatarUrl || FAKE_USER_PROFILES[0].userPicture,
-                }}
-                avatarStyle={{
-                  borderWidth: 2,
-                  borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
-                }}
-              />
-              <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
-                <Text
-                  style={{
-                    ...FONTS.Title2AkcruBlue,
-                    marginTop: 10,
-                    color: COLORS.MIDORANGE,
-                  }}>
-                  Edit profile photo
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Modal to Select Profile Photo */}
-            <Modal
-              animationType="fade"
-              transparent={true}
-              visible={showImagePickerModal}>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'flex-end',
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                }}>
-                <View
-                  style={{
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                    padding: 15,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                  }}>
-                    <View style={{flexDirection: 'row-reverse', justifyContent: 'space-between', alignContent: 'center', marginBottom: 10}}>
-                       <TouchableOpacity
-                    onPress={() => setShowImagePickerModal(false)}
-                    >
-                    <Icon
-                      name="close-circle"
-                      type="ionicon"
-                      color={COLORS.CATREDLGT}
-                      size={25}
-                    />
+      <View>
+          <ScrollView stickyHeaderIndices={[0]}>
+              <View style={{zIndex: 20}}>
+                  <Header />
+              </View>
+              <View style={styles.container}>
+                  <TouchableOpacity onPress={() => navigation.pop()}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                          }}>
+                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                      </View>
                   </TouchableOpacity>
-                  <Text style={{...FONTS.Title3}}>
-                    Select Profile Photo
-                  </Text>
-                    </View>
-                 
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{flexDirection: 'row'}}>
-                    {gallery.map((imageUri, index) => {
-                      return (
-                        <TouchableOpacity
-                          key={index}
-                          onPress={() => handleSelectImage(imageUri)}>
-                          <Image
-                            source={{uri: imageUri}}
-                            style={[
-                              styles.galleryImage,
-                              selectedImage === imageUri && {
-                                borderColor: COLORS.AKCRUBLUE,
-                                borderWidth: 2,
-                              },
-                            ]}
+                  <View>
+                      <Text style={styles.title}>EDIT PROFILE</Text>
+                      <View style={{alignItems: 'center'}}>
+                          <Avatar
+                              rounded
+                              size={125}
+                              source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                              avatarStyle={{
+                                  borderWidth: 2,
+                                  borderColor: COLORS.AKCRUBLUE,
+                              }}
                           />
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </ScrollView>
-                </View>
-              </View>
-            </Modal>
-          </View>
-          <View style={styles.gallerycontainer}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.galleryImagesContainer}
-              bounces={false}>
-              {gallery.map((imageUri, index) => {
-                return (
-                  <View style={{flexDirection: 'row'}} key={index}>
-                    <Image
-                      source={{uri: imageUri}}
-                      style={styles.galleryImage}
-                    />
-                    <TouchableOpacity
-                      style={{
-                        position: 'absolute',
-                        right: 8,
-                        top: -3,
-                        zIndex: 20,
-                      }}
-                      onPress={() => deleteImage(index)}>
-                      <Icon
-                        name="close-circle"
-                        type="ionicon"
-                        color={COLORS.CATREDLGT}
-                        size={25}
+                          <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
+                              <Text
+                                  style={{
+                                      ...FONTS.Title2AkcruBlue,
+                                      marginTop: 10,
+                                      color: COLORS.MIDORANGE,
+                                  }}>
+                                  Edit profile photo
+                              </Text>
+                          </TouchableOpacity>
+                      </View>
+
+                      {/* Modal to Select Profile Photo */}
+                      <Modal animationType="fade" transparent={true} visible={showImagePickerModal}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'flex-end',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 15,
+                                      borderTopLeftRadius: 20,
+                                      borderTopRightRadius: 20,
+                                  }}>
+                                  <View
+                                      style={{
+                                          flexDirection: 'row-reverse',
+                                          justifyContent: 'space-between',
+                                          alignContent: 'center',
+                                          marginBottom: 10,
+                                      }}>
+                                      <TouchableOpacity onPress={() => setShowImagePickerModal(false)}>
+                                          <Icon name="close-circle" type="ionicon" color={COLORS.CATREDLGT} size={25} />
+                                      </TouchableOpacity>
+                                      <Text style={{...FONTS.Title3}}>Select Profile Photo</Text>
+                                  </View>
+
+                                  <ScrollView
+                                      horizontal
+                                      showsHorizontalScrollIndicator={false}
+                                      contentContainerStyle={{flexDirection: 'row'}}>
+                                      {gallery.map((imageUri, index) => {
+                                          return (
+                                              <TouchableOpacity key={index} onPress={() => handleSelectImage(imageUri)}>
+                                                  <Image
+                                                      source={{uri: imageUri}}
+                                                      style={[
+                                                          styles.galleryImage,
+                                                          selectedImage === imageUri && {
+                                                              borderColor: COLORS.AKCRUBLUE,
+                                                              borderWidth: 2,
+                                                          },
+                                                      ]}
+                                                  />
+                                              </TouchableOpacity>
+                                          );
+                                      })}
+                                  </ScrollView>
+                              </View>
+                          </View>
+                      </Modal>
+                  </View>
+                  <View style={styles.gallerycontainer}>
+                      <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.galleryImagesContainer}
+                          bounces={false}>
+                          {gallery.map((imageUri, index) => {
+                              return (
+                                  <View style={{flexDirection: 'row'}} key={index}>
+                                      <Image source={{uri: imageUri}} style={styles.galleryImage} />
+                                      <TouchableOpacity
+                                          style={{
+                                              position: 'absolute',
+                                              right: 8,
+                                              top: -3,
+                                              zIndex: 20,
+                                          }}
+                                          onPress={() => deleteImage(index)}>
+                                          <Icon name="close-circle" type="ionicon" color={COLORS.CATREDLGT} size={25} />
+                                      </TouchableOpacity>
+                                  </View>
+                              );
+                          })}
+                      </ScrollView>
+
+                      <Modal animationType="fade" transparent={true} visible={showDeleteConfirmation}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                  }}>
+                                  <View style={{alignItems: 'center'}}>
+                                      <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Deletion</Text>
+                                      <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                          Are you sure you want to delete this picture?
+                                      </Text>
+                                  </View>
+
+                                  <View
+                                      style={{
+                                          flexDirection: 'row',
+                                          justifyContent: 'space-between',
+                                      }}>
+                                      <TouchableOpacity
+                                          onPress={handleCancelDelete}
+                                          style={{
+                                              backgroundColor: 'red',
+                                              padding: 10,
+                                              borderRadius: 5,
+                                          }}>
+                                          <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                      </TouchableOpacity>
+                                      <TouchableOpacity
+                                          onPress={handleDeleteImage}
+                                          style={{
+                                              backgroundColor: 'green',
+                                              padding: 10,
+                                              borderRadius: 5,
+                                          }}>
+                                          <Text style={{...FONTS.Title3}}>Delete</Text>
+                                      </TouchableOpacity>
+                                  </View>
+                              </View>
+                          </View>
+                      </Modal>
+
+                      <TouchableOpacity
+                          onPress={() => {
+                              launchImageLibrary(
+                                  {
+                                      selectionLimit: 0,
+                                      mediaType: 'photo',
+                                      includeBase64: false,
+                                  },
+                                  setResponse,
+                              );
+                          }}>
+                          <Text
+                              style={{
+                                  ...FONTS.Title2AkcruBlue,
+                                  marginTop: 15,
+                                  textAlign: 'center',
+                                  color: COLORS.MIDORANGE,
+                              }}>
+                              Upload a picture from your phone
+                          </Text>
+                      </TouchableOpacity>
+                  </View>
+
+                  <View style={{alignItems: 'center', marginTop: 20}}>
+                      <Text style={styles.inputlabel}>Username</Text>
+                      <InputsLrg
+                          placeholdername={user?.username}
+                          iconname={'person'}
+                          iconcolor={COLORS.LIGHTGREY}
+                          secureTextEntry={false}
+                          onChangeText={text => setUserName(text)}
+                          value={userName || ''}
+                          editable={!loading}
                       />
-                    </TouchableOpacity>
                   </View>
-                );
-              })}
-            </ScrollView>
-
-            <Modal
-              animationType="fade"
-              transparent={true}
-              visible={showDeleteConfirmation}>
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                }}>
-                <View
-                  style={{
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                    padding: 20,
-                    borderRadius: 10,
-                  }}>
-                  <View style={{alignItems: 'center'}}>
-                    <Text style={{...FONTS.Title3, marginBottom: 10}}>
-                      Confirm Deletion
-                    </Text>
-                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                      Are you sure you want to delete this picture?
-                    </Text>
+                  <Text style={styles.inputlabel}>Description</Text>
+                  <View style={styles.descinput}>
+                      <TextInput
+                          placeholder={user?.description}
+                          placeholderTextColor={COLORS.DARKGREY}
+                          style={styles.textinput}
+                          onChangeText={text => setDesc(text)}
+                          secureTextEntry={false}
+                          value={desc || ''}
+                      />
+                  </View>
+                  <View>
+                      <Text style={styles.inputlabel}>Email</Text>
+                      <View style={{alignItems: 'center'}}>
+                          <InputsLrg
+                              placeholdername={user?.email}
+                              iconname={'mail'}
+                              iconcolor={COLORS.LIGHTGREY}
+                              secureTextEntry={false}
+                              value={session?.user?.email}
+                              editable={!loading}
+                          />
+                          {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
+                      </View>
                   </View>
 
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                    }}>
-                    <TouchableOpacity
-                      onPress={handleCancelDelete}
-                      style={{
-                        backgroundColor: 'red',
-                        padding: 10,
-                        borderRadius: 5,
-                      }}>
-                      <Text style={{...FONTS.Title3}}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={handleDeleteImage}
-                      style={{
-                        backgroundColor: 'green',
-                        padding: 10,
-                        borderRadius: 5,
-                      }}>
-                      <Text style={{...FONTS.Title3}}>Delete</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </Modal>
-
-            <TouchableOpacity
-              onPress={() => {
-                launchImageLibrary(
-                  {
-                    selectionLimit: 0,
-                    mediaType: 'photo',
-                    includeBase64: false,
-                  },
-                  setResponse,
-                );
-              }}>
-              <Text
-                style={{
-                  ...FONTS.Title2AkcruBlue,
-                  marginTop: 15,
-                  textAlign: 'center',
-                  color: COLORS.MIDORANGE,
-                }}>
-                Upload a picture from your phone
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <View>
-            <Text style={styles.inputlabel}>Username</Text>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={user?.username}
-                placeholderTextColor={COLORS.DARKGREY}
-                style={styles.textinput}
-                secureTextEntry={false}
-                onChangeText={text => setUserName(text)}
-                value={userName || ''}
-              />
-            </View>
-          </View>
-
-          <View>
-            <Text style={styles.inputlabel}>Description</Text>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={user?.description}
-                placeholderTextColor={COLORS.DARKGREY}
-                style={styles.textinput}
-                secureTextEntry={false}
-                onChangeText={text => setDesc(text)}
-                value={desc || ''}
-              />
-            </View>
-          </View>
-
-          <View>
-            <Text style={styles.inputlabel}>Email</Text>
-            <View style={styles.input}>
-              <TextInput
-                placeholder={user?.email}
-                placeholderTextColor={COLORS.DARKGREY}
-                style={styles.textinput}
-                secureTextEntry={false}
-                value={session?.user?.email}
-              />
-            </View>
-          </View>
-
-          <View style={{alignItems: 'center', marginTop: 20}}>
-            <AkcruButtons.LrgButton
-              btnname={loading ? 'Loading ...' : 'Update'}
-              disabled={false}
-              color={COLORS.AKCRUBLUE}
-              onPress={handleUpdateProfile} // Show the confirmation modal
-            />
-          </View>
-
-          {/* Confirmation Modal */}
-          <Modal
-            animationType="fade"
-            transparent={true}
-            visible={showUpdateConfirmation}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              }}>
-              <View
-                style={{
-                  backgroundColor: COLORS.AKCRUBACKGROUND,
-                  padding: 20,
-                  borderRadius: 10,
-                }}>
-                <View style={{alignItems: 'center'}}>
-                  <Text style={{...FONTS.Title3, marginBottom: 10}}>
-                    Confirm Update
+                  <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
+                      Update your Archetype here ( Choose 2 genres ) :
                   </Text>
-                  <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                    Are you sure you want to update your profile?
-                  </Text>
-                </View>
 
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <TouchableOpacity
-                    onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
-                    style={{
-                      backgroundColor: 'red',
-                      padding: 10,
-                      borderRadius: 5,
-                    }}>
-                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={handleConfirmUpdate} // Confirm the update
-                    style={{
-                      backgroundColor: 'green',
-                      padding: 10,
-                      borderRadius: 5,
-                    }}>
-                    <Text style={{...FONTS.Title3}}>Update</Text>
-                  </TouchableOpacity>
-                </View>
+                  <View style={{marginBottom: 20}}>
+                      <FlatList
+                          data={filteredGenres}
+                          horizontal={false}
+                          numColumns={3}
+                          showsHorizontalScrollIndicator={false}
+                          keyExtractor={item => item.id}
+                          renderItem={({item, index}) => (
+                              <View>
+                                  <View style={styles.checkboxContainer}>
+                                      <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                          <View style={styles.checkbox}>
+                                              {checkedGenres[item.id] && (
+                                                  <Icon
+                                                      name="checkmark-sharp"
+                                                      type="ionicon"
+                                                      size={18}
+                                                      color={COLORS.MIDORANGE}
+                                                      style={{marginTop: -3}}
+                                                  />
+                                              )}
+                                          </View>
+                                      </TouchableOpacity>
+                                      <View>
+                                          <Text style={styles.checkboxText}>{item.genre}</Text>
+                                      </View>
+                                  </View>
+                              </View>
+                          )}
+                      />
+                  </View>
+
+                  <View style={{alignItems: 'center', marginTop: 20}}>
+                      <AkcruButtons.LrgButton
+                          btnname={loading ? 'Loading ...' : 'Update'}
+                          disabled={false}
+                          color={COLORS.AKCRUBLUE}
+                          onPress={handleUpdateProfile} // Show the confirmation modal
+                      />
+                  </View>
+
+                  {/* Confirmation Modal */}
+                  <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
+                      <View
+                          style={{
+                              flex: 1,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          }}>
+                          <View
+                              style={{
+                                  backgroundColor: COLORS.AKCRUBACKGROUND,
+                                  padding: 20,
+                                  borderRadius: 10,
+                              }}>
+                              <View style={{alignItems: 'center'}}>
+                                  <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                  <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                      Are you sure you want to update your profile?
+                                  </Text>
+                              </View>
+
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      justifyContent: 'space-between',
+                                  }}>
+                                  <TouchableOpacity
+                                      onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
+                                      style={{
+                                          backgroundColor: 'red',
+                                          padding: 10,
+                                          borderRadius: 5,
+                                      }}>
+                                      <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                      onPress={handleConfirmUpdate} // Confirm the update
+                                      style={{
+                                          backgroundColor: 'green',
+                                          padding: 10,
+                                          borderRadius: 5,
+                                      }}>
+                                      <Text style={{...FONTS.Title3}}>Update</Text>
+                                  </TouchableOpacity>
+                              </View>
+                          </View>
+                      </View>
+                  </Modal>
+
+                  <View style={{alignItems: 'center', marginVertical: 20}}>
+                      <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
+                          <Text style={styles.settingslabel}>Account Settings</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                          onPress={async () => {
+                              await logout();
+                              // after logging out, navigate to the Signin screen
+                              navigation.navigate('Signin');
+                          }}>
+                          <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
+                      </TouchableOpacity>
+                  </View>
               </View>
-            </View>
-          </Modal>
-
-          <View style={{alignItems: 'center', marginVertical: 20}}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('AccountSettings')}>
-              <Text style={styles.settingslabel}>Account Settings</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={async () => {
-              await logout()
-              // after logging out, navigate to the Signin screen
-              navigation.navigate("Signin")
-            }}>
-              <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          </ScrollView>
+      </View>
   );
 }
