@@ -54,9 +54,10 @@ export interface IGenreItem {
 
 export interface ICru {
     id: string; 
+    name: string;
     creatorId: string;
     creator: IUserProfile;
-    members:   object[];
+    members?:   IUserProfile[];
     cruViews:  ICruView[]
     Room:      Object?
 }

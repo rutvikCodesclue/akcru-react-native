@@ -134,7 +134,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     return (
-        <View>
+        <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
                 <View>
                     <Header />
@@ -230,6 +230,6 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                     </View>
                 )}
             </ScrollView>
-        </View>
+        </SafeAreaView>
     );
 }

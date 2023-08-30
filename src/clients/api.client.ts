@@ -6,6 +6,8 @@ import authStore from "../stores/auth.store";
 const accessToken = authStore.getState().session?.access_token;
 
 console.log("Current ENV for API:", process.env.NODE_ENV);
+console.log("Current ENV for API:", DEV_API_URL);
+
 
 const determineBaseURL = (): string => {
     switch (process.env.NODE_ENV) {
