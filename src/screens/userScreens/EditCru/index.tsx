@@ -260,7 +260,7 @@ const EditCru = () => {
                                   userName={item.username}
                                   onPress={() => {
                                       navigation.navigate('ViewUserScreen', {
-                                          userID: index,
+                                          userID: item.id,
                                       });
                                   }}
                                   influencer={false} // TODO: make this work
