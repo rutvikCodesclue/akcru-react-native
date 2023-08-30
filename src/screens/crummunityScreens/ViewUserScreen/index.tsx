@@ -7,7 +7,8 @@ import {
   Image,
   ScrollView,
   Pressable,
-  Modal
+  Modal,
+  SafeAreaView
 } from 'react-native';
 import styles from './styles';
 import React, {useState} from 'react';
@@ -53,16 +54,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
   useFocusEffect(
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-      console.log('Screen focused [ViewUserScreen]');
       findAUser({ id: userID }).then((user) => {
-        console.log("user: ", JSON.stringify(user, null, 3));
         setUser(user);
       });
 
       return () => {
         // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-        console.log('Screen unfocused [ViewUserScreen]');
-      
       };
     }, [])
   );
@@ -148,7 +145,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
 
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 20}}>
                   <Header />
@@ -558,6 +555,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                   </View>
               )}
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 }
