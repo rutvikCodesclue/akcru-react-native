@@ -15,6 +15,7 @@ import AkcruLevels from '../akcruBadges';
 import {FAKE_USER_PROFILES} from '../../../assets/constants/Mockusers';
 import LinearGradient from 'react-native-linear-gradient';
 import { el } from 'date-fns/locale';
+import { selectAvatarBorderColor } from '../../util/util';
 
 const MAX_USERNAME_LENGTH = 10; // Maximum number of characters for the userDesc
 
@@ -47,20 +48,6 @@ const CruMemberCard = ({
   const handleDeleteMember = () => {
     DeleteMember(userID);
   };
-
-  const selectAvatarBorderColor = () => {
-    if (akcruBadge === "AKCRUIT") {
-      return AKCRUBADGES.Akcruit.color
-    } else if (akcruBadge === "GUARDIAN") {
-      return AKCRUBADGES.Guardian.color
-    } else if (akcruBadge === "HERO") {
-      return AKCRUBADGES.Hero.color
-    } else if (akcruBadge === "SUPERHERO") {
-      return AKCRUBADGES.SuperHero.color
-    } else {
-      return COLORS.AKCRUBLUE
-    }
-  }
 
   return (
     <View style={{width: SIZES.ScreenWidth / 2.1}}>
@@ -95,7 +82,7 @@ const CruMemberCard = ({
                   }}
                   avatarStyle={{
                     borderWidth: 2,
-                    borderColor: selectAvatarBorderColor(),
+                    borderColor: selectAvatarBorderColor(akcruBadge),
                   }}
                 />
               </TouchableOpacity>
