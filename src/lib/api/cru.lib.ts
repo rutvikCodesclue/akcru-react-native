@@ -1,7 +1,7 @@
-import { IMovie, ICruView } from "../../../types";
+import { IMovie, ICruView, ICru } from "../../../types";
 import { API } from "../../clients/api.client";
 
-export const getMyCRU = async () => {
+export const getMyCRU = async () : Promise<ICru | undefined> => {
     // GET /v1/cru/me
     const { data } = await API.get(`/v1/cru/me`);
     return data.CRU;

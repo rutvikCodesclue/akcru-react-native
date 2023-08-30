@@ -9,6 +9,7 @@ import {
   Modal,
   FlatList,
   TouchableWithoutFeedback,
+  SafeAreaView,
 } from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
@@ -16,32 +17,57 @@ import Header from '../../../components/header';
 import {Icon, color} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import CruMemberCard from '../../../components/CruMemberCard';
 import UserSearchCard from '../../../components/UserSearchCard';
 import AddMemberCard from '../../../components/AddMemberCard';
+import { getMyCRU } from '../../../lib/api/cru.lib';
+import { ICru, IUserProfile } from '../../../../types';
 
 const EditCru = () => {
-  const [originalCruName, setOriginalCruName] = useState(
-    FAKE_USER_PROFILES[0].CRUName,
-  );
-  const [modifiedCruName, setModifiedCruName] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [members, setMembers] = useState(FAKE_USER_PROFILES.slice(1, 7)); // Initial member list
+    const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
+    const [originalCruName, setOriginalCruName] = useState(
+        FAKE_USER_PROFILES[0].CRUName,
+    );
+    const [modifiedCruName, setModifiedCruName] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
+    const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
+    // const [members, setMembers] = useState(FAKE_USER_PROFILES.slice(1, 7)); // Initial member list
 
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [memberToDelete, setMemberToDelete] = useState(null);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [memberToDelete, setMemberToDelete] = useState(null);
 
-  const [newMemberName, setNewMemberName] = useState('');
-  const [newMemberPicture, setNewMemberPicture] = useState(''); // Assuming you have a mechanism to provide the member's picture URL
-  const [newMemberInfluencer, setNewMemberInfluencer] = useState(false); // Set default value to false, user can change it in the modal
-  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+    const [newMemberName, setNewMemberName] = useState('');
+    const [newMemberPicture, setNewMemberPicture] = useState(''); // Assuming you have a mechanism to provide the member's picture URL
+    const [newMemberInfluencer, setNewMemberInfluencer] = useState(false); // Set default value to false, user can change it in the modal
+    const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
-  const [showChangeNameConfirmationModal, setShowChangeNameConfirmationModal] =
-    useState(false);
+    const [showChangeNameConfirmationModal, setShowChangeNameConfirmationModal] =
+        useState(false);
 
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('Screen focused [EditCruScreen]');
+            getMyCRU().then((res) => {
+                setCRU(res);
+                if (res?.members) {
+                    setMembers(res.members);
+                }
+                
+            });
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Screen unfocused [EditCruScreen]');
+                
+                // cleanup (if app crashes or user leaves the screen unexpectedly)
+            };
+        }, [])
+    );
     
 
     const handleChangeCruName = () => {
@@ -132,7 +158,7 @@ const EditCru = () => {
   };
 
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                   <Header />
@@ -179,12 +205,12 @@ const EditCru = () => {
                       <View style={styles.input}>
                           <Pressable onPress={handleModalOpen}>
                               <TextInput
-                                  placeholder={originalCruName}
+                                  placeholder={CRU?.name ?? ''}
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
                                   onChangeText={setModifiedCruName}
-                                  value={originalCruName} // Display the original value, not the modified one
+                                  value={CRU?.name} // Display the original value, not the modified one
                                   editable={false}
                               />
                           </Pressable>
@@ -230,19 +256,18 @@ const EditCru = () => {
                       renderItem={({item, index}) => (
                           <View style={{marginVertical: 5, alignItems: 'center'}}>
                               <CruMemberCard
-                                  userPicture={item.userPicture}
-                                  userName={item.userName}
+                                  userPicture={item.profilePicture}
+                                  userName={item.username}
                                   onPress={() => {
                                       navigation.navigate('ViewUserScreen', {
                                           userID: index,
                                       });
                                   }}
-                                  influencer={item.influencer}
-                                  userID={item.userID}
-                                  akcruBadge={item.akcruBadge}
-                                  userDesc={item.userDesc}
-                                  avatarbordercolor={item.avatarbordercolor}
-                                  DeleteMember={() => handleDeleteMember(item.userID)}
+                                  influencer={false} // TODO: make this work
+                                  userID={item.id}
+                                  akcruBadge={item.badge}
+                                  userDesc={item.description}
+                                  DeleteMember={() => handleDeleteMember(item.id)}
                               />
                           </View>
                       )}
@@ -250,7 +275,7 @@ const EditCru = () => {
               </View>
               {/* Confirmation Modal */}
               <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                  <View
+                  <SafeAreaView
                       style={{
                           flex: 1,
                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -296,11 +321,11 @@ const EditCru = () => {
                               </TouchableOpacity>
                           </View>
                       </View>
-                  </View>
+                  </SafeAreaView>
               </Modal>
 
               <Modal animationType="fade" transparent={false} visible={modalVisible}>
-                  <View
+                  <SafeAreaView
                       style={{
                           flex: 1,
                           backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -333,12 +358,12 @@ const EditCru = () => {
                               editable={true}
                           />
                       </View>
-                  </View>
+                  </SafeAreaView>
               </Modal>
 
               {/* CRU Name Change Confirmation Modal */}
               <Modal animationType="fade" transparent={true} visible={showChangeNameConfirmationModal}>
-                  <View
+                  <SafeAreaView
                       style={{
                           flex: 1,
                           backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -378,12 +403,12 @@ const EditCru = () => {
                               </TouchableOpacity>
                           </View>
                       </View>
-                  </View>
+                  </SafeAreaView>
               </Modal>
 
               {/* Add Member Modal */}
               <Modal animationType="fade" transparent={false} visible={showAddMemberModal}>
-                  <View
+                  <SafeAreaView
                       style={{
                           flex: 1,
                           backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -439,12 +464,12 @@ const EditCru = () => {
                       </View>
 
                       {/* Add other input fields for member picture, influencer, etc. */}
-                  </View>
+                  </SafeAreaView>
               </Modal>
 
               {/* Add Member Confirmation Modal */}
               <Modal animationType="fade" transparent={true} visible={showAddMemberConfirmationModal}>
-                  <View
+                  <SafeAreaView
                       style={{
                           flex: 1,
                           backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -484,10 +509,10 @@ const EditCru = () => {
                               </TouchableOpacity>
                           </View>
                       </View>
-                  </View>
+                  </SafeAreaView>
               </Modal>
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 };
 
