@@ -130,12 +130,21 @@ export default function EditProfile({session}: {session: Session}) {
     setShowUpdateConfirmation(true);
   };
 
-  const handleConfirmUpdate = () => {
-    // Hide the confirmation modal
-    setShowUpdateConfirmation(false);
+  const handleConfirmUpdate = async () => {
+      // Hide the confirmation modal
+      setShowUpdateConfirmation(false);
 
-    // Call the UpdateProfile function to update the profile information
-    UpdateProfile({userName, desc});
+      // Call the UpdateProfile function to update the profile information
+      UpdateProfile({userName, desc});
+
+      // Get the current user from the auth store
+      const currentUser = useAuthStore.getState().user;
+
+      // Update the username in the user's profile in the store
+      if (currentUser) {
+          currentUser.username = userName;
+          useAuthStore.getState().setUser(currentUser);
+      }
   };
 
   const handleCheckboxChange = (genreId: string) => {
