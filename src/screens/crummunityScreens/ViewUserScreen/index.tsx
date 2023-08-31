@@ -7,7 +7,8 @@ import {
   Image,
   ScrollView,
   Pressable,
-  Modal
+  Modal,
+  SafeAreaView
 } from 'react-native';
 import styles from './styles';
 import React, {useState} from 'react';
@@ -20,9 +21,12 @@ import { Icon, Avatar } from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import BasicListCategories from '../../../components/BasicListCategories';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
+import { findAUser } from '../../../lib/api/user.lib';
+import { IUserProfile } from '../../../../types';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -44,24 +48,38 @@ const ViewUserwatchlist = Akcru_Content[6];
 const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
-  const userID: number | undefined = route.params?.userID ?? null;
+  const userID: string | undefined = route.params?.userID ?? null;
   const userprofile: string | undefined = route.params?.userName ?? null;
 
-  const {
-      userPicture,
-      privateaccount,
-      online,
-      userName,
-      akcruBadge,
-      status,
-      userFollowerAmount,
-      userDesc,
-      influencer,
-      ADAmount,
-      CRUName,
-      avatarbordercolor,
-      digitalpass,
-  } = FAKE_USER_PROFILES[userID ?? 0];
+  useFocusEffect(
+    React.useCallback(() => {
+      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+      findAUser({ id: userID }).then((user) => {
+        setUser(user);
+      });
+
+      return () => {
+        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+      };
+    }, [])
+  );
+
+
+//   const {
+//       userPicture,
+//       privateaccount,
+//       online,
+//       userName,
+//       akcruBadge,
+//       status,
+//       userFollowerAmount,
+//       userDesc,
+//       influencer,
+//       ADAmount,
+//       CRUName,
+//       avatarbordercolor,
+//       digitalpass,
+//   } = FAKE_USER_PROFILES[userID ?? 0];
 
   const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
@@ -77,6 +95,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
   const [selectedInfluencer, setSelectedInfluencer] = useState('');
   const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
 
+  const [user, setUser] = useState<IUserProfile | undefined>(undefined)
   const [following, setFollowing] = useState(false)
 
  
@@ -104,14 +123,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
     console.log('Item with userID', userID, userName, 'pressed!');
   };
 
-  const truncatedstatus =
-    status.length > MAX_STATUS_LENGTH
-      ? status.slice(0, MAX_STATUS_LENGTH) + '...'
-      : status;
+//   const truncatedstatus =
+//     status.length > MAX_STATUS_LENGTH
+//       ? status.slice(0, MAX_STATUS_LENGTH) + '...'
+//       : status;
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
-
   const handleSendCruInvite = () => {
       // Hide the confirmation modal without making any changes
       setShowConfirmationModal(false);
@@ -125,14 +143,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
       }, 6000); // 6000 milliseconds = 6 seconds
   };
 
+
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 20}}>
                   <Header />
               </View>
               <ImageBackground
-                  source={{uri: digitalpass}}
+                //   source={{uri: digitalpass ?? undefined}}
+                  source={{uri: undefined}}
                   resizeMode="cover"
                   style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
                   <LinearGradient
@@ -174,25 +194,27 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       navigation.navigate('ViewUserDetailScreen', {
                                           userID,
                                       });
-                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer, digitalpass);
+                                    //   handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
+                                      handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, "");
                                   }}>
                                   <Avatar
                                       rounded
                                       size={70}
                                       source={{
-                                          uri: userPicture,
+                                          uri: user?.profilePicture ?? undefined,
                                       }}
                                       avatarStyle={{
                                           borderWidth: 2,
-                                          borderColor: avatarbordercolor,
+                                          borderColor: selectAvatarBorderColor(user?.badge ?? "AKCRUIT"),
                                       }}
                                   />
                               </Pressable>
 
                               <View />
 
-                              {!privateaccount ? (
-                                  online ? (
+                              {!user?.private ? (
+                                  true ? (
+                                //   online ? (
                                       <View
                                           style={{
                                               backgroundColor: 'green',
@@ -219,8 +241,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           </View>
                           <View style={{width: SIZES.ScreenWidth / 2.5}}>
                               <View style={{flexDirection: 'row'}}>
-                                  <Text style={{...FONTS.Title2}}>{userName}</Text>
-                                  {influencer && (
+                                  <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                                  {
+                                  true && (
+                                //   influencer && (
                                       <Icon
                                           name="ribbon"
                                           type="ionicon"
@@ -231,22 +255,22 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   )}
                               </View>
 
-                              {akcruBadge.akcruit && (
+                              {user?.badge === "AKCRUIT" && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeAkcruit />
                                   </View>
                               )}
-                              {akcruBadge.guardian && (
+                              {user?.badge === "GUARDIAN" && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeGuardian />
                                   </View>
                               )}
-                              {akcruBadge.hero && (
+                              {user?.badge === "HERO" && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeHero />
                                   </View>
                               )}
-                              {akcruBadge.superhero && (
+                              {user?.badge === "SUPERHERO" && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeSuperHero />
                                   </View>
@@ -262,7 +286,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       Status:
                                   </Text>
 
-                                  {privateaccount ? (
+                                  {user?.private ? (
                                       <View>
                                           <Text
                                               style={{
@@ -283,7 +307,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                   fontSize: 12,
                                                   marginLeft: 8,
                                               }}>
-                                              {truncatedstatus}
+                                              {/* {truncatedstatus} */}
+                                              {"truncatedstatus"}
                                           </Text>
                                       </View>
                                   )}
@@ -297,7 +322,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           fontSize: 12,
                                           marginTop: 5,
                                       }}>
-                                      Block {userName}
+                                      Block {user?.username}
                                   </Text>
                               </TouchableOpacity>
                           </View>
@@ -320,7 +345,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       navigation.navigate('SendMITViewUser', {
                                           userID,
                                       });
-                                      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer, digitalpass);
+                                    //   handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
+                                      handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, false, "");
                                   }}>
                                   <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
                               </TouchableOpacity>
@@ -352,7 +378,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           justifyContent: 'center',
                           alignItems: 'center',
                       }}>
-                      <Text style={{...FONTS.Title3, fontSize: 14}}>{userFollowerAmount}</Text>
+                      <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
                       <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                   </View>
                   <View style={{flexDirection: 'row'}}>
@@ -385,7 +411,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           marginBottom: 10,
                                           textAlign: 'center',
                                       }}>
-                                      {`Are you sure you want to send "${userName}" a Cru invite?`}
+                                      {`Are you sure you want to send "${user?.username}" a Cru invite?`}
                                   </Text>
                                   <View style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
                                       <TouchableOpacity
@@ -436,7 +462,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           marginBottom: 10,
                                           textAlign: 'center',
                                       }}>
-                                      {`You have sent "${userName}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
+                                      {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
                                   </Text>
                               </View>
                           </View>
@@ -449,7 +475,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                       </Pressable>
                   </View>
               </View>
-              {privateaccount ? (
+            {user?.private ? (
                   <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
                       <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
                           This account is private
@@ -465,7 +491,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   color: COLORS.LIGHTGREY,
                                   fontSize: 12,
                               }}>
-                              {userDesc}
+                              {user?.description}
                           </Text>
                       </View>
                       <View>
@@ -495,7 +521,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           </View>
                           <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
-                              <Text style={styles.watchlisttext}>{userName} Watchlist</Text>
+                              <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
                                   <View style={{marginRight: 25}}>
                                       <TouchableOpacity>
@@ -522,13 +548,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
                               </View>
                           </View>
 
-                          <View style={{marginBottom: 75, marginTop: -20}}>
+                          {/* <View style={{marginBottom: 75, marginTop: -20}}>
                               <BasicListCategories Akcru_Content={ViewUserwatchlist} />
-                          </View>
+                          </View> */}
                       </View>
                   </View>
               )}
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 }

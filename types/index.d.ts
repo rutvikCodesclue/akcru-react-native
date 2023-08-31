@@ -54,9 +54,10 @@ export interface IGenreItem {
 
 export interface ICru {
     id: string; 
+    name: string;
     creatorId: string;
     creator: IUserProfile;
-    members:   object[];
+    members?:   IUserProfile[];
     cruViews:  ICruView[]
     Room:      Object?
 }
@@ -76,4 +77,22 @@ export interface ICruView {
     movie:     IMovie
     startDate: string;
     timezone: string
+}
+
+export type ICruInvite = {
+    id: string;
+    status: "PENDING" | "ACCEPTED" | "DECLINED";
+    cruId: string;
+    inviteeId: string;
+    cru: {
+        id: string;
+        creatorId: string;
+        creator: {
+            profilePicture?: string;
+            firstName: string;
+            lastName: string;
+        }
+    };
+    createdAt: string;
+    updatedAt?: string;
 }

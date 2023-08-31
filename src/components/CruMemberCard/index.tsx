@@ -10,22 +10,23 @@ import {
 } from 'react-native';
 import React, {useState} from 'react';
 import {Avatar, Icon} from '@rneui/base';
-import {SIZES, FONTS, COLORS} from '../../../assets/constants';
+import {SIZES, FONTS, COLORS, AKCRUBADGES} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import {FAKE_USER_PROFILES} from '../../../assets/constants/Mockusers';
 import LinearGradient from 'react-native-linear-gradient';
+import { el } from 'date-fns/locale';
+import { selectAvatarBorderColor } from '../../util/util';
 
 const MAX_USERNAME_LENGTH = 10; // Maximum number of characters for the userDesc
 
 type CruMemberCardProps = {
-  userPicture: string;
+  userPicture: string | undefined;
   userName: string;
   influencer: boolean;
   akcruBadge: any;
   onPress: () => void;
   userID: any;
-  userDesc: string;
-  avatarbordercolor: string;
+  userDesc?: string;
   DeleteMember: (userID: any) => void;
 };
 
@@ -37,11 +38,10 @@ const CruMemberCard = ({
   onPress,
   userID,
   userDesc,
-  avatarbordercolor,
   DeleteMember,
 }: CruMemberCardProps) => {
   const truncateduserName =
-    userDesc.length > MAX_USERNAME_LENGTH
+    userDesc && userDesc?.length > MAX_USERNAME_LENGTH
       ? userName.slice(0, MAX_USERNAME_LENGTH) + '...'
       : userName;
 
@@ -82,7 +82,7 @@ const CruMemberCard = ({
                   }}
                   avatarStyle={{
                     borderWidth: 2,
-                    borderColor: avatarbordercolor,
+                    borderColor: selectAvatarBorderColor(akcruBadge),
                   }}
                 />
               </TouchableOpacity>
@@ -101,22 +101,22 @@ const CruMemberCard = ({
                 )}
               </View>
 
-              {akcruBadge.akcruit && (
+              {akcruBadge === "AKCRUIT" && (
                 <View>
                   <AkcruLevels.AkcruBadgeAkcruit />
                 </View>
               )}
-              {akcruBadge.guardian && (
+              {akcruBadge === "GUARDIAN" && (
                 <View>
                   <AkcruLevels.AkcruBadgeGuardian />
                 </View>
               )}
-              {akcruBadge.hero && (
+              {akcruBadge === "HERO" && (
                 <View>
                   <AkcruLevels.AkcruBadgeHero />
                 </View>
               )}
-              {akcruBadge.superhero && (
+              {akcruBadge === "SUPERHERO" && (
                 <View>
                   <AkcruLevels.AkcruBadgeSuperHero />
                 </View>

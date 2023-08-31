@@ -4,23 +4,48 @@ import { Avatar } from '@rneui/base';
 import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './styles';
+import { set } from 'lodash';
+import { acceptACRUInvite, declineACRUInvite } from '../../lib/api/cru.lib';
 
 
 type CruInviteCardProp = {
-    inviteeName: string;
-    inviteePicture: string;
-    inviteDate: string;
     cruInviteID: any;
+    inviteeName: string;
+    inviteePicture?: string | undefined;
+    inviteDate: string;
 }
 
 
 const CruInviteCard = ({
+    cruInviteID,
     inviteeName,
     inviteePicture,
     inviteDate,
-    cruInviteID
 
 }: CruInviteCardProp) => {
+
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+  const _acceptInvite = () => {
+    setIsLoading(true);
+    console.log("accept invite");
+    
+    
+    acceptACRUInvite({inviteId: cruInviteID}).then((res) => {
+      console.log("accepted res:", res);
+      setIsLoading(false);
+    });
+  };
+  
+  const _declineInvite = () => {
+    setIsLoading(true);
+    console.log("decline invite");
+    declineACRUInvite({inviteId: cruInviteID}).then((res) => {
+      console.log("declined res:", res);
+      setIsLoading(false);
+    });
+  };
+
   return (
     <View
       style={{
@@ -46,7 +71,7 @@ const CruInviteCard = ({
         <View style={{ marginRight: 10 }}>
           <Avatar
             source={{
-              uri: inviteePicture,
+              uri: inviteePicture ?? undefined,
             }}
             size={50}
             rounded
@@ -66,12 +91,20 @@ const CruInviteCard = ({
               has sent you a CRU Invite on
             </Text>
             <View>
-              <Text style={styles.paragraphText3}>{inviteDate}</Text>
+              {/* display inviteDate datetimestring as month/day/year */}
+              <Text style={styles.paragraphText3}>{
+                new Date(inviteDate).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'numeric',
+                  day: 'numeric'
+              })
+              }</Text>
             </View>
           </View>
 
           <View style={{ flexDirection: "row", marginTop: 10 }}>
-            <TouchableOpacity>
+            {/* ACCEPT BUTTON */}
+            <TouchableOpacity onPress={_acceptInvite} disabled={isLoading}>
               <View
                 style={{
                   width: 125,
@@ -86,7 +119,8 @@ const CruInviteCard = ({
                 <Text style={{ ...FONTS.Title2 }}>ACCEPT</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            {/* DECLINE BUTTON */}
+            <TouchableOpacity onPress={_declineInvite} disabled={isLoading}>
               <View
                 style={{
                   width: 125,
