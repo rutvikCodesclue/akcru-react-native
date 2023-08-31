@@ -56,37 +56,28 @@ export default function EditProfile({session}: {session: Session}) {
 
   const [response, setResponse] = React.useState<any>(null);
 
-  async function UpdateProfile({
-    userName,
-    desc,
-  }: {
-    userName: string;
-    desc: string;
-  }) {
-    try {
-      setLoading(true);
-      if (!session?.user) throw new Error('No user on the session!');
+  async function UpdateProfile({userName: userName, desc}: {userName: string; desc: string}) {
+      try {
+          setLoading(true);
+          if (!session?.user) throw new Error('No user on the session!');
 
-      const updates = {
-        id: session?.user.id,
-        userName,
-        desc,
+          const updates = {
+              id: session?.user.id,
+              userName,
+              desc,
 
-        updated_at: new Date(),
-      };
+              updated_at: new Date(),
+          };
 
-      let {error} = await supabase.from('profiles').upsert(updates);
+          let {error} = await supabase.from('profiles').upsert(updates);
 
-      if (error) {
-        throw error;
+          if (error) {
+              throw error;
+          }
+      } catch (error) {
+      } finally {
+          setLoading(false);
       }
-
-
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
-    }
   }
 
   const [image, setImage] = useState(null);
@@ -143,9 +134,10 @@ export default function EditProfile({session}: {session: Session}) {
       // Update the username in the user's profile in the store
       if (currentUser) {
           currentUser.username = userName;
-          useAuthStore.getState().setUser(currentUser);
+          useAuthStore.setState({user: currentUser}); // Use setState to update the user
       }
   };
+
 
   const handleCheckboxChange = (genreId: string) => {
       // Check if the genre is already selected
@@ -401,7 +393,7 @@ export default function EditProfile({session}: {session: Session}) {
                           iconcolor={COLORS.LIGHTGREY}
                           secureTextEntry={false}
                           onChangeText={text => setUserName(text)}
-                          value={userName || ''}
+                          value={userName}
                           editable={!loading}
                       />
                   </View>
