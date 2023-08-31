@@ -6,6 +6,7 @@ import { JENNY_INVITES } from '../../../../assets/constants/Mockusers';
 import { useFocusEffect } from '@react-navigation/native';
 import { getCRUInvites } from '../../../lib/api/cru.lib';
 import { ICruInvite } from '../../../../types';
+import { FONTS } from '../../../../assets/constants';
 
 
 const UserProfileCruInvites = () => {
@@ -46,7 +47,7 @@ const UserProfileCruInvites = () => {
                 inviteDate={item.createdAt}
               />
             </View>
-          )) : <Text style={styles.titleText2}>No invites</Text>}
+          )) : <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>}
           {/* {JENNY_INVITES.map((item) => (
             <View
               key={item.MITID}

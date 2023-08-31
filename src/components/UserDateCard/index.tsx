@@ -77,7 +77,7 @@ const navigation =
                     height: 250,
                 }}
             />
-                <View style={{margin: 10}}>
+            <View style={{margin: 10}}>
                 <View style={{flexDirection: 'row'}}>
                     <View style={{marginRight: 10}}>
                         <TouchableOpacity onPress={onPressin}>
@@ -98,7 +98,7 @@ const navigation =
                         <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
                             <Text style={styles.drawfonttag}>{movieRated}</Text>
                             <Text style={styles.drawfonttag}>{movieGenre}</Text>
-                            
+
                             <Text style={styles.drawfonttag}>{movieRating}/10</Text>
                         </View>
                     </View>
@@ -121,23 +121,26 @@ const navigation =
                     <Text style={styles.paragraphText}>scheduled for</Text>
                     {/* DATE */}
                     <View style={{marginHorizontal: 5}}>
-                        <Text style={styles.paragraphText2}>{new Date(scheduleDate).toLocaleDateString('en-US', {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                        })}</Text>
+                        <Text style={styles.paragraphText2}>
+                            {new Date(scheduleDate).toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric',
+                            })}
+                        </Text>
                     </View>
 
                     <Text style={styles.paragraphText}>at</Text>
                     {/* TIME */}
                     <View style={{marginRight: 5}}>
-                        <Text style={styles.paragraphText2}>{new Date(scheduleTime).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hour12: true,
-                        })}</Text>
+                        <Text style={styles.paragraphText2}>
+                            {new Date(scheduleTime).toLocaleTimeString('en-US', {
+                                hour: 'numeric',
+                                minute: 'numeric',
+                                hour12: true,
+                            })}
+                        </Text>
                     </View>
-
 
                     <Text style={styles.paragraphText}>to watch</Text>
                     <View style={{marginHorizontal: 5}}>
@@ -165,14 +168,29 @@ const navigation =
                         justifyContent: 'space-between',
                         marginTop: 10,
                     }}>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Image
                             source={imageindex.AkcruHexLogo}
                             style={{width: 26, height: 26, marginRight: 8}}
                             resizeMode="contain"
                         />
                         <Text style={styles.paragraphText3}>Earn AD on your date</Text>
-                    </View>
+                    </View> */}
+                    <TouchableOpacity
+                        onPress={() =>{''}
+                        }>
+                        <View
+                            style={{
+                                width: 125,
+                                height: 30,
+                                backgroundColor: COLORS.CATREDLGT,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 3,
+                            }}>
+                            <Text style={{...FONTS.Title2}}>Cancel Date</Text>
+                        </View>
+                    </TouchableOpacity>
 
                     {type === 'MIT' && (
                         <TouchableOpacity
@@ -198,15 +216,14 @@ const navigation =
 
                     {type === 'CRUView' && (
                         <TouchableOpacity
-                            onPress={
-                                () =>
-                                    // TODO: navigate to WatchPartyPreviewScreen
-                                    navigation.navigate('RoomPreview', {
-                                        id,
-                                        movieId,
-                                        isHost,
-                                        cruId
-                                    })
+                            onPress={() =>
+                                // TODO: navigate to WatchPartyPreviewScreen
+                                navigation.navigate('RoomPreview', {
+                                    id,
+                                    movieId,
+                                    isHost,
+                                    cruId,
+                                })
                             }>
                             <View
                                 style={{
