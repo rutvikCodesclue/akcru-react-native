@@ -137,21 +137,22 @@ const handleTimeZoneChange = (timeZone) => {
 };
 
 const handleSetDateTime = async () => {
-  if (selectedDate && selectedTime && selectedTimeZone) {
-    setIsDateTimeSelected(true);
-    setIsSelectionDisabled(true);
-    
-    // TODO: Send CRU View to server
-    const createdCruView = await createACRUView({ 
-      movieId: String(movie?.id), 
-      startTime: selectedTime.toISOString(), 
-      timezone: selectedTimeZone
-    });
+    if (selectedDate && selectedTime && selectedTimeZone) {
+        // Format selected date in ISO 8601 format
+        const formattedSelectedDate = selectedDate.toISOString();
 
+        setIsDateTimeSelected(true);
+        setIsSelectionDisabled(true);
 
-    setShowSendCRUView(true);
-    // TODO: Move to the CRU View confirmation screen
-  }
+        // Send formatted date along with time and timezone to the API
+        const createdCruView = await createACRUView({
+            movieId: String(movie?.id),
+            startTime: formattedSelectedDate, // Send formatted date here
+            timezone: selectedTimeZone,
+        });
+
+        setShowSendCRUView(true);
+    }
 };
 
 const timeZones = [
