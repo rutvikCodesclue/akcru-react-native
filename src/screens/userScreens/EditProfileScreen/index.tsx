@@ -48,7 +48,7 @@ export default function EditProfile({session}: {session: Session}) {
 
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState('');
-  const [desc, setDesc] = useState('');
+  const [description, setDescription] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
@@ -56,7 +56,7 @@ export default function EditProfile({session}: {session: Session}) {
 
   const [response, setResponse] = React.useState<any>(null);
 
-  async function UpdateProfile({userName: userName, desc}: {userName: string; desc: string}) {
+  async function UpdateProfile({userName: userName, description}: {userName: string; description: string}) {
       try {
           setLoading(true);
           if (!session?.user) throw new Error('No user on the session!');
@@ -64,7 +64,7 @@ export default function EditProfile({session}: {session: Session}) {
           const updates = {
               id: session?.user.id,
               userName,
-              desc,
+              description,
 
               updated_at: new Date(),
           };
@@ -126,7 +126,7 @@ export default function EditProfile({session}: {session: Session}) {
       setShowUpdateConfirmation(false);
 
       // Call the UpdateProfile function to update the profile information
-      UpdateProfile({userName, desc});
+      UpdateProfile({userName, description});
 
       // Get the current user from the auth store
       const currentUser = useAuthStore.getState().user;
@@ -134,6 +134,7 @@ export default function EditProfile({session}: {session: Session}) {
       // Update the username in the user's profile in the store
       if (currentUser) {
           currentUser.username = userName;
+          currentUser.description = description;
           useAuthStore.setState({user: currentUser}); // Use setState to update the user
       }
   };
@@ -403,9 +404,9 @@ export default function EditProfile({session}: {session: Session}) {
                           placeholder={user?.description}
                           placeholderTextColor={COLORS.DARKGREY}
                           style={styles.textinput}
-                          onChangeText={text => setDesc(text)}
+                          onChangeText={text => setDescription(text)}
                           secureTextEntry={false}
-                          value={desc || ''}
+                          value={description}
                       />
                   </View>
                   <View>
