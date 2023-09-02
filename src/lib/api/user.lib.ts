@@ -56,12 +56,14 @@ export const searchForUsers = async (search: string) : Promise<IUserProfile[] | 
     }
 }
 
-export const updateUser = async (params: { username?: string, email?: string, description?: string }) : Promise<IUserProfile | undefined> => {
+export const updateUser = async (params: { username?: string, firstName?: string, lastName?: string, email?: string, description?: string }) : Promise<IUserProfile | undefined> => {
     try {
-        const { username, email, description } = params
+        const { username, firstName, lastName, email, description } = params
         // PUT /v1/user/
         const updateUserObj = {
             ...(username && { username }),
+            ...(firstName && { firstName }),
+            ...(lastName && { lastName }),
             ...(email && { email }),
             ...(description && { description })
         }
