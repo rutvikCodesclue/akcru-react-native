@@ -6,6 +6,7 @@ import { supabase, supabaseAuth } from "../../lib/supabase";
 import { API } from "../clients/api.client";
 import { useNavigation } from "@react-navigation/native";
 import { IUserProfile } from "../../types";
+import { getMe } from "../lib/api/user.lib";
 
 interface IAuthStore {
     session: Session | null;
@@ -14,6 +15,7 @@ interface IAuthStore {
     loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
     logout: () => Promise<boolean | null>;
     hydrateAuth: () => Promise<void>;
+    hydrateUser: () => Promise<void>;
 }
 
 
@@ -83,6 +85,16 @@ const useAuthStore = create<IAuthStore>()(persist(
                     await get().logout();
                 }
             }
+        },
+        hydrateUser: async () => {
+            // call API to get user
+            const userResponse = await getMe();
+
+            if (userResponse === undefined) {
+                return;
+            }
+
+            set({ user: userResponse });
         }
     }), 
     ({ name: "user-store", storage: createJSONStorage(() => AsyncStorage) })) );
