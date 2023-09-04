@@ -60,8 +60,7 @@ const navigation =
         <View
             style={{
                 backgroundColor: '#1C202A',
-                borderRadius: 5,
-                height: 250,
+                borderRadius: 5,         
                 justifyContent: 'center',
             }}>
             <LinearGradient
@@ -72,9 +71,9 @@ const navigation =
                     left: 0,
                     right: 0,
                     top: 0,
-
+                    bottom: 0,
                     borderRadius: 5,
-                    height: 250,
+                    
                 }}
             />
             <View style={{margin: 10}}>
