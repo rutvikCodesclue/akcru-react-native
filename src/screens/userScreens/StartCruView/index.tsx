@@ -11,7 +11,8 @@ import {
   Pressable,
   Dimensions,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
+  Modal
 } from "react-native";
 import React from "react";
 import AkcruButtons from "../../../components/akcruButtons";
@@ -64,6 +65,13 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
 import Video, { LoadError, OnBufferData, OnSeekData } from "react-native-video";
+import { IUserProfile } from "../../../../types";
+ 
+
+import SmlMemberCard from "../../../components/SmlMemberCard";
+import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
+import AddMemberCard from "../../../components/AddMemberCard";
+
 
 
 
@@ -101,7 +109,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
     const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
-    const [isMoviePlaying, setIsMoviePlaying] = useState(false);
+    const [isMoviePlaying, setIsMoviePlaying] = useState(true);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -799,10 +807,50 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const ___onError = (error: LoadError) => {
         console.log(`${user?.username} encountered an error with the movie`);
     };
+    //open options Modal
+    const [optionModalVisible, setOptionModalVisible] = useState(false);
 
-    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null);
+    const handleOptionModal = () => {
+        setOptionModalVisible(true);
+    };
+
+    const confirmOptions = () => {
+        setOptionModalVisible(false);
+    };
+    const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
+    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null); // State to track expanded video
     const [userVideoExpanded, setUserVideoExpanded] = useState(false); // State to track user's video expanded
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
+    const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
+    const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
+    const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
+
+    const getAvailableMembers = () => {
+        // Get the userIDs of existing CRU members
+        const existingMemberIDs = members.map(member => member.userID);
+
+        // Filter out the existing members from the FAKE_USER_PROFILES data
+        return FAKE_USER_PROFILES.slice(1, 7).filter(member => !existingMemberIDs.includes(member.userID));
+    };
+
+    const handleCancelTransfer = () => {
+    setShowTransferConfirmation(false)
+    };
+
+    const handleTransfer = () => {
+        setShowTransferConfirmation(false);
+    };
+
+    const handleCancelRoomTermination = () => {
+        setTerminateRoom(false)
+    };
+    const handleRoomTermination = async () => {
+        confirmOptions;
+        _handleRoomLeave;
+        _handleCloseMovie;
+        setTerminateRoom(false);
+    };
+
     const watchPartyView = () => {
         return (
             <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
@@ -825,17 +873,34 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                 <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
                             </View>
                         </TouchableOpacity>
-                        {!isStreamOpen && (
-                            <TouchableOpacity onPress={_handleCloseMovie}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Close Movie</Text>
-                                </View>
-                            </TouchableOpacity>
+                        {!isStreamOpen && isHost && (
+                            <>
+                                {/* <TouchableOpacity onPress={_handleCloseMovie}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Close</Text>
+                                    </View>
+                                </TouchableOpacity> */}
+
+                                <TouchableOpacity onPress={handleOptionModal}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon
+                                            name="ellipsis-vertical-circle"
+                                            type="ionicon"
+                                            size={23}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                            </>
                         )}
                     </View>
                 )}
@@ -1013,7 +1078,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                         width: SIZES.ScreenWidth * 0.95,
                         height: (SIZES.ScreenWidth / 3) * 2.6,
                         marginTop: SIZES.ScreenHeight * 0.3,
-                        
+                        backgroundColor: 'blue',
                         alignSelf: 'center',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -1029,13 +1094,16 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                             renderItem={({item}) => {
                                 // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
-
-
+                                const isUserVideo = item.peer.isLocal; // Check if this is the user's video
+                                // const isExpanded = fullscreenUserVideo === item; // Check if this video is expanded
+                                const isExpanded = expandedVideo === item;
                                 return hmsInstanceRef.current ? (
                                     <View
                                         style={{
-                                            width: SIZES.ScreenWidth / 3.2,
-                                            height: SIZES.ScreenWidth / 2.6,
+                                            width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
+                                            height: isExpanded
+                                                ? (SIZES.ScreenWidth / 3) * 2.6
+                                                : SIZES.ScreenWidth / 2.6,
                                             backgroundColor: '#000',
                                         }}>
                                         {/* CAMERA SCREEN */}
@@ -1055,7 +1123,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                         ) : null}
                                         {/* HOST BADGE */}
 
-                                        {isRoomHost && (
+                                        {isRoomHost ? (
                                             <View style={{position: 'absolute', top: 0, right: 0}}>
                                                 <Text
                                                     style={{
@@ -1068,15 +1136,37 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                                     {'Host'}
                                                 </Text>
                                             </View>
-                                        )}
+                                        ) : null}
+
                                         <View style={{position: 'absolute', top: 0, left: 0}}>
-                                            <TouchableOpacity>
-                                                <Icon
-                                                    name="expand-outline"
-                                                    type="ionicon"
-                                                    size={23}
-                                                    color={COLORS.AKCRUBLUE}
-                                                />
+                                            <TouchableOpacity
+                                                onPress={() => {
+                                                    if (isExpanded) {
+                                                        // Contract the currently expanded video
+                                                        setExpandedVideo(null);
+                                                    } else {
+                                                        if (isUserVideo && expandedVideo) {
+                                                            // Minimize the user's video if it's expanded
+                                                            setExpandedVideo(null);
+                                                        }
+                                                        setExpandedVideo(item); // Expand this video
+                                                    }
+                                                }}>
+                                                {isExpanded ? (
+                                                    <Icon
+                                                        name="contract"
+                                                        type="ionicon"
+                                                        size={30}
+                                                        color={COLORS.AKCRUBLUE}
+                                                    />
+                                                ) : (
+                                                    <Icon
+                                                        name="expand"
+                                                        type="ionicon"
+                                                        size={23}
+                                                        color={COLORS.AKCRUBLUE}
+                                                    />
+                                                )}
                                             </TouchableOpacity>
                                         </View>
 
@@ -1097,9 +1187,12 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                                     flexDirection: 'row',
                                                     justifyContent: 'space-between',
                                                     paddingHorizontal: 3,
+                                                    paddingVertical: 5,
                                                 }}>
                                                 <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
-                                                    {item.peer.name.length > 8
+                                                    {isExpanded
+                                                        ? item.peer.name // Display full name when expanded
+                                                        : item.peer.name.length > 8
                                                         ? item.peer.name.substring(0, 8) + '...' // Truncate to 10 characters and add ellipsis
                                                         : item.peer.name}
                                                 </Text>
@@ -1187,6 +1280,231 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                         </View>
                     </View>
                 </BottomSheet>
+                {/* Option Modal */}
+                <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
+                    <SafeAreaView
+                        style={{
+                            flex: 1,
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                        }}>
+                        <View
+                            style={{
+                                borderWidth: 0.8,
+                                borderRadius: 5,
+                                borderColor: COLORS.LIGHTGREY,
+                                padding: 10,
+                                width: '95%',
+                                marginTop: '10%',
+                            }}>
+                            <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>
+                                Room Host Options
+                            </Text>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    paddingBottom: 10,
+                                    alignSelf: 'center',
+                                }}>
+                                <Text style={{...FONTS.Title2, paddingRight: 10}}>Transfer Hosting Permissions</Text>
+                                <Icon name="body" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            </View>
+                            <Text
+                                style={{
+                                    ...FONTS.paragraph1,
+                                    textAlign: 'center',
+                                    fontSize: 12,
+                                    color: COLORS.MIDORANGE,
+                                }}>
+                                (Once transfer is complete, you want be able to gain permissions back until it is given
+                                back or your next CRU View)
+                            </Text>
+                            <Text
+                                style={{
+                                    ...FONTS.paragraph1,
+                                    textAlign: 'center',
+                                    fontSize: 12,
+                                }}>
+                                Choose who you are giving host privileges:
+                            </Text>
+                            <View>
+                                <FlatList
+                                    data={getAvailableMembers()}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    numColumns={2}
+                                    scrollEnabled={false}
+                                    keyExtractor={item => item.userID}
+                                    renderItem={({item, index}) => (
+                                        <View style={{marginVertical: 5}}>
+                                            <SmlMemberCard
+                                                userPicture={item.userPicture}
+                                                userName={item.userName}
+                                                onPress={() => {
+                                                    setShowTransferConfirmation(true);
+                                                }}
+                                                influencer={item.influencer}
+                                                userID={item.userID}
+                                                akcruBadge={item.akcruBadge}
+                                                userDesc={item.userDesc}
+                                                avatarbordercolor={item.avatarbordercolor}
+                                                // AddMember={() => {
+                                                //     // Set the selected member when the user clicks on the "Add Member" button
+                                                //     setSelectedMember(item);
+                                                //     // Show the Add Member confirmation modal
+                                                //     setShowAddMemberConfirmationModal(true);
+                                                // }}
+                                            />
+                                        </View>
+                                    )}
+                                />
+                            </View>
+
+                            <View
+                                style={{
+                                    borderBottomWidth: 0.8,
+                                    borderColor: COLORS.LIGHTGREY,
+                                    marginVertical: 20,
+                                    width: SIZES.ScreenWidth / 4,
+                                    alignSelf: 'center',
+                                }}
+                            />
+
+                            <View
+                                style={{
+                                    paddingBottom: 10,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        paddingRight: 10,
+                                        textAlign: 'center',
+                                        marginBottom: '5%',
+                                    }}>
+                                    Terminate CRU View and close room
+                                </Text>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-around',
+
+                                        paddingBottom: 5,
+                                    }}>
+                                <AkcruButtons.SmallButton 
+                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = {()=>{setTerminateRoom(true)}}
+                                />
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{marginBottom: '10%'}}>
+                            <AkcruButtons.XlLrgButton
+                                btnname="Close Options"
+                                disabled={false}
+                                color={COLORS.AKCRUBLUE}
+                                onPress={confirmOptions}
+                            />
+                        </View>
+                    </SafeAreaView>
+                </Modal>
+                <Modal animationType="fade" transparent={true} visible={showTransferConfirmation}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                            }}>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Host Transfer</Text>
+                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    {`Are you sure you want to transfer hosting privileges to "${members}"`}
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}>
+                                <TouchableOpacity
+                                    onPress={handleCancelTransfer}
+                                    style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleTransfer}
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Transfer</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal animationType="fade" transparent={true} visible={terminateRoom}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                            }}>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm closing CRU View</Text>
+                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    Are you sure you want to end this CRU View session?
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}>
+                                <TouchableOpacity
+                                    onPress={handleCancelRoomTermination}
+                                    style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleRoomTermination}
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         );
     };

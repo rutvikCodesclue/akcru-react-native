@@ -354,7 +354,7 @@ const isHost = route.params?.isHost;
 
               {/* Video Info */}
               <View>
-                  <View style={styles.moviecontainer}>
+                  <View style={styles.movieview}>
                       <LinearGradient
                           // Background Linear Gradient
                           colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
@@ -363,44 +363,49 @@ const isHost = route.params?.isHost;
                               left: 0,
                               right: 0,
                               top: 0,
-
+                              bottom: 0,
                               borderRadius: 5,
-                              height: SIZES.ScreenHeight / 7,
                           }}
                       />
-                      <View style={{marginRight: 10}}>
-                          <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
-                      </View>
-                      <View>
-                          <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                          <View
-                              style={{
-                                  flexDirection: 'row',
-                                  marginVertical: 8,
-                                  alignItems: 'center',
-                              }}>
-                              <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                              <Text
+                      <View style={styles.moviecontainer}>
+                          <View style={{marginRight: 10}}>
+                              <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
+                          </View>
+                          <View>
+                              <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                              <View
                                   style={{
-                                      ...FONTS.Title2,
-                                      fontSize: 12,
-                                      marginHorizontal: 10,
+                                      flexDirection: 'row',
+                                      marginVertical: 8,
+                                      alignItems: 'center',
                                   }}>
-                                  {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                              </Text>
-                          </View>
-                          <View style={{flexDirection: 'row'}}>
-                              <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                              <Text style={styles.drawfonttag}>
-                                  {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                              </Text>
-                              <Text style={styles.drawfonttag}>
-                                  {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
-                              </Text>
+                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                  <Text
+                                      style={{
+                                          ...FONTS.Title2,
+                                          fontSize: 12,
+                                          marginHorizontal: 10,
+                                      }}>
+                                      {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                  </Text>
+                              </View>
+                              <View style={{flexDirection: 'row'}}>
+                                  <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                  <Text style={styles.drawfonttag}>
+                                      {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                  </Text>
+                                  <Text style={styles.drawfonttag}>
+                                      {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
+                                  </Text>
 
-                              <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                  <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                              </View>
                           </View>
-                          <View style={{flexDirection: 'row'}}></View>
+                      </View>
+                      <View style={{marginTop: '3%'}}>
+                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>
+                          {movie?.description}
+                        </Text>
                       </View>
                   </View>
               </View>
@@ -410,7 +415,7 @@ const isHost = route.params?.isHost;
                   <View
                       style={{
                           width: '100%',
-                          height: 300,
+                          height: '110%',
                           backgroundColor: '#000',
                           marginBottom: 20,
                           display: 'flex',
@@ -426,7 +431,9 @@ const isHost = route.params?.isHost;
                                   style={{width: '100%', height: '100%'}}
                                   mirror={true}
                               />
-                          ) : <Text style={{color: '#fff'}}>Camera Off</Text>
+                          ) : (
+                              <Text style={{color: '#fff'}}>Camera Off</Text>
+                          )
                       ) : (
                           <Text style={{color: '#fff'}}>Loading....</Text>
                       )}
@@ -435,8 +442,8 @@ const isHost = route.params?.isHost;
 
               <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
                   {/* Join Room Button */}
-                  <TouchableOpacity>
-                      <AkcruButtons.LrgButton
+                  <TouchableOpacity style={{marginTop: '4%'}}>
+                      <AkcruButtons.XlLrgButton
                           disabled={!canJoinRoom}
                           onPress={() => {
                               _handleJoinRoom();
@@ -488,13 +495,14 @@ const styles = StyleSheet.create({
         height: 90,
         borderRadius: 5,
     },
-    moviecontainer: {
+    movieview: {
         marginHorizontal: 15,
         padding: 10,
-        flexDirection: 'row',
         backgroundColor: '#1C202A',
         borderRadius: 5,
-        height: SIZES.ScreenHeight / 7,
+    },
+    moviecontainer: {
+        flexDirection: 'row',
         alignItems: 'center',
     },
     drawfonttag: {
@@ -533,8 +541,8 @@ const styles = StyleSheet.create({
     },
     bottombtn: {
         position: 'absolute',
-        height: 100,
-        bottom: 0,
+        flex: 1,
+        bottom: '5%',
         width: '100%',
         marginBottom: 100,
     },
