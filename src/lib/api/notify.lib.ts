@@ -1,8 +1,7 @@
 import { API } from "../../clients/api.client";
 import { INotification } from "../../../types";
-// FIXME: create a type for this (INotification)
 
-export const getMyNotifications = async () => {
+export const getMyNotifications = async (): Promise<INotification[] | undefined> => {
     try {
         // GET /v1/notify/me
         const { data } = await API.get(`/v1/notify/me`);
@@ -16,7 +15,7 @@ export const getMyNotifications = async () => {
     }
 }
 
-export const markNotificationRead = async (params: { id: string }) => {
+export const markNotificationRead = async (params: { id: string }): Promise<INotification | undefined> => {
     try {
         // GET /v1/notify/read
         const { id } = params
