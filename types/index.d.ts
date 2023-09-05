@@ -96,3 +96,17 @@ export type ICruInvite = {
     createdAt: string;
     updatedAt?: string;
 }
+
+export type IMITInvite = {
+    id:        string;       
+    movieId: string;
+    movie:     IMovie;        
+    status: "PENDING" | "ACCEPTED" | "DECLINED";
+    creatorId: string;
+    creator:   IUserProfile;         
+    inviteeId: string;
+    invitee: IUserProfile;         
+    startDate: string;
+    createdAt: string;     
+    updatedAt?: string;     
+}

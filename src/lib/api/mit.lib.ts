@@ -1,29 +1,31 @@
-import { IMovie, ICruView, ICru } from "../../../types";
+import { IMITInvite } from "../../../types";
 import { API } from "../../clients/api.client";
 
-export const getMyMITs = async () : Promise<ICru | undefined> => {
-    // GET /v1/cru/me
+export const getMyMITs = async () : Promise<IMITInvite[] | undefined> => {
+    // GET /v1/mit/me
     try {
-        const { data } = await API.get(`/v1/cru/me`);
-        return data.CRU;
+        const { data } = await API.get(`/v1/mit/me`);
+        if (data.success === false) {
+            return []
+        }
+        return data.invites;
     } catch (error) {
         console.error(error);
     }
 }
 
-export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: boolean }) : Promise<ICruView[] | undefined> => {
-    // GET /v1/cru/views/me
+export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: boolean }) : Promise<IMITInvite[] | undefined> => {
+    // GET /v1/mit/invites/me
     try {
         // if params is empty return all CRUViews
         if (!params) {
-            const { data } = await API.get(`/v1/cru/views/me`);
+            const { data } = await API.get(`/v1/mit/invites/me`);
             if (data.success === false) {
                 return []
             }
+            const { invites }: { invites: IMITInvite[] } = data
     
-            const { CRUViews }: { CRUViews: ICruView[] } = data
-    
-            return CRUViews;
+            return invites;
         }
     
         const { upcoming, past } = params
@@ -43,33 +45,63 @@ export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: bool
     }
 }
 
-export const createAMITInvite = async (params: {movieId: string, startTime: string, timezone: string}) => {
-    // POST /v1/cru/create-cru-view
+export const getMoreMITs = async (params: {count: number}) : Promise<number | undefined> => {
+    // POST /v1/mit/create
     try {
-        const { movieId, startTime, timezone } = params
-        const { data } = await API.post(`/v1/cru/create-cru-view`, 
-            {movieId, startTime, timezone}
+        const { count } = params
+        const { data } = await API.post(`/v1/mit/create`, 
+            { count }
+        );
+
+        if (data.success === false) {
+            return undefined
+        }
+    
+        return data.updatedCount;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const createAMITInvite = async (params: {movieId: string, username: string, startDate: string}) : Promise<IMITInvite | undefined> => {
+    // POST /v1/mit/invite/create
+    try {
+        const { movieId, username, startDate } = params
+        const { data } = await API.post(`/v1/mit/invite/create`, 
+            {movieId, username, startDate}
         );
     
-        return data.CRUView;
+        return data.invite;
     } catch (error) {
         console.error(error);
     }
 }
 
-export const acceptAMITInvite = async (params: { inviteId: string }) => {
+export const acceptAMITInvite = async (params: { inviteId: string }) : Promise<IMITInvite | undefined> => {
+    // POST /v1/mit/invite/accept
     try {
         const { data } = await API.post(`/v1/mit/invite/accept`, { inviteId: params.inviteId });
-        return data;
+        
+        if (data.success === false) {
+            return undefined
+        }
+
+        return data.invite;
     } catch (error) {
         console.error(error);
     }
 }
 
-export const declineAMITInvite = async (params: { inviteId: string }) => {
+export const declineAMITInvite = async (params: { inviteId: string }) : Promise<IMITInvite | undefined> => {
+    // POST /v1/mit/invite/decline
     try {
         const { data } = await API.post(`/v1/mit/invite/decline`, { inviteId: params.inviteId });
-        return data;
+
+        if (data.success === false) {
+            return undefined
+        }
+
+        return data.invite;
     } catch (error) {
         console.error(error);
     }
