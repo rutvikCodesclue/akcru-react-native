@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, ImageBackground } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView } from 'react-native'
 import React from 'react'
 import Header from '../../../components/header';
 import { Icon } from '@rneui/base';
@@ -9,6 +9,7 @@ import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import { DIGITAL_PASS, FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
+import notifee from '@notifee/react-native';
 
 
 const UserNotifications = () => {
@@ -17,8 +18,32 @@ const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParam
 
 const userNotifications = FAKE_USER_PROFILES[0].notifications;
 
+    async function onDisplayNotification() {
+        // Request permissions (required for iOS)
+        await notifee.requestPermission()
+        // Create a channel (required for Android)
+        const channelId = await notifee.createChannel({
+            id: 'default',
+            name: 'Default Channel',
+        });
+
+        // Display a notification
+        await notifee.displayNotification({
+            title: 'New Cru View',
+            body: 'Main body content of the notification',
+            android: {
+                channelId,
+                smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
+                // pressAction is needed if you want the notification to open the app when pressed
+                pressAction: {
+                id: 'default',
+                },
+            },
+        });
+    }
+
   return (
-      <View style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
           <ScrollView stickyHeaderIndices={[0]} style={{marginBottom:60}}>
               <View>
                 <View style={{zIndex: 100}}>
@@ -64,6 +89,9 @@ const userNotifications = FAKE_USER_PROFILES[0].notifications;
                           }}>
                           NOTIFICATIONS
                       </Text>
+                      <View>
+                        <Button title="Display Notification" onPress={() => onDisplayNotification()} />
+                      </View>
                   </View>
               </ImageBackground>
               </View>
@@ -83,7 +111,7 @@ const userNotifications = FAKE_USER_PROFILES[0].notifications;
                   })}
               </View>
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 }
 
