@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         right: 50,
         left: 50,
-        bottom: SIZES.ScreenHeight * 0.03,
+        bottom: '2%',
         alignItems: 'center',
     },
 

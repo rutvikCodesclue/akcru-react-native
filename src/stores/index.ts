@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { AuthResponse, Session} from '@supabase/supabase-js'
+import { IMovie } from "../../types";
 
 interface IGlobalStore {
     movies: IMovie[];
