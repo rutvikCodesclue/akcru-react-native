@@ -56,7 +56,7 @@ const SendMITViewUser = ({ route, }: Props) => {
   };
 
   const {
-    digitalpass,
+    // digitalpass,
     userPicture,
     privateaccount,
     online,
