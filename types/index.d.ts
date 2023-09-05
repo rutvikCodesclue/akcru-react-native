@@ -110,3 +110,17 @@ export type IMITInvite = {
     createdAt: string;     
     updatedAt?: string;     
 }
+
+export type INotification = {
+    id:        string;
+    type: "MITReceived" | "MITAccepted" | "MITDeclined" | 
+        "CruInviteReceived" | "CruInviteAccepted" | 
+        "CruInviteDeclined" | "CruViewScheduled" | 
+        "CruViewStarted" | "UserFollowed";       
+    userId: string;
+    user?:   IUserProfile;
+    isRead: boolean;
+    message: string?;         
+    createdAt: string;     
+    updatedAt?: string;
+}
