@@ -22,11 +22,11 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import {Icon, Avatar} from '@rneui/base';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 
 import React from 'react';
-import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {ImagePickerResponse, launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import * as ImagePicker from "expo-image-picker";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -35,8 +35,32 @@ import InputsLrg from '../../../components/inputLrg';
 import { MOVIE_GENRES } from '../../../../assets/constants/Data';
 import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
+import { updateUserProfilePicture } from '../../../lib/api/user.lib';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
+
+const handleImageUpload = async (res: ImagePickerResponse) => {
+    // console.log('Image Upload Response:', res);
+    
+    if (res.assets) {
+        const uri = res.assets[0].uri 
+        const fileName = res.assets[0].fileName 
+        const type = res.assets[0].type 
+
+        if (uri && fileName && type) {
+            // call the api to upload the file for profile picture
+            const result = await updateUserProfilePicture({ 
+                uri, 
+                name: fileName, 
+                type 
+            })
+
+            if (result) {
+                console.log('Image Upload Result:', result);
+            }
+        }
+    }
+}
 
 export default function EditProfile({session}: {session: Session}) {
   const navigation =
@@ -45,39 +69,64 @@ export default function EditProfile({session}: {session: Session}) {
   // get user from auth store, also get the logout function
   const user = useAuthStore(state => state.user);
   const logout = useAuthStore(state => state.logout);
+  const { hydrateUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState('');
-  const [description, setDescription] = useState('');
+  const [desc, setDesc] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
   const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
-  const [response, setResponse] = React.useState<any>(null);
 
-  async function UpdateProfile({userName: userName, description}: {userName: string; description: string}) {
-      try {
-          setLoading(true);
-          if (!session?.user) throw new Error('No user on the session!');
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('Edit Profile Screen focused [EditProfileScreen]');
+            hydrateUser();
 
-          const updates = {
-              id: session?.user.id,
-              userName,
-              description,
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Edit Profile Screen unfocused [EditProfileScreen]');
+            };
+        }, [])
+    );
 
-              updated_at: new Date(),
-          };
+  async function UpdateProfile({
+    userName,
+    desc,
+  }: {
+    userName: string;
+    desc: string;
+  }) {
 
-          let {error} = await supabase.from('profiles').upsert(updates);
+    
 
-          if (error) {
-              throw error;
-          }
-      } catch (error) {
-      } finally {
-          setLoading(false);
+    try {
+      setLoading(true);
+      if (!session?.user) throw new Error('No user on the session!');
+
+      const updates = {
+        id: session?.user.id,
+        userName,
+        desc,
+
+        updated_at: new Date(),
+      };
+
+      let {error} = await supabase.from('profiles').upsert(updates);
+
+      if (error) {
+        throw error;
       }
+
+
+    } catch (error) {
+
+    } finally {
+      setLoading(false);
+    }
   }
 
   const [image, setImage] = useState(null);
@@ -126,7 +175,7 @@ export default function EditProfile({session}: {session: Session}) {
       setShowUpdateConfirmation(false);
 
       // Call the UpdateProfile function to update the profile information
-      UpdateProfile({userName, description});
+      UpdateProfile({userName, desc});
 
       // Get the current user from the auth store
       const currentUser = useAuthStore.getState().user;
@@ -134,11 +183,9 @@ export default function EditProfile({session}: {session: Session}) {
       // Update the username in the user's profile in the store
       if (currentUser) {
           currentUser.username = userName;
-          currentUser.description = description;
-          useAuthStore.setState({user: currentUser}); // Use setState to update the user
+          useAuthStore.getState().setUser(currentUser);
       }
   };
-
 
   const handleCheckboxChange = (genreId: string) => {
       // Check if the genre is already selected
@@ -196,7 +243,7 @@ export default function EditProfile({session}: {session: Session}) {
 
 
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 20}}>
                   <Header />
@@ -224,7 +271,19 @@ export default function EditProfile({session}: {session: Session}) {
                                   borderColor: COLORS.AKCRUBLUE,
                               }}
                           />
-                          <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
+                          {/* <TouchableOpacity onPress={() => setShowImagePickerModal(true)}> */}
+                          <TouchableOpacity onPress={
+                            () => {
+                                launchImageLibrary(
+                                    {
+                                        selectionLimit: 1,
+                                        mediaType: 'photo',
+                                        includeBase64: false,
+                                    },
+                                    handleImageUpload
+                                );
+                            }
+                          }>
                               <Text
                                   style={{
                                       ...FONTS.Title2AkcruBlue,
@@ -364,16 +423,9 @@ export default function EditProfile({session}: {session: Session}) {
                       </Modal>
 
                       <TouchableOpacity
-                          onPress={() => {
-                              launchImageLibrary(
-                                  {
-                                      selectionLimit: 0,
-                                      mediaType: 'photo',
-                                      includeBase64: false,
-                                  },
-                                  setResponse,
-                              );
-                          }}>
+                          onPress={
+                              () => setShowImagePickerModal(true)
+                          }>
                           <Text
                               style={{
                                   ...FONTS.Title2AkcruBlue,
@@ -394,19 +446,8 @@ export default function EditProfile({session}: {session: Session}) {
                           iconcolor={COLORS.LIGHTGREY}
                           secureTextEntry={false}
                           onChangeText={text => setUserName(text)}
-                          value={userName}
+                          value={userName || ''}
                           editable={!loading}
-                      />
-                  </View>
-                  <Text style={styles.inputlabel}>Description</Text>
-                  <View style={styles.descinput}>
-                      <TextInput
-                          placeholder={user?.description}
-                          placeholderTextColor={COLORS.DARKGREY}
-                          style={styles.textinput}
-                          onChangeText={text => setDescription(text)}
-                          secureTextEntry={false}
-                          value={description}
                       />
                   </View>
                   <View>
@@ -423,6 +464,18 @@ export default function EditProfile({session}: {session: Session}) {
                           {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
                       </View>
                   </View>
+                  <Text style={styles.inputlabel}>Description</Text>
+                  <View style={styles.descinput}>
+                      <TextInput
+                          placeholder={user?.description}
+                          placeholderTextColor={COLORS.DARKGREY}
+                          style={styles.textinput}
+                          onChangeText={text => setDesc(text)}
+                          secureTextEntry={false}
+                          value={desc || ''}
+                      />
+                  </View>
+                  
 
                   <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
                       Update your Archetype here ( Choose 2 genres ) :
@@ -534,6 +587,6 @@ export default function EditProfile({session}: {session: Session}) {
                   </View>
               </View>
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 }
