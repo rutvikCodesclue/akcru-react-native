@@ -19,7 +19,6 @@ const navigation =
     React.useCallback(() => {
         // This code will run when the screen comes into focus (e.g., when navigating to this screen)
         getMyMITs().then((res) => {
-          console.log("my mits: ", res);
           if (res) {
             setCurrentMITS(res);
           }
