@@ -13,6 +13,7 @@ import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
+import { isAfter, isBefore } from "date-fns";
 
 
 const UserProfileDatesTab = () => {
@@ -30,29 +31,26 @@ const UserProfileDatesTab = () => {
             const myCRUViews = await getMyCRUViews({ upcoming: true })
             const myMITs = await getMyMITInvites({ accepted: true })
 
-            // console.log("myCRUViews:", myCRUViews);
-            // console.log("myMITs:", myMITs);
-            
-            if (myCRUViews) {
-              setMyEvents(myCRUViews);
-            }
-
-            // sort invites by date (newest to oldest) and set state
-            if (myMITs) {
-              setMyEvents((prevEvents) => [...prevEvents, ...myMITs]);
+            if (myCRUViews && myMITs) {
+              let events = [...myCRUViews, ...myMITs] 
               // sort invites by date (newest to oldest) and set state
-              setMyEvents((prevEvents) => prevEvents.sort((a, b) => {
-                let date1 = new Date(a.startDate).getTime();
-                let date2 = new Date(b.startDate).getTime();
-                if (date1 < date2) {
+              setMyEvents(events.sort((a, b) => {
+                
+                let date1 = new Date(a.startDate);
+                let date2 = new Date(b.startDate);
+                console.log("date1:", date1);
+                console.log("date2:", date2);
+                
+                if (isAfter(date1, date2)) {
                   return 1;
                 }
-                if (date1 > date2) {
+                if (isBefore(date1, date2)) {
                   return -1;
                 }
                 return 0;
               }));
             }
+
         } catch (error) {
           console.error('Error getting my Events:', error);
         }
