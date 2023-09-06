@@ -18,12 +18,9 @@ import imageindex from "../../../../assets/images/imageindex";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
-import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
-import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import {getMovieGenres} from '../../../lib/api/movies.lib';
 import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../util/util';
 import {IGenreItem, IUserProfile} from '../../../../types';
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { findAUser } from "../../../lib/api/user.lib";
 
 type SendMITViewUserNavigationProp = StackNavigationProp<
@@ -71,45 +68,10 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
       setIsLoading(false);
   };
 
-//   const {
-//     digitalpass,
-//     userPicture,
-//     privateaccount,
-//     online,
-//     userName,
-//     akcruBadge,
-//     status,
-//     userFollowerAmount,
-//     userDesc,
-//     influencer,
-//   } = FAKE_USER_PROFILES[userID ?? 0];
-
-  const [scheduleIsShown, setScheduleIsShown] = useState(false);
-
-   const [selectedUserName, setSelectedUserName] = useState(user?.username);
-   const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState(user?.badge === 'AKCRUIT');
-   const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState(user?.badge === 'GUARDIAN');
-   const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(user?.badge === 'HERO');
-   const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState(user?.badge === 'SUPERHERO');
-   const [selectedUserPicture, setSelectedUserPicture] = useState('');
-   const [selectedInfluencer, setSelectedInfluencer] = useState('');
+  
    const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
 
-   const handlePressMIT = (userID, userName, akcruBadge, userPicture, influencer, digitalpass) => {
-       setScheduleIsShown(true);
-       setSelectedUserName(userName);
-       setSelectedAkcruBadgeAkcruit(akcruBadge.AKCRUIT);
-       setSelectedAkcruBadgeGuardian(akcruBadge.GUARDIAN);
-       setSelectedAkcruBadgeHero(akcruBadge.HERO);
-       setSelectedAkcruBadgeSuperHero(akcruBadge.SUPERHERO);
-       setSelectedUserPicture(userPicture);
-       setSelectedInfluencer(influencer);
-       setSelectedDigitalPass(digitalpass);
-       // Add your logic here to handle the onPress1 action
-       // You can use the userID parameter or any other data from the item
-
-       console.log('Item with userID', userID, userName, 'pressed!');
-   };
+   
 
 
   const handleGenrePress = (genre: IGenreItem) => {
@@ -118,21 +80,12 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
           userID: user?.id,
           userName: user?.username,
       });
-      handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, '');
+      console.log('Item with userID', userID, user?.username, 'pressed!');
   };
 
   useEffect(() => {
       fetchGenres();
   }, []);
-
-  // const handleGenrePress = (genre) => {
-  //   navigation.navigate("SendMITSearchResult", {
-  //     genre: genre,
-  //     userID,
-      
-  //   });
-  //   handlePressMIT(userID, userName, akcruBadge, userPicture, influencer);
-  // };
 
   return (
       <View>
