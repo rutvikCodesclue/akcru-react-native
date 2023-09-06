@@ -13,6 +13,7 @@ import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import imageindex from '../../../../assets/images/imageindex';
 import { JENNY_INVITES } from '../../../../assets/constants/Mockusers'
 import { StackNavigationProp } from '@react-navigation/stack'
+import useAuthStore from '../../../stores/auth.store';
 
 type UserMITHubScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -33,7 +34,7 @@ const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 
 const UserMITHubScreen = ({navigation, route}: Props) => {
-    
+  const user = useAuthStore((state) => state.user);
 
   
   return (
@@ -106,7 +107,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
         </ImageBackground>
         <View style={{ marginHorizontal: 15 }}>
             <Text style={{...FONTS.Title2}}>
-                You have 7 Movie Invites
+                You have {user?.MITCount} Movie Invites
             </Text>
           <MITHubList />
         </View>
