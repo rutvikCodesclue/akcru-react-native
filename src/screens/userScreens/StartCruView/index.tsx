@@ -390,25 +390,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     console.log(payload);
                     // TODO: hide the video player controls if not host
                 })
-                .on('broadcast', {event: 'enter-fullscreen'}, payload => {
-                    console.log(payload);
-                    // TODO: test enter fullscreen if not host
-                    if (!isHost && videoPlayerRef.current) {
-                        // enter fullscreen, for host
-                        setIsFullscreen(true);
-                        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-                        // videoPlayerRef.current.presentFullscreenPlayer();
-                    }
-                })
-                .on('broadcast', {event: 'exit-fullscreen'}, payload => {
-                    console.log(payload);
-                    // TODO: test exit fullscreen if not host
-                    if (!isHost && videoPlayerRef.current && isStreamOpen) {
-                        setIsFullscreen(false);
-                        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-                        videoPlayerRef.current.dismissFullscreenPlayer();
-                    }
-                })
                 .on('broadcast', {event: 'exit-movie'}, payload => {
                     console.log(payload);
                     // TODO: test exit fullscreen if not host
@@ -740,40 +721,14 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         console.log(`${user?.username} resumed playback of the movie`);
     };
     const ___onEnterFullscreen = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} entered fullscreen`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'enter-fullscreen',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-            // enter fullscreen, for host
-            setIsFullscreen(true);
-            Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-        } else {
-            console.log(`${user?.username} is entering fullscreen`);
-        }
+        // enter fullscreen
+        setIsFullscreen(true);
+        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
     };
     const ___onExitFullScreen = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} exited fullscreen`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'exit-fullscreen',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-            // exit fullscreen, for host
-            setIsFullscreen(false);
-            Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-        } else {
-            console.log(`${user?.username} is exiting fullscreen`);
-        }
+        // exit fullscreen
+        setIsFullscreen(false);
+        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
     };
     const ___onBack = () => {
         // console.log(`${user?.username} exited the movie`);
@@ -1029,7 +984,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                                     disableBack={isHost ? false : true}
                                                     disableSeekButtons={isHost ? false : true}
                                                     disableSeekbar={isHost ? false : true}
-                                                    disableFullscreen={isHost ? false : true}
                                                     onBack={___onBack}
                                                     onPlay={___onPlay}
                                                     onPause={___onPause}
