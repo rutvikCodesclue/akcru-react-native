@@ -89,46 +89,7 @@ const userID: string | undefined = route.params?.userID ?? null;
        return;
    };
 
-
-
-
-//   const {
-//     digitalpass,
-//     userPicture,
-//     privateaccount,
-//     online,
-//     userName,
-//     akcruBadge,
-//     status,
-//     userFollowerAmount,
-//     userDesc,
-//     influencer,
-//   } = FAKE_USER_PROFILES[userID ?? 0];
-
-  const [scheduleIsShown, setScheduleIsShown] = useState(false);
-
-  const [selectedUserName, setSelectedUserName] = useState(user?.username);
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState(user?.badge === 'AKCRUIT');
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState(user?.badge === 'GUARDIAN');
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(user?.badge === 'HERO');
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState(user?.badge === 'SUPERHERO');
-  const [selectedUserPicture, setSelectedUserPicture] = useState("");
-  const [selectedInfluencer, setSelectedInfluencer] = useState("");
-
-  const handlePressMIT = (userID, userName, akcruBadge, userPicture, influencer, digitalpass) => {
-      setScheduleIsShown(true);
-      setSelectedUserName(user?.username);
-      setSelectedAkcruBadgeAkcruit(user?.badge === 'AKCRUIT');
-      setSelectedAkcruBadgeGuardian(user?.badge === 'GUARDIAN');
-      setSelectedAkcruBadgeHero(user?.badge === 'HERO');
-      setSelectedAkcruBadgeSuperHero(user?.badge === 'SUPERHERO');
-      setSelectedUserPicture(userPicture);
-      // setSelectedInfluencer(influencer);
-      // Add your logic here to handle the onPress1 action
-      // You can use the userID parameter or any other data from the item
-
-      console.log('Item with userID', userID, userName, 'pressed!');
-  };
+  
 
   const renderItem = ({item, index}: {item: any; index: number}) => {
       const isActive = item.genre === selectedGenre;
@@ -218,14 +179,7 @@ const userID: string | undefined = route.params?.userID ?? null;
                                               userID: user?.id,
                                               userName: user?.username,
                                           });
-                                          handlePressMIT(
-                                              user?.id,
-                                              user?.username,
-                                              user?.badge,
-                                              user?.profilePicture,
-                                              false,
-                                              '',
-                                          );
+                                          console.log('Item with userID', userID, user?.username, 'pressed!');
                                       }}
                                   />
                               </View>

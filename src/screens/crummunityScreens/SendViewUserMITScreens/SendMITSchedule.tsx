@@ -19,7 +19,6 @@ import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { Avatar, Icon } from "@rneui/base";
 import LinearGradient from "react-native-linear-gradient";
 import imageindex from "../../../../assets/images/imageindex";
-import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import styles from "./styles";
 import { Akcru_Content } from "../../../../assets/constants/ListData";
 import { IMovie, IUserProfile } from "../../../../types";
@@ -107,31 +106,6 @@ export default function SendMITSchedule({ navigation, route }: Props) {
       duration,
       trailerURL,
   } = movie[0] || {};
-
-//   const {
-//     digitalpass,
-//     userPicture,
-//     privateaccount,
-//     online,
-//     userName,
-//     akcruBadge,
-//     status,
-//     userFollowerAmount,
-//     userDesc,
-//     influencer,
-//   } = FAKE_USER_PROFILES[userID ?? 0];
-
-  const [scheduleIsShown, setScheduleIsShown] = useState(false);
-
-  const [selectedUserName, setSelectedUserName] = useState(user?.username);
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] =
-    useState(user?.badge === 'AKCRUIT');
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState(user?.badge === 'GUARDIAN');
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(user?.badge === 'HERO');
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState(user?.badge === 'SUPERHERO');
-  const [selectedUserPicture, setSelectedUserPicture] = useState(user?.profilePicture);
-//   const [selectedInfluencer, setSelectedInfluencer] = useState(influencer);
-
  
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
@@ -429,22 +403,22 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                           </View>
                                           <View style={{marginLeft: 10}}>
                                               <Text style={{...FONTS.Title2}}>{user?.username}</Text>
-                                              {selectedAkcruBadgeAkcruit && (
+                                              {user?.badge === 'AKCRUIT' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeAkcruit />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeGuardian && (
+                                              {user?.badge === 'GUARDIAN' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeGuardian />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeHero && (
+                                              {user?.badge === 'HERO' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeHero />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeSuperHero && (
+                                              {user?.badge === 'SUPERHERO' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeSuperHero />
                                                   </View>
