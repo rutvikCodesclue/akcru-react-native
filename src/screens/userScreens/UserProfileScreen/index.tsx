@@ -29,7 +29,7 @@ import { TextStyle } from "react-native";
 import { Route } from "react-native";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -77,7 +77,18 @@ const renderScene = SceneMap({
 });
 
 export default function UserProfileScreen({navigation, route}: Props) {
-  const { user } = useAuthStore()
+  const { user, hydrateUser } = useAuthStore()
+
+  useFocusEffect(
+    React.useCallback(() => {
+        // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+        hydrateUser()
+        return () => {
+          // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+          hydrateUser()
+        };
+    }, [])
+  );
 
   const renderTabBar = (
     props: JSX.IntrinsicAttributes &

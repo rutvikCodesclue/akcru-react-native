@@ -1,50 +1,67 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView } from "react-native";
+import React from "react";
 import styles from "./styles";
-import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {SIZES} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
-import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
 import { getMyCRUViews } from "../../../lib/api/cru.lib";
-import { set } from "lodash";
-import { ICruView, IMovie } from "../../../../types";
+import { ICruView, IMITInvite } from "../../../../types";
 import useAuthStore from "../../../stores/auth.store";
 import { formatMovieDuration } from "../../../util/util";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../../../navigation/ClientStack";
+import { getMyMITInvites } from "../../../lib/api/mit.lib";
+import { isAfter, isBefore } from "date-fns";
 
 
 const UserProfileDatesTab = () => {
   const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
   const user = useAuthStore.getState().user
-  const [myCRUViews, setMyCRUViews] = React.useState<ICruView[]>([]);
+  const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
 
 
   useFocusEffect(
     React.useCallback(() => {
-      // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
-      // FIXME: change this to only show upcoming CRUViews
-      const fetchMyCRUViews = async () => {
+      // get CRUViews and MITs and merge them
+      const fetchMyEvents = async () => {
         try {
-            const myCRUViews = await getMyCRUViews()
-            if (myCRUViews) {
-              setMyCRUViews(myCRUViews);
+            const myCRUViews = await getMyCRUViews({ upcoming: true })
+            const myMITs = await getMyMITInvites({ accepted: true, me: true }) // get accepted MITs & accepted created MITs (def upcoming)
+
+            if (myCRUViews && myMITs) {
+              let events = [...myCRUViews, ...myMITs] 
+              // sort invites by date (newest to oldest) and set state
+              setMyEvents(events.sort((a, b) => {
+                let date1 = new Date(a.startDate);
+                let date2 = new Date(b.startDate);
+                
+                if (isAfter(date1, date2)) {
+                  return 1;
+                }
+                if (isBefore(date1, date2)) {
+                  return -1;
+                }
+                return 0;
+              }));
             }
+
         } catch (error) {
-          console.error('Error getting my CRU Views:', error);
+          console.error('Error getting my Events:', error);
         }
       };
-      fetchMyCRUViews();
+      fetchMyEvents();
     }, [])
   );
 
-  // TODO: change this to render CRUViews and MITs (when MITs are implemented)
-  const _renderMyCRUViews = () => {
-    return myCRUViews.map((item) => {
-        // scheduleWith  is either the CRU creator or yourself
-        const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
-        return (
+  // render CRUViews and MITs (when MITs are implemented)
+  const _renderMyEvents = () => {
+    return myEvents.map((item) => {
+        if (item instanceof Object && 'cru' in item) {
+          // item is a CRUView
+          // scheduleWith  is either the CRU creator or yourself
+          const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
+          return (
             <View key={item.id} style={{marginBottom: 10}}>
                 <UserDatesCard
                     id={item.id}
@@ -57,7 +74,6 @@ const UserProfileDatesTab = () => {
                     movieYear={item.movie.year}
                     movieRated={item.movie.rated}
                     movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                    movieGenre2={capitalizeFirstLetterOfString(item.movie.genres[1])}
                     movieRating={item.movie.rating}
                     scheduleDate={item.startDate}
                     scheduleTime={item.startDate}
@@ -71,7 +87,39 @@ const UserProfileDatesTab = () => {
                     }
                 />
             </View>
-        );
+          );
+        } else {
+          // item is a MITInvite
+          // scheduleWith  is either the MIT creator
+          const scheduleWith = item.creator.id === user?.id ? `${item.invitee.firstName ?? ""} (${item.invitee.username})` : `${item.creator.firstName ?? ""} (${item.creator.username})`
+          return (
+              <View key={item.id} style={{marginBottom: 10}}>
+                  <UserDatesCard
+                      type="MITInvite"
+                      id={item.id}
+                      isHost={item.creator.id === user?.id}
+                      movieId={item.movie.id}
+                      moviePoster={item.movie.portraitURL}
+                      movieName={item.movie.title}
+                      length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
+                      movieYear={item.movie.year}
+                      movieRated={item.movie.rated}
+                      movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                      movieRating={item.movie.rating}
+                      scheduleDate={item.startDate}
+                      scheduleTime={item.startDate}
+                      scheduleWith={scheduleWith}
+                      onPressin={() =>
+                          navigation.navigate('ContentDetailScreen', {
+                              id: item.movie.id,
+                              movie: item.movie.title,
+                          })
+                      }
+                  />
+              </View>
+          );
+        }
+        
       })
   }
 
@@ -82,23 +130,7 @@ const UserProfileDatesTab = () => {
           <Text style={styles.titleText1}>YOUR SCHEDULE</Text>
         </View>
         <View style={{marginBottom: 75}}>
-          {_renderMyCRUViews()}
-          {/* {JENNY_SCHEDULE.map((item) => (
-            <View key={item.id} style={{marginBottom: 10}}>
-              <UserDatesCard
-                moviePoster={item.moviePoster}
-                movieName={item.movieName}
-                length={item.length}
-                movieYear={item.movieYear}
-                movieRated={item.movieRated}
-                movieGenre={item.movieGenre}
-                movieRating={item.movieRating}
-                scheduleDate={item.scheduleDate}
-                scheduleTime={item.scheduleTime}
-                scheduleWith={item.scheduleWith}
-                dateID={item.dateID} id={""}              />
-            </View>
-          ))} */}
+          {_renderMyEvents()}
         </View>
       </ScrollView>
     </View>
@@ -106,4 +138,3 @@ const UserProfileDatesTab = () => {
 };
 
 export default UserProfileDatesTab;
-

@@ -72,8 +72,8 @@ export default function EditProfile({session}: {session: Session}) {
   const { hydrateUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState(user.username);
-  const [desc, setDesc] = useState(user.description);
+  const [userName, setUserName] = useState(user?.username);
+  const [desc, setDesc] = useState(user?.description);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);

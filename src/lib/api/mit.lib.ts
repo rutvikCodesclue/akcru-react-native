@@ -14,10 +14,10 @@ export const getMyMITs = async () : Promise<IMITInvite[] | undefined> => {
     }
 }
 
-export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: boolean }) : Promise<IMITInvite[] | undefined> => {
+export const getMyMITInvites = async (params: { pending?: boolean, accepted?: boolean, declined?: boolean, me?: boolean }) : Promise<IMITInvite[] | undefined> => {
     // GET /v1/mit/invites/me
     try {
-        // if params is empty return all CRUViews
+        // if params is empty return all MIT Invites
         if (!params) {
             const { data } = await API.get(`/v1/mit/invites/me`);
             if (data.success === false) {
@@ -28,17 +28,29 @@ export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: bool
             return invites;
         }
     
-        const { upcoming, past } = params
+        const { accepted, declined, pending, me } = params
+
     
-        if (upcoming) {
-            const { data } = await API.get(`/v1/cru/views/me?upcoming=${upcoming}`);
+        if (pending) {
+            const { data } = await API.get(`/v1/mit/invites/me?pending=${pending}`);
         
-            return data.CRUViews;
+            return data.invites;
         }
-        if (past) {
-            const { data } = await API.get(`/v1/cru/views/me?past=${past}`);
+        if (accepted) {
+            if (me) {
+                const { data } = await API.get(`/v1/mit/invites/me?accepted=${accepted}&me=${me}`);
+            
+                return data.invites;
+            }
+
+            const { data } = await API.get(`/v1/mit/invites/me?accepted=${accepted}`);
         
-            return data.CRUViews;
+            return data.invites;
+        }
+        if (declined) {
+            const { data } = await API.get(`/v1/mit/invites/me?declined=${declined}`);
+        
+            return data.invites;
         }
     } catch (error) {
         console.error(error);

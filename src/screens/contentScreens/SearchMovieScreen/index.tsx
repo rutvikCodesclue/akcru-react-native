@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, TouchableOpacity, FlatList} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, FlatList, SafeAreaView} from 'react-native';
 import React, {useEffect} from 'react';
 import SearchInput from '../../../components/searchInput';
 import GenreCard from '../../../components/GenreCard';
@@ -36,7 +36,7 @@ const SearchMovieScreen = () => {
   }, []);
 
   return (
-      <View style={{flex: 1}}>
+      <SafeAreaView style={{flex: 1}}>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
                   <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
@@ -95,7 +95,7 @@ const SearchMovieScreen = () => {
                   </View>
               </View>
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 };
 

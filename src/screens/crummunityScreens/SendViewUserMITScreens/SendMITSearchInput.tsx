@@ -7,7 +7,8 @@ import {
   FlatList,
   TouchableOpacity,
   Keyboard,
-  Image
+  Image,
+  SafeAreaView
 } from "react-native";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -63,7 +64,7 @@ const SendMITSearchInput = () => {
   }, []);
 
   return (
-      <View>
+      <SafeAreaView>
           <LinearGradient
               // Background Linear Gradient
               colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
@@ -94,7 +95,7 @@ const SendMITSearchInput = () => {
               </TouchableWithoutFeedback>
 
               <Modal animationType="fade" transparent={false} visible={modalVisible}>
-                  <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
+                  <SafeAreaView style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
                       <View style={styles.searchmodal}>
                           <View style={styles.searchinput}>
                               <View>
@@ -180,10 +181,10 @@ const SendMITSearchInput = () => {
                               keyExtractor={item => item.id}
                           />
                       </View>
-                  </View>
+                  </SafeAreaView>
               </Modal>
           </View>
-      </View>
+      </SafeAreaView>
   );
 };
 
