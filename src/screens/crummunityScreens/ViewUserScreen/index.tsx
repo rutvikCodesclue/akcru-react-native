@@ -103,28 +103,28 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
  
 
-  const handlePressMIT = (
-    userID,
-    userName,
-    akcruBadge,
-    userPicture,
-    influencer,
-    digitalpass
-  ) => {
-    setScheduleIsShown(true);
-    setSelectedUserName(userName);
-    setSelectedAkcruBadgeAkcruit(akcruBadge.AKCRUIT);
-    setSelectedAkcruBadgeGuardian(akcruBadge.GUARDIAN);
-    setSelectedAkcruBadgeHero(akcruBadge.HERO);
-    setSelectedAkcruBadgeSuperHero(akcruBadge.SUPERHERO);
-    setSelectedUserPicture(userPicture);
-    setSelectedInfluencer(influencer);
-    setSelectedDigitalPass(digitalpass);
-    // Add your logic here to handle the onPress1 action
-    // You can use the userID parameter or any other data from the item
+//   const handlePressMIT = (
+//     userID,
+//     userName,
+//     akcruBadge,
+//     userPicture,
+//     influencer,
+//     digitalpass
+//   ) => {
+//     setScheduleIsShown(true);
+//     setSelectedUserName(userName);
+//     setSelectedAkcruBadgeAkcruit(akcruBadge.AKCRUIT);
+//     setSelectedAkcruBadgeGuardian(akcruBadge.GUARDIAN);
+//     setSelectedAkcruBadgeHero(akcruBadge.HERO);
+//     setSelectedAkcruBadgeSuperHero(akcruBadge.SUPERHERO);
+//     setSelectedUserPicture(userPicture);
+//     setSelectedInfluencer(influencer);
+//     setSelectedDigitalPass(digitalpass);
+//     // Add your logic here to handle the onPress1 action
+//     // You can use the userID parameter or any other data from the item
 
-    console.log('Item with userID', userID, userName, 'pressed!');
-  };
+//     console.log('Item with userID', userID, userName, 'pressed!');
+//   };
 
 //   const truncatedstatus =
 //     status.length > MAX_STATUS_LENGTH
@@ -198,7 +198,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           userID,
                                       });
                                     //   handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
-                                      handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, "");
+                                    //   handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, "");
                                   }}>
                                   <Avatar
                                       rounded
@@ -349,7 +349,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           userID,
                                       });
                                     //   handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
-                                      handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, false, "");
+                                    //   handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, false, "");
                                   }}>
                                   <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
                               </TouchableOpacity>

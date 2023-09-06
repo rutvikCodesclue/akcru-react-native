@@ -41,7 +41,7 @@ type Props = {
 
 const ViewUserDetailScreen = ({route, navigation}: Props) => {
   const userID: string | undefined = route.params?.userID ?? null;
-  const userprofile: string | undefined = route.params?.userName ?? null;
+  const username: string | undefined = route.params?.userName ?? null;
 
   useFocusEffect(
       React.useCallback(() => {
@@ -57,24 +57,6 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
   );
 
   const [user, setUser] = useState<IUserProfile | undefined>(undefined);
-
-  // const {
-  //   digitalpass,
-  //   userPicture,
-  //   privateaccount,
-  //   online,
-  //   userName,
-  //   akcruBadge,
-  //   status,
-  //   userFollowerAmount,
-  //   userDesc,
-  //   influencer,
-  //   ADAmount,
-  //   CRUName,
-  //   avatarbordercolor,
-  //   location,
-  //   gallery,
-  // } = FAKE_USER_PROFILES[userID ?? 0];
 
   const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
   const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;

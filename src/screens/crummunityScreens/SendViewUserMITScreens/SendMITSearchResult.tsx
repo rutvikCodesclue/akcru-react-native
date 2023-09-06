@@ -215,7 +215,8 @@ const userID: string | undefined = route.params?.userID ?? null;
                                           navigation.navigate('SendMITSchedule', {
                                               id: item.id,
                                               movie: item.title,
-                                              userID,
+                                              userID: user?.id,
+                                              userName: user?.username,
                                           });
                                           handlePressMIT(
                                               user?.id,
