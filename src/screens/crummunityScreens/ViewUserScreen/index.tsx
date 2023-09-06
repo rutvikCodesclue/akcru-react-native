@@ -28,6 +28,9 @@ import { findAUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 
+import {useNavigation} from '@react-navigation/native';
+
+
 type ViewUserScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
   'ViewUserScreen'
@@ -110,10 +113,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
   ) => {
     setScheduleIsShown(true);
     setSelectedUserName(userName);
-    setSelectedAkcruBadgeAkcruit(akcruBadge.akcruit);
-    setSelectedAkcruBadgeGuardian(akcruBadge.guardian);
-    setSelectedAkcruBadgeHero(akcruBadge.hero);
-    setSelectedAkcruBadgeSuperHero(akcruBadge.superhero);
+    setSelectedAkcruBadgeAkcruit(akcruBadge.AKCRUIT);
+    setSelectedAkcruBadgeGuardian(akcruBadge.GUARDIAN);
+    setSelectedAkcruBadgeHero(akcruBadge.HERO);
+    setSelectedAkcruBadgeSuperHero(akcruBadge.SUPERHERO);
     setSelectedUserPicture(userPicture);
     setSelectedInfluencer(influencer);
     setSelectedDigitalPass(digitalpass);
