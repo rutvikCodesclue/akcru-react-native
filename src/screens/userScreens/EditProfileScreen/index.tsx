@@ -35,7 +35,7 @@ import InputsLrg from '../../../components/inputLrg';
 import { MOVIE_GENRES } from '../../../../assets/constants/Data';
 import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
-import { updateUserProfilePicture } from '../../../lib/api/user.lib';
+import { updateUserProfilePicture, updateUser } from '../../../lib/api/user.lib';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -72,8 +72,8 @@ export default function EditProfile({session}: {session: Session}) {
   const { hydrateUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState('');
-  const [desc, setDesc] = useState('');
+  const [userName, setUserName] = useState(user.username);
+  const [desc, setDesc] = useState(user.description);
   const [avatarUrl, setAvatarUrl] = useState('');
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
@@ -170,20 +170,40 @@ export default function EditProfile({session}: {session: Session}) {
     setShowUpdateConfirmation(true);
   };
 
-  const handleConfirmUpdate = async () => {
-      // Hide the confirmation modal
-      setShowUpdateConfirmation(false);
+//   const handleConfirmUpdate = async () => {
+//       // Show the confirmation modal
+//       setShowUpdateConfirmation(true);
+//   };
 
-      // Call the UpdateProfile function to update the profile information
-      UpdateProfile({userName, desc});
+  const confirmUpdate = async () => {
+      try {
+          setLoading(true);
 
-      // Get the current user from the auth store
-      const currentUser = useAuthStore.getState().user;
+          // Update the client-side profile data immediately for a better user experience
+        //   setUserName(userName); // Update local state with the new username
+        //   setDesc(desc); // Update local state with the new description
 
-      // Update the username in the user's profile in the store
-      if (currentUser) {
-          currentUser.username = userName;
-          useAuthStore.getState().setUser(currentUser);
+          // Call the updateUser function to send the updated data to the backend
+          const updatedUser = await updateUser({
+              username: userName,
+              description: desc,
+              // Pass the state update functions to the API function
+              
+          });
+
+          if (updatedUser) {
+              // Update was successful on both client and backend
+              console.log('Profile updated successfully:', updatedUser);
+          } else {
+              // Handle update failure (e.g., show an error message)
+              console.error('Failed to update profile.');
+          }
+      } catch (error) {
+          // Handle any errors (e.g., network issues)
+          console.error('Error updating profile:', error);
+      } finally {
+          setLoading(false);
+          setShowUpdateConfirmation(false);
       }
   };
 
@@ -272,18 +292,17 @@ export default function EditProfile({session}: {session: Session}) {
                               }}
                           />
                           {/* <TouchableOpacity onPress={() => setShowImagePickerModal(true)}> */}
-                          <TouchableOpacity onPress={
-                            () => {
-                                launchImageLibrary(
-                                    {
-                                        selectionLimit: 1,
-                                        mediaType: 'photo',
-                                        includeBase64: false,
-                                    },
-                                    handleImageUpload
-                                );
-                            }
-                          }>
+                          <TouchableOpacity
+                              onPress={() => {
+                                  launchImageLibrary(
+                                      {
+                                          selectionLimit: 1,
+                                          mediaType: 'photo',
+                                          includeBase64: false,
+                                      },
+                                      handleImageUpload,
+                                  );
+                              }}>
                               <Text
                                   style={{
                                       ...FONTS.Title2AkcruBlue,
@@ -422,10 +441,7 @@ export default function EditProfile({session}: {session: Session}) {
                           </View>
                       </Modal>
 
-                      <TouchableOpacity
-                          onPress={
-                              () => setShowImagePickerModal(true)
-                          }>
+                      <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
                           <Text
                               style={{
                                   ...FONTS.Title2AkcruBlue,
@@ -475,7 +491,6 @@ export default function EditProfile({session}: {session: Session}) {
                           value={desc || ''}
                       />
                   </View>
-                  
 
                   <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
                       Update your Archetype here ( Choose 2 genres ) :
@@ -559,7 +574,7 @@ export default function EditProfile({session}: {session: Session}) {
                                       <Text style={{...FONTS.Title3}}>Cancel</Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity
-                                      onPress={handleConfirmUpdate} // Confirm the update
+                                      onPress={confirmUpdate} // Confirm the update
                                       style={{
                                           backgroundColor: 'green',
                                           padding: 10,

@@ -13,20 +13,20 @@ import AkcruLevels from "../../../components/akcruBadges";
 import Header from "../../../components/header";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import AkcruButtons from "../../../components/akcruButtons";
 import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { Avatar, Icon } from "@rneui/base";
 import LinearGradient from "react-native-linear-gradient";
 import imageindex from "../../../../assets/images/imageindex";
-import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import styles from "./styles";
 import { Akcru_Content } from "../../../../assets/constants/ListData";
-import { IMovie } from "../../../../types";
+import { IMovie, IUserProfile } from "../../../../types";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
 import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
+import { findAUser } from "../../../lib/api/user.lib";
 
 type SendMITScheduleNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -50,6 +50,21 @@ export default function SendMITSchedule({ navigation, route }: Props) {
   const [movie, setMovie] = useState<IMovie[]>([]);
   const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
   const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
+
+  useFocusEffect(
+      React.useCallback(() => {
+          // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+          findAUser({id: userID}).then(user => {
+              setUser(user);
+          });
+
+          return () => {
+              // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+          };
+      }, []),
+  );
+
+  const [user, setUser] = useState<IUserProfile | undefined>(undefined);
 
   useEffect(() => {
       const fetchMovie = async () => {
@@ -91,33 +106,6 @@ export default function SendMITSchedule({ navigation, route }: Props) {
       duration,
       trailerURL,
   } = movie[0] || {};
-
-  const {
-    digitalpass,
-    userPicture,
-    privateaccount,
-    online,
-    userName,
-    akcruBadge,
-    status,
-    userFollowerAmount,
-    userDesc,
-    influencer,
-  } = FAKE_USER_PROFILES[userID ?? 0];
-
-  const [scheduleIsShown, setScheduleIsShown] = useState(false);
-
-  const [selectedUserName, setSelectedUserName] = useState(userName);
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] =
-    useState(akcruBadge.akcruit);
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] =
-    useState(akcruBadge.guardian);
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(akcruBadge.hero);
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] =
-    useState(akcruBadge.superhero);
-  const [selectedUserPicture, setSelectedUserPicture] = useState(userPicture);
-  const [selectedInfluencer, setSelectedInfluencer] = useState(influencer);
-
  
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
@@ -405,7 +393,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                                   rounded
                                                   size={40}
                                                   source={{
-                                                      uri: selectedUserPicture,
+                                                      uri: user?.profilePicture,
                                                   }}
                                                   avatarStyle={{
                                                       borderWidth: 2,
@@ -414,29 +402,29 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                               />
                                           </View>
                                           <View style={{marginLeft: 10}}>
-                                              <Text style={{...FONTS.Title2}}>{selectedUserName}</Text>
-                                              {selectedAkcruBadgeAkcruit && (
+                                              <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                                              {user?.badge === 'AKCRUIT' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeAkcruit />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeGuardian && (
+                                              {user?.badge === 'GUARDIAN' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeGuardian />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeHero && (
+                                              {user?.badge === 'HERO' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeHero />
                                                   </View>
                                               )}
-                                              {selectedAkcruBadgeSuperHero && (
+                                              {user?.badge === 'SUPERHERO' && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeSuperHero />
                                                   </View>
                                               )}
                                           </View>
-                                          <View>
+                                          {/* <View>
                                               {selectedInfluencer && (
                                                   <Icon
                                                       name="ribbon"
@@ -446,7 +434,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                                       style={{marginLeft: 5}}
                                                   />
                                               )}
-                                          </View>
+                                          </View> */}
                                       </View>
                                   </View>
                                   <View style={{marginLeft: 10}}>
@@ -631,7 +619,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                                               color: COLORS.AKCRUBLUE,
                                                               textAlign: 'center',
                                                           }}>
-                                                          to {selectedUserName} to watch:
+                                                          to {user?.username} to watch:
                                                       </Text>
                                                       <Text
                                                           style={{

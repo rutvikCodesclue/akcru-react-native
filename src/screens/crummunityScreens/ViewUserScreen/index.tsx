@@ -13,7 +13,6 @@ import {
 import styles from './styles';
 import React, {useState} from 'react';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
-import {FAKE_USER_PROFILES, JENNY_INVITES} from '../../../../assets/constants/Mockusers';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
@@ -29,6 +28,9 @@ import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
+
+import {useNavigation} from '@react-navigation/native';
+
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -69,63 +71,9 @@ export default function ViewUserScreen({route}: Props) {
   );
 
 
-//   const {
-//       userPicture,
-//       privateaccount,
-//       online,
-//       userName,
-//       akcruBadge,
-//       status,
-//       userFollowerAmount,
-//       userDesc,
-//       influencer,
-//       ADAmount,
-//       CRUName,
-//       avatarbordercolor,
-//       digitalpass,
-//   } = FAKE_USER_PROFILES[userID ?? 0];
-
-  const [scheduleIsShown, setScheduleIsShown] = useState(false);
-
-  const [selectedUserName, setSelectedUserName] = useState('');
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] =
-    useState('');
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] =
-    useState('');
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState('');
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] =
-    useState('');
-  const [selectedUserPicture, setSelectedUserPicture] = useState('');
-  const [selectedInfluencer, setSelectedInfluencer] = useState('');
-  const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
-
   const [user, setUser] = useState<IUserProfile | undefined>(undefined)
   const [following, setFollowing] = useState(false)
 
- 
-
-  const handlePressMIT = (
-    userID,
-    userName,
-    akcruBadge,
-    userPicture,
-    influencer,
-    digitalpass
-  ) => {
-    setScheduleIsShown(true);
-    setSelectedUserName(userName);
-    setSelectedAkcruBadgeAkcruit(akcruBadge.akcruit);
-    setSelectedAkcruBadgeGuardian(akcruBadge.guardian);
-    setSelectedAkcruBadgeHero(akcruBadge.hero);
-    setSelectedAkcruBadgeSuperHero(akcruBadge.superhero);
-    setSelectedUserPicture(userPicture);
-    setSelectedInfluencer(influencer);
-    setSelectedDigitalPass(digitalpass);
-    // Add your logic here to handle the onPress1 action
-    // You can use the userID parameter or any other data from the item
-
-    console.log('Item with userID', userID, userName, 'pressed!');
-  };
 
 //   const truncatedstatus =
 //     status.length > MAX_STATUS_LENGTH
@@ -202,8 +150,6 @@ export default function ViewUserScreen({route}: Props) {
                                                 userID,
                                             }
                                       });
-                                    //   handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
-                                      handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, "");
                                   }}>
                                   <Avatar
                                       rounded
@@ -311,27 +257,15 @@ export default function ViewUserScreen({route}: Props) {
                                   borderColor: COLORS.DARKGREY,
                                   paddingLeft: 10,
                               }}>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        console.log('Send MIT button pressed:', userID);
-                                        
-                                        navigation.navigate('SendMITViewUser', {
-                                            userID,
-                                        });
-                                    //   handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, influencer, digitalpass);
-                                }}>
-                                    <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.LIGHTGREY,
-                                            fontSize: 12,
-                                            marginLeft: 8,
-                                        }}>
-                                        Send a MIT
-                                    </Text>
-                                </TouchableOpacity>
-
+                              <TouchableOpacity
+                                  onPress={() => {
+                                      navigation.navigate('SendMITViewUser', {
+                                          userID,
+                                      });
+                                    
+                                  }}>
+                                  <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
+                              </TouchableOpacity>
                           </View>
                       </View>
                   </View>
