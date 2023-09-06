@@ -995,8 +995,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                                     // only show certain controls when you are host
                                                     onProgress={___onProgress}
                                                     // controls={isHost ? true : false}
+                                                    disableBack={true}
                                                     disablePlayPause={isHost ? false : true}
-                                                    disableBack={isHost ? false : true}
                                                     disableSeekButtons={isHost ? false : true}
                                                     disableSeekbar={isHost ? false : true}
                                                     onBack={___onBack}
