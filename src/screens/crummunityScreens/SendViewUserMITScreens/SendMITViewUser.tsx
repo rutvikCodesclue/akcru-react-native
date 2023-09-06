@@ -115,8 +115,10 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
   const handleGenrePress = (genre: IGenreItem) => {
       navigation.navigate('SendMITSearchResult', {
           genre: capitalizeFirstLetterOfString(genre.genre),
+          userID: user?.id,
+          userName: user?.username,
       });
-      handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, false, '');
+      handlePressMIT(user?.id, user?.username, user?.badge, user?.profilePicture, false, '');
   };
 
   useEffect(() => {

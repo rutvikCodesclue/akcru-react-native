@@ -419,7 +419,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                                   rounded
                                                   size={40}
                                                   source={{
-                                                      uri: selectedUserPicture,
+                                                      uri: user?.profilePicture,
                                                   }}
                                                   avatarStyle={{
                                                       borderWidth: 2,
@@ -428,7 +428,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                               />
                                           </View>
                                           <View style={{marginLeft: 10}}>
-                                              <Text style={{...FONTS.Title2}}>{selectedUserName}</Text>
+                                              <Text style={{...FONTS.Title2}}>{user?.username}</Text>
                                               {selectedAkcruBadgeAkcruit && (
                                                   <View>
                                                       <AkcruLevels.AkcruBadgeAkcruit />
@@ -645,7 +645,7 @@ export default function SendMITSchedule({ navigation, route }: Props) {
                                                               color: COLORS.AKCRUBLUE,
                                                               textAlign: 'center',
                                                           }}>
-                                                          to {selectedUserName} to watch:
+                                                          to {user?.username} to watch:
                                                       </Text>
                                                       <Text
                                                           style={{
