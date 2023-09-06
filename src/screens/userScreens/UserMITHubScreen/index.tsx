@@ -106,7 +106,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                   style={{ marginRight: 10 }}
                 />
                 <Text style={{ ...FONTS.Title2, color: COLORS.DARKGREY }}>
-                  Search users
+                  Find Users to Invite
                 </Text>
               </View>
             </TouchableWithoutFeedback>

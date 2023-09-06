@@ -39,14 +39,13 @@ const navigation =
         renderItem={({ item, index }) => (
           <View style={{ marginVertical: 5 }}>
             <MITHubCard
-              inviteeName={`${item.invitee.firstName} ${item.invitee.lastName}`}
+              inviteeName={item.invitee.firstName ? `${item.invitee.firstName}` : `${item.invitee.username}`}
               inviteePicture={item.invitee.profilePicture ?? ''}
               MITDate={item.startDate}
               MITMoviechoice={item.movie.title}
               onPressIn={() => navigation.navigate("ViewUserScreen", {
                 userID: index
               })}
-
               onPress={() => navigation.navigate("ChooseMITScreen", {
                 MITID: index,
               })}
@@ -56,30 +55,6 @@ const navigation =
           </View>
         )}
       />
-      {/* <FlatList
-        data={JENNY_INVITES}
-        horizontal={false}
-        scrollEnabled={false}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => (
-          <View style={{ marginVertical: 5 }}>
-            <MITHubCard
-              inviteeName={item.inviteeName}
-              inviteePicture={item.inviteePicture}
-              MITDate={item.MITDate}
-              MITMoviechoice={item.MITMoviechoice}
-              onPressIn={() => navigation.navigate("ViewUserScreen", {
-                userID: index
-              })}
-
-              onPress={() => navigation.navigate("ChooseMITScreen", {
-                MITID: index,
-              })}
-              influencer={item.influencer}
-              akcruBadge={item.akcruBadge} avatarboardercolor={item.avatarbordercolor}            />
-          </View>
-        )}
-      /> */}
     </View>
   );
 }
