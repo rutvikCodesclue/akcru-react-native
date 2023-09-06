@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   StyleSheet,
   Text,
@@ -63,14 +64,13 @@ import useAuthStore from "../../../stores/auth.store";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
-import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
-import Video, { LoadError, OnBufferData, OnSeekData } from "react-native-video";
+import Video, { LoadError, OnBufferData, OnProgressData, OnSeekData } from "react-native-video";
 import { IUserProfile } from "../../../../types";
- 
 
 import SmlMemberCard from "../../../components/SmlMemberCard";
 import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import AddMemberCard from "../../../components/AddMemberCard";
+import { is } from "date-fns/locale";
 
 
 
@@ -105,19 +105,21 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
     const [movie, setMovie] = useState<IMovie | null>(null);
-    const [trackIds, setTrackIds] = useState<string[]>([]);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
     const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
-    const [isMoviePlaying, setIsMoviePlaying] = useState(true);
+    const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSynced, setIsSynced] = useState(false);
+    const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
+    const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
 
@@ -190,6 +192,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const _setupRoomChannels = async () => {
         // setup the realtime channels for the room
         let roomChannel: RealtimeChannel | null = null;
+        let syncChannel: RealtimeChannel | null = null;
 
         if (roomId) {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
@@ -199,36 +202,20 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     },
                 },
             });
-
-            // subcribe to the room channel
-            // roomChannel.subscribe()
+            syncChannel = supabaseRealtime.channel(`room-${roomId}/sync`, {
+                config: {
+                    presence: {
+                        // self: isHost ? true: false,
+                    },
+                },
+            });
 
             roomChannelRef.current = roomChannel;
+            syncChannelRef.current = syncChannel;
             console.log('Created room and sync channels');
 
             // handle the room channel events
             __handleRoomChannelEventsAndSubscribe();
-
-            // HEARBEAT message example
-            // // every 2.5 seconds
-            // setInterval(myFunction, 2500);
-            // function myFunction() {
-            //     // if (syncChannel) {
-            //     //   syncChannel?.track({
-            //     //     timestamp: new Date().toUTCString(),
-            //     //   })
-            //     // }
-            //     if (roomChannel) {
-            //         // roomChannel.send({
-            //         //     type: 'broadcast',
-            //         //     event: 'sync',
-            //         //     payload: {
-            //         //         // send timestamp in seconds since epoch
-            //         //         timestamp: new Date().toISOString(),
-            //         //     }
-            //         // })
-            //     }
-            // }
         }
     };
 
@@ -342,6 +329,38 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     };
 
     const __handleRoomChannelEventsAndSubscribe = () => {
+        type ISyncObject = {
+            currentTime: number;
+            timestamp: string;
+        }
+
+        // SYNC CHANNEL EVENTS - subscribe to the sync channel if not host, and not synced (just joined)
+        if (syncChannelRef.current) {
+            syncChannelRef.current
+                .on(
+                'presence',
+                { event: 'sync' },
+                () => {
+                    const newSyncState = syncChannelRef.current?.presenceState() as object;
+                    const syncObject = Object.values(newSyncState)[0]  as [ISyncObject]
+                    const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
+                    if (!isHost && !isSynced) {
+                        // if not host, and not synced, get the current video timestamp sync the video player
+                        if (videoPlayerRef.current) {
+                            videoPlayerRef.current.seek(currentTime);
+                            setCurrentTime(currentTime);
+                            setIsSynced(true);
+                        }
+                    } else if (!isHost && isSynced) {
+                        // if not host, and synced, get the current video timestamp and update the currentTime state
+                        if (videoPlayerRef.current) {
+                            setCurrentTime(currentTime);
+                        }
+                    }
+                })
+                .subscribe()
+        }
+        // ROOM CHANNLE EVENTS - once synced, subscribe to the room channel
         if (roomChannelRef.current) {
             // subscribe to play event
             roomChannelRef.current
@@ -382,36 +401,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                     console.log(payload);
                     // TODO: close the video player if not host
                 })
-                .on('broadcast', {event: 'show-controls'}, payload => {
-                    console.log(payload);
-                    // TODO: show the video player controls if not host
-                })
-                .on('broadcast', {event: 'hide-controls'}, payload => {
-                    console.log(payload);
-                    // TODO: hide the video player controls if not host
-                })
-                .on('broadcast', {event: 'enter-fullscreen'}, payload => {
-                    console.log(payload);
-                    // TODO: test enter fullscreen if not host
-                    if (!isHost && videoPlayerRef.current) {
-                        // enter fullscreen, for host
-                        setIsFullscreen(true);
-                        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-                        // videoPlayerRef.current.presentFullscreenPlayer();
-                    }
-                })
-                .on('broadcast', {event: 'exit-fullscreen'}, payload => {
-                    console.log(payload);
-                    // TODO: test exit fullscreen if not host
-                    if (!isHost && videoPlayerRef.current && isStreamOpen) {
-                        setIsFullscreen(false);
-                        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-                        videoPlayerRef.current.dismissFullscreenPlayer();
-                    }
-                })
                 .on('broadcast', {event: 'exit-movie'}, payload => {
                     console.log(payload);
-                    // TODO: test exit fullscreen if not host
                     if (!isHost && videoPlayerRef.current) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
@@ -508,9 +499,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         100ms Event Listeners
     */
     const __onErrorListener = (data: HMSException) => {
-        // gets triggered when join is successful. You can navigate to other screens.
-        // use these objects to update your local and remote peers.
-        console.log('onErrorListener', data);
+        // FIXME: handle errors (if host leaves, or if user leaves)
         // console.log("onJoin [local peer / video]", localPeer.localVideoTrack);
         // console.log("onJoin [local peer / audio]", localPeer.localAudioTrack);
     };
@@ -607,9 +596,6 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             if (type === HMSTrackUpdate.TRACK_REMOVED) {
                 console.log(`${peer.name}s' video track Removed: ${track.trackId}`);
                 console.log(`Remove HMSView rendering trackId: ${track.trackId}`);
-                setTrackIds(prevTrackIds => prevTrackIds.filter(prevTrackId => prevTrackId !== track.trackId));
-                // FIXME: remove the track from the peerTrackNodes if peer is not local
-                // setTrackIds(prevTrackIds => prevTrackIds.filter(prevTrackId => prevTrackId !== track.trackId));
             }
 
             if (
@@ -620,6 +606,8 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             ) {
                 console.log(`Update UI to show Muted/Unmuted/Degraded/Restored updates: ${track.trackId}`);
             }
+        } else if (track.type === HMSTrackType.AUDIO) {
+
         }
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
         // use these objects to update your local and remote peers.
@@ -706,73 +694,52 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
             });
         }
     };
-    const ___onShowControls = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} is showing the controls`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'show-controls',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
+    const ___onProgress = async (data: OnProgressData) => {
+        // send an event to the room every 2 seconds
+        if (isHost && Number(data.currentTime.toFixed(1)) % 2 === 0) {
+            console.log("on progress [currentTime]:", data.currentTime);
+            // SYNC: send a message to the room (sync channel) with the current progress of the movie
+            await syncChannelRef.current?.track({
+                currentTime: data.currentTime,
+                timestamp: new Date().toISOString(),
+            })
+            // update the currentTime state
+            setCurrentTime(data.currentTime);
         }
-    };
-    const ___onHideControls = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} hid the controls`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'hide-controls',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-        }
-    };
+    }
     const ___onEnd = () => {
-        setIsMoviePlaying(false);
+        // setIsMoviePlaying(false);
         console.log(`${user?.username} ended the movie`);
     };
     const ___onPlaybackResume = () => {
         console.log(`${user?.username} resumed playback of the movie`);
     };
     const ___onEnterFullscreen = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} entered fullscreen`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'enter-fullscreen',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-            // enter fullscreen, for host
-            setIsFullscreen(true);
-            Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-        } else {
-            console.log(`${user?.username} is entering fullscreen`);
+        // enter fullscreen
+        setIsFullscreen(true);
+        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
+        // seeek to the current time
+        if (videoPlayerRef.current && currentTime) {
+            videoPlayerRef.current.seek(currentTime);
         }
+        // automatically play the video if it paused (if it was already playing)
+        if (videoPlayerRef.current && !isMoviePlaying) {
+            setIsMoviePlaying(true);
+        }
+
+
     };
     const ___onExitFullScreen = () => {
-        if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} exited fullscreen`);
-            // SYNC: send a message to the room that the host paused the movie
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'exit-fullscreen',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-            // exit fullscreen, for host
-            setIsFullscreen(false);
-            Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-        } else {
-            console.log(`${user?.username} is exiting fullscreen`);
+        // exit fullscreen
+        setIsFullscreen(false);
+        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
+        // seeek to the current time
+        if (videoPlayerRef.current && currentTime) {
+            videoPlayerRef.current.seek(currentTime);
+        }
+        // automatically play the video if it paused (if it was already playing)
+        if (videoPlayerRef.current && !isMoviePlaying) {
+            setIsMoviePlaying(true);
         }
     };
     const ___onBack = () => {
@@ -1010,34 +977,40 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
                                         movie?.movieURL ? (
                                             <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
                                                 <VideoPlayer
+                                                    videoRef={videoPlayerRef}
                                                     source={{
                                                         uri: movie?.movieURL,
                                                     }}
+                                                    showHours={true}
                                                     paused={isMoviePlaying ? false : true}
                                                     poster={movie?.landscapeURL}
                                                     posterResizeMode="cover"
                                                     showOnStart={true}
                                                     // setup a videoPlayerRef to control playback
-                                                    videoRef={videoPlayerRef}
                                                     isFullscreen={isFullscreen}
-                                                    toggleResizeModeOnFullscreen={true}
+                                                    // toggleResizeModeOnFullscreen={true}
                                                     fullscreenAutorotate={false}
                                                     tapAnywhereToPause={false}
+                                                    preventsDisplaySleepDuringVideoPlayback={true}
                                                     // only show certain controls when you are host
+                                                    onProgress={___onProgress}
                                                     // controls={isHost ? true : false}
+                                                    disableBack={true}
                                                     disablePlayPause={isHost ? false : true}
-                                                    disableBack={isHost ? false : true}
                                                     disableSeekButtons={isHost ? false : true}
                                                     disableSeekbar={isHost ? false : true}
-                                                    disableFullscreen={isHost ? false : true}
                                                     onBack={___onBack}
                                                     onPlay={___onPlay}
                                                     onPause={___onPause}
                                                     onSeek={___onSeek}
-                                                    onShowControls={___onShowControls}
-                                                    onHideControls={___onHideControls}
                                                     onEnterFullscreen={___onEnterFullscreen}
+                                                    onFullscreenPlayerWillPresent={() => {
+                                                        console.log('onFullscreenPlayerWillPresent');
+                                                        
+                                                    }}
                                                     onExitFullscreen={___onExitFullScreen}
+                                                    // onShowControls={___onShowControls}
+                                                    // onHideControls={___onHideControls}
                                                     // onEnd={___onEnd} // TODO: handle end of movie
                                                     // onPlaybackResume={___onPlaybackResume}
                                                     // onBuffer={___onBuffer} // TODO: handle buffering

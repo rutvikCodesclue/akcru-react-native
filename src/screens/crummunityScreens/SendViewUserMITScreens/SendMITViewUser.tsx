@@ -66,9 +66,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
       const genres = await getMovieGenres();
       setGenres(genres);
       setIsLoading(false);
-  };
-
-  
+  };  
    const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
 
    

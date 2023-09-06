@@ -79,7 +79,6 @@ const renderScene = SceneMap({
 export default function UserProfileScreen({navigation, route}: Props) {
   const { user } = useAuthStore()
 
-
   const renderTabBar = (
     props: JSX.IntrinsicAttributes &
       SceneRendererProps & {
@@ -275,7 +274,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                   }}>
                                   <Text style={{...FONTS.Title3, fontSize: 14}}>
                                       {user?.followerCount ?? 0}
-                                      {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
                                   </Text>
                                   <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                               </TouchableOpacity>
