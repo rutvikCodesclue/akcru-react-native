@@ -27,7 +27,7 @@ const UserProfileDatesTab = () => {
       const fetchMyEvents = async () => {
         try {
             const myCRUViews = await getMyCRUViews({ upcoming: true })
-            const myMITs = await getMyMITInvites({ accepted: true })
+            const myMITs = await getMyMITInvites({ accepted: true, me: true }) // get accepted MITs & accepted created MITs (def upcoming)
 
             if (myCRUViews && myMITs) {
               let events = [...myCRUViews, ...myMITs] 
@@ -91,13 +91,12 @@ const UserProfileDatesTab = () => {
         } else {
           // item is a MITInvite
           // scheduleWith  is either the MIT creator
-          const scheduleWith = `${item.creator.firstName} (${item.creator.username})`
+          const scheduleWith = item.creator.id === user?.id ? `${item.invitee.firstName ?? ""} (${item.invitee.username})` : `${item.creator.firstName ?? ""} (${item.creator.username})`
           return (
               <View key={item.id} style={{marginBottom: 10}}>
                   <UserDatesCard
                       type="MITInvite"
                       id={item.id}
-                      cruId={item.id}
                       isHost={item.creator.id === user?.id}
                       movieId={item.movie.id}
                       moviePoster={item.movie.portraitURL}
