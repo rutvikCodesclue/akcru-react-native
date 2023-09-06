@@ -17,7 +17,7 @@ export const getMyMITs = async () : Promise<IMITInvite[] | undefined> => {
 export const getMyMITInvites = async (params?: { upcoming?: boolean, past?: boolean }) : Promise<IMITInvite[] | undefined> => {
     // GET /v1/mit/invites/me
     try {
-        // if params is empty return all CRUViews
+        // if params is empty return all MIT Invites
         if (!params) {
             const { data } = await API.get(`/v1/mit/invites/me`);
             if (data.success === false) {

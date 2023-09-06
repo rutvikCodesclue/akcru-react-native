@@ -29,8 +29,6 @@ import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 
-import {useNavigation} from '@react-navigation/native';
-
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -258,13 +256,15 @@ export default function ViewUserScreen({route}: Props) {
                                   paddingLeft: 10,
                               }}>
                               <TouchableOpacity
-                                  onPress={() => {
-                                      navigation.navigate('SendMITViewUser', {
-                                          userID,
-                                      });
-                                    
-                                  }}>
-                                  <Image source={imageindex.MITticket} style={{width: 55, height: 40}} />
+                                    style={{alignItems: 'center'}}
+                                    onPress={() => {
+                                        navigation.navigate('SendMITViewUser', {
+                                            userID,
+                                        });
+                                        
+                                    }}>
+                                  <Image source={imageindex.MITticket} style={{ height: 40}} />
+                                  <Text style={{ color: 'white', fontSize: 10 }}>Send User a MIT</Text>
                               </TouchableOpacity>
                           </View>
                       </View>

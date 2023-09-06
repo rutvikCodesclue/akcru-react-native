@@ -40,7 +40,6 @@ type Props = {
 
 const SendMITViewUser = ({ route, navigation }: Props) => {
   const userID: string | undefined = route.params?.userID ?? null;
-  // const movie: string | undefined = route.params?.id ?? null;
 
   useFocusEffect(
       React.useCallback(() => {
@@ -67,8 +66,6 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
       setGenres(genres);
       setIsLoading(false);
   };  
-   const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
-
    
 
 
@@ -86,7 +83,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
   }, []);
 
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
                   <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
@@ -228,7 +225,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
                   <Image source={imageindex.MITticket} />
               </View>
           </View>
-      </View>
+      </SafeAreaView>
   );
 };
 

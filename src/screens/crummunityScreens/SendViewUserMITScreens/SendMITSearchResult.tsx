@@ -4,6 +4,7 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  SafeAreaView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -110,7 +111,7 @@ const userID: string | undefined = route.params?.userID ?? null;
   };
 
   return (
-      <View>
+      <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               {/* <View>
           <Header />
@@ -189,7 +190,7 @@ const userID: string | undefined = route.params?.userID ?? null;
               </View>
               <View></View>
           </ScrollView>
-      </View>
+      </SafeAreaView>
   );
 };
 
