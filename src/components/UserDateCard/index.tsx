@@ -12,7 +12,8 @@ import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
     id: string;
-    cruId: string;
+    type: 'MITInvite' | 'CRUView';
+    cruId?: string;
     isHost: boolean;
     movieId: string;
     moviePoster: string;
@@ -21,13 +22,10 @@ type UserDatesCardProps = {
     movieYear: number;
     movieRated: string;
     movieGenre: string;
-    movieGenre2: string;
     movieRating: number;
     scheduleDate: string;
     scheduleTime: string;
     scheduleWith: string;
-    type: 'MIT' | 'CRUView';
-    dateID?: any;
     onPressin: () => void;
 };
 
@@ -43,12 +41,10 @@ const UserDatesCard = ({
     movieYear,
     movieRated,
     movieGenre,
-    movieGenre2,
     movieRating,
     scheduleDate,
     scheduleTime,
     scheduleWith,
-    dateID,
     type,
     onPressin
 }: UserDatesCardProps) => {
@@ -105,7 +101,7 @@ const navigation =
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
                     <Text style={styles.paragraphText}>You have a</Text>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <View style={{marginHorizontal: 5}}>
                             <Text style={styles.paragraphText2}>MIT</Text>
                         </View>
@@ -148,7 +144,7 @@ const navigation =
 
                     <Text style={styles.paragraphText}>with </Text>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <View>
                             <Text style={styles.paragraphText2}> {scheduleWith}</Text>
                         </View>
@@ -191,7 +187,7 @@ const navigation =
                         </View>
                     </TouchableOpacity>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <TouchableOpacity
                             onPress={() =>
                                 navigation.navigate('StartMITDate', {
