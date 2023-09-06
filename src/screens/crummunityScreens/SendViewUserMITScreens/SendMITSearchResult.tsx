@@ -10,7 +10,7 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import BasicMovieCard from "../../../components/BasicMovieCard";
 import SendMITSearchInput from "./SendMITSearchInput";
 import Header from "../../../components/header";
-import { RouteProp } from "@react-navigation/native";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
@@ -19,8 +19,9 @@ import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import { Akcru_Content } from "../../../../assets/constants/ListData";
 import filter from 'lodash/filter';
-import { IMovie } from "../../../../types";
+import { IMovie, IUserProfile } from "../../../../types";
 import { findMovies } from "../../../lib/api/movies.lib";
+import { findAUser } from "../../../lib/api/user.lib";
 
 type SendMITSearchResultNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -39,11 +40,26 @@ type Props = {
 const AllMovies = Akcru_Content[0];
 
 const SendMITSearchResult = ({ navigation, route }: Props) => {
-const userID: number | undefined = route.params?.userID ?? null;
+const userID: string | undefined = route.params?.userID ?? null;
 // const userprofile: string | undefined = route.params?.userName ?? null;
 
    const [selectedGenre, setSelectedGenre] = useState("");
    const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
+
+   useFocusEffect(
+       React.useCallback(() => {
+           // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+           findAUser({id: userID}).then(user => {
+               setUser(user);
+           });
+
+           return () => {
+               // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+           };
+       }, []),
+   );
+
+   const [user, setUser] = useState<IUserProfile | undefined>(undefined);
 
    useEffect(() => {
      if (route.params && route.params.genre) {
@@ -76,51 +92,42 @@ const userID: number | undefined = route.params?.userID ?? null;
 
 
 
-  const {
-    digitalpass,
-    userPicture,
-    privateaccount,
-    online,
-    userName,
-    akcruBadge,
-    status,
-    userFollowerAmount,
-    userDesc,
-    influencer,
-  } = FAKE_USER_PROFILES[userID ?? 0];
+//   const {
+//     digitalpass,
+//     userPicture,
+//     privateaccount,
+//     online,
+//     userName,
+//     akcruBadge,
+//     status,
+//     userFollowerAmount,
+//     userDesc,
+//     influencer,
+//   } = FAKE_USER_PROFILES[userID ?? 0];
 
   const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
-  const [selectedUserName, setSelectedUserName] = useState("");
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] =
-    useState("");
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] =
-    useState("");
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState("");
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] =
-    useState("");
+  const [selectedUserName, setSelectedUserName] = useState(user?.username);
+  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState(user?.badge === 'AKCRUIT');
+  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState(user?.badge === 'GUARDIAN');
+  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(user?.badge === 'HERO');
+  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState(user?.badge === 'SUPERHERO');
   const [selectedUserPicture, setSelectedUserPicture] = useState("");
   const [selectedInfluencer, setSelectedInfluencer] = useState("");
 
-  const handlePressMIT = (
-    userID,
-    userName,
-    akcruBadge,
-    userPicture,
-    influencer
-  ) => {
-    setScheduleIsShown(true);
-    setSelectedUserName(userName);
-    setSelectedAkcruBadgeAkcruit(akcruBadge.akcruit);
-    setSelectedAkcruBadgeGuardian(akcruBadge.guardian);
-    setSelectedAkcruBadgeHero(akcruBadge.hero);
-    setSelectedAkcruBadgeSuperHero(akcruBadge.superhero);
-    setSelectedUserPicture(userPicture);
-    setSelectedInfluencer(influencer);
-    // Add your logic here to handle the onPress1 action
-    // You can use the userID parameter or any other data from the item
+  const handlePressMIT = (userID, userName, akcruBadge, userPicture, influencer, digitalpass) => {
+      setScheduleIsShown(true);
+      setSelectedUserName(user?.username);
+      setSelectedAkcruBadgeAkcruit(user?.badge === 'AKCRUIT');
+      setSelectedAkcruBadgeGuardian(user?.badge === 'GUARDIAN');
+      setSelectedAkcruBadgeHero(user?.badge === 'HERO');
+      setSelectedAkcruBadgeSuperHero(user?.badge === 'SUPERHERO');
+      setSelectedUserPicture(userPicture);
+      // setSelectedInfluencer(influencer);
+      // Add your logic here to handle the onPress1 action
+      // You can use the userID parameter or any other data from the item
 
-    console.log("Item with userID", userID, userName, "pressed!");
+      console.log('Item with userID', userID, userName, 'pressed!');
   };
 
   const renderItem = ({item, index}: {item: any; index: number}) => {
@@ -210,7 +217,14 @@ const userID: number | undefined = route.params?.userID ?? null;
                                               movie: item.title,
                                               userID,
                                           });
-                                          handlePressMIT(userID, userName, akcruBadge, userPicture, influencer);
+                                          handlePressMIT(
+                                              user?.id,
+                                              user?.username,
+                                              user?.badge,
+                                              user?.profilePicture,
+                                              false,
+                                              '',
+                                          );
                                       }}
                                   />
                               </View>

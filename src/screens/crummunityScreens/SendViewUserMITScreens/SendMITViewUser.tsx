@@ -16,14 +16,15 @@ import GenreCard from "../../../components/GenreCard";
 import AkcruLevels from "../../../components/akcruBadges";
 import imageindex from "../../../../assets/images/imageindex";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp, useNavigation } from "@react-navigation/native";
+import { RouteProp, useFocusEffect, useNavigation } from "@react-navigation/native";
 import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import {getMovieGenres} from '../../../lib/api/movies.lib';
-import {capitalizeFirstLetterOfString} from '../../../util/util';
-import {IGenreItem} from '../../../../types';
+import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../util/util';
+import {IGenreItem, IUserProfile} from '../../../../types';
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { findAUser } from "../../../lib/api/user.lib";
 
 type SendMITViewUserNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -40,11 +41,26 @@ type Props = {
   route: SendMITViewUserRouteProp;
 };
 
-const SendMITViewUser = ({ route, }: Props) => {
-  const userID: number | undefined = route.params?.userID ?? null;
+const SendMITViewUser = ({ route, navigation }: Props) => {
+  const userID: string | undefined = route.params?.userID ?? null;
   // const movie: string | undefined = route.params?.id ?? null;
 
-  const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+  useFocusEffect(
+      React.useCallback(() => {
+          // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+          findAUser({id: userID}).then(user => {
+              setUser(user);
+          });
+
+          return () => {
+              // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+          };
+      }, []),
+  );
+
+  const [user, setUser] = useState<IUserProfile | undefined>(undefined);
+
+//   const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
   const [genres, setGenres] = React.useState<IGenreItem[]>([]);
   const [loading, setIsLoading] = React.useState(true);
@@ -55,58 +71,52 @@ const SendMITViewUser = ({ route, }: Props) => {
       setIsLoading(false);
   };
 
-  const {
-    digitalpass,
-    userPicture,
-    privateaccount,
-    online,
-    userName,
-    akcruBadge,
-    status,
-    userFollowerAmount,
-    userDesc,
-    influencer,
-  } = FAKE_USER_PROFILES[userID ?? 0];
+//   const {
+//     digitalpass,
+//     userPicture,
+//     privateaccount,
+//     online,
+//     userName,
+//     akcruBadge,
+//     status,
+//     userFollowerAmount,
+//     userDesc,
+//     influencer,
+//   } = FAKE_USER_PROFILES[userID ?? 0];
 
   const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
-  const [selectedUserName, setSelectedUserName] = useState("");
-  const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] =
-    useState("");
-  const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] =
-    useState("");
-  const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState("");
-  const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] =
-    useState("");
-  const [selectedUserPicture, setSelectedUserPicture] = useState("");
-  const [selectedInfluencer, setSelectedInfluencer] = useState("");
+   const [selectedUserName, setSelectedUserName] = useState(user?.username);
+   const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState(user?.badge === 'AKCRUIT');
+   const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState(user?.badge === 'GUARDIAN');
+   const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState(user?.badge === 'HERO');
+   const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState(user?.badge === 'SUPERHERO');
+   const [selectedUserPicture, setSelectedUserPicture] = useState('');
+   const [selectedInfluencer, setSelectedInfluencer] = useState('');
+   const [selectedDigitalPass, setSelectedDigitalPass] = useState('');
 
-  const handlePressMIT = (
-    userID,
-    userName,
-    akcruBadge,
-    userPicture,
-    influencer
-  ) => {
-    setScheduleIsShown(true);
-    setSelectedUserName(userName);
-    setSelectedAkcruBadgeAkcruit(akcruBadge.akcruit);
-    setSelectedAkcruBadgeGuardian(akcruBadge.guardian);
-    setSelectedAkcruBadgeHero(akcruBadge.hero);
-    setSelectedAkcruBadgeSuperHero(akcruBadge.superhero);
-    setSelectedUserPicture(userPicture);
-    setSelectedInfluencer(influencer);
-    // Add your logic here to handle the onPress1 action
-    // You can use the userID parameter or any other data from the item
+   const handlePressMIT = (userID, userName, akcruBadge, userPicture, influencer, digitalpass) => {
+       setScheduleIsShown(true);
+       setSelectedUserName(userName);
+       setSelectedAkcruBadgeAkcruit(akcruBadge.AKCRUIT);
+       setSelectedAkcruBadgeGuardian(akcruBadge.GUARDIAN);
+       setSelectedAkcruBadgeHero(akcruBadge.HERO);
+       setSelectedAkcruBadgeSuperHero(akcruBadge.SUPERHERO);
+       setSelectedUserPicture(userPicture);
+       setSelectedInfluencer(influencer);
+       setSelectedDigitalPass(digitalpass);
+       // Add your logic here to handle the onPress1 action
+       // You can use the userID parameter or any other data from the item
 
-    console.log("Item with userID", userID, userName, "pressed!");
-  };
+       console.log('Item with userID', userID, userName, 'pressed!');
+   };
+
 
   const handleGenrePress = (genre: IGenreItem) => {
       navigation.navigate('SendMITSearchResult', {
           genre: capitalizeFirstLetterOfString(genre.genre),
       });
-      handlePressMIT(userID, userName, akcruBadge, userPicture, influencer);
+      handlePressMIT(userID, user?.username, user?.badge, user?.profilePicture, false, '');
   };
 
   useEffect(() => {
@@ -217,38 +227,38 @@ const SendMITViewUser = ({ route, }: Props) => {
                               rounded
                               size={40}
                               source={{
-                                  uri: userPicture,
+                                  uri: user?.profilePicture ?? undefined,
                               }}
                               avatarStyle={{
                                   borderWidth: 2,
-                                  borderColor: COLORS.AKCRUBLUE,
+                                  borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
                               }}
                           />
                       </View>
                       <View style={{marginLeft: 10}}>
-                          <Text style={{...FONTS.Title2}}>{userName}</Text>
-                          {akcruBadge.akcruit && (
+                          <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                          {user?.badge === 'AKCRUIT' && (
                               <View>
                                   <AkcruLevels.AkcruBadgeAkcruit />
                               </View>
                           )}
-                          {akcruBadge.guardian && (
+                          {user?.badge === 'GUARDIAN' && (
                               <View>
                                   <AkcruLevels.AkcruBadgeGuardian />
                               </View>
                           )}
-                          {akcruBadge.hero && (
+                          {user?.badge === 'HERO' && (
                               <View>
                                   <AkcruLevels.AkcruBadgeHero />
                               </View>
                           )}
-                          {akcruBadge.superhero && (
+                          {user?.badge === 'SUPERHERO' && (
                               <View>
                                   <AkcruLevels.AkcruBadgeSuperHero />
                               </View>
                           )}
                       </View>
-                      <View>
+                      {/* <View>
                           {influencer && (
                               <Icon
                                   name="ribbon"
@@ -258,7 +268,7 @@ const SendMITViewUser = ({ route, }: Props) => {
                                   style={{marginLeft: 5}}
                               />
                           )}
-                      </View>
+                      </View> */}
                   </View>
               </View>
               <View style={{marginLeft: 10}}>
