@@ -1,11 +1,10 @@
-import { View, Text, StyleSheet, ScrollView } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView } from "react-native";
+import React from "react";
 import styles from "./styles";
-import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {SIZES} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
-import { JENNY_SCHEDULE } from "../../../../assets/constants/Mockusers";
 import { getMyCRUViews } from "../../../lib/api/cru.lib";
-import { ICruView, IMITInvite, IMovie } from "../../../../types";
+import { ICruView, IMITInvite } from "../../../../types";
 import useAuthStore from "../../../stores/auth.store";
 import { formatMovieDuration } from "../../../util/util";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
@@ -24,8 +23,7 @@ const UserProfileDatesTab = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // TODO: change this to get CRUViews and MITs and merge them (when MITs are implemented)
-      // FIXME: change this to only show upcoming CRUViews
+      // get CRUViews and MITs and merge them
       const fetchMyEvents = async () => {
         try {
             const myCRUViews = await getMyCRUViews({ upcoming: true })
@@ -35,11 +33,8 @@ const UserProfileDatesTab = () => {
               let events = [...myCRUViews, ...myMITs] 
               // sort invites by date (newest to oldest) and set state
               setMyEvents(events.sort((a, b) => {
-                
                 let date1 = new Date(a.startDate);
                 let date2 = new Date(b.startDate);
-                console.log("date1:", date1);
-                console.log("date2:", date2);
                 
                 if (isAfter(date1, date2)) {
                   return 1;
@@ -59,10 +54,9 @@ const UserProfileDatesTab = () => {
     }, [])
   );
 
-  // TODO: change this to render CRUViews and MITs (when MITs are implemented)
+  // render CRUViews and MITs (when MITs are implemented)
   const _renderMyEvents = () => {
     return myEvents.map((item) => {
-
         if (item instanceof Object && 'cru' in item) {
           // item is a CRUView
           // scheduleWith  is either the CRU creator or yourself
@@ -80,7 +74,6 @@ const UserProfileDatesTab = () => {
                     movieYear={item.movie.year}
                     movieRated={item.movie.rated}
                     movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                    movieGenre2={capitalizeFirstLetterOfString(item.movie.genres[1])}
                     movieRating={item.movie.rating}
                     scheduleDate={item.startDate}
                     scheduleTime={item.startDate}
@@ -139,22 +132,6 @@ const UserProfileDatesTab = () => {
         </View>
         <View style={{marginBottom: 75}}>
           {_renderMyEvents()}
-          {/* {JENNY_SCHEDULE.map((item) => (
-            <View key={item.id} style={{marginBottom: 10}}>
-              <UserDatesCard
-                moviePoster={item.moviePoster}
-                movieName={item.movieName}
-                length={item.length}
-                movieYear={item.movieYear}
-                movieRated={item.movieRated}
-                movieGenre={item.movieGenre}
-                movieRating={item.movieRating}
-                scheduleDate={item.scheduleDate}
-                scheduleTime={item.scheduleTime}
-                scheduleWith={item.scheduleWith}
-                dateID={item.dateID} id={""}              />
-            </View>
-          ))} */}
         </View>
       </ScrollView>
     </View>
@@ -162,4 +139,3 @@ const UserProfileDatesTab = () => {
 };
 
 export default UserProfileDatesTab;
-
