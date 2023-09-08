@@ -767,12 +767,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
     };
     const ___onBack = () => {
-        // console.log(`${user?.username} exited the movie`);
-        // if (isFullscreen) {
-        //     ___onExitFullScreen();
-        // }
-        // setIsStreamOpen(true);
-
         if (isHost && videoPlayerRef.current) {
             console.log(`HOST: ${user?.username} exited the movie`);
             // SYNC: send a message to the room that the host paused the movie
