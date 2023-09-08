@@ -213,7 +213,7 @@ const navigation =
                         <TouchableOpacity
                             onPress={() =>
                                 // TODO: navigate to WatchPartyPreviewScreen
-                                navigation.navigate('RoomPreview', {
+                                navigation.navigate('WatchPartyPreview', {
                                     id,
                                     movieId,
                                     isHost,

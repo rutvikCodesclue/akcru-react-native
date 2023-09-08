@@ -29,11 +29,11 @@ import AkcruButtons from "../../../components/akcruButtons";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
 
-type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'RoomPreviewScreen'>;
+type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
 
 type RoomPreviewRouteProp = RouteProp<
   UserProfileStackParams,
-  "RoomPreviewScreen"
+  "WatchPartyPreview"
 >;
 
 type Props = {
@@ -45,7 +45,7 @@ type Props = {
     cruId: string;
 };
 
-const RoomPreviewScreen = ({ navigation, route }: Props) => {
+const WatchPartyPreview = ({ navigation, route }: Props) => {
 
 const cruId = route.params?.cruId;
 const isHost = route.params?.isHost;
@@ -204,7 +204,7 @@ const isHost = route.params?.isHost;
     // set the hmsInstanceRef
     hmsInstanceRef.current = hmsInstance;
 
-    console.log("Joining room preview [RoomPreviewScreen]...");
+    console.log("Joining room preview [WatchPartyPreviewScreen]...");
 
     // call join the room API endpoint to get the room Token
     let authTokenForRoom;
@@ -223,7 +223,7 @@ const isHost = route.params?.isHost;
 
     // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
     if (hmsInstance && authTokenForRoom) {
-      console.log("Registering Room Preview Event Listeners [RoomPreviewScreen]...");
+      console.log("Registering Room Preview Event Listeners [WatchPartyPreviewScreen]...");
       
       // 1. add Event Listeners to subscribe to Join Success or Failure updates
       hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onError); 
@@ -278,20 +278,20 @@ const isHost = route.params?.isHost;
       }
       // Removing all registered listeners
       hmsInstance.removeAllListeners();
-      console.log('All listeners removed [RoomPreviewScreen]');
+      console.log('All listeners removed [WatchPartyPreviewScreen]');
       
   
       /**
        * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
        */
       const leaveResult = await hmsInstance.leave();
-      console.log('Leave Success [RoomPreviewScreen]:', leaveResult);
+      console.log('Leave Success [WatchPartyPreviewScreen]:', leaveResult);
   
       /**
        * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
        */
       const destroyResult = await hmsInstance.destroy();
-      console.log('Destroy Success [RoomPreviewScreen]:', destroyResult);
+      console.log('Destroy Success [WatchPartyPreviewScreen]:', destroyResult);
   
       // Removing HMSSDK instance
       hmsInstanceRef.current = null;
@@ -314,13 +314,13 @@ const isHost = route.params?.isHost;
   useFocusEffect(
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-      console.log('Screen focused [RoomPreviewScreen]');
+      console.log('Screen focused [WatchPartyPreviewScreen]');
       console.log("Starting room preview...");
       _startRoomPreview()
 
       return () => {
         // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-        console.log('Screen unfocused [RoomPreviewScreen]');
+        console.log('Screen unfocused [WatchPartyPreviewScreen]');
         console.log("Leaving room preview...");
       
       // cleanup (if app crashes or user leaves the screen unexpectedly)
@@ -481,7 +481,7 @@ const isHost = route.params?.isHost;
   );
 };
 
-export default RoomPreviewScreen;
+export default WatchPartyPreview;
 
 const styles = StyleSheet.create({
     topcontainer: {

@@ -14,7 +14,6 @@ import DeclineMITScreen from '../screens/userScreens/MITDecline';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
 import EditProfile from '../screens/userScreens/EditProfileScreen';
 import StartCRUViewDate from '../screens/userScreens/StartCruView';
-import RoomPreview from '../screens/userScreens/RoomPreview';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import AccountSettings from '../screens/userScreens/AccountSettings';
 import EditCru from '../screens/userScreens/EditCru';
@@ -23,7 +22,7 @@ import EditWatchList from '../screens/userScreens/EditWatchList';
 import ClientTabNavigator from './ClientTabNavigator';
 import {COLORS, SIZES} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
-import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
+import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -46,7 +45,7 @@ export type UserProfileStackParams = {
     FollowList: any;
     UserNotifications: any;
     EditWatchList: any;
-    RoomPreviewScreen: any;
+    WatchPartyPreviewScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -165,8 +164,8 @@ export function UserProfileStack() {
               })}
           />
           <UserProfile.Screen
-              name="RoomPreview"
-              component={RoomPreviewScreen}
+              name="WatchPartyPreview"
+              component={WatchPartyPreview}
               options={() => ({
                   headerShown: false,
               })}
