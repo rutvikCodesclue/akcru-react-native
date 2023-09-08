@@ -10,7 +10,7 @@ import ContentSwipe from '../screens/contentScreens/contentSwipe';
 import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
-import StartCRUViewDate from '../screens/userScreens/StartCruView';
+import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
 import WatchPartyPreviewScreen from '../screens/userScreens/WatchPartyPreview';
 
 export type NoBottomTabStackParams = {
@@ -20,7 +20,7 @@ export type NoBottomTabStackParams = {
     ContentPlayer: any;
     ContentDetailScreen: any;
     StartMITDate: any;
-    StartCRUViewDate: any;
+    StartWatchPartyView: any;
     WatchPartyPreviewScreen: any;
 };
 
@@ -91,8 +91,8 @@ export default function NoBottomStack() {
             }}
         />
           <NoBottom.Screen
-              name="StartCRUViewDate"
-              component={StartCRUViewDate}
+              name="StartWatchPartyView"
+              component={StartWatchPartyView}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

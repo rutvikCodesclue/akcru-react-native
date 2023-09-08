@@ -1,14 +1,11 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react';
-import {COLORS, SIZES, FONTS} from '../../../assets/constants';
+import {COLORS, FONTS} from '../../../assets/constants';
 import styles from './styles';
-import imageindex from '../../../assets/images/imageindex';
-import { JENNY_SCHEDULE } from '../../../assets/constants/Mockusers'
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from '../../navigation/UserProfileStack';
-import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
     id: string;
