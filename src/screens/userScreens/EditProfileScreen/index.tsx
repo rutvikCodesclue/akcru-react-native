@@ -13,7 +13,6 @@ import {
   Button,
   Modal,
   FlatList,
-  ImageBackground,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -24,7 +23,6 @@ import {Icon, Avatar} from '@rneui/base';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-
 import React from 'react';
 import {ImagePickerResponse, launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import * as ImagePicker from "expo-image-picker";
