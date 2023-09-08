@@ -21,7 +21,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
-import { joinARoom, joinMyRoom } from "../../../lib/api/rooms.lib";
+import { joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 import {capitalizeFirstLetterOfString} from '../../../util/util';
@@ -42,14 +42,18 @@ type Props = {
     movieName: string;
     movieId: string;
     isHost: boolean;
-    cruId: string;
+    cruId?: string;
+    userId?: string;
+    id?: string;
+    type: 'MITInvite' | 'CRUView';
 };
 
 const WatchPartyPreview = ({ navigation, route }: Props) => {
-
-const cruId = route.params?.cruId;
-const isHost = route.params?.isHost;
-
+  const inviteId = route.params?.id;
+  const cruId = route.params?.cruId;
+  const userId = route.params?.userId;
+  const isHost = route.params?.isHost;
+  const type = route.params?.type;
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
@@ -62,8 +66,16 @@ const isHost = route.params?.isHost;
   const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
-  
 
+  console.log("Invite ID", inviteId);
+  console.log("CRU ID", cruId);
+  console.log("User ID", userId);
+  console.log("Is Host", isHost);
+  console.log("Type", type);
+  console.log("Movie ID", movieId);
+
+  
+  
   useEffect(() => {
     // load the movie
     findMovieById(movieId).then((res) => {
@@ -209,13 +221,25 @@ const isHost = route.params?.isHost;
     // call join the room API endpoint to get the room Token
     let authTokenForRoom;
     if (isHost) {
-      console.log("Generating auth token for room as HOST...");
-      authTokenForRoom = await joinMyRoom()
-      setAuthRoomToken(authTokenForRoom)
+      if (type === 'CRUView') {
+        authTokenForRoom = await joinMyRoom()
+        setAuthRoomToken(authTokenForRoom)
+        console.log("Generating auth token for room as HOST... [CRUView]");
+      } else if (type === 'MITInvite') {
+        console.log("Generating auth token for room as HOST... [MITInvite]");
+        authTokenForRoom = await joinMyMITRoom()
+        setAuthRoomToken(authTokenForRoom)
+      }
     } else {
-      authTokenForRoom = await joinARoom(cruId)
-      setAuthRoomToken(authTokenForRoom)
-      console.log("Generating auth token for room as MEMBER...");
+      if (type === 'CRUView') {
+        authTokenForRoom = await joinARoom(cruId)
+        setAuthRoomToken(authTokenForRoom)
+        console.log("Generating auth token for room as MEMBER... [CRUView]");
+      } else if (type === 'MITInvite') {
+        console.log("Generating auth token for room as MEMBER... [MITInvite]");
+        authTokenForRoom = await joinMITRoom(inviteId)
+        setAuthRoomToken(authTokenForRoom)
+      }
     }
 
     // check permissions for microphone and camera (iOS/Android)
