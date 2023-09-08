@@ -67,15 +67,6 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
-  console.log("Invite ID", inviteId);
-  console.log("CRU ID", cruId);
-  console.log("User ID", userId);
-  console.log("Is Host", isHost);
-  console.log("Type", type);
-  console.log("Movie ID", movieId);
-
-  
-  
   useEffect(() => {
     // load the movie
     findMovieById(movieId).then((res) => {
