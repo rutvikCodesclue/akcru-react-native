@@ -1,18 +1,17 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react';
-import {COLORS, SIZES, FONTS} from '../../../assets/constants';
+import {COLORS, FONTS} from '../../../assets/constants';
 import styles from './styles';
-import imageindex from '../../../assets/images/imageindex';
-import { JENNY_SCHEDULE } from '../../../assets/constants/Mockusers'
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from '../../navigation/UserProfileStack';
-import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 type UserDatesCardProps = {
     id: string;
-    cruId: string;
+    type: 'MITInvite' | 'CRUView';
+    cruId?: string;
+    userId?: string;
     isHost: boolean;
     movieId: string;
     moviePoster: string;
@@ -21,13 +20,10 @@ type UserDatesCardProps = {
     movieYear: number;
     movieRated: string;
     movieGenre: string;
-    movieGenre2: string;
     movieRating: number;
     scheduleDate: string;
     scheduleTime: string;
     scheduleWith: string;
-    type: 'MIT' | 'CRUView';
-    dateID?: any;
     onPressin: () => void;
 };
 
@@ -35,6 +31,7 @@ type UserDatesCardProps = {
 const UserDatesCard = ({
     id,
     cruId,
+    userId,
     isHost,
     movieId,
     moviePoster,
@@ -43,12 +40,10 @@ const UserDatesCard = ({
     movieYear,
     movieRated,
     movieGenre,
-    movieGenre2,
     movieRating,
     scheduleDate,
     scheduleTime,
     scheduleWith,
-    dateID,
     type,
     onPressin
 }: UserDatesCardProps) => {
@@ -105,7 +100,7 @@ const navigation =
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
                     <Text style={styles.paragraphText}>You have a</Text>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <View style={{marginHorizontal: 5}}>
                             <Text style={styles.paragraphText2}>MIT</Text>
                         </View>
@@ -148,7 +143,7 @@ const navigation =
 
                     <Text style={styles.paragraphText}>with </Text>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <View>
                             <Text style={styles.paragraphText2}> {scheduleWith}</Text>
                         </View>
@@ -191,12 +186,15 @@ const navigation =
                         </View>
                     </TouchableOpacity>
 
-                    {type === 'MIT' && (
+                    {type === 'MITInvite' && (
                         <TouchableOpacity
                             onPress={() =>
-                                navigation.navigate('StartMITDate', {
-                                    id: id,
-                                    movie: movieId,
+                                navigation.navigate('WatchPartyPreview', {
+                                    id,
+                                    type,
+                                    userId,
+                                    movieId,
+                                    isHost,
                                 })
                             }>
                             <View
@@ -217,8 +215,9 @@ const navigation =
                         <TouchableOpacity
                             onPress={() =>
                                 // TODO: navigate to WatchPartyPreviewScreen
-                                navigation.navigate('RoomPreview', {
+                                navigation.navigate('WatchPartyPreview', {
                                     id,
+                                    type,
                                     movieId,
                                     isHost,
                                     cruId,

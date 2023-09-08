@@ -17,7 +17,6 @@ import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
 import TestScreen from '../screens/userScreens/TestScreen';
-import RoomPreviewScreen from '../screens/userScreens/RoomPreview';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -26,7 +25,6 @@ export type ClientTabsParams = {
     CrummunityStack: any;
     TestScreen: any;
     PurchaseMITScreen: any;
-    RoomPreviewScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();

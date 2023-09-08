@@ -74,8 +74,11 @@ export default function EditProfile({session}: {session: Session}) {
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState(user?.username);
   const [desc, setDesc] = useState(user?.description);
+
+  const [avatarUrl, setAvatarUrl] = useState('');
+
   const [description, setDescription] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState(user?.profilePicture);
+
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
   const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});

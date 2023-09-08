@@ -10,6 +10,7 @@ import { Icon } from "@rneui/base";
 import imageindex from "../../../assets/images/imageindex";
 import styles from "./styles";
 import LinearGradient from "react-native-linear-gradient";
+import { selectAvatarBorderColor } from "../../util/util";
 
 type MITHubCardProps = {
   inviteePicture: string;
@@ -19,8 +20,7 @@ type MITHubCardProps = {
   onPress: () => void;
   onPressIn: () => void;
   akcruBadge: any;
-  influencer: boolean;
-  avatarboardercolor: string;
+  // influencer: boolean;
 };
 
 const truncateText = (text: string, maxLength: number) => {
@@ -39,11 +39,10 @@ const MITHubCard = ({
   onPress,
   onPressIn,
   akcruBadge,
-  influencer,
-  avatarboardercolor,
+  // influencer,
 }: MITHubCardProps) => {
   return (
-    <View style={styles.cardcontainer}>
+    <TouchableOpacity onPress={onPress} style={styles.cardcontainer}>
       <LinearGradient
         // Background Linear Gradient
         colors={[COLORS.FADEDBLACK, "transparent", COLORS.FADEDBLACK]}
@@ -70,13 +69,13 @@ const MITHubCard = ({
                 }}
                 avatarStyle={{
                   borderWidth: 2,
-                  borderColor: avatarboardercolor,
+                  borderColor: selectAvatarBorderColor(akcruBadge),
                 }}
               />
             </TouchableOpacity>
           </View>
           <View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {/* <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={{ ...FONTS.Title2 }}>{inviteeName}</Text>
               {influencer && (
                 <Icon
@@ -87,24 +86,24 @@ const MITHubCard = ({
                   style={{ marginLeft: 5 }}
                 />
               )}
-            </View>
+            </View> */}
 
-            {akcruBadge.akcruit && (
+            {akcruBadge === "AKCRUIT" && (
               <View>
                 <AkcruLevels.AkcruBadgeAkcruit />
               </View>
             )}
-            {akcruBadge.guardian && (
+            {akcruBadge === "GUARDIAN" && (
               <View>
                 <AkcruLevels.AkcruBadgeGuardian />
               </View>
             )}
-            {akcruBadge.hero && (
+            {akcruBadge === "HERO" && (
               <View>
                 <AkcruLevels.AkcruBadgeHero />
               </View>
             )}
-            {akcruBadge.superhero && (
+            {akcruBadge === "SUPERHERO" && (
               <View>
                 <AkcruLevels.AkcruBadgeSuperHero />
               </View>
@@ -125,12 +124,13 @@ const MITHubCard = ({
       <View style={{ flexDirection: "row", marginTop: 5 }}>
         <Text style={styles.cruchat2} numberOfLines={1} ellipsizeMode="tail">
           {truncateText(
-            inviteeName + ' invites you to watch "' + MITMoviechoice + '"',
+            
+            'You invited ' + inviteeName + ' to watch "' + MITMoviechoice + '"',
             65
           )}
         </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

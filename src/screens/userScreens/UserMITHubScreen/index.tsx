@@ -1,4 +1,4 @@
-import { Text, View, ScrollView, ImageBackground, TouchableWithoutFeedback, TouchableOpacity, Image } from 'react-native'
+import { Text, View, ScrollView, ImageBackground, TouchableWithoutFeedback, TouchableOpacity, Image, SafeAreaView } from 'react-native'
 import React from 'react';
 import styles from './styles';
 import { MITHubList } from '../../../components/MITHubComps';
@@ -7,12 +7,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import { DIGITAL_PASS } from '../../../../assets/constants/Mockusers'
 import { Icon } from '@rneui/base'
-import { RouteProp, useNavigation } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import imageindex from '../../../../assets/images/imageindex';
 import { JENNY_INVITES } from '../../../../assets/constants/Mockusers'
 import { StackNavigationProp } from '@react-navigation/stack'
+import useAuthStore from '../../../stores/auth.store';
 
 type UserMITHubScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -29,15 +30,22 @@ type Props = {
   route: UserMITHubScreenRouteProp;
 };
 
-const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
-
-
 const UserMITHubScreen = ({navigation, route}: Props) => {
-    
+  const { user, hydrateUser } = useAuthStore()
 
+  useFocusEffect(
+    React.useCallback(() => {
+        // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+        hydrateUser()
+        return () => {
+          // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+          hydrateUser()
+        };
+    }, [])
+  );
   
   return (
-    <View>
+    <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <Header />
@@ -98,7 +106,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                   style={{ marginRight: 10 }}
                 />
                 <Text style={{ ...FONTS.Title2, color: COLORS.DARKGREY }}>
-                  Search users
+                  Find Users to Invite
                 </Text>
               </View>
             </TouchableWithoutFeedback>
@@ -106,12 +114,12 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
         </ImageBackground>
         <View style={{ marginHorizontal: 15 }}>
             <Text style={{...FONTS.Title2}}>
-                You have 7 Movie Invites
+                You have {user?.MITCount} Movie Invites
             </Text>
           <MITHubList />
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

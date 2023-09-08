@@ -21,7 +21,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
-import { joinARoom, joinMyRoom } from "../../../lib/api/rooms.lib";
+import { joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
 import useAuthStore from "../../../stores/auth.store";
 import {capitalizeFirstLetterOfString} from '../../../util/util';
@@ -29,11 +29,11 @@ import AkcruButtons from "../../../components/akcruButtons";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 
 
-type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'RoomPreviewScreen'>;
+type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
 
 type RoomPreviewRouteProp = RouteProp<
   UserProfileStackParams,
-  "RoomPreviewScreen"
+  "WatchPartyPreview"
 >;
 
 type Props = {
@@ -42,14 +42,18 @@ type Props = {
     movieName: string;
     movieId: string;
     isHost: boolean;
-    cruId: string;
+    cruId?: string;
+    userId?: string;
+    id?: string;
+    type: 'MITInvite' | 'CRUView';
 };
 
-const RoomPreviewScreen = ({ navigation, route }: Props) => {
-
-const cruId = route.params?.cruId;
-const isHost = route.params?.isHost;
-
+const WatchPartyPreview = ({ navigation, route }: Props) => {
+  const inviteId = route.params?.id;
+  const cruId = route.params?.cruId;
+  const userId = route.params?.userId;
+  const isHost = route.params?.isHost;
+  const type = route.params?.type;
   const movieId = route.params?.movieId;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
@@ -62,7 +66,6 @@ const isHost = route.params?.isHost;
   const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
-  
 
   useEffect(() => {
     // load the movie
@@ -72,6 +75,26 @@ const isHost = route.params?.isHost;
       } 
     })
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+      console.log('Screen focused [WatchPartyPreviewScreen]');
+      console.log("Starting room preview...");
+      _startRoomPreview()
+
+      return () => {
+        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+        console.log('Screen unfocused [WatchPartyPreviewScreen]');
+        console.log("Leaving room preview...");
+      
+      // cleanup (if app crashes or user leaves the screen unexpectedly)
+      if (hmsInstanceRef.current) {
+        _handleRoomLeave()
+      }
+      };
+    }, [])
+  );
 
   const _checkPermissions = async () => {
     //check permissions for camera and microphone on android
@@ -204,18 +227,30 @@ const isHost = route.params?.isHost;
     // set the hmsInstanceRef
     hmsInstanceRef.current = hmsInstance;
 
-    console.log("Joining room preview [RoomPreviewScreen]...");
+    console.log("Joining room preview [WatchPartyPreviewScreen]...");
 
     // call join the room API endpoint to get the room Token
     let authTokenForRoom;
     if (isHost) {
-      console.log("Generating auth token for room as HOST...");
-      authTokenForRoom = await joinMyRoom()
-      setAuthRoomToken(authTokenForRoom)
+      if (type === 'CRUView') {
+        authTokenForRoom = await joinMyRoom()
+        setAuthRoomToken(authTokenForRoom)
+        console.log("Generating auth token for room as HOST... [CRUView]");
+      } else if (type === 'MITInvite') {
+        console.log("Generating auth token for room as HOST... [MITInvite]");
+        authTokenForRoom = await joinMyMITRoom()
+        setAuthRoomToken(authTokenForRoom)
+      }
     } else {
-      authTokenForRoom = await joinARoom(cruId)
-      setAuthRoomToken(authTokenForRoom)
-      console.log("Generating auth token for room as MEMBER...");
+      if (type === 'CRUView') {
+        authTokenForRoom = await joinARoom(cruId)
+        setAuthRoomToken(authTokenForRoom)
+        console.log("Generating auth token for room as MEMBER... [CRUView]");
+      } else if (type === 'MITInvite') {
+        console.log("Generating auth token for room as MEMBER... [MITInvite]");
+        authTokenForRoom = await joinMITRoom(inviteId)
+        setAuthRoomToken(authTokenForRoom)
+      }
     }
 
     // check permissions for microphone and camera (iOS/Android)
@@ -223,7 +258,7 @@ const isHost = route.params?.isHost;
 
     // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
     if (hmsInstance && authTokenForRoom) {
-      console.log("Registering Room Preview Event Listeners [RoomPreviewScreen]...");
+      console.log("Registering Room Preview Event Listeners [WatchPartyPreviewScreen]...");
       
       // 1. add Event Listeners to subscribe to Join Success or Failure updates
       hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onError); 
@@ -256,7 +291,8 @@ const isHost = route.params?.isHost;
 
       if (leaveRoomSuccessful) {
         // navigate to the room
-        navigation.navigate("StartCRUViewDate", {
+        navigation.navigate("StartWatchPartyView", {
+          type,
           movieId,
           roomId: roomIdFrom100ms,
           roomAuthToken,
@@ -278,20 +314,20 @@ const isHost = route.params?.isHost;
       }
       // Removing all registered listeners
       hmsInstance.removeAllListeners();
-      console.log('All listeners removed [RoomPreviewScreen]');
+      console.log('All listeners removed [WatchPartyPreviewScreen]');
       
   
       /**
        * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
        */
       const leaveResult = await hmsInstance.leave();
-      console.log('Leave Success [RoomPreviewScreen]:', leaveResult);
+      console.log('Leave Success [WatchPartyPreviewScreen]:', leaveResult);
   
       /**
        * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
        */
       const destroyResult = await hmsInstance.destroy();
-      console.log('Destroy Success [RoomPreviewScreen]:', destroyResult);
+      console.log('Destroy Success [WatchPartyPreviewScreen]:', destroyResult);
   
       // Removing HMSSDK instance
       hmsInstanceRef.current = null;
@@ -307,181 +343,159 @@ const isHost = route.params?.isHost;
       setIsMicOn((prevState: boolean) => !prevState);
   };
   const toggleVideo = () => {
-      setIsUserVideoOn((prevState: boolean) => !prevState);
+    setIsUserVideoOn((prevState: boolean) => !prevState);
   };
 
-
-  useFocusEffect(
-    React.useCallback(() => {
-      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-      console.log('Screen focused [RoomPreviewScreen]');
-      console.log("Starting room preview...");
-      _startRoomPreview()
-
-      return () => {
-        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-        console.log('Screen unfocused [RoomPreviewScreen]');
-        console.log("Leaving room preview...");
-      
-      // cleanup (if app crashes or user leaves the screen unexpectedly)
-      if (hmsInstanceRef.current) {
-        _handleRoomLeave()
-      }
-      };
-    }, [])
-  );
-
-
   return (
-      <SafeAreaView>
-          <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
-              <View style={{zIndex: 20}}>
-                  <Header />
-              </View>
+    <SafeAreaView>
+        <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
+            <View style={{zIndex: 20}}>
+                <Header />
+            </View>
 
-              <View style={styles.topcontainer}>
-                  <TouchableOpacity onPress={() => navigation.pop()}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                          }}>
-                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                      </View>
-                  </TouchableOpacity>
-              </View>
+            <View style={styles.topcontainer}>
+                <TouchableOpacity onPress={() => navigation.pop()}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}>
+                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
 
-              {/* Video Info */}
-              <View>
-                  <View style={styles.movieview}>
-                      <LinearGradient
-                          // Background Linear Gradient
-                          colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                          style={{
-                              position: 'absolute',
-                              left: 0,
-                              right: 0,
-                              top: 0,
-                              bottom: 0,
-                              borderRadius: 5,
-                          }}
-                      />
-                      <View style={styles.moviecontainer}>
-                          <View style={{marginRight: 10}}>
-                              <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
-                          </View>
-                          <View>
-                              <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      marginVertical: 8,
-                                      alignItems: 'center',
-                                  }}>
-                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title2,
-                                          fontSize: 12,
-                                          marginHorizontal: 10,
-                                      }}>
-                                      {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                  </Text>
-                              </View>
-                              <View style={{flexDirection: 'row'}}>
-                                  <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                  <Text style={styles.drawfonttag}>
-                                      {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                                  </Text>
-                                  <Text style={styles.drawfonttag}>
-                                      {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
-                                  </Text>
+            {/* Video Info */}
+            <View>
+                <View style={styles.movieview}>
+                    <LinearGradient
+                        // Background Linear Gradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            borderRadius: 5,
+                        }}
+                    />
+                    <View style={styles.moviecontainer}>
+                        <View style={{marginRight: 10}}>
+                            <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
+                        </View>
+                        <View>
+                            <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    marginVertical: 8,
+                                    alignItems: 'center',
+                                }}>
+                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        fontSize: 12,
+                                        marginHorizontal: 10,
+                                    }}>
+                                    {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                </Text>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                <Text style={styles.drawfonttag}>
+                                    {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                </Text>
+                                <Text style={styles.drawfonttag}>
+                                    {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
+                                </Text>
 
-                                  <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                              </View>
-                          </View>
-                      </View>
-                      <View style={{marginTop: '3%'}}>
-                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>
-                          {movie?.description}
-                        </Text>
-                      </View>
-                  </View>
-              </View>
+                                <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{marginTop: '3%'}}>
+                      <Text style={{...FONTS.paragraph1, fontSize: 12}}>
+                        {movie?.description}
+                      </Text>
+                    </View>
+                </View>
+            </View>
 
-              <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10}}>
-                  {/* Video Preview */}
-                  <View
-                      style={{
-                          width: '100%',
-                          height: '110%',
-                          backgroundColor: '#000',
-                          marginBottom: 20,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                      }}>
-                      {/* Only show when  */}
-                      {hmsInstanceRef.current && previewVideoTrack ? (
-                          isUserVideoOn ? (
-                              <hmsInstanceRef.current.HmsView
-                                  trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
-                                  scaleType={HMSVideoViewMode.ASPECT_FILL}
-                                  style={{width: '100%', height: '100%'}}
-                                  mirror={true}
-                              />
-                          ) : (
-                              <Text style={{color: '#fff'}}>Camera Off</Text>
-                          )
-                      ) : (
-                          <Text style={{color: '#fff'}}>Loading....</Text>
-                      )}
-                  </View>
-              </View>
+            <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10}}>
+                {/* Video Preview */}
+                <View
+                    style={{
+                        width: '100%',
+                        height: '110%',
+                        backgroundColor: '#000',
+                        marginBottom: 20,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                    {/* Only show when  */}
+                    {hmsInstanceRef.current && previewVideoTrack ? (
+                        isUserVideoOn ? (
+                            <hmsInstanceRef.current.HmsView
+                                trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
+                                scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                style={{width: '100%', height: '100%'}}
+                                mirror={true}
+                            />
+                        ) : (
+                            <Text style={{color: '#fff'}}>Camera Off</Text>
+                        )
+                    ) : (
+                        <Text style={{color: '#fff'}}>Loading....</Text>
+                    )}
+                </View>
+            </View>
 
-              <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
-                  {/* Join Room Button */}
-                  <TouchableOpacity style={{marginTop: '4%'}}>
-                      <AkcruButtons.XlLrgButton
-                          disabled={!canJoinRoom}
-                          onPress={() => {
-                              _handleJoinRoom();
-                          }}
-                          btnname="Join Room"
-                          color={COLORS.AKCRUBLUE}
-                      />
-                  </TouchableOpacity>
-              </View>
+            <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
+                {/* Join Room Button */}
+                <TouchableOpacity style={{marginTop: '4%'}}>
+                    <AkcruButtons.XlLrgButton
+                        disabled={!canJoinRoom}
+                        onPress={() => {
+                            _handleJoinRoom();
+                        }}
+                        btnname="Join Room"
+                        color={COLORS.AKCRUBLUE}
+                    />
+                </TouchableOpacity>
+            </View>
 
-              <View style={styles.bottombtn}>
-                  <View
-                      style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-around',
-                      }}>
-                      <Pressable onPress={toggleVideo}>
-                          {isUserVideoOn ? (
-                              <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                          ) : (
-                              <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                          )}
-                      </Pressable>
-                      <Pressable onPress={toggleMic}>
-                          {isMicOn ? (
-                              <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                          ) : (
-                              <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                          )}
-                      </Pressable>
-                  </View>
-              </View>
-          </View>
-      </SafeAreaView>
+            <View style={styles.bottombtn}>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                    }}>
+                    <Pressable onPress={toggleVideo}>
+                        {isUserVideoOn ? (
+                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                        ) : (
+                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                        )}
+                    </Pressable>
+                    <Pressable onPress={toggleMic}>
+                        {isMicOn ? (
+                            <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                        ) : (
+                            <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                        )}
+                    </Pressable>
+                </View>
+            </View>
+        </View>
+    </SafeAreaView>
   );
 };
 
-export default RoomPreviewScreen;
+export default WatchPartyPreview;
 
 const styles = StyleSheet.create({
     topcontainer: {
