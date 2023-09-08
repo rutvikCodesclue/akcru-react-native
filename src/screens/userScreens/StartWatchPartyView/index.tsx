@@ -75,13 +75,13 @@ import { is } from "date-fns/locale";
 
 
 
-type StartCRUViewDateNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
+type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
-type StartCRUViewDateRouteProp = RouteProp<NoBottomTabStackParams, 'StartCRUViewDate'>;
+type StartWatchPartyViewRouteProp = RouteProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
 type Props = {
-    navigation: StartCRUViewDateNavigationProp;
-    route: StartCRUViewDateRouteProp;
+    navigation: StartWatchPartyViewNavigationProp;
+    route: StartWatchPartyViewRouteProp;
     movieName: string;
     movieId: string;
     roomId: string;
@@ -97,7 +97,7 @@ type PeerTrackNode = {
     track: HMSTrack | undefined;
 };
 
-const StartCRUViewDate = ({ navigation, route }: Props) => {
+const StartWatchPartyView = ({ navigation, route }: Props) => {
     const isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
@@ -152,10 +152,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
         // return () => {
         //     if (hmsInstanceRef.current) {
         //         // leave the room
-        //         console.log("Leaving the watchparty room [startcruviewdate]...");
+        //         console.log("Leaving the watchparty room [StartWatchPartyView]...");
         //         hmsInstanceRef.current.leave();
 
-        //         console.log("Destroying hmsInstance [startcruviewdate]...");
+        //         console.log("Destroying hmsInstance [StartWatchPartyView]...");
         //         hmsInstanceRef.current.destroy();
         //     }
         // }
@@ -282,10 +282,10 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     const _handleRoomLeave = async () => {
         if (hmsInstanceRef.current) {
             // leave the room
-            console.log('Leaving the watchparty room [startcruviewdate]...');
+            console.log('Leaving the watchparty room [StartWatchPartyView]...');
             hmsInstanceRef.current.leave();
 
-            console.log('Destroying hmsInstance [startcruviewdate]...');
+            console.log('Destroying hmsInstance [StartWatchPartyView]...');
             hmsInstanceRef.current.destroy();
         }
 
@@ -1489,7 +1489,7 @@ const StartCRUViewDate = ({ navigation, route }: Props) => {
     );
 };
 
-export default StartCRUViewDate;
+export default StartWatchPartyView;
 
 const styles = StyleSheet.create({
     topcontainer: {
