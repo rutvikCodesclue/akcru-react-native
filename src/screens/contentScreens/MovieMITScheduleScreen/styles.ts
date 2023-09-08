@@ -177,4 +177,16 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    searchinput: {
+        width: SIZES.ScreenWidth / 1.08,
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        alignItems: 'center',
+        height: 40,
+        justifyContent: 'space-between',
+    },
 });

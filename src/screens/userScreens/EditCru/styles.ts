@@ -33,6 +33,6 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 35,
+        height: 40,
     },
 });
