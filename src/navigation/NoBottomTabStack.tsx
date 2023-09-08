@@ -95,7 +95,7 @@ export default function NoBottomStack() {
               component={StartWatchPartyView}
               options={{
                   headerShown: false,
-                  gestureDirection: 'horizontal',
+                  gestureEnabled: false,
               }}
           />
       </NoBottom.Navigator>

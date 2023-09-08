@@ -69,10 +69,6 @@ import { IUserProfile } from "../../../../types";
 
 import SmlMemberCard from "../../../components/SmlMemberCard";
 import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
-import AddMemberCard from "../../../components/AddMemberCard";
-import { is } from "date-fns/locale";
-
-
 
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -109,13 +105,12 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
-    const [isSyncedWithHost, setIsSyncedWithHost] = useState(false);
+    // const [isSyncedWithHost, setIsSyncedWithHost] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [isSynced, setIsSynced] = useState(false);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
@@ -123,6 +118,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
+    const isSyncedWithHost = useRef<boolean>(null);
+
 
     // FIXME: find a way to join & sync a room in progress
     /* 
@@ -340,6 +337,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         type ISyncObject = {
             currentTime: number;
             timestamp: string;
+            isMoviePlaying: boolean;
         }
 
         // SYNC CHANNEL EVENTS - subscribe to the sync channel if not host, and not synced (just joined)
@@ -352,19 +350,17 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                     const newSyncState = syncChannelRef.current?.presenceState() as object;
                     const syncObject = Object.values(newSyncState)[0]  as [ISyncObject]
                     const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
-                    if (!isHost && !isSynced) {
+                    const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
+                    if (!isHost && !isSyncedWithHost.current) {
                         // if not host, and not synced, get the current video timestamp sync the video player
                         if (videoPlayerRef.current) {
+                            console.log(`SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`);
                             videoPlayerRef.current.seek(currentTime);
                             setCurrentTime(currentTime);
-                            setIsSynced(true);
+                            setIsMoviePlaying(isMoviePlayingFromHost);
+                            isSyncedWithHost.current = true; // set synced to true
                         }
-                    } else if (!isHost && isSynced) {
-                        // if not host, and synced, get the current video timestamp and update the currentTime state
-                        if (videoPlayerRef.current) {
-                            setCurrentTime(currentTime);
-                        }
-                    }
+                    } 
                 })
                 .subscribe()
         }
@@ -705,15 +701,16 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onProgress = async (data: OnProgressData) => {
         // send an event to the room every 2 seconds
         if (isHost && Number(data.currentTime.toFixed(1)) % 2 === 0) {
-            console.log("on progress [currentTime]:", data.currentTime);
             // SYNC: send a message to the room (sync channel) with the current progress of the movie
             await syncChannelRef.current?.track({
+                isMoviePlaying: true,
                 currentTime: data.currentTime,
                 timestamp: new Date().toISOString(),
             })
             // update the currentTime state
             setCurrentTime(data.currentTime);
         }
+        
     }
     const ___onEnd = () => {
         // setIsMoviePlaying(false);
@@ -1503,7 +1500,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     return isFullscreen ? (
         <View>{watchPartyView()}</View>
     ) : (
-        <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
+        <SafeAreaView>
+            {isLoading ? null : watchPartyView()}
+        </SafeAreaView>
     );
 };
 
