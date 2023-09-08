@@ -109,6 +109,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
+    const [isSyncedWithHost, setIsSyncedWithHost] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -127,6 +128,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     /* 
         USE EFFECTS
     */
+    useEffect(() => {
+        console.log(`isMoviePlaying changed... [${isMoviePlaying}]`);
+        
+    }, [isMoviePlaying]);
     // INITIAL LOAD
     useEffect(() => {
         // join the 100ms room
@@ -142,11 +147,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             }
         });
 
-        console.log('room details [movieId]:', movieId);
-        console.log('room details [roomId]:', roomId);
-        console.log('room details [roomAuthToken]:', roomAuthToken);
-        console.log('room details [micInitialState]:', micInitialState);
-        console.log('room details [cameraInitialState]:', cameraInitialState);
+        // console.log('room details [movieId]:', movieId);
+        // console.log('room details [roomId]:', roomId);
+        // console.log('room details [roomAuthToken]:', roomAuthToken);
+        // console.log('room details [micInitialState]:', micInitialState);
+        // console.log('room details [cameraInitialState]:', cameraInitialState);
 
         // FIXME: close and destroy the hmsInstance when the component unmounts
         // return () => {
@@ -312,9 +317,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
 
     const _handleStartMovie = async () => {
-        setIsStreamOpen(false);
-        setIsMoviePlaying(true);
-
+        console.log("Starting the movie...");
+        
+        
         if (isHost && videoPlayerRef.current) {
             // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
@@ -325,6 +330,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                     timestamp: new Date().toISOString(),
                 },
             });
+
+            // setIsStreamOpen(false);
+            // setIsMoviePlaying(true);
         }
     };
 
@@ -724,7 +732,15 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
         // automatically play the video if it paused (if it was already playing)
         if (videoPlayerRef.current && !isMoviePlaying) {
-            setIsMoviePlaying(true);
+            if (isHost) {
+                // play on exit fullscreen if host
+                setIsMoviePlaying(true);
+            } else {
+                if (isSyncedWithHost) {
+                    // play on exit fullscreen if synced with host
+                    setIsMoviePlaying(true);
+                }
+            }
         }
 
 
@@ -739,7 +755,15 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
         // automatically play the video if it paused (if it was already playing)
         if (videoPlayerRef.current && !isMoviePlaying) {
-            setIsMoviePlaying(true);
+            if (isHost) {
+                // play on exit fullscreen if host
+                setIsMoviePlaying(true);
+            } else {
+                if (isSyncedWithHost) {
+                    // play on exit fullscreen if synced with host
+                    setIsMoviePlaying(true);
+                }
+            }
         }
     };
     const ___onBack = () => {
@@ -982,7 +1006,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                         uri: movie?.movieURL,
                                                     }}
                                                     showHours={true}
-                                                    paused={isMoviePlaying ? false : true}
+                                                    paused={!isMoviePlaying}
                                                     poster={movie?.landscapeURL}
                                                     posterResizeMode="cover"
                                                     showOnStart={true}
