@@ -72,9 +72,10 @@ export default function EditProfile({session}: {session: Session}) {
   const { hydrateUser } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState(user.username);
-  const [desc, setDesc] = useState(user.description);
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [userName, setUserName] = useState(user?.username);
+  const [desc, setDesc] = useState(user?.description);
+  const [description, setDescription] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState(user?.profilePicture);
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
   const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
@@ -93,40 +94,27 @@ export default function EditProfile({session}: {session: Session}) {
         }, [])
     );
 
-  async function UpdateProfile({
-    userName,
-    desc,
-  }: {
-    userName: string;
-    desc: string;
-  }) {
+  async function UpdateProfile({userName: userName, description: description}: {userName: string; description: string}) {
+      try {
+          setLoading(true);
+          if (!session?.user) throw new Error('No user on the session!');
 
-    
+          const updates = {
+              id: session?.user.id,
+              userName,
+             
+              description,
 
-    try {
-      setLoading(true);
-      if (!session?.user) throw new Error('No user on the session!');
-
-      const updates = {
-        id: session?.user.id,
-        userName,
-        desc,
-
-        updated_at: new Date(),
-      };
-
-      let {error} = await supabase.from('profiles').upsert(updates);
-
-      if (error) {
-        throw error;
+              updated_at: new Date(),
+          };
+          let {error} = await supabase.from('profiles').upsert(updates);
+          if (error) {
+              throw error;
+          }
+      } catch (error) {
+      } finally {
+          setLoading(false);
       }
-
-
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
-    }
   }
 
   const [image, setImage] = useState(null);
@@ -179,10 +167,6 @@ export default function EditProfile({session}: {session: Session}) {
       try {
           setLoading(true);
 
-          // Update the client-side profile data immediately for a better user experience
-        //   setUserName(userName); // Update local state with the new username
-        //   setDesc(desc); // Update local state with the new description
-
           // Call the updateUser function to send the updated data to the backend
           const updatedUser = await updateUser({
               username: userName,
@@ -190,6 +174,7 @@ export default function EditProfile({session}: {session: Session}) {
               // Pass the state update functions to the API function
               
           });
+          
 
           if (updatedUser) {
               // Update was successful on both client and backend
@@ -204,8 +189,19 @@ export default function EditProfile({session}: {session: Session}) {
       } finally {
           setLoading(false);
           setShowUpdateConfirmation(false);
+
+          const currentUser = useAuthStore.getState().user;
+
+          // Update the username in the user's profile in the store immediately: 
+          if (currentUser) {
+              currentUser.username = userName;
+              currentUser.description = desc;
+              useAuthStore.setState({user: currentUser}); // Use setState to update the user
+          }
       }
   };
+
+  
 
   const handleCheckboxChange = (genreId: string) => {
       // Check if the genre is already selected

@@ -234,7 +234,7 @@ const EditCru = () => {
                       showsHorizontalScrollIndicator={false}
                       scrollEnabled={false}
                       numColumns={2}
-                      keyExtractor={item => item.userID}
+                      keyExtractor={item => item.id}
                       ListFooterComponent={
                           <View
                               style={{
