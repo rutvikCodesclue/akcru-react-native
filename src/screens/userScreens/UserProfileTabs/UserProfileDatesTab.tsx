@@ -92,12 +92,18 @@ const UserProfileDatesTab = () => {
           // item is a MITInvite
           // scheduleWith  is either the MIT creator
           const scheduleWith = item.creator.id === user?.id ? `${item.invitee.firstName ?? ""} (${item.invitee.username})` : `${item.creator.firstName ?? ""} (${item.creator.username})`
+          const isHost = item.creator.id === user?.id
+          
+          // pretty print item in the console
+          // console.log(JSON.stringify(item, null, 2))
+          
           return (
               <View key={item.id} style={{marginBottom: 10}}>
                   <UserDatesCard
                       type="MITInvite"
                       id={item.id}
-                      isHost={item.creator.id === user?.id}
+                      isHost={isHost}
+                      userId={isHost ? item.creator.id : item.invitee.id}
                       movieId={item.movie.id}
                       moviePoster={item.movie.portraitURL}
                       movieName={item.movie.title}

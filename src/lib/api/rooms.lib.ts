@@ -10,6 +10,16 @@ export const getMyRoom = async () => {
     }
 }
 
+export const getMyMITRoom = async () => {
+    try {
+        // GET /v1/rooms/me
+        const { data } = await API.get(`/v1/rooms/mit/me`);
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const createRoom = async () => {
     try {
         // GET /v1/rooms/create
@@ -31,11 +41,34 @@ export const joinMyRoom = async () => {
     }
 }
 
+export const joinMyMITRoom = async () => {
+    try {
+        // POST /v1/rooms/mit/join/me
+        const { data } = await API.post(`/v1/rooms/mit/join/me`);
+        // return the room auth token to be used for joining the room (as a HOST)
+        return data.roomAuthToken.token;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
 export const joinARoom = async (cruId: string) => {
     try {
         // POST /v1/rooms/join
         // same as joinMyRoom, but with specific prisma cruId
         const { data } = await API.post(`/v1/rooms/join`, { cruId });
+        // return the room auth token to be used for joining the room (as a MEMBER)
+        return data.roomAuthToken.token;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const joinMITRoom = async (inviteId: string) => {
+    try {
+        // POST /v1/rooms/mit/join
+        // same as joinARoom, but with specific inviteId
+        const { data } = await API.post(`/v1/rooms/mit/join`, { inviteId });
         // return the room auth token to be used for joining the room (as a MEMBER)
         return data.roomAuthToken.token;
     } catch (error) {

@@ -14,6 +14,7 @@ type UserDatesCardProps = {
     id: string;
     type: 'MITInvite' | 'CRUView';
     cruId?: string;
+    userId?: string;
     isHost: boolean;
     movieId: string;
     moviePoster: string;
@@ -33,6 +34,7 @@ type UserDatesCardProps = {
 const UserDatesCard = ({
     id,
     cruId,
+    userId,
     isHost,
     movieId,
     moviePoster,
@@ -190,9 +192,12 @@ const navigation =
                     {type === 'MITInvite' && (
                         <TouchableOpacity
                             onPress={() =>
-                                navigation.navigate('StartMITDate', {
-                                    id: id,
-                                    movie: movieId,
+                                navigation.navigate('WatchPartyPreview', {
+                                    id,
+                                    type,
+                                    userId,
+                                    movieId,
+                                    isHost,
                                 })
                             }>
                             <View
@@ -213,8 +218,9 @@ const navigation =
                         <TouchableOpacity
                             onPress={() =>
                                 // TODO: navigate to WatchPartyPreviewScreen
-                                navigation.navigate('RoomPreview', {
+                                navigation.navigate('WatchPartyPreview', {
                                     id,
+                                    type,
                                     movieId,
                                     isHost,
                                     cruId,
