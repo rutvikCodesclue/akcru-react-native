@@ -6,6 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from '../../navigation/UserProfileStack';
+import imageindex from '../../../assets/images/imageindex';
 
 type UserDatesCardProps = {
     id: string;
@@ -55,7 +56,7 @@ const navigation =
         <View
             style={{
                 backgroundColor: '#1C202A',
-                borderRadius: 5,         
+                borderRadius: 5,
                 justifyContent: 'center',
             }}>
             <LinearGradient
@@ -68,7 +69,6 @@ const navigation =
                     top: 0,
                     bottom: 0,
                     borderRadius: 5,
-                    
                 }}
             />
             <View style={{margin: 10}}>
@@ -95,6 +95,19 @@ const navigation =
 
                             <Text style={styles.drawfonttag}>{movieRating}/10</Text>
                         </View>
+                    </View>
+                    <View style={{flex: 1}}>
+                        {type === 'MITInvite' && (
+                            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                <Image source={imageindex.LrgMIT} style={{width: '50%', height: '37%'}} />
+                            </View>
+                        )}
+
+                        {type === 'CRUView' && (
+                            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                <Image source={imageindex.NewCru} style={{width: '70%', height: '70%'}} />
+                            </View>
+                        )}
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
@@ -124,7 +137,7 @@ const navigation =
                         </Text>
                     </View>
 
-                    <Text style={styles.paragraphText}>at</Text>
+                    <Text style={styles.paragraphText}>at </Text>
                     {/* TIME */}
                     <View style={{marginRight: 5}}>
                         <Text style={styles.paragraphText2}>
@@ -162,17 +175,11 @@ const navigation =
                         justifyContent: 'space-between',
                         marginTop: 10,
                     }}>
-                    {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Image
-                            source={imageindex.AkcruHexLogo}
-                            style={{width: 26, height: 26, marginRight: 8}}
-                            resizeMode="contain"
-                        />
-                        <Text style={styles.paragraphText3}>Earn AD on your date</Text>
-                    </View> */}
+
                     <TouchableOpacity
-                        onPress={() =>{''}
-                        }>
+                        onPress={() => {
+                            ('');
+                        }}>
                         <View
                             style={{
                                 width: 125,
