@@ -558,6 +558,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                     createNew: true,
                 }),
             );
+            setPeerTrackNodes(prevPeerTrackNodes =>
+                _updateNode({
+                    nodes: prevPeerTrackNodes,
+                    peer,
+                    track: peer.audioTrack,
+                    createNew: true,
+                }),
+            );
 
             return;
         }
@@ -585,7 +593,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             type === HMSPeerUpdate.NAME_CHANGED ||
             type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
         ) {
-            // Ignoring these update types because we want to keep this implementation simple.
+            // FIXME: update nodes on these events
+            console.log('Peer Role, Metadata, Name or Network Quality changed for peer:', peer.name);
+            
             return;
         }
     };
@@ -617,6 +627,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 console.log(`Remove HMSView rendering trackId: ${track.trackId}`);
             }
 
+            // if video track is muted or unmuted, update the UI
             if (
                 type === HMSTrackUpdate.TRACK_MUTED ||
                 type === HMSTrackUpdate.TRACK_UNMUTED ||
@@ -626,7 +637,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 console.log(`Update UI to show Muted/Unmuted/Degraded/Restored updates: ${track.trackId}`);
             }
         } else if (track.type === HMSTrackType.AUDIO) {
-            console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             if (type === HMSTrackUpdate.TRACK_ADDED) {
                 if (!peer.isLocal) {
                     // FIXME: add the track to the peerTrackNodes if peer is not local
@@ -641,6 +651,38 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         }),
                     );
                 }
+
+            }
+
+            // TODO: If Audio track is removed, remove node which is using this `trackId`
+            if (type === HMSTrackUpdate.TRACK_REMOVED) {
+                console.log(`${peer.name}s' audio track Removed: ${track.trackId}`);
+                console.log(`Remove Audio Track playing trackId: ${track.trackId}`);
+            }
+
+            // if video track is muted or unmuted, update the UI
+            if (
+                type === HMSTrackUpdate.TRACK_MUTED 
+            ) {
+                console.log(`Update UI to show Audio Muted updates: ${track.trackId}`);
+                setPeerTrackNodes(prevPeerTrackNodes =>
+                    _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
+                );
+            }
+            if (
+                type === HMSTrackUpdate.TRACK_UNMUTED 
+            ) {
+                console.log(`Update UI to show Audio Unmuted updates: ${track.trackId}`);
+                setPeerTrackNodes(prevPeerTrackNodes =>
+                    _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
+                );
+            }
+            // if video track is muted or unmuted, update the UI
+            if (
+                type === HMSTrackUpdate.TRACK_RESTORED ||
+                type === HMSTrackUpdate.TRACK_DEGRADED
+            ) {
+                console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             }
         }
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
@@ -649,7 +691,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
     const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {
         // gets triggered when room is muted or unmuted.
-        // TODO: implement this
+        // TODO: implement this after host room functionality is added
     };
 
     const __onRemovedFromRoomListener = (data: any) => {
