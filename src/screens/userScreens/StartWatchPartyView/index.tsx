@@ -33,7 +33,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import VideoPlayer from "react-native-media-console";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor } from "../../../util/util";
 import { supabaseRealtime } from "../../../../lib/supabase";
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { 
@@ -69,6 +69,7 @@ import { IUserProfile } from "../../../../types";
 
 import SmlMemberCard from "../../../components/SmlMemberCard";
 import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
+import { findAUser } from "../../../lib/api/user.lib";
 
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -93,16 +94,25 @@ type PeerTrackNode = {
     track: HMSTrack | undefined;
 };
 
+type MemberInfo = {
+    peerID: string | undefined;
+    role: string | undefined;
+    name: string | undefined;
+    isLocal: boolean | undefined;
+    user: IUserProfile;
+}
+
 const StartWatchPartyView = ({ navigation, route }: Props) => {
+    // PARAMS
     const isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
     const roomAuthToken = route.params?.roomAuthToken;
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
+    // USESTATES  
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
-    const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
@@ -111,6 +121,13 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
+    const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
+    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null); // State to track expanded video
+    const [userVideoExpanded, setUserVideoExpanded] = useState(false); // State to track user's video expanded
+    const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
+    const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
+    const [members, setMembers] = useState<MemberInfo[] | []>([]); // Initial member list
+    const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
@@ -118,7 +135,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
     const isSyncedWithHost = useRef<boolean | null>(null);
-
+    /* EXTRAS */
+    const {user} = useAuthStore();
 
     // FIXME: find a way to join & sync a room in progress
     /* 
@@ -168,6 +186,15 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             'Current track ids:',
             peerTrackNodes.map(node => node.track?.trackId),
         );
+        
+        const updateMembersList = async () => {
+            // update members list
+            console.log("updating members lists")
+            const membersWithInfo = await getAvailableMembers();
+            setMembers(membersWithInfo);
+        }
+
+        updateMembersList();
     }, [peerTrackNodes]);
 
     /* 
@@ -888,20 +915,47 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const confirmOptions = () => {
         setOptionModalVisible(false);
     };
-    const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
-    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null); // State to track expanded video
-    const [userVideoExpanded, setUserVideoExpanded] = useState(false); // State to track user's video expanded
-    const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
-    const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
-    const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
 
-    const getAvailableMembers = () => {
+    const getAvailableMembers = async () => {
         // Get the userIDs of existing CRU members
-        const existingMemberIDs = members.map(member => member.userID);
+        // const existingMemberIDs = members.map(member => member.userID);
+        let membersWithInfo: MemberInfo[] = [];
+        // type MemberInfo = {
+        //     peerID: string | undefined;
+        //     role: string | undefined;
+        //     name: string | undefined;
+        //     isLocal: boolean | undefined;
+        //     user: IUserProfile | undefined;
+        // }
+
+        await Promise.all(
+            peerTrackNodes.map(async ({id, peer, track}) => {
+                // only render video track types
+                if (track?.type === "VIDEO") {
+                    console.log("peer [peerID]: ", peer.peerID);
+                    console.log("peer [name]: ", peer.name);
+                    console.log("peer [isLocal]: ", peer.isLocal);
+                    console.log("peer [role]: ", peer.role?.name);
+    
+                    const userInfoFromDB = await findAUser({ username: peer.name })
+                    
+                    if (userInfoFromDB) {
+                        membersWithInfo.push({
+                            peerID: peer.peerID,
+                            role: peer.role?.name,
+                            name: peer.name,
+                            isLocal: peer.isLocal,
+                            user: userInfoFromDB,
+                        })
+                    }
+                }
+            })
+        )
+
 
         // Filter out the existing members from the FAKE_USER_PROFILES data
-        return FAKE_USER_PROFILES.slice(1, 7).filter(member => !existingMemberIDs.includes(member.userID));
+        // return FAKE_USER_PROFILES.slice(1, 7).filter(member => !existingMemberIDs.includes(member.userID));
+        return membersWithInfo;
     };
 
     const handleCancelTransfer = () => {
@@ -946,17 +1000,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         </TouchableOpacity>
                         {!isStreamOpen && isHost && (
                             <>
-                                {/* <TouchableOpacity onPress={_handleCloseMovie}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="close-circle" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Close</Text>
-                                    </View>
-                                </TouchableOpacity> */}
-
                                 <TouchableOpacity onPress={handleOptionModal}>
                                     <View
                                         style={{
@@ -1170,6 +1213,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                             renderItem={({item}) => {
                                 // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
+                                console.log("isRoomHost", isRoomHost);
+                                
                                 const isUserVideo = item.peer.isLocal; // Check if this is the user's video
                                 // const isExpanded = fullscreenUserVideo === item; // Check if this video is expanded
                                 const isExpanded = expandedVideo === item;
@@ -1359,7 +1404,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         </View>
                     </View>
                 </BottomSheet>
-                {/* Option Modal */}
+                {/* Option Modal (for Host Only) */}
                 <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
                     <SafeAreaView
                         style={{
@@ -1410,25 +1455,25 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                             </Text>
                             <View>
                                 <FlatList
-                                    data={getAvailableMembers()}
+                                    data={members}
                                     horizontal={false}
                                     showsHorizontalScrollIndicator={false}
                                     numColumns={2}
                                     scrollEnabled={false}
-                                    keyExtractor={item => item.userID}
+                                    keyExtractor={item => item.user?.id}
                                     renderItem={({item, index}) => (
                                         <View style={{marginVertical: 5}}>
                                             <SmlMemberCard
-                                                userPicture={item.userPicture}
-                                                userName={item.userName}
+                                                userPicture={item.user.profilePicture ?? ""} // FIXME: change to place holder image
+                                                userName={item.name ?? "Anonymous"}
                                                 onPress={() => {
                                                     setShowTransferConfirmation(true);
                                                 }}
-                                                influencer={item.influencer}
-                                                userID={item.userID}
-                                                akcruBadge={item.akcruBadge}
-                                                userDesc={item.userDesc}
-                                                avatarbordercolor={item.avatarbordercolor}
+                                                // influencer={item.influencer}
+                                                userID={item.user.id}
+                                                akcruBadge={item.user.badge}
+                                                userDesc={item.user.description ?? ""}
+                                                avatarbordercolor={selectAvatarBorderColor(item.user.badge ?? "AKCRUIT")}
                                                 // AddMember={() => {
                                                 //     // Set the selected member when the user clicks on the "Add Member" button
                                                 //     setSelectedMember(item);
