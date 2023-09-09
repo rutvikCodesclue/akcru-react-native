@@ -105,7 +105,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const {user} = useAuthStore();
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
-    // const [isSyncedWithHost, setIsSyncedWithHost] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -118,7 +117,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
-    const isSyncedWithHost = useRef<boolean>(null);
+    const isSyncedWithHost = useRef<boolean | null>(null);
 
 
     // FIXME: find a way to join & sync a room in progress
@@ -144,8 +143,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             }
         });
 
+        console.log('room details [roomId]:', roomId);
         // console.log('room details [movieId]:', movieId);
-        // console.log('room details [roomId]:', roomId);
         // console.log('room details [roomAuthToken]:', roomAuthToken);
         // console.log('room details [micInitialState]:', micInitialState);
         // console.log('room details [cameraInitialState]:', cameraInitialState);
@@ -174,7 +173,21 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     /* 
         ROOM HANDLERS
     */
-    const toggleMic = () => {
+    const toggleMic = async () => {
+        // access the local peer
+        const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+
+        // toggle the mic
+        if (localPeer) {
+            if (isMicOn) {
+                console.log("muting personal audio track...")
+                localPeer?.localAudioTrack()?.setMute(true);
+            } else {
+                console.log("unmuting personal audio track...")
+                localPeer?.localAudioTrack()?.setMute(false);
+            }
+        }
+        // toggle the state
         setIsMicOn((prevState: boolean) => !prevState);
     };
     const toggleVideo = () => {
@@ -347,8 +360,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 'presence',
                 { event: 'sync' },
                 () => {
-                    const newSyncState = syncChannelRef.current?.presenceState() as object;
-                    const syncObject = Object.values(newSyncState)[0]  as [ISyncObject]
+                    const newSyncState = syncChannelRef.current.presenceState() as object;
+                    const syncObject = Object.values(newSyncState)[0] as [ISyncObject]
                     const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
                     const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
                     if (!isHost && !isSyncedWithHost.current) {
@@ -364,7 +377,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 })
                 .subscribe()
         }
-        // ROOM CHANNLE EVENTS - once synced, subscribe to the room channel
+        // ROOM CHANNEL EVENTS - once synced, subscribe to the room channel
         if (roomChannelRef.current) {
             // subscribe to play event
             roomChannelRef.current
@@ -504,6 +517,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     */
     const __onErrorListener = (data: HMSException) => {
         // FIXME: handle errors (if host leaves, or if user leaves)
+        console.log("=== 100ms Error ===:", data);
+        
         // console.log("onJoin [local peer / video]", localPeer.localVideoTrack);
         // console.log("onJoin [local peer / audio]", localPeer.localAudioTrack);
     };
@@ -611,7 +626,22 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 console.log(`Update UI to show Muted/Unmuted/Degraded/Restored updates: ${track.trackId}`);
             }
         } else if (track.type === HMSTrackType.AUDIO) {
-
+            console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
+            if (type === HMSTrackUpdate.TRACK_ADDED) {
+                if (!peer.isLocal) {
+                    // FIXME: add the track to the peerTrackNodes if peer is not local
+                    // Updating the Tiles with Track and Peer.
+                    // `updateNode` function updates "Track and Peer objects" in PeerTrackNodes and returns updated list.
+                    // if none exist then we are "creating a new PeerTrackNode with the received Track and Peer".
+                    setPeerTrackNodes(prevPeerTrackNodes =>
+                        _updateNodeWithPeer({
+                            nodes: prevPeerTrackNodes,
+                            peer,
+                            createNew: true,
+                        }),
+                    );
+                }
+            }
         }
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
         // use these objects to update your local and remote peers.
@@ -1021,7 +1051,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                     onEnterFullscreen={___onEnterFullscreen}
                                                     onFullscreenPlayerWillPresent={() => {
                                                         console.log('onFullscreenPlayerWillPresent');
-                                                        
                                                     }}
                                                     onExitFullscreen={___onExitFullScreen}
                                                     // onShowControls={___onShowControls}
@@ -1159,7 +1188,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         </View>
 
                                         {/* USERNAME */}
-                                        {/* FIXME: render this w/ peer object */}
                                         <View
                                             style={{
                                                 position: 'absolute',
@@ -1184,8 +1212,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                         ? item.peer.name.substring(0, 8) + '...' // Truncate to 10 characters and add ellipsis
                                                         : item.peer.name}
                                                 </Text>
-                                                <Pressable onPress={toggleMic}>
-                                                    {isMicOn ? (
+                                                <Pressable onPress={item.peer.isLocal ? toggleMic : null}>
+                                                    {item.peer.isLocal && isMicOn ? (
                                                         <Icon
                                                             name="mic-circle"
                                                             type="ionicon"
