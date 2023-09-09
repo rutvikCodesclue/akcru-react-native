@@ -223,12 +223,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         // toggle the mic
         if (localPeer) {
-            if (isMicOn) {
+            if (isUserVideoOn) {
                 console.log("muting personal video track...")
                 localPeer?.localVideoTrack()?.setMute(true);
+                setIsUserVideoOn(false);
             } else {
                 console.log("unmuting personal video track...")
                 localPeer?.localVideoTrack()?.setMute(false);
+                setIsUserVideoOn(true);
             }
         }
 
@@ -453,7 +455,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                     if (!isHost && videoPlayerRef.current) {
                         console.log(payload);
                         // seek the video player if not host
-                        videoPlayerRef.current.seek(Number(payload.payload.currentTime));
+                        videoPlayerRef.current.seek(Number(payload.payload.seekTime));
                     }
                 })
                 .on('broadcast', {event: 'close-movie'}, payload => {
@@ -845,7 +847,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 // play on exit fullscreen if host
                 setIsMoviePlaying(true);
             } else {
-                if (isSyncedWithHost) {
+                if (isSyncedWithHost.current) {
                     // play on exit fullscreen if synced with host
                     setIsMoviePlaying(true);
                 }
@@ -868,7 +870,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 // play on exit fullscreen if host
                 setIsMoviePlaying(true);
             } else {
-                if (isSyncedWithHost) {
+                if (isSyncedWithHost.current) {
                     // play on exit fullscreen if synced with host
                     setIsMoviePlaying(true);
                 }
@@ -918,15 +920,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
     const getAvailableMembers = async () => {
         // Get the userIDs of existing CRU members
-        // const existingMemberIDs = members.map(member => member.userID);
         let membersWithInfo: MemberInfo[] = [];
-        // type MemberInfo = {
-        //     peerID: string | undefined;
-        //     role: string | undefined;
-        //     name: string | undefined;
-        //     isLocal: boolean | undefined;
-        //     user: IUserProfile | undefined;
-        // }
 
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
