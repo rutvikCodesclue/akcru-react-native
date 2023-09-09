@@ -924,13 +924,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
-                // only render video track types
+                // only count video track types (avoid double counting of audio tracks)
                 if (track?.type === "VIDEO") {
-                    console.log("peer [peerID]: ", peer.peerID);
-                    console.log("peer [name]: ", peer.name);
-                    console.log("peer [isLocal]: ", peer.isLocal);
-                    console.log("peer [role]: ", peer.role?.name);
-    
                     const userInfoFromDB = await findAUser({ username: peer.name })
                     
                     if (userInfoFromDB) {
@@ -946,9 +941,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             })
         )
 
-
-        // Filter out the existing members from the FAKE_USER_PROFILES data
-        // return FAKE_USER_PROFILES.slice(1, 7).filter(member => !existingMemberIDs.includes(member.userID));
         return membersWithInfo;
     };
 
@@ -1118,6 +1110,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         movie?.movieURL ? (
                                             <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
                                                 <VideoPlayer
+                                                    // setup a videoPlayerRef to control playback
                                                     videoRef={videoPlayerRef}
                                                     source={{
                                                         uri: movie?.movieURL,
@@ -1127,28 +1120,23 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                     poster={movie?.landscapeURL}
                                                     posterResizeMode="cover"
                                                     showOnStart={true}
-                                                    // setup a videoPlayerRef to control playback
+                                                    tapAnywhereToPause={false}
+                                                    preventsDisplaySleepDuringVideoPlayback={true}
                                                     isFullscreen={isFullscreen}
                                                     // toggleResizeModeOnFullscreen={true}
                                                     fullscreenAutorotate={false}
-                                                    tapAnywhereToPause={false}
-                                                    preventsDisplaySleepDuringVideoPlayback={true}
-                                                    // only show certain controls when you are host
-                                                    onProgress={___onProgress}
-                                                    // controls={isHost ? true : false}
                                                     disableBack={true}
+                                                    // only show certain controls when you are host
                                                     disablePlayPause={isHost ? false : true}
                                                     disableSeekButtons={isHost ? false : true}
                                                     disableSeekbar={isHost ? false : true}
-                                                    onBack={___onBack}
+                                                    onProgress={___onProgress}
                                                     onPlay={___onPlay}
                                                     onPause={___onPause}
                                                     onSeek={___onSeek}
                                                     onEnterFullscreen={___onEnterFullscreen}
-                                                    onFullscreenPlayerWillPresent={() => {
-                                                        console.log('onFullscreenPlayerWillPresent');
-                                                    }}
                                                     onExitFullscreen={___onExitFullScreen}
+                                                    // onBack={___onBack}
                                                     // onShowControls={___onShowControls}
                                                     // onHideControls={___onHideControls}
                                                     // onEnd={___onEnd} // TODO: handle end of movie
@@ -1436,7 +1424,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                     fontSize: 12,
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                (Once transfer is complete, you want be able to gain permissions back until it is given
+                                (Once transfer is complete, you won't be able to gain permissions back until it is given
                                 back or your next CRU View)
                             </Text>
                             <Text
