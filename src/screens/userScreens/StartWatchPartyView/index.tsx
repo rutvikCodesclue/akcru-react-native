@@ -187,10 +187,25 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 localPeer?.localAudioTrack()?.setMute(false);
             }
         }
-        // toggle the state
+        // toggle the state (for the icon)
         setIsMicOn((prevState: boolean) => !prevState);
     };
-    const toggleVideo = () => {
+    const toggleVideo = async () => {
+        // access the local peer
+        const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+
+        // toggle the mic
+        if (localPeer) {
+            if (isMicOn) {
+                console.log("muting personal video track...")
+                localPeer?.localVideoTrack()?.setMute(true);
+            } else {
+                console.log("unmuting personal video track...")
+                localPeer?.localVideoTrack()?.setMute(false);
+            }
+        }
+
+        // toggle the state (for the icon)
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
 
@@ -544,12 +559,13 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
 
     const __onPeerListener = ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
-        // gets triggered when peer leaves, joins, peer's audio or video is muted, starts or stops speaking, role is changed or becomes dominant speaker.
+        // gets triggered when peer leaves, joins,  starts or stops speaking, role is changed or becomes dominant speaker.
         // use these objects to update your local and remote peers.
 
         // We will create Tile for the Joined Peer when we receive `HMSUpdateListenerActions.ON_TRACK_UPDATE` event.
         // Note: We are chosing to not create Tiles for Peers which does not have any tracks
         if (type === HMSPeerUpdate.PEER_JOINED) {
+            // add video track for the peer
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
                     nodes: prevPeerTrackNodes,
@@ -558,6 +574,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                     createNew: true,
                 }),
             );
+            // add audio track for the peer
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
                     nodes: prevPeerTrackNodes,
@@ -577,16 +594,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             return;
         }
 
-        if (peer.isLocal) {
-            // Updating the LocalPeer Tile.
-            // `updateNodeWithPeer` function updates Peer object in PeerTrackNodes and returns updated list.
-            // if none exist then we are "creating a new PeerTrackNode for the updated Peer".
-            setPeerTrackNodes(prevPeerTrackNodes =>
-                _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
-            );
-            return;
-        }
-
         if (
             type === HMSPeerUpdate.ROLE_CHANGED ||
             type === HMSPeerUpdate.METADATA_CHANGED ||
@@ -598,6 +605,18 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             
             return;
         }
+
+        if (peer.isLocal) {
+            // Updating the LocalPeer Tile.
+            // `updateNodeWithPeer` function updates Peer object in PeerTrackNodes and returns updated list.
+            // if none exist then we are "creating a new PeerTrackNode for the updated Peer".
+            setPeerTrackNodes(prevPeerTrackNodes =>
+                _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
+            );
+            return;
+        }
+
+        
     };
 
     const __onTrackListener = ({track, peer, type}: {track: HMSTrack; peer: HMSPeer; type: HMSTrackUpdate}) => {
@@ -635,14 +654,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 type === HMSTrackUpdate.TRACK_DEGRADED
             ) {
                 console.log(`Update UI to show Muted/Unmuted/Degraded/Restored updates: ${track.trackId}`);
+                setPeerTrackNodes(prevPeerTrackNodes =>
+                    _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
+                );
             }
         } else if (track.type === HMSTrackType.AUDIO) {
             if (type === HMSTrackUpdate.TRACK_ADDED) {
                 if (!peer.isLocal) {
-                    // FIXME: add the track to the peerTrackNodes if peer is not local
-                    // Updating the Tiles with Track and Peer.
-                    // `updateNode` function updates "Track and Peer objects" in PeerTrackNodes and returns updated list.
-                    // if none exist then we are "creating a new PeerTrackNode with the received Track and Peer".
+                    // Update the Node with peer for audio track
                     setPeerTrackNodes(prevPeerTrackNodes =>
                         _updateNodeWithPeer({
                             nodes: prevPeerTrackNodes,
@@ -726,6 +745,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
             console.log(`HOST: ${user?.username} started playing the movie`);
+            setIsMoviePlaying(true);
             // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -784,13 +804,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
         
     }
-    const ___onEnd = () => {
-        // setIsMoviePlaying(false);
-        console.log(`${user?.username} ended the movie`);
-    };
-    const ___onPlaybackResume = () => {
-        console.log(`${user?.username} resumed playback of the movie`);
-    };
     const ___onEnterFullscreen = () => {
         // enter fullscreen
         setIsFullscreen(true);
@@ -854,6 +867,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         } else {
             console.log(`${user?.username} is exited the movie`);
         }
+    };
+    const ___onEnd = () => {
+        // setIsMoviePlaying(false);
+        console.log(`${user?.username} ended the movie`);
     };
     const ___onBuffer = (data: OnBufferData) => {
         console.log(`${user?.username} is buffering the movie: ${data.isBuffering}`);
@@ -1173,7 +1190,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
-                                                    backgroundColor: '#000',
+                                                    backgroundColor: 'black',
                                                     borderRadius: 5,
                                                 }}
                                                 scaleType={HMSVideoViewMode.ASPECT_BALANCED}
@@ -1181,7 +1198,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                             />
                                         ) : null}
                                         {/* HOST BADGE */}
-
                                         {isRoomHost ? (
                                             <View style={{position: 'absolute', top: 0, right: 0}}>
                                                 <Text
@@ -1196,7 +1212,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                 </Text>
                                             </View>
                                         ) : null}
-
+                                        {/* EXPAND CAMERA VIEW */}
                                         <View style={{position: 'absolute', top: 0, left: 0}}>
                                             <TouchableOpacity
                                                 onPress={() => {
