@@ -11,7 +11,7 @@ const MAX_USERNAME_LENGTH = 10; // Maximum number of characters for the userDesc
 type SmlMemberCardProps = {
     userPicture: string;
     userName: string;
-    influencer: boolean;
+    influencer?: boolean;
     akcruBadge: any;
     onPress: () => void;
     userID: any;
@@ -92,22 +92,22 @@ const SmlMemberCard = ({
                                 )}
                             </View>
 
-                            {akcruBadge.akcruit && (
+                            {akcruBadge === "AKCRUIT" && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeAkcruit />
                                 </View>
                             )}
-                            {akcruBadge.guardian && (
+                            {akcruBadge === "GUARDIAN" && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeGuardian />
                                 </View>
                             )}
-                            {akcruBadge.hero && (
+                            {akcruBadge === "HERO" && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeHero />
                                 </View>
                             )}
-                            {akcruBadge.superhero && (
+                            {akcruBadge === "SUPERHERO" && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeSuperHero />
                                 </View>
