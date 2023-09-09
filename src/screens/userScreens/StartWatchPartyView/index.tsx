@@ -1220,8 +1220,13 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                             size={25}
                                                             color={COLORS.GREEN}
                                                         />
-                                                    ) : (
+                                                    ) : (!item.peer.audioTrack?.isMute() ? 
                                                         <Icon
+                                                            name="mic-off-circle"
+                                                            type="ionicon"
+                                                            size={25}
+                                                            color={COLORS.GREEN}
+                                                        /> : <Icon
                                                             name="mic-off-circle"
                                                             type="ionicon"
                                                             size={25}
