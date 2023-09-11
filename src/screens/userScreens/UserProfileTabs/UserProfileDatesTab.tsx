@@ -61,6 +61,8 @@ const UserProfileDatesTab = () => {
           // item is a CRUView
           // scheduleWith  is either the CRU creator or yourself
           const scheduleWith = item.cru.creatorId === user?.id  ? "your CRU" : `${item.cru.creator.firstName}'s CRU`
+
+          
           return (
             <View key={item.id} style={{marginBottom: 10}}>
                 <UserDatesCard
@@ -78,6 +80,7 @@ const UserProfileDatesTab = () => {
                     scheduleDate={item.startDate}
                     scheduleTime={item.startDate}
                     scheduleWith={scheduleWith}
+                    timezone={item.timezone}
                     type="CRUView"
                     onPressin={() =>
                         navigation.navigate('ContentDetailScreen', {
@@ -115,6 +118,7 @@ const UserProfileDatesTab = () => {
                       scheduleDate={item.startDate}
                       scheduleTime={item.startDate}
                       scheduleWith={scheduleWith}
+                      timezone={item.timezone}
                       onPressin={() =>
                           navigation.navigate('ContentDetailScreen', {
                               id: item.movie.id,

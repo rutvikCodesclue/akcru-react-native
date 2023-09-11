@@ -109,8 +109,8 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     timeButton: {
-        width: 70,
-        height: 30,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         borderRadius: 5,
         backgroundColor: COLORS.TAGCOLOR,
         justifyContent: 'center',
@@ -131,12 +131,12 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     timeZoneButton: {
-        height: 30,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         borderRadius: 5,
         backgroundColor: COLORS.TAGCOLOR,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingHorizontal: 10,
         marginRight: 5,
     },
     timeZoneButtonSelected: {
@@ -181,9 +181,8 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
-    
 });
 
 

@@ -170,7 +170,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
   const [routes] = React.useState([
     { key: "first", title: "Details" },
     { key: "second", title: "Dates" },
-    { key: "third", title: "Invites" },
+    { key: "third", title: "CRU Inv." },
     { key: "fourth", title: "Wallet" },
   ]);
 
