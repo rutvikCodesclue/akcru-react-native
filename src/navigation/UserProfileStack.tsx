@@ -21,6 +21,7 @@ import EditWatchList from '../screens/userScreens/EditWatchList';
 import {COLORS, SIZES} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
 import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
+import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -43,6 +44,7 @@ export type UserProfileStackParams = {
     UserNotifications: any;
     EditWatchList: any;
     WatchPartyPreviewScreen: any;
+    ContentDetailScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -167,7 +169,7 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-         
+
           <UserProfile.Screen
               name="FollowList"
               component={FollowList}
@@ -189,7 +191,13 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-         
+          <UserProfile.Screen
+              name="ContentDetailScreen"
+              component={ContentDetailScreen}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
       </UserProfile.Navigator>
   );
 }

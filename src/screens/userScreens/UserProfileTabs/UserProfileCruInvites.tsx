@@ -56,7 +56,7 @@ const UserProfileCruInvites = () => {
     <View>
       <ScrollView>
         <View>
-          <Text style={styles.titleText1}>INVITES</Text>
+          <Text style={styles.titleText1}>CRU INVITES</Text>
         </View>
         {!isLoaded && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
         {isLoaded && 

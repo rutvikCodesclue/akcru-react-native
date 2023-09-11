@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import imageindex from '../../../assets/images/imageindex';
+import moment from 'moment-timezone';
 
 type UserDatesCardProps = {
     id: string;
@@ -26,6 +27,7 @@ type UserDatesCardProps = {
     scheduleTime: string;
     scheduleWith: string;
     onPressin: () => void;
+    timezone: string;
 };
 
 
@@ -46,7 +48,8 @@ const UserDatesCard = ({
     scheduleTime,
     scheduleWith,
     type,
-    onPressin
+    onPressin,
+    timezone
 }: UserDatesCardProps) => {
 
 const navigation =
@@ -78,7 +81,7 @@ const navigation =
                             <Image source={{uri: moviePoster}} style={styles.posterstyle} />
                         </TouchableOpacity>
                     </View>
-                    <View>
+                    <View style={{width: '50%'}}>
                         <Text style={{...FONTS.Title2}}>{movieName}</Text>
                         <View
                             style={{
@@ -89,7 +92,7 @@ const navigation =
                             <Text style={{...FONTS.Title2, fontSize: 12}}>{movieYear}</Text>
                             <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>{length}</Text>
                         </View>
-                        <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
+                        <View style={{flexDirection: 'row', marginVertical: 5, }}>
                             <Text style={styles.drawfonttag}>{movieRated}</Text>
                             <Text style={styles.drawfonttag}>{movieGenre}</Text>
 
@@ -99,13 +102,13 @@ const navigation =
                     <View style={{flex: 1}}>
                         {type === 'MITInvite' && (
                             <View style={{flex: 1, alignItems: 'flex-end'}}>
-                                <Image source={imageindex.LrgMIT} style={{width: '50%', height: '37%'}} />
+                                <Image source={imageindex.LrgMIT} style={{width: '60%', height: '35%'}} />
                             </View>
                         )}
 
                         {type === 'CRUView' && (
                             <View style={{flex: 1, alignItems: 'flex-end'}}>
-                                <Image source={imageindex.NewCru} style={{width: '70%', height: '70%'}} />
+                                <Image source={imageindex.NewCru} style={{width: '70%', height: '62%'}} />
                             </View>
                         )}
                     </View>
@@ -175,7 +178,6 @@ const navigation =
                         justifyContent: 'space-between',
                         marginTop: 10,
                     }}>
-
                     <TouchableOpacity
                         onPress={() => {
                             ('');

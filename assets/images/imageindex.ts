@@ -17,13 +17,12 @@ const GraphPurp = require ('./GraphPurp.png')
 const GraphMetric = require('./GraphMetric.png')
 const GRAPHwallet2 = require('./GRAPHwallet2.png')
 const GRAPHwallet1 = require('./GRAPHWallet1.png')
-const SmileyBuffalo = require('./SmileyBuffalo.png')
+const SpaceCrimePuzzler = require('./SpaceCrimePuzzler.png');
 const Cru = require('./Cru.png')
 const NewCru = require('./AkcruNewCru.png');
 const AkcruonboardBG = require('./AkcruonboardBG.png');
 const Akcruplaceholder = require('./akcruavatar.png');
 const CruLarge = require('./CruLarge.png')
-const SmileyBuffaloAlvin = require('./SmileyBuffaloAlvin.png')
 const Thriller = require('./moviethriller.jpg')
 const TurquoiseDog = require('./TurquoiseDog.png')
 const MIT1 = require('./MIT1.png')
@@ -56,8 +55,6 @@ export default {
     GraphMetric,
     Cru,
     CruLarge,
-    SmileyBuffaloAlvin,
-    SmileyBuffalo,
     GRAPHwallet1,
     GRAPHwallet2,
     GraphPurp,
@@ -70,5 +67,6 @@ export default {
     NewCru,
     AkcruonboardBG,
     Akcruplaceholder,
-    hexbg
+    hexbg,
+    SpaceCrimePuzzler,
 };

@@ -48,7 +48,7 @@ type Props = {
 };
 
 export default function ContentDetailScreen({navigation, route}: Props) {
-    
+    const movieId: string | undefined = route.params?.movieId ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
