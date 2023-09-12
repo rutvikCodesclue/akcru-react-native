@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { updateUserWatchTime } from "../lib/api/user.lib";
-
+import useAuthStore from "./auth.store";
 
 interface IWatchTimeState {
     watchTime: number;
@@ -14,6 +14,8 @@ interface IWatchTimeState {
     handlePause: () => void;
     handleCountWatchTime: () => Promise<void>;
 }
+
+const POINTS_INTERVAL = 30; // time in seconds to send user AD for watching content
 
 const useWatchTimeStore = create<IWatchTimeState>()(persist(
     (set, get) => ({
@@ -37,14 +39,11 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             } else {
                 clearInterval(interval);
                 set({ timer: null });
-
             }
         },
         resetTimer: () => {
             // get the timer from the store as interval
             const { timer: interval } = get();
-            console.log("timer", interval);
-            
             
             if (!interval) {
                 console.log("No timer found");
@@ -83,13 +82,16 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // get the timer from the store as interval
             const { watchTime } = get();
             
-            if (watchTime === 30) {
+            if (watchTime === POINTS_INTERVAL) {
                 console.log("30 seconds");
                 console.log("<== SENDING TO API ==>");
                 // reset the timer
                 set({ watchTime: 0 });
                 // call the api to update the watch time
                 await updateUserWatchTime({})
+                // HACK: hydrate the entire user store to increment the AD in header
+                // TODO: find a more efficient way to do this
+                await useAuthStore.getState().hydrateUser();
             }
         },
     }), 
