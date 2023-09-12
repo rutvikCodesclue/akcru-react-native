@@ -22,7 +22,7 @@ import MITChatCard from "../../../components/MITChatCard/MITChatCard";
 import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
 import LinearGradient from "react-native-linear-gradient";
 import { Icon } from "@rneui/base";
-import { RouteProp, useNavigation, useFocusEffect } from "@react-navigation/native";
+import { RouteProp, useNavigation, useFocusEffect, useIsFocused } from "@react-navigation/native";
 import { useState, useRef, useEffect, useCallback } from "react";
 import BottomSheet, {
   BottomSheetHandleProps,
@@ -66,11 +66,9 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video, { LoadError, OnBufferData, OnProgressData, OnSeekData } from "react-native-video";
 import { IUserProfile } from "../../../../types";
-
 import SmlMemberCard from "../../../components/SmlMemberCard";
-import { FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import { findAUser } from "../../../lib/api/user.lib";
-
+import useWatchTimeStore from "../../../stores/watchTime.store";
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -136,7 +134,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const videoPlayerRef = useRef<Video | null>(null);
     const isSyncedWithHost = useRef<boolean | null>(null);
     /* EXTRAS */
+    const isFocused = useIsFocused();
+    const { watchTime, startTimer, pauseTimer, resetTimer, handleSkip, handlePause } = useWatchTimeStore();
     const {user} = useAuthStore();
+    const snapPoints = ['1', '40'];
 
     // FIXME: find a way to join & sync a room in progress
     /* 
@@ -179,6 +180,28 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         //     }
         // }
     }, []);
+    // ON FOCUS/UNFOCUS
+    useFocusEffect(
+        React.useCallback(() => {
+            // Start the timer when the component mounts and the movie is playing
+            if (isMoviePlaying) {
+                startTimer();
+            }
+
+            // Clean up the timer when the component unmounts
+            return () => {
+                if (isFocused) {
+                    // pause the timer
+                    console.log("pausing timer...");
+                    pauseTimer();
+                } else {
+                    console.log("resetting timer...");
+                    // reset the timer
+                    resetTimer();
+                }
+            };
+        }, 
+    [isMoviePlaying]));
 
     useEffect(() => {
         console.log('peerTrackNodes changed...');
@@ -237,14 +260,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // toggle the state (for the icon)
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
-
-    const snapPoints = ['1', '40'];
-
-    const handleSnapPress = useCallback((index: number) => {
-        sheetRef.current?.snapToIndex(index);
-        setIsChatOpen(true);
-    }, []);
-
     /**
      * ADDITIONAL METHODS
      */
@@ -350,6 +365,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         hmsInstanceRef.current = null;
 
+        // reset watch timer
+        resetTimer();
         // clear the navigation stack history
         // reset navigation
         navigation.reset({
@@ -404,20 +421,29 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 'presence',
                 { event: 'sync' },
                 () => {
-                    const newSyncState = syncChannelRef.current.presenceState() as object;
-                    const syncObject = Object.values(newSyncState)[0] as [ISyncObject]
-                    const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
-                    const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
-                    if (!isHost && !isSyncedWithHost.current) {
-                        // if not host, and not synced, get the current video timestamp sync the video player
-                        if (videoPlayerRef.current) {
-                            console.log(`SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`);
-                            videoPlayerRef.current.seek(currentTime);
-                            setCurrentTime(currentTime);
-                            setIsMoviePlaying(isMoviePlayingFromHost);
-                            isSyncedWithHost.current = true; // set synced to true
+                    try {
+                        if (syncChannelRef.current) {
+                            let newSyncState = syncChannelRef.current.presenceState();
+                            let syncObject: any = Object.values(newSyncState)[0]
+                            if (syncObject) {
+                                syncObject = syncObject as [ISyncObject];
+                                const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
+                                const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
+                                if (!isHost && !isSyncedWithHost.current) {
+                                    // if not host, and not synced, get the current video timestamp sync the video player
+                                    if (videoPlayerRef.current) {
+                                        console.log(`SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`);
+                                        videoPlayerRef.current.seek(currentTime);
+                                        setCurrentTime(currentTime);
+                                        setIsMoviePlaying(isMoviePlayingFromHost);
+                                        isSyncedWithHost.current = true; // set synced to true
+                                    }
+                                } 
+                            }
                         }
-                    } 
+                    } catch (error) {
+                        console.error("error syncing:", error);
+                    }
                 })
                 .subscribe()
         }
@@ -586,7 +612,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             console.log('localPeer is null');
         }
     };
-
     const __onPeerListener = ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
         // gets triggered when peer leaves, joins,  starts or stops speaking, role is changed or becomes dominant speaker.
         // use these objects to update your local and remote peers.
@@ -647,7 +672,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         
     };
-
     const __onTrackListener = ({track, peer, type}: {track: HMSTrack; peer: HMSPeer; type: HMSTrackUpdate}) => {
         // We will only consider Video tracks events to render videos
         if (track.type === HMSTrackType.VIDEO) {
@@ -736,34 +760,28 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
         // use these objects to update your local and remote peers.
     };
-
     const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {
         // gets triggered when room is muted or unmuted.
         // TODO: implement this after host room functionality is added
     };
-
     const __onRemovedFromRoomListener = (data: any) => {
         // const __onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
         // triggered whenever someone removes local peer from the room or the room is ended.
         // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
         console.log('onRemovedFromRoomListener triggered');
     };
-
     const __onMessageListener = (data: HMSMessage) => {
         // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
         // whenever local peer receives a message this is triggered. Add the message to reducer.
     };
-
     const __onSpeakerListener = (data: HMSSpeaker[]) => {
         // gets triggered whenever someone speaks
         // an array of speakers is received. Use it to highlight the speakers.
         // TODO: implement this
     };
-
     const __onReconnectedListener = (data: any) => {
         // triggered when local peer is reconnected to the room.
     };
-
     const __onReconnectingListener = (data: any) => {
         // triggered whenever local peer is trying to reconnect to room, that is bad network.
     };
@@ -773,7 +791,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     */
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} started playing the movie`);
             setIsMoviePlaying(true);
             // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
@@ -789,7 +806,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onPause = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
-            console.log(`HOST: ${user?.username} paused the movie`);
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -803,9 +819,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
     const ___onSeek = (data: OnSeekData) => {
         if (isHost && videoPlayerRef.current) {
-            console.log(
-                `HOST: ${user?.username} seeked the movie [currentTime: ${data.currentTime} / seekTime: ${data.seekTime}]]`,
-            );
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -818,6 +831,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 },
             });
         }
+
+        resetTimer();
+        startTimer();
     };
     const ___onProgress = async (data: OnProgressData) => {
         // send an event to the room every 2 seconds
@@ -879,7 +895,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
     const ___onBack = () => {
         if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} exited the movie`);
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -961,6 +976,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         _handleCloseMovie;
         setTerminateRoom(false);
     };
+
+    const handleSnapPress = useCallback((index: number) => {
+        sheetRef.current?.snapToIndex(index);
+        setIsChatOpen(true);
+    }, []);
 
     const watchPartyView = () => {
         return (
@@ -1195,7 +1215,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                             renderItem={({item}) => {
                                 // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
-                                console.log("isRoomHost", isRoomHost);
                                 
                                 const isUserVideo = item.peer.isLocal; // Check if this is the user's video
                                 // const isExpanded = fullscreenUserVideo === item; // Check if this video is expanded
