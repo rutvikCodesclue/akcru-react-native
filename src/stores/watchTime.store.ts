@@ -34,9 +34,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // get the timer from the store as interval
             const { timer: interval } = get();
             
-            if (!interval) {
-                console.log("No timer found");
-            } else {
+            if (interval) {
                 clearInterval(interval);
                 set({ timer: null });
             }
@@ -45,9 +43,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // get the timer from the store as interval
             const { timer: interval } = get();
             
-            if (!interval) {
-                console.log("No timer found");
-            } else {
+            if (interval) {
                 clearInterval(interval);
                 set({ timer: null, watchTime: 0 });
             }
@@ -56,9 +52,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // get the timer from the store as interval
             const { timer: interval } = get();
             
-            if (!interval) {
-                console.log("No timer found");
-            } else {
+            if (interval) {
                 set({ watchTime: 0 });
                 clearInterval(interval);
                 // Handle skip logic here, e.g., jump to a different part of the video
@@ -69,10 +63,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // get the timer from the store as interval
             const { timer: interval } = get();
             
-            if (!interval) {
-                console.log("No timer found");
-                
-            } else {
+            if (interval) {
                 clearInterval(interval);
                 // Handle pause logic here, e.g., pause the video playback
             }
@@ -83,8 +74,6 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             const { watchTime } = get();
             
             if (watchTime === POINTS_INTERVAL) {
-                console.log("30 seconds");
-                console.log("<== SENDING TO API ==>");
                 // reset the timer
                 set({ watchTime: 0 });
                 // call the api to update the watch time
