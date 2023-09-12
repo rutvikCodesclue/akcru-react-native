@@ -1,4 +1,4 @@
-import { IMovie, ICruView, ICru } from "../../../types";
+import { IMovie, ICruView, ICru, ICruInvite } from "../../../types";
 import { API } from "../../clients/api.client";
 
 export const getMyCRU = async () : Promise<ICru | undefined> => {
@@ -52,6 +52,20 @@ export const createACRUView = async (params: {movieId: string, startTime: string
         );
     
         return data.CRUView;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const createACRUInvite = async (params: { username: string }) : Promise<ICruInvite | undefined> => {
+    // POST /v1/cru/invite/create
+    try {
+        const { username } = params
+        const { data } = await API.post(`/v1/cru/invite/create`, 
+            { username }
+        );
+    
+        return data.invite;
     } catch (error) {
         console.error(error);
     }
