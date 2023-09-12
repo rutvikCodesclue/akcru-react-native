@@ -202,9 +202,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             };
         }, 
     [isMoviePlaying]));
-    useEffect(() => {
-        console.log("Current watch time: ", watchTime);
-    }, [watchTime]);
 
     useEffect(() => {
         console.log('peerTrackNodes changed...');
@@ -368,6 +365,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         hmsInstanceRef.current = null;
 
+        // reset watch timer
+        resetTimer();
         // clear the navigation stack history
         // reset navigation
         navigation.reset({
@@ -792,7 +791,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     */
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} started playing the movie`);
             setIsMoviePlaying(true);
             // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
@@ -808,7 +806,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onPause = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
-            console.log(`HOST: ${user?.username} paused the movie`);
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -822,9 +819,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
     const ___onSeek = (data: OnSeekData) => {
         if (isHost && videoPlayerRef.current) {
-            console.log(
-                `HOST: ${user?.username} seeked the movie [currentTime: ${data.currentTime} / seekTime: ${data.seekTime}]]`,
-            );
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
@@ -837,6 +831,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 },
             });
         }
+
+        resetTimer();
+        startTimer();
     };
     const ___onProgress = async (data: OnProgressData) => {
         // send an event to the room every 2 seconds
@@ -898,7 +895,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
     const ___onBack = () => {
         if (isHost && videoPlayerRef.current) {
-            console.log(`HOST: ${user?.username} exited the movie`);
             // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
