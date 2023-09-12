@@ -242,7 +242,7 @@ const UserProfileWalletTab = () => {
             style={{ width: 26, height: 20, marginRight: 10 }}
           />
           <Text style={{ ...FONTS.Title3, fontSize: 18, marginRight: 25 }}>
-            {`${totalSupply?.toString()} AD` ?? "555 AD"}
+            {`${totalSupply?.toString()} AD` ?? "Loading..."}
           </Text>
           {/* <Text
             style={{ ...FONTS.Title3, fontSize: 18, color: COLORS.AKCRUBLUE }}
