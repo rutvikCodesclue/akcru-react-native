@@ -35,6 +35,7 @@ import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import useAuthStore from "../../../stores/auth.store";
+import { selectAvatarBorderColor } from "../../../util/util";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -216,7 +217,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                       }
                                       avatarStyle={{
                                           borderWidth: 2,
-                                          borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
+                                          borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
                                       }}
                                   />
                               </View>

@@ -67,9 +67,13 @@ const MITHubCard = ({
                           <Avatar
                               rounded
                               size={50}
-                              source={{
-                                  uri: inviteePicture,
-                              }}
+                              source={
+                                  inviteePicture
+                                      ? {
+                                            uri: inviteePicture,
+                                        }
+                                      : imageindex.Akcruplaceholder
+                              }
                               avatarStyle={{
                                   borderWidth: 2,
                                   borderColor: selectAvatarBorderColor(akcruBadge),
@@ -121,7 +125,7 @@ const MITHubCard = ({
                   </TouchableOpacity> */}
               </View>
           </View>
-          <View style={{ marginTop: 5, flexDirection: 'row', flexWrap: 'wrap' }}>
+          <View style={{marginTop: 5, flexDirection: 'row', flexWrap: 'wrap'}}>
               <Text style={styles.cruchat2}>
                   You invited {inviteeName} to watch "{MITMoviechoice}".
               </Text>
