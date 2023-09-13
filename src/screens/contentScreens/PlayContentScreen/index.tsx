@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from './styles'
 import VideoPlayer from 'react-native-media-console';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { IMovie } from '../../../../types';
@@ -12,8 +12,8 @@ import {useRoute} from '@react-navigation/native';
 import { COLORS, SIZES } from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
-
-import Video from 'react-native-video';
+import Video, { OnSeekData } from 'react-native-video';
+import useWatchTimeStore from '../../../stores/watchTime.store';
 
 
 // import { OnSeekData } from 'react-native-video';
@@ -37,8 +37,34 @@ type Props = {
 export default function ContentPlayer({navigation, route}: Props) {
     // const id: number | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
+    const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true); // start the movie playing
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
+    const { startTimer, pauseTimer, resetTimer } = useWatchTimeStore();
+    const isFocused = useIsFocused();
+
+    // ON FOCUS/UNFOCUS
+    useFocusEffect(
+        React.useCallback(() => {
+            // Start the timer when the component mounts and the movie is playing
+            if (isMoviePlaying) {
+                startTimer();
+            }
+
+            // Clean up the timer when the component unmounts
+            return () => {
+                if (isFocused) {
+                    // pause the timer
+                    console.log("pausing timer...");
+                    pauseTimer();
+                } else {
+                    console.log("resetting timer...");
+                    // reset the timer
+                    resetTimer();
+                }
+            };
+        }, 
+    [isMoviePlaying]));
 
     useEffect(() => {
         // Fetch movie data based on the route parameter ID
@@ -46,7 +72,7 @@ export default function ContentPlayer({navigation, route}: Props) {
             try {
                 const id: string | undefined = routeParams.params?.id;
                 if (id) {
-                    const fetchedMovie: IMovie | undefined = await findMovieById(id);
+                    const fetchedMovie: IMovie | null = await findMovieById(id);
                     if (fetchedMovie) {
                         setMovie([fetchedMovie]);
                     } else {
@@ -91,13 +117,18 @@ export default function ContentPlayer({navigation, route}: Props) {
         genres,
     } = movie[0] || {};
 
-    console.log('Movie URL:', movieURL); // Log movie URL for debugging
-    console.log('Landscape URL:', landscapeURL); // Log landscape URL for debugging
 
+    const onPlay = () => {
+        setIsMoviePlaying(true);
+    };
+    const onPause = () => {
+        setIsMoviePlaying(false);
+    };
+    const onSeek = (data: OnSeekData) => {
+        resetTimer();
+        startTimer();
+    };
     
-    // function onSeek(data: OnSeekData): void {
-    //     throw new Error('Function not implemented.');
-    // }
 
     return (
         <View style={{flex: 1}}>
@@ -114,7 +145,10 @@ export default function ContentPlayer({navigation, route}: Props) {
                                 // poster={landscapeURL}
                                 containerStyle={{zIndex: 100}}
                                 onBack={() => navigation.pop()}
-                                // onSeek={onSeek}
+                                paused={!isMoviePlaying}
+                                onPlay={onPlay}
+                                onPause={onPause}
+                                onSeek={onSeek}
                             />
                         </>
                     ) : (

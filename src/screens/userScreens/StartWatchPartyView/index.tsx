@@ -135,7 +135,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const isSyncedWithHost = useRef<boolean | null>(null);
     /* EXTRAS */
     const isFocused = useIsFocused();
-    const { watchTime, startTimer, pauseTimer, resetTimer, handleSkip, handlePause } = useWatchTimeStore();
+    const {  startTimer, pauseTimer, resetTimer } = useWatchTimeStore();
     const {user} = useAuthStore();
     const snapPoints = ['1', '40'];
 

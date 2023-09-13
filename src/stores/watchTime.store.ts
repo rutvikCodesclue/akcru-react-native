@@ -10,8 +10,6 @@ interface IWatchTimeState {
     startTimer: () => void;
     pauseTimer: () => void;
     resetTimer: () => void;
-    handleSkip: () => void;
-    handlePause: () => void;
     handleCountWatchTime: () => Promise<void>;
 }
 
@@ -76,6 +74,8 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             if (watchTime === POINTS_INTERVAL) {
                 // reset the timer
                 set({ watchTime: 0 });
+                console.log("<== send user AD for watch time ==>");
+                
                 // call the api to update the watch time
                 await updateUserWatchTime({})
                 // HACK: hydrate the entire user store to increment the AD in header
