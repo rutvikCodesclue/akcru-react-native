@@ -10,7 +10,6 @@ import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MI
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 import { SendMITViewUser, SendMITSearchResult, SendMITSchedule, SendMITSearchInput } from '../screens/crummunityScreens/SendViewUserMITScreens';
-
 import {COLORS} from '../../assets/constants';
 import { supabaseRealtime } from '../../lib/supabase';
 
@@ -123,6 +122,7 @@ export function ClientStack() {
                   headerShown: false,
               })}
           />
+        
       </ClientSearch.Navigator>
   );
 }

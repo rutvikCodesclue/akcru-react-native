@@ -45,81 +45,67 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
   );
   
   return (
-    <SafeAreaView>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View>
-          <Header />
-        </View>
-        <ImageBackground
-          source={{ uri: DIGITAL_PASS[0].SuperHeroPass }}
-          resizeMode="cover"
-          style={{ height: SIZES.ScreenHeight / 4, marginTop: -60 }}
-        >
-          <LinearGradient
-            // Background Linear Gradient
-            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: 0,
-              height: SIZES.ScreenHeight / 4,
-            }}
-          />
-          <View style={styles.topcontainer}>
-            <TouchableOpacity onPress={() => navigation.pop()}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-              }}
-            >
-              <Icon
-                name="chevron-back"
-                type="ionicon"
-                size={20}
-                color={COLORS.LIGHTGREY}
-              />
-              <Text style={{ ...FONTS.Title3, marginLeft: 5 }}>Back</Text>
-            </View>
-          </TouchableOpacity>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
-            <Image source={ imageindex.LrgMIT} style={{width: 55, height: 25}}/>
-          </View>
-          
-          </View>
-          
-
-          <View style={{ alignItems: "center" }}>
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigation.navigate("UserSearchResultScreen");
-              }}
-            >
-              <View style={styles.searchinput}>
-                <Icon
-                  name="magnify"
-                  type="material-community"
-                  color={COLORS.AKCRUBLUE}
-                  size={28}
-                  style={{ marginRight: 10 }}
-                />
-                <Text style={{ ...FONTS.Title2, color: COLORS.DARKGREY }}>
-                  Find Users to Invite
-                </Text>
+      <SafeAreaView>
+          <ScrollView stickyHeaderIndices={[0]}>
+              <View>
+                  <Header />
               </View>
-            </TouchableWithoutFeedback>
-          </View>
-        </ImageBackground>
-        <View style={{ marginHorizontal: 15 }}>
-            <Text style={{...FONTS.Title2}}>
-                You have {user?.MITCount} Movie Invites
-            </Text>
-          <MITHubList />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+              <ImageBackground
+                  source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                  resizeMode="cover"
+                  style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                  <LinearGradient
+                      // Background Linear Gradient
+                      colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                      style={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          top: 0,
+                          height: SIZES.ScreenHeight / 4,
+                      }}
+                  />
+                  <View style={styles.topcontainer}>
+                      <TouchableOpacity onPress={() => navigation.pop()}>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                              }}>
+                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                          </View>
+                      </TouchableOpacity>
+                      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                          <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
+                          <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
+                      </View>
+                  </View>
+
+                  <View style={{alignItems: 'center'}}>
+                      <TouchableWithoutFeedback
+                          onPress={() => {
+                              navigation.navigate('UserSearchResultScreen');
+                          }}>
+                          <View style={styles.searchinput}>
+                              <Icon
+                                  name="magnify"
+                                  type="material-community"
+                                  color={COLORS.AKCRUBLUE}
+                                  size={28}
+                                  style={{marginRight: 10}}
+                              />
+                              <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Find Users to Invite</Text>
+                          </View>
+                      </TouchableWithoutFeedback>
+                  </View>
+              </ImageBackground>
+              <View style={{}}>
+                  <Text style={{...FONTS.Title2, marginHorizontal: 15}}>You have {user?.MITCount} Movie Invites</Text>
+                  <MITHubList />
+              </View>
+          </ScrollView>
+      </SafeAreaView>
   );
 }
 

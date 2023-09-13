@@ -109,8 +109,8 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     timeButton: {
-        width: 70,
-        height: 30,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         borderRadius: 5,
         backgroundColor: COLORS.TAGCOLOR,
         justifyContent: 'center',
@@ -131,7 +131,7 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     timeZoneButton: {
-        height: 30,
+        paddingVertical: 10,
         borderRadius: 5,
         backgroundColor: COLORS.TAGCOLOR,
         justifyContent: 'center',
@@ -176,5 +176,17 @@ export default StyleSheet.create({
         width: SIZES.ScreenWidth,
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    searchinput: {
+        width: SIZES.ScreenWidth / 1.08,
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        alignItems: 'center',
+        height: 40,
+        justifyContent: 'space-between',
     },
 });

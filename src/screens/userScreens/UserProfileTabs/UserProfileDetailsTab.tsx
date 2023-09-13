@@ -5,13 +5,14 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
 import { Icon } from '@rneui/base';
 
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BasicListCategories from '../../../components/BasicListCategories';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
 import {LineChart} from 'react-native-gifted-charts';
+import useAuthStore from '../../../stores/auth.store';
 
 const gallery = FAKE_USER_PROFILES[0].gallery
 
@@ -25,21 +26,34 @@ const UserProfileDetailsTab = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-const data = [
-    {value: 10, label: 'FA'},
-    {value: 20, label: 'SC'},
-    {value: 30, label: 'DR'},
-    {value: 100, label: 'MY'},
-    {value: 40, label: 'TH'},
-    {value: 50, label: 'CO'},
-    {value: 10, label: 'SP'},
-    {value: 50, label: 'FM'},
-    {value: 50, label: 'HR'},
-    {value: 30, label: 'AC'},
-    {value: 50, label: 'CR'},
-    {value: 20, label: 'AD'},
-    {value: 100, label: 'RO'},
-];
+    const {user, hydrateUser} = useAuthStore();
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            hydrateUser();
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                hydrateUser();
+            };
+        }, []),
+    );
+
+// const data = [
+//     {value: 10, label: 'FA'},
+//     {value: 20, label: 'SC'},
+//     {value: 30, label: 'DR'},
+//     {value: 100, label: 'MY'},
+//     {value: 40, label: 'TH'},
+//     {value: 50, label: 'CO'},
+//     {value: 10, label: 'SP'},
+//     {value: 50, label: 'FM'},
+//     {value: 50, label: 'HR'},
+//     {value: 30, label: 'AC'},
+//     {value: 50, label: 'CR'},
+//     {value: 20, label: 'AD'},
+//     {value: 100, label: 'RO'},
+// ];
 
 
   return (
@@ -55,7 +69,7 @@ const data = [
                           fontSize: 14,
                           textDecorationLine: 'underline',
                       }}>
-                      CRU DETAILS
+                      PROFILE DETAILS
                   </Text>
               </View>
               <View
@@ -63,18 +77,22 @@ const data = [
                       flexDirection: 'row',
                       justifyContent: 'space-around',
                       alignItems: 'center',
-                      
                   }}>
-                  <View style={{width: SIZES.ScreenWidth / 2, flex: 1, }}>
+                  <View style={{width: SIZES.ScreenWidth / 2, flex: 1}}>
                       <View>
                           <Text
                               style={{
                                   ...FONTS.Title2,
 
                                   fontSize: 12,
-                                  color: COLORS.AKCRUBLUE,
+                                  color: COLORS.MIDORANGE,
                               }}>
-                              You have 2 CRU Invites left
+                              You have "2" CRU Invites left
+                          </Text>
+                      </View>
+                      <View>
+                          <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginTop: 10}}>
+                              You have "{user?.MITCount}" Movie Invites
                           </Text>
                       </View>
                       <View>
@@ -155,7 +173,7 @@ const data = [
               </View>
               <View>
                   <View style={{flex: 1, alignItems: 'center'}}>
-                      <LineChart
+                      {/* <LineChart
                           data={data}
                           hideDataPoints
                           areaChart
@@ -173,16 +191,16 @@ const data = [
                           spacing={30}
                           height={80}
                           curved={true}
-                      />
+                      /> */}
                       {/* <Image source={imageindex.Graph1} />
                       <Image source={imageindex.GraphMetric} /> */}
                   </View>
                   <View style={{alignItems: 'center', marginTop: 10}}>
                       <View>
-                          <Image source={imageindex.SmileyBuffalo} style={{width: 75, height: 75}} />
+                          <Image source={imageindex.SpaceCrimePuzzler} style={{width: 150, height: 150, marginBottom: 10, borderRadius: 5}} />
                       </View>
 
-                      <Text style={{...FONTS.Title2, fontSize: 12}}>Romantic Star</Text>
+                      <Text style={{...FONTS.Title2, fontSize: 12}}>Space Crime Puzzler</Text>
                   </View>
               </View>
 

@@ -54,6 +54,8 @@ export default function ViewUserScreen({route}: Props) {
     const userID: string | undefined = route.params?.userID ?? null;
     const userprofile: string | undefined = route.params?.userName ?? null;
     const navigation = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+
+    const userId = route.params?.userId;
     
   useFocusEffect(
     React.useCallback(() => {

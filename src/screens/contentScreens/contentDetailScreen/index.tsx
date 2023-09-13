@@ -48,7 +48,7 @@ type Props = {
 };
 
 export default function ContentDetailScreen({navigation, route}: Props) {
-    
+    const movieId: string | undefined = route.params?.movieId ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
@@ -126,7 +126,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
         setShowAddToWatchListConfirmationModal(false);
         // Handle confirm logic
     };
-        console.log('length of movie', duration, landscapeURL)
+        console.log('Movie Title:',title, year )
     //  const actorsNames = actors.map(actor => actor.name).join(', ');
     //   const directorNames = director.map(director => director.name).join(', ');
 // console.log ("length in H and m", formatMovieDuration(duration))
@@ -169,9 +169,12 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                 onPress={() => {
                                     navigation.navigate('MITDateSchedule', {
                                         id: id,
-                                        movie: title,
+                                        title: title,
                                         portraitURL: portraitURL,
+                                        year: year,
+                                        
                                     });
+                                    console.log('Movie Title:', id, description);
                                 }}
                                 onPressOut={() => {
                                     setShowAddToWatchListConfirmationModal(true);
@@ -219,6 +222,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                         btnname={'POST'}
                                         onPress={function (): void {}}
                                         color=""
+                                        disabled={false}
                                     />
                                 </View>
                             </View>

@@ -6,6 +6,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from '../../navigation/UserProfileStack';
+import imageindex from '../../../assets/images/imageindex';
+import moment from 'moment-timezone';
 
 type UserDatesCardProps = {
     id: string;
@@ -25,6 +27,7 @@ type UserDatesCardProps = {
     scheduleTime: string;
     scheduleWith: string;
     onPressin: () => void;
+    timezone: string;
 };
 
 
@@ -45,7 +48,8 @@ const UserDatesCard = ({
     scheduleTime,
     scheduleWith,
     type,
-    onPressin
+    onPressin,
+    timezone
 }: UserDatesCardProps) => {
 
 const navigation =
@@ -55,7 +59,7 @@ const navigation =
         <View
             style={{
                 backgroundColor: '#1C202A',
-                borderRadius: 5,         
+                borderRadius: 5,
                 justifyContent: 'center',
             }}>
             <LinearGradient
@@ -68,7 +72,6 @@ const navigation =
                     top: 0,
                     bottom: 0,
                     borderRadius: 5,
-                    
                 }}
             />
             <View style={{margin: 10}}>
@@ -78,7 +81,7 @@ const navigation =
                             <Image source={{uri: moviePoster}} style={styles.posterstyle} />
                         </TouchableOpacity>
                     </View>
-                    <View>
+                    <View style={{width: '50%'}}>
                         <Text style={{...FONTS.Title2}}>{movieName}</Text>
                         <View
                             style={{
@@ -89,12 +92,25 @@ const navigation =
                             <Text style={{...FONTS.Title2, fontSize: 12}}>{movieYear}</Text>
                             <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>{length}</Text>
                         </View>
-                        <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
+                        <View style={{flexDirection: 'row', marginVertical: 5, }}>
                             <Text style={styles.drawfonttag}>{movieRated}</Text>
                             <Text style={styles.drawfonttag}>{movieGenre}</Text>
 
                             <Text style={styles.drawfonttag}>{movieRating}/10</Text>
                         </View>
+                    </View>
+                    <View style={{flex: 1}}>
+                        {type === 'MITInvite' && (
+                            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                <Image source={imageindex.LrgMIT} style={{width: '60%', height: '35%'}} />
+                            </View>
+                        )}
+
+                        {type === 'CRUView' && (
+                            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                                <Image source={imageindex.NewCru} style={{width: '70%', height: '62%'}} />
+                            </View>
+                        )}
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
@@ -124,7 +140,7 @@ const navigation =
                         </Text>
                     </View>
 
-                    <Text style={styles.paragraphText}>at</Text>
+                    <Text style={styles.paragraphText}>at </Text>
                     {/* TIME */}
                     <View style={{marginRight: 5}}>
                         <Text style={styles.paragraphText2}>
@@ -162,17 +178,10 @@ const navigation =
                         justifyContent: 'space-between',
                         marginTop: 10,
                     }}>
-                    {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Image
-                            source={imageindex.AkcruHexLogo}
-                            style={{width: 26, height: 26, marginRight: 8}}
-                            resizeMode="contain"
-                        />
-                        <Text style={styles.paragraphText3}>Earn AD on your date</Text>
-                    </View> */}
                     <TouchableOpacity
-                        onPress={() =>{''}
-                        }>
+                        onPress={() => {
+                            ('');
+                        }}>
                         <View
                             style={{
                                 width: 125,
