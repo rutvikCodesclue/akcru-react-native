@@ -28,6 +28,7 @@ import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
+import { createACRUInvite } from '../../../lib/api/cru.lib';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -83,18 +84,29 @@ export default function ViewUserScreen({route}: Props) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
   
-    const handleSendCruInvite = () => {
-        // Hide the confirmation modal without making any changes
-        setShowConfirmationModal(false);
+    const handleSendCruInvite = async () => {
+        try {
+            // Call the createACRUInvite function with the username of the user you want to invite
+            const response = await createACRUInvite({
+                username: user.username, // Replace with the actual username
+            });
 
-        // Show the CRU Invite sent modal
-        setShowCruInviteSent(true);
+            // Check the response or handle success/failure accordingly
+            if (response) {
+                // The invite was sent successfully
+                setShowCruInviteSent(true);
 
-        // Start a timer to hide the modal after 5 seconds
-        setTimeout(() => {
-            setShowCruInviteSent(false);
-        }, 6000); // 6000 milliseconds = 6 seconds
+                // Start a timer to hide the modal after a certain duration
+                setTimeout(() => {
+                    setShowCruInviteSent(false);
+                }, 6000); // 6000 milliseconds = 6 seconds
+            }
+        } catch (error) {
+            // Handle any errors that may occur during the invite creation
+            console.error(error);
+        }
     };
+
 
 
   return (
@@ -104,7 +116,7 @@ export default function ViewUserScreen({route}: Props) {
                   <Header />
               </View>
               <ImageBackground
-                //   source={{uri: digitalpass ?? undefined}}
+                  //   source={{uri: digitalpass ?? undefined}}
                   source={{uri: undefined}}
                   resizeMode="cover"
                   style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
@@ -120,7 +132,7 @@ export default function ViewUserScreen({route}: Props) {
                       }}
                   />
                   <View style={{marginTop: 60, marginHorizontal: 15, marginBottom: 10}}>
-                      <TouchableOpacity onPress={() => navigation.pop()}>
+                      <TouchableOpacity onPress={() => navigation.navigate('CrummunityStack', {screen: 'CrummunityScreen'})}>
                           <View
                               style={{
                                   flexDirection: 'row',
@@ -145,21 +157,23 @@ export default function ViewUserScreen({route}: Props) {
                               <Pressable
                                   onPress={() => {
                                       navigation.navigate('CrummunityStack', {
-                                            screen: 'ViewUserDetailScreen',
-                                            params: {
-                                                userID,
-                                            }
+                                          screen: 'ViewUserDetailScreen',
+                                          params: {
+                                              userID,
+                                          },
                                       });
                                   }}>
                                   <Avatar
                                       rounded
                                       size={70}
-                                      source={{
-                                          uri: user?.profilePicture ?? undefined,
-                                      }}
+                                      source={
+                                          user?.profilePicture
+                                              ? {uri: user.profilePicture}
+                                              : imageindex.Akcruplaceholder
+                                      }
                                       avatarStyle={{
                                           borderWidth: 2,
-                                          borderColor: selectAvatarBorderColor(user?.badge ?? "AKCRUIT"),
+                                          borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
                                       }}
                                   />
                               </Pressable>
@@ -209,27 +223,26 @@ export default function ViewUserScreen({route}: Props) {
                                   )} */}
                               </View>
 
-                              {user?.badge === "AKCRUIT" && (
+                              {user?.badge === 'AKCRUIT' && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeAkcruit />
                                   </View>
                               )}
-                              {user?.badge === "GUARDIAN" && (
+                              {user?.badge === 'GUARDIAN' && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeGuardian />
                                   </View>
                               )}
-                              {user?.badge === "HERO" && (
+                              {user?.badge === 'HERO' && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeHero />
                                   </View>
                               )}
-                              {user?.badge === "SUPERHERO" && (
+                              {user?.badge === 'SUPERHERO' && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeSuperHero />
                                   </View>
                               )}
-
 
                               <TouchableOpacity>
                                   <Text
@@ -258,15 +271,14 @@ export default function ViewUserScreen({route}: Props) {
                                   paddingLeft: 10,
                               }}>
                               <TouchableOpacity
-                                    style={{alignItems: 'center'}}
-                                    onPress={() => {
-                                        navigation.navigate('SendMITViewUser', {
-                                            userID,
-                                        });
-                                        
-                                    }}>
-                                  <Image source={imageindex.MITticket} style={{ height: 40}} />
-                                  <Text style={{ color: 'white', fontSize: 10 }}>Send User a MIT</Text>
+                                  style={{alignItems: 'center'}}
+                                  onPress={() => {
+                                      navigation.navigate('SendMITViewUser', {
+                                          userID,
+                                      });
+                                  }}>
+                                  <Image source={imageindex.MITticket} style={{height: 40}} />
+                                  <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
                               </TouchableOpacity>
                           </View>
                       </View>
@@ -383,7 +395,7 @@ export default function ViewUserScreen({route}: Props) {
                       </Pressable>
                   </View>
               </View>
-            {user?.private ? (
+              {user?.private ? (
                   <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
                       <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
                           This account is private

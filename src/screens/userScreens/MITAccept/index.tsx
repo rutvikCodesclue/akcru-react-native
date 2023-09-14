@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -58,21 +58,15 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
   const inviteDate: string | undefined = route.params?.inviteDate ?? null;
   const akcruBadge: any = route.params?.akcruBadge ?? null;
 
-  // const {
-  //   inviteePicture,
-  //   privateaccount,
-  //   online,
-  //   inviteeName,
-  //   akcruBadge,
-  //   status,
-  //   userFollowerAmount,
-  //   userDesc,
-  //   influencer,
-  //   MITMovieposter,
-  //   MITMoviechoice,
-  //   MITDate,
-  //   MITTime,
-  // } = JENNY_INVITES[MITID ?? 0];
+  useEffect(() => {
+      const timer = setTimeout(() => {
+          // Navigate to UserProfileScreen
+          navigation.navigate('UserProfileScreen');
+      }, 4000); // 4000 milliseconds (4 seconds)
+
+      // Clear the timer if the component unmounts
+      return () => clearTimeout(timer);
+  }, []);
 
   return (
       <SafeAreaView style={{flex: 1}}>
@@ -98,7 +92,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                               }}
                           />
                           <View style={styles.topcontainer}>
-                              <TouchableOpacity onPress={() => navigation.navigate('ChooseMITScreen')}>
+                              {/* <TouchableOpacity onPress={() => navigation.navigate('ChooseMITScreen')}>
                                   <View
                                       style={{
                                           flexDirection: 'row',
@@ -107,7 +101,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                                       <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
                                       <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                                   </View>
-                              </TouchableOpacity>
+                              </TouchableOpacity> */}
                               <View>
                                   <Text
                                       style={{
@@ -115,7 +109,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                                           color: COLORS.CATPURPLGT,
                                           fontSize: 16,
                                           textAlign: 'center',
-                                          marginTop: 20,
+                                          paddingTop: '10%',
                                       }}>
                                       IT'S A DATE
                                   </Text>

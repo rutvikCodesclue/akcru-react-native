@@ -23,6 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { findAUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
+import imageindex from '../../../../assets/images/imageindex';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -98,7 +99,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                           }}
                       />
                       <Header />
-                      <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen',{userID})}>
+                      <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
                           <View
                               style={{
                                   flexDirection: 'row',
@@ -115,9 +116,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                       <Avatar
                           rounded
                           size={250}
-                          source={{
-                              uri: user?.profilePicture ?? undefined,
-                          }}
+                          source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
                           avatarStyle={{
                               borderWidth: 5,
                               borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),

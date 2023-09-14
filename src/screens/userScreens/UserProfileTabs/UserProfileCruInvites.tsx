@@ -71,7 +71,7 @@ const UserProfileCruInvites = () => {
                   >
                     <CruInviteCard
                       cruInviteID={item.id}
-                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName}`}
+                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName} ${item.id}`}
                       inviteePicture={item.cru.creator.profilePicture ?? undefined} 
                       inviteDate={item.createdAt}
                     />
