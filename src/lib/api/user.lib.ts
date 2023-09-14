@@ -120,3 +120,23 @@ export const updateUserProfilePicture = async (params: { uri: string, type: stri
         return undefined;
     }
 }
+
+export const updateUserWatchTime = async (params: { watchTime?: number, movieId?: string,  }) : Promise<boolean | undefined> => {
+    try {
+        // TODO: in the future, we will want to track these things: watchTime, movieId, movieTime, etc...
+        const { watchTime, movieId } = params
+        // PUT /v1/watchtime/me
+        const { data } = await API.put(`/v1/watchtime/me`, {
+            // watchTime
+        });
+    
+        if (data.success === false) {
+            return false
+        }
+        
+        return true;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+}

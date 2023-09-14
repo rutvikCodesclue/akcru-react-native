@@ -20,14 +20,30 @@ import {
 import { Icon } from "@rneui/base";
 import AkcruButtons from "../../../components/akcruButtons";
 import useAuthStore from "../../../stores/auth.store";
+import { useFocusEffect } from "@react-navigation/native";
+import { getTotalSupplyOfAD } from "../../../lib/api/wallet.lib";
 
 const UserProfileWalletTab = () => {
   const { user } = useAuthStore();
   const [toUSD, setToUSD] = useState(true);
+  const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
 
    const toggleToUSD = () => {
     setToUSD(!toUSD);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Do something when the screen is focused
+      getTotalSupplyOfAD().then((amount) => {
+        setTotalSupply(amount);
+      });
+
+      return () => {
+        // Do something when the screen is unfocused
+      };
+    }
+  , []));
 
   return (
     <View style={{ marginHorizontal: SIZES.marginhorizontal }}>
@@ -226,13 +242,13 @@ const UserProfileWalletTab = () => {
             style={{ width: 26, height: 20, marginRight: 10 }}
           />
           <Text style={{ ...FONTS.Title3, fontSize: 18, marginRight: 25 }}>
-            {AKCRUAPP_TOTAL_AD[0].akcruTotalADAmount} AD
+            {`${totalSupply?.toString()} AD` ?? "Loading..."}
           </Text>
-          <Text
+          {/* <Text
             style={{ ...FONTS.Title3, fontSize: 18, color: COLORS.AKCRUBLUE }}
           >
             +{AKCRUAPP_TOTAL_AD[0].percentageChange}%
-          </Text>
+          </Text> */}
         </View>
         <View style={{ marginBottom: 75 }}>
           <Image
