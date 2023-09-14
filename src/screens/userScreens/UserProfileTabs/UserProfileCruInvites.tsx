@@ -9,6 +9,7 @@ import { ICruInvite, IMITInvite } from '../../../../types';
 import { FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
 import MITInviteCard from '../../../components/MITInviteCard';
+import imageindex from '../../../../assets/images/imageindex';
 
 
 const UserProfileCruInvites = () => {
@@ -71,30 +72,32 @@ const UserProfileCruInvites = () => {
                   >
                     <CruInviteCard
                       cruInviteID={item.id}
-                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName} ${item.id}`}
+                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName}`}
                       inviteePicture={item.cru.creator.profilePicture ?? undefined} 
                       inviteDate={item.createdAt}
-                    />
-                  </View>
-                )
-              } else {
-                // FIXME: implement MIT invite card
-                return (
-                  <View
-                    key={item.id}
-                    style={{ marginHorizontal: 15, marginBottom: 10 }}
-                  >
-                    <MITInviteCard
-                      MITInviteID={item.id}
-                      movie={item.movie}
-                      creator={item.creator}
-                      // inviteeName={`${item.creator.firstName} ${item.creator.lastName}`}
-                      // inviteePicture={item.creator.profilePicture ?? undefined} 
-                      inviteDate={item.createdAt}
+                      invitee={item.cru.creator}
                     />
                   </View>
                 )
               }
+              // } else {
+              //   // FIXME: implement MIT invite card
+              //   return (
+              //     <View
+              //       key={item.id}
+              //       style={{ marginHorizontal: 15, marginBottom: 10 }}
+              //     >
+              //       <MITInviteCard
+              //         MITInviteID={item.id}
+              //         movie={item.movie}
+              //         creator={item.creator}
+              //         // inviteeName={`${item.creator.firstName} ${item.creator.lastName}`}
+              //         // inviteePicture={item.creator.profilePicture ?? undefined} 
+              //         inviteDate={item.createdAt}
+              //       />
+              //     </View>
+              //   )
+              // }
           }
             ) : 
             // FIXME: implement no invites empty state

@@ -210,9 +210,11 @@ const toggleTrailerPlaying = useCallback(() => {
                                       <Avatar
                                           rounded
                                           size={70}
-                                          source={{
-                                              uri: creator?.profilePicture,
-                                          }}
+                                          source={
+                                              creator?.profilePicture
+                                                  ? {uri: creator?.profilePicture}
+                                                  : imageindex.Akcruplaceholder
+                                          }
                                           avatarStyle={{
                                               borderWidth: 2,
                                               borderColor: COLORS.AKCRUBLUE,
@@ -462,7 +464,6 @@ const toggleTrailerPlaying = useCallback(() => {
                           <TouchableOpacity
                               onPress={() => setShowTrailer(false)} // Hide the confirmation modal
                               style={{
-     
                                   padding: 10,
                                   borderRadius: 5,
                                   alignItems: 'center',
@@ -473,7 +474,6 @@ const toggleTrailerPlaying = useCallback(() => {
                   </View>
               </View>
           </Modal>
-          
       </View>
   );
 };

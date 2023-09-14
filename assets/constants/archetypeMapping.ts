@@ -4,13 +4,29 @@ export type ArchetypeMapping = {
     [key: string]: {
     name:string;
     image:string;
+    description:string;
 };
 };
 
 export const archetypeMapping: ArchetypeMapping = {
-    'Sci-Fi, Fantasy': {name: 'Realm Voyager', image: ''},
-    'Sci-Fi, Drama': {name: 'Whimsical Dreamer', image: ''},
-    'Sci-Fi, Mystery': {name: 'Mystical Puzzler', image: ''},
+    'Sci-Fi, Fantasy': {
+        name: 'Realm Voyager',
+        image: '',
+        description:
+            '"Realm Voyagers" are passionate about Sci-Fi and Fantasy. They find their cinematic delight in the imaginative and fantastical realms of storytelling, where otherworldly landscapes, creatures, and possibilities come to life.',
+    },
+    'Sci-Fi, Drama': {
+        name: 'Whimsical Dreamer',
+        image: '',
+        description:
+            ' This individual has a profound fondness for Sci-Fi and Drama. They truly appreciate the imaginative and emotional aspects of storytelling in these realms.',
+    },
+    'Sci-Fi, Mystery': {
+        name: 'Mystical Puzzler',
+        image: '',
+        description:
+            "They relish Sci-Fi and Mystery, delighting in films that combine mystery's intrigue with the imaginative aspects of science fiction. Exploring enigmatic plots and mind-bending concepts is their cinematic preference.",
+    },
     'Sci-Fi, Thriller': {name: 'Shadow Sleuth', image: ''},
     'Sci-Fi, Comedy': {name: 'Fantasy Fun-seeker', image: ''},
     'Sci-Fi, Sports': {name: 'Realm Athlete', image: ''},
@@ -164,7 +180,7 @@ export const archetypeMapping: ArchetypeMapping = {
     'Romance, Action': {name: 'Adventurous Lover', image: ''},
     'Romance, Crime': {name: 'Larcenous Heart', image: ''},
     'Romance, Adventure': {name: 'Risky Romantic', image: ''},
-    
+
     // Define more mappings here...
 };
 

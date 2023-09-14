@@ -41,6 +41,8 @@ const OnBoard2 = () => {
     const [desc, setDesc] = useState(user?.description);
     const [description, setDescription] = useState(user?.description);
 
+    const [avatarUrl, setAvatarUrl] = useState('');
+
     const [profilePicture, setProfilePicture] = useState<{uri: string} | null>(null);
 
     const [response, setResponse] = React.useState<any>(null);
@@ -95,26 +97,27 @@ const OnBoard2 = () => {
 
             if (uri && fileName && type) {
                 try {
-                    setLoading(true);
-
-                    // Update the profile picture using updateUserProfilePicture API function
-                    const updatedUser = await updateUserProfilePicture({
+                    // Call the updateUserProfilePicture function to upload the image
+                    const result = await updateUserProfilePicture({
                         uri,
                         name: fileName,
                         type,
                     });
 
-                    if (updatedUser) {
-                        console.log('Profile picture updated successfully:', updatedUser);
-                        // Set the profile picture in the state
-                        setProfilePicture({uri, type, fileName});
+                    if (result) {
+                        // Update the user's profile picture URL
+                        setAvatarUrl(result.profilePicture);
+
+                        // You may also want to update the user's profile picture in your state or context
+                        // For example, if your user state is stored in Redux or a context provider
+                        // Update the user's profile picture there as well
+
+                        console.log('Image Upload Result:', result);
                     } else {
                         console.error('Failed to update profile picture.');
                     }
                 } catch (error) {
-                    console.error('Error uploading profile picture:', error);
-                } finally {
-                    setLoading(false);
+                    console.error('Error updating profile picture:', error);
                 }
             }
         }
@@ -185,9 +188,7 @@ const OnBoard2 = () => {
                                     <Avatar
                                         rounded
                                         size={75}
-                                        source={
-                                            profilePicture ? {uri: profilePicture.uri} : imageindex.Akcruplaceholder
-                                        }
+                                        source={avatarUrl ? {uri: avatarUrl} : imageindex.Akcruplaceholder}
                                         avatarStyle={{
                                             borderWidth: 2,
                                             borderColor: COLORS.AKCRUBLUE,
