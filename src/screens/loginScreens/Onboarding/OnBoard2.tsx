@@ -1,3 +1,4 @@
+
 import {
     View,
     Text,
@@ -14,7 +15,7 @@ import {
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
@@ -27,45 +28,129 @@ import {Icon} from '@rneui/base';
 import {API} from '../../../clients/api.client';
 import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { launchImageLibrary } from 'react-native-image-picker';
+import {launchImageLibrary, ImagePickerResponse} from 'react-native-image-picker';
+import useAuthStore from '../../../stores/auth.store';
+import {updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
 
 const OnBoard2 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-
+    const user = useAuthStore(state => state.user);
+    const {hydrateUser} = useAuthStore();
 
     const [userName, setUserName] = useState('');
+    const [desc, setDesc] = useState(user?.description);
+    const [description, setDescription] = useState(user?.description);
+
+    const [profilePicture, setProfilePicture] = useState<{uri: string} | null>(null);
+
     const [response, setResponse] = React.useState<any>(null);
 
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('OnBoard2 Screen focused [OnBoard2]');
+            hydrateUser();
 
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('OnBoard2 Screen unfocused [OnBoard2]');
+            };
+        }, []),
+    );
 
 
  
 
 
 
-    const handleUserNameChange = (text: string) => {
-        setUserName(text);
-    };
+    // const handleUserNameChange = (text: string) => {
+    //     setUserName(text);
+    // };
 
-    const checkFormCompletion = () => {
-        if (userName ) {
-            setIsFormComplete(true);
-        } else {
-            setIsFormComplete(false);
+    // const checkFormCompletion = () => {
+    //     if (userName ) {
+    //         setIsFormComplete(true);
+    //     } else {
+    //         setIsFormComplete(false);
+    //     }
+    // };
+
+    // useEffect(
+    //     () => {
+    //         checkFormCompletion();
+    //     },
+    //     [
+    //         // dob,
+    //     ],
+    // );
+
+    const handleImageUpload = async (res: ImagePickerResponse) => {
+        if (res.assets) {
+            const uri = res.assets[0].uri;
+            const fileName = res.assets[0].fileName;
+            const type = res.assets[0].type;
+
+            if (uri && fileName && type) {
+                try {
+                    setLoading(true);
+
+                    // Update the profile picture using updateUserProfilePicture API function
+                    const updatedUser = await updateUserProfilePicture({
+                        uri,
+                        name: fileName,
+                        type,
+                    });
+
+                    if (updatedUser) {
+                        console.log('Profile picture updated successfully:', updatedUser);
+                        // Set the profile picture in the state
+                        setProfilePicture({uri, type, fileName});
+                    } else {
+                        console.error('Failed to update profile picture.');
+                    }
+                } catch (error) {
+                    console.error('Error uploading profile picture:', error);
+                } finally {
+                    setLoading(false);
+                }
+            }
         }
     };
 
-    useEffect(
-        () => {
-            checkFormCompletion();
-        },
-        [
-            // dob,
-        ],
-    );
+    const confirmUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Call the updateUser function to send the updated data to the backend
+            const updatedUser = await updateUser({
+                username: userName,
+                description: description,
+            });
+
+            if (updatedUser) {
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+
+            const currentUser = useAuthStore.getState().user;
+
+            if (currentUser) {
+                currentUser.username = userName;
+                currentUser.description = description;
+                // Update the profile picture URI if it has changed
+                useAuthStore.setState({user: currentUser});
+                navigation.navigate('OnBoard3');
+            }
+        }
+    };
 
     return (
         <View>
@@ -100,7 +185,9 @@ const OnBoard2 = () => {
                                     <Avatar
                                         rounded
                                         size={75}
-                                        source={imageindex.Akcruplaceholder}
+                                        source={
+                                            profilePicture ? {uri: profilePicture.uri} : imageindex.Akcruplaceholder
+                                        }
                                         avatarStyle={{
                                             borderWidth: 2,
                                             borderColor: COLORS.AKCRUBLUE,
@@ -121,7 +208,7 @@ const OnBoard2 = () => {
                                                         mediaType: 'photo',
                                                         includeBase64: false,
                                                     },
-                                                    setResponse,
+                                                    handleImageUpload,
                                                 );
                                             }}>
                                             <Text
@@ -149,8 +236,8 @@ const OnBoard2 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={handleUserNameChange}
-                                    value={userName}
+                                    onChangeText={text => setUserName(text)}
+                                    value={userName || ''}
                                     editable={!loading}
                                 />
                             </View>
@@ -159,8 +246,9 @@ const OnBoard2 = () => {
                                     placeholder={'Tell our crummunity about yourself...'}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
+                                    onChangeText={text => setDescription(text)}
                                     secureTextEntry={false}
-                                    value={''}
+                                    value={description || ''}
                                 />
                             </View>
 
@@ -169,7 +257,7 @@ const OnBoard2 = () => {
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.AKCRUBLUE}
                                         btnname={'Next'}
-                                        onPress={() => navigation.navigate('OnBoard3')}
+                                        onPress={confirmUpdate}
                                         disabled={false}
                                     />
                                 </View>

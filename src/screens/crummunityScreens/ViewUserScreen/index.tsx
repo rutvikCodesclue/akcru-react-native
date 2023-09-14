@@ -28,6 +28,7 @@ import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
+import { createACRUInvite } from '../../../lib/api/cru.lib';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -83,18 +84,29 @@ export default function ViewUserScreen({route}: Props) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
   
-    const handleSendCruInvite = () => {
-        // Hide the confirmation modal without making any changes
-        setShowConfirmationModal(false);
+    const handleSendCruInvite = async () => {
+        try {
+            // Call the createACRUInvite function with the username of the user you want to invite
+            const response = await createACRUInvite({
+                username: user.username, // Replace with the actual username
+            });
 
-        // Show the CRU Invite sent modal
-        setShowCruInviteSent(true);
+            // Check the response or handle success/failure accordingly
+            if (response) {
+                // The invite was sent successfully
+                setShowCruInviteSent(true);
 
-        // Start a timer to hide the modal after 5 seconds
-        setTimeout(() => {
-            setShowCruInviteSent(false);
-        }, 6000); // 6000 milliseconds = 6 seconds
+                // Start a timer to hide the modal after a certain duration
+                setTimeout(() => {
+                    setShowCruInviteSent(false);
+                }, 6000); // 6000 milliseconds = 6 seconds
+            }
+        } catch (error) {
+            // Handle any errors that may occur during the invite creation
+            console.error(error);
+        }
     };
+
 
 
   return (
