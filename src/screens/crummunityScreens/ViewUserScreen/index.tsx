@@ -133,7 +133,7 @@ export default function ViewUserScreen({route}: Props) {
                       }}
                   />
                   <View style={{marginTop: 60, marginHorizontal: 15, marginBottom: 10}}>
-                      <TouchableOpacity onPress={() => navigation.navigate('CrummunityStack', {screen: 'CrummunityScreen'})}>
+                      <TouchableOpacity onPress={() => navigation.pop()}>
                           <View
                               style={{
                                   flexDirection: 'row',

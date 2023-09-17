@@ -8,6 +8,7 @@ import { set } from 'lodash';
 import { acceptACRUInvite, declineACRUInvite } from '../../lib/api/cru.lib';
 import imageindex from '../../../assets/images/imageindex';
 import { IUserProfile } from '../../../types';
+import { selectAvatarBorderColor } from '../../util/util';
 
 
 type CruInviteCardProp = {
@@ -15,8 +16,9 @@ type CruInviteCardProp = {
     inviteeName: string;
     inviteePicture?: string | undefined;
     inviteDate: string;
-    invitee: IUserProfile 
-}
+    invitee: IUserProfile;
+    onPress: () => void;
+};
 
 
 const CruInviteCard = ({
@@ -24,7 +26,8 @@ const CruInviteCard = ({
     inviteeName,
     inviteePicture,
     inviteDate,
-    invitee
+    invitee,
+    onPress
 
 }: CruInviteCardProp) => {
 
@@ -70,15 +73,17 @@ const CruInviteCard = ({
           />
           <View style={{flexDirection: 'row', alignItems: 'center', margin: 10}}>
               <View style={{marginRight: 10}}>
-                  <Avatar
-                      source={invitee.profilePicture ? {uri: invitee.profilePicture} : imageindex.Akcruplaceholder}
-                      size={50}
-                      rounded
-                      avatarStyle={{
-                          borderWidth: 2,
-                          borderColor: COLORS.AKCRUBLUE,
-                      }}
-                  />
+                  <TouchableOpacity onPress={onPress}>
+                      <Avatar
+                          source={invitee.profilePicture ? {uri: invitee.profilePicture} : imageindex.Akcruplaceholder}
+                          size={50}
+                          rounded
+                          avatarStyle={{
+                              borderWidth: 2,
+                              borderColor: selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT'),
+                          }}
+                      />
+                  </TouchableOpacity>
               </View>
               <View>
                   <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>

@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './styles'
 import Header from '../../../components/header'
 import { Icon } from '@rneui/base'
@@ -11,40 +11,64 @@ import { UserProfileStackParams } from '../../../navigation/UserProfileStack'
 import { Akcru_Content } from '../../../../assets/constants/ListData'
 import { ClientStackParams } from '../../../navigation/ClientStack'
 import LinearGradient from 'react-native-linear-gradient'
+import { findMovies } from '../../../lib/api/movies.lib'
+import { IMovie } from '../../../../types'
+import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util'
 
-interface EditWatchListProps {
-    Akcru_Content: {
-        id: string;
-        title: string;
-        movies: {
-            name: string;
-            desc: string;
-            actors: string[];
-            directors: string[];
-            genre: string[];
-            portrait_poster: string;
-            landscape_poster: string;
-            rating: number;
-            year: number;
-            rated: string;
-            length: string;
-            id: string;
-            movie_url: string;
-            youtubetrailer: string;
-        }[];
-    };
-}
+// interface EditWatchListProps {
+//     Akcru_Content: {
+//         id: string;
+//         title: string;
+//         movies: {
+//             name: string;
+//             desc: string;
+//             actors: string[];
+//             directors: string[];
+//             genre: string[];
+//             portrait_poster: string;
+//             landscape_poster: string;
+//             rating: number;
+//             year: number;
+//             rated: string;
+//             length: string;
+//             id: string;
+//             movie_url: string;
+//             youtubetrailer: string;
+//         }[];
+//     };
+// }
 
 const Userwatchlist = Akcru_Content[5];
 
-const EditWatchList = (props: EditWatchListProps) => {
+const EditWatchList = () => {
 
-    
+    const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-    const {Akcru_Content} = props;
+  
+
+useEffect(() => {
+    const fetchNewerYearMovies = async () => {
+        try {
+            const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+            // Sort allMovies by year in descending order
+            const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
+
+            // Get the 5 oldest movies
+            const Newer5Movies = sortedMovies.slice(0, 5);
+
+            setNewerYearMovies(Newer5Movies);
+        } catch (error) {
+            console.error('Error fetching top rated movies:', error);
+        }
+    };
+    fetchNewerYearMovies();
+}, []);
+
+
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
-    const [content, setContent] = useState(Userwatchlist.movies);
+    const [content, setContent] = useState(newerYearMovies);
 
     const [contentToDeleteIndex, setContentToDeleteIndex] = useState(null);
 
@@ -95,7 +119,7 @@ const EditWatchList = (props: EditWatchListProps) => {
 
                     <View>
                         <FlatList
-                            data={Userwatchlist.movies}
+                            data={newerYearMovies}
                             horizontal={false}
                             showsHorizontalScrollIndicator={false}
                             renderItem={({item, index}) => (
@@ -104,7 +128,6 @@ const EditWatchList = (props: EditWatchListProps) => {
                                         borderRadius: 5,
                                         marginBottom: 10,
                                         padding: 5,
-                                        height: 155,
                                     }}>
                                     <LinearGradient
                                         // Background Linear Gradient
@@ -114,9 +137,8 @@ const EditWatchList = (props: EditWatchListProps) => {
                                             left: 0,
                                             right: 0,
                                             top: 0,
-
+                                            bottom: 0,
                                             borderRadius: 5,
-                                            height: 155,
                                         }}
                                     />
                                     <View style={{flexDirection: 'row'}}>
@@ -124,32 +146,34 @@ const EditWatchList = (props: EditWatchListProps) => {
                                             <TouchableOpacity
                                                 onPress={() => {
                                                     console.log('id:', item.id);
-                                                    console.log('movie:', item.name);
+                                                    console.log('movie:', item.title);
                                                     navigation.navigate('ContentDetailScreen', {
                                                         id: item.id,
-                                                        movie: item.name,
+                                                        movie: item.title,
                                                     });
                                                 }}>
-                                                <Image source={{uri: item.portrait_poster}} style={styles.poster} />
+                                                <Image source={{uri: item.portraitURL}} style={styles.poster} />
                                             </TouchableOpacity>
                                         </View>
 
                                         <View style={{flex: 1}}>
-                                            <Text style={{...FONTS.Title2, marginBottom: 5}}>{item.name}</Text>
+                                            <Text style={{...FONTS.Title2, marginBottom: 5}}>{item.title}</Text>
                                             <View style={{flexDirection: 'row', alignContent: 'center'}}>
                                                 <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE}}>
                                                     {item.year}
                                                 </Text>
                                                 <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>
-                                                    {item.length}
+                                                    {formatMovieDuration(item.duration)}
                                                 </Text>
 
                                                 <Text style={styles.drawfonttag}>{item.rated}</Text>
-                                                <Text style={styles.drawfonttag}>{item.genre[0]}</Text>
+                                                <Text style={styles.drawfonttag}>
+                                                    {capitalizeFirstLetterOfString(item.genres[0])}
+                                                </Text>
                                                 <Text style={styles.drawfonttag}>{item.rating}/10</Text>
                                             </View>
                                             <View style={{marginTop: 5}}>
-                                                <Text style={{...FONTS.Title2, fontSize: 12}}>{item.desc}</Text>
+                                                <Text style={{...FONTS.Title2, fontSize: 12}}>{item.description}</Text>
                                             </View>
                                         </View>
                                     </View>
@@ -209,7 +233,6 @@ const EditWatchList = (props: EditWatchListProps) => {
                                 </View>
                             </View>
                         </Modal>
-                        
                     </View>
                 </View>
             </ScrollView>

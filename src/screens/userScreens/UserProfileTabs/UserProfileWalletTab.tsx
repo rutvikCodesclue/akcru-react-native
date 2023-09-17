@@ -71,7 +71,7 @@ const UserProfileWalletTab = () => {
           </Text>
         </View>
 
-        <View style={styles.lineSeperator} />
+        {/* <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2}>REWARDS EARNED</Text>
         </View>
@@ -81,7 +81,7 @@ const UserProfileWalletTab = () => {
             source={imageindex.GRAPHwallet1}
             style={{ width: SIZES.ScreenWidth / 1.1, height: 170 }}
           />
-        </View>
+        </View> */}
         <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2White}>

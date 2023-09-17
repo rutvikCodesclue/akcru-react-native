@@ -2,19 +2,20 @@ import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
-import { JENNY_INVITES } from '../../../../assets/constants/Mockusers';
-import { useFocusEffect } from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { getCRUInvites } from '../../../lib/api/cru.lib';
 import { ICruInvite, IMITInvite } from '../../../../types';
 import { FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
 import MITInviteCard from '../../../components/MITInviteCard';
 import imageindex from '../../../../assets/images/imageindex';
-
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ClientStackParams } from '../../../navigation/ClientStack';
 
 const UserProfileCruInvites = () => {
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
   const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -76,6 +77,7 @@ const UserProfileCruInvites = () => {
                       inviteePicture={item.cru.creator.profilePicture ?? undefined} 
                       inviteDate={item.createdAt}
                       invitee={item.cru.creator}
+                      onPress={() => navigation.navigate('ViewUserScreen', {id: item.cru.creator})}
                     />
                   </View>
                 )

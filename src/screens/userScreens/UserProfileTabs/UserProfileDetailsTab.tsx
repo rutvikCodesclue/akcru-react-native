@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
@@ -13,6 +13,8 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
 import {LineChart} from 'react-native-gifted-charts';
 import useAuthStore from '../../../stores/auth.store';
+import { IMovie } from '../../../../types';
+import { findMovies } from '../../../lib/api/movies.lib';
 
 const gallery = FAKE_USER_PROFILES[0].gallery
 
@@ -22,7 +24,12 @@ const Userwatchlist = Akcru_Content[5];
 
 
 
+
+
 const UserProfileDetailsTab = () => {
+
+    const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
+    
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
@@ -38,6 +45,25 @@ const UserProfileDetailsTab = () => {
             };
         }, []),
     );
+
+    useEffect(() => {
+        const fetchNewerYearMovies = async () => {
+            try {
+                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+                // Sort allMovies by year in descending order
+                const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
+
+                // Get the 5 oldest movies
+                const Newer5Movies = sortedMovies.slice(0, 5);
+
+                setNewerYearMovies(Newer5Movies);
+            } catch (error) {
+                console.error('Error fetching top rated movies:', error);
+            }
+        };
+        fetchNewerYearMovies();
+    }, []);
 
 // const data = [
 //     {value: 10, label: 'FA'},
@@ -195,9 +221,16 @@ const UserProfileDetailsTab = () => {
                       {/* <Image source={imageindex.Graph1} />
                       <Image source={imageindex.GraphMetric} /> */}
                   </View>
-                  <View style={{alignItems: 'center', marginTop: 10}}>
-                      <View>
-                          <Image source={imageindex.SpaceCrimePuzzler} style={{width: 150, height: 150, marginBottom: 10, borderRadius: 5}} />
+                  <View style={{ paddingTop: 10, flexDirection: 'row', justifyContent: 'flex-start'}}>
+                      <View style={{paddingBottom: 10, paddingRight: 10}}>
+                          <Image
+                              source={imageindex.SpaceCrimePuzzler}
+                              style={{
+                                  width: SIZES.ScreenWidth / 2.5,
+                                  height: SIZES.ScreenWidth / 2.5,
+                                  borderRadius: 5,
+                              }}
+                          />
                       </View>
 
                       <Text style={{...FONTS.Title2, fontSize: 12}}>Space Crime Puzzler</Text>
@@ -249,7 +282,9 @@ const UserProfileDetailsTab = () => {
                       </View>
                   </TouchableOpacity>
                   <View style={{marginBottom: 75, marginTop: -20}}>
-                      <BasicListCategories Akcru_Content={Userwatchlist} />
+                      <BasicListCategories
+                          Akcru_Content={{id: 'recommendedForYou', title: 'Your Watchlist', movies: newerYearMovies}}
+                      />
                   </View>
               </View>
           </ScrollView>

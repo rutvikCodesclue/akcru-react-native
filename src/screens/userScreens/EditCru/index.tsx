@@ -28,9 +28,7 @@ import { ICru, IUserProfile } from '../../../../types';
 
 const EditCru = () => {
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
-    const [originalCruName, setOriginalCruName] = useState(
-        FAKE_USER_PROFILES[0].CRUName,
-    );
+    const [originalCruName, setOriginalCruName] = useState('');
     const [modifiedCruName, setModifiedCruName] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
     const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
@@ -73,9 +71,11 @@ const EditCru = () => {
     const handleChangeCruName = () => {
       // Show the CRU name change confirmation modal
       setShowChangeNameConfirmationModal(true);
+     
     };
 
-    const handleConfirmChangeName = () => {
+    const handleConfirmChangeName = async () => {
+        
       // Update the CRU name and hide the confirmation modal
       setOriginalCruName(modifiedCruName);
       setModalVisible(false);
@@ -205,12 +205,12 @@ const EditCru = () => {
                       <View style={styles.input}>
                           <Pressable onPress={handleModalOpen}>
                               <TextInput
-                                  placeholder={CRU?.name ?? ''}
+                                  placeholder={CRU?.name}
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
-                                  onChangeText={setModifiedCruName}
-                                  value={CRU?.name} // Display the original value, not the modified one
+                                  onChangeText={text => setModifiedCruName(text)}
+                                  value={modifiedCruName || ''} // Display the original value, not the modified one
                                   editable={false}
                               />
                           </Pressable>
@@ -349,11 +349,11 @@ const EditCru = () => {
                       <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
                       <View style={styles.input}>
                           <TextInput
-                              placeholder={originalCruName}
+                              placeholder={CRU?.name}
                               placeholderTextColor={COLORS.DARKGREY}
                               style={styles.textinput}
                               secureTextEntry={false}
-                              onChangeText={setModifiedCruName}
+                              onChangeText={text => setModifiedCruName(text)}
                               value={modifiedCruName} // Use the modified value in the TextInput
                               editable={true}
                           />
@@ -435,6 +435,7 @@ const EditCru = () => {
                               horizontal={false}
                               showsHorizontalScrollIndicator={false}
                               scrollEnabled={false}
+                              numColumns={2}
                               keyExtractor={item => item.userID}
                               renderItem={({item, index}) => (
                                   <View style={{marginVertical: 5}}>
