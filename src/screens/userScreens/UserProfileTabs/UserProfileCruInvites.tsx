@@ -2,18 +2,20 @@ import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
-import { JENNY_INVITES } from '../../../../assets/constants/Mockusers';
-import { useFocusEffect } from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { getCRUInvites } from '../../../lib/api/cru.lib';
 import { ICruInvite, IMITInvite } from '../../../../types';
 import { FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
 import MITInviteCard from '../../../components/MITInviteCard';
-
+import imageindex from '../../../../assets/images/imageindex';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ClientStackParams } from '../../../navigation/ClientStack';
 
 const UserProfileCruInvites = () => {
   const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
   const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -71,30 +73,33 @@ const UserProfileCruInvites = () => {
                   >
                     <CruInviteCard
                       cruInviteID={item.id}
-                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName} ${item.id}`}
+                      inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName}`}
                       inviteePicture={item.cru.creator.profilePicture ?? undefined} 
                       inviteDate={item.createdAt}
-                    />
-                  </View>
-                )
-              } else {
-                // FIXME: implement MIT invite card
-                return (
-                  <View
-                    key={item.id}
-                    style={{ marginHorizontal: 15, marginBottom: 10 }}
-                  >
-                    <MITInviteCard
-                      MITInviteID={item.id}
-                      movie={item.movie}
-                      creator={item.creator}
-                      // inviteeName={`${item.creator.firstName} ${item.creator.lastName}`}
-                      // inviteePicture={item.creator.profilePicture ?? undefined} 
-                      inviteDate={item.createdAt}
+                      invitee={item.cru.creator}
+                      onPress={() => navigation.navigate('ViewUserScreen', {id: item.cru.creator})}
                     />
                   </View>
                 )
               }
+              // } else {
+              //   // FIXME: implement MIT invite card
+              //   return (
+              //     <View
+              //       key={item.id}
+              //       style={{ marginHorizontal: 15, marginBottom: 10 }}
+              //     >
+              //       <MITInviteCard
+              //         MITInviteID={item.id}
+              //         movie={item.movie}
+              //         creator={item.creator}
+              //         // inviteeName={`${item.creator.firstName} ${item.creator.lastName}`}
+              //         // inviteePicture={item.creator.profilePicture ?? undefined} 
+              //         inviteDate={item.createdAt}
+              //       />
+              //     </View>
+              //   )
+              // }
           }
             ) : 
             // FIXME: implement no invites empty state

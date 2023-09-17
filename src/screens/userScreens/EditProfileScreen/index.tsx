@@ -293,7 +293,7 @@ export default function EditProfile({session}: {session: Session}) {
                           <Avatar
                               rounded
                               size={125}
-                              source={avatarUrl ? {uri: avatarUrl} : imageindex.Akcruplaceholder}
+                              source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
                               avatarStyle={{
                                   borderWidth: 2,
                                   borderColor: COLORS.AKCRUBLUE,

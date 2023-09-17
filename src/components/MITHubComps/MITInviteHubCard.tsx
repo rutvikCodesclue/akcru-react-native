@@ -20,7 +20,7 @@ type MITInviteHubCardProp = {
     akcruBadge: any;
 };
 
-const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akcruBadge}: MITInviteHubCardProp) => {
+const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akcruBadge, onPress2}: MITInviteHubCardProp) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const _acceptInvite = () => {
@@ -66,17 +66,21 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 10}}>
-                            <Avatar
-                                source={
-                                    creator.profilePicture ? {uri: creator.profilePicture} : imageindex.Akcruplaceholder
-                                }
-                                size={50}
-                                rounded
-                                avatarStyle={{
-                                    borderWidth: 2,
-                                    borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
-                                }}
-                            />
+                           
+                                <Avatar
+                                    source={
+                                        creator.profilePicture
+                                            ? {uri: creator.profilePicture}
+                                            : imageindex.Akcruplaceholder
+                                    }
+                                    size={50}
+                                    rounded
+                                    avatarStyle={{
+                                        borderWidth: 2,
+                                        borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
+                                    }}
+                                />
+                           
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>

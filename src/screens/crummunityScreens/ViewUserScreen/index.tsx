@@ -95,11 +95,12 @@ export default function ViewUserScreen({route}: Props) {
             if (response) {
                 // The invite was sent successfully
                 setShowCruInviteSent(true);
+                setShowConfirmationModal(false);
 
                 // Start a timer to hide the modal after a certain duration
                 setTimeout(() => {
                     setShowCruInviteSent(false);
-                }, 6000); // 6000 milliseconds = 6 seconds
+                }, 4000); // 4000 milliseconds = 4 seconds
             }
         } catch (error) {
             // Handle any errors that may occur during the invite creation
@@ -132,7 +133,7 @@ export default function ViewUserScreen({route}: Props) {
                       }}
                   />
                   <View style={{marginTop: 60, marginHorizontal: 15, marginBottom: 10}}>
-                      <TouchableOpacity onPress={() => navigation.navigate('CrummunityStack', {screen: 'CrummunityScreen'})}>
+                      <TouchableOpacity onPress={() => navigation.pop()}>
                           <View
                               style={{
                                   flexDirection: 'row',

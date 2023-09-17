@@ -35,11 +35,11 @@ const HomeScreen = () => {
   
   const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
   const [topRatedMovies, setTopRatedMovies] = useState<IMovie[]>([]);
-  const [yearMovies, setyearMovies] = useState<IMovie[]>([]);
+  const [olderYearMovies, setOlderYearMovies] = useState<IMovie[]>([]);
+  const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
   const [randomMovies, setRandomMovies] = useState<IMovie[]>([]); 
   const [topBox, setTopBox]= useState<IMovie[]>([]);
   const [topBoxIndex, setTopBoxIndex] = useState(2)
-
   const [topBoxShouldAutoplay, setTopBoxShouldAutoplay] = useState(false);
   const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
 
@@ -72,17 +72,33 @@ const HomeScreen = () => {
             }
         };
 
-        const fetchyearMovies = async () => {
+        const fetchOldYearMovies = async () => {
             try {
                 const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
 
-                // Sort allMovies by rating in descending order
+                // Sort allMovies by year in descending order
                 const sortedMovies = allMovies.sort((a, b) => a.year - b.year);
 
                 // Get the 5 oldest movies
                 const Oldest5Movies = sortedMovies.slice(0, 5);
 
-                setyearMovies(Oldest5Movies);
+                setOlderYearMovies(Oldest5Movies);
+            } catch (error) {
+                console.error('Error fetching top rated movies:', error);
+            }
+        };
+
+        const fetchNewerYearMovies = async () => {
+            try {
+                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+                // Sort allMovies by year in descending order
+                const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
+
+                // Get the 5 oldest movies
+                const Newer5Movies = sortedMovies.slice(0, 5);
+
+                setNewerYearMovies(Newer5Movies);
             } catch (error) {
                 console.error('Error fetching top rated movies:', error);
             }
@@ -126,10 +142,11 @@ const HomeScreen = () => {
             }
         };
         fetchTopBoxMovie();
-        fetchyearMovies();
+        fetchOldYearMovies();
         fetchTopRatedMovies();
         fetchNewOnAkcru();
         fetchRandomMovies();
+        fetchNewerYearMovies();
     }, []);
 
   const handleGenrePress = (genre: string) => {
@@ -250,7 +267,7 @@ const HomeScreen = () => {
                           Akcru_Content={{id: 'topRatedMovies', title: 'Top Rated on Akcru', movies: topRatedMovies}}
                       />
                       <LargeListCategories
-                          Akcru_Content={{id: 'oldiesButGoodies', title: 'Oldies but Goodies', movies: yearMovies}}
+                          Akcru_Content={{id: 'oldiesButGoodies', title: 'Oldies but Goodies', movies: olderYearMovies}}
                       />
                       <BasicListCategories
                           Akcru_Content={{id: 'recommendedForYou', title: 'Recommended by Akcru', movies: randomMovies}}

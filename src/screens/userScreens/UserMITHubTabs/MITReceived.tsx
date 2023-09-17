@@ -39,32 +39,36 @@ const MITReceived = () => {
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             // console.log('User Profile Cru Invite Tab focused');
-            getCRUInvites({pending: true}).then(invites => {
-                // console.log("cru invites: ", JSON.stringify(invites, null, 3));
-                setInvites(invites);
 
-                // get the MITS for the user and merge
-                getMyMITInvites({pending: true}).then(mitInvites => {
-                    // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
+            // Get the MITS for the user
+            getMyMITInvites({pending: true}).then(mitInvites => {
+                // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
 
-                    if (mitInvites) {
-                        setInvites(prevInvites => [...prevInvites, ...mitInvites]);
-                        // sort invites by date (newest to oldest) and set state
-                        setInvites(prevInvites =>
-                            prevInvites.sort((a, b) => {
-                                if (a.createdAt < b.createdAt) {
-                                    return 1;
-                                }
-                                if (a.createdAt > b.createdAt) {
-                                    return -1;
-                                }
-                                return 0;
-                            }),
-                        );
-                    }
+                if (mitInvites) {
+                    // Count the number of MIT invites
+                    const mitInviteCount = mitInvites.length;
+
+                    // sort invites by date (newest to oldest) and set state
+                    setInvites(
+                        mitInvites.sort((a, b) => {
+                            if (a.createdAt < b.createdAt) {
+                                return 1;
+                            }
+                            if (a.createdAt > b.createdAt) {
+                                return -1;
+                            }
+                            return 0;
+                        }),
+                    );
 
                     setIsLoaded(true);
-                });
+                    // Call setInviteCount with the total count of MIT invites
+                    setInviteCount(mitInviteCount);
+                } else {
+                    // If there are no MIT invites, set the count to 0
+                    setIsLoaded(true);
+                    setInviteCount(0);
+                }
             });
 
             return () => {
@@ -73,6 +77,45 @@ const MITReceived = () => {
             };
         }, []),
     );
+
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+    //         // console.log('User Profile Cru Invite Tab focused');
+    //         getCRUInvites({pending: true}).then(invites => {
+    //             // console.log("cru invites: ", JSON.stringify(invites, null, 3));
+    //             setInvites(invites);
+
+    //             // get the MITS for the user and merge
+    //             getMyMITInvites({pending: true}).then(mitInvites => {
+    //                 // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
+
+    //                 if (mitInvites) {
+    //                     setInvites(prevInvites => [...prevInvites, ...mitInvites]);
+    //                     // sort invites by date (newest to oldest) and set state
+    //                     setInvites(prevInvites =>
+    //                         prevInvites.sort((a, b) => {
+    //                             if (a.createdAt < b.createdAt) {
+    //                                 return 1;
+    //                             }
+    //                             if (a.createdAt > b.createdAt) {
+    //                                 return -1;
+    //                             }
+    //                             return 0;
+    //                         }),
+    //                     );
+    //                 }
+
+    //                 setIsLoaded(true);
+    //             });
+    //         });
+
+    //         return () => {
+    //             // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+    //             // console.log('User Profile Cru Invite Tab unfocused');
+    //         };
+    //     }, []),
+    // );
 
     useEffect(() => {
         // When the invites change, update the invite count

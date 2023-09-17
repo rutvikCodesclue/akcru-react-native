@@ -423,9 +423,11 @@ export default function SendMITSchedule({ route }: Props) {
                                                 <Avatar
                                                     rounded
                                                     size={40}
-                                                    source={{
-                                                        uri: user?.profilePicture,
-                                                    }}
+                                                    source={
+                                                        user?.profilePicture
+                                                            ? {uri: user?.profilePicture}
+                                                            : imageindex.Akcruplaceholder
+                                                    }
                                                     avatarStyle={{
                                                         borderWidth: 2,
                                                         borderColor: COLORS.AKCRUBLUE,
@@ -555,7 +557,8 @@ export default function SendMITSchedule({ route }: Props) {
 
                                                     const isPastTime = selectedDateTime < currentTime;
 
-                                                    const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                                                    const ampmHours =
+                                                        hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
                                                     const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
                                                     return (
                                                         <TouchableOpacity
@@ -631,7 +634,9 @@ export default function SendMITSchedule({ route }: Props) {
                                                             btnname={'Send MIT'}
                                                             color={COLORS.AKCRUBLUE}
                                                             onPress={handleSetDateTime}
-                                                            disabled={!selectedDate || !selectedTime || !selectedTimeZone}
+                                                            disabled={
+                                                                !selectedDate || !selectedTime || !selectedTimeZone
+                                                            }
                                                         />
                                                     </View>
                                                 ) : (
@@ -700,8 +705,8 @@ export default function SendMITSchedule({ route }: Props) {
                                                                         textAlign: 'center',
                                                                         color: COLORS.AKCRUBLUE,
                                                                     }}>
-                                                                    You will be notified if your MIT has been ACCEPTED or
-                                                                    DECLINED
+                                                                    You will be notified if your MIT has been ACCEPTED
+                                                                    or DECLINED
                                                                 </Text>
                                                             </View>
                                                         </View>
