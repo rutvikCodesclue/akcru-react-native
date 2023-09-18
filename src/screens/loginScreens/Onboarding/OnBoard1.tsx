@@ -12,7 +12,7 @@ import {
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
@@ -26,15 +26,18 @@ import {MaskedTextInput} from 'react-native-mask-text';
 import {API} from '../../../clients/api.client';
 import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import useAuthStore from '../../../stores/auth.store';
+import { updateUser } from '../../../lib/api/user.lib';
 
 const OnBoard1 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-
+    const user = useAuthStore(state => state.user);
+    const {hydrateUser} = useAuthStore();
     const [phoneNumber, setPhoneNumber] = useState('');
-    const [dob, setDob] = useState('');
+    const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [userName, setUserName] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
+    const [firstName, setFirstName] = useState(user?.firstName);
+    const [lastName, setLastName] = useState(user?.lastName);
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -44,6 +47,18 @@ const OnBoard1 = () => {
     const toggleDatePicker = () => {
         setShowPicker(!showPicker);
     };
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('OnBoard1 Screen focused [OnBoard1]');
+            hydrateUser();
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('OnBoard1 Screen unfocused [OnBoard1]');
+            };
+        }, []),
+    );
 
     const onChange = ({type} : {type: string}, selectedDate: Date ) => {
       if (type == "set") {
@@ -52,14 +67,14 @@ const OnBoard1 = () => {
 
         if (Platform.OS === 'android') {
           toggleDatePicker();
-          setDob(currentDate.toDateString())
+          setDateOfBirth(currentDate.toDateString())
         }
       } else { toggleDatePicker()}
     };
 
     const confirmIOSDate = ({type}: {type: string}, selectedDate: Date) => {
         const currentDate = selectedDate;
-        setDob(currentDate.toDateString());
+        setDateOfBirth(currentDate.toDateString());
         toggleDatePicker();
     };
 
@@ -77,7 +92,7 @@ const OnBoard1 = () => {
     };
 
     const handleDobChange = (text: string) => {
-      setDob(text);
+      setDateOfBirth(text);
     };
 
     
@@ -88,7 +103,7 @@ const OnBoard1 = () => {
     const checkFormCompletion = () => {
         if (
             userName &&
-            dob 
+            dateOfBirth 
         ) {
             setIsFormComplete(true);
         } else {
@@ -103,6 +118,45 @@ const OnBoard1 = () => {
        
         // dob,
     ]);
+
+    const confirmUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Call the updateUser function to send the updated data to the backend
+            const updatedUser = await updateUser({
+                firstName: firstName,
+                lastName: lastName,
+                dateOfBirth: dateOfBirth,
+
+                // Pass the state update functions to the API function
+            });
+
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+            navigation.navigate('OnBoard2');
+
+            const currentUser = useAuthStore.getState().user;
+
+            // Update the username in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.firstName = firstName;
+                currentUser.lastName = lastName;
+                currentUser.dateOfBirth = dateOfBirth;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
 
     return (
         <View>
@@ -133,7 +187,7 @@ const OnBoard1 = () => {
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
                                     onChangeText={handleFirstNameChange}
-                                    value={firstName}
+                                    value={firstName || ''}
                                     editable={!loading}
                                 />
                                 <InputsLrg
@@ -142,7 +196,7 @@ const OnBoard1 = () => {
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
                                     onChangeText={handleLastNameChange}
-                                    value={lastName}
+                                    value={lastName || ''}
                                     editable={!loading}
                                 />
 
@@ -183,7 +237,7 @@ const OnBoard1 = () => {
                                             iconcolor={COLORS.LIGHTGREY}
                                             secureTextEntry={false}
                                             onChangeText={handleDobChange}
-                                            value={dob}
+                                            value={dateOfBirth}
                                             editable={false}
                                             onPressIn={toggleDatePicker}
                                         />
@@ -216,7 +270,7 @@ const OnBoard1 = () => {
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.AKCRUBLUE}
                                         btnname={'Next'}
-                                        onPress={() => navigation.navigate('OnBoard2')}
+                                        onPress={confirmUpdate}
                                         disabled={false}
                                     />
                                 </View>

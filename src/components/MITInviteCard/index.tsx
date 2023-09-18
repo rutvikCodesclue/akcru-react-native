@@ -7,6 +7,8 @@ import styles from './styles';
 import { set } from 'lodash';
 import { acceptAMITInvite, declineAMITInvite } from '../../lib/api/mit.lib';
 import { IMovie, IUserProfile } from '../../../types';
+import imageindex from '../../../assets/images/imageindex';
+import { selectAvatarBorderColor } from '../../util/util';
 
 
 type MITInviteCardProp = {
@@ -65,39 +67,37 @@ const MITInviteCard = ({
               }}
           />
           <View style={{padding: 10}}>
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-              <View style={{marginRight: 10}}>
-                  <Avatar
-                      source={{
-                          uri: creator.profilePicture ?? undefined,
-                      }}
-                      size={50}
-                      rounded
-                      avatarStyle={{
-                          borderWidth: 2,
-                          borderColor: COLORS.AKCRUBLUE,
-                      }}
-                  />
-              </View>
-              <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>
-                  <View>
-                      <Text style={styles.paragraphText2}>{` ${creator.username}`}</Text>
+              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <View style={{marginRight: 10}}>
+                      <Avatar
+                          source={creator.profilePicture ? {uri: creator.profilePicture} : imageindex.Akcruplaceholder}
+                          size={50}
+                          rounded
+                          avatarStyle={{
+                              borderWidth: 2,
+                              borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
+                          }}
+                      />
                   </View>
+                  <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>
+                      <View>
+                          <Text style={styles.paragraphText2}>{` ${creator.username}`}</Text>
+                      </View>
 
-                  <Text style={styles.paragraphText}>
-                      has sent you a MIT Invite for <Text style={styles.paragraphText3}>"{movie.title}"</Text> on
-                      <Text style={styles.paragraphText3}>
-                          {' '}
-                          {new Date(inviteDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                          })}
+                      <Text style={styles.paragraphText}>
+                          has sent you a MIT Invite for <Text style={styles.paragraphText3}>"{movie.title}"</Text> on
+                          <Text style={styles.paragraphText3}>
+                              {' '}
+                              {new Date(inviteDate).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'short',
+                                  day: 'numeric',
+                              })}
+                          </Text>
                       </Text>
-                  </Text>
+                  </View>
               </View>
-          </View>
-         
+
               <View style={{flexDirection: 'row', marginTop: 5, justifyContent: 'center'}}>
                   {/* ACCEPT BUTTON */}
                   <TouchableOpacity onPress={_acceptInvite} disabled={isLoading}>
@@ -130,8 +130,6 @@ const MITInviteCard = ({
                   </TouchableOpacity>
               </View>
           </View>
-          
-          
       </View>
   );
 }

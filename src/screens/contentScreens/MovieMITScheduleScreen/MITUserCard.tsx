@@ -31,6 +31,7 @@ type MITUserSearchCardProps = {
 };
 
 const MITUserSearchCard = ({
+    
     userPicture,
     userName,
     influencer,
@@ -42,6 +43,7 @@ const MITUserSearchCard = ({
 }: MITUserSearchCardProps) => {
     // const truncateduserDesc =
     //     userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
+    
 
     return (
         <View
@@ -77,9 +79,9 @@ const MITUserSearchCard = ({
                                 <Avatar
                                     rounded
                                     size={40}
-                                    source={{
-                                        uri: userPicture ?? undefined,
-                                    }}
+                                    source={
+                                        userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder
+                                    }
                                     avatarStyle={{
                                         borderWidth: 2,
                                         borderColor: selectAvatarBorderColor(akcruBadge),
@@ -124,14 +126,13 @@ const MITUserSearchCard = ({
                         </View>
                     </View>
                     <View>
-                      <TouchableOpacity style={{alignItems: 'center'}} onPressOut={onPressOut}>
-                        <Image source={imageindex.MITticket} />
-                        <View>
-                            <Text style={{...FONTS.Title3, fontSize: 12}}>Send MIT</Text>
-                        </View>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={{alignItems: 'center'}} onPressOut={onPressOut}>
+                            <Image source={imageindex.MITticket} />
+                            <View>
+                                <Text style={{...FONTS.Title3, fontSize: 12}}>Send MIT</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
-                    
                 </View>
 
                 {/* <View>

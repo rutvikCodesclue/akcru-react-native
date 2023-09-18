@@ -9,6 +9,7 @@ import {acceptAMITInvite, declineAMITInvite} from '../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../types';
 import imageindex from '../../../assets/images/imageindex';
 import AkcruLevels from '../akcruBadges';
+import { selectAvatarBorderColor } from '../../util/util';
 
 type MITInviteHubCardProp = {
     MITInviteID: any;
@@ -19,7 +20,7 @@ type MITInviteHubCardProp = {
     akcruBadge: any;
 };
 
-const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akcruBadge}: MITInviteHubCardProp) => {
+const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akcruBadge, onPress2}: MITInviteHubCardProp) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const _acceptInvite = () => {
@@ -47,7 +48,7 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
                 backgroundColor: '#1C202A',
                 borderRadius: 5,
                 borderWidth: 1,
-                borderColor: COLORS.AKCRUBLUE
+                borderColor: COLORS.AKCRUBLUE,
             }}>
             <LinearGradient
                 // Background Linear Gradient
@@ -64,44 +65,47 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
             <View style={{padding: 10}}>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
-                       <View style={{marginRight: 10}}>
-                        <Avatar
-                            source={{
-                                uri: creator.profilePicture ?? undefined,
-                            }}
-                            size={50}
-                            rounded
-                            avatarStyle={{
-                                borderWidth: 2,
-                                borderColor: COLORS.AKCRUBLUE,
-                            }}
-                        />
-                       </View>
-                     <View>
-                        <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
-                        {akcruBadge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {akcruBadge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
-                        {akcruBadge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {akcruBadge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
-                    </View> 
+                        <View style={{marginRight: 10}}>
+                           
+                                <Avatar
+                                    source={
+                                        creator.profilePicture
+                                            ? {uri: creator.profilePicture}
+                                            : imageindex.Akcruplaceholder
+                                    }
+                                    size={50}
+                                    rounded
+                                    avatarStyle={{
+                                        borderWidth: 2,
+                                        borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
+                                    }}
+                                />
+                           
+                        </View>
+                        <View>
+                            <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
+                            {akcruBadge === 'AKCRUIT' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                </View>
+                            )}
+                            {akcruBadge === 'GUARDIAN' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeGuardian />
+                                </View>
+                            )}
+                            {akcruBadge === 'HERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeHero />
+                                </View>
+                            )}
+                            {akcruBadge === 'SUPERHERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                </View>
+                            )}
+                        </View>
                     </View>
-                    
 
                     <View>
                         {/* <Text style={styles.stamps}>{MITDate}</Text> */}
@@ -112,7 +116,8 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                     <Text style={styles.paragraphText}>
-                        {creator?.firstName} "{creator?.username}" has sent you a MIT Invite for <Text style={styles.paragraphText3}>"{movie.title}"</Text> on
+                        {creator?.firstName} "{creator?.username}" has sent you a MIT Invite for{' '}
+                        <Text style={styles.paragraphText3}>"{movie.title}"</Text> on
                         <Text style={styles.paragraphText3}>
                             {' '}
                             {new Date(inviteDate).toLocaleDateString('en-US', {

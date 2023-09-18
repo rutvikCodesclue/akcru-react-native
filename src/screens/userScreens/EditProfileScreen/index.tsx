@@ -37,29 +37,6 @@ import { updateUserProfilePicture, updateUser } from '../../../lib/api/user.lib'
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
-const handleImageUpload = async (res: ImagePickerResponse) => {
-    // console.log('Image Upload Response:', res);
-    
-    if (res.assets) {
-        const uri = res.assets[0].uri 
-        const fileName = res.assets[0].fileName 
-        const type = res.assets[0].type 
-
-        if (uri && fileName && type) {
-            // call the api to upload the file for profile picture
-            const result = await updateUserProfilePicture({ 
-                uri, 
-                name: fileName, 
-                type 
-            })
-
-            if (result) {
-                console.log('Image Upload Result:', result);
-            }
-        }
-    }
-}
-
 export default function EditProfile({session}: {session: Session}) {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -71,16 +48,15 @@ export default function EditProfile({session}: {session: Session}) {
 
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState(user?.username);
-  const [desc, setDesc] = useState(user?.description);
+  
 
   const [avatarUrl, setAvatarUrl] = useState('');
 
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(user?.description);
 
   const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
   const [emailError, setEmailError] = useState(false);
   const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
-
 
     useFocusEffect(
         React.useCallback(() => {
@@ -171,7 +147,7 @@ export default function EditProfile({session}: {session: Session}) {
           // Call the updateUser function to send the updated data to the backend
           const updatedUser = await updateUser({
               username: userName,
-              description: desc,
+              description: description,
               // Pass the state update functions to the API function
               
           });
@@ -196,7 +172,7 @@ export default function EditProfile({session}: {session: Session}) {
           // Update the username in the user's profile in the store immediately: 
           if (currentUser) {
               currentUser.username = userName;
-              currentUser.description = desc;
+              currentUser.description = description;
               useAuthStore.setState({user: currentUser}); // Use setState to update the user
           }
       }
@@ -226,6 +202,41 @@ export default function EditProfile({session}: {session: Session}) {
           }
       }
   };
+
+  const handleImageUpload = async (res: ImagePickerResponse) => {
+      if (res.assets) {
+          const uri = res.assets[0].uri;
+          const fileName = res.assets[0].fileName;
+          const type = res.assets[0].type;
+
+          if (uri && fileName && type) {
+              try {
+                  // Call the updateUserProfilePicture function to upload the image
+                  const result = await updateUserProfilePicture({
+                      uri,
+                      name: fileName,
+                      type,
+                  });
+
+                  if (result) {
+                      // Update the user's profile picture URL
+                      setAvatarUrl(result.profilePicture);
+
+                      // You may also want to update the user's profile picture in your state or context
+                      // For example, if your user state is stored in Redux or a context provider
+                      // Update the user's profile picture there as well
+
+                      console.log('Image Upload Result:', result);
+                  } else {
+                      console.error('Failed to update profile picture.');
+                  }
+              } catch (error) {
+                  console.error('Error updating profile picture:', error);
+              }
+          }
+      }
+  };
+
 
   const handleFinishButton = () => {
       const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
@@ -483,9 +494,9 @@ export default function EditProfile({session}: {session: Session}) {
                           placeholder={user?.description}
                           placeholderTextColor={COLORS.DARKGREY}
                           style={styles.textinput}
-                          onChangeText={text => setDesc(text)}
+                          onChangeText={text => setDescription(text)}
                           secureTextEntry={false}
-                          value={desc || ''}
+                          value={description || ''}
                       />
                   </View>
 
