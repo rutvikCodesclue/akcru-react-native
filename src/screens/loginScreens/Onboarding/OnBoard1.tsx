@@ -83,13 +83,13 @@ const OnBoard1 = () => {
         
     };
 
-    const handleFirstNameChange = (text: string) => {
-        setFirstName(text);
-    };
+    // const handleFirstNameChange = (text: string) => {
+    //     setFirstName(text);
+    // };
 
-    const handleLastNameChange = (text: string) => {
-        setLastName(text);
-    };
+    // const handleLastNameChange = (text: string) => {
+    //     setLastName(text);
+    // };
 
     const handleDobChange = (text: string) => {
       setDateOfBirth(text);
@@ -186,7 +186,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={handleFirstNameChange}
+                                    onChangeText={text => setFirstName(text)}
                                     value={firstName || ''}
                                     editable={!loading}
                                 />
@@ -195,7 +195,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={handleLastNameChange}
+                                    onChangeText={text => setLastName(text)}
                                     value={lastName || ''}
                                     editable={!loading}
                                 />
@@ -252,8 +252,8 @@ const OnBoard1 = () => {
                                         style={{marginRight: 5}}
                                     />
                                     <MaskedTextInput
-                                        mask="1+999-999-9999"
-                                        placeholder="1+123-456-7890"
+                                        mask="+1-999-999-9999"
+                                        placeholder="+1-123-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}

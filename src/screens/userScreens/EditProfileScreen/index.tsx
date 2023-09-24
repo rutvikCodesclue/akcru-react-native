@@ -323,7 +323,7 @@ export default function EditProfile({session}: {session: Session}) {
                       </View>
 
                       {/* Modal to Select Profile Photo */}
-                      <Modal animationType="fade" transparent={true} visible={showImagePickerModal}>
+                      {/* <Modal animationType="fade" transparent={true} visible={showImagePickerModal}>
                           <View
                               style={{
                                   flex: 1,
@@ -373,7 +373,7 @@ export default function EditProfile({session}: {session: Session}) {
                                   </ScrollView>
                               </View>
                           </View>
-                      </Modal>
+                      </Modal> */}
                   </View>
                   <View style={styles.gallerycontainer}>
                       <ScrollView
@@ -457,7 +457,7 @@ export default function EditProfile({session}: {session: Session}) {
                                   textAlign: 'center',
                                   color: COLORS.MIDORANGE,
                               }}>
-                              Upload a picture from your phone
+                              Edit gallery pictures
                           </Text>
                       </TouchableOpacity>
                   </View>
@@ -505,35 +505,28 @@ export default function EditProfile({session}: {session: Session}) {
                   </Text>
 
                   <View style={{marginBottom: 20}}>
-                      <FlatList
-                          data={filteredGenres}
-                          horizontal={false}
-                          numColumns={3}
-                          showsHorizontalScrollIndicator={false}
-                          keyExtractor={item => item.id}
-                          renderItem={({item, index}) => (
-                              <View>
-                                  <View style={styles.checkboxContainer}>
-                                      <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
-                                          <View style={styles.checkbox}>
-                                              {checkedGenres[item.id] && (
-                                                  <Icon
-                                                      name="checkmark-sharp"
-                                                      type="ionicon"
-                                                      size={18}
-                                                      color={COLORS.MIDORANGE}
-                                                      style={{marginTop: -3}}
-                                                  />
-                                              )}
-                                          </View>
-                                      </TouchableOpacity>
-                                      <View>
-                                          <Text style={styles.checkboxText}>{item.genre}</Text>
+                      <View style={styles.genresContainer}>
+                          {filteredGenres.map((item, index) => (
+                              <View key={item.id} style={styles.checkboxContainer}>
+                                  <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                      <View style={styles.checkbox}>
+                                          {checkedGenres[item.id] && (
+                                              <Icon
+                                                  name="checkmark-sharp"
+                                                  type="ionicon"
+                                                  size={18}
+                                                  color={COLORS.MIDORANGE}
+                                                  style={{marginTop: -3}}
+                                              />
+                                          )}
                                       </View>
+                                  </TouchableOpacity>
+                                  <View>
+                                      <Text style={styles.checkboxText}>{item.genre}</Text>
                                   </View>
                               </View>
-                          )}
-                      />
+                          ))}
+                      </View>
                   </View>
 
                   <View style={{alignItems: 'center', marginTop: 20}}>
