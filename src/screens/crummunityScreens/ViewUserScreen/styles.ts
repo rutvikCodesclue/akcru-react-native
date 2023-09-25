@@ -55,4 +55,14 @@ export default StyleSheet.create({
         fontSize: 14,
         textDecorationLine: 'underline',
     },
+    drawfonttag: {
+        ...FONTS.Title2Orange,
+        color: COLORS.BLACK,
+        backgroundColor: COLORS.STARGOLD,
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        marginHorizontal: 2,
+        borderRadius: 4,
+        textAlign: 'center',
+    },
 });

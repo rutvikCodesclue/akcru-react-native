@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native'
+import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal} from 'react-native';
 import React, { useEffect, useState } from 'react'
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -16,17 +16,20 @@ import useAuthStore from '../../../stores/auth.store';
 import { IMovie } from '../../../../types';
 import { findMovies } from '../../../lib/api/movies.lib';
 
-const gallery = FAKE_USER_PROFILES[0].gallery
+import archetypeData, { archetypeMapping } from '../../../../assets/constants/archetypeMapping'; // Import your mapping
+import { Pressable } from 'react-native';
 
-const Userwatchlist = Akcru_Content[5];
-
-
-
-
-
+ 
 
 
 const UserProfileDetailsTab = () => {
+
+    const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
 
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
     
@@ -34,6 +37,8 @@ const UserProfileDetailsTab = () => {
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const {user, hydrateUser} = useAuthStore();
+    
+    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -189,7 +194,7 @@ const UserProfileDetailsTab = () => {
                       style={{
                           ...FONTS.Title2,
                           marginTop: 10,
-                          marginBottom: 20,
+                          marginBottom: 10,
                           textAlign: 'center',
                           fontSize: 14,
                           textDecorationLine: 'underline',
@@ -221,21 +226,57 @@ const UserProfileDetailsTab = () => {
                       {/* <Image source={imageindex.Graph1} />
                       <Image source={imageindex.GraphMetric} /> */}
                   </View>
-                  <View style={{ paddingTop: 10, flexDirection: 'row', justifyContent: 'flex-start'}}>
+                  <View style={{paddingTop: 10, flexDirection: 'row', justifyContent: 'flex-start'}}>
                       <View style={{paddingBottom: 10, paddingRight: 10}}>
-                          <Image
-                              source={imageindex.SpaceCrimePuzzler}
-                              style={{
-                                  width: SIZES.ScreenWidth / 2.5,
-                                  height: SIZES.ScreenWidth / 2.5,
-                                  borderRadius: 5,
-                              }}
-                          />
+                          <Pressable onPress={toggleModal}>
+                              <Image
+                                  source={imageindex.SpaceCrimePuzzler}
+                                  style={{
+                                      width: SIZES.ScreenWidth / 2.2,
+                                      height: SIZES.ScreenWidth / 2.2,
+                                      borderRadius: 5,
+                                  }}
+                              />
+                          </Pressable>
                       </View>
-
-                      <Text style={{...FONTS.Title2, fontSize: 12}}>Space Crime Puzzler</Text>
+                      <View style={{flex: 1}}>
+                          <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
+                          <View style={{flexDirection: 'row', paddingBottom: 5}}>
+                              <Text style={styles.drawfonttag}>Thriller</Text>
+                              <Text style={styles.drawfonttag}> Adventure</Text>
+                          </View>
+                          <Text style={{...FONTS.Title2, fontSize: 12}}>
+                              These individual appreciate movies that combine suspenseful and thrilling elements with
+                              adrenaline-pumping adventures. Experiencing intense suspense and daring escapades is where
+                              they find their cinematic excitement.
+                          </Text>
+                      </View>
                   </View>
               </View>
+
+              {/* Create a modal to display the enlarged image */}
+              <Modal visible={isModalVisible} animationType="fade" transparent={true} >
+                  <View
+                      style={{
+                          flex: 1,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      }}>
+                      {/* Display the enlarged image */}
+                      <Image
+                          source={imageindex.SpaceCrimePuzzler}
+                          style={{
+                              width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                              height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                              borderRadius: 5,
+                          }}
+                      />
+                      <TouchableOpacity onPress={toggleModal}>
+                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
+                      </TouchableOpacity>
+                  </View>
+              </Modal>
 
               <View
                   style={{

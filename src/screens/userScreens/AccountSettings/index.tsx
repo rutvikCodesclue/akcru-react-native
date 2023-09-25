@@ -160,8 +160,8 @@ const AccountSettings = () => {
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
                             <MaskedTextInput
-                                mask="1+999-999-9999"
-                                placeholder="1+123-456-7890"
+                                mask="+1-999-999-9999"
+                                placeholder="+1-123-456-7890"
                                 placeholderTextColor={COLORS.DARKGREY}
                                 style={styles.textinput}
                                 secureTextEntry={false}

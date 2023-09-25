@@ -81,7 +81,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-start',
         marginTop: 20,
-        width: SIZES.ScreenWidth / 3,
+        width: '29%',
     },
     checkbox: {
         width: 20,
@@ -99,5 +99,11 @@ export default StyleSheet.create({
     bgimage: {
         height: SIZES.ScreenHeight,
         // width: SIZES.ScreenWidth,
+    },
+    genresContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingHorizontal: 15 , // Adjust the horizontal padding as needed
     },
 });

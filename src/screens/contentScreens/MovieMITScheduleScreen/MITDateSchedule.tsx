@@ -334,7 +334,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 type="material-community"
                                                 size={25}
                                                 color={COLORS.DARKGREY}
-                                                style={{marginLeft: SIZES.ScreenWidth / 2.3}}
+                                                style={{marginLeft: SIZES.ScreenWidth / 2.5}}
                                                 onPress={() => {
                                                     textInputRef.current.clear();
                                                     handleSearch(textInputRef);

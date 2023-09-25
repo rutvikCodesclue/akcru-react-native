@@ -13,7 +13,8 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
-  Modal
+  Modal,
+  StatusBar
 } from "react-native";
 import React from "react";
 import AkcruButtons from "../../../components/akcruButtons";
@@ -793,6 +794,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(true);
             // SYNC: send a message to the room that the host started playing the movie
+            // Hide the status bar when the movie starts playing
+            StatusBar.setHidden(true);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'play-movie',
@@ -807,6 +810,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
             // SYNC: send a message to the room that the host paused the movie
+
+            StatusBar.setHidden(false);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'pause-movie',
@@ -852,6 +857,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onEnterFullscreen = () => {
         // enter fullscreen
         setIsFullscreen(true);
+        // Hide the status bar when the movie starts playing
+        StatusBar.setHidden(true);
         Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
         // seeek to the current time
         if (videoPlayerRef.current && currentTime) {
@@ -869,12 +876,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 }
             }
         }
-
-
     };
     const ___onExitFullScreen = () => {
         // exit fullscreen
         setIsFullscreen(false);
+        StatusBar.setHidden(false);
         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
         // seeek to the current time
         if (videoPlayerRef.current && currentTime) {
@@ -1199,7 +1205,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         width: SIZES.ScreenWidth * 0.95,
                         height: (SIZES.ScreenWidth / 3) * 2.6,
                         marginTop: SIZES.ScreenHeight * 0.3,
-                        backgroundColor: 'blue',
+                       
                         alignSelf: 'center',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -1215,18 +1221,26 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                             renderItem={({item}) => {
                                 // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
-                                
-                                const isUserVideo = item.peer.isLocal; // Check if this is the user's video
-                                // const isExpanded = fullscreenUserVideo === item; // Check if this video is expanded
+
                                 const isExpanded = expandedVideo === item;
+
+                                
+                               // console.log('isExpanded:', isExpanded);  Log the isExpanded variable
                                 return hmsInstanceRef.current ? (
                                     <View
                                         style={{
                                             width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
                                             height: isExpanded
                                                 ? (SIZES.ScreenWidth / 3) * 2.6
-                                                : SIZES.ScreenWidth / 2.6,
+                                                : SIZES.ScreenWidth / 2.5,
                                             backgroundColor: '#000',
+                                            flex: isExpanded ? 1 : 0,
+                                            position: isExpanded ? 'absolute' : 'relative',
+                                            zIndex: isExpanded ? 99 : 0,
+                                            bottom: 0,
+                                            top: 0,
+                                            borderColor: COLORS.CATPURPLGT,
+                                            borderWidth: 4,
                                         }}>
                                         {/* CAMERA SCREEN */}
                                         {item.peer.videoTrack ? (
@@ -1237,7 +1251,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                     width: '100%',
                                                     height: '100%',
                                                     backgroundColor: 'black',
-                                                    borderRadius: 5,
                                                 }}
                                                 scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                                                 mirror={true}
@@ -1266,7 +1279,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                         // Contract the currently expanded video
                                                         setExpandedVideo(null);
                                                     } else {
-                                                        if (isUserVideo && expandedVideo) {
+                                                        if (expandedVideo) {
                                                             // Minimize the user's video if it's expanded
                                                             setExpandedVideo(null);
                                                         }
@@ -1324,13 +1337,15 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                             size={25}
                                                             color={COLORS.GREEN}
                                                         />
-                                                    ) : (!item.peer.audioTrack?.isMute() ? 
+                                                    ) : !item.peer.audioTrack?.isMute() ? (
                                                         <Icon
                                                             name="mic-off-circle"
                                                             type="ionicon"
                                                             size={25}
                                                             color={COLORS.GREEN}
-                                                        /> : <Icon
+                                                        />
+                                                    ) : (
+                                                        <Icon
                                                             name="mic-off-circle"
                                                             type="ionicon"
                                                             size={25}

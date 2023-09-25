@@ -1,4 +1,4 @@
-import { ActivityIndicator, Text, View } from 'react-native'
+import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './styles'
 import VideoPlayer from 'react-native-media-console';
@@ -96,6 +96,8 @@ export default function ContentPlayer({navigation, route}: Props) {
         // Lock the orientation back to portrait when leaving this screen
         return () => {
             Orientation.lockToPortrait();
+
+            StatusBar.setHidden(false);
         };
     }, [routeParams.params?.id]);
 
@@ -120,9 +122,13 @@ export default function ContentPlayer({navigation, route}: Props) {
 
     const onPlay = () => {
         setIsMoviePlaying(true);
+        // Hide the status bar when the movie starts playing
+        StatusBar.setHidden(true);
     };
     const onPause = () => {
         setIsMoviePlaying(false);
+        // Show the status bar when the movie is paused
+        StatusBar.setHidden(false);
     };
     const onSeek = (data: OnSeekData) => {
         resetTimer();

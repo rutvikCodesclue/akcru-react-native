@@ -75,6 +75,13 @@ export default function ViewUserScreen({route}: Props) {
   const [user, setUser] = useState<IUserProfile | undefined>(undefined)
   const [following, setFollowing] = useState(false)
 
+    const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleModal = () => {
+        setModalVisible(!isModalVisible);
+    };
+
 
 //   const truncatedstatus =
 //     status.length > MAX_STATUS_LENGTH
@@ -295,7 +302,7 @@ export default function ViewUserScreen({route}: Props) {
                   <View
                       style={{
                           width: 100,
-                          height: 60,
+                          height: 30,
                           justifyContent: 'center',
                           alignItems: 'center',
                       }}>
@@ -405,7 +412,7 @@ export default function ViewUserScreen({route}: Props) {
                   </View>
               ) : (
                   <View>
-                      <View style={{marginHorizontal: 15}}>
+                      <View style={{marginHorizontal: 15, paddingTop: 20}}>
                           <Text
                               style={{
                                   ...FONTS.Title2,
@@ -417,29 +424,64 @@ export default function ViewUserScreen({route}: Props) {
                       </View>
                       <View>
                           <Text style={styles.desctext}>ARCHETYPE</Text>
+
                           <View
                               style={{
+                                  paddingTop: 10,
                                   flexDirection: 'row',
-                                  justifyContent: 'space-between',
-                                  marginHorizontal: 15,
+                                  justifyContent: 'center',
+                                  paddingHorizontal: 10,
                               }}>
-                              <View>
-                                  <Image
-                                      source={imageindex.GraphPurp}
-                                      style={{width: 190, height: 100}}
-                                      resizeMode="contain"
-                                  />
-                                  <Image source={imageindex.GraphMetric} />
+                              <View style={{paddingBottom: 10, paddingRight: 10}}>
+                                  <Pressable onPress={toggleModal}>
+                                      <Image
+                                          source={imageindex.SpaceCrimePuzzler}
+                                          style={{
+                                              width: SIZES.ScreenWidth / 2.2,
+                                              height: SIZES.ScreenWidth / 2.2,
+                                              borderRadius: 5,
+                                          }}
+                                      />
+                                  </Pressable>
                               </View>
-                              <View style={{alignItems: 'center'}}>
-                                  <Image
-                                      source={imageindex.TurquoiseDog}
-                                      style={{width: 125, height: 90}}
-                                      resizeMode="contain"
-                                  />
-                                  <Text style={{...FONTS.Title2, fontSize: 12}}> Blood and Bullets</Text>
+                              <View style={{flex: 1}}>
+                                  <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
+                                  <View style={{flexDirection: 'row', paddingBottom: 5}}>
+                                      <Text style={styles.drawfonttag}>Thriller</Text>
+                                      <Text style={styles.drawfonttag}> Adventure</Text>
+                                  </View>
+                                  <Text style={{...FONTS.Title2, fontSize: 12}}>
+                                      These individual appreciate movies that combine suspenseful and thrilling elements
+                                      with adrenaline-pumping adventures. Experiencing intense suspense and daring
+                                      escapades is where they find their cinematic excitement.
+                                  </Text>
                               </View>
                           </View>
+
+                          {/* Create a modal to display the enlarged image */}
+                          <Modal visible={isModalVisible} animationType="fade" transparent={true}>
+                              <View
+                                  style={{
+                                      flex: 1,
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                  }}>
+                                  {/* Display the enlarged image */}
+                                  <Image
+                                      source={imageindex.SpaceCrimePuzzler}
+                                      style={{
+                                          width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                          height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                          borderRadius: 5,
+                                      }}
+                                  />
+                                  <TouchableOpacity onPress={toggleModal}>
+                                      <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
+                                  </TouchableOpacity>
+                              </View>
+                          </Modal>
+
                           <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
