@@ -763,11 +763,19 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // gets triggered when room is muted or unmuted.
         // TODO: implement this after host room functionality is added
     };
-    const __onRemovedFromRoomListener = (data: any) => {
+    const __onRemovedFromRoomListener = async (data: any) => {
         // const __onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
         // triggered whenever someone removes local peer from the room or the room is ended.
         // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
         console.log('onRemovedFromRoomListener triggered');
+        console.log('onRemovedFromRoomListener data:', data);
+
+        if (data?.roomEnded) {
+            // TODO: show a message that the room has ended
+            // Leave the Room
+            await _handleRoomLeave()
+        }
+        
     };
     const __onMessageListener = (data: HMSMessage) => {
         // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
@@ -975,12 +983,20 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         setTerminateRoom(false)
     };
     const handleRoomTermination = async () => {
-        console.log("CLOSE ROOM AS HOST");
         
-        confirmOptions();
-        setTerminateRoom(true);
-        await _handleCloseMovie()
-        await _handleRoomLeave()
+        if (hmsInstanceRef.current) {
+            console.log("CLOSE ROOM AS HOST");
+            confirmOptions();
+            // Stop the Movie
+            setTerminateRoom(true);
+            setIsMoviePlaying(false);
+
+            // end the room for every one
+            await hmsInstanceRef?.current.endRoom("Host Terminated Watchparty Session", false);
+            console.log('End Room Success');
+            // Leave the Room
+            await _handleRoomLeave()
+        }
     };
 
     const handleSnapPress = useCallback((index: number) => {
