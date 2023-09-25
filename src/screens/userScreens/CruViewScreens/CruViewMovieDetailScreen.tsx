@@ -86,14 +86,13 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
 
     
 
-    const [selectedDate, setSelectedDate] = useState(moment()); // Initialize with the current date
+     const [selectedDate, setSelectedDate] = useState(new Date());
+     const [selectedTime, setSelectedTime] = useState(new Date());
+     const [selectedTimeZone, setSelectedTimeZone] = useState('');
+     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
+     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
 
-    const [selectedTime, setSelectedTime] = useState(moment().tz('UTC')); // Set the initial timezone as UTC or your preferred default
-    const [selectedTimeZone, setSelectedTimeZone] = useState('');
-    const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
-    const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
-
-    const formattedTime = selectedTime.format('hh:mm A');
+    // const formattedTime = selectedTime.format('hh:mm A');
 
     const months = [
         'January',
@@ -110,12 +109,21 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
         'December',
     ];
 
-    const timeZones = moment.tz.names().filter(timeZone => timeZone.startsWith('America/'));
+    const timeZones = [
+        'America/New_York',
+        'America/Chicago',
+        'America/Denver',
+        'America/Los_Angeles',
+        'Europe/London',
+        'Europe/Paris',
+        'Asia/Tokyo',
+        'Australia/Sydney',
+    ];
 
 
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const currentMonth = selectedDate.month();
-    const currentYear = selectedDate.year();
+    const currentMonth = selectedDate.getMonth();
+    const currentYear = selectedDate.getFullYear();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
     const handlePreviousMonth = () => {
@@ -128,16 +136,18 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
         setSelectedDate(nextMonth);
     };
 
-    const handleDateChange = (day) => {
-        const updatedDate = moment(selectedDate).date(day);
+    const handleDateChange = day => {
+        const updatedDate = new Date(currentYear, currentMonth, day);
         setSelectedDate(updatedDate);
     };
 
 
 
     const handleTimeChange = (hours, minutes) => {
-        const updatedTime = selectedTime.clone().set({hour: hours, minute: minutes});
-        setSelectedTime(updatedTime);
+            const updatedTime = new Date(selectedTime);
+            updatedTime.setHours(hours);
+            updatedTime.setMinutes(minutes);
+            setSelectedTime(updatedTime);
     };
 
     const handleTimeZoneChange = timeZone => {
@@ -173,7 +183,7 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
     const [showSendCRUView, setShowSendCRUView] = useState(false);
 
     useEffect(() => {
-        let timer;
+        let timer: string | number | NodeJS.Timeout | undefined;
         if (showSendCRUView) {
             timer = setTimeout(() => {
                 setShowSendCRUView(false);
@@ -348,14 +358,14 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
                                     <View style={styles.datePickerContainer}>
                                         {[...Array(daysInMonth)].map((_, index) => {
                                             const day = index + 1;
-                                            const isSelected = selectedDate.date() === day;
-
-                                            const currentDate = moment();
-                                            const currentDay = moment().year(currentYear).month(currentMonth).date(day);
-                                            const currentDayOfWeek = currentDay.day();
+                                            const isSelected = selectedDate.getDate() === day;
+                                            const currentDate = new Date();
+                                            const currentDay = new Date(currentYear, currentMonth, day);
+                                            const currentDayOfWeek = currentDay.getDay();
 
                                             // Allow selection for current day and future days
-                                            const isSelectable = currentDay.isSameOrAfter(currentDate);
+                                            const isSelectable = currentDay >= currentDate;
+
                                             return (
                                                 <TouchableOpacity
                                                     key={day}
@@ -383,7 +393,7 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
                                     <Text style={{...FONTS.Title2}}>Choose Date: </Text>
                                     <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>
                                         {' '}
-                                        {selectedDate.format('MMMM DD, YYYY')}
+                                        {selectedDate.toLocaleDateString()}
                                     </Text>
                                 </View>
 
@@ -394,16 +404,22 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
                                             const hours = Math.floor(index / 4);
                                             const minutes = (index % 4) * 15;
                                             const isSelected =
-                                                selectedTime.hours() === hours && selectedTime.minutes() === minutes;
+                                                selectedTime.getHours() === hours &&
+                                                selectedTime.getMinutes() === minutes;
 
-                                            const currentTime = moment();
-                                            const selectedDateTime = moment(selectedDate).set({hours, minutes});
+                                            const currentTime = new Date();
+                                            const selectedDateTime = new Date(
+                                                selectedDate.getFullYear(),
+                                                selectedDate.getMonth(),
+                                                selectedDate.getDate(),
+                                                hours,
+                                                minutes,
+                                            );
 
-                                            const isPastTime = selectedDateTime.isBefore(currentTime);
+                                            const isPastTime = selectedDateTime < currentTime;
 
                                             const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
                                             const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
-
                                             return (
                                                 <TouchableOpacity
                                                     key={index}
@@ -431,7 +447,10 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
                                     <Text style={{...FONTS.Title2}}>Choose Time: </Text>
                                     <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>
                                         {' '}
-                                        {selectedTime.format('hh:mm A')}
+                                        {selectedTime.toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
                                     </Text>
                                 </View>
 
@@ -514,11 +533,14 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
                                                         </View>
                                                         <View style={styles.selectedDateTimeContainer}>
                                                             <Text style={styles.selectedDateTimeText}>
-                                                                {selectedDate.format('L')}
+                                                                {selectedDate.toLocaleDateString()}
                                                             </Text>
                                                             <Text style={styles.selectedDateTimeText}>
                                                                 {' '}
-                                                                {selectedTime.format('hh:mm A')}
+                                                                {selectedTime.toLocaleTimeString([], {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit',
+                                                                })}
                                                             </Text>
                                                             <Text style={styles.selectedDateTimeText}>
                                                                 {selectedTimeZone}
