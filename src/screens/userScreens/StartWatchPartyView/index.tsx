@@ -772,6 +772,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
         if (data?.roomEnded) {
             // TODO: show a message that the room has ended
+            // Pause the Movie
+            await setIsMoviePlaying(false);
+            // Close the Mvie
+            await _handleCloseMovie();
             // Leave the Room
             await _handleRoomLeave()
         }
