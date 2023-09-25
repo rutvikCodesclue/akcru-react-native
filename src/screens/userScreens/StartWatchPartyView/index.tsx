@@ -13,7 +13,8 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
-  Modal
+  Modal,
+  StatusBar
 } from "react-native";
 import React from "react";
 import AkcruButtons from "../../../components/akcruButtons";
@@ -793,6 +794,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(true);
             // SYNC: send a message to the room that the host started playing the movie
+            // Hide the status bar when the movie starts playing
+            StatusBar.setHidden(true);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'play-movie',
@@ -807,6 +810,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
             // SYNC: send a message to the room that the host paused the movie
+
+            StatusBar.setHidden(false);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'pause-movie',
@@ -852,6 +857,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const ___onEnterFullscreen = () => {
         // enter fullscreen
         setIsFullscreen(true);
+        // Hide the status bar when the movie starts playing
+        StatusBar.setHidden(true);
         Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
         // seeek to the current time
         if (videoPlayerRef.current && currentTime) {
@@ -869,12 +876,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 }
             }
         }
-
-
     };
     const ___onExitFullScreen = () => {
         // exit fullscreen
         setIsFullscreen(false);
+        StatusBar.setHidden(false);
         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
         // seeek to the current time
         if (videoPlayerRef.current && currentTime) {
@@ -1226,7 +1232,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                             width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
                                             height: isExpanded
                                                 ? (SIZES.ScreenWidth / 3) * 2.6
-                                                : (SIZES.ScreenWidth / 3) * 2.6,
+                                                : SIZES.ScreenWidth / 2.5,
                                             backgroundColor: '#000',
                                             flex: isExpanded ? 1 : 0,
                                             position: isExpanded ? 'absolute' : 'relative',

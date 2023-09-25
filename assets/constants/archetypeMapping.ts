@@ -189,12 +189,42 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They appreciate movies that combine the emotionally charged storytelling of drama with the excitement and competitiveness of sports. Exploring the challenges, victories, and personal journeys of athletes is where they find their cinematic excitement.',
     },
-    'Drama, Family': {name: 'Emotional Connector', image: '', description: ''},
-    'Drama, Horror': {name: 'Darkly Suspenseful', image: '', description: ''},
-    'Drama, Action': {name: 'Curious Defender', image: '', description: ''},
-    'Drama, Crime': {name: 'Smooth Criminal ', image: '', description: ''},
-    'Drama, Adventure': {name: 'Emotional Rollercoaster', image: '', description: ''},
-    'Drama, Romance': {name: 'Fantasy Paramour', image: '', description: ''},
+    'Drama, Family': {
+        name: 'Emotional Connector',
+        image: '',
+        description:
+            'The "Emotional Connector" have a special fondness for movies that blend the emotionally charged storytelling of drama with heartwarming family themes. Exploring complex relationships and bonding moments in the context of family is where they find their cinematic joy.',
+    },
+    'Drama, Horror': {
+        name: 'Darkly Suspenseful',
+        image: '',
+        description:
+            'They appreciate movies that combine the spine-chilling elements of horror with emotionally charged storytelling. Exploring intense characters and suspenseful narratives in the context of dark and mysterious themes is where they find their cinematic intrigue.',
+    },
+    'Drama, Action': {
+        name: 'Curious Defender',
+        image: '',
+        description:
+            'The "Curious Defender" enjoy movies that combine emotionally charged storytelling with thrilling action sequences. Exploring complex characters and engaging in high-energy adventures is where they find their cinematic excitement.',
+    },
+    'Drama, Crime': {
+        name: 'Smooth Criminal',
+        image: '',
+        description:
+            'They enjoy movies that combine emotionally charged storytelling with intricate crime-solving narratives. Exploring complex characters and delving into the world of crime and justice is where they find their cinematic intrigue.',
+    },
+    'Drama, Adventure': {
+        name: 'Emotional Rollercoaster',
+        image: '',
+        description:
+            'They appreciate movies that combine emotionally charged storytelling with thrilling adventures. Exploring complex characters and engaging in daring journeys is where they find their cinematic excitement.',
+    },
+    'Drama, Romance': {
+        name: 'Fantasy Paramour',
+        image: '',
+        description:
+            'The "Fantasy Parmour" find joy in movies that blend emotionally charged storytelling with heartwarming romantic stories. Exploring complex characters and intricate love stories is where they find their cinematic bliss.',
+    },
     'Mystery, Fantasy': {
         name: 'Mystical Puzzler',
         image: '',
@@ -213,15 +243,60 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They appreciate movies that combine the emotionally charged storytelling of drama with intriguing and mysterious plots. Exploring complex characters and unraveling enigmatic mysteries is where they find their cinematic intrigue.',
     },
-    'Mystery, Thriller': {name: 'Bone Collector', image: '', description: ''},
-    'Mystery, Comedy': {name: 'Mocking Bird ', image: '', description: ''},
-    'Mystery, Sports': {name: 'Athletic Sleuth', image: '', description: ''},
-    'Mystery, Family': {name: 'Stealth Clan', image: '', description: ''},
-    'Mystery, Horror': {name: 'Black Magic Seeker', image: '', description: ''},
-    'Mystery, Action': {name: 'Thrill Seeker', image: '', description: ''},
-    'Mystery, Crime': {name: 'Shadow Agent', image: '', description: ''},
-    'Mystery, Adventure': {name: 'Treasure Hunter', image: '', description: ''},
-    'Mystery, Romance': {name: 'Evasive Enigma', image: '', description: ''},
+    'Mystery, Thriller': {
+        name: 'Bone Collector',
+        image: '',
+        description:
+            'The "Bone Collector" enjoy movies that combine intriguing mysteries with suspenseful and thrilling elements. Exploring enigmatic plots and adrenaline-pumping suspense is where they find their cinematic excitement.',
+    },
+    'Mystery, Comedy': {
+        name: 'Mocking Bird',
+        image: '',
+        description:
+            'These individuals enjoy movies that combine intriguing mysteries with humor and comedic elements. Exploring enigmatic plots while finding laughter in the midst of mysteries is where they find their cinematic delight.',
+    },
+    'Mystery, Sports': {
+        name: 'Athletic Sleuth',
+        image: '',
+        description:
+            'They enjoy movies that combine the world of sports with intriguing and mysterious plots. Exploring the thrill of athletic competitions while solving enigmatic mysteries is where they find their cinematic intrigue.',
+    },
+    'Mystery, Family': {
+        name: 'Stealth Clan',
+        image: '',
+        description:
+            ' These individuals have an interest in both Family and Mystery. They enjoy movies that combine family-oriented themes with intriguing and mysterious plots.',
+    },
+    'Mystery, Horror': {
+        name: 'Black Magic Seeker',
+        image: '',
+        description:
+            'They enjoy movies that combine the intrigue of mystery with spine-chilling and terrifying elements. Exploring enigmatic plots while delving into the world of dark and supernatural mysteries is where they find their cinematic thrill.',
+    },
+    'Mystery, Action': {
+        name: 'Thrill Seeker',
+        image: '',
+        description:
+            'These individuals appreciate movies that combine the adrenaline-pumping sequences of action with intriguing and mysterious plots. Exploring thrilling action while unraveling enigmatic mysteries is where they find their cinematic intrigue.',
+    },
+    'Mystery, Crime': {
+        name: 'Shadow Agent',
+        image: '',
+        description:
+            'The "Shadow Agent" are enthusiasts of both Crime and Mystery, enjoying movies that blend the world of crime with intriguing and mysterious plots',
+    },
+    'Mystery, Adventure': {
+        name: 'Treasure Hunter',
+        image: '',
+        description:
+            'They appreciate movies that combine intriguing mysteries with thrilling adventures. Exploring enigmatic plots while embarking on daring journeys is where they find their cinematic excitement.',
+    },
+    'Mystery, Romance': {
+        name: 'Evasive Enigma',
+        image: '',
+        description:
+            'These individuals find joy in movies that blend intriguing mysteries with heartwarming romantic stories. Exploring enigmatic plots while navigating intricate love stories is where they find their cinematic bliss.',
+    },
     'Thriller, Fantasy': {
         name: 'Shadow Sleuth',
         image: '',
@@ -234,16 +309,66 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'The "Cyber Thrillseeker" have a passion for Sci-Fi and Thrillers, enjoying films that combine suspenseful thrillers with imaginative science fiction elements. Unraveling mysteries and facing the unknown is their cinematic thrill.',
     },
-    'Thriller, Drama': {name: 'Chilling Chaser', image: '', description: ''},
-    'Thriller, Mystery': {name: 'Bone Collector', image: '', description: ''},
-    'Thriller, Comedy': {name: 'Adrenaline Chuckler', image: '', description: ''},
-    'Thriller, Sports': {name: 'Mystery Challenger', image: '', description: ''},
-    'Thriller, Family': {name: 'Curious Guardian', image: '', description: ''},
-    'Thriller, Horror': {name: 'Terror Seeker', image: '', description: ''},
-    'Thriller, Action': {name: 'Action Maverick', image: '', description: ''},
-    'Thriller, Crime': {name: 'Criminal Minded', image: '', description: ''},
-    'Thriller, Adventure': {name: 'Action Junkie', image: '', description: ''},
-    'Thriller, Romance': {name: 'Suspenseful Heartbeat', image: '', description: ''},
+    'Thriller, Drama': {
+        name: 'Chilling Chaser',
+        image: '',
+        description:
+            'The "Chilling Chaser" enjoys movies that combine the emotionally charged storytelling of drama with the suspenseful and thrilling elements of storytelling',
+    },
+    'Thriller, Mystery': {
+        name: 'Bone Collector',
+        image: '',
+        description:
+            'The "Bone Collector" enjoy movies that combine intriguing mysteries with suspenseful and thrilling elements. Exploring enigmatic plots and adrenaline-pumping suspense is where they find their cinematic excitement.',
+    },
+    'Thriller, Comedy': {
+        name: 'Adrenaline Chuckler',
+        image: '',
+        description:
+            'These individual enjoy movies that combine suspenseful and thrilling elements with humor and comedic moments. Experiencing adrenaline-pumping suspense while finding moments of laughter in suspenseful situations is where they find their cinematic delight.',
+    },
+    'Thriller, Sports': {
+        name: 'Mystery Challenger',
+        image: '',
+        description:
+            'They appreciate movies that combine suspenseful and thrilling elements with the excitement of athletic competitions. Experiencing adrenaline-pumping suspense while diving into the world of sports challenges is where they find their cinematic excitement.',
+    },
+    'Thriller, Family': {
+        name: 'Curious Guardian',
+        image: '',
+        description:
+            'The "Curious Guardian" find joy in movies that blend suspenseful and thrilling elements with heartwarming family narratives. Experiencing intense moments of suspense while exploring the dynamics of family bonds is where they find their cinematic delight.',
+    },
+    'Thriller, Horror': {
+        name: 'Terror Seeker',
+        image: '',
+        description:
+            'These individual enjoy movies that combine suspenseful and thrilling elements with spine-chilling horror experiences. Experiencing heart-pounding suspense and terrifying moments is where they find their cinematic thrill.',
+    },
+    'Thriller, Action': {
+        name: 'Action Maverick',
+        image: '',
+        description:
+            'They appreciate movies that combine suspenseful and thrilling elements with high-octane action sequences. Experiencing intense suspense and adrenaline-pumping action is where they find their cinematic excitement.',
+    },
+    'Thriller, Crime': {
+        name: 'Criminal Minded',
+        image: '',
+        description:
+            'The "Criminal Minded" enjoy movies that combine suspenseful and thrilling elements with intricate crime-solving narratives. Experiencing intense suspense while delving into the world of crime and investigation is where they find their cinematic intrigue.',
+    },
+    'Thriller, Adventure': {
+        name: 'Action Junkie',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ActionJunkie.png',
+        description:
+            'These individual appreciate movies that combine suspenseful and thrilling elements with adrenaline-pumping adventures. Experiencing intense suspense and daring escapades is where they find their cinematic excitement.',
+    },
+    'Thriller, Romance': {
+        name: 'Suspenseful Heartbeat',
+        image: '',
+        description:
+            'They find joy in movies that blend suspenseful and thrilling elements with heartwarming romantic stories. Experiencing intense suspense while navigating intricate love stories is where they find their cinematic bliss.',
+    },
     'Comedy, Fantasy': {
         name: 'Fantasy Fun-seeker',
         image: '',
@@ -262,9 +387,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'This individual enjoy movies that combine the emotionally charged storytelling of drama with humor and witty moments. Exploring complex characters and finding laughter in dramatic situations is where they find their cinematic delight.',
     },
-    'Comedy, Mystery': {name: 'Mocking Bird', image: '', description: ''},
-    'Comedy, Thriller': {name: 'Adrenaline Chuckler', image: '', description: ''},
-    'Comedy, Sports': {name: 'Playful Sportster', image: '', description: ''},
+    'Comedy, Mystery': {
+        name: 'Mocking Bird',
+        image: '',
+        description:
+            'These individuals enjoy movies that combine intriguing mysteries with humor and comedic elements. Exploring enigmatic plots while finding laughter in the midst of mysteries is where they find their cinematic delight.',
+    },
+    'Comedy, Thriller': {
+        name: 'Adrenaline Chuckler',
+        image: '',
+        description:
+            'These individual enjoy movies that combine suspenseful and thrilling elements with humor and comedic moments. Experiencing adrenaline-pumping suspense while finding moments of laughter in suspenseful situations is where they find their cinematic delight.',
+    },
+    'Comedy, Sports': {
+        name: 'Playful Sportster',
+        image: '',
+        description:
+            'They appreciate movies that combine the humor and comedic elements with the excitement of athletic competitions. Finding moments of laughter in the world of sports and games is where they find their cinematic delight.',
+    },
     'Comedy, Family': {name: 'Comedic Connector', image: '', description: ''},
     'Comedy, Horror': {name: 'Dark Giggler', image: '', description: ''},
     'Comedy, Action': {name: 'Laughing Hero', image: '', description: ''},
@@ -289,9 +429,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They appreciate movies that combine the emotionally charged storytelling of drama with the excitement and competitiveness of sports. Exploring the challenges, victories, and personal journeys of athletes is where they find their cinematic excitement.',
     },
-    'Sports, Mystery': {name: 'Athletic Sleuth', image: '', description: ''},
-    'Sports, Thriller': {name: 'Mystery Challenger', image: '', description: ''},
-    'Sports, Comedy': {name: 'Playful Sportster', image: '', description: ''},
+    'Sports, Mystery': {
+        name: 'Athletic Sleuth',
+        image: '',
+        description:
+            'They enjoy movies that combine the world of sports with intriguing and mysterious plots. Exploring the thrill of athletic competitions while solving enigmatic mysteries is where they find their cinematic intrigue.',
+    },
+    'Sports, Thriller': {
+        name: 'Mystery Challenger',
+        image: '',
+        description:
+            'They appreciate movies that combine suspenseful and thrilling elements with the excitement of athletic competitions. Experiencing adrenaline-pumping suspense while diving into the world of sports challenges is where they find their cinematic excitement.',
+    },
+    'Sports, Comedy': {
+        name: 'Playful Sportster',
+        image: '',
+        description:
+            'They appreciate movies that combine the humor and comedic elements with the excitement of athletic competitions. Finding moments of laughter in the world of sports and games is where they find their cinematic delight.',
+    },
     'Sports, Family': {name: 'Group Huddler', image: '', description: ''},
     'Sports, Horror': {name: 'Bloody Player', image: '', description: ''},
     'Sports, Action': {name: 'Gridiron Gladiator', image: '', description: ''},
@@ -310,8 +465,18 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'These individuals cherish Sci-Fi and Family films. They have a special fondness for movies that blend the imaginative wonders of science fiction with heartwarming family themes.',
     },
-    'Family, Drama': {name: 'Emotional Connector', image: '', description: ''},
-    'Family, Mystery': {name: 'Stealth Clan', image: '', description: ''},
+    'Family, Drama': {
+        name: 'Emotional Connector',
+        image: '',
+        description:
+            'The "Emotional Connector" have a special fondness for movies that blend the emotionally charged storytelling of drama with heartwarming family themes. Exploring complex relationships and bonding moments in the context of family is where they find their cinematic joy.',
+    },
+    'Family, Mystery': {
+        name: 'Stealth Clan',
+        image: '',
+        description:
+            'These individuals have an interest in both Family and Mystery. They enjoy movies that combine family-oriented themes with intriguing and mysterious plots.',
+    },
     'Family, Thriller': {name: 'Curious Guardian', image: '', description: ''},
     'Family, Comedy': {name: 'Comedic Connector', image: '', description: ''},
     'Family, Sports': {name: 'Group Huddler', image: '', description: ''},
@@ -332,9 +497,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'The "Eerie Futurist" relish films that combine the imaginative realms of science fiction with spine-chilling horror elements. Exploring terrifying and otherworldly scenarios is where they find their cinematic thrill.',
     },
-    'Horror, Drama': {name: 'Darkly Suspenseful', image: '', description: ''},
-    'Horror, Mystery': {name: 'Black Magic Seeker', image: '', description: ''},
-    'Horror, Thriller': {name: 'Terror Seeker', image: '', description: ''},
+    'Horror, Drama': {
+        name: 'Darkly Suspenseful',
+        image: '',
+        description:
+            'They appreciate movies that combine the spine-chilling elements of horror with emotionally charged storytelling. Exploring intense characters and suspenseful narratives in the context of dark and mysterious themes is where they find their cinematic intrigue.',
+    },
+    'Horror, Mystery': {
+        name: 'Black Magic Seeker',
+        image: '',
+        description:
+            'They enjoy movies that combine the intrigue of mystery with spine-chilling and terrifying elements. Exploring enigmatic plots while delving into the world of dark and supernatural mysteries is where they find their cinematic thrill.',
+    },
+    'Horror, Thriller': {
+        name: 'Terror Seeker',
+        image: '',
+        description:
+            'These individual enjoy movies that combine suspenseful and thrilling elements with spine-chilling horror experiences. Experiencing heart-pounding suspense and terrifying moments is where they find their cinematic thrill.',
+    },
     'Horror, Comedy': {name: 'Dark Giggler', image: '', description: ''},
     'Horror, Sports': {name: 'Bloody Player', image: '', description: ''},
     'Horror, Family': {name: 'Chilling Lover', image: '', description: ''},
@@ -354,8 +534,18 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'These enthusiasts enjoy movies that merge the imaginative possibilities of science fiction with thrilling action sequences. Exploring high-energy adventures and futuristic battles is where they find their cinematic excitement.',
     },
-    'Action, Drama': {name: 'Curious Defender', image: '', description: ''},
-    'Action, Mystery': {name: 'Thrill Seeker', image: '', description: ''},
+    'Action, Drama': {
+        name: 'Curious Defender',
+        image: '',
+        description:
+            'The "Curious Defender" enjoy movies that combine emotionally charged storytelling with thrilling action sequences. Exploring complex characters and engaging in high-energy adventures is where they find their cinematic excitement.',
+    },
+    'Action, Mystery': {
+        name: 'Thrill Seeker',
+        image: '',
+        description:
+            'These individuals appreciate movies that combine the adrenaline-pumping sequences of action with intriguing and mysterious plots. Exploring thrilling action while unraveling enigmatic mysteries is where they find their cinematic intrigue.',
+    },
     'Action, Thriller': {name: 'Action Maverick', image: '', description: ''},
     'Action, Comedy': {name: 'Laughing Hero', image: '', description: ''},
     'Action, Sports': {name: 'Gridiron Gladiator', image: '', description: ''},
@@ -376,9 +566,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They appreciate movies that blend the imaginative elements of science fiction with intriguing crime-solving narratives. Exploring futuristic mysteries and solving complex cases in otherworldly settings is where they find their cinematic intrigue.',
     },
-    'Crime, Drama': {name: 'Smooth Criminal', image: '', description: ''},
-    'Crime, Mystery': {name: 'Shadow Agent', image: '', description: ''},
-    'Crime, Thriller': {name: 'Criminal Minded', image: '', description: ''},
+    'Crime, Drama': {
+        name: 'Smooth Criminal',
+        image: '',
+        description:
+            'They enjoy movies that combine emotionally charged storytelling with intricate crime-solving narratives. Exploring complex characters and delving into the world of crime and justice is where they find their cinematic intrigue.',
+    },
+    'Crime, Mystery': {
+        name: 'Shadow Agent',
+        image: '',
+        description:
+            'The "Shadow Agent" are enthusiasts of both Crime and Mystery, enjoying movies that blend the world of crime with intriguing and mysterious plots',
+    },
+    'Crime, Thriller': {
+        name: 'Criminal Minded',
+        image: '',
+        description:
+            'The "Criminal Minded" enjoy movies that combine suspenseful and thrilling elements with intricate crime-solving narratives. Experiencing intense suspense while delving into the world of crime and investigation is where they find their cinematic intrigue.',
+    },
     'Crime, Comedy': {name: 'Smiling Convict', image: '', description: ''},
     'Crime, Sports': {name: 'Criminal Competitor', image: '', description: ''},
     'Crime, Family': {name: 'Crime Bonder', image: '', description: ''},
@@ -398,9 +603,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'The "Interstellar Trekker" gravitate towards movies that combine the imaginative aspects of science fiction with thrilling adventures. Exploring daring journeys and epic quests in futuristic settings is where they find their cinematic delight',
     },
-    'Adventure, Drama': {name: 'Emotional Rollercoaster ', image: '', description: ''},
-    'Adventure, Mystery': {name: 'Treasure Hunter', image: '', description: ''},
-    'Adventure, Thriller': {name: 'Action Junkie', image: '', description: ''},
+    'Adventure, Drama': {
+        name: 'Emotional Rollercoaster ',
+        image: '',
+        description:
+            'They appreciate movies that combine emotionally charged storytelling with thrilling adventures. Exploring complex characters and engaging in daring journeys is where they find their cinematic excitement.',
+    },
+    'Adventure, Mystery': {
+        name: 'Treasure Hunter',
+        image: '',
+        description:
+            'They appreciate movies that combine intriguing mysteries with thrilling adventures. Exploring enigmatic plots while embarking on daring journeys is where they find their cinematic excitement.',
+    },
+    'Adventure, Thriller': {
+        name: 'Action Junkie',
+        image: '',
+        description:
+            'These individual appreciate movies that combine suspenseful and thrilling elements with adrenaline-pumping adventures. Experiencing intense suspense and daring escapades is where they find their cinematic excitement.',
+    },
     'Adventure, Comedy': {name: 'Laughing Trailblazer', image: '', description: ''},
     'Adventure, Sports': {name: 'Odyssey Champion', image: '', description: ''},
     'Adventure, Family': {name: 'Family Explorer', image: '', description: ''},
@@ -420,9 +640,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They find joy in movies that blend the imaginative elements of science fiction with heartwarming romantic stories. Exploring cosmic love and futuristic relationships is where they find their cinematic bliss.',
     },
-    'Romance, Drama': {name: 'Fantasy Paramour', image: '', description: ''},
-    'Romance, Mystery': {name: 'Evasive Enigma', image: '', description: ''},
-    'Romance, Thriller': {name: 'Suspenseful Heartbeat', image: '', description: ''},
+    'Romance, Drama': {
+        name: 'Fantasy Paramour',
+        image: '',
+        description:
+            'The "Fantasy Parmour" find joy in movies that blend emotionally charged storytelling with heartwarming romantic stories. Exploring complex characters and intricate love stories is where they find their cinematic bliss.',
+    },
+    'Romance, Mystery': {
+        name: 'Evasive Enigma',
+        image: '',
+        description:
+            'These individuals find joy in movies that blend intriguing mysteries with heartwarming romantic stories. Exploring enigmatic plots while navigating intricate love stories is where they find their cinematic bliss.',
+    },
+    'Romance, Thriller': {
+        name: 'Suspenseful Heartbeat',
+        image: '',
+        description:
+            'They find joy in movies that blend suspenseful and thrilling elements with heartwarming romantic stories. Experiencing intense suspense while navigating intricate love stories is where they find their cinematic bliss.',
+    },
     'Romance, Comedy': {name: 'Charming Jester', image: '', description: ''},
     'Romance, Sports': {name: 'Love Gamechanger', image: '', description: ''},
     'Romance, Family': {name: 'Kinship Lover', image: '', description: ''},
