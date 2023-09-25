@@ -121,8 +121,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
     const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
-    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null); // State to track expanded video
-    const [userVideoExpanded, setUserVideoExpanded] = useState(false); // State to track user's video expanded
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
     const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
     const [members, setMembers] = useState<MemberInfo[] | []>([]); // Initial member list
@@ -977,10 +975,12 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         setTerminateRoom(false)
     };
     const handleRoomTermination = async () => {
-        confirmOptions;
-        _handleRoomLeave;
-        _handleCloseMovie;
-        setTerminateRoom(false);
+        console.log("CLOSE ROOM AS HOST");
+        
+        confirmOptions();
+        setTerminateRoom(true);
+        await _handleCloseMovie()
+        await _handleRoomLeave()
     };
 
     const handleSnapPress = useCallback((index: number) => {
@@ -1523,7 +1523,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         textAlign: 'center',
                                         marginBottom: '5%',
                                     }}>
-                                    Terminate CRU View and close room
+                                    Terminate Watchparty and close room
                                 </Text>
                                 <View
                                     style={{
@@ -1534,7 +1534,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         paddingBottom: 5,
                                     }}>
                                 <AkcruButtons.SmallButton 
-                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = {()=>{setTerminateRoom(true)}}
+                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = { isHost && handleRoomTermination}
                                 />
                                 </View>
                             </View>
