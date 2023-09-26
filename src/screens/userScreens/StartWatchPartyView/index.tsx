@@ -558,6 +558,13 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         return [...nodes, createPeerTrackNode(peer, track)];
     };
 
+    const _findNodeByPeerId = (peerID: string) => {
+        // pretty print all peerTrackNodes ( expand to see all the properties )
+        console.log("peerTrackNodes:", peerTrackNodes);
+
+        return peerTrackNodes.find(node => node.peer.peerID === peerID);
+    }
+
     const _updateNodeWithPeer = (data: {nodes: PeerTrackNode[]; peer: HMSPeer; createNew?: boolean}) => {
         const {nodes, peer, createNew = false} = data;
 
@@ -611,7 +618,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             console.log('localPeer is null');
         }
     };
-    const __onPeerListener = ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
+    const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
         // gets triggered when peer leaves, joins,  starts or stops speaking, role is changed or becomes dominant speaker.
         // use these objects to update your local and remote peers.
 
@@ -641,6 +648,21 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
+
+            // check if any remaining peer track nodes have host role
+            const remainingPeerTrackNodes = peerTrackNodes.filter(node => node.peer.peerID !== peer.peerID);
+            const remainingHosts = remainingPeerTrackNodes.filter(node => node.peer._role.name === "host").length;
+
+
+            if (remainingHosts === 0 && !isHost) {
+                // no more hosts, trigger the room leave handler
+                console.log("No more hosts, leaving room...");
+                await _handleRoomLeave();
+            }
+            
+
+
+
             // Remove all Tiles which has peer same as the peer which just left the room.
             // `removeNodeWithPeerId` function removes peerTrackNodes which has given peerID and returns updated list.
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
