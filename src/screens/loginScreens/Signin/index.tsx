@@ -73,7 +73,9 @@ const Signin = () => {
       
       // set the acces_token in local storage
       const accessToken = session.access_token;
-      AsyncStorage.setItem("access_token", accessToken);
+      await AsyncStorage.setItem("access_token", accessToken);
+      await authStore.hydrateAuth();
+      await authStore.hydrateUser();
       
       
       console.log(`LOGIN Successful for user: ${user.email}`);
