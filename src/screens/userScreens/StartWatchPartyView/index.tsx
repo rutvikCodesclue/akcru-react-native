@@ -213,6 +213,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             // update members list
             console.log("updating members lists")
             const membersWithInfo = await getAvailableMembers();
+            // set the members list, add new members if they don't exist, keep existing members if they still exist
             setMembers(membersWithInfo);
         }
 
@@ -974,22 +975,30 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const getAvailableMembers = async () => {
         // Get the userIDs of existing CRU members
         let membersWithInfo: MemberInfo[] = [];
-
+        const memberUserNames: { name: string, peer: HMSPeer }[] = [];
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
                 // only count video track types (avoid double counting of audio tracks)
-                if (track?.type === "VIDEO") {
-                    const userInfoFromDB = await findAUser({ username: peer.name })
-                    
-                    if (userInfoFromDB) {
-                        membersWithInfo.push({
-                            peerID: peer.peerID,
-                            role: peer.role?.name,
-                            name: peer.name,
-                            isLocal: peer.isLocal,
-                            user: userInfoFromDB,
-                        })
-                    }
+
+                // find all unique peer.names and place in array
+                if (!memberUserNames.includes({ name: peer.name, peer })) {
+                    memberUserNames.push({ name: peer.name, peer });
+                }
+            })
+        )
+
+        await Promise.all(
+            memberUserNames.map(async ({name, peer}) => {
+                const userInfoFromDB = await findAUser({ username: name })
+                
+                if (userInfoFromDB) {
+                    membersWithInfo.push({
+                        peerID: peer.peerID,
+                        role: peer.role?.name,
+                        name: peer.name,
+                        isLocal: peer.isLocal,
+                        user: userInfoFromDB,
+                    })
                 }
             })
         )
@@ -1519,12 +1528,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                     numColumns={2}
                                     scrollEnabled={false}
                                     keyExtractor={item => item.user?.id}
-                                    renderItem={({item, index}) => (
+                                    renderItem={({item }) => (
                                         <View style={{marginVertical: 5}}>
                                             <SmlMemberCard
                                                 userPicture={item.user.profilePicture ?? ""} // FIXME: change to place holder image
-                                                userName={item.name ?? "Anonymous"}
+                                                userName={item.user.username ?? "Anonymous"}
                                                 onPress={() => {
+                                                    console.log("onPress FIRED");
+                                                    
                                                     setShowTransferConfirmation(true);
                                                 }}
                                                 // influencer={item.influencer}
@@ -1532,12 +1543,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                 akcruBadge={item.user.badge}
                                                 userDesc={item.user.description ?? ""}
                                                 avatarbordercolor={selectAvatarBorderColor(item.user.badge ?? "AKCRUIT")}
-                                                // AddMember={() => {
-                                                //     // Set the selected member when the user clicks on the "Add Member" button
-                                                //     setSelectedMember(item);
-                                                //     // Show the Add Member confirmation modal
-                                                //     setShowAddMemberConfirmationModal(true);
-                                                // }}
                                             />
                                         </View>
                                     )}
@@ -1594,6 +1599,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 <Modal animationType="fade" transparent={true} visible={showTransferConfirmation}>
                     <View
                         style={{
+                            zIndex: 100,
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
