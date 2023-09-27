@@ -29,9 +29,7 @@ import useAuthStore from '../../../stores/auth.store';
 
 const Signin = () => {
     const authStore = useAuthStore();
-    const logout = useAuthStore(state => state.logout);
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -67,13 +65,11 @@ const Signin = () => {
     useEffect(() => {
         const checkAuth = async () => {
             await authStore.hydrateAuth();
-            const isAuthed = authStore.user !== null && authStore.session !== null;
-            const accessToken = await AsyncStorage.getItem('access_token');
-            const isLoggedInWithToken = isAuthed && accessToken !== null;
+            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
 
-            if (accessToken) {
+            if (isAuthed) {
                 setIsLoggedIn(true);
-                // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
+                navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
             } else {
                 setIsLoggedIn(false);
             }
@@ -84,46 +80,55 @@ const Signin = () => {
         });
     }, []);
 
-    async function attemptLogin() {
-        try {
-            setLoading(true);
-            console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-            // login through the API
-            const loginResponse = await authStore.loginWithEmail(email, password);
-            const session = loginResponse?.session;
-            const user = loginResponse?.user;
-
-            if (!session || !user) {
-                Alert.alert('Error Logging In');
-                showErrorAlert(); // Display the error alert
-                setLoading(false);
-                return null;
-            }
-
-            // set the acces_token in local storage
-            const accessToken = session.access_token;
-            AsyncStorage.setItem('access_token', accessToken);
-
-            console.log(`LOGIN Successful for user: ${user.email}`);
-            setLoading(false);
-            navigation2.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-        } catch (error) {
-            showErrorAlert(); // Display the error alert
-            console.log('LOGIN Error:', error);
-            setLoading(false);
-        }
+    async function handleLogout() {
+        await AsyncStorage.removeItem('access_token'); // Remove the stored token
+        await authStore.logout();
+        setIsLoggedIn(false);
     }
 
-    // Modify your logout logic
-  
-
-        async function handleLogout() {
-            await AsyncStorage.removeItem('access_token'); // Remove the stored token
-            await logout();
-            setIsLoggedIn(false);
-        }
-
     
+    async function attemptLogin() {
+        try {
+        setLoading(true);
+        console.log('Attempting to LOGIN w/ Email/Password:', email, password);
+        // login through the API
+        const loginResponse = await authStore.loginWithEmail(email, password);
+        const session = loginResponse?.session;
+        const user = loginResponse?.user;
+        // const loginResponse = await API.post("/v1/auth/login", {
+        //   type: "email",
+        //   email: email,
+        //   password: password,
+        // })
+        if (!loginResponse) {
+            Alert.alert("Error Logging In. Please try again.");
+            showErrorAlert(); // Display the error alert
+            setLoading(false);
+            return
+        }
+    
+        if (!session || !user) {
+            Alert.alert("Error Logging In");
+            showErrorAlert(); // Display the error alert
+            setLoading(false);
+            return 
+            
+        }
+        // set the acces_token in local storage
+        console.log("Hydrating auth store");
+        console.log("Hydration complete [user]", authStore.getUser());
+        console.log("Hydration complete [session]", authStore.getSession());
+        
+        
+        console.log(`LOGIN Successful for user: ${user.email}`);
+        setLoading(false);
+        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+        
+        } catch (error) {
+        console.log('LOGIN Error:', error);
+        
+        }
+    }
 
     return (
         <View>
