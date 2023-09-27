@@ -14,7 +14,7 @@ import {
 import React, {useState, useEffect} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
 import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import { AkcruLogo } from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
@@ -27,6 +27,8 @@ import Tos from './tos';
 import { API } from '../../../clients/api.client';
 import { supabase } from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {searchForUsers} from '../../../lib/api/user.lib';
+import {IUserProfile} from '../../../../types';
 
 
 const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
@@ -53,6 +55,7 @@ const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
    </Modal>
  );
 };
+
 
 const Signup = () => {
   const navigation =
@@ -150,6 +153,14 @@ const Signup = () => {
     isChecked,
   ]);
 
+  const checkEmailExists = async (email: string) => {
+      // Send a request to your backend or API to search for users with the given email
+      // If a user with the email is found, return true; otherwise, return false
+      const users = await searchForUsers(email); // Use your actual function or API call here
+
+      return users.length > 0;
+  };
+
   const attemptSignup = async () => {
       // Calculate the minimum date for 18 years ago
       // const minDate = new Date();
@@ -161,6 +172,13 @@ const Signup = () => {
       //   Alert.alert('You must be 18 years or older to sign up.');
       //   return;
       // }
+      // Check if the email already exists
+      const emailExists = await checkEmailExists(email);
+
+      if (emailExists) {
+          Alert.alert('Email already in use. Please use a different email.');
+          return;
+      }
 
       setLoading(true);
       console.log(
@@ -197,7 +215,6 @@ const Signup = () => {
           password: password,
       });
 
-
       if (loginResponse.status !== 200) {
           console.error(loginResponse.data);
           Alert.alert('Error logging In after Signup', loginResponse.data);
@@ -228,6 +245,26 @@ const Signup = () => {
       //   // navigation.navigate("Signin");
       // }
   };
+
+  useFocusEffect(
+      React.useCallback(() => {
+          // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+          console.log('Signup focused [SignupScreen]');
+          console.log(
+              'Is logged in w/ Email/Password:',
+              email,
+              password,
+              // userName,
+          );
+         
+
+          return () => {
+              // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+              console.log('Exiting Signup unfocused [ExitSignupScreen]');
+            
+          };
+      }, []),
+  );
 
   return (
     <View>
