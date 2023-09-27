@@ -298,8 +298,6 @@ export default function ContentSwipe({navigation, route}: Props) {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                // Simulate a delay of 3 seconds
-                await new Promise(resolve => setTimeout(resolve, 3000));
                 const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
                 setMovies(fetchedMovies);
             } catch (error) {
