@@ -34,29 +34,31 @@ import { MOVIE_GENRES } from '../../../../assets/constants/Data';
 import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
 import { updateUserProfilePicture, updateUser } from '../../../lib/api/user.lib';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
 export default function EditProfile({session}: {session: Session}) {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-  // get user from auth store, also get the logout function
-  const user = useAuthStore(state => state.user);
-  const logout = useAuthStore(state => state.logout);
-  const { hydrateUser } = useAuthStore();
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-  const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState(user?.username);
-  
+    // get user from auth store, also get the logout function
+    const user = useAuthStore(state => state.user);
+    const logout = useAuthStore(state => state.logout);
+    const {hydrateUser} = useAuthStore();
 
-  const [avatarUrl, setAvatarUrl] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [userName, setUserName] = useState(user?.username);
 
-  const [description, setDescription] = useState(user?.description);
+    const [avatarUrl, setAvatarUrl] = useState('');
 
-  const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
-  const [emailError, setEmailError] = useState(false);
-  const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
+    const [description, setDescription] = useState(user?.description);
+
+    const [gallery, setGallery] = useState(FAKE_USER_PROFILES[0].gallery);
+    const [emailError, setEmailError] = useState(false);
+    const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
     useFocusEffect(
         React.useCallback(() => {
@@ -68,262 +70,267 @@ export default function EditProfile({session}: {session: Session}) {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 console.log('Edit Profile Screen unfocused [EditProfileScreen]');
             };
-        }, [])
+        }, []),
     );
 
-  async function UpdateProfile({userName: userName, description: description}: {userName: string; description: string}) {
-      try {
-          setLoading(true);
-          if (!session?.user) throw new Error('No user on the session!');
+    async function UpdateProfile({
+        userName: userName,
+        description: description,
+    }: {
+        userName: string;
+        description: string;
+    }) {
+        try {
+            setLoading(true);
+            if (!session?.user) throw new Error('No user on the session!');
 
-          const updates = {
-              id: session?.user.id,
-              userName,
-             
-              description,
+            const updates = {
+                id: session?.user.id,
+                userName,
 
-              updated_at: new Date(),
-          };
-          let {error} = await supabase.from('profiles').upsert(updates);
-          if (error) {
-              throw error;
-          }
-      } catch (error) {
-      } finally {
-          setLoading(false);
-      }
-  }
+                description,
 
-  const [image, setImage] = useState(null);
+                updated_at: new Date(),
+            };
+            let {error} = await supabase.from('profiles').upsert(updates);
+            if (error) {
+                throw error;
+            }
+        } catch (error) {
+        } finally {
+            setLoading(false);
+        }
+    }
 
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
+    const [image, setImage] = useState(null);
 
-  const deleteImage = index => {
-    setImageToDeleteIndex(index);
-    setShowDeleteConfirmation(true);
-  };
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [imageToDeleteIndex, setImageToDeleteIndex] = useState(null);
 
-  const handleDeleteImage = () => {
-    // Delete the image at the specified index
-    const updatedGallery = [...gallery];
-    updatedGallery.splice(imageToDeleteIndex, 1);
-    setGallery(updatedGallery);
+    const deleteImage = index => {
+        setImageToDeleteIndex(index);
+        setShowDeleteConfirmation(true);
+    };
 
-    // Hide the confirmation modal
-    setShowDeleteConfirmation(false);
-  };
+    const handleDeleteImage = () => {
+        // Delete the image at the specified index
+        const updatedGallery = [...gallery];
+        updatedGallery.splice(imageToDeleteIndex, 1);
+        setGallery(updatedGallery);
 
-  const handleCancelDelete = () => {
-    // Hide the confirmation modal
-    setShowDeleteConfirmation(false);
-  };
+        // Hide the confirmation modal
+        setShowDeleteConfirmation(false);
+    };
 
-  const [showImagePickerModal, setShowImagePickerModal] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
+    const handleCancelDelete = () => {
+        // Hide the confirmation modal
+        setShowDeleteConfirmation(false);
+    };
 
-  const handleSelectImage = imageUri => {
-    setSelectedImage(imageUri);
-    setAvatarUrl(imageUri); // Set the selected image URI to avatarUrl
-    setShowImagePickerModal(false);
-  };
+    const [showImagePickerModal, setShowImagePickerModal] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
-  const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+    const handleSelectImage = imageUri => {
+        setSelectedImage(imageUri);
+        setAvatarUrl(imageUri); // Set the selected image URI to avatarUrl
+        setShowImagePickerModal(false);
+    };
 
-  const handleUpdateProfile = () => {
-    // Show the confirmation modal
-    setShowUpdateConfirmation(true);
-  };
+    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
-//   const handleConfirmUpdate = async () => {
-//       // Show the confirmation modal
-//       setShowUpdateConfirmation(true);
-//   };
+    const handleUpdateProfile = () => {
+        // Show the confirmation modal
+        setShowUpdateConfirmation(true);
+    };
 
-  const confirmUpdate = async () => {
-      try {
-          setLoading(true);
+    //   const handleConfirmUpdate = async () => {
+    //       // Show the confirmation modal
+    //       setShowUpdateConfirmation(true);
+    //   };
 
-          // Call the updateUser function to send the updated data to the backend
-          const updatedUser = await updateUser({
-              username: userName,
-              description: description,
-              // Pass the state update functions to the API function
-              
-          });
-          
+    const confirmUpdate = async () => {
+        try {
+            setLoading(true);
 
-          if (updatedUser) {
-              // Update was successful on both client and backend
-              console.log('Profile updated successfully:', updatedUser);
-          } else {
-              // Handle update failure (e.g., show an error message)
-              console.error('Failed to update profile.');
-          }
-      } catch (error) {
-          // Handle any errors (e.g., network issues)
-          console.error('Error updating profile:', error);
-      } finally {
-          setLoading(false);
-          setShowUpdateConfirmation(false);
+            // Call the updateUser function to send the updated data to the backend
+            const updatedUser = await updateUser({
+                username: userName,
+                description: description,
+                // Pass the state update functions to the API function
+            });
 
-          const currentUser = useAuthStore.getState().user;
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+            setShowUpdateConfirmation(false);
 
-          // Update the username in the user's profile in the store immediately: 
-          if (currentUser) {
-              currentUser.username = userName;
-              currentUser.description = description;
-              useAuthStore.setState({user: currentUser}); // Use setState to update the user
-          }
-      }
-  };
+            const currentUser = useAuthStore.getState().user;
 
-  
+            // Update the username in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.username = userName;
+                currentUser.description = description;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
 
-  const handleCheckboxChange = (genreId: string) => {
-      // Check if the genre is already selected
-      if (checkedGenres[genreId]) {
-          // If it's selected, unselect it
-          setCheckedGenres(prevState => ({
-              ...prevState,
-              [genreId]: false,
-          }));
-      } else {
-          // Check if the limit of two genres is reached
-          if (Object.values(checkedGenres).filter(Boolean).length < 2) {
-              // If not reached, select the genre
-              setCheckedGenres(prevState => ({
-                  ...prevState,
-                  [genreId]: true,
-              }));
-          } else {
-              // If limit is reached, show a message or perform an action
-              console.log('You can only select up to two genres.');
-          }
-      }
-  };
+    const handleCheckboxChange = (genreId: string) => {
+        // Check if the genre is already selected
+        if (checkedGenres[genreId]) {
+            // If it's selected, unselect it
+            setCheckedGenres(prevState => ({
+                ...prevState,
+                [genreId]: false,
+            }));
+        } else {
+            // Check if the limit of two genres is reached
+            if (Object.values(checkedGenres).filter(Boolean).length < 2) {
+                // If not reached, select the genre
+                setCheckedGenres(prevState => ({
+                    ...prevState,
+                    [genreId]: true,
+                }));
+            } else {
+                // If limit is reached, show a message or perform an action
+                console.log('You can only select up to two genres.');
+            }
+        }
+    };
 
-  const handleImageUpload = async (res: ImagePickerResponse) => {
-      if (res.assets) {
-          const uri = res.assets[0].uri;
-          const fileName = res.assets[0].fileName;
-          const type = res.assets[0].type;
+    const handleImageUpload = async (res: ImagePickerResponse) => {
+        if (res.assets) {
+            const uri = res.assets[0].uri;
+            const fileName = res.assets[0].fileName;
+            const type = res.assets[0].type;
 
-          if (uri && fileName && type) {
-              try {
-                  // Call the updateUserProfilePicture function to upload the image
-                  const result = await updateUserProfilePicture({
-                      uri,
-                      name: fileName,
-                      type,
-                  });
+            if (uri && fileName && type) {
+                try {
+                    // Call the updateUserProfilePicture function to upload the image
+                    const result = await updateUserProfilePicture({
+                        uri,
+                        name: fileName,
+                        type,
+                    });
 
-                  if (result) {
-                      // Update the user's profile picture URL
-                      setAvatarUrl(result.profilePicture);
+                    if (result) {
+                        // Update the user's profile picture URL
+                        setAvatarUrl(result.profilePicture);
 
-                      // You may also want to update the user's profile picture in your state or context
-                      // For example, if your user state is stored in Redux or a context provider
-                      // Update the user's profile picture there as well
+                        // You may also want to update the user's profile picture in your state or context
+                        // For example, if your user state is stored in Redux or a context provider
+                        // Update the user's profile picture there as well
 
-                      console.log('Image Upload Result:', result);
-                  } else {
-                      console.error('Failed to update profile picture.');
-                  }
-              } catch (error) {
-                  console.error('Error updating profile picture:', error);
-              }
-          }
-      }
-  };
+                        console.log('Image Upload Result:', result);
+                    } else {
+                        console.error('Failed to update profile picture.');
+                    }
+                } catch (error) {
+                    console.error('Error updating profile picture:', error);
+                }
+            }
+        }
+    };
 
+    const handleFinishButton = () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
 
-  const handleFinishButton = () => {
-      const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+        console.log('Selected Genres:', selectedGenres);
 
-      console.log('Selected Genres:', selectedGenres);
+        if (selectedGenres.length === 2) {
+            const genreNames = selectedGenres.map(genreId => {
+                const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+                return genreObject ? genreObject.genre : '';
+            });
 
-      if (selectedGenres.length === 2) {
-          const genreNames = selectedGenres.map(genreId => {
-              const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
-              return genreObject ? genreObject.genre : '';
-          });
+            const archetypeKey = genreNames.sort().join(', ');
 
-          const archetypeKey = genreNames.sort().join(', ');
+            console.log('Archetype Key:', archetypeKey);
 
-          console.log('Archetype Key:', archetypeKey);
+            const selectedArchetype = archetypeMapping[archetypeKey];
 
-          const selectedArchetype = archetypeMapping[archetypeKey];
+            if (selectedArchetype) {
+                console.log('Selected Archetype:', selectedArchetype);
+                // You can also navigate or perform any other action here
+            } else {
+                console.log('No matching archetype found for the selected genres.');
+            }
+        } else {
+            console.log('Please select exactly 2 genres.');
+        }
+    };
 
-          if (selectedArchetype) {
-              console.log('Selected Archetype:', selectedArchetype);
-              // You can also navigate or perform any other action here
-         
-          } else {
-              console.log('No matching archetype found for the selected genres.');
-          }
-      } else {
-          console.log('Please select exactly 2 genres.');
-      }
-  };
+    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
-  const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
+    async function handleLogout() {
+        await AsyncStorage.removeItem('access_token'); // Remove the stored token
+        await logout();
+        setIsLoggedIn(false);
+    }
 
+    return (
+        <SafeAreaView>
+            <ScrollView stickyHeaderIndices={[0]}>
+                <View style={{zIndex: 20}}>
+                    <Header />
+                </View>
+                <View style={styles.container}>
+                    <TouchableOpacity onPress={() => navigation.pop()}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View>
+                        <Text style={styles.title}>EDIT PROFILE</Text>
+                        <View style={{alignItems: 'center'}}>
+                            <Avatar
+                                rounded
+                                size={125}
+                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                                avatarStyle={{
+                                    borderWidth: 2,
+                                    borderColor: COLORS.AKCRUBLUE,
+                                }}
+                            />
+                            {/* <TouchableOpacity onPress={() => setShowImagePickerModal(true)}> */}
+                            <TouchableOpacity
+                                onPress={() => {
+                                    launchImageLibrary(
+                                        {
+                                            selectionLimit: 1,
+                                            mediaType: 'photo',
+                                            includeBase64: false,
+                                        },
+                                        handleImageUpload,
+                                    );
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2AkcruBlue,
+                                        marginTop: 10,
+                                        color: COLORS.MIDORANGE,
+                                    }}>
+                                    Edit profile photo
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-  return (
-      <SafeAreaView>
-          <ScrollView stickyHeaderIndices={[0]}>
-              <View style={{zIndex: 20}}>
-                  <Header />
-              </View>
-              <View style={styles.container}>
-                  <TouchableOpacity onPress={() => navigation.pop()}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                          }}>
-                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                      </View>
-                  </TouchableOpacity>
-                  <View>
-                      <Text style={styles.title}>EDIT PROFILE</Text>
-                      <View style={{alignItems: 'center'}}>
-                          <Avatar
-                              rounded
-                              size={125}
-                              source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
-                              avatarStyle={{
-                                  borderWidth: 2,
-                                  borderColor: COLORS.AKCRUBLUE,
-                              }}
-                          />
-                          {/* <TouchableOpacity onPress={() => setShowImagePickerModal(true)}> */}
-                          <TouchableOpacity
-                              onPress={() => {
-                                  launchImageLibrary(
-                                      {
-                                          selectionLimit: 1,
-                                          mediaType: 'photo',
-                                          includeBase64: false,
-                                      },
-                                      handleImageUpload,
-                                  );
-                              }}>
-                              <Text
-                                  style={{
-                                      ...FONTS.Title2AkcruBlue,
-                                      marginTop: 10,
-                                      color: COLORS.MIDORANGE,
-                                  }}>
-                                  Edit profile photo
-                              </Text>
-                          </TouchableOpacity>
-                      </View>
-
-                      {/* Modal to Select Profile Photo */}
-                      {/* <Modal animationType="fade" transparent={true} visible={showImagePickerModal}>
+                        {/* Modal to Select Profile Photo */}
+                        {/* <Modal animationType="fade" transparent={true} visible={showImagePickerModal}>
                           <View
                               style={{
                                   flex: 1,
@@ -374,235 +381,240 @@ export default function EditProfile({session}: {session: Session}) {
                               </View>
                           </View>
                       </Modal> */}
-                  </View>
-                  <View style={styles.gallerycontainer}>
-                      <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.galleryImagesContainer}
-                          bounces={false}>
-                          {gallery.map((imageUri, index) => {
-                              return (
-                                  <View style={{flexDirection: 'row'}} key={index}>
-                                      <Image source={{uri: imageUri}} style={styles.galleryImage} />
-                                      <TouchableOpacity
-                                          style={{
-                                              position: 'absolute',
-                                              right: 8,
-                                              top: -3,
-                                              zIndex: 20,
-                                          }}
-                                          onPress={() => deleteImage(index)}>
-                                          <Icon name="close-circle" type="ionicon" color={COLORS.CATREDLGT} size={25} />
-                                      </TouchableOpacity>
-                                  </View>
-                              );
-                          })}
-                      </ScrollView>
+                    </View>
+                    <View style={styles.gallerycontainer}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.galleryImagesContainer}
+                            bounces={false}>
+                            {gallery.map((imageUri, index) => {
+                                return (
+                                    <View style={{flexDirection: 'row'}} key={index}>
+                                        <Image source={{uri: imageUri}} style={styles.galleryImage} />
+                                        <TouchableOpacity
+                                            style={{
+                                                position: 'absolute',
+                                                right: 8,
+                                                top: -3,
+                                                zIndex: 20,
+                                            }}
+                                            onPress={() => deleteImage(index)}>
+                                            <Icon
+                                                name="close-circle"
+                                                type="ionicon"
+                                                color={COLORS.CATREDLGT}
+                                                size={25}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                );
+                            })}
+                        </ScrollView>
 
-                      <Modal animationType="fade" transparent={true} visible={showDeleteConfirmation}>
-                          <View
-                              style={{
-                                  flex: 1,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                              }}>
-                              <View
-                                  style={{
-                                      backgroundColor: COLORS.AKCRUBACKGROUND,
-                                      padding: 20,
-                                      borderRadius: 10,
-                                  }}>
-                                  <View style={{alignItems: 'center'}}>
-                                      <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Deletion</Text>
-                                      <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                          Are you sure you want to delete this picture?
-                                      </Text>
-                                  </View>
+                        <Modal animationType="fade" transparent={true} visible={showDeleteConfirmation}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                    }}>
+                                    <View style={{alignItems: 'center'}}>
+                                        <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Deletion</Text>
+                                        <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                            Are you sure you want to delete this picture?
+                                        </Text>
+                                    </View>
 
-                                  <View
-                                      style={{
-                                          flexDirection: 'row',
-                                          justifyContent: 'space-between',
-                                      }}>
-                                      <TouchableOpacity
-                                          onPress={handleCancelDelete}
-                                          style={{
-                                              backgroundColor: 'red',
-                                              padding: 10,
-                                              borderRadius: 5,
-                                          }}>
-                                          <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                      </TouchableOpacity>
-                                      <TouchableOpacity
-                                          onPress={handleDeleteImage}
-                                          style={{
-                                              backgroundColor: 'green',
-                                              padding: 10,
-                                              borderRadius: 5,
-                                          }}>
-                                          <Text style={{...FONTS.Title3}}>Delete</Text>
-                                      </TouchableOpacity>
-                                  </View>
-                              </View>
-                          </View>
-                      </Modal>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                        }}>
+                                        <TouchableOpacity
+                                            onPress={handleCancelDelete}
+                                            style={{
+                                                backgroundColor: 'red',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={handleDeleteImage}
+                                            style={{
+                                                backgroundColor: 'green',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Delete</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
 
-                      <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2AkcruBlue,
-                                  marginTop: 15,
-                                  textAlign: 'center',
-                                  color: COLORS.MIDORANGE,
-                              }}>
-                              Edit gallery pictures
-                          </Text>
-                      </TouchableOpacity>
-                  </View>
+                        <TouchableOpacity onPress={() => setShowImagePickerModal(true)}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2AkcruBlue,
+                                    marginTop: 15,
+                                    textAlign: 'center',
+                                    color: COLORS.MIDORANGE,
+                                }}>
+                                Edit gallery pictures
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
 
-                  <View style={{alignItems: 'center', marginTop: 20}}>
-                      <Text style={styles.inputlabel}>Username</Text>
-                      <InputsLrg
-                          placeholdername={user?.username}
-                          iconname={'person'}
-                          iconcolor={COLORS.LIGHTGREY}
-                          secureTextEntry={false}
-                          onChangeText={text => setUserName(text)}
-                          value={userName || ''}
-                          editable={!loading}
-                      />
-                  </View>
-                  <View>
-                      <Text style={styles.inputlabel}>Email</Text>
-                      <View style={{alignItems: 'center'}}>
-                          <InputsLrg
-                              placeholdername={user?.email}
-                              iconname={'mail'}
-                              iconcolor={COLORS.LIGHTGREY}
-                              secureTextEntry={false}
-                              value={session?.user?.email}
-                              editable={!loading}
-                          />
-                          {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                      </View>
-                  </View>
-                  <Text style={styles.inputlabel}>Description</Text>
-                  <View style={styles.descinput}>
-                      <TextInput
-                          placeholder={user?.description}
-                          placeholderTextColor={COLORS.DARKGREY}
-                          style={styles.textinput}
-                          onChangeText={text => setDescription(text)}
-                          secureTextEntry={false}
-                          value={description || ''}
-                      />
-                  </View>
+                    <View style={{alignItems: 'center', marginTop: 20}}>
+                        <Text style={styles.inputlabel}>Username</Text>
+                        <InputsLrg
+                            placeholdername={user?.username}
+                            iconname={'person'}
+                            iconcolor={COLORS.LIGHTGREY}
+                            secureTextEntry={false}
+                            onChangeText={text => setUserName(text)}
+                            value={userName || ''}
+                            editable={!loading}
+                        />
+                    </View>
+                    <View>
+                        <Text style={styles.inputlabel}>Email</Text>
+                        <View style={{alignItems: 'center'}}>
+                            <InputsLrg
+                                placeholdername={user?.email}
+                                iconname={'mail'}
+                                iconcolor={COLORS.LIGHTGREY}
+                                secureTextEntry={false}
+                                value={session?.user?.email}
+                                editable={!loading}
+                            />
+                            {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
+                        </View>
+                    </View>
+                    <Text style={styles.inputlabel}>Description</Text>
+                    <View style={styles.descinput}>
+                        <TextInput
+                            placeholder={user?.description}
+                            placeholderTextColor={COLORS.DARKGREY}
+                            style={styles.textinput}
+                            onChangeText={text => setDescription(text)}
+                            secureTextEntry={false}
+                            value={description || ''}
+                        />
+                    </View>
 
-                  <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
-                      Update your Archetype here ( Choose 2 genres ) :
-                  </Text>
+                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
+                        Update your Archetype here ( Choose 2 genres ) :
+                    </Text>
 
-                  <View style={{marginBottom: 20}}>
-                      <View style={styles.genresContainer}>
-                          {filteredGenres.map((item, index) => (
-                              <View key={item.id} style={styles.checkboxContainer}>
-                                  <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
-                                      <View style={styles.checkbox}>
-                                          {checkedGenres[item.id] && (
-                                              <Icon
-                                                  name="checkmark-sharp"
-                                                  type="ionicon"
-                                                  size={18}
-                                                  color={COLORS.MIDORANGE}
-                                                  style={{marginTop: -3}}
-                                              />
-                                          )}
-                                      </View>
-                                  </TouchableOpacity>
-                                  <View>
-                                      <Text style={styles.checkboxText}>{item.genre}</Text>
-                                  </View>
-                              </View>
-                          ))}
-                      </View>
-                  </View>
+                    <View style={{marginBottom: 20}}>
+                        <View style={styles.genresContainer}>
+                            {filteredGenres.map((item, index) => (
+                                <View key={item.id} style={styles.checkboxContainer}>
+                                    <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                        <View style={styles.checkbox}>
+                                            {checkedGenres[item.id] && (
+                                                <Icon
+                                                    name="checkmark-sharp"
+                                                    type="ionicon"
+                                                    size={18}
+                                                    color={COLORS.MIDORANGE}
+                                                    style={{marginTop: -3}}
+                                                />
+                                            )}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <View>
+                                        <Text style={styles.checkboxText}>{item.genre}</Text>
+                                    </View>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
 
-                  <View style={{alignItems: 'center', marginTop: 20}}>
-                      <AkcruButtons.LrgButton
-                          btnname={loading ? 'Loading ...' : 'Update'}
-                          disabled={false}
-                          color={COLORS.AKCRUBLUE}
-                          onPress={handleUpdateProfile} // Show the confirmation modal
-                      />
-                  </View>
+                    <View style={{alignItems: 'center', marginTop: 20}}>
+                        <AkcruButtons.LrgButton
+                            btnname={loading ? 'Loading ...' : 'Update'}
+                            disabled={false}
+                            color={COLORS.AKCRUBLUE}
+                            onPress={handleUpdateProfile} // Show the confirmation modal
+                        />
+                    </View>
 
-                  {/* Confirmation Modal */}
-                  <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
-                      <View
-                          style={{
-                              flex: 1,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                          }}>
-                          <View
-                              style={{
-                                  backgroundColor: COLORS.AKCRUBACKGROUND,
-                                  padding: 20,
-                                  borderRadius: 10,
-                              }}>
-                              <View style={{alignItems: 'center'}}>
-                                  <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
-                                  <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                      Are you sure you want to update your profile?
-                                  </Text>
-                              </View>
+                    {/* Confirmation Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to update your profile?
+                                    </Text>
+                                </View>
 
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      justifyContent: 'space-between',
-                                  }}>
-                                  <TouchableOpacity
-                                      onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
-                                      style={{
-                                          backgroundColor: 'red',
-                                          padding: 10,
-                                          borderRadius: 5,
-                                      }}>
-                                      <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                  </TouchableOpacity>
-                                  <TouchableOpacity
-                                      onPress={confirmUpdate} // Confirm the update
-                                      style={{
-                                          backgroundColor: 'green',
-                                          padding: 10,
-                                          borderRadius: 5,
-                                      }}>
-                                      <Text style={{...FONTS.Title3}}>Update</Text>
-                                  </TouchableOpacity>
-                              </View>
-                          </View>
-                      </View>
-                  </Modal>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={confirmUpdate} // Confirm the update
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Update</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
 
-                  <View style={{alignItems: 'center', marginVertical: 20}}>
-                      <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
-                          <Text style={styles.settingslabel}>Account Settings</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                          onPress={async () => {
-                              await logout();
-                              // after logging out, navigate to the Signin screen
-                              navigation.navigate('Signin');
-                          }}>
-                          <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
-                      </TouchableOpacity>
-                  </View>
-              </View>
-          </ScrollView>
-      </SafeAreaView>
-  );
+                    <View style={{alignItems: 'center', marginVertical: 20}}>
+                        <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
+                            <Text style={styles.settingslabel}>Account Settings</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {
+                                handleLogout();
+                                // after logging out, navigate to the Signin screen
+                                navigation2.navigate('Signin');
+                            }}>
+                            <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
 }
