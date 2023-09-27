@@ -1,5 +1,6 @@
 import { IMovie } from "../../../types";
 import { API } from "../../clients/api.client";
+import useAuthStore from "../../stores/auth.store";
 
 export const getMovieGenres = async () => {
     try {
@@ -11,6 +12,7 @@ export const getMovieGenres = async () => {
     }
 }
 export const findMovies = async (genre?: string): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
     try {
         // GET /v1/movies?genre=action
         const { data } = await API.get(`/v1/movies${genre ? `?genre=${genre.toUpperCase()}` : '/'}`);

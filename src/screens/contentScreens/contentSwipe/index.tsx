@@ -15,7 +15,7 @@ import {
 import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import imageindex from '../../../../assets/images/imageindex';
 import Header from '../../../components/header';
@@ -26,7 +26,6 @@ import {IMovie} from '../../../../types';
 import { useEffect, useState } from 'react';
 import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
 import useAuthStore from '../../../stores/auth.store';
-
 // const data = Akcru_Content[7].movies;
 
 
@@ -296,19 +295,50 @@ export default function ContentSwipe({navigation, route}: Props) {
 
     const [movies, setMovies] = useState<IMovie[]>([]);
 
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-                const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-                setMovies(fetchedMovies);
-            } catch (error) {
-                console.error('Error fetching movies:', error);
-            }
-        };
+    // create a useFocusEffect hook to fetch movies on focus
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchMovies = async () => {
+                try {
+                    console.log("Hydrating auth [content swipe]...");
+                    
+                    await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
+                    console.log("accessing access token [content swipe]...", useAuthStore.getState().getSession()?.access_token);
+                    
+                    const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                    setMovies(fetchedMovies);
+                } catch (error) {
+                    console.error('Error fetching movies:', error);
+                }
+            };
 
-        fetchMovies();
-    }, []);
+            fetchMovies();
+        }, [])
+    );
+
+
+
+    // useFocusEffect(() => {
+    //     // Fetch movies on focus
+    //     React.useCallback(async () => {}, []);
+
+
+    //     const fetchMovies = async () => {
+    //         try {
+    //             console.log("Hydrating auth [content swipe]...");
+                
+    //             await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
+    //             console.log("accessing access token [content swipe]...", useAuthStore.getState().getSession()?.access_token);
+                
+    //             const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+    //             setMovies(fetchedMovies);
+    //         } catch (error) {
+    //             console.error('Error fetching movies:', error);
+    //         }
+    //     };
+
+    //     fetchMovies();
+    // }, []);
 
     return (
         <SafeAreaView style={styles.container}>

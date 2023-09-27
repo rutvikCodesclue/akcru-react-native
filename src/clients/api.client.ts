@@ -3,7 +3,7 @@ export const isProduction = process.env.NODE_ENV === "production";
 import { DEV_API_URL} from "@env"
 import authStore from "../stores/auth.store";
 
-const accessToken = authStore.getState().getSession()?.access_token;
+
 
 console.log("Current ENV for API:", process.env.NODE_ENV);
 console.log("Current ENV for API:", DEV_API_URL);
@@ -25,9 +25,24 @@ const API = axios.create({
     headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
-        "Authorization": accessToken ? `Bearer ${accessToken}` : undefined,
+        "Authorization": authStore.getState().getSession() ? `Bearer ${authStore.getState().getSession()?.access_token}` : undefined,
     },
 });
+
+API.interceptors.request.use(
+    async (config) => {
+        const session = authStore.getState().getSession();
+
+        if (session) {
+            config.headers.Authorization = `Bearer ${session.access_token}`;
+        }
+
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 console.log('Backend API Client Base URL:', determineBaseURL());
 

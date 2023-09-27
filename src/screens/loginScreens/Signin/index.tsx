@@ -69,11 +69,6 @@ const Signin = () => {
         const loginResponse = await authStore.loginWithEmail(email, password);
         const session = loginResponse?.session;
         const user = loginResponse?.user;
-        // const loginResponse = await API.post("/v1/auth/login", {
-        //   type: "email",
-        //   email: email,
-        //   password: password,
-        // })
         if (!loginResponse) {
             Alert.alert("Error Logging In. Please try again.");
             showErrorAlert(); // Display the error alert
@@ -88,19 +83,13 @@ const Signin = () => {
             return 
             
         }
-        // set the acces_token in local storage
-        console.log("Hydrating auth store");
-        console.log("Hydration complete [user]", authStore.getUser());
-        console.log("Hydration complete [session]", authStore.getSession());
         
-        
-        console.log(`LOGIN Successful for user: ${user.email}`);
+        console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
         setLoading(false);
         navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         
         } catch (error) {
-        console.log('LOGIN Error:', error);
-        
+            console.log('LOGIN Error:', error);
         }
     }
 

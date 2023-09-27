@@ -40,12 +40,8 @@ const useAuthStore = create<IAuthStore>()(persist(
             const data = loginResponse.data as ILoginResponse;
             const session = data.session 
             const user = data.user
-            console.log("loginResponse", loginResponse.data);
-            
-            set({ session: data.session, user: data.user });
-
             // set params
-            // set({ session, user });
+            set({ session: data.session, user: data.user });
 
             // return session and user
             return { session, user };
@@ -104,6 +100,9 @@ const useAuthStore = create<IAuthStore>()(persist(
             set({ user: userResponse });
         }
     }), 
-    ({ name: "user-store", storage: createJSONStorage(() => AsyncStorage) })) );
+    ({ 
+        name: "user-store", 
+        storage: createJSONStorage(() => AsyncStorage) 
+    })) );
 
 export default useAuthStore;
