@@ -7,12 +7,15 @@ import { API } from "../clients/api.client";
 import { useNavigation } from "@react-navigation/native";
 import { IUserProfile } from "../../types";
 import { getMe } from "../lib/api/user.lib";
+import { AxiosResponse } from "axios";
 
 interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
     getUser: () => IUserProfile | null;
-    loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
+    getSession: () => Session | null;
+    loginWithEmail: (email: string, password: string) => Promise<{ session: Session | null, user: IUserProfile | null }>;
+    signUpWithEmail: (email: string, password: string) => Promise<{ response: AxiosResponse,  user: IUserProfile | null } >;
     logout: () => Promise<boolean | null>;
     hydrateAuth: () => Promise<void>;
     hydrateUser: () => Promise<void>;
@@ -33,18 +36,43 @@ const useAuthStore = create<IAuthStore>()(persist(
             })
 
             if (loginResponse.status !== 200) {
-                return null;
+                return { session: null, user: null };
             }
 
             const data = loginResponse.data as ILoginResponse;
             const session = data.session 
             const user = data.user
-
             // set params
-            set({ session, user });
+            set({ session: data.session, user: data.user });
 
             // return session and user
             return { session, user };
+        },
+        signUpWithEmail: async (email: string, password: string) => {
+            // SIGN UP w/ API
+            const signUpResponse = await API.post('/v1/auth/signup', {
+                type: 'email',
+                email: email,
+                password: password,
+            });
+
+            // check for error in signup response
+            if (signUpResponse.status !== 200) {
+                return { response: signUpResponse, user: null };
+            }
+
+            const user = signUpResponse.data.user as IUserProfile;
+            // set params
+            set({ user });
+
+            // log that user in 
+            await get().loginWithEmail(email, password);
+            // hydrate the user and session
+            await get().hydrateAuth();
+            await get().hydrateUser();
+
+            // return session and user
+            return { user, response: signUpResponse };
         },
         logout: async () => {
             // LOGOUT w/ Supabase
@@ -64,6 +92,9 @@ const useAuthStore = create<IAuthStore>()(persist(
         },
         getUser: (): IUserProfile | null => {
             return get().user;
+        },
+        getSession: (): Session | null => {
+            return get().session;
         },
         hydrateAuth: async () => {
             // check if user is logged in
@@ -97,6 +128,9 @@ const useAuthStore = create<IAuthStore>()(persist(
             set({ user: userResponse });
         }
     }), 
-    ({ name: "user-store", storage: createJSONStorage(() => AsyncStorage) })) );
+    ({ 
+        name: "user-store", 
+        storage: createJSONStorage(() => AsyncStorage) 
+    })) );
 
 export default useAuthStore;
