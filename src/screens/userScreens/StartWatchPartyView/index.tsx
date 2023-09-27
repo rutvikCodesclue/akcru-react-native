@@ -121,8 +121,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
     const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
-    const [fullscreenUserVideo, setFullscreenUserVideo] = useState(null); // State to track expanded video
-    const [userVideoExpanded, setUserVideoExpanded] = useState(false); // State to track user's video expanded
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
     const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
     const [members, setMembers] = useState<MemberInfo[] | []>([]); // Initial member list
@@ -215,6 +213,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             // update members list
             console.log("updating members lists")
             const membersWithInfo = await getAvailableMembers();
+            // set the members list, add new members if they don't exist, keep existing members if they still exist
             setMembers(membersWithInfo);
         }
 
@@ -560,6 +559,13 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         return [...nodes, createPeerTrackNode(peer, track)];
     };
 
+    const _findNodeByPeerId = (peerID: string) => {
+        // pretty print all peerTrackNodes ( expand to see all the properties )
+        console.log("peerTrackNodes:", peerTrackNodes);
+
+        return peerTrackNodes.find(node => node.peer.peerID === peerID);
+    }
+
     const _updateNodeWithPeer = (data: {nodes: PeerTrackNode[]; peer: HMSPeer; createNew?: boolean}) => {
         const {nodes, peer, createNew = false} = data;
 
@@ -613,7 +619,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             console.log('localPeer is null');
         }
     };
-    const __onPeerListener = ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
+    const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
         // gets triggered when peer leaves, joins,  starts or stops speaking, role is changed or becomes dominant speaker.
         // use these objects to update your local and remote peers.
 
@@ -643,6 +649,21 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
+
+            // check if any remaining peer track nodes have host role
+            const remainingPeerTrackNodes = peerTrackNodes.filter(node => node.peer.peerID !== peer.peerID);
+            const remainingHosts = remainingPeerTrackNodes.filter(node => node.peer._role.name === "host").length;
+
+
+            if (remainingHosts === 0 && !isHost) {
+                // no more hosts, trigger the room leave handler
+                console.log("No more hosts, leaving room...");
+                await _handleRoomLeave();
+            }
+            
+
+
+
             // Remove all Tiles which has peer same as the peer which just left the room.
             // `removeNodeWithPeerId` function removes peerTrackNodes which has given peerID and returns updated list.
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
@@ -765,11 +786,23 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // gets triggered when room is muted or unmuted.
         // TODO: implement this after host room functionality is added
     };
-    const __onRemovedFromRoomListener = (data: any) => {
+    const __onRemovedFromRoomListener = async (data: any) => {
         // const __onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
         // triggered whenever someone removes local peer from the room or the room is ended.
         // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
         console.log('onRemovedFromRoomListener triggered');
+        console.log('onRemovedFromRoomListener data:', data);
+
+        if (data?.roomEnded) {
+            // TODO: show a message that the room has ended
+            // Pause the Movie
+            await setIsMoviePlaying(false);
+            // Close the Mvie
+            await _handleCloseMovie();
+            // Leave the Room
+            await _handleRoomLeave()
+        }
+        
     };
     const __onMessageListener = (data: HMSMessage) => {
         // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
@@ -942,22 +975,30 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const getAvailableMembers = async () => {
         // Get the userIDs of existing CRU members
         let membersWithInfo: MemberInfo[] = [];
-
+        const memberUserNames: { name: string, peer: HMSPeer }[] = [];
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
                 // only count video track types (avoid double counting of audio tracks)
-                if (track?.type === "VIDEO") {
-                    const userInfoFromDB = await findAUser({ username: peer.name })
-                    
-                    if (userInfoFromDB) {
-                        membersWithInfo.push({
-                            peerID: peer.peerID,
-                            role: peer.role?.name,
-                            name: peer.name,
-                            isLocal: peer.isLocal,
-                            user: userInfoFromDB,
-                        })
-                    }
+
+                // find all unique peer.names and place in array
+                if (!memberUserNames.includes({ name: peer.name, peer })) {
+                    memberUserNames.push({ name: peer.name, peer });
+                }
+            })
+        )
+
+        await Promise.all(
+            memberUserNames.map(async ({name, peer}) => {
+                const userInfoFromDB = await findAUser({ username: name })
+                
+                if (userInfoFromDB) {
+                    membersWithInfo.push({
+                        peerID: peer.peerID,
+                        role: peer.role?.name,
+                        name: peer.name,
+                        isLocal: peer.isLocal,
+                        user: userInfoFromDB,
+                    })
                 }
             })
         )
@@ -977,10 +1018,20 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         setTerminateRoom(false)
     };
     const handleRoomTermination = async () => {
-        confirmOptions;
-        _handleRoomLeave;
-        _handleCloseMovie;
-        setTerminateRoom(false);
+        
+        if (hmsInstanceRef.current) {
+            console.log("CLOSE ROOM AS HOST");
+            confirmOptions();
+            // Stop the Movie
+            setTerminateRoom(true);
+            setIsMoviePlaying(false);
+
+            // end the room for every one
+            await hmsInstanceRef?.current.endRoom("Host Terminated Watchparty Session", false);
+            console.log('End Room Success');
+            // Leave the Room
+            await _handleRoomLeave()
+        }
     };
 
     const handleSnapPress = useCallback((index: number) => {
@@ -1477,12 +1528,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                     numColumns={2}
                                     scrollEnabled={false}
                                     keyExtractor={item => item.user?.id}
-                                    renderItem={({item, index}) => (
+                                    renderItem={({item }) => (
                                         <View style={{marginVertical: 5}}>
                                             <SmlMemberCard
                                                 userPicture={item.user.profilePicture ?? ""} // FIXME: change to place holder image
-                                                userName={item.name ?? "Anonymous"}
+                                                userName={item.user.username ?? "Anonymous"}
                                                 onPress={() => {
+                                                    console.log("onPress FIRED");
+                                                    
                                                     setShowTransferConfirmation(true);
                                                 }}
                                                 // influencer={item.influencer}
@@ -1490,12 +1543,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                 akcruBadge={item.user.badge}
                                                 userDesc={item.user.description ?? ""}
                                                 avatarbordercolor={selectAvatarBorderColor(item.user.badge ?? "AKCRUIT")}
-                                                // AddMember={() => {
-                                                //     // Set the selected member when the user clicks on the "Add Member" button
-                                                //     setSelectedMember(item);
-                                                //     // Show the Add Member confirmation modal
-                                                //     setShowAddMemberConfirmationModal(true);
-                                                // }}
                                             />
                                         </View>
                                     )}
@@ -1523,7 +1570,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         textAlign: 'center',
                                         marginBottom: '5%',
                                     }}>
-                                    Terminate CRU View and close room
+                                    Terminate Watchparty and close room
                                 </Text>
                                 <View
                                     style={{
@@ -1534,7 +1581,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                         paddingBottom: 5,
                                     }}>
                                 <AkcruButtons.SmallButton 
-                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = {()=>{setTerminateRoom(true)}}
+                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = { isHost && handleRoomTermination}
                                 />
                                 </View>
                             </View>
@@ -1552,6 +1599,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 <Modal animationType="fade" transparent={true} visible={showTransferConfirmation}>
                     <View
                         style={{
+                            zIndex: 100,
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',

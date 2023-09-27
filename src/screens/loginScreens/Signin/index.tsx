@@ -116,6 +116,7 @@ const Signin = () => {
 
     // Modify your logout logic
   
+
         async function handleLogout() {
             await AsyncStorage.removeItem('access_token'); // Remove the stored token
             await logout();
