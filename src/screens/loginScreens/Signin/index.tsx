@@ -3,26 +3,18 @@ import {
   Text,
   ImageBackground,
   TouchableOpacity,
-  SafeAreaView,
-  Image,
-  ScrollView,
   Alert,
-  Modal
 } from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons'
 import Inputs from '../../../components/input'
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants'
+import { COLORS, FONTS } from '../../../../assets/constants'
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import { AuthStackParams } from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Icon} from '@rneui/themed';
-import { AkcruLogo, Applelogo, Googlelogo, Fblogo } from '../../../../assets/svg';
-import { supabase } from "../../../../lib/supabase";
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { API } from '../../../clients/api.client';
+import { AkcruLogo } from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 
@@ -30,24 +22,6 @@ import useAuthStore from '../../../stores/auth.store';
 const Signin = () => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-
-    useFocusEffect(
-        React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Signin focused [SigninScreen]');
-            console.log(
-                'Is logged in w/ Email/Password:',
-                email,
-                password,
-                // userName,
-            );
-
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Exiting Signin unfocused [ExitSigninScreen]');
-            };
-        }, []),
-    );
 
     const showErrorAlert = () => {
         Alert.alert('Login error', 'Please try again.', [
@@ -95,11 +69,6 @@ const Signin = () => {
         const loginResponse = await authStore.loginWithEmail(email, password);
         const session = loginResponse?.session;
         const user = loginResponse?.user;
-        // const loginResponse = await API.post("/v1/auth/login", {
-        //   type: "email",
-        //   email: email,
-        //   password: password,
-        // })
         if (!loginResponse) {
             Alert.alert("Error Logging In. Please try again.");
             showErrorAlert(); // Display the error alert
@@ -114,19 +83,13 @@ const Signin = () => {
             return 
             
         }
-        // set the acces_token in local storage
-        console.log("Hydrating auth store");
-        console.log("Hydration complete [user]", authStore.getUser());
-        console.log("Hydration complete [session]", authStore.getSession());
         
-        
-        console.log(`LOGIN Successful for user: ${user.email}`);
+        console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
         setLoading(false);
         navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         
         } catch (error) {
-        console.log('LOGIN Error:', error);
-        
+            console.log('LOGIN Error:', error);
         }
     }
 

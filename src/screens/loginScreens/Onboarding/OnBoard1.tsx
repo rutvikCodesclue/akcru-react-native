@@ -32,7 +32,7 @@ import { updateUser } from '../../../lib/api/user.lib';
 const OnBoard1 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const user = useAuthStore(state => state.user);
-    const {hydrateUser} = useAuthStore();
+    const { hydrateUser, hydrateAuth} = useAuthStore();
     const [phoneNumber, setPhoneNumber] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [userName, setUserName] = useState('');
@@ -46,24 +46,6 @@ const OnBoard1 = () => {
     const [showPicker, setShowPicker] = useState(false);
     const [date, setDate] = useState<Date>(new Date());
 
-    useFocusEffect(
-        React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Signup focused [SignupScreen]');
-            console.log(
-                'Is logged in w/ Email/Password:',
-                setEmail,
-                setPassword,
-                // userName,
-            );
-
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Exiting Signup unfocused [ExitSignupScreen]');
-            };
-        }, []),
-    );
-
     const toggleDatePicker = () => {
         setShowPicker(!showPicker);
     };
@@ -71,6 +53,7 @@ const OnBoard1 = () => {
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             console.log('OnBoard1 Screen focused [OnBoard1]');
+            hydrateAuth();
             hydrateUser();
 
             return () => {
