@@ -22,6 +22,7 @@ export type NoBottomTabStackParams = {
     StartMITDate: any;
     StartWatchPartyView: any;
     WatchPartyPreviewScreen: any;
+    Signin: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -37,6 +38,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ContentSwipe"
               component={ContentSwipe}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="Signin"
+              component={Signin}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
@@ -82,14 +91,14 @@ export default function NoBottomStack() {
                   gestureDirection: 'horizontal',
               }}
           />
-        <NoBottom.Screen
-            name="WatchPartyPreview"
-            component={WatchPartyPreviewScreen}
-            options={{
-                headerShown: false,
-                gestureDirection: 'horizontal',
-            }}
-        />
+          <NoBottom.Screen
+              name="WatchPartyPreview"
+              component={WatchPartyPreviewScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
           <NoBottom.Screen
               name="StartWatchPartyView"
               component={StartWatchPartyView}

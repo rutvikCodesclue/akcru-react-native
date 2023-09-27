@@ -137,6 +137,7 @@ const OnBoard2 = () => {
                 console.log('Profile updated successfully:', updatedUser);
             } else {
                 console.error('Failed to update profile.');
+                navigation.navigate('OnBoard3');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
