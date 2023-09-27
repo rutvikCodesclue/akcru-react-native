@@ -1,5 +1,5 @@
-import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import { View, Text, ScrollView, Platform } from "react-native";
+import React, { useState } from "react";
 import styles from "./styles";
 import {SIZES} from '../../../../assets/constants';
 import UserDatesCard from "../../../components/UserDateCard";
@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
 import { isAfter, isBefore } from "date-fns";
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 
 const UserProfileDatesTab = () => {
@@ -20,6 +21,105 @@ const UserProfileDatesTab = () => {
   const user = useAuthStore.getState().user
   const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
 
+  const [cameraPermission, setCameraPermission] = useState<boolean>(false);
+  const [micPermission, setMicPermission] = useState<boolean>(false);
+
+  const _checkPermissions = async () => {
+      //check permissions for camera and microphone on android
+      if (Platform.OS === 'android') {
+          // Request microphone permission
+          check(PERMISSIONS.ANDROID.RECORD_AUDIO)
+              .then(audioResult => {
+                  if (audioResult === RESULTS.GRANTED) {
+                      // Microphone permission granted
+                      console.log('Microphone permission granted');
+                  }
+              })
+              .catch(audioError => {
+                  // Handle microphone permission request error
+                  console.log('Microphone permission request error:', audioError);
+              });
+
+          // Request camera permission
+          check(PERMISSIONS.ANDROID.CAMERA)
+              .then(cameraResult => {
+                  if (cameraResult === RESULTS.GRANTED) {
+                      // Camera permission granted
+                      console.log('Camera permission granted');
+                  }
+              })
+              .catch(cameraError => {
+                  // Handle camera permission request error
+                  console.log('Camera permission request error:', cameraError);
+              });
+      }
+      // check permissions for camera and microphone on iOS
+      if (Platform.OS === 'ios') {
+          check(PERMISSIONS.IOS.CAMERA)
+              .then(result => {
+                  switch (result) {
+                      case RESULTS.UNAVAILABLE:
+                          console.log('The camera is not available (on this device / in this context)');
+                          break;
+                      case RESULTS.DENIED:
+                          console.log('The camera permission has not been requested / is denied but requestable');
+                          request(PERMISSIONS.IOS.CAMERA).then(result => {
+                              // …
+                              console.log('Requested camera permission', result);
+                              if (result === RESULTS.GRANTED) {
+                                  setCameraPermission(true);
+                              }
+                          });
+                          break;
+                      case RESULTS.LIMITED:
+                          console.log('The camera permission is limited: some actions are possible');
+                          break;
+                      case RESULTS.GRANTED:
+                          console.log('The camera permission is granted', result);
+                          setCameraPermission(true);
+                          break;
+                      case RESULTS.BLOCKED:
+                          console.log('The camera permission is denied and not requestable anymore');
+                          break;
+                  }
+              })
+              .catch(error => {
+                  // display some error message for the user
+              });
+
+          check(PERMISSIONS.IOS.MICROPHONE)
+              .then(result => {
+                  switch (result) {
+                      case RESULTS.UNAVAILABLE:
+                          console.log('The microphone is not available (on this device / in this context)');
+                          break;
+                      case RESULTS.DENIED:
+                          console.log('The microphone permission has not been requested / is denied but requestable');
+                          request(PERMISSIONS.IOS.MICROPHONE).then(result => {
+                              // …
+                              console.log('Requested microphone permission');
+                              if (result === RESULTS.GRANTED) {
+                                  setMicPermission(true);
+                              }
+                          });
+                          break;
+                      case RESULTS.LIMITED:
+                          console.log('The microphone permission is limited: some actions are possible');
+                          break;
+                      case RESULTS.GRANTED:
+                          console.log('The microphone permission is granted');
+                          setMicPermission(true);
+                          break;
+                      case RESULTS.BLOCKED:
+                          console.log('The microphone permission is denied and not requestable anymore');
+                          break;
+                  }
+              })
+              .catch(error => {
+                  // display some error message for the user
+              });
+      }
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -86,7 +186,9 @@ const UserProfileDatesTab = () => {
                         navigation.navigate('ContentDetailScreen', {
                             id: item.movie.id,
                             movie: item.movie.title,
+                            _checkPermissions
                         })
+                        
                     }
                 />
             </View>
@@ -123,6 +225,7 @@ const UserProfileDatesTab = () => {
                           navigation.navigate('ContentDetailScreen', {
                               id: item.movie.id,
                               movie: item.movie.title,
+                              _checkPermissions,
                           })
                       }
                   />

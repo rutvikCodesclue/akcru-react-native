@@ -40,9 +40,29 @@ const OnBoard1 = () => {
     const [lastName, setLastName] = useState(user?.lastName);
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
     const [showPicker, setShowPicker] = useState(false);
     const [date, setDate] = useState<Date>(new Date());
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('Signup focused [SignupScreen]');
+            console.log(
+                'Is logged in w/ Email/Password:',
+                setEmail,
+                setPassword,
+                // userName,
+            );
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Exiting Signup unfocused [ExitSignupScreen]');
+            };
+        }, []),
+    );
 
     const toggleDatePicker = () => {
         setShowPicker(!showPicker);
