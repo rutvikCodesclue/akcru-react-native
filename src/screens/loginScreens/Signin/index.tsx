@@ -64,18 +64,22 @@ const Signin = () => {
       //   email: email,
       //   password: password,
       // })
+      if (!loginResponse) {
+        Alert.alert("Error Logging In. Please try again.");
+        setLoading(false);
+        return
+      }
   
       if (!session || !user) {
         Alert.alert("Error Logging In");
         setLoading(false);
-        return null;
+        return 
+        
       }
-      
       // set the acces_token in local storage
-      const accessToken = session.access_token;
-      await AsyncStorage.setItem("access_token", accessToken);
-      await authStore.hydrateAuth();
-      await authStore.hydrateUser();
+      console.log("Hydrating auth store");
+      console.log("Hydration complete [user]", authStore.getUser());
+      console.log("Hydration complete [session]", authStore.getSession());
       
       
       console.log(`LOGIN Successful for user: ${user.email}`);

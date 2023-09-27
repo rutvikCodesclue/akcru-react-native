@@ -12,6 +12,7 @@ interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
     getUser: () => IUserProfile | null;
+    getSession: () => Session | null;
     loginWithEmail: (email: string, password: string) => Promise<{ session: Session, user: IUserProfile } | null>;
     logout: () => Promise<boolean | null>;
     hydrateAuth: () => Promise<void>;
@@ -39,9 +40,12 @@ const useAuthStore = create<IAuthStore>()(persist(
             const data = loginResponse.data as ILoginResponse;
             const session = data.session 
             const user = data.user
+            console.log("loginResponse", loginResponse.data);
+            
+            set({ session: data.session, user: data.user });
 
             // set params
-            set({ session, user });
+            // set({ session, user });
 
             // return session and user
             return { session, user };
@@ -64,6 +68,9 @@ const useAuthStore = create<IAuthStore>()(persist(
         },
         getUser: (): IUserProfile | null => {
             return get().user;
+        },
+        getSession: (): Session | null => {
+            return get().session;
         },
         hydrateAuth: async () => {
             // check if user is logged in

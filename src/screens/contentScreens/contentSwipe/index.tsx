@@ -25,6 +25,7 @@ import {findMovieById, findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import { useEffect, useState } from 'react';
 import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
+import useAuthStore from '../../../stores/auth.store';
 
 // const data = Akcru_Content[7].movies;
 
@@ -298,6 +299,7 @@ export default function ContentSwipe({navigation, route}: Props) {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
+                await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
                 const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
                 setMovies(fetchedMovies);
             } catch (error) {
