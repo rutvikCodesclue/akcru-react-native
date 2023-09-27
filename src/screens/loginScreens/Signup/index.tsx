@@ -29,6 +29,7 @@ import { supabase } from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
+import useAuthStore from '../../../stores/auth.store';
 
 
 const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
@@ -189,82 +190,36 @@ const Signup = () => {
       );
 
       // create an email signup
-      const signUpResponse = await API.post('/v1/auth/signup', {
-          type: 'email',
-          email: email,
-          password: password,
-      });
+      let { user, response } = await useAuthStore.getState().signUpWithEmail(email, password);
+      if (!user) {
+        console.log('There was an error signin up');
 
-      // check for error in signup response
-      if (signUpResponse.status !== 200) {
-          console.log('Signup Error:', signUpResponse);
-
-          Alert.alert(signUpResponse.data.message);
-          setLoading(false);
-          return;
+        Alert.alert('There was an error signin up');
+        setLoading(false);
+        return;
       }
 
-      // if no error, navigate to login screen
-      // TODO: create onboarding screens (user picks username, interests, etc.)
-      console.log('Signup Successful!', signUpResponse.data);
 
+      console.log('Signup Successful!', response.data);
+      
       // login through the API
-      const loginResponse = await API.post('/v1/auth/login', {
-          type: 'email',
-          email: email,
-          password: password,
-      });
-
-      if (loginResponse.status !== 200) {
-          console.error(loginResponse.data);
-          Alert.alert('Error logging In after Signup', loginResponse.data);
-          setLoading(false);
-          return null;
+      let { user: loggedInUser, session  } = await useAuthStore.getState().loginWithEmail(user.email, password);
+      
+      if (!loggedInUser || !session) {
+        Alert.alert('Error logging In after Signup');
+        setLoading(false);
+        return null;
       }
-
-      // TODO: save the JWT in secure storage
-      // set the acces_token in local storage
-      const accessToken = loginResponse.data.session.access_token;
-      AsyncStorage.setItem('access_token', accessToken);
+      console.log('Login AFTER SIGNUP Successful!', session);
+      await useAuthStore.getState().hydrateAuth();
+      await useAuthStore.getState().hydrateUser();
+      console.log('hydrated auth and user AFTER LOGIN AFTER Successful SIGNUP!', session);
+      // 
       setLoading(false);
-      // move the user to onboarding
+      // move the user to onboarding, on success
       navigation.navigate('OnBoard1');
 
-      // const {error} = await supabase.auth.signUp({
-      //   email: email,
-      //   password: password,
-      // });
-
-      // if (error) console.error(error.message);
-      // if (!error) {
-      //   alert('Signup Successful!');
-
-      //   setLoading(false);
-      //   navigation.navigate('ClientTabNavigator');
-      //   // FIXME: push to log in page
-      //   // navigation.navigate("Signin");
-      // }
   };
-
-  useFocusEffect(
-      React.useCallback(() => {
-          // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-          console.log('Signup focused [SignupScreen]');
-          console.log(
-              'Is logged in w/ Email/Password:',
-              email,
-              password,
-              // userName,
-          );
-         
-
-          return () => {
-              // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-              console.log('Exiting Signup unfocused [ExitSignupScreen]');
-            
-          };
-      }, []),
-  );
 
   return (
     <View>

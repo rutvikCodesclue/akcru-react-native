@@ -300,10 +300,7 @@ export default function ContentSwipe({navigation, route}: Props) {
         React.useCallback(() => {
             const fetchMovies = async () => {
                 try {
-                    console.log("Hydrating auth [content swipe]...");
-                    
                     await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-                    console.log("accessing access token [content swipe]...", useAuthStore.getState().getSession()?.access_token);
                     
                     const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
                     setMovies(fetchedMovies);
