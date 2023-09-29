@@ -382,7 +382,7 @@ export default function EditProfile({session}: {session: Session}) {
                           </View>
                       </Modal> */}
                     </View>
-                    <View style={styles.gallerycontainer}>
+                    {/* <View style={styles.gallerycontainer}>
                         <ScrollView
                             horizontal
                             showsHorizontalScrollIndicator={false}
@@ -472,7 +472,7 @@ export default function EditProfile({session}: {session: Session}) {
                                 Edit gallery pictures
                             </Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
 
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <Text style={styles.inputlabel}>Username</Text>
@@ -512,7 +512,7 @@ export default function EditProfile({session}: {session: Session}) {
                         />
                     </View>
 
-                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
+                    {/* <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, textAlign: 'center', marginTop: 20}}>
                         Update your Archetype here ( Choose 2 genres ) :
                     </Text>
 
@@ -539,7 +539,7 @@ export default function EditProfile({session}: {session: Session}) {
                                 </View>
                             ))}
                         </View>
-                    </View>
+                    </View> */}
 
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <AkcruButtons.LrgButton

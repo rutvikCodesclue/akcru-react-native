@@ -141,7 +141,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                 </View>
 
                 {isMovieDataLoaded ? (
-                    <View>
+                    <View style={{marginBottom: 75}}>
                         <View style={{marginTop: -65, marginBottom: 10}}>
                             <MovieDetailCard
                                 portraitURL={portraitURL}
@@ -194,7 +194,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                 }}
                             />
                         </View>
-                        <View style={{marginHorizontal: 15}}>
+                        {/* <View style={{marginHorizontal: 15}}>
                             <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
                             <View style={{marginBottom: 75}}>
                                 <View>
@@ -226,7 +226,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                     />
                                 </View>
                             </View>
-                        </View>
+                        </View> */}
                     </View>
                 ) : (
                     <View style={styles.activitycontainer}>

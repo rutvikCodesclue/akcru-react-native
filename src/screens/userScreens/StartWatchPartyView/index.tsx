@@ -1256,7 +1256,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         width: SIZES.ScreenWidth * 0.95,
                         height: (SIZES.ScreenWidth / 3) * 2.6,
                         marginTop: SIZES.ScreenHeight * 0.3,
-                       
+
                         alignSelf: 'center',
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -1269,14 +1269,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                             numColumns={3}
                             data={peerTrackNodes} // peerTrackNodes is an array of PeerTrackNode objects
                             keyExtractor={node => node.id}
+                            contentContainerStyle={{flexGrow: 1}}
                             renderItem={({item}) => {
                                 // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
 
                                 const isExpanded = expandedVideo === item;
 
-                                
-                               // console.log('isExpanded:', isExpanded);  Log the isExpanded variable
+                                // console.log('isExpanded:', isExpanded);  Log the isExpanded variable
                                 return hmsInstanceRef.current ? (
                                     <View
                                         style={{
@@ -1528,21 +1528,23 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                     numColumns={2}
                                     scrollEnabled={false}
                                     keyExtractor={item => item.user?.id}
-                                    renderItem={({item }) => (
+                                    renderItem={({item}) => (
                                         <View style={{marginVertical: 5}}>
                                             <SmlMemberCard
-                                                userPicture={item.user.profilePicture ?? ""} // FIXME: change to place holder image
-                                                userName={item.user.username ?? "Anonymous"}
+                                                userPicture={item.user.profilePicture ?? ''} // FIXME: change to place holder image
+                                                userName={item.user.username ?? 'Anonymous'}
                                                 onPress={() => {
-                                                    console.log("onPress FIRED");
-                                                    
+                                                    console.log('onPress FIRED');
+
                                                     setShowTransferConfirmation(true);
                                                 }}
                                                 // influencer={item.influencer}
                                                 userID={item.user.id}
                                                 akcruBadge={item.user.badge}
-                                                userDesc={item.user.description ?? ""}
-                                                avatarbordercolor={selectAvatarBorderColor(item.user.badge ?? "AKCRUIT")}
+                                                userDesc={item.user.description ?? ''}
+                                                avatarbordercolor={selectAvatarBorderColor(
+                                                    item.user.badge ?? 'AKCRUIT',
+                                                )}
                                             />
                                         </View>
                                     )}
@@ -1580,9 +1582,12 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
                                         paddingBottom: 5,
                                     }}>
-                                <AkcruButtons.SmallButton 
-                                btnname="Terminate" color={COLORS.CATREDLGT} disabled={false} onPress = { isHost && handleRoomTermination}
-                                />
+                                    <AkcruButtons.SmallButton
+                                        btnname="Terminate"
+                                        color={COLORS.CATREDLGT}
+                                        disabled={false}
+                                        onPress={isHost && handleRoomTermination}
+                                    />
                                 </View>
                             </View>
                         </View>
