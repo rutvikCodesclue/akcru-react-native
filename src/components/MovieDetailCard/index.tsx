@@ -156,16 +156,16 @@ const MovieDetailCard = ({
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}>
-                            <Text
+                            {/* <Text
                                 style={{
                                     ...FONTS.Title3,
                                     textAlign: 'center',
                                     marginRight: 10,
                                 }}>
                                 Add to watchlist
-                            </Text>
+                            </Text> */}
                             <Pressable onPressOut={onPressOut}>
-                                <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+                                {/* <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={45} /> */}
                             </Pressable>
                         </View>
                     </View>
@@ -253,7 +253,7 @@ const MovieDetailCard = ({
                     <View style={{flexDirection: 'row'}}>
                         <View style={{flexDirection: 'row', marginLeft: 15}}>
                             <View style={{marginRight: 25}}>
-                                <TouchableOpacity>
+                                {/* <TouchableOpacity>
                                     <Icon
                                         name="thumb-up-outline"
                                         type="material-community"
@@ -261,10 +261,10 @@ const MovieDetailCard = ({
                                         size={SIZES.MedIcon}
                                     />
                                 </TouchableOpacity>
-                                <Text style={{...FONTS.Title2}}>I Like</Text>
+                                <Text style={{...FONTS.Title2}}>I Like</Text> */}
                             </View>
                             <View>
-                                <TouchableOpacity>
+                                {/* <TouchableOpacity>
                                     <Icon
                                         name="thumb-down-outline"
                                         type="material-community"
@@ -272,7 +272,7 @@ const MovieDetailCard = ({
                                         size={SIZES.MedIcon}
                                     />
                                 </TouchableOpacity>
-                                <Text style={{...FONTS.Title2}}>Nah</Text>
+                                <Text style={{...FONTS.Title2}}>Nah</Text> */}
                             </View>
                         </View>
                     </View>

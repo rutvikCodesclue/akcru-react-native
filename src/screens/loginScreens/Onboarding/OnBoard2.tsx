@@ -30,7 +30,7 @@ import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {launchImageLibrary, ImagePickerResponse} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
-import {updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
+import {searchForUsers, updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
 
 const OnBoard2 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -40,7 +40,7 @@ const OnBoard2 = () => {
     const [userName, setUserName] = useState('');
     const [desc, setDesc] = useState(user?.description);
     const [description, setDescription] = useState(user?.description);
-
+    const [isUsernameValid, setIsUsernameValid] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState('');
 
     const [profilePicture, setProfilePicture] = useState<{uri: string} | null>(null);
@@ -123,9 +123,29 @@ const OnBoard2 = () => {
         }
     };
 
+    const checkUsernameExists = async (username: string) => {
+     
+            // You can implement a logic here to check if the username exists in your database
+            // For example, you can make an API request to check if the username is already in use
+            // Return true if the username exists, false otherwise
+            const response = await searchForUsers(username); // Replace with your actual API call
+            return username.length > 0;
+    
+    };
+
     const confirmUpdate = async () => {
         try {
             setLoading(true);
+
+            // Check if the username is already taken
+            const usernameExists = await checkUsernameExists(userName);
+
+            if (usernameExists) {
+                // Username is already taken, show an error message
+                Alert.alert('Username is already taken', 'Please choose a different username.');
+                setLoading(false);
+                return; // Exit the function without proceeding further
+            }
 
             // Call the updateUser function to send the updated data to the backend
             const updatedUser = await updateUser({
@@ -137,7 +157,6 @@ const OnBoard2 = () => {
                 console.log('Profile updated successfully:', updatedUser);
             } else {
                 console.error('Failed to update profile.');
-                navigation.navigate('OnBoard3');
             }
         } catch (error) {
             console.error('Error updating profile:', error);

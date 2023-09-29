@@ -141,7 +141,7 @@ const AccountSettings = () => {
                             />
                         </View>
                     </View>
-                    <View>
+                    {/* <View>
                         <Text style={styles.inputlabel}>DOB</Text>
                         <View style={styles.input}>
                             <MaskedTextInput
@@ -155,7 +155,7 @@ const AccountSettings = () => {
                                 keyboardType="phone-pad" // Set keyboard type to phone-pad
                             />
                         </View>
-                    </View>
+                    </View> */}
                     <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
@@ -171,7 +171,7 @@ const AccountSettings = () => {
                             />
                         </View>
                     </View>
-                    <View>
+                    {/* <View>
                         <Text style={styles.inputlabel}>New Password</Text>
                         <View style={styles.input}>
                             <TextInput
@@ -196,7 +196,7 @@ const AccountSettings = () => {
                                 value={lastName || ''}
                             />
                         </View>
-                    </View>
+                    </View> */}
 
                     <View
                         style={{

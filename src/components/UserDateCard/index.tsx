@@ -178,7 +178,7 @@ const navigation =
                         justifyContent: 'space-between',
                         marginTop: 10,
                     }}>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         onPress={() => {
                             ('');
                         }}>
@@ -193,7 +193,7 @@ const navigation =
                             }}>
                             <Text style={{...FONTS.Title2}}>Cancel Date</Text>
                         </View>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                     {type === 'MITInvite' && (
                         <TouchableOpacity

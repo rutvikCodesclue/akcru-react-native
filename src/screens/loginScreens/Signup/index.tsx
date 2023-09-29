@@ -9,7 +9,8 @@ import {
   Platform,
   Modal,
   KeyboardAvoidingView,
-  Alert
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
@@ -30,6 +31,7 @@ import {searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
 import { GoTrueClient } from '@supabase/supabase-js';
+
 
 
 const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
@@ -74,6 +76,7 @@ const Signup = () => {
   const [passwordLengthError, setPasswordLengthError] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [theEmailHasError, setTheEmailHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
@@ -139,7 +142,7 @@ const Signup = () => {
    };
 
    const attemptSignup = async () => {
-       
+       setIsLoading(true);
        const emailExists = await checkEmailExists(email);
 
        if (emailExists) {
@@ -184,6 +187,7 @@ const Signup = () => {
        setLoading(false);
        // move the user to onboarding, on success
        navigation.navigate('OnBoard1');
+       setIsLoading(false);
    };
 
 
@@ -220,7 +224,7 @@ const Signup = () => {
                               editable={!loading}
                           />
                           {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                          
+
                           <Inputs
                               placeholdername={'Choose Password'}
                               iconname={'lock-closed'}
@@ -325,6 +329,20 @@ const Signup = () => {
                                       </Text>
                                   </TouchableOpacity>
                               </View>
+                          </View>
+                      </Modal>
+                      <Modal animationType="fade" transparent={true} visible={isLoading}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              }}>
+                              <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                              <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>
+                                  Signing up...
+                              </Text>
                           </View>
                       </Modal>
                   </View>

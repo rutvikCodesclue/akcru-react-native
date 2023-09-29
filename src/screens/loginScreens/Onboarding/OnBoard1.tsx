@@ -131,7 +131,7 @@ const OnBoard1 = () => {
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
-                location: location,
+                // location: location,
                 dateOfBirth: dateOfBirth,
                 
 
@@ -159,7 +159,7 @@ const OnBoard1 = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
-                currentUser.location = location
+                // currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -206,7 +206,7 @@ const OnBoard1 = () => {
                                     value={lastName || ''}
                                     editable={!loading}
                                 />
-                                <InputsLrg
+                                {/* <InputsLrg
                                     placeholdername={'Location'}
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
@@ -214,7 +214,7 @@ const OnBoard1 = () => {
                                     onChangeText={text => setLocation(text)}
                                     value={location || ''}
                                     editable={!loading}
-                                />
+                                /> */}
 
                                 {showPicker && (
                                     <DateTimePicker
