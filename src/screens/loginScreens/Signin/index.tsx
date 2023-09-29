@@ -4,6 +4,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   Alert,
+  Modal,
 } from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons'
 import Inputs from '../../../components/input'
@@ -23,12 +24,12 @@ const Signin = () => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    const showErrorAlert = () => {
-        Alert.alert('Login error', 'Please try again.', [
-            {text: 'OK', onPress: () => {}}, // You can add a callback function if needed
-        ]);
-    };
-
+    // const showErrorAlert = () => {
+    //     Alert.alert('Login error', 'Please try again.', [
+    //         {text: 'OK', onPress: () => {}}, // You can add a callback function if needed
+    //     ]);
+    // };
+    const [showLoginError, setShowLoginError] = useState(false);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
@@ -41,12 +42,17 @@ const Signin = () => {
             await authStore.hydrateAuth();
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
 
-            if (isAuthed) {
-                setIsLoggedIn(true);
-                navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-            } else {
-                setIsLoggedIn(false);
-            }
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const isLoggedInWithToken = isAuthed && accessToken !== null;
+
+            setTimeout(() => {
+                if (accessToken) {
+                    setIsLoggedIn(true);
+                    // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
+                } else {
+                    setIsLoggedIn(false);
+                }
+            }, 1000); // Wait for 3 seconds before executing the code
         };
 
         checkAuth().catch(err => {
@@ -54,44 +60,48 @@ const Signin = () => {
         });
     }, []);
 
-    async function handleLogout() {
-        await AsyncStorage.removeItem('access_token'); // Remove the stored token
-        await authStore.logout();
-        setIsLoggedIn(false);
-    }
-
     
     async function attemptLogin() {
         try {
-        setLoading(true);
-        console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-        // login through the API
-        const loginResponse = await authStore.loginWithEmail(email, password);
-        const session = loginResponse?.session;
-        const user = loginResponse?.user;
-        if (!loginResponse) {
-            Alert.alert("Error Logging In. Please try again.");
-            showErrorAlert(); // Display the error alert
+            setLoading(true);
+            console.log('Attempting to LOGIN w/ Email/Password:', email, password);
+            // login through the API
+            const loginResponse = await authStore.loginWithEmail(email, password);
+            const session = loginResponse?.session;
+            const user = loginResponse?.user;
+
+            if (!session || !user) {
+                Alert.alert('Error Logging In');
+                setShowLoginError(true); // Display the error alert
+                setLoading(false);
+                return;
+            }
+            if (!loginResponse) {
+                Alert.alert('Error Logging In. Please try again.');
+                setShowLoginError(true); // Display the error alert
+                setLoading(false);
+                return;
+            }
+
+            // set the acces_token in local storage
+            const accessToken = session.access_token;
+            AsyncStorage.setItem('access_token', accessToken);
+
+            console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
             setLoading(false);
-            return
-        }
-    
-        if (!session || !user) {
-            Alert.alert("Error Logging In");
-            showErrorAlert(); // Display the error alert
-            setLoading(false);
-            return 
-            
-        }
-        
-        console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
-        setLoading(false);
-        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-        
+            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
+            setShowLoginError(true); // Display the error alert
             console.log('LOGIN Error:', error);
+            setLoading(false);
         }
     }
+
+        async function handleLogout() {
+            await AsyncStorage.removeItem('access_token'); // Remove the stored token
+            await authStore.logout();
+            setIsLoggedIn(false);
+        }
 
     return (
         <View>
@@ -103,15 +113,14 @@ const Signin = () => {
                             <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
                                 authStore.user?.username || 'User'
                             }`}</Text>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}>
-                                <AkcruButtons.LrgButton
-                                    color={COLORS.AKCRUBLUE}
-                                    btnname="Enter Akcru"
-                                    onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
-                                    disabled={loading}
-                                />
-                            </TouchableOpacity>
+
+                            <AkcruButtons.LrgButton
+                                color={COLORS.AKCRUBLUE}
+                                btnname="Enter Akcru"
+                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
+                                disabled={loading}
+                            />
+
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{
@@ -127,7 +136,9 @@ const Signin = () => {
                                     </Text>
 
                                     <TouchableOpacity
-                                        onPress={() => {handleLogout()}}>
+                                        onPress={() => {
+                                            handleLogout();
+                                        }}>
                                         <Text
                                             style={{
                                                 ...FONTS.Title2Orange,
@@ -194,7 +205,7 @@ const Signin = () => {
                                     <Applelogo width={50} height={50} onPress={() => {}} />
                                 </TouchableOpacity>
                             </View> */}
-                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2Orange,
@@ -203,7 +214,7 @@ const Signin = () => {
                                     }}>
                                     Forgot your password?
                                 </Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{
@@ -221,7 +232,7 @@ const Signin = () => {
                                     <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
                                         <Text
                                             style={{
-                                                ...FONTS.Title2AkcruBlue,
+                                                ...FONTS.Title2Orange,
                                             }}>
                                             Sign up here
                                         </Text>
@@ -230,6 +241,45 @@ const Signin = () => {
                             </View>
                         </>
                     )}
+                    <Modal animationType="fade" transparent={true} visible={showLoginError}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    {`Login error, Please try again.`}
+                                </Text>
+                                <TouchableOpacity onPress={()=>{setShowLoginError(false)}}>
+                                   <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                        color: COLORS.MIDORANGE
+                                    }}>
+                                    {`Close`}
+                                </Text> 
+                                </TouchableOpacity>
+                                
+                            </View>
+                        </View>
+                    </Modal>
                 </View>
             </ImageBackground>
         </View>

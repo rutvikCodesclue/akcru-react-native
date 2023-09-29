@@ -38,6 +38,7 @@ const OnBoard1 = () => {
     const [userName, setUserName] = useState('');
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
+    const [location, setLocation] = useState(user?.location);
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [email, setEmail] = useState('');
@@ -106,7 +107,7 @@ const OnBoard1 = () => {
     const checkFormCompletion = () => {
         if (
             userName &&
-            dateOfBirth 
+            dateOfBirth  
         ) {
             setIsFormComplete(true);
         } else {
@@ -130,7 +131,9 @@ const OnBoard1 = () => {
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
+                location: location,
                 dateOfBirth: dateOfBirth,
+                
 
                 // Pass the state update functions to the API function
             });
@@ -156,6 +159,7 @@ const OnBoard1 = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
+                currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -200,6 +204,15 @@ const OnBoard1 = () => {
                                     secureTextEntry={false}
                                     onChangeText={text => setLastName(text)}
                                     value={lastName || ''}
+                                    editable={!loading}
+                                />
+                                <InputsLrg
+                                    placeholdername={'Location'}
+                                    iconname={'person'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setLocation(text)}
+                                    value={location || ''}
                                     editable={!loading}
                                 />
 
