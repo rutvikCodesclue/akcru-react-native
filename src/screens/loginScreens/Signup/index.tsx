@@ -147,6 +147,7 @@ const Signup = () => {
 
        if (emailExists) {
            setTheEmailHasError(true)
+           setIsLoading(false)
           //  Alert.alert('Email already in use. Please use a different email.');
            return;
        }

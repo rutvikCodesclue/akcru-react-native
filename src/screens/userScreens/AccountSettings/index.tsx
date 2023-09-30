@@ -23,7 +23,7 @@ const AccountSettings = () => {
     const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState(user?.phone);
     const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [loading, setLoading] = useState(false);
 
@@ -61,7 +61,8 @@ const AccountSettings = () => {
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
-                dateOfBirth: dateOfBirth
+                dob: dateOfBirth,
+                phone: phone
             
                 // Pass the state update functions to the API function
             });
@@ -87,6 +88,7 @@ const AccountSettings = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
+                currentUser.phone = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -161,12 +163,12 @@ const AccountSettings = () => {
                         <View style={styles.input}>
                             <MaskedTextInput
                                 mask="+1-999-999-9999"
-                                placeholder="+1-123-456-7890"
+                                placeholder={user?.phone}
                                 placeholderTextColor={COLORS.DARKGREY}
                                 style={styles.textinput}
                                 secureTextEntry={false}
-                                onChangeText={text => setPhoneNumber(text)}
-                                value={phoneNumber || ''}
+                                onChangeText={text => setPhone(text)}
+                                value={phone || ''}
                                 keyboardType="phone-pad" // Set keyboard type to phone-pad
                             />
                         </View>
