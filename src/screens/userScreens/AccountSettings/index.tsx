@@ -211,7 +211,7 @@ const AccountSettings = () => {
                         }}
                     />
 
-                    <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
+                    {/* <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
                         <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>Privacy settings</Text>
                         <View
                             style={{
@@ -292,7 +292,7 @@ const AccountSettings = () => {
                                 </View>
                             </Pressable>
                         </View>
-                    </View>
+                    </View> */}
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <AkcruButtons.LrgButton
                             btnname={'Update'}
