@@ -123,16 +123,6 @@ const OnBoard2 = () => {
         }
     };
 
-    const checkUsernameExists = async (username: string) => {
-     
-            // You can implement a logic here to check if the username exists in your database
-            // For example, you can make an API request to check if the username is already in use
-            // Return true if the username exists, false otherwise
-            const response = await searchForUsers(username); // Replace with your actual API call
-            return username.length > 0;
-    
-    };
-
     const confirmUpdate = async () => {
         try {
             setLoading(true);
@@ -143,35 +133,50 @@ const OnBoard2 = () => {
             if (usernameExists) {
                 // Username is already taken, show an error message
                 Alert.alert('Username is already taken', 'Please choose a different username.');
-                setLoading(false);
-                return; // Exit the function without proceeding further
-            }
-
-            // Call the updateUser function to send the updated data to the backend
-            const updatedUser = await updateUser({
-                username: userName,
-                description: description,
-            });
-
-            if (updatedUser) {
-                console.log('Profile updated successfully:', updatedUser);
+            } else if (userName.includes(' ')) {
+                // Username contains spaces, show an error message
+                Alert.alert('Username contains spaces', 'Please remove spaces from your username.');
             } else {
-                console.error('Failed to update profile.');
+                // Call the updateUser function to send the updated data to the backend
+                const updatedUser = await updateUser({
+                    username: userName,
+                    description: description,
+                });
+
+                if (updatedUser) {
+                    console.log('Profile updated successfully:', updatedUser);
+                    const currentUser = useAuthStore.getState().user;
+
+                    if (currentUser) {
+                        currentUser.username = userName;
+                        currentUser.description = description;
+                        // Update the profile picture URI if it has changed
+                        useAuthStore.setState({user: currentUser});
+                    }
+                    navigation.navigate('OnBoard3');
+                } else {
+                    console.error('Failed to update profile.');
+                }
             }
         } catch (error) {
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
+        }
+    };
 
-            const currentUser = useAuthStore.getState().user;
 
-            if (currentUser) {
-                currentUser.username = userName;
-                currentUser.description = description;
-                // Update the profile picture URI if it has changed
-                useAuthStore.setState({user: currentUser});
-                navigation.navigate('OnBoard3');
-            }
+    const checkUsernameExists = async (username: string) => {
+        try {
+            // You can implement a logic here to check if the username exists in your database
+            // For example, you can make an API request to check if the username is already in use
+            // Return true if the username exists, false otherwise
+            const response = await searchForUsers(username);; // Replace with your actual API call
+
+            return response.length > 0;
+        } catch (error) {
+            console.error('Error checking username:', error);
+            return false; // Assume username doesn't exist in case of an error
         }
     };
 
@@ -257,7 +262,15 @@ const OnBoard2 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setUserName(text)}
+                                    onChangeText={text => {
+                                        // Remove spaces from the input text
+                                        const formattedText = text.replace(/\s/g, '');
+
+                                        // Enforce the 11-character limit
+                                        if (formattedText.length <= 11) {
+                                            setUserName(formattedText);
+                                        }
+                                    }}
                                     value={userName || ''}
                                     editable={!loading}
                                 />
@@ -267,7 +280,14 @@ const OnBoard2 = () => {
                                     placeholder={'Tell our crummunity about yourself...'}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
-                                    onChangeText={text => setDescription(text)}
+                                    onChangeText={text => {
+                                        // Limit the description to 150 characters
+                                        if (text.length <= 150) {
+                                            setDescription(text);
+                                        }
+                                    }}
+                                    multiline={true}
+                                    maxLength={150} // Set the maximum character limit
                                     secureTextEntry={false}
                                     value={description || ''}
                                 />
