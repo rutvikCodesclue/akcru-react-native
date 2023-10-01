@@ -186,7 +186,10 @@ export default function EditProfile({session}: {session: Session}) {
             // Filter out the current user's username from the response
             const filteredResponse = response.filter(user => user.username !== currentUserUsername);
 
-            return filteredResponse.length > 0;
+            // Check if any usernames in the filtered response match the provided username
+            const usernameExists = filteredResponse.some(user => user.username === username);
+
+            return usernameExists;
         } catch (error) {
             console.error('Error checking username:', error);
             return false; // Assume username doesn't exist in case of an error
