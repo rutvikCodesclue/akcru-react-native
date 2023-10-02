@@ -1,90 +1,139 @@
-import { View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView } from 'react-native'
-import React from 'react'
+import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
-import { Icon } from '@rneui/base';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
-import { DIGITAL_PASS, FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
+import {Icon} from '@rneui/base';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {DIGITAL_PASS, FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-
+import {getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
+import {INotification} from '../../../../types';
 
 const UserNotifications = () => {
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const [notifications, setNotifications] = useState<INotification[]>([]);
 
-const userNotifications = FAKE_USER_PROFILES[0].notifications;
+    // Fetch notifications when the component mounts
+    useEffect(() => {
+        async function fetchNotifications() {
+            try {
+                const fetchedNotifications = await getMyNotifications();
+                setNotifications(fetchedNotifications || []);
+            } catch (error) {
+                console.error(error);
+            }
+        }
 
-  return (
-      <SafeAreaView style={{flex: 1}}>
-          <ScrollView stickyHeaderIndices={[0]} style={{marginBottom:60}}>
-              <View>
-                <View style={{zIndex: 100}}>
-                   <Header /> 
+        fetchNotifications();
+    }, []);
+
+    // Filter notifications based on specific types and unread status
+    const filteredNotifications = notifications.filter(
+        notification =>
+            !notification.isRead &&
+            (notification.type === 'MITAccepted' ||
+                notification.type === 'MITDeclined' ||
+                notification.type === 'CruInviteAccepted' ||
+                notification.type === 'CruInviteDeclined'),
+    );
+
+    const handleMarkAsRead = async (notificationId: string, index: number) => {
+        try {
+            // Call the API to mark the notification as read
+            const updatedNotification = await markNotificationRead({id: notificationId});
+
+            if (updatedNotification) {
+                // Update the local state to mark the notification as read and remove it from the list
+                setNotifications(prevNotifications =>
+                    prevNotifications.filter(notification => notification.id !== notificationId),
+                );
+            } else {
+                console.error(`Failed to mark notification ${notificationId} as read.`);
+            }
+        } catch (error) {
+            console.error(`Error marking notification ${notificationId} as read:`, error);
+        }
+    };
+
+    return (
+        <SafeAreaView style={{flex: 1}}>
+            <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
+                <View>
+                    <View style={{zIndex: 100}}>
+                        <Header />
+                    </View>
+
+                    <ImageBackground
+                        source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                        resizeMode="cover"
+                        style={{height: SIZES.ScreenHeight / 4, marginTop: -70}}>
+                        <LinearGradient
+                            // Background Linear Gradient
+                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                height: SIZES.ScreenHeight / 4,
+                            }}
+                        />
+                        <View>
+                            <TouchableOpacity
+                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 80}}
+                                onPress={() => navigation.pop()}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginTop: 10,
+
+                                    textAlign: 'center',
+                                    fontSize: 14,
+                                    textDecorationLine: 'underline',
+                                }}>
+                                NOTIFICATIONS
+                            </Text>
+                        </View>
+                    </ImageBackground>
                 </View>
-                  
-                  <ImageBackground
-                  source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                  resizeMode="cover"
-                  style={{height: SIZES.ScreenHeight / 4, marginTop: -70}}>
-                  <LinearGradient
-                      // Background Linear Gradient
-                      colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                      style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          height: SIZES.ScreenHeight / 4,
-                      }}
-                  />
-                  <View>
-                      <TouchableOpacity
-                          style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 80}}
-                          onPress={() => navigation.pop()}>
-                          <View
-                              style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                              }}>
-                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                          </View>
-                      </TouchableOpacity>
-                      <Text
-                          style={{
-                              ...FONTS.Title2,
-                              marginTop: 10,
-                              marginBottom: 20,
-                              textAlign: 'center',
-                              fontSize: 14,
-                              textDecorationLine: 'underline',
-                          }}>
-                          NOTIFICATIONS
-                      </Text>
-                  </View>
-              </ImageBackground>
-              </View>
-              
-              <View style={{marginHorizontal: 15, marginTop: 10}}>
-                  {/* Render user notifications */}
-                  {userNotifications.map((notification, index) => {
-                      const type = Object.keys(notification)[0];
-                      const message = notification[type];
 
-                      return (
-                          <View key={index} style={styles.cardcontainer}>
-                              <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
-                              <Text style={{...FONTS.paragraph1}}>{`${message}`}</Text>
-                          </View>
-                      );
-                  })}
-              </View>
-          </ScrollView>
-      </SafeAreaView>
-  );
-}
+                <View style={{marginHorizontal: 15, marginTop: 10}}>
+                    {/* Render user notifications */}
+                    {filteredNotifications.map((notification, index) => {
+                        const {id, type, message} = notification;
 
-export default UserNotifications
+                        return (
+                            <View key={index} style={styles.cardcontainer}>
+                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
+                                {/* <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            color: COLORS.MIDORANGE,
+                                            textAlign: 'right',
+                                        }}>{`Mark as read`}</Text>
+                                </TouchableOpacity> */}
+                            </View>
+                        );
+                    })}
+                </View>
+            </ScrollView>
+        </SafeAreaView>
+    );
+};
+
+export default UserNotifications;

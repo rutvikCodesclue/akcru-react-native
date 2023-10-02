@@ -27,12 +27,18 @@ import { getMyCRU } from '../../../lib/api/cru.lib';
 import { ICru, IUserProfile } from '../../../../types';
 
 const EditCru = () => {
+
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
+
+    const [loading, setLoading] = useState(false);
+
     const [originalCruName, setOriginalCruName] = useState('');
     const [modifiedCruName, setModifiedCruName] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
+    const [cruNameChangeModalVisible, setCruNameChangeModalVisible] = useState(false);
+
     const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
-    // const [members, setMembers] = useState(FAKE_USER_PROFILES.slice(1, 7)); // Initial member list
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [memberToDelete, setMemberToDelete] = useState(null);
@@ -74,15 +80,23 @@ const EditCru = () => {
      
     };
 
-    const handleConfirmChangeName = async () => {
-        
-      // Update the CRU name and hide the confirmation modal
-      setOriginalCruName(modifiedCruName);
-      setModalVisible(false);
-      setShowChangeNameConfirmationModal(false);
+    const handleCruNameChangeModalOpen = () => {
+        setModifiedCruName(originalCruName);
+        setCruNameChangeModalVisible(true);
     };
 
-    const handleCancelChangeName = () => {
+    const ConfirmChangeCruName = () => {
+        // Update the CRU object with the new name
+        if (CRU) {
+            setCRU({...CRU, name: modifiedCruName});
+        }
+
+        // Hide the confirmation modal
+        setCruNameChangeModalVisible(false);
+        setShowChangeNameConfirmationModal(false);
+    };
+
+    const handleCancelChangeCruName = () => {
       // Hide the confirmation modal without making any changes
       setShowChangeNameConfirmationModal(false);
     };
@@ -90,18 +104,14 @@ const EditCru = () => {
   
 
 
-  const navigation =
-    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+  
 
   const handleCheckmarkPress = () => {
     setOriginalCruName(modifiedCruName);
     setModalVisible(false);
   };
 
-  const handleModalOpen = () => {
-    setModifiedCruName(originalCruName);
-    setModalVisible(true);
-  };
+  
 
   const handleDeleteMember = (userID: string) => {
     console.log('Deleting member with userID:', userID);
@@ -203,19 +213,100 @@ const EditCru = () => {
                   <View style={styles.container}>
                       <Text style={styles.inputlabel}>CRU Name</Text>
                       <View style={styles.input}>
-                          <Pressable onPress={handleModalOpen}>
+                          <Pressable onPress={handleCruNameChangeModalOpen}>
                               <TextInput
                                   placeholder={CRU?.name}
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
                                   onChangeText={text => setModifiedCruName(text)}
-                                  value={modifiedCruName || ''} // Display the original value, not the modified one
+                                  value={originalCruName || ''} // Display the original value, not the modified one
                                   editable={false}
                               />
                           </Pressable>
                       </View>
                   </View>
+                  {/* CRU Name Change Modal */}
+                  <Modal animationType="fade" transparent={false} visible={cruNameChangeModalVisible}>
+                      <SafeAreaView
+                          style={{
+                              flex: 1,
+                              backgroundColor: COLORS.AKCRUBACKGROUND,
+                              paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                              paddingTop: 20,
+                          }}>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  justifyContent: 'space-between',
+                                  marginBottom: 20,
+                              }}>
+                              <Pressable onPress={handleChangeCruName}>
+                                  <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                              </Pressable>
+                              <Pressable onPress={() => setCruNameChangeModalVisible(false)}>
+                                  <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                              </Pressable>
+                          </View>
+
+                          <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
+                          <View style={styles.input}>
+                              <TextInput
+                                  placeholder={CRU?.name}
+                                  placeholderTextColor={COLORS.DARKGREY}
+                                  style={styles.textinput}
+                                  secureTextEntry={false}
+                                  onChangeText={text => setOriginalCruName(text)}
+                                  value={originalCruName} // Use the modified value in the TextInput
+                                  editable={true}
+                              />
+                          </View>
+                      </SafeAreaView>
+                  </Modal>
+                  {/* CRU Name Change Confirmation Modal */}
+                  <Modal animationType="fade" transparent={true} visible={showChangeNameConfirmationModal}>
+                      <SafeAreaView
+                          style={{
+                              flex: 1,
+                              backgroundColor: COLORS.AKCRUBACKGROUND,
+                              paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                              paddingTop: 20,
+                          }}>
+                          <View>
+                              <Text
+                                  style={{
+                                      ...FONTS.Title3,
+                                      marginBottom: 10,
+                                      textAlign: 'center',
+                                  }}>
+                                  Are you sure you want to update your Cru's name?
+                              </Text>
+                              <View style={{flexDirection: 'row', alignSelf: 'center'}}>
+                                  <TouchableOpacity
+                                      style={{
+                                          backgroundColor: COLORS.CATREDLGT,
+                                          paddingHorizontal: 20,
+                                          paddingVertical: 10,
+                                          marginRight: 10,
+                                          borderRadius: 5,
+                                      }}
+                                      onPress={handleCancelChangeCruName}>
+                                      <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                      style={{
+                                          backgroundColor: COLORS.GREEN,
+                                          paddingHorizontal: 20,
+                                          paddingVertical: 10,
+                                          borderRadius: 5,
+                                      }}
+                                      onPress={ConfirmChangeCruName}>
+                                      <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Confirm</Text>
+                                  </TouchableOpacity>
+                              </View>
+                          </View>
+                      </SafeAreaView>
+                  </Modal>
                   <Text
                       style={{
                           ...FONTS.Title2,
@@ -318,88 +409,6 @@ const EditCru = () => {
                                   }}
                                   onPress={handleConfirmDelete}>
                                   <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Delete</Text>
-                              </TouchableOpacity>
-                          </View>
-                      </View>
-                  </SafeAreaView>
-              </Modal>
-
-              <Modal animationType="fade" transparent={false} visible={modalVisible}>
-                  <SafeAreaView
-                      style={{
-                          flex: 1,
-                          backgroundColor: COLORS.AKCRUBACKGROUND,
-                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                          paddingTop: 20,
-                      }}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              marginBottom: 20,
-                          }}>
-                          <Pressable onPress={handleChangeCruName}>
-                              <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                          </Pressable>
-                          <Pressable onPress={() => setModalVisible(false)}>
-                              <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
-                          </Pressable>
-                      </View>
-
-                      <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
-                      <View style={styles.input}>
-                          <TextInput
-                              placeholder={CRU?.name}
-                              placeholderTextColor={COLORS.DARKGREY}
-                              style={styles.textinput}
-                              secureTextEntry={false}
-                              onChangeText={text => setModifiedCruName(text)}
-                              value={modifiedCruName} // Use the modified value in the TextInput
-                              editable={true}
-                          />
-                      </View>
-                  </SafeAreaView>
-              </Modal>
-
-              {/* CRU Name Change Confirmation Modal */}
-              <Modal animationType="fade" transparent={true} visible={showChangeNameConfirmationModal}>
-                  <SafeAreaView
-                      style={{
-                          flex: 1,
-                          backgroundColor: COLORS.AKCRUBACKGROUND,
-                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                          paddingTop: 20,
-                      }}>
-                      <View>
-                          <Text
-                              style={{
-                                  ...FONTS.Title3,
-                                  marginBottom: 10,
-                                  textAlign: 'center',
-                              }}>
-                              {`Are you sure you want to change your CRU's Name to "${modifiedCruName}"?`}
-                          </Text>
-                          <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                              <TouchableOpacity
-                                  style={{
-                                      backgroundColor: COLORS.CATREDLGT,
-                                      paddingHorizontal: 20,
-                                      paddingVertical: 10,
-                                      marginRight: 10,
-                                      borderRadius: 5,
-                                  }}
-                                  onPress={handleCancelChangeName}>
-                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                  style={{
-                                      backgroundColor: COLORS.GREEN,
-                                      paddingHorizontal: 20,
-                                      paddingVertical: 10,
-                                      borderRadius: 5,
-                                  }}
-                                  onPress={handleConfirmChangeName}>
-                                  <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Confirm</Text>
                               </TouchableOpacity>
                           </View>
                       </View>
