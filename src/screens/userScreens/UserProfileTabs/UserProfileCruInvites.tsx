@@ -79,7 +79,7 @@ const UserProfileCruInvites = () => {
                                             inviteDate={item.createdAt}
                                             invitee={item.cru.creator}
                                             onPress={() =>
-                                                navigation.navigate('ViewUserScreen', {id: item.cru.creator})
+                                                navigation.navigate('ViewUserScreen', {id: item.inviteeId})
                                             }
                                         />
                                     </View>

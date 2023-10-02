@@ -186,7 +186,10 @@ export default function EditProfile({session}: {session: Session}) {
             // Filter out the current user's username from the response
             const filteredResponse = response.filter(user => user.username !== currentUserUsername);
 
-            return filteredResponse.length > 0;
+            // Check if any usernames in the filtered response match the provided username
+            const usernameExists = filteredResponse.some(user => user.username === username);
+
+            return usernameExists;
         } catch (error) {
             console.error('Error checking username:', error);
             return false; // Assume username doesn't exist in case of an error
@@ -200,6 +203,10 @@ export default function EditProfile({session}: {session: Session}) {
             const type = res.assets[0].type;
 
             if (uri && fileName && type) {
+
+                console.log('URI:', uri);
+                console.log('FileName:', fileName);
+                console.log('Type:', type);
                 try {
                     // Call the updateUserProfilePicture function to upload the image
                     const result = await updateUserProfilePicture({
@@ -207,10 +214,10 @@ export default function EditProfile({session}: {session: Session}) {
                         name: fileName,
                         type,
                     });
-
+                console.log('API Response:', result);
                     if (result) {
                         // Update the user's profile picture URL
-                        setAvatarUrl(result.profilePicture);
+                        setAvatarUrl(result.profilePicture ?? '');
 
                         // You may also want to update the user's profile picture in your state or context
                         // For example, if your user state is stored in Redux or a context provider

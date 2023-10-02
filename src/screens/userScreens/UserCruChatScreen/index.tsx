@@ -41,6 +41,7 @@ import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from '
 import UserCruChat from '../UserCruChatTabs/UserCruChat';
 import Bulletin from '../UserCruChatTabs/Bulletin';
 import useAuthStore from '../../../stores/auth.store';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -177,7 +178,7 @@ const UserCruChatScreen = () => {
                                     }
                                     avatarStyle={{
                                         borderWidth: 2,
-                                        borderColor: FAKE_USER_PROFILES[0].avatarbordercolor,
+                                        borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
                                     }}
                                 />
                             </View>
@@ -263,7 +264,10 @@ const UserCruChatScreen = () => {
                                 color: COLORS.LIGHTGREY,
                                 fontSize: 12,
                             }}>
-                            {FAKE_USER_PROFILES[0].userDesc}
+                            {user?.description ??
+                                (user
+                                    ? 'Click Edit Profile to add a description'
+                                    : 'Create an account and get started today')}
                         </Text>
                     </View>
                 </ImageBackground>

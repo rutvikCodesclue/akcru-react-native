@@ -19,8 +19,115 @@ import { AkcruLogo } from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 
+import {Platform} from 'react-native';
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+
 
 const Signin = () => {
+    useEffect(() => {
+        const _checkPermissions = async () => {
+            // Check permissions for camera and microphone on Android
+            if (Platform.OS === 'android') {
+                // Request microphone permission
+                const audioResult = await check(PERMISSIONS.ANDROID.RECORD_AUDIO);
+                if (audioResult !== RESULTS.GRANTED) {
+                    const audioRequestResult = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
+                    if (audioRequestResult === RESULTS.GRANTED) {
+                        console.log('Microphone permission granted');
+                    }
+                }
+
+                // Request camera permission
+                const cameraResult = await check(PERMISSIONS.ANDROID.CAMERA);
+                if (cameraResult !== RESULTS.GRANTED) {
+                    const cameraRequestResult = await request(PERMISSIONS.ANDROID.CAMERA);
+                    if (cameraRequestResult === RESULTS.GRANTED) {
+                        console.log('Camera permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_AUDIO permission
+                const audioMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                if (audioMediaResult !== RESULTS.GRANTED) {
+                    const audioMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                    if (audioMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_AUDIO permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_IMAGES permission
+                const imagesMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                if (imagesMediaResult !== RESULTS.GRANTED) {
+                    const imagesMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                    if (imagesMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_IMAGES permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_VIDEO permission
+                const videoMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                if (videoMediaResult !== RESULTS.GRANTED) {
+                    const videoMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+                    if (videoMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_VIDEO permission granted');
+                    }
+                }
+            }
+
+            // Check permissions for camera and microphone on iOS
+            if (Platform.OS === 'ios') {
+                // Request camera permission
+                const cameraResult = await check(PERMISSIONS.IOS.CAMERA);
+                if (cameraResult !== RESULTS.GRANTED) {
+                    const cameraRequestResult = await request(PERMISSIONS.IOS.CAMERA);
+                    if (cameraRequestResult === RESULTS.GRANTED) {
+                        console.log('Camera permission granted');
+                    }
+                }
+
+                // Request microphone permission
+                const micResult = await check(PERMISSIONS.IOS.MICROPHONE);
+                if (micResult !== RESULTS.GRANTED) {
+                    const micRequestResult = await request(PERMISSIONS.IOS.MICROPHONE);
+                    if (micRequestResult === RESULTS.GRANTED) {
+                        console.log('Microphone permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_AUDIO permission on iOS
+                const audioMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                if (audioMediaResult !== RESULTS.GRANTED) {
+                    const audioMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                    if (audioMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_AUDIO permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_IMAGES permission on iOS
+                const imagesMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                if (imagesMediaResult !== RESULTS.GRANTED) {
+                    const imagesMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                    if (imagesMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_IMAGES permission granted');
+                    }
+                }
+
+                // Request READ_MEDIA_VIDEO permission on iOS
+                const videoMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                if (videoMediaResult !== RESULTS.GRANTED) {
+                    const videoMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
+                    if (videoMediaRequestResult === RESULTS.GRANTED) {
+                        console.log('READ_MEDIA_VIDEO permission granted');
+                    }
+                }
+            }
+        };
+
+        // Call the permission checking function when the component mounts
+        _checkPermissions();
+    }, []);
+
+
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
@@ -60,7 +167,6 @@ const Signin = () => {
         });
     }, []);
 
-    
     async function attemptLogin() {
         try {
             setLoading(true);
@@ -97,11 +203,11 @@ const Signin = () => {
         }
     }
 
-        async function handleLogout() {
-            await AsyncStorage.removeItem('access_token'); // Remove the stored token
-            await authStore.logout();
-            setIsLoggedIn(false);
-        }
+    async function handleLogout() {
+        await AsyncStorage.removeItem('access_token'); // Remove the stored token
+        await authStore.logout();
+        setIsLoggedIn(false);
+    }
 
     return (
         <View>
@@ -265,18 +371,20 @@ const Signin = () => {
                                     }}>
                                     {`Login error, Please try again.`}
                                 </Text>
-                                <TouchableOpacity onPress={()=>{setShowLoginError(false)}}>
-                                   <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        marginBottom: 10,
-                                        textAlign: 'center',
-                                        color: COLORS.MIDORANGE
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowLoginError(false);
                                     }}>
-                                    {`Close`}
-                                </Text> 
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
                                 </TouchableOpacity>
-                                
                             </View>
                         </View>
                     </Modal>

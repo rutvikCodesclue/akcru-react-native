@@ -19,8 +19,7 @@ interface IUserProfile {
     createdAt?: string;
     updatedAt?: string;
     profilePicture?: string;
-    phone?: string;
-    dob?: string;
+    phoneNumber?: string;
     password?: string;
 }
 

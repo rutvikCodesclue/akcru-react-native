@@ -58,7 +58,7 @@ export const searchForUsers = async (search: string) : Promise<IUserProfile[] | 
 
 export const updateUser = async (params: { username?: string, firstName?: string, lastName?: string, email?: string, description?: string, phone?: string, password?: string, dob?: string }) : Promise<IUserProfile | undefined> => {
     try {
-        const { username, firstName, lastName, email, description, phone, password, dob } = params
+        const {username, firstName, lastName, email, description, phone, password, dob} = params;
         // PUT /v1/user/
         const updateUserObj = {
             ...(username && {username}),
@@ -71,12 +71,15 @@ export const updateUser = async (params: { username?: string, firstName?: string
             ...(dob && {dob}),
         };
 
-        const { data } = await API.put(`/v1/user`, updateUserObj);
-    
+        // Log the updateUserObj to verify its contents
+        console.log('Update User Object:', updateUserObj);
+
+        const {data} = await API.put(`/v1/user`, updateUserObj);
+
         if (data.success === false) {
-            return undefined
+            return undefined;
         }
-        
+
         return data.updatedUser;
     } catch (error) {
         console.error(error);

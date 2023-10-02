@@ -168,17 +168,20 @@ const OnBoard2 = () => {
 
     const checkUsernameExists = async (username: string) => {
         try {
-            // You can implement a logic here to check if the username exists in your database
+            // You can implement logic here to check if the username exists in your database
             // For example, you can make an API request to check if the username is already in use
-            // Return true if the username exists, false otherwise
-            const response = await searchForUsers(username);; // Replace with your actual API call
+            const response = await searchForUsers(username); // Replace with your actual API call
 
-            return response.length > 0;
+            // Check if the response contains the exact username
+            const usernameExists = response.some(user => user.username === username);
+
+            return usernameExists;
         } catch (error) {
             console.error('Error checking username:', error);
             return false; // Assume username doesn't exist in case of an error
         }
     };
+
 
     return (
         <View>

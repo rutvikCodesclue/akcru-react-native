@@ -53,6 +53,7 @@ const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const userID: string | undefined = route.params?.userID ?? null;
+    
     const userprofile: string | undefined = route.params?.userName ?? null;
     const navigation2 = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
