@@ -33,11 +33,12 @@ const OnBoard1 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const user = useAuthStore(state => state.user);
     const { hydrateUser, hydrateAuth} = useAuthStore();
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState('');
     const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [userName, setUserName] = useState('');
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
+    const [location, setLocation] = useState(user?.location);
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [email, setEmail] = useState('');
@@ -82,7 +83,7 @@ const OnBoard1 = () => {
     };
 
     const handlePhoneNumberChange = (text: string) => {
-        setPhoneNumber(text);
+        setPhone(text);
         
     };
 
@@ -106,7 +107,8 @@ const OnBoard1 = () => {
     const checkFormCompletion = () => {
         if (
             userName &&
-            dateOfBirth 
+            dateOfBirth &&
+            phone 
         ) {
             setIsFormComplete(true);
         } else {
@@ -130,7 +132,11 @@ const OnBoard1 = () => {
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
-                dateOfBirth: dateOfBirth,
+                phone: phone,
+                dob: dateOfBirth
+                // location: location,
+                
+                
 
                 // Pass the state update functions to the API function
             });
@@ -155,7 +161,9 @@ const OnBoard1 = () => {
             if (currentUser) {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
-                currentUser.dateOfBirth = dateOfBirth;
+                currentUser.phone = phone;
+                currentUser.dateOfBirth = dateOfBirth
+                // currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -202,6 +210,15 @@ const OnBoard1 = () => {
                                     value={lastName || ''}
                                     editable={!loading}
                                 />
+                                {/* <InputsLrg
+                                    placeholdername={'Location'}
+                                    iconname={'person'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setLocation(text)}
+                                    value={location || ''}
+                                    editable={!loading}
+                                /> */}
 
                                 {showPicker && (
                                     <DateTimePicker
@@ -261,7 +278,7 @@ const OnBoard1 = () => {
                                         style={styles.textinput}
                                         secureTextEntry={false}
                                         onChangeText={handlePhoneNumberChange}
-                                        value={phoneNumber}
+                                        value={phone}
                                         keyboardType="phone-pad"
                                         editable={true}
                                     />

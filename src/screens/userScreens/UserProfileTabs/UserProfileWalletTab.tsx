@@ -82,7 +82,7 @@ const UserProfileWalletTab = () => {
             style={{ width: SIZES.ScreenWidth / 1.1, height: 170 }}
           />
         </View> */}
-        <View style={styles.lineSeperator} />
+        {/* <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2White}>
             Exchange AD to USD / USD to AD
@@ -180,7 +180,8 @@ const UserProfileWalletTab = () => {
             onPress={function (): void {}}
             color={COLORS.AKCRUBLUE}
           />
-        </View>
+        </View> */}
+
         <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2White}>

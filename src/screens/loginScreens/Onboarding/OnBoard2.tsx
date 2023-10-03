@@ -30,7 +30,7 @@ import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {launchImageLibrary, ImagePickerResponse} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
-import {updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
+import {searchForUsers, updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
 
 const OnBoard2 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -40,7 +40,7 @@ const OnBoard2 = () => {
     const [userName, setUserName] = useState('');
     const [desc, setDesc] = useState(user?.description);
     const [description, setDescription] = useState(user?.description);
-
+    const [isUsernameValid, setIsUsernameValid] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState('');
 
     const [profilePicture, setProfilePicture] = useState<{uri: string} | null>(null);
@@ -127,34 +127,61 @@ const OnBoard2 = () => {
         try {
             setLoading(true);
 
-            // Call the updateUser function to send the updated data to the backend
-            const updatedUser = await updateUser({
-                username: userName,
-                description: description,
-            });
+            // Check if the username is already taken
+            const usernameExists = await checkUsernameExists(userName);
 
-            if (updatedUser) {
-                console.log('Profile updated successfully:', updatedUser);
+            if (usernameExists) {
+                // Username is already taken, show an error message
+                Alert.alert('Username is already taken', 'Please choose a different username.');
+            } else if (userName.includes(' ')) {
+                // Username contains spaces, show an error message
+                Alert.alert('Username contains spaces', 'Please remove spaces from your username.');
             } else {
-                console.error('Failed to update profile.');
-                navigation.navigate('OnBoard3');
+                // Call the updateUser function to send the updated data to the backend
+                const updatedUser = await updateUser({
+                    username: userName,
+                    description: description,
+                });
+
+                if (updatedUser) {
+                    console.log('Profile updated successfully:', updatedUser);
+                    const currentUser = useAuthStore.getState().user;
+
+                    if (currentUser) {
+                        currentUser.username = userName;
+                        currentUser.description = description;
+                        // Update the profile picture URI if it has changed
+                        useAuthStore.setState({user: currentUser});
+                    }
+                    navigation.navigate('OnBoard3');
+                } else {
+                    console.error('Failed to update profile.');
+                }
             }
         } catch (error) {
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
-
-            const currentUser = useAuthStore.getState().user;
-
-            if (currentUser) {
-                currentUser.username = userName;
-                currentUser.description = description;
-                // Update the profile picture URI if it has changed
-                useAuthStore.setState({user: currentUser});
-                navigation.navigate('OnBoard3');
-            }
         }
     };
+
+
+    const checkUsernameExists = async (username: string) => {
+        try {
+            // You can implement logic here to check if the username exists in your database
+            // For example, you can make an API request to check if the username is already in use
+            const response = await searchForUsers(username); // Replace with your actual API call
+
+            // Check if the response contains the exact username
+            const usernameExists = response.some(user => user.username === username);
+
+            return usernameExists;
+        } catch (error) {
+            console.error('Error checking username:', error);
+            return false; // Assume username doesn't exist in case of an error
+        }
+    };
+
 
     return (
         <View>
@@ -238,7 +265,15 @@ const OnBoard2 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setUserName(text)}
+                                    onChangeText={text => {
+                                        // Remove spaces from the input text
+                                        const formattedText = text.replace(/\s/g, '');
+
+                                        // Enforce the 11-character limit
+                                        if (formattedText.length <= 11) {
+                                            setUserName(formattedText);
+                                        }
+                                    }}
                                     value={userName || ''}
                                     editable={!loading}
                                 />
@@ -248,7 +283,14 @@ const OnBoard2 = () => {
                                     placeholder={'Tell our crummunity about yourself...'}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
-                                    onChangeText={text => setDescription(text)}
+                                    onChangeText={text => {
+                                        // Limit the description to 150 characters
+                                        if (text.length <= 150) {
+                                            setDescription(text);
+                                        }
+                                    }}
+                                    multiline={true}
+                                    maxLength={150} // Set the maximum character limit
                                     secureTextEntry={false}
                                     value={description || ''}
                                 />

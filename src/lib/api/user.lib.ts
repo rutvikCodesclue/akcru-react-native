@@ -56,24 +56,30 @@ export const searchForUsers = async (search: string) : Promise<IUserProfile[] | 
     }
 }
 
-export const updateUser = async (params: { username?: string, firstName?: string, lastName?: string, email?: string, description?: string }) : Promise<IUserProfile | undefined> => {
+export const updateUser = async (params: { username?: string, firstName?: string, lastName?: string, email?: string, description?: string, phone?: string, password?: string, dob?: string }) : Promise<IUserProfile | undefined> => {
     try {
-        const { username, firstName, lastName, email, description } = params
+        const {username, firstName, lastName, email, description, phone, password, dob} = params;
         // PUT /v1/user/
         const updateUserObj = {
-            ...(username && { username }),
-            ...(firstName && { firstName }),
-            ...(lastName && { lastName }),
-            ...(email && { email }),
-            ...(description && { description })
+            ...(username && {username}),
+            ...(firstName && {firstName}),
+            ...(lastName && {lastName}),
+            ...(email && {email}),
+            ...(description && {description}),
+            ...(phone && {phone}),
+            ...(password && {password}),
+            ...(dob && {dob}),
+        };
+
+        // Log the updateUserObj to verify its contents
+        console.log('Update User Object:', updateUserObj);
+
+        const {data} = await API.put(`/v1/user`, updateUserObj);
+
+        if (data.success === false) {
+            return undefined;
         }
 
-        const { data } = await API.put(`/v1/user`, updateUserObj);
-    
-        if (data.success === false) {
-            return undefined
-        }
-        
         return data.updatedUser;
     } catch (error) {
         console.error(error);

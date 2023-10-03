@@ -19,6 +19,8 @@ interface IUserProfile {
     createdAt?: string;
     updatedAt?: string;
     profilePicture?: string;
+    phoneNumber?: string;
+    password?: string;
 }
 
 export interface IMovie {

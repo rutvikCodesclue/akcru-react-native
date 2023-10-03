@@ -103,7 +103,7 @@ export default function ClientTabNavigator() {
                   ),
               }}
           />
-          <ClientTabs.Screen
+          {/* <ClientTabs.Screen
               name="CrummunityStack"
               component={CrummunityStack}
               options={{
@@ -112,8 +112,8 @@ export default function ClientTabNavigator() {
                       <Icon name="people-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
                   ),
               }}
-          />
-          <ClientTabs.Screen
+          /> */}
+          {/* <ClientTabs.Screen
               name="PurchaseMITScreen"
               component={PurchaseMITScreen}
               options={{
@@ -124,7 +124,7 @@ export default function ClientTabNavigator() {
                       </Animated.View>
                   ),
               }}
-          />
+          /> */}
           <ClientTabs.Screen
               name="CruChewStack"
               component={CruChewStack}

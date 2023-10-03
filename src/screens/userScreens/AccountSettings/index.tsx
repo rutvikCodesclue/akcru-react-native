@@ -23,7 +23,7 @@ const AccountSettings = () => {
     const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
-    const [phoneNumber, setPhoneNumber] = useState('');
+    const [phone, setPhone] = useState(user?.phoneNumber);
     const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [loading, setLoading] = useState(false);
 
@@ -53,15 +53,22 @@ const AccountSettings = () => {
         // UpdateProfile({userName, desc});
     };
 
+    const handlePhoneChange = (text: React.SetStateAction<string | undefined>) => {
+        console.log('New Phone Number:', text);
+        setPhone(text);
+    };
+
     const confirmUpdate = async () => {
         try {
             setLoading(true);
 
             // Call the updateUser function to send the updated data to the backend
+            console.log('Phone Number Value:', phone);
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
-                dateOfBirth: dateOfBirth
+                dob: dateOfBirth,
+                phone: phone
             
                 // Pass the state update functions to the API function
             });
@@ -87,6 +94,7 @@ const AccountSettings = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
+                currentUser.phoneNumber = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -142,6 +150,22 @@ const AccountSettings = () => {
                         </View>
                     </View>
                     <View>
+                        <Text style={styles.inputlabel}>Phone number</Text>
+                        <View style={styles.input}>
+                            <MaskedTextInput
+                                mask="1-999-999-9999"
+                                placeholder={user?.phoneNumber}
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={handlePhoneChange}
+                                value={phone || ''}
+                                keyboardType="phone-pad" // Set keyboard type to phone-pad
+                            />
+                        </View>
+                    </View>
+
+                    {/* <View>
                         <Text style={styles.inputlabel}>DOB</Text>
                         <View style={styles.input}>
                             <MaskedTextInput
@@ -155,23 +179,8 @@ const AccountSettings = () => {
                                 keyboardType="phone-pad" // Set keyboard type to phone-pad
                             />
                         </View>
-                    </View>
-                    <View>
-                        <Text style={styles.inputlabel}>Phone number</Text>
-                        <View style={styles.input}>
-                            <MaskedTextInput
-                                mask="+1-999-999-9999"
-                                placeholder="+1-123-456-7890"
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => setPhoneNumber(text)}
-                                value={phoneNumber || ''}
-                                keyboardType="phone-pad" // Set keyboard type to phone-pad
-                            />
-                        </View>
-                    </View>
-                    <View>
+                    </View> */}
+                    {/* <View>
                         <Text style={styles.inputlabel}>New Password</Text>
                         <View style={styles.input}>
                             <TextInput
@@ -196,7 +205,7 @@ const AccountSettings = () => {
                                 value={lastName || ''}
                             />
                         </View>
-                    </View>
+                    </View> */}
 
                     <View
                         style={{
@@ -209,7 +218,7 @@ const AccountSettings = () => {
                         }}
                     />
 
-                    <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
+                    {/* <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
                         <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>Privacy settings</Text>
                         <View
                             style={{
@@ -290,7 +299,7 @@ const AccountSettings = () => {
                                 </View>
                             </Pressable>
                         </View>
-                    </View>
+                    </View> */}
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <AkcruButtons.LrgButton
                             btnname={'Update'}

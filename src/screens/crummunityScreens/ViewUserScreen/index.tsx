@@ -51,10 +51,11 @@ const ViewUserwatchlist = Akcru_Content[6];
 
 const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
-export default function ViewUserScreen({route}: Props) {
+export default function ViewUserScreen({route, navigation}: Props) {
     const userID: string | undefined = route.params?.userID ?? null;
+    
     const userprofile: string | undefined = route.params?.userName ?? null;
-    const navigation = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+    const navigation2 = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
     const userId = route.params?.userId;
     
@@ -164,11 +165,8 @@ export default function ViewUserScreen({route}: Props) {
                           <View style={{marginRight: 8}}>
                               <Pressable
                                   onPress={() => {
-                                      navigation.navigate('CrummunityStack', {
-                                          screen: 'ViewUserDetailScreen',
-                                          params: {
-                                              userID,
-                                          },
+                                      navigation.navigate('ViewUserDetailScreen', {
+                                          userID,
                                       });
                                   }}>
                                   <Avatar
@@ -252,7 +250,7 @@ export default function ViewUserScreen({route}: Props) {
                                   </View>
                               )}
 
-                              <TouchableOpacity>
+                              {/* <TouchableOpacity>
                                   <Text
                                       style={{
                                           ...FONTS.Title2,
@@ -262,7 +260,7 @@ export default function ViewUserScreen({route}: Props) {
                                       }}>
                                       Block {user?.username}
                                   </Text>
-                              </TouchableOpacity>
+                              </TouchableOpacity> */}
                           </View>
                       </View>
                       <View
@@ -482,7 +480,7 @@ export default function ViewUserScreen({route}: Props) {
                               </View>
                           </Modal>
 
-                          <View style={styles.seperator} />
+                        {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
@@ -511,7 +509,7 @@ export default function ViewUserScreen({route}: Props) {
                               </View>
                           </View>
 
-                          {/* <View style={{marginBottom: 75, marginTop: -20}}>
+                          <View style={{marginBottom: 75, marginTop: -20}}>
                               <BasicListCategories Akcru_Content={ViewUserwatchlist} />
                           </View> */}
                       </View>
