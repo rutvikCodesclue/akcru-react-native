@@ -7,7 +7,7 @@ import imageindex from '../../../assets/images/imageindex';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AuthStackParams } from '../../navigation/AuthNavigation';
 import { ClientStackParams } from '../../navigation/ClientStack';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
 import useAuthStore from '../../stores/auth.store';
 import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
@@ -24,26 +24,30 @@ const Header = () => {
 
     const [unreadCount, setUnreadCount] = useState(''); // State to store unread notification count
 
-    // Fetch notifications and calculate unread count when the component mounts
-    useEffect(() => {
-        async function fetchNotifications() {
-            try {
-                const notifications = await getMyNotifications();
-                if (notifications && notifications.length > 0) {
-                    // Filter notifications based on specific types
-                    const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined'];
-                    const unreadNotifications = notifications.filter(
-                        notification => !notification.read && specificTypes.includes(notification.type),
-                    );
-                    setUnreadCount(unreadNotifications.length);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        }
+    const isFocused = useIsFocused(); // Check if the screen is currently focused
 
-        fetchNotifications();
-    }, []);
+    // Fetch notifications and calculate unread count when the component mounts
+    const fetchNotifications = async () => {
+        try {
+            const notifications = await getMyNotifications();
+            if (notifications && notifications.length > 0) {
+                const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined'];
+                const unreadNotifications = notifications.filter(
+                    notification => !notification.isRead && specificTypes.includes(notification.type),
+                );
+                setUnreadCount(unreadNotifications.length.toString());
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    // Use useEffect to fetch notifications when the screen comes into focus
+    useEffect(() => {
+        if (isFocused) {
+            fetchNotifications();
+        }
+    }, [isFocused]);
 
     const NotificationBadgeIcon = withBadge(unreadCount)(Icon);
 

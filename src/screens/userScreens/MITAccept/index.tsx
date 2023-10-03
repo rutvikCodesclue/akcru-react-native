@@ -131,9 +131,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                                   <Avatar
                                       rounded
                                       size={70}
-                                      source={{
-                                          uri: creator?.profilePicture,
-                                      }}
+                                      source={{uri: creator?.profilePicture}}
                                       avatarStyle={{
                                           borderWidth: 2,
                                           borderColor: COLORS.AKCRUBLUE,
