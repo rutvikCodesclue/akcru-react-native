@@ -41,15 +41,20 @@ const UserNotifications = () => {
                 notification.type === 'CruInviteDeclined'),
     );
 
+    
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
             // Call the API to mark the notification as read
             const updatedNotification = await markNotificationRead({id: notificationId});
 
+            console.log('API Response:', updatedNotification);
+
             if (updatedNotification) {
-                // Update the local state to mark the notification as read and remove it from the list
+                // Update the local state to mark the notification as read
                 setNotifications(prevNotifications =>
-                    prevNotifications.filter(notification => notification.id !== notificationId),
+                    prevNotifications.map(notification =>
+                        notification.id === notificationId ? {...notification, isRead: true} : notification,
+                    ),
                 );
             } else {
                 console.error(`Failed to mark notification ${notificationId} as read.`);
@@ -58,6 +63,7 @@ const UserNotifications = () => {
             console.error(`Error marking notification ${notificationId} as read:`, error);
         }
     };
+
 
     return (
         <SafeAreaView style={{flex: 1}}>
@@ -113,20 +119,25 @@ const UserNotifications = () => {
                 <View style={{marginHorizontal: 15, marginTop: 10}}>
                     {/* Render user notifications */}
                     {filteredNotifications.map((notification, index) => {
-                        const {id, type, message} = notification;
+                        const {id, type, message, isRead} = notification;
+
+                        // Console.log the isRead property
+                        console.log(`Notification ID: ${id}, isRead: ${isRead}`);
 
                         return (
                             <View key={index} style={styles.cardcontainer}>
                                 <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
                                 <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                {/* <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
+                                <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
                                     <Text
                                         style={{
                                             ...FONTS.Title2,
                                             color: COLORS.MIDORANGE,
                                             textAlign: 'right',
-                                        }}>{`Mark as read`}</Text>
-                                </TouchableOpacity> */}
+                                        }}>
+                                        {isRead ? 'Marked as Read' : 'Mark as Read'}
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
                         );
                     })}

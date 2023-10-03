@@ -112,6 +112,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     // USESTATES  
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
+    
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
@@ -1284,7 +1285,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                             height: isExpanded
                                                 ? (SIZES.ScreenWidth / 3) * 2.6
                                                 : SIZES.ScreenWidth / 2.5,
-                                            backgroundColor: '#000',
+                                            backgroundColor: 'red',
                                             flex: isExpanded ? 1 : 0,
                                             position: isExpanded ? 'absolute' : 'relative',
                                             zIndex: isExpanded ? 99 : 0,
@@ -1294,9 +1295,9 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                             borderWidth: 4,
                                         }}>
                                         {/* CAMERA SCREEN */}
-                                        {item.peer.videoTrack ? (
+                                        {item.peer.videoTrack?.trackId ? (
                                             <hmsInstanceRef.current.HmsView
-                                                key={item.id}
+                                                key={item.peer.peerID}
                                                 trackId={item.peer.videoTrack.trackId}
                                                 style={{
                                                     width: '100%',

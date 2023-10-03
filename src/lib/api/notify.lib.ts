@@ -15,19 +15,24 @@ export const getMyNotifications = async (): Promise<INotification[] | undefined>
     }
 }
 
-export const markNotificationRead = async (params: { id: string }): Promise<INotification | undefined> => {
+export const markNotificationRead = async (params: {id: string}): Promise<INotification | undefined> => {
     try {
+        // Log the `id` parameter before making the API call
+        console.log('Notification ID to mark as read:', params.id);
+
         // GET /v1/notify/read
-        const { id } = params
-        const { data } = await API.post(`/v1/notify/read`, {
-            id
+        const {id} = params;
+        const {data} = await API.put(`/v1/notify/read`, {
+            id,
         });
+        console.log('API Response:', data); // Log the API response
+
         if (data.success === false) {
-            return undefined
+            return undefined;
         }
 
         return data.updatedNotification;
     } catch (error) {
         console.error(error);
     }
-}
+};
