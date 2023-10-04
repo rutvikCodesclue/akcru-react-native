@@ -9,7 +9,9 @@ import { acceptACRUInvite, declineACRUInvite } from '../../lib/api/cru.lib';
 import imageindex from '../../../assets/images/imageindex';
 import { IUserProfile } from '../../../types';
 import { selectAvatarBorderColor } from '../../util/util';
-
+import {useNavigation} from '@react-navigation/native';
+import { ClientStackParams } from '../../navigation/ClientStack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type CruInviteCardProp = {
     cruInviteID: any;
@@ -18,6 +20,8 @@ type CruInviteCardProp = {
     inviteDate: string;
     invitee: IUserProfile;
     onPress: () => void;
+    decline: any;
+    accept: any;
 };
 
 
@@ -27,31 +31,37 @@ const CruInviteCard = ({
     inviteePicture,
     inviteDate,
     invitee,
-    onPress
+    onPress,
+    decline,
+    accept,
 
 }: CruInviteCardProp) => {
 
+  const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-  const _acceptInvite = () => {
-    setIsLoading(true);
-    console.log("accept invite");
-    
-    
-    acceptACRUInvite({inviteId: cruInviteID}).then((res) => {
-      console.log("accepted res:", res);
-      setIsLoading(false);
-    });
-  };
+//   const _acceptInvite = () => {
+//     setIsLoading(true);
+//     console.log("accept invite"); 
+//     acceptACRUInvite({inviteId: cruInviteID}).then((res) => {
+//         console.log('accepted res:', res);
+//         setIsLoading(false);
+//         // Navigate to CruInviteDecline screen with necessary parameters
+//         navigation.navigate('CruInviteAccept');
+//     });
+//   };
   
-  const _declineInvite = () => {
-    setIsLoading(true);
-    console.log("decline invite");
-    declineACRUInvite({inviteId: cruInviteID}).then((res) => {
-      console.log("declined res:", res);
-      setIsLoading(false);
-    });
-  };
+//   const _declineInvite = () => {
+//     setIsLoading(true);
+//     console.log("decline invite");
+//     declineACRUInvite({inviteId: cruInviteID}).then((res) => {
+//         console.log('declined res:', res);
+//         setIsLoading(false);
+//         // Navigate to CruInviteDecline screen with necessary parameters
+//         navigation.navigate('CruInviteDecline');
+//     });
+//   };
 
   return (
       <View
@@ -106,7 +116,7 @@ const CruInviteCard = ({
 
                   <View style={{flexDirection: 'row', marginTop: 10}}>
                       {/* ACCEPT BUTTON */}
-                      <TouchableOpacity onPress={_acceptInvite} disabled={isLoading}>
+                      <TouchableOpacity onPress={accept} disabled={isLoading}>
                           <View
                               style={{
                                   width: 125,
@@ -121,7 +131,7 @@ const CruInviteCard = ({
                           </View>
                       </TouchableOpacity>
                       {/* DECLINE BUTTON */}
-                      <TouchableOpacity onPress={_declineInvite} disabled={isLoading}>
+                      <TouchableOpacity onPress={decline} disabled={isLoading}>
                           <View
                               style={{
                                   width: 125,

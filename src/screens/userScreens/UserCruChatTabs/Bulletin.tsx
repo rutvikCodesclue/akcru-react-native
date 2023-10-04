@@ -16,6 +16,7 @@ const Bulletin = () => {
     const bulletin = FAKE_USER_PROFILES[0].bulletin;
 
     return (
+        <>
         <View>      
             <View style={{marginHorizontal: 15, marginTop: 10}}>
                     {/* Render user notifications */}
@@ -24,14 +25,16 @@ const Bulletin = () => {
                         const message = bulletin[type];
 
                         return (
-                            <View key={index} style={styles.cardcontainer}>
-                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
-                                <Text style={{...FONTS.paragraph1}}>{`${message}`}</Text>
+                            <View key={index} >
+                                {/* <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                <Text style={{...FONTS.paragraph1}}>{`${message}`}</Text> */}
                             </View>
                         );
                     })}
             </View> 
         </View>
+        </>
+        
     );
 };
 

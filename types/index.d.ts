@@ -42,8 +42,8 @@ export interface IMovie {
     director:     Object[];
     length:       number;
     published:    boolean;     
-    createdAt:    string;
-    updatedAt:    string;
+    createdAt:    date;
+    updatedAt:    date;
 }
 
 export interface IGenreItem {

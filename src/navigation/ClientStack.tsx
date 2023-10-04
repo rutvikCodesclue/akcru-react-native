@@ -13,6 +13,7 @@ import { SendMITViewUser, SendMITSearchResult, SendMITSchedule, SendMITSearchInp
 import {COLORS} from '../../assets/constants';
 import { supabaseRealtime } from '../../lib/supabase';
 import MITDateScheduler1 from '../screens/contentScreens/MovieMITScheduleScreen/MITDateScheduler1';
+import { CruInviteAccept, CruInviteDecline } from '../screens/userScreens/CruInviteResponse';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -28,6 +29,8 @@ export type ClientStackParams = {
     SendMITSchedule: any;
     SendMITSearchInput: any;
     MITDateScheduler1: any;
+    CruInviteAccept: any;
+    CruInviteDecline: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -127,6 +130,20 @@ export function ClientStack() {
           <ClientSearch.Screen
               name="SendMITSearchInput"
               component={SendMITSearchInput}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <ClientSearch.Screen
+              name="CruInviteAccept"
+              component={CruInviteAccept}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <ClientSearch.Screen
+              name="CruInviteDecline"
+              component={CruInviteDecline}
               options={() => ({
                   headerShown: false,
               })}

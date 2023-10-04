@@ -288,7 +288,7 @@ const UserProfileDetailsTab = () => {
               />
 
               <View>
-                  <Text
+                  {/* <Text
                       style={{
                           ...FONTS.Title2,
                           marginTop: 10,
@@ -321,10 +321,10 @@ const UserProfileDetailsTab = () => {
                               Edit your watchlist
                           </Text>
                       </View>
-                  </TouchableOpacity>
-                  <View style={{marginBottom: 75, marginTop: -20}}>
+                  </TouchableOpacity> */}
+                  <View style={{marginBottom: 75}}>
                       <BasicListCategories
-                          Akcru_Content={{id: 'recommendedForYou', title: 'Your Watchlist', movies: newerYearMovies}}
+                          Akcru_Content={{id: 'recommendedForYou', title: 'Recommended to you', movies: newerYearMovies}}
                       />
                   </View>
               </View>
