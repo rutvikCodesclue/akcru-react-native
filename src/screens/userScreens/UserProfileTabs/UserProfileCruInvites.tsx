@@ -3,7 +3,7 @@ import React from 'react'
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import { getCRUInvites } from '../../../lib/api/cru.lib';
+import { acceptACRUInvite, declineACRUInvite, getCRUInvites } from '../../../lib/api/cru.lib';
 import { ICruInvite, IMITInvite } from '../../../../types';
 import { FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
@@ -16,6 +16,7 @@ const UserProfileCruInvites = () => {
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -56,6 +57,42 @@ const UserProfileCruInvites = () => {
         }, []),
     );
 
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+
+    const _acceptInvite = (invites: string) => {
+        setIsLoading(true);
+        console.log('accept invite');
+        acceptACRUInvite({inviteId: invites}).then(res => {
+            console.log('accepted res:', res);
+            setIsLoading(false);
+            // Navigate to CruInviteAccept screen with necessary parameters
+            navigation.navigate('CruInviteAccept', {
+                id: item.cru.creator.id,
+                inviteeName: item.cru.creator.firstName, // Pass the invitee's first name
+                creator: item.cru.creator, // Pass the creator's user profile
+                inviteDate: item.createdAt, // Pass the invite date
+            });
+        });
+    };
+
+    const _declineInvite = (inviteID: string, profilePicture: string, firstName: string, createdAt: string) => {
+        setIsLoading(true);
+        console.log('decline invite');
+        declineACRUInvite({inviteId: inviteID}).then(res => {
+            console.log('declined res:', res);
+            setIsLoading(false);
+            // Navigate to CruInviteDecline screen with necessary parameters
+            navigation.navigate('CruInviteDecline', {
+                id: item.cru.creator.id, 
+                inviteeName: item.cru.creator.firstName, // Pass the invitee's first name
+                creator: item.cru.creator, // Pass the creator's user profile
+                inviteDate: item.createdAt, // Pass the invite date
+            });
+        });
+    };
+
+
+
     return (
         <View>
             <View>
@@ -78,8 +115,24 @@ const UserProfileCruInvites = () => {
                                             inviteePicture={item.cru.creator.profilePicture ?? undefined}
                                             inviteDate={item.createdAt}
                                             invitee={item.cru.creator}
-                                            onPress={() =>
-                                                navigation.navigate('ViewUserScreen', {id: item.inviteeId})
+                                            onPress={() => navigation.navigate('ViewUserScreen', {id: item.inviteeId})}
+                                            decline={() =>
+                                                _declineInvite(
+                                                    item.id,
+                                                    item.cru.creator.profilePicture,
+                                                    item.cru.creator.firstName,
+                                                    item.createdAt,
+                                                    
+                        
+                                                )
+                                            }
+                                            accept={() =>
+                                                _acceptInvite(
+                                                    item.id,
+                                                    item.cru.creator.profilePicture,
+                                                    item.cru.creator.firstName,
+                                                    item.createdAt,
+                                                )
                                             }
                                         />
                                     </View>

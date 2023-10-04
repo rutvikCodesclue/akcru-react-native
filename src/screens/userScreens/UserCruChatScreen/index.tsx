@@ -29,7 +29,7 @@ import {AkcruDollarAmount} from '../../../../assets/constants/Mockusers';
 import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
@@ -42,6 +42,8 @@ import UserCruChat from '../UserCruChatTabs/UserCruChat';
 import Bulletin from '../UserCruChatTabs/Bulletin';
 import useAuthStore from '../../../stores/auth.store';
 import { selectAvatarBorderColor } from '../../../util/util';
+import { ICruInvite, IMITInvite } from '../../../../types';
+import { getMyMITInvites } from '../../../lib/api/mit.lib';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -63,6 +65,57 @@ const SecondRoute = () => <Bulletin />;
 const UserCruChatScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const { user } = useAuthStore();
+    const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
+    const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
+    const [inviteCount, setInviteCount] = React.useState<number>(0);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            // console.log('User Profile Cru Invite Tab focused');
+
+            // Get the MITS for the user
+            getMyMITInvites({pending: true}).then(mitInvites => {
+                // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
+
+                if (mitInvites) {
+                    // Count the number of MIT invites
+                    const mitInviteCount = mitInvites.length;
+
+                    // sort invites by date (newest to oldest) and set state
+                    setInvites(
+                        mitInvites.sort((a, b) => {
+                            if (a.createdAt < b.createdAt) {
+                                return 1;
+                            }
+                            if (a.createdAt > b.createdAt) {
+                                return -1;
+                            }
+                            return 0;
+                        }),
+                    );
+
+                    setIsLoaded(true);
+                    // Call setInviteCount with the total count of MIT invites
+                    setInviteCount(mitInviteCount);
+                } else {
+                    // If there are no MIT invites, set the count to 0
+                    setIsLoaded(true);
+                    setInviteCount(0);
+                }
+            });
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                // console.log('User Profile Cru Invite Tab unfocused');
+            };
+        }, []),
+    );
+
+    React.useEffect(() => {
+        // When the invites change, update the invite count
+        setInviteCount(invites.length);
+    }, [invites]);
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -251,7 +304,7 @@ const UserCruChatScreen = () => {
                                             height: 20,
                                             borderRadius: 15,
                                         }}>
-                                        <Text>5</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.BLACK}}>{inviteCount}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>

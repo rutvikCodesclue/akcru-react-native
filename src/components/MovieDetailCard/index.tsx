@@ -228,12 +228,18 @@ const MovieDetailCard = ({
                             justifyContent: 'space-between',
                             marginHorizontal: 10,
                         }}>
-                        <AkcruButtons.MedButton btnname={'Play Movie'} onPress={onPressin} color={COLORS.AKCRUBLUE} />
+                        <AkcruButtons.MedButton
+                            btnname={'Play Movie'}
+                            onPress={onPressin}
+                            color={COLORS.AKCRUBLUE}
+                            disabled={false}
+                        />
 
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
                             onPress={() => handleSnapPress(1)}
                             color={COLORS.TAGCOLOR}
+                            disabled={false}
                         />
                     </View>
                 </View>
@@ -281,6 +287,7 @@ const MovieDetailCard = ({
                     style={{
                         marginHorizontal: 15,
                         flexDirection: 'row',
+
                         marginVertical: 5,
                     }}>
                     <View
@@ -301,12 +308,17 @@ const MovieDetailCard = ({
                     </View>
                     <View
                         style={{
+                            flex: 1,
                             flexDirection: 'row',
+                            flexWrap: 'wrap',
                         }}>
                         <Text style={styles.drawfonttag}>{rated}</Text>
                         <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
                         <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
-                        <Text style={styles.drawfonttag}>{rating}/10</Text>
+                        <Text style={styles.drawfonttag}>
+                            {/* <Icon name="star" type="ionicon" size={12} color={COLORS.BLACK} style={{marginRight: 5}} /> */}
+                            {rating}/10
+                        </Text>
                     </View>
                 </View>
                 <View style={{marginHorizontal: 15, marginVertical: 10}}>
@@ -377,6 +389,7 @@ const MovieDetailCard = ({
                             btnname={playing ? 'Pause' : 'Play'}
                             onPress={toggleTrailerPlaying}
                             color={COLORS.AKCRUBLUE}
+                            disabled={true}
                         />
                     </View>
                     <View>

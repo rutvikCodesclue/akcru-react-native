@@ -49,7 +49,16 @@ const HomeScreen = () => {
     useEffect(() => {
         const fetchNewOnAkcru = async () => {
             try {
-                const newUploads: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies('');
+
+                const newUploads = allMovies
+                    .map(movie => ({
+                        ...movie,
+                        createdAt: new Date(movie.createdAt).getTime(), // Get timestamp
+                    }))
+                    .sort((a, b) => b.createdAt - a.createdAt)
+                    .slice(0, 8);
+
                 setNewOnAkcru(newUploads);
             } catch (error) {
                 console.error('Error fetching new uploads:', error);
@@ -58,7 +67,7 @@ const HomeScreen = () => {
 
         const fetchTopRatedMovies = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies('');
 
                 // Sort allMovies by rating in descending order
                 const sortedMovies = allMovies.sort((a, b) => b.rating - a.rating);
