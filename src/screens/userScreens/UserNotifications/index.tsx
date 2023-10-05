@@ -73,9 +73,7 @@ const UserNotifications = () => {
                         <Header />
                     </View>
 
-                    <ImageBackground
-                        source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                        resizeMode="cover"
+                    <View                   
                         style={{height: SIZES.ScreenHeight / 4, marginTop: -70}}>
                         <LinearGradient
                             // Background Linear Gradient
@@ -113,7 +111,7 @@ const UserNotifications = () => {
                                 NOTIFICATIONS
                             </Text>
                         </View>
-                    </ImageBackground>
+                    </View>
                 </View>
 
                 <View style={{marginHorizontal: 15, marginTop: 10}}>
