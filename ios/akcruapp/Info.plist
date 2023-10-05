@@ -35,22 +35,41 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This is to be able access your Apple Music data in the app</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>This is to be able to use your Bluetooth in the background</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>This is to be able to use your Bluetooth in the app</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This is to be able to use your Calendar in the app</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This is used for sharing your camera during a Watchparty</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This is to be able to use your contacts in the app</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This is to be able to use your Face ID</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This is to be able to use your location in the background and in app</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This is to be able to use your location in the background</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>Nearby Users</key>
+		<string>Your Location is Used to Find Nearby Users</string>
+	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIRequiredDeviceCapabilities</key>
-	<array>
-		<string>armv7</string>
-	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIViewControllerBasedStatusBarAppearance</key>
-	<false/>
+	<string>This is used to access your Location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This is used for sharing audio during a Watchparty</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This is used to track motion</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>This is used to be able to add your photos to the Akcru app</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This is used to access your photos for Akcru</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>This is used to be able to send you reminders for the Akcru app</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>
@@ -66,38 +85,19 @@
 		<string>Ionicons.ttf</string>
 		<string>MaterialCommunityIcons.ttf</string>
 	</array>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This is used for sharing your camera during a Watchparty</string>
-	<key>NSContactsUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
-	<dict>
-		<key>YOUR-PURPOSE-KEY</key>
-		<string>YOUR TEXT</string>
-	</dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This is used for sharing audio during a Watchparty</string>
-	<key>NSMotionUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>YOUR TEXT</string>
-	<key>NSRemindersUsageDescription</key>
-	<string>YOUR TEXT</string>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>armv7</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
 </dict>
 </plist>
