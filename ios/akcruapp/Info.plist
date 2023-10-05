@@ -70,6 +70,10 @@
 	<string>This is used to access your photos for Akcru</string>
 	<key>NSRemindersUsageDescription</key>
 	<string>This is used to be able to send you reminders for the Akcru app</string>
+	<key>NSSpeechRecognitionUsageDescription </key>
+	<string>This is used to be able to use speech recognition in app</string>
+	<key>NSSiriUsageDescription</key>
+	<string>This is used to be use Siri in app</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>
