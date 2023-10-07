@@ -22,7 +22,7 @@ import styles from "./styles";
 import { findMovieById } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import { API } from "../../../clients/api.client";
-import { createACRUView, getMyCRU } from "../../../lib/api/cru.lib";
+import { createACRUView } from "../../../lib/api/cru.lib";
 import { formatMovieDuration } from "../../../util/util";
 import moment from 'moment-timezone';
 
