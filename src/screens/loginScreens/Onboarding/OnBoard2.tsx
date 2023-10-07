@@ -127,19 +127,22 @@ const OnBoard2 = () => {
         try {
             setLoading(true);
 
-            // Check if the username is already taken
-            const usernameExists = await checkUsernameExists(userName);
+            // Convert the provided username to lowercase for comparison
+            const lowercaseUserName = userName.toLowerCase();
+
+            // Check if the lowercase username is already taken
+            const usernameExists = await checkUsernameExists(lowercaseUserName);
 
             if (usernameExists) {
                 // Username is already taken, show an error message
                 Alert.alert('Username is already taken', 'Please choose a different username.');
-            } else if (userName.includes(' ')) {
+            } else if (lowercaseUserName.includes(' ')) {
                 // Username contains spaces, show an error message
                 Alert.alert('Username contains spaces', 'Please remove spaces from your username.');
             } else {
                 // Call the updateUser function to send the updated data to the backend
                 const updatedUser = await updateUser({
-                    username: userName,
+                    username: userName, // Use the provided username as is
                     description: description,
                 });
 
@@ -148,7 +151,7 @@ const OnBoard2 = () => {
                     const currentUser = useAuthStore.getState().user;
 
                     if (currentUser) {
-                        currentUser.username = userName;
+                        currentUser.username = userName; // Update the username without converting to lowercase
                         currentUser.description = description;
                         // Update the profile picture URI if it has changed
                         useAuthStore.setState({user: currentUser});
@@ -165,15 +168,23 @@ const OnBoard2 = () => {
         }
     };
 
-
     const checkUsernameExists = async (username: string) => {
         try {
-            // You can implement logic here to check if the username exists in your database
-            // For example, you can make an API request to check if the username is already in use
-            const response = await searchForUsers(username); // Replace with your actual API call
+            // Convert the username to lowercase before checking
+            const lowercaseUsername = username.toLowerCase();
 
-            // Check if the response contains the exact username
-            const usernameExists = response.some(user => user.username === username);
+            // Get the current user's username from the user state
+            const currentUserUsername = useAuthStore.getState().user?.username.toLowerCase();
+
+            // You can implement logic here to check if the lowercase username exists in your database
+            // For example, you can make an API request to check if the lowercase username is already in use
+            const response = await searchForUsers(lowercaseUsername); // Replace with your actual API call
+
+            // Filter out the current user's username from the response
+            const filteredResponse = response.filter(user => user.username.toLowerCase() !== currentUserUsername);
+
+            // Check if the filtered response contains the exact lowercase username
+            const usernameExists = filteredResponse.some(user => user.username.toLowerCase() === lowercaseUsername);
 
             return usernameExists;
         } catch (error) {
@@ -181,6 +192,8 @@ const OnBoard2 = () => {
             return false; // Assume username doesn't exist in case of an error
         }
     };
+
+
 
 
     return (
@@ -270,7 +283,7 @@ const OnBoard2 = () => {
                                         const formattedText = text.replace(/\s/g, '');
 
                                         // Enforce the 11-character limit
-                                        if (formattedText.length <= 11) {
+                                        if (formattedText.length <= 12) {
                                             setUserName(formattedText);
                                         }
                                     }}

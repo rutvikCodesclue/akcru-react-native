@@ -178,16 +178,22 @@ export default function EditProfile({session}: {session: Session}) {
 
     const checkUsernameExists = async (username: string, currentUserUsername: string | undefined) => {
         try {
-            // You can implement logic here to check if the username exists in your database
-            // For example, you can make an API request to check if the username is already in use
+            // Convert both the provided username and existing usernames to lowercase
+            const lowercaseUsername = username.toLowerCase();
+            const lowercaseCurrentUserUsername = currentUserUsername?.toLowerCase();
+
+            // You can implement logic here to check if the lowercase username exists in your database
+            // For example, you can make an API request to check if the lowercase username is already in use
             // Exclude the current user's username from the search
-            const response = await searchForUsers(username); // Replace with your actual API call
+            const response = await searchForUsers(lowercaseUsername); // Replace with your actual API call
 
             // Filter out the current user's username from the response
-            const filteredResponse = response.filter(user => user.username !== currentUserUsername);
+            const filteredResponse = response.filter(
+                user => user.username.toLowerCase() !== lowercaseCurrentUserUsername,
+            );
 
-            // Check if any usernames in the filtered response match the provided username
-            const usernameExists = filteredResponse.some(user => user.username === username);
+            // Check if any usernames in the filtered response match the provided lowercase username
+            const usernameExists = filteredResponse.some(user => user.username.toLowerCase() === lowercaseUsername);
 
             return usernameExists;
         } catch (error) {
@@ -343,7 +349,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         const formattedText = text.replace(/\s/g, '');
 
                                         // Enforce the 11-character limit
-                                        if (formattedText.length <= 11) {
+                                        if (formattedText.length <= 12) {
                                             setUserName(formattedText);
                                         }
                                     }}

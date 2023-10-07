@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -18,12 +18,23 @@ const AccountSettings = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const user = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
+
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
     const [privacySetting, setPrivacySetting] = useState('Public'); // Add state for privacy setting
     const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
-    const [firstName, setFirstName] = useState(user?.firstName);
-    const [lastName, setLastName] = useState(user?.lastName);
-    const [phone, setPhone] = useState(user?.phoneNumber);
+
+    const [firstName, setFirstName] = useState('');
+    const [firstNameModified, setFirstNameModified] = useState('');
+    const [firstNameModalVisible, setFirstNameModalVisible] = useState(false);
+
+    const [lastName, setLastName] = useState('');
+    const [lastNameModified, setLastNameModified] = useState('');
+    const [lastNameModalVisible, setLastNameModalVisible] = useState(false);
+
+    const [phone, setPhone] = useState('');
+    const [phoneModified, setPhoneModified] = useState('');
+    const [phoneModalVisible, setPhoneModalVisible] = useState(false);
+
     const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [loading, setLoading] = useState(false);
 
@@ -40,6 +51,22 @@ const AccountSettings = () => {
         }, []),
     );
 
+    const handleFirstNameModalOpen = () => {
+        setFirstNameModified(firstName);
+        setFirstNameModalVisible(true);
+    };
+
+    const handleLastNameModalOpen = () => {
+        setLastNameModified(firstName);
+        setLastNameModalVisible(true);
+    };
+
+    const handlePhoneModalOpen = () => {
+        setPhoneModified(firstName);
+        setPhoneModalVisible(true);
+    };
+
+
     const handleUpdateProfile = () => {
         // Show the confirmation modal
         setShowUpdateConfirmation(true);
@@ -53,10 +80,143 @@ const AccountSettings = () => {
         // UpdateProfile({userName, desc});
     };
 
-    const handlePhoneChange = (text: React.SetStateAction<string | undefined>) => {
-        console.log('New Phone Number:', text);
-        setPhone(text);
+    // const handlePhoneChange = (text: React.SetStateAction<string | undefined>) => {
+    //     console.log('New Phone Number:', text);
+    //     setPhone(text);
+    // };
+
+    const [showUpdateFirstNameConfirmation, setShowUpdateFirstNameConfirmation] = useState(false);
+
+    const handleChangeFirstName = () => {
+        setShowUpdateFirstNameConfirmation(true);
     };
+
+    const confirmFirstNameUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Create an object with only the `firstName` field to update
+            const updatedFields = {
+                firstName: firstName,
+            };
+
+            const updatedUser = await updateUser(updatedFields);
+
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+            setShowUpdateFirstNameConfirmation(false);
+            setFirstNameModalVisible(false);
+
+            const currentUser = useAuthStore.getState().user;
+
+            // Update the username in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.firstName = firstName;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
+
+    const [showUpdateLastNameConfirmation, setShowUpdateLastNameConfirmation] = useState(false);
+
+    const handleChangeLastName = () => {
+        setShowUpdateLastNameConfirmation(true);
+    };
+
+    const confirmLastNameUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Create an object with only the `firstName` field to update
+            const updatedFields = {
+                lastName: lastName,
+            };
+
+            const updatedUser = await updateUser(updatedFields);
+
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+            setShowUpdateLastNameConfirmation(false);
+            setLastNameModalVisible(false);
+
+            const currentUser = useAuthStore.getState().user;
+
+            // Update the username in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.lastName = lastName;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
+
+    const [showUpdatePhoneConfirmation, setShowUpdatePhoneConfirmation] = useState(false);
+
+    const handleChangePhone = () => {
+        setShowUpdatePhoneConfirmation(true);
+    };
+
+    const confirmPhoneUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Create an object with only the `phone` field to update
+            const updatedFields = {
+                phone: phone,
+            };
+
+            const updatedUser = await updateUser(updatedFields);
+
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            if (error.response && error.response.status === 400) {
+                // This error is due to a Bad Request (status code 400)
+                console.error('Bad Request Error:', error.response.data); // Log the specific error message
+            } else {
+                // Handle other types of errors (e.g., network issues)
+                console.error('Error updating profile:', error);
+            }
+        } finally {
+            setLoading(false);
+            setShowUpdatePhoneConfirmation(false);
+            setPhoneModalVisible(false);
+
+            const currentUser = useAuthStore.getState().user;
+
+            // Update the phone number in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.phone = phone;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
+
 
     const confirmUpdate = async () => {
         try {
@@ -94,7 +254,7 @@ const AccountSettings = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
-                currentUser.phoneNumber = phone;
+                currentUser.phone = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -123,47 +283,317 @@ const AccountSettings = () => {
                     <Text style={{...FONTS.paragraph1, marginBottom: 10, fontSize: 12, color: COLORS.MIDORANGE}}>
                         ( This information will not be shared publicly )
                     </Text>
+                    {/* firstName */}
                     <View>
                         <Text style={styles.inputlabel}>First name</Text>
                         <View style={styles.input}>
-                            <TextInput
-                                placeholder={user?.firstName}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => setFirstName(text)}
-                                value={firstName || ''}
-                            />
+                            <Pressable onPress={handleFirstNameModalOpen}>
+                                <TextInput
+                                    placeholder={user?.firstName}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setFirstNameModified(text)}
+                                    value={firstName || ''}
+                                    editable={false}
+                                />
+                            </Pressable>
                         </View>
                     </View>
+                    {/* firstName Modal */}
+                    <Modal animationType="fade" transparent={false} visible={firstNameModalVisible}>
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                paddingTop: 20,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <Pressable onPress={handleChangeFirstName}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                </Pressable>
+                                <Pressable onPress={() => setFirstNameModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.inputlabel}>Change Firstname</Text>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={user?.firstName}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setFirstName(text)}
+                                    value={firstName} // Use the modified value in the TextInput
+                                    editable={true}
+                                />
+                            </View>
+                        </SafeAreaView>
+                    </Modal>
+                    {/* firstName Confirmation Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showUpdateFirstNameConfirmation}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to update your Firstname?
+                                    </Text>
+                                </View>
+
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() => setShowUpdateFirstNameConfirmation(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={confirmFirstNameUpdate} // Confirm the update
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Update</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+                    {/* lastName*/}
                     <View>
                         <Text style={styles.inputlabel}>Last name</Text>
                         <View style={styles.input}>
-                            <TextInput
-                                placeholder={user?.lastName}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => setLastName(text)}
-                                value={lastName || ''}
-                            />
+                            <Pressable onPress={handleLastNameModalOpen}>
+                                <TextInput
+                                    placeholder={user?.lastName}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setLastNameModified(text)}
+                                    value={lastName || ''}
+                                    editable={false}
+                                />
+                            </Pressable>
                         </View>
                     </View>
+                    {/* lastName Modal */}
+                    <Modal animationType="fade" transparent={false} visible={lastNameModalVisible}>
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                paddingTop: 20,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <Pressable onPress={handleChangeLastName}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                </Pressable>
+                                <Pressable onPress={() => setLastNameModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.inputlabel}>Change Lastname</Text>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={user?.lastName}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setLastName(text)}
+                                    value={lastName} // Use the modified value in the TextInput
+                                    editable={true}
+                                />
+                            </View>
+                        </SafeAreaView>
+                    </Modal>
+                    {/* lastName Confirmation Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showUpdateLastNameConfirmation}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to update your Lastname?
+                                    </Text>
+                                </View>
+
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() => setShowUpdateLastNameConfirmation(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={confirmLastNameUpdate} // Confirm the update
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Update</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+                    {/* phone*/}
                     <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
-                            <MaskedTextInput
-                                mask="1-999-999-9999"
-                                placeholder={user?.phoneNumber}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={handlePhoneChange}
-                                value={phone || ''}
-                                keyboardType="phone-pad" // Set keyboard type to phone-pad
-                            />
+                            <Pressable onPress={handlePhoneModalOpen}>
+                                <TextInput
+                                    placeholder={user?.phone}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setPhoneModified(text)}
+                                    value={phone || ''}
+                                    editable={false}
+                                />
+                            </Pressable>
                         </View>
                     </View>
+                    {/* phone Modal */}
+                    <Modal animationType="fade" transparent={false} visible={phoneModalVisible}>
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                paddingTop: 20,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <Pressable onPress={handleChangePhone}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                </Pressable>
+                                <Pressable onPress={() => setPhoneModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.inputlabel}>Change Phonenumber</Text>
+                            <View style={styles.input}>
+                                <TextInput
+                                    // mask="1-999-999-9999"
+                                    placeholder={user?.phone}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setPhone(text)}
+                                    value={phone} // Use the modified value in the TextInput
+                                    keyboardType="phone-pad" // Set keyboard type to phone-pad
+                                    editable={true}
+                                />
+                            </View>
+                        </SafeAreaView>
+                    </Modal>
+                    {/* phone Confirmation Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showUpdatePhoneConfirmation}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to update your Phone Number?
+                                    </Text>
+                                </View>
+
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() => setShowUpdatePhoneConfirmation(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={confirmPhoneUpdate} // Confirm the update
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Update</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
 
                     {/* <View>
                         <Text style={styles.inputlabel}>DOB</Text>
@@ -300,16 +730,16 @@ const AccountSettings = () => {
                             </Pressable>
                         </View>
                     </View> */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
+                    {/* <View style={{alignItems: 'center', marginTop: 20}}>
                         <AkcruButtons.LrgButton
                             btnname={'Update'}
                             disabled={false}
                             color={COLORS.AKCRUBLUE}
                             onPress={handleUpdateProfile} // Show the confirmation modal
                         />
-                    </View>
+                    </View> */}
                     {/* Confirmation Modal */}
-                    <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
+                    {/* <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
                         <View
                             style={{
                                 flex: 1,
@@ -356,7 +786,7 @@ const AccountSettings = () => {
                                 </View>
                             </View>
                         </View>
-                    </Modal>
+                    </Modal> */}
                 </View>
             </ScrollView>
         </View>
