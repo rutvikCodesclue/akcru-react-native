@@ -19,11 +19,9 @@ import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import CruMemberCard from '../../../components/CruMemberCard';
-import UserSearchCard from '../../../components/UserSearchCard';
 import AddMemberCard from '../../../components/AddMemberCard';
-import { getMyCRU } from '../../../lib/api/cru.lib';
+import { getMyCRU, removeAUserFromCRU, updateCRUInfo } from '../../../lib/api/cru.lib';
 import { ICru, IUserProfile } from '../../../../types';
 
 const EditCru = () => {
@@ -32,20 +30,16 @@ const EditCru = () => {
     
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
 
-    const [loading, setLoading] = useState(false);
-
     const [originalCruName, setOriginalCruName] = useState('');
     const [modifiedCruName, setModifiedCruName] = useState('');
     const [cruNameChangeModalVisible, setCruNameChangeModalVisible] = useState(false);
 
+    const [potentialMembers, setPotentialMembers] = useState<IUserProfile[] | []>([]); // Possible member list
     const [members, setMembers] = useState<IUserProfile[] | []>([]); // Initial member list
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [memberToDelete, setMemberToDelete] = useState(null);
+    const [memberToDelete, setMemberToDelete] = useState<IUserProfile | null>(null);
 
-    const [newMemberName, setNewMemberName] = useState('');
-    const [newMemberPicture, setNewMemberPicture] = useState(''); // Assuming you have a mechanism to provide the member's picture URL
-    const [newMemberInfluencer, setNewMemberInfluencer] = useState(false); // Set default value to false, user can change it in the modal
     const [showAddMemberModal, setShowAddMemberModal] = useState(false);
 
     const [showChangeNameConfirmationModal, setShowChangeNameConfirmationModal] =
@@ -57,11 +51,11 @@ const EditCru = () => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             console.log('Screen focused [EditCruScreen]');
             getMyCRU().then((res) => {
-                setCRU(res);
-                if (res?.members) {
-                    setMembers(res.members);
+                setCRU(res?.CRU);
+                if (res?.CRU.members) {
+                    setMembers(res.CRU.members);
+                    setPotentialMembers(res.acceptedMembers);
                 }
-                
             });
 
             return () => {
@@ -75,9 +69,8 @@ const EditCru = () => {
     
 
     const handleChangeCruName = () => {
-      // Show the CRU name change confirmation modal
-      setShowChangeNameConfirmationModal(true);
-     
+        // Show the CRU name change confirmation modal
+        setShowChangeNameConfirmationModal(true);
     };
 
     const handleCruNameChangeModalOpen = () => {
@@ -97,25 +90,13 @@ const EditCru = () => {
     };
 
     const handleCancelChangeCruName = () => {
-      // Hide the confirmation modal without making any changes
-      setShowChangeNameConfirmationModal(false);
+        // Hide the confirmation modal without making any changes
+        setShowChangeNameConfirmationModal(false);
     };
-
-  
-
-
-  
-
-  const handleCheckmarkPress = () => {
-    setOriginalCruName(modifiedCruName);
-    setModalVisible(false);
-  };
-
-  
 
   const handleDeleteMember = (userID: string) => {
     console.log('Deleting member with userID:', userID);
-    const member = members.find(m => m.userID === userID);
+    const member = members.find(m => m.id === userID);
     if (member) {
       setMemberToDelete(member);
       setShowConfirmationModal(true);
@@ -126,21 +107,15 @@ const EditCru = () => {
     if (memberToDelete) {
       // Remove the member with the given userID from the members state
       setMembers(prevMembers =>
-        prevMembers.filter(member => member.userID !== memberToDelete.userID),
+        prevMembers.filter(member => member.id !== memberToDelete.id),
       );
       // Hide the confirmation modal
       setShowConfirmationModal(false);
     }
   };
 
-  const getAvailableMembers = () => {
-    // Get the userIDs of existing CRU members
-    const existingMemberIDs = members.map(member => member.userID);
-
-    // Filter out the existing members from the FAKE_USER_PROFILES data
-    return FAKE_USER_PROFILES.slice(1, 8).filter(
-      member => !existingMemberIDs.includes(member.userID),
-    );
+  const getAvailableMembers = () : IUserProfile[] | []  => {
+    return potentialMembers
   };
 
   const [showAddMemberConfirmationModal, setShowAddMemberConfirmationModal] =
@@ -386,7 +361,7 @@ const EditCru = () => {
                                   marginBottom: 10,
                                   textAlign: 'center',
                               }}>
-                              {`Are you sure you want to delete "${memberToDelete?.userName}" from your Cru?`}
+                              {`Are you sure you want to delete "${memberToDelete?.username}" from your Cru?`}
                           </Text>
                           <View style={{flexDirection: 'row'}}>
                               <TouchableOpacity
