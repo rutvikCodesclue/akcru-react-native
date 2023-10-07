@@ -1,10 +1,37 @@
-import { IMovie, ICruView, ICru, ICruInvite } from "../../../types";
+import { IMovie, ICruView, ICru, ICruInvite, IUserProfile } from "../../../types";
 import { API } from "../../clients/api.client";
 
-export const getMyCRU = async () : Promise<ICru | undefined> => {
+interface GetMyCRUResponse {
+    CRU: ICru;
+    acceptedMembers: IUserProfile[];
+}
+
+
+export const getMyCRU = async () : Promise<GetMyCRUResponse | undefined> => {
     try {
         // GET /v1/cru/me
         const { data } = await API.get(`/v1/cru/me`);
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const updateCRUInfo = async (params: { name: string }) : Promise<ICru | undefined> => {
+    try {
+        const { name } = params
+        // PUT /v1/cru/me/update
+        const { data } = await API.put(`/v1/cru/me`, { name });
+        return data.CRU;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const removeAUserFromCRU = async (userId: string) : Promise<ICru | undefined> => {
+    try {
+        // DELETE /v1/cru/me/remove
+        const { data } = await API.delete(`/v1/cru/me`, { data: { userId } });
         return data.CRU;
     } catch (error) {
         console.error(error);
