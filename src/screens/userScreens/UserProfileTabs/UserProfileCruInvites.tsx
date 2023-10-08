@@ -59,37 +59,40 @@ const UserProfileCruInvites = () => {
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const _acceptInvite = (invites: string) => {
+    const _acceptCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        console.log('accept invite');
-        acceptACRUInvite({inviteId: invites}).then(res => {
+        console.log('accept CruInvite');
+        acceptACRUInvite({inviteId: item.id}).then(res => {
             console.log('accepted res:', res);
             setIsLoading(false);
-            // Navigate to CruInviteAccept screen with necessary parameters
+            // Navigate to CruInviteAccept screen with necessary parameters for CruInvite
             navigation.navigate('CruInviteAccept', {
-                id: item.cru.creator.id,
-                inviteeName: item.cru.creator.firstName, // Pass the invitee's first name
-                creator: item.cru.creator, // Pass the creator's user profile
-                inviteDate: item.createdAt, // Pass the invite date
+                id: item.cruId,
+                inviteeName: item.cru.creator.firstName,
+                creator: item.cru.creator,
+                inviteDate: item.createdAt,
+                profilePicture: item.cru.creator.profilePicture
             });
         });
     };
 
-    const _declineInvite = (inviteID: string, profilePicture: string, firstName: string, createdAt: string) => {
+    const _declineCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        console.log('decline invite');
-        declineACRUInvite({inviteId: inviteID}).then(res => {
+        console.log('decline CruInvite');
+        declineACRUInvite({inviteId: item.id}).then(res => {
             console.log('declined res:', res);
             setIsLoading(false);
-            // Navigate to CruInviteDecline screen with necessary parameters
+            // Navigate to CruInviteDecline screen with necessary parameters for CruInvite
             navigation.navigate('CruInviteDecline', {
-                id: item.cru.creator.id, 
-                inviteeName: item.cru.creator.firstName, // Pass the invitee's first name
-                creator: item.cru.creator, // Pass the creator's user profile
-                inviteDate: item.createdAt, // Pass the invite date
+                id: item.cruId,
+                inviteeName: item.cru.creator.firstName,
+                creator: item.cru.creator,
+                inviteDate: item.createdAt,
+                profilePicture: item.cru.creator.profilePicture,
             });
         });
     };
+
 
 
 
@@ -116,24 +119,8 @@ const UserProfileCruInvites = () => {
                                             inviteDate={item.createdAt}
                                             invitee={item.cru.creator}
                                             onPress={() => navigation.navigate('ViewUserScreen', {id: item.inviteeId})}
-                                            decline={() =>
-                                                _declineInvite(
-                                                    item.id,
-                                                    item.cru.creator.profilePicture,
-                                                    item.cru.creator.firstName,
-                                                    item.createdAt,
-                                                    
-                        
-                                                )
-                                            }
-                                            accept={() =>
-                                                _acceptInvite(
-                                                    item.id,
-                                                    item.cru.creator.profilePicture,
-                                                    item.cru.creator.firstName,
-                                                    item.createdAt,
-                                                )
-                                            }
+                                            decline={() => _declineCruInvite(item)}
+                                            accept={() => _acceptCruInvite(item)}
                                         />
                                     </View>
                                 );

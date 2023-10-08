@@ -211,7 +211,7 @@ const AccountSettings = () => {
 
             // Update the phone number in the user's profile in the store immediately:
             if (currentUser) {
-                currentUser.phone = phone;
+                currentUser.phoneNumber = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -254,7 +254,7 @@ const AccountSettings = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
-                currentUser.phone = phone;
+                currentUser.phoneNumber = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -495,7 +495,7 @@ const AccountSettings = () => {
                         <View style={styles.input}>
                             <Pressable onPress={handlePhoneModalOpen}>
                                 <TextInput
-                                    placeholder={user?.phone}
+                                    placeholder={user?.phoneNumber}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
@@ -533,7 +533,7 @@ const AccountSettings = () => {
                             <View style={styles.input}>
                                 <TextInput
                                     // mask="1-999-999-9999"
-                                    placeholder={user?.phone}
+                                    placeholder={user?.phoneNumber}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}

@@ -22,10 +22,8 @@ import Header from "../../../components/header";
 import LinearGradient from "react-native-linear-gradient";
 import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
 import imageindex from "../../../../assets/images/imageindex";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { IMovie, IUserProfile } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 
 type CruInviteAcceptNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
@@ -111,9 +109,11 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                                     <Avatar
                                         rounded
                                         size={150}
-                                        source={{
-                                            uri: creator?.profilePicture,
-                                        }}
+                                        source={
+                                            creator?.profilePicture
+                                                ? {uri: creator.profilePicture}
+                                                : imageindex.Akcruplaceholder
+                                        }
                                         avatarStyle={{
                                             borderWidth: 2,
                                             borderColor: COLORS.AKCRUBLUE,

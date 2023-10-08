@@ -142,9 +142,9 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
               <View>
                   <Header />
               </View>
-              <ImageBackground
-                  source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                  resizeMode="cover"
+              <View
+                //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                //   resizeMode="cover"
                   style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                   <LinearGradient
                       // Background Linear Gradient
@@ -191,7 +191,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                           </View>
                       </TouchableWithoutFeedback>
                   </View>
-              </ImageBackground>
+              </View>
               <View style={{}}>
                   
                   <View style={{flex: 1}}>
