@@ -83,7 +83,7 @@ export interface ICruView {
 
 export type ICruInvite = {
     id: string;
-    status: "PENDING" | "ACCEPTED" | "DECLINED";
+    status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
     cruId: string;
     inviteeId: string;
     cru: {
@@ -93,11 +93,12 @@ export type ICruInvite = {
             profilePicture?: string;
             firstName: string;
             lastName: string;
-        }
+            username: string;
+        };
     };
     createdAt: string;
     updatedAt?: string;
-}
+};
 
 export type IMITInvite = {
     id:        string;       

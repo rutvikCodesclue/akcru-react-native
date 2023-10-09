@@ -11,6 +11,9 @@ import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
 import {INotification} from '../../../../types';
+import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
+
+
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -74,7 +77,7 @@ const UserNotifications = () => {
                     </View>
 
                     <View                   
-                        style={{height: SIZES.ScreenHeight / 4, marginTop: -70}}>
+                        style={{height: SIZES.ScreenHeight / 5, marginTop: -60}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -83,12 +86,12 @@ const UserNotifications = () => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight / 4,
+                                height: SIZES.ScreenHeight / 5,
                             }}
                         />
                         <View>
                             <TouchableOpacity
-                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 80}}
+                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
                                 onPress={() => navigation.pop()}>
                                 <View
                                     style={{
@@ -114,17 +117,37 @@ const UserNotifications = () => {
                     </View>
                 </View>
 
-                <View style={{marginHorizontal: 15, marginTop: 10}}>
+                <View style={{marginHorizontal: 15}}>
                     {/* Render user notifications */}
                     {filteredNotifications.map((notification, index) => {
-                        const {id, type, message, isRead} = notification;
+                        const {id, type, message, isRead, createdAt,} = notification;
 
                         // Console.log the isRead property
                         console.log(`Notification ID: ${id}, isRead: ${isRead}`);
 
                         return (
                             <View key={index} style={styles.cardcontainer}>
-                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                <LinearGradient
+                                    // Background Linear Gradient
+                                    colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        borderRadius: 5,
+                                    }}
+                                />
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                    <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
+                                        {formatDatestamp(createdAt)}
+                                    </Text>
+                                </View>
+                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
+                                    {formatTimestampToAMPM(createdAt)}
+                                </Text>
                                 <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
                                 <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
                                     <Text

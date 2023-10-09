@@ -55,14 +55,12 @@ export default function EditProfile({session}: {session: Session}) {
     const [modifiedUserName, setModifiedUserName] = useState('');
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
 
-
     const [description, setDescription] = useState('');
     const [modifiedDescription, setModifiedDescription] = useState('');
     const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
-    
+
     const [avatarUrl, setAvatarUrl] = useState('');
 
-    
     const [emailError, setEmailError] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
@@ -98,8 +96,6 @@ export default function EditProfile({session}: {session: Session}) {
     );
 
     const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
-
-
 
     const handleUpdateProfile = () => {
         // Show the confirmation modal
@@ -202,39 +198,42 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    const handleImageUpload = async (res: ImagePickerResponse) => {
+    // Function to handle the image selection
+    const selectProfileImage = () => {
+        launchImageLibrary(
+            {
+                selectionLimit: 1,
+                mediaType: 'photo',
+                includeBase64: false,
+            },
+            handleImageUpload,
+        );
+    };
+
+    // Function to handle image upload
+    const handleImageUpload = async res => {
         if (res.assets) {
             const uri = res.assets[0].uri;
             const fileName = res.assets[0].fileName;
             const type = res.assets[0].type;
 
             if (uri && fileName && type) {
-
-                console.log('URI:', uri);
-                console.log('FileName:', fileName);
-                console.log('Type:', type);
                 try {
-                    // Call the updateUserProfilePicture function to upload the image
                     const result = await updateUserProfilePicture({
                         uri,
                         name: fileName,
                         type,
                     });
-                console.log('API Response:', result);
+
                     if (result) {
-                        // Update the user's profile picture URL
                         setAvatarUrl(result.profilePicture ?? '');
-
-                        // You may also want to update the user's profile picture in your state or context
-                        // For example, if your user state is stored in Redux or a context provider
-                        // Update the user's profile picture there as well
-
-                        console.log('Image Upload Result:', result);
                     } else {
                         console.error('Failed to update profile picture.');
+                        // Display an error message to the user
                     }
                 } catch (error) {
                     console.error('Error updating profile picture:', error);
+                    // Display an error message to the user
                 }
             }
         }
@@ -275,17 +274,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     borderColor: COLORS.AKCRUBLUE,
                                 }}
                             />
-                            <TouchableOpacity
-                                onPress={() => {
-                                    launchImageLibrary(
-                                        {
-                                            selectionLimit: 1,
-                                            mediaType: 'photo',
-                                            includeBase64: false,
-                                        },
-                                        handleImageUpload,
-                                    );
-                                }}>
+                            <TouchableOpacity onPress={selectProfileImage}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2AkcruBlue,

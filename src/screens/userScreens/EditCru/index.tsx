@@ -30,6 +30,8 @@ const EditCru = () => {
     
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
 
+    const [loading, setLoading] = useState(false);
+
     const [originalCruName, setOriginalCruName] = useState('');
     const [modifiedCruName, setModifiedCruName] = useState('');
     const [cruNameChangeModalVisible, setCruNameChangeModalVisible] = useState(false);
@@ -74,20 +76,39 @@ const EditCru = () => {
     };
 
     const handleCruNameChangeModalOpen = () => {
-        setModifiedCruName(originalCruName);
+        setModifiedCruName(CRU?.name || '');
         setCruNameChangeModalVisible(true);
     };
 
-    const ConfirmChangeCruName = () => {
-        // Update the CRU object with the new name
-        if (CRU) {
-            setCRU({...CRU, name: modifiedCruName});
-        }
+     const ConfirmChangeCruName = async () => {
+         try {
+             setLoading(true);
 
-        // Hide the confirmation modal
-        setCruNameChangeModalVisible(false);
-        setShowChangeNameConfirmationModal(false);
-    };
+             if (CRU && modifiedCruName.trim() !== '') {
+                 // Call the updateCRUInfo function to send the updated CRU name to the backend
+                 const updatedCRU = await updateCRUInfo({name: modifiedCruName});
+
+                 if (updatedCRU) {
+                     // Update the CRU object in your state
+                     setCRU(updatedCRU);
+                     // Log the modified CRU name
+                     console.log('Modified CRU Name:', updatedCRU.name);
+                 }
+             } else {
+                 console.error('Invalid CRU name');
+                 // Handle invalid CRU name here if needed
+             }
+
+             // Hide the confirmation modal and update loading state
+             setShowChangeNameConfirmationModal(false);
+             setCruNameChangeModalVisible(false);
+         } catch (error) {
+             console.error('Error updating CRU name:', error);
+             // Handle API error here if needed
+         } finally {
+             setLoading(false);
+         }
+     };
 
     const handleCancelChangeCruName = () => {
         // Hide the confirmation modal without making any changes
@@ -231,8 +252,13 @@ const EditCru = () => {
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
-                                  onChangeText={text => setOriginalCruName(text)}
-                                  value={originalCruName} // Use the modified value in the TextInput
+                                  onChangeText={text => {
+                                      if (text.length <= 18) {
+                                          setModifiedCruName(text);
+                                      }
+                                  }}
+                                  maxLength={18} // Limit the input to 18 characters
+                                  value={modifiedCruName} // Use the modified value in the TextInput
                                   editable={true}
                               />
                           </View>
@@ -265,7 +291,7 @@ const EditCru = () => {
                                           marginRight: 10,
                                           borderRadius: 5,
                                       }}
-                                      onPress={handleCancelChangeCruName}>
+                                      onPress={() => handleCancelChangeCruName}>
                                       <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity

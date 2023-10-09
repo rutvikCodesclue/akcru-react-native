@@ -127,6 +127,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                           data={filteredMovies}
                           horizontal={false}
                           numColumns={3}
+                          initialNumToRender={filteredMovies.length}
                           showsHorizontalScrollIndicator={false}
                           ListFooterComponent={<View style={{marginBottom: 500}}></View>}
                           renderItem={({item}: {item: IMovie}) => (

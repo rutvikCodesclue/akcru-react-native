@@ -22,10 +22,8 @@ import AkcruLevels from "../../../components/akcruBadges";
 import LinearGradient from "react-native-linear-gradient";
 import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
 import imageindex from "../../../../assets/images/imageindex";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { IMovie, IUserProfile } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
 import { ClientStackParams } from "../../../navigation/ClientStack";
 
 type CruInviteDeclineNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
@@ -92,7 +90,6 @@ const CruInviteDecline = ({ navigation, route }: Props) => {
                                           color: COLORS.MIDORANGE,
                                           fontSize: 16,
                                           textAlign: 'center',
-                                          
                                       }}>
                                       {inviteeName}
                                   </Text>
@@ -103,18 +100,20 @@ const CruInviteDecline = ({ navigation, route }: Props) => {
                       <View
                           style={{
                               alignItems: 'center',
-                              
+
                               marginHorizontal: 15,
                               marginBottom: 20,
                           }}>
-                          <View >
+                          <View>
                               <View>
                                   <Avatar
                                       rounded
                                       size={150}
-                                      source={{
-                                          uri: creator?.profilePicture,
-                                      }}
+                                      source={
+                                          creator?.profilePicture
+                                              ? {uri: creator.profilePicture}
+                                              : imageindex.Akcruplaceholder
+                                      }
                                       avatarStyle={{
                                           borderWidth: 2,
                                           borderColor: COLORS.AKCRUBLUE,
@@ -148,9 +147,7 @@ const CruInviteDecline = ({ navigation, route }: Props) => {
                                       )
                                   ) : null} */}
                               </View>
-                            
                           </View>
-                          
                       </View>
                       <View>
                           <View style={styles.bottomcontainer}>

@@ -24,7 +24,9 @@ const MITSent = () => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getMyMITs().then(res => {
                 if (res) {
-                    setCurrentMITS(res);
+                    // Filter and keep only the PENDING MITs
+                    const pendingMITs = res.filter(item => item.status === 'PENDING');
+                    setCurrentMITS(pendingMITs);
                 }
             });
             return () => {
@@ -84,7 +86,7 @@ const MITSent = () => {
                     <View style={{marginVertical: 5, marginHorizontal: 15}}>
                         <MITHubCard
                             inviteeName={
-                                item.invitee.firstName ? `${item.invitee.firstName}` : `${item.invitee.username}`
+                              `${item.invitee.username}`
                             }
                             inviteePicture={item.invitee.profilePicture ?? ''}
                             MITDate={item.startDate}

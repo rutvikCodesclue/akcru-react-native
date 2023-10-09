@@ -20,7 +20,7 @@ export default StyleSheet.create({
     marginRight: 10,
   },
   topcontainer: {
-    marginTop: 80,
+    marginTop: 60,
     marginHorizontal: 15,
   },
 });

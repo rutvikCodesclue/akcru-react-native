@@ -96,7 +96,7 @@ export const MOVIE_GENRES = [
         color: COLORS.PUREGOLD,
     },
     {
-        genre: 'Sci-Fi',
+        genre: 'SciFi',
         photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
         id: '11',
         color: COLORS.BLACK,

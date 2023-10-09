@@ -8,7 +8,6 @@ export default StyleSheet.create({
         borderWidth: 0.5,
         borderRadius: 5,
         padding: 15,
-        height: 75,
         justifyContent: 'center',
         marginBottom: 10,
        

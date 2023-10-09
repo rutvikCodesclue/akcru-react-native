@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -172,7 +172,14 @@ const AccountSettings = () => {
     const [showUpdatePhoneConfirmation, setShowUpdatePhoneConfirmation] = useState(false);
 
     const handleChangePhone = () => {
-        setShowUpdatePhoneConfirmation(true);
+        // Check if the phone number has at least 10 digits
+        if (phone.length < 10) {
+            // Show an alert to inform the user
+            Alert.alert('Invalid Phone Number', 'Phone number must have at least 10 digits.');
+        } else {
+            // If the phone number is valid, show the confirmation modal
+            setShowUpdatePhoneConfirmation(true);
+        }
     };
 
     const confirmPhoneUpdate = async () => {
@@ -180,42 +187,39 @@ const AccountSettings = () => {
             setLoading(true);
 
             // Create an object with only the `phone` field to update
-            const updatedFields = {
-                phone: phone,
-            };
+            const updatedFields = {phone};
 
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                // Update was successful on both client and backend
                 console.log('Profile updated successfully:', updatedUser);
             } else {
-                // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
             }
         } catch (error) {
-            // Handle any errors (e.g., network issues)
-            if (error.response && error.response.status === 400) {
-                // This error is due to a Bad Request (status code 400)
-                console.error('Bad Request Error:', error.response.data); // Log the specific error message
+            console.error('Error updating profile:', error);
+
+            if (error instanceof Error) {
+                console.error('Error message:', error.message);
             } else {
-                // Handle other types of errors (e.g., network issues)
-                console.error('Error updating profile:', error);
+                console.error('Unhandled error:', error);
             }
         } finally {
             setLoading(false);
             setShowUpdatePhoneConfirmation(false);
             setPhoneModalVisible(false);
 
-            const currentUser = useAuthStore.getState().user;
-
             // Update the phone number in the user's profile in the store immediately:
+            const currentUser = useAuthStore.getState().user;
             if (currentUser) {
-                currentUser.phone = phone;
-                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+                currentUser.phoneNumber = phone;
+                useAuthStore.setState({user: currentUser});
             }
         }
     };
+
+
+
 
 
     const confirmUpdate = async () => {
@@ -254,7 +258,7 @@ const AccountSettings = () => {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
                 currentUser.dateOfBirth = dateOfBirth;
-                currentUser.phone = phone;
+                currentUser.phoneNumber = phone;
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
@@ -494,8 +498,9 @@ const AccountSettings = () => {
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
                             <Pressable onPress={handlePhoneModalOpen}>
-                                <TextInput
-                                    placeholder={user?.phone}
+                                <MaskedTextInput
+                                    mask="999-999-9999"
+                                    placeholder={user?.phoneNumber}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
@@ -532,12 +537,20 @@ const AccountSettings = () => {
                             <Text style={styles.inputlabel}>Change Phonenumber</Text>
                             <View style={styles.input}>
                                 <TextInput
-                                    // mask="1-999-999-9999"
-                                    placeholder={user?.phone}
+                                    placeholder={user?.phoneNumber}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
-                                    onChangeText={text => setPhone(text)}
+                                    onChangeText={text => {
+                                        // Remove non-numeric characters from the input
+                                        const numericText = text.replace(/[^0-9]/g, '');
+
+                                        // Limit the input to 10 characters
+                                        const limitedText = numericText.substring(0, 10);
+
+                                        // Update the state with the limited and formatted text
+                                        setPhone(limitedText);
+                                    }}
                                     value={phone} // Use the modified value in the TextInput
                                     keyboardType="phone-pad" // Set keyboard type to phone-pad
                                     editable={true}
