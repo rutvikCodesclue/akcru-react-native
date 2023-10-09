@@ -21,7 +21,7 @@ export const updateCRUInfo = async (params: { name: string }) : Promise<ICru | u
     try {
         const { name } = params
         // PUT /v1/cru/me/update
-        const { data } = await API.put(`/v1/cru/me`, { name });
+        const { data } = await API.put(`/v1/cru/me/update`, { name });
         return data.CRU;
     } catch (error) {
         console.error(error);

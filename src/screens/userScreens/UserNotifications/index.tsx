@@ -77,7 +77,7 @@ const UserNotifications = () => {
                     </View>
 
                     <View                   
-                        style={{height: SIZES.ScreenHeight / 4, marginTop: -70}}>
+                        style={{height: SIZES.ScreenHeight / 5, marginTop: -60}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -86,12 +86,12 @@ const UserNotifications = () => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight / 4,
+                                height: SIZES.ScreenHeight / 5,
                             }}
                         />
                         <View>
                             <TouchableOpacity
-                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 80}}
+                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
                                 onPress={() => navigation.pop()}>
                                 <View
                                     style={{
@@ -117,7 +117,7 @@ const UserNotifications = () => {
                     </View>
                 </View>
 
-                <View style={{marginHorizontal: 15, marginTop: 10}}>
+                <View style={{marginHorizontal: 15}}>
                     {/* Render user notifications */}
                     {filteredNotifications.map((notification, index) => {
                         const {id, type, message, isRead, createdAt,} = notification;

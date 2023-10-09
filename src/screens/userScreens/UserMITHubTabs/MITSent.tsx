@@ -86,7 +86,7 @@ const MITSent = () => {
                     <View style={{marginVertical: 5, marginHorizontal: 15}}>
                         <MITHubCard
                             inviteeName={
-                                item.invitee.firstName ? `${item.invitee.firstName}` : `${item.invitee.username}`
+                              `${item.invitee.username}`
                             }
                             inviteePicture={item.invitee.profilePicture ?? ''}
                             MITDate={item.startDate}

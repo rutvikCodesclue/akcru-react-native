@@ -8,6 +8,7 @@ import {
     Platform,
     KeyboardAvoidingView,
     Alert,
+    TextInput,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -83,17 +84,23 @@ const OnBoard1 = () => {
     };
 
     const handlePhoneNumberChange = (text: string) => {
-        setPhone(text);
-        
+        // Remove non-numeric characters from the input
+        const numericText = text.replace(/[^0-9]/g, '');
+
+        // Limit the input to 10 characters
+        const limitedText = numericText.substring(0, 10);
+
+        // Update the state with the limited and formatted text
+        setPhone(limitedText);
     };
 
-    // const handleFirstNameChange = (text: string) => {
-    //     setFirstName(text);
-    // };
+    const handleFirstNameChange = (text: string) => {
+        setFirstName(text);
+    };
 
-    // const handleLastNameChange = (text: string) => {
-    //     setLastName(text);
-    // };
+    const handleLastNameChange = (text: string) => {
+        setLastName(text);
+    };
 
     const handleDobChange = (text: string) => {
       setDateOfBirth(text);
@@ -133,7 +140,7 @@ const OnBoard1 = () => {
                 firstName: firstName,
                 lastName: lastName,
                 phone: phone,
-                dob: dateOfBirth
+                // dob: dateOfBirth
                 // location: location,
                 
                 
@@ -161,8 +168,8 @@ const OnBoard1 = () => {
             if (currentUser) {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
-                currentUser.phone = phone;
-                currentUser.dateOfBirth = dateOfBirth
+                currentUser.phoneNumber = phone;
+                // currentUser.dateOfBirth = dateOfBirth
                 // currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
@@ -197,7 +204,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setFirstName(text)}
+                                    onChangeText={handleFirstNameChange}
                                     value={firstName || ''}
                                     editable={!loading}
                                 />
@@ -206,7 +213,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setLastName(text)}
+                                    onChangeText={handleLastNameChange}
                                     value={lastName || ''}
                                     editable={!loading}
                                 />
@@ -271,9 +278,9 @@ const OnBoard1 = () => {
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />
-                                    <MaskedTextInput
-                                        mask="+1-999-999-9999"
-                                        placeholder="+1-123-456-7890"
+                                    <TextInput
+                                        // mask="+1-999-999-9999"
+                                        placeholder="123-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}

@@ -215,7 +215,7 @@ const EditCru = () => {
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
-                                  onChangeText={text => setOriginalCruName(text)}
+                                  onChangeText={text => setModifiedCruName(text)}
                                   value={originalCruName || ''} // Display the original value, not the modified one
                                   editable={false}
                               />
@@ -252,7 +252,12 @@ const EditCru = () => {
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
-                                  onChangeText={text => setModifiedCruName(text)}
+                                  onChangeText={text => {
+                                      if (text.length <= 18) {
+                                          setModifiedCruName(text);
+                                      }
+                                  }}
+                                  maxLength={18} // Limit the input to 18 characters
                                   value={modifiedCruName} // Use the modified value in the TextInput
                                   editable={true}
                               />

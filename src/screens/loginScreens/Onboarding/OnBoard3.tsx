@@ -77,7 +77,7 @@ const OnBoard3 = () => {
             if (selectedArchetype) {
                 console.log('Selected Archetype:', selectedArchetype);
                 // You can also navigate or perform any other action here
-                navigation.navigate('NoBottomStack')
+                navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
             } else {
                 console.log('No matching archetype found for the selected genres.');
             }

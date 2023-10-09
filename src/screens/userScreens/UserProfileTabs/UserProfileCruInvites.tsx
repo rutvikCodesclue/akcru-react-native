@@ -1,5 +1,5 @@
-import { View, Text, ScrollView } from 'react-native'
-import React from 'react'
+import { View, Text, ScrollView, FlatList } from 'react-native'
+import React, { useState } from 'react'
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
@@ -13,10 +13,39 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 
 const UserProfileCruInvites = () => {
+    const [cruInvites, setCRUInvites] = useState<ICruInvite[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
     
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            getCRUInvites({pending: true}).then(cruInvites => {
+                // Check if cruInvites is not null or undefined
+                if (cruInvites) {
+                    // Filter the cruInvites to keep only the pending ones
+                    const pendingCRUInvites = cruInvites.filter(
+                        (invite: { status: string; }) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
+                    );
+
+                    // Set the filtered pending CRU invites to your state
+                    setCRUInvites(pendingCRUInvites);
+                    
+
+                    // Set any other state or perform additional actions if necessary
+                    setIsLoaded(true);
+                }
+            });
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                // You can perform cleanup or reset state if needed when the screen is unfocused
+            };
+        }, []),
+    );
+
 
     useFocusEffect(
         React.useCallback(() => {
@@ -106,31 +135,29 @@ const UserProfileCruInvites = () => {
                     {invites.length === 0 ? 'No Invites' : 'Loading...'}
                 </Text>
             ) : (
-                <ScrollView>
-                    {invites.length > 0 ? (
-                        invites.map(item => {
-                            if (item instanceof Object && 'cru' in item) {
-                                return (
-                                    <View key={item.id} style={{marginHorizontal: 15, marginBottom: 10}}>
-                                        <CruInviteCard
-                                            cruInviteID={item.id}
-                                            inviteeName={`${item.cru.creator.firstName} ${item.cru.creator.lastName}`}
-                                            inviteePicture={item.cru.creator.profilePicture ?? undefined}
-                                            inviteDate={item.createdAt}
-                                            invitee={item.cru.creator}
-                                            onPress={() => navigation.navigate('ViewUserScreen', {id: item.inviteeId})}
-                                            decline={() => _declineCruInvite(item)}
-                                            accept={() => _acceptCruInvite(item)}
-                                        />
-                                    </View>
-                                );
-                            }
-                        })
-                    ) : (
-                        // Implement no invites empty state here
-                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>
+                <FlatList
+                    data={cruInvites}
+                    horizontal={false}
+                    keyExtractor={(item, index) => index.toString()} // Use a unique identifier for the key
+                    renderItem={({item, index}) => (
+                        <View style={{marginHorizontal: 15, marginBottom: 10}}>
+                            <CruInviteCard
+                                cruInviteID={item.id}
+                                inviteeName={`${item.cru.creator.username}`}
+                                inviteePicture={item.cru.creator.profilePicture ?? undefined}
+                                inviteDate={item.createdAt}
+                                invitee={item.cru.creator}
+                                onPress={() => navigation.navigate('ViewUserScreen', {id: item.inviteeId})}
+                                decline={() => _declineCruInvite(item)}
+                                accept={() => _acceptCruInvite(item)}
+                            />
+                        </View>
                     )}
-                </ScrollView>
+                    ListEmptyComponent={
+                        // Render this when the list is empty
+                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>
+                    }
+                />
             )}
         </View>
     );
