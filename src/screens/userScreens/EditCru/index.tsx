@@ -47,6 +47,8 @@ const EditCru = () => {
     const [showChangeNameConfirmationModal, setShowChangeNameConfirmationModal] =
         useState(false);
 
+        
+
 
     useFocusEffect(
         React.useCallback(() => {
@@ -115,14 +117,32 @@ const EditCru = () => {
         setShowChangeNameConfirmationModal(false);
     };
 
-  const handleDeleteMember = (userID: string) => {
-    console.log('Deleting member with userID:', userID);
-    const member = members.find(m => m.id === userID);
-    if (member) {
-      setMemberToDelete(member);
-      setShowConfirmationModal(true);
-    }
-  };
+    const handleDeleteMember = async (userID: string) => {
+        try {
+            console.log('Deleting member with userID:', userID);
+
+            // Find the member in the local state
+            const member = members.find(m => m.id === userID);
+            if (member) {
+                // Set memberToDelete to the found member
+                setMemberToDelete(member);
+                // Show the confirmation modal
+                setShowConfirmationModal(true);
+            }
+
+            // Make an API call to remove the user from the CRU
+            const updatedCRU = await removeAUserFromCRU(userID);
+
+            if (updatedCRU) {
+                // Update the local state with the updated CRU
+                setCRU(updatedCRU);
+                console.log('User removed from CRU:', userID);
+            }
+        } catch (error) {
+            console.error('Error removing user from CRU:', error);
+            // Handle API error here if needed
+        }
+    };
 
   const handleConfirmDelete = () => {
     if (memberToDelete) {
