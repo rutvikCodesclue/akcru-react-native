@@ -7,52 +7,44 @@ import {
     SafeAreaView,
     Image,
     ActivityIndicator,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import AkcruLevels from "../../../components/akcruBadges";
-import Header from "../../../components/header";
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import AkcruLevels from '../../../components/akcruBadges';
+import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import AkcruButtons from "../../../components/akcruButtons";
-import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
-import { Avatar, Icon } from "@rneui/base";
-import LinearGradient from "react-native-linear-gradient";
-import imageindex from "../../../../assets/images/imageindex";
-import styles from "./styles";
-import { Akcru_Content } from "../../../../assets/constants/ListData";
-import { IMovie, IUserProfile } from "../../../../types";
-import { findMovieById } from "../../../lib/api/movies.lib";
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import AkcruButtons from '../../../components/akcruButtons';
+import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
+import {Avatar, Icon} from '@rneui/base';
+import LinearGradient from 'react-native-linear-gradient';
+import imageindex from '../../../../assets/images/imageindex';
+import styles from './styles';
+import {Akcru_Content} from '../../../../assets/constants/ListData';
+import {IMovie, IUserProfile} from '../../../../types';
+import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
-import { findAUser } from "../../../lib/api/user.lib";
-import { createAMITInvite } from "../../../lib/api/mit.lib";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { ClientStackParams } from "../../../navigation/ClientStack";
-import { ClientTabsParams } from "../../../navigation/ClientTabNavigator";
+import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
+import {findAUser} from '../../../lib/api/user.lib';
+import {createAMITInvite} from '../../../lib/api/mit.lib';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {ClientStackParams} from '../../../navigation/ClientStack';
+import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 
-    type SendMITScheduleNavigationProp = StackNavigationProp<
-        CrummunityStackParams,
-        "SendMITSchedule"
-    >;
+type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
-    type SendMITScheduleRouteProp = RouteProp<
-        CrummunityStackParams,
-        "SendMITSchedule"
-    >;
+type SendMITScheduleRouteProp = RouteProp<CrummunityStackParams, 'SendMITSchedule'>;
 
-    type Props = {
-        navigation: SendMITScheduleNavigationProp;
-        route: SendMITScheduleRouteProp;
-    };
+type Props = {
+    navigation: SendMITScheduleNavigationProp;
+    route: SendMITScheduleRouteProp;
+};
 
-export default function SendMITSchedule({ route }: Props) {
-    const navigation =
-        useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+export default function SendMITSchedule({route}: Props) {
+    const navigation = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
 
     const userID: string | undefined = route.params?.userID ?? null;
-
 
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
@@ -113,27 +105,27 @@ export default function SendMITSchedule({ route }: Props) {
         duration,
         trailerURL,
     } = movie || {};
- 
+
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
-    const [selectedTimeZone, setSelectedTimeZone] = useState("");
+    const [selectedTimeZone, setSelectedTimeZone] = useState('');
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const months = [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
     ];
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const currentMonth = selectedDate.getMonth();
     const currentYear = selectedDate.getFullYear();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -148,7 +140,7 @@ export default function SendMITSchedule({ route }: Props) {
         setSelectedDate(nextMonth);
     };
 
-    const handleDateChange = (day) => {
+    const handleDateChange = day => {
         const updatedDate = new Date(currentYear, currentMonth, day);
         setSelectedDate(updatedDate);
     };
@@ -160,46 +152,43 @@ export default function SendMITSchedule({ route }: Props) {
         setSelectedTime(updatedTime);
     };
 
-    const handleTimeZoneChange = (timeZone) => {
+    const handleTimeZoneChange = timeZone => {
         setSelectedTimeZone(timeZone);
     };
 
     const handleSetDateTime = async () => {
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
-            setIsDateTimeSelected(true);
-            setIsSelectionDisabled(true);
+            // Format selected date in ISO 8601 format
+            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-            console.log("sending MIT");
-            console.log("selectedDate:", selectedDate);
-            console.log("selectedTime:", selectedTime);
-            console.log("selectedMovie:", movie?.id);
-            console.log("selectedTimeZone:", selectedTimeZone);
-            console.log("selectedUser:", user?.id);
-            
-            // Call API to send MIT Invite
-            const response  = await createAMITInvite({
-                movieId: movie.id,
-                username: user.username,
-                startDate: selectedDate.toISOString(),
-            })  
-            console.log("response:", response);
+            if (formattedSelectedDateTimeInISO) {
+                // Call API to send MIT Invite
+                const response = await createAMITInvite({
+                    movieId: movie.id,
+                    username: user.username,
+                    startDate: formattedSelectedDateTimeInISO,
+                    timezone: selectedTimeZone,
+                });
+                console.log('response:', response);
 
-            if (response) {
-                setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+                if (response) {
+                    setIsDateTimeSelected(true);
+                    setIsSelectionDisabled(true);
+                    setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+                }
             }
-            
         }
     };
 
     const timeZones = [
-        "America/New_York",
-        "America/Chicago",
-        "America/Denver",
-        "America/Los_Angeles",
-        "Europe/London",
-        "Europe/Paris",
-        "Asia/Tokyo",
-        "Australia/Sydney",
+        'America/New_York',
+        'America/Chicago',
+        'America/Denver',
+        'America/Los_Angeles',
+        'Europe/London',
+        'Europe/Paris',
+        'Asia/Tokyo',
+        'Australia/Sydney',
     ];
 
     const [showSendMIT, setShowSendMIT] = useState(false);
@@ -207,15 +196,15 @@ export default function SendMITSchedule({ route }: Props) {
     useEffect(() => {
         let timer: NodeJS.Timeout;
         if (showSendMIT) {
-        timer = setTimeout(() => {
-            setShowSendMIT(false);
-            setIsSelectionDisabled(true);
+            timer = setTimeout(() => {
+                setShowSendMIT(false);
+                setIsSelectionDisabled(true);
 
-            // navigate back to View User MITs screen (UserMITHubScreen)
-            navigation.navigate('UserProfileStack', {
-                screen: 'UserMITHubScreen',
-            });
-        }, 7000);
+                // navigate back to View User MITs screen (UserMITHubScreen)
+                navigation.navigate('UserProfileStack', {
+                    screen: 'UserMITHubScreen',
+                });
+            }, 7000);
         }
 
         return () => clearTimeout(timer);
@@ -728,5 +717,3 @@ export default function SendMITSchedule({ route }: Props) {
         </SafeAreaView>
     );
 }
-
-

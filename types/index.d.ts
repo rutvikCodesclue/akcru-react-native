@@ -12,7 +12,7 @@ interface IUserProfile {
     followerCount?: number;
     MITCount?: number;
     adAmount?: number;
-    badge?: 'AKCRUIT' | "GUARDIAN" | "HERO" | "SUPERHERO"; // FIXME: add remianing badges
+    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO'; // FIXME: add remianing badges
     gallery?: string[];
     lastReview?: string;
     published?: boolean;
@@ -25,26 +25,26 @@ interface IUserProfile {
 }
 
 export interface IMovie {
-    id:           string;  
-    title:        string;
-    description:  string;
-    genres:       string[];
-    duration:     number;
-    year:         number;
-    movieURL:     string;
-    trailerURL:   string;
+    id: string;
+    title: string;
+    description: string;
+    genres: string[];
+    duration: number;
+    year: number;
+    movieURL: string;
+    trailerURL: string;
     landscapeURL: string;
-    image:        string;
-    price:        number?;
-    portraitURL:  string;
-    rating:       number;
-    rated:        string;
-    actors:       Object[];
-    director:     Object[];
-    length:       number;
-    published:    boolean;     
-    createdAt:    date;
-    updatedAt:    date;
+    image: string;
+    price: number?;
+    portraitURL: string;
+    rating: number;
+    rated: string;
+    actors: Object[];
+    director: Object[];
+    length: number;
+    published: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface IGenreItem {
@@ -56,30 +56,30 @@ export interface IGenreItem {
 }
 
 export interface ICru {
-    id: string; 
+    id: string;
     name: string;
     creatorId: string;
     creator: IUserProfile;
-    members?:   IUserProfile[];
-    cruViews:  ICruView[]
-    Room:      Object?
+    members?: IUserProfile[];
+    cruViews: ICruView[];
+    Room: Object?;
 }
 
 export interface ICruView {
     id: string;
     cruId: string;
-    cru:       {
+    cru: {
         id: string;
         creatorId: string;
         creator: {
             firstName: string;
             lastName: string;
-        }
+        };
     };
     movieId: string;
-    movie:     IMovie
+    movie: IMovie;
     startDate: string;
-    timezone: string
+    timezone: string;
 }
 
 export type ICruInvite = {
@@ -102,29 +102,36 @@ export type ICruInvite = {
 };
 
 export type IMITInvite = {
-    id:        string;       
+    id: string;
     movieId: string;
-    movie:     IMovie;        
-    status: "PENDING" | "ACCEPTED" | "DECLINED";
+    movie: IMovie;
+    status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
     creatorId: string;
-    creator:   IUserProfile;         
+    creator: IUserProfile;
     inviteeId: string;
-    invitee: IUserProfile;         
+    invitee: IUserProfile;
     startDate: string;
-    createdAt: string;     
-    updatedAt?: string;     
-}
+    timezone: string;
+    createdAt: string;
+    updatedAt?: string;
+};
 
 export type INotification = {
-    id:        string;
-    type: "MITReceived" | "MITAccepted" | "MITDeclined" | 
-        "CruInviteReceived" | "CruInviteAccepted" | 
-        "CruInviteDeclined" | "CruViewScheduled" | 
-        "CruViewStarted" | "UserFollowed";       
+    id: string;
+    type:
+        | 'MITReceived'
+        | 'MITAccepted'
+        | 'MITDeclined'
+        | 'CruInviteReceived'
+        | 'CruInviteAccepted'
+        | 'CruInviteDeclined'
+        | 'CruViewScheduled'
+        | 'CruViewStarted'
+        | 'UserFollowed';
     userId: string;
-    user?:   IUserProfile;
+    user?: IUserProfile;
     isRead: boolean;
-    message: string?;         
-    createdAt: string;     
+    message: string?;
+    createdAt: string;
     updatedAt?: string;
-}
+};

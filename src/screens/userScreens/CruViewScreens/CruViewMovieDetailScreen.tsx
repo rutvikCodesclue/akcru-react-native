@@ -1,48 +1,33 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Image,
-  ImageBackground
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import Header from "../../../components/header";
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import { StackNavigationProp } from "@react-navigation/stack";
-import { RouteProp } from "@react-navigation/native";
-import AkcruButtons from "../../../components/akcruButtons";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
+import AkcruButtons from '../../../components/akcruButtons';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 
-import { Icon } from "@rneui/base";
-import imageindex from "../../../../assets/images/imageindex";
-import styles from "./styles";
-import { findMovieById } from "../../../lib/api/movies.lib";
-import { IMovie } from "../../../../types";
-import { API } from "../../../clients/api.client";
-import { createACRUView } from "../../../lib/api/cru.lib";
-import { formatMovieDuration } from "../../../util/util";
+import {Icon} from '@rneui/base';
+import imageindex from '../../../../assets/images/imageindex';
+import styles from './styles';
+import {findMovieById} from '../../../lib/api/movies.lib';
+import {IMovie} from '../../../../types';
+import {API} from '../../../clients/api.client';
+import {createACRUView} from '../../../lib/api/cru.lib';
+import {combineDateAndTime, formatMovieDuration} from '../../../util/util';
 import moment from 'moment-timezone';
+import {set} from 'date-fns';
 
+type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'CruViewMovieDetailScreen'>;
 
-type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  'CruViewMovieDetailScreen'
->;
-
-type CruViewDetailScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  'CruViewMovieDetailScreen'
->;
+type CruViewDetailScreenRouteProp = RouteProp<UserProfileStackParams, 'CruViewMovieDetailScreen'>;
 
 type Props = {
-  navigation: CruViewMovieDetailScreenNavigationProp;
-  route: CruViewDetailScreenRouteProp;
+    navigation: CruViewMovieDetailScreenNavigationProp;
+    route: CruViewDetailScreenRouteProp;
 };
 
-export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
+export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     const id: number | undefined = route.params?.id ?? null;
     // const movie: string | undefined = route.params?.movie ?? null;
 
@@ -84,13 +69,11 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
         return directorsList;
     };
 
-    
-
-     const [selectedDate, setSelectedDate] = useState(new Date());
-     const [selectedTime, setSelectedTime] = useState(new Date());
-     const [selectedTimeZone, setSelectedTimeZone] = useState('');
-     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
-     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedTimeZone, setSelectedTimeZone] = useState('');
+    const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
+    const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
 
     // const formattedTime = selectedTime.format('hh:mm A');
 
@@ -120,7 +103,6 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
         'Australia/Sydney',
     ];
 
-
     const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const currentMonth = selectedDate.getMonth();
     const currentYear = selectedDate.getFullYear();
@@ -141,44 +123,40 @@ export default function CruViewMovieDetailScreen({ navigation, route }: Props) {
         setSelectedDate(updatedDate);
     };
 
-
-
     const handleTimeChange = (hours, minutes) => {
-            const updatedTime = new Date(selectedTime);
-            updatedTime.setHours(hours);
-            updatedTime.setMinutes(minutes);
-            setSelectedTime(updatedTime);
+        const updatedTime = new Date(selectedTime);
+        updatedTime.setHours(hours);
+        updatedTime.setMinutes(minutes);
+        setSelectedTime(updatedTime);
     };
 
-    const handleTimeZoneChange = timeZone => {
+    const handleTimeZoneChange = (timeZone: string) => {
         setSelectedTimeZone(timeZone);
     };
 
     const handleSetDateTime = async () => {
         if (selectedDate && selectedTime && selectedTimeZone) {
             // Format selected date in ISO 8601 format
-            const formattedSelectedDate = selectedDate.toISOString();
+            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-            // Log the date and time before sending it to the backend
-            console.log('Formatted Date and Time:', formattedSelectedDate);
-            console.log('Selected Timezone:', selectedTimeZone);
+            if (formattedSelectedDateTimeInISO) {
+                console.log('formattedSelectedDateTime', formattedSelectedDateTimeInISO);
 
-            setIsDateTimeSelected(true);
-            setIsSelectionDisabled(true);
+                // Send formatted date along with time and timezone to the API
+                const createdCruView = await createACRUView({
+                    movieId: String(movie?.id),
+                    startTime: formattedSelectedDateTimeInISO,
+                    timezone: selectedTimeZone,
+                });
 
-            // Send formatted date along with time and timezone to the API
-            const createdCruView = await createACRUView({
-                movieId: String(movie?.id),
-                startTime: formattedSelectedDate,
-                timezone: selectedTimeZone,
-            });
-
-            setShowSendCRUView(true);
+                if (createdCruView) {
+                    setIsDateTimeSelected(true);
+                    setIsSelectionDisabled(true);
+                    setShowSendCRUView(true);
+                }
+            }
         }
-        console.log('selectedDate:', selectedDate);
-        console.log('selectedTime:', selectedTime);
     };
-
 
     const [showSendCRUView, setShowSendCRUView] = useState(false);
 
