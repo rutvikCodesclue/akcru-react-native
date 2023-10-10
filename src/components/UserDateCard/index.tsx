@@ -1,13 +1,14 @@
-import { View, Text, TouchableOpacity, Image } from 'react-native'
+import {View, Text, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { UserProfileStackParams } from '../../navigation/UserProfileStack';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import imageindex from '../../../assets/images/imageindex';
 import moment from 'moment-timezone';
+import {getShortenedTimezone} from '../../util/util';
 
 type UserDatesCardProps = {
     id: string;
@@ -30,7 +31,6 @@ type UserDatesCardProps = {
     timezone: string;
 };
 
-
 const UserDatesCard = ({
     id,
     cruId,
@@ -49,11 +49,9 @@ const UserDatesCard = ({
     scheduleWith,
     type,
     onPressin,
-    timezone
+    timezone,
 }: UserDatesCardProps) => {
-
-const navigation =
-    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     return (
         <View
@@ -92,7 +90,7 @@ const navigation =
                             <Text style={{...FONTS.Title2, fontSize: 12}}>{movieYear}</Text>
                             <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>{length}</Text>
                         </View>
-                        <View style={{flexDirection: 'row', marginVertical: 5, }}>
+                        <View style={{flexDirection: 'row', marginVertical: 5}}>
                             <Text style={styles.drawfonttag}>{movieRated}</Text>
                             <Text style={styles.drawfonttag}>{movieGenre}</Text>
 
@@ -132,11 +130,7 @@ const navigation =
                     {/* DATE */}
                     <View style={{marginHorizontal: 5}}>
                         <Text style={styles.paragraphText2}>
-                            {new Date(scheduleDate).toLocaleDateString('en-US', {
-                                weekday: 'short',
-                                month: 'short',
-                                day: 'numeric',
-                            })}
+                            {moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}
                         </Text>
                     </View>
 
@@ -144,11 +138,8 @@ const navigation =
                     {/* TIME */}
                     <View style={{marginRight: 5}}>
                         <Text style={styles.paragraphText2}>
-                            {new Date(scheduleTime).toLocaleTimeString('en-US', {
-                                hour: 'numeric',
-                                minute: 'numeric',
-                                hour12: true,
-                            })}
+                            {/* render UTC Time w/ moment */}
+                            {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
                         </Text>
                     </View>
 
@@ -252,4 +243,3 @@ const navigation =
 };
 
 export default UserDatesCard;
-
