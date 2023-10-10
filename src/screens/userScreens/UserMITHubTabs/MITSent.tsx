@@ -74,7 +74,9 @@ const MITSent = () => {
 
     return (
         <View style={{marginTop: 10, marginBottom: 75}}>
-            <Text style={{...FONTS.Title2, marginHorizontal: 15}}>You have {user?.MITCount} Movie Invites Tickets left</Text>
+            <Text style={{...FONTS.Title2, marginHorizontal: 15}}>
+                You have {user?.MITCount} Movie Invites Tickets left
+            </Text>
             <FlatList
                 data={currentMITS}
                 horizontal={false}
@@ -91,6 +93,7 @@ const MITSent = () => {
                             MITMoviechoice={item.movie.title}
                             scheduleDate={item.startDate}
                             scheduleTime={item.startDate}
+                            timezone={item.timezone}
                             onPressIn={() =>
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.inviteeId,

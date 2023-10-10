@@ -1,15 +1,12 @@
-import {View, FlatList, Text} from 'react-native';
+import {View, Text} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import MITHubCard from '../../../components/MITHubComps/MITHubCard';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {getMyMITInvites, getMyMITs} from '../../../lib/api/mit.lib';
 import {ICruInvite, IMITInvite} from '../../../../types';
-import { MITInviteHubCard } from '../../../components/MITHubComps';
+import {MITInviteHubCard} from '../../../components/MITHubComps';
 import {FONTS} from '../../../../assets/constants/theme';
-import CruInviteCard from '../../../components/CruInviteCard';
-import {getCRUInvites} from '../../../lib/api/cru.lib';
 
 const MITReceived = () => {
     const [currentMITS, setCurrentMITS] = useState<IMITInvite[] | []>([]);
@@ -126,7 +123,9 @@ const MITReceived = () => {
         <View style={{marginTop: 10, marginBottom: 75}}>
             <View>
                 {/* Display the invite count */}
-                <Text style={{...FONTS.Title2, marginHorizontal: 15}}>You have {inviteCount} Movie Invites waiting for your response.</Text>
+                <Text style={{...FONTS.Title2, marginHorizontal: 15}}>
+                    You have {inviteCount} Movie Invites waiting for your response.
+                </Text>
                 {!isLoaded && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
                 {isLoaded && (
                     <View style={{marginVertical: 5}}>
