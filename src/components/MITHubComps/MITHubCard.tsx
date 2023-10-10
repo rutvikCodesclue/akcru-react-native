@@ -143,11 +143,6 @@ MITHubCardProps) => {
                     <Text style={styles.cruchat}>
                         {/* render UTC Time w/ moment */}
                         {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
-                        {/* {new Date(scheduleTime).toLocaleTimeString('en-US', {
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            hour12: true,
-                        })} */}
                     </Text>
                 </View>
             </View>
