@@ -120,10 +120,11 @@ const UserNotifications = () => {
                 <View style={{marginHorizontal: 15}}>
                     {/* Render user notifications */}
                     {filteredNotifications.map((notification, index) => {
-                        const {id, type, message, isRead, createdAt,} = notification;
+                        const {id, type, message, isRead, createdAt, user} = notification;
 
                         // Console.log the isRead property
                         console.log(`Notification ID: ${id}, isRead: ${isRead}`);
+                        console.log("User Data:", filteredNotifications[0].user?.username);
 
                         return (
                             <View key={index} style={styles.cardcontainer}>
@@ -148,6 +149,7 @@ const UserNotifications = () => {
                                 <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
                                     {formatTimestampToAMPM(createdAt)}
                                 </Text>
+                                {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
                                 <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
                                 <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
                                     <Text

@@ -21,6 +21,7 @@ interface IUserProfile {
     profilePicture?: string;
     phoneNumber?: string;
     password?: string;
+    invitee: string[];
 }
 
 export interface IMovie {

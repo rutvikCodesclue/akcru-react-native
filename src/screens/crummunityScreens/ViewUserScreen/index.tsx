@@ -42,7 +42,7 @@ type ViewUserScreenRouteProp = RouteProp<
 >;
 
 type Props = {
-//   navigation: ViewUserScreenNavigationProp;
+  navigation: ViewUserScreenNavigationProp;
   route: ViewUserScreenRouteProp;
 };
 

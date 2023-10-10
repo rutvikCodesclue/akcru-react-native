@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -13,6 +13,17 @@ import {MaskedTextInput} from 'react-native-mask-text';
 import {updateUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {supabase} from '../../../../lib/supabase';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import InputsLrg from '../../../components/inputLrg';
+
+const date = new Date('2000-01-07');
+date.setHours(0, 0, 0, 0); // Set the time to midnight
+
+const day = date.getDate();
+const month = date.toLocaleString('default', {month: 'long'});
+const year = date.getFullYear();
+const formattedDate = `${day} ${month} ${year}`;
+
 
 const AccountSettings = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -35,8 +46,14 @@ const AccountSettings = () => {
     const [phoneModified, setPhoneModified] = useState('');
     const [phoneModalVisible, setPhoneModalVisible] = useState(false);
 
-    const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [loading, setLoading] = useState(false);
+
+    const formatDateToDayMonthYear = (date: Date) => {
+        const day = date.getDate();
+        const month = date.toLocaleString('default', {month: 'long'});
+        const year = date.getFullYear();
+        return `${month} ${day}, ${year}`;
+    };
 
     useFocusEffect(
         React.useCallback(() => {
@@ -218,24 +235,56 @@ const AccountSettings = () => {
         }
     };
 
+    const [showPicker, setShowPicker] = useState(false);
+    const [date, setDate] = useState<Date>(new Date());
+    const [dob, setDob] = useState(user?.dateOfBirth || '');
+    const [dobModified, setDobModified] = useState('');
+    const [dobModalVisible, setDobModalVisible] = useState(false);
 
+    
+    const handleDobModalOpen = () => {
+        setDobModified(dob);
+        setDobModalVisible(true);
+    };
 
+    const toggleDatePicker = () => {
+        setShowPicker(!showPicker);
+    };
 
+    const onChange = ({ type }: { type: string }, selectedDate: Date) => {
+    if (type === 'set') {
+        const currentDate = new Date(selectedDate);
+        currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+        setDate(currentDate);
+        console.log('DOB setDate:', currentDate);
 
-    const confirmUpdate = async () => {
+        if (Platform.OS === 'android') {
+            toggleDatePicker();
+            setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+            console.log('DOB setDate to string:', currentDate);
+        }
+    } else {
+        toggleDatePicker();
+    }
+};
+
+const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
+    const currentDate = new Date(selectedDate);
+    currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+    setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+    toggleDatePicker();
+};
+
+    const confirmDobUpdate = async () => {
         try {
             setLoading(true);
 
             // Call the updateUser function to send the updated data to the backend
-            console.log('Phone Number Value:', phone);
-            const updatedUser = await updateUser({
-                firstName: firstName,
-                lastName: lastName,
-                dob: dateOfBirth,
-                phone: phone
-            
-                // Pass the state update functions to the API function
-            });
+            const updatedFields = {
+                dob: dob, // Use dob as a string
+            };
+
+            const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
                 // Update was successful on both client and backend
@@ -249,20 +298,19 @@ const AccountSettings = () => {
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
-            setShowUpdateConfirmation(false);
-
+            setDobModalVisible(false);
             const currentUser = useAuthStore.getState().user;
 
-            // Update the username in the user's profile in the store immediately:
+            // Update the username and dob in the user's profile in the store immediately:
             if (currentUser) {
-                currentUser.firstName = firstName;
-                currentUser.lastName = lastName;
-                currentUser.dateOfBirth = dateOfBirth;
-                currentUser.phoneNumber = phone;
+                currentUser.dateOfBirth = dob; // Update dob
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
         }
     };
+
+
+
 
     return (
         <View>
@@ -606,6 +654,97 @@ const AccountSettings = () => {
                                 </View>
                             </View>
                         </View>
+                    </Modal>
+                    {/* DOB */}
+                    <View>
+                        <Text style={styles.inputlabel}>DOB</Text>
+                        <View style={styles.input}>
+                            <Pressable onPress={handleDobModalOpen}>
+                                <TextInput
+                                    placeholder={user?.dateOfBirth}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setDobModified(text)}
+                                    value={formatDateToDayMonthYear(new Date(dob)) || ''}
+                                    editable={false}
+                                />
+                            </Pressable>
+                        </View>
+                    </View>
+                    {/* DOB Modal */}
+                    <Modal animationType="fade" transparent={false} visible={dobModalVisible}>
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                paddingTop: 20,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <Pressable onPress={confirmDobUpdate}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                </Pressable>
+                                <Pressable onPress={() => setDobModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.inputlabel}>Change Date of Birth</Text>
+                            <View style={styles.input}>
+                                {/* Dob picker */}
+                                {showPicker && (
+                                    <DateTimePicker
+                                        display="spinner"
+                                        mode="date"
+                                        value={date}
+                                        onChange={onChange}
+                                        style={styles.datepicker}
+                                    />
+                                )}
+
+                                {showPicker && Platform.OS === 'ios' && (
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-around',
+                                        }}>
+                                        <TouchableOpacity
+                                            style={[styles.iosbutton, styles.iospickerbutton]}
+                                            onPress={toggleDatePicker}>
+                                            <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.iosbutton, styles.iospickerbutton]}
+                                            onPress={confirmIOSDate}>
+                                            <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Confirm</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+
+                                {!showPicker && (
+                                    <Pressable onPress={toggleDatePicker}>
+                                        <TextInput
+                                            placeholder={user?.dateOfBirth} // Use placeholder instead of placeholdername
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={(text: string) => {
+                                                console.log('Input Changed:', text); // Log input changes
+                                                setDob(text); // Call handleDobChange
+                                            }}
+                                            value={formatDateToDayMonthYear(new Date(dob))} // Use the dob state
+                                            editable={true}
+                                            onPressIn={toggleDatePicker}
+                                        />
+                                    </Pressable>
+                                )}
+                            </View>
+                        </SafeAreaView>
                     </Modal>
 
                     {/* <View>

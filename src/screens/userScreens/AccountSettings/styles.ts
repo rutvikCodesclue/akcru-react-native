@@ -37,4 +37,20 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight,
         // width: SIZES.ScreenWidth,
     },
+    datepicker: {
+        height: 120,
+        marginTop: -10,
+    },
+    iosbutton: {
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 50,
+        marginTop: 10,
+        marginBottom: 15,
+        backgroundColor: COLORS.LIGHTGREY,
+    },
+    iospickerbutton: {
+        paddingHorizontal: 20,
+    },
 });
