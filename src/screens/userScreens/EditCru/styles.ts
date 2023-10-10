@@ -35,4 +35,14 @@ export default StyleSheet.create({
         alignItems: 'center',
         height: 40,
     },
+    listfooter: {
+        borderRadius: 5,
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        width: SIZES.ScreenWidth / 2.3,
+        height: SIZES.ScreenHeight * 0.08,
+        borderWidth: 1,
+        borderColor: COLORS.AKCRUBLUE,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });

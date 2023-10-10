@@ -9,7 +9,7 @@ import styles from './styles';
 const UserCruChat = () => {
   return (
       <View style={styles.container}>
-          <View>
+          {/* <View>
               {FAKE_USER_PROFILES.map(item => (
                   <View key={item.userID} style={{marginBottom: 10}}>
                       <UserCruChatCard
@@ -34,7 +34,7 @@ const UserCruChat = () => {
 
                   <AkcruButtons.XSmallButton btnname={'SEND'} onPress={function (): void {}} color="" />
               </View>
-          </View>
+          </View> */}
       </View>
   );
 }

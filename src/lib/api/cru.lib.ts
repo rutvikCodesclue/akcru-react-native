@@ -21,7 +21,7 @@ export const updateCRUInfo = async (params: { name: string }) : Promise<ICru | u
     try {
         const { name } = params
         // PUT /v1/cru/me/update
-        const { data } = await API.put(`/v1/cru/me`, { name });
+        const { data } = await API.put(`/v1/cru/me/update`, { name });
         return data.CRU;
     } catch (error) {
         console.error(error);
@@ -31,7 +31,7 @@ export const updateCRUInfo = async (params: { name: string }) : Promise<ICru | u
 export const removeAUserFromCRU = async (userId: string) : Promise<ICru | undefined> => {
     try {
         // DELETE /v1/cru/me/remove
-        const { data } = await API.delete(`/v1/cru/me`, { data: { userId } });
+        const { data } = await API.delete(`/v1/cru/me/remove`, { data: { userId } });
         return data.CRU;
     } catch (error) {
         console.error(error);

@@ -66,9 +66,9 @@ export const updateUser = async (params: { username?: string, firstName?: string
             ...(lastName && {lastName}),
             ...(email && {email}),
             ...(description && {description}),
-            ...(phone && {phone}),
+            ...(phone && {phoneNumber: phone}),
             ...(password && {password}),
-            ...(dob && {dob}),
+            ...(dob && {dateOfBirth: dob}),
         };
 
         // Log the updateUserObj to verify its contents

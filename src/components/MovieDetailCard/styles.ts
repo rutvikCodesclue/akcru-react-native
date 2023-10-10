@@ -19,8 +19,10 @@ export default StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     marginHorizontal: 2,
+    marginVertical: 2,
     borderRadius: 4,
     textAlign: 'center',
+    justifyContent: 'center'
   },
   bigTitle: {
     ...FONTS.Title3,

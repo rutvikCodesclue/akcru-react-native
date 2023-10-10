@@ -8,6 +8,7 @@ import {
     Platform,
     KeyboardAvoidingView,
     Alert,
+    TextInput,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -34,7 +35,6 @@ const OnBoard1 = () => {
     const user = useAuthStore(state => state.user);
     const { hydrateUser, hydrateAuth} = useAuthStore();
     const [phone, setPhone] = useState('');
-    const [dateOfBirth, setDateOfBirth] = useState(user?.dateOfBirth);
     const [userName, setUserName] = useState('');
     const [firstName, setFirstName] = useState(user?.firstName);
     const [lastName, setLastName] = useState(user?.lastName);
@@ -46,6 +46,15 @@ const OnBoard1 = () => {
 
     const [showPicker, setShowPicker] = useState(false);
     const [date, setDate] = useState<Date>(new Date());
+    const [dob, setDob] = useState(user?.dateOfBirth);
+    const [dobModified, setDobModified] = useState('');
+
+     const formatDateToDayMonthYear = (date: Date) => {
+         const day = date.getDate();
+         const month = date.toLocaleString('default', {month: 'long'});
+         const year = date.getFullYear();
+         return `${month} ${day}, ${year}`;
+     };
 
     const toggleDatePicker = () => {
         setShowPicker(!showPicker);
@@ -64,39 +73,51 @@ const OnBoard1 = () => {
         }, []),
     );
 
-    const onChange = ({type} : {type: string}, selectedDate: Date ) => {
-      if (type == "set") {
-        const currentDate = selectedDate;
-        setDate(currentDate);
+    const onChange = ({type}: {type: string}, selectedDate: Date) => {
+        if (type === 'set') {
+            const currentDate = new Date(selectedDate);
+            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+            setDate(currentDate);
+            console.log('DOB setDate:', currentDate);
 
-        if (Platform.OS === 'android') {
-          toggleDatePicker();
-          setDateOfBirth(currentDate.toDateString())
+            if (Platform.OS === 'android') {
+                toggleDatePicker();
+                setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+                console.log('DOB setDate to string:', currentDate);
+            }
+        } else {
+            toggleDatePicker();
         }
-      } else { toggleDatePicker()}
     };
 
-    const confirmIOSDate = ({type}: {type: string}, selectedDate: Date) => {
-        const currentDate = selectedDate;
-        setDateOfBirth(currentDate.toDateString());
-        toggleDatePicker();
-    };
+     const confirmIOSDate = ({type}: {type: string}, selectedDate: Date) => {
+         const currentDate = new Date(selectedDate);
+         currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+         setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+         toggleDatePicker();
+     };
 
     const handlePhoneNumberChange = (text: string) => {
-        setPhone(text);
-        
+        // Remove non-numeric characters from the input
+        const numericText = text.replace(/[^0-9]/g, '');
+
+        // Limit the input to 10 characters
+        const limitedText = numericText.substring(0, 10);
+
+        // Update the state with the limited and formatted text
+        setPhone(limitedText);
     };
 
-    // const handleFirstNameChange = (text: string) => {
-    //     setFirstName(text);
-    // };
+    const handleFirstNameChange = (text: string) => {
+        setFirstName(text);
+    };
 
-    // const handleLastNameChange = (text: string) => {
-    //     setLastName(text);
-    // };
+    const handleLastNameChange = (text: string) => {
+        setLastName(text);
+    };
 
     const handleDobChange = (text: string) => {
-      setDateOfBirth(text);
+      setDob(text);
     };
 
     
@@ -107,7 +128,7 @@ const OnBoard1 = () => {
     const checkFormCompletion = () => {
         if (
             userName &&
-            dateOfBirth &&
+            dob &&
             phone 
         ) {
             setIsFormComplete(true);
@@ -133,7 +154,7 @@ const OnBoard1 = () => {
                 firstName: firstName,
                 lastName: lastName,
                 phone: phone,
-                dob: dateOfBirth
+                dob: dob
                 // location: location,
                 
                 
@@ -161,8 +182,8 @@ const OnBoard1 = () => {
             if (currentUser) {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
-                currentUser.phone = phone;
-                currentUser.dateOfBirth = dateOfBirth
+                currentUser.phoneNumber = phone;
+                currentUser.dateOfBirth = dob;
                 // currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
             }
@@ -197,7 +218,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setFirstName(text)}
+                                    onChangeText={handleFirstNameChange}
                                     value={firstName || ''}
                                     editable={!loading}
                                 />
@@ -206,7 +227,7 @@ const OnBoard1 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => setLastName(text)}
+                                    onChangeText={handleLastNameChange}
                                     value={lastName || ''}
                                     editable={!loading}
                                 />
@@ -256,8 +277,11 @@ const OnBoard1 = () => {
                                             iconname={'calendar'}
                                             iconcolor={COLORS.LIGHTGREY}
                                             secureTextEntry={false}
-                                            onChangeText={handleDobChange}
-                                            value={dateOfBirth}
+                                            onChangeText={(text: string) => {
+                                                console.log('Input Changed:', text); // Log input changes
+                                                setDob(text); // Call handleDobChange
+                                            }}
+                                            value={formatDateToDayMonthYear(new Date(dob))}
                                             editable={false}
                                             onPressIn={toggleDatePicker}
                                         />
@@ -271,9 +295,9 @@ const OnBoard1 = () => {
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />
-                                    <MaskedTextInput
-                                        mask="+1-999-999-9999"
-                                        placeholder="+1-123-456-7890"
+                                    <TextInput
+                                        // mask="+1-999-999-9999"
+                                        placeholder="123-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}

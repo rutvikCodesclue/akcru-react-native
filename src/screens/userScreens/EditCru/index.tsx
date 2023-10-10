@@ -30,6 +30,8 @@ const EditCru = () => {
     
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
 
+    const [loading, setLoading] = useState(false);
+
     const [originalCruName, setOriginalCruName] = useState('');
     const [modifiedCruName, setModifiedCruName] = useState('');
     const [cruNameChangeModalVisible, setCruNameChangeModalVisible] = useState(false);
@@ -44,6 +46,8 @@ const EditCru = () => {
 
     const [showChangeNameConfirmationModal, setShowChangeNameConfirmationModal] =
         useState(false);
+
+        
 
 
     useFocusEffect(
@@ -74,34 +78,71 @@ const EditCru = () => {
     };
 
     const handleCruNameChangeModalOpen = () => {
-        setModifiedCruName(originalCruName);
+        setModifiedCruName(CRU?.name || '');
         setCruNameChangeModalVisible(true);
     };
 
-    const ConfirmChangeCruName = () => {
-        // Update the CRU object with the new name
-        if (CRU) {
-            setCRU({...CRU, name: modifiedCruName});
-        }
+     const ConfirmChangeCruName = async () => {
+         try {
+             setLoading(true);
 
-        // Hide the confirmation modal
-        setCruNameChangeModalVisible(false);
-        setShowChangeNameConfirmationModal(false);
-    };
+             if (CRU && modifiedCruName.trim() !== '') {
+                 // Call the updateCRUInfo function to send the updated CRU name to the backend
+                 const updatedCRU = await updateCRUInfo({name: modifiedCruName});
+
+                 if (updatedCRU) {
+                     // Update the CRU object in your state
+                     setCRU(updatedCRU);
+                     // Log the modified CRU name
+                     console.log('Modified CRU Name:', updatedCRU.name);
+                 }
+             } else {
+                 console.error('Invalid CRU name');
+                 // Handle invalid CRU name here if needed
+             }
+
+             // Hide the confirmation modal and update loading state
+             setShowChangeNameConfirmationModal(false);
+             setCruNameChangeModalVisible(false);
+         } catch (error) {
+             console.error('Error updating CRU name:', error);
+             // Handle API error here if needed
+         } finally {
+             setLoading(false);
+         }
+     };
 
     const handleCancelChangeCruName = () => {
         // Hide the confirmation modal without making any changes
         setShowChangeNameConfirmationModal(false);
     };
 
-  const handleDeleteMember = (userID: string) => {
-    console.log('Deleting member with userID:', userID);
-    const member = members.find(m => m.id === userID);
-    if (member) {
-      setMemberToDelete(member);
-      setShowConfirmationModal(true);
-    }
-  };
+    const handleDeleteMember = async (userID: string) => {
+        try {
+            console.log('Deleting member with userID:', userID);
+
+            // Find the member in the local state
+            const member = members.find(m => m.id === userID);
+            if (member) {
+                // Set memberToDelete to the found member
+                setMemberToDelete(member);
+                // Show the confirmation modal
+                setShowConfirmationModal(true);
+            }
+
+            // Make an API call to remove the user from the CRU
+            const updatedCRU = await removeAUserFromCRU(userID);
+
+            if (updatedCRU) {
+                // Update the local state with the updated CRU
+                setCRU(updatedCRU);
+                console.log('User removed from CRU:', userID);
+            }
+        } catch (error) {
+            console.error('Error removing user from CRU:', error);
+            // Handle API error here if needed
+        }
+    };
 
   const handleConfirmDelete = () => {
     if (memberToDelete) {
@@ -115,8 +156,14 @@ const EditCru = () => {
   };
 
   const getAvailableMembers = () : IUserProfile[] | []  => {
+    console.log("Potential Members:", potentialMembers)
     return potentialMembers
   };
+
+  const cruMembers = () : IUserProfile[] | [] => {
+    console.log('Cru Members:', members);
+    return members
+  }
 
   const [showAddMemberConfirmationModal, setShowAddMemberConfirmationModal] =
     useState(false);
@@ -231,8 +278,13 @@ const EditCru = () => {
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
                                   secureTextEntry={false}
-                                  onChangeText={text => setOriginalCruName(text)}
-                                  value={originalCruName} // Use the modified value in the TextInput
+                                  onChangeText={text => {
+                                      if (text.length <= 18) {
+                                          setModifiedCruName(text);
+                                      }
+                                  }}
+                                  maxLength={18} // Limit the input to 18 characters
+                                  value={modifiedCruName} // Use the modified value in the TextInput
                                   editable={true}
                               />
                           </View>
@@ -265,7 +317,7 @@ const EditCru = () => {
                                           marginRight: 10,
                                           borderRadius: 5,
                                       }}
-                                      onPress={handleCancelChangeCruName}>
+                                      onPress={() => handleCancelChangeCruName}>
                                       <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity
@@ -295,7 +347,7 @@ const EditCru = () => {
 
               <View style={{marginBottom: 75, alignItems: 'center'}}>
                   <FlatList
-                      data={members}
+                      data={cruMembers()}
                       horizontal={false}
                       showsHorizontalScrollIndicator={false}
                       scrollEnabled={false}
@@ -303,16 +355,7 @@ const EditCru = () => {
                       keyExtractor={item => item.id}
                       ListFooterComponent={
                           <View
-                              style={{
-                                  borderRadius: 5,
-                                  backgroundColor: COLORS.AKCRUBACKGROUND,
-                                  width: SIZES.ScreenWidth / 2.3,
-                                  height: SIZES.ScreenHeight * 0.08,
-                                  borderWidth: 1,
-                                  borderColor: COLORS.AKCRUBLUE,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                              }}>
+                              style={styles.listfooter}>
                               <Pressable onPress={() => setShowAddMemberModal(true)}>
                                   <Icon name="add-circle" type="ionicon" size={25} color={COLORS.GREEN} />
                                   <Text style={{...FONTS.Title2}}>Add a member</Text>
@@ -321,6 +364,7 @@ const EditCru = () => {
                       }
                       renderItem={({item, index}) => (
                           <View style={{marginVertical: 5, alignItems: 'center'}}>
+                            
                               <CruMemberCard
                                   userPicture={item.profilePicture}
                                   userName={item.username}
@@ -339,6 +383,66 @@ const EditCru = () => {
                       )}
                   />
               </View>
+              {/* Add Member Modal */}
+              <Modal animationType="fade" transparent={false} visible={showAddMemberModal}>
+                  <SafeAreaView
+                      style={{
+                          flex: 1,
+                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                          paddingTop: 20,
+                      }}>
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              marginBottom: 20,
+                          }}>
+                          <Pressable onPress={() => setShowAddMemberModal(false)}>
+                              <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                          </Pressable>
+                          <Text style={{...FONTS.Title1, marginLeft: 5}}>Cancel</Text>
+                      </View>
+
+                      <Text style={styles.inputlabel}>Add a new member</Text>
+
+                      <View style={{marginBottom: 70, marginTop: 10}}>
+                          <FlatList
+                              data={getAvailableMembers()}
+                              horizontal={false}
+                              showsHorizontalScrollIndicator={false}
+                              scrollEnabled={false}
+                              numColumns={2}
+                              keyExtractor={item => item.id}
+                              renderItem={({item, index}) => (
+                                  <View style={{marginVertical: 5}}>
+                                      <AddMemberCard
+                                          userPicture={item.invitee.profilePicture}
+                                          userName={item.invitee.username}
+                                          onPress={() => {
+                                              navigation.navigate('ViewUserScreen', {
+                                                  userID: item.id,
+                                              });
+                                          }}
+                                          //   influencer={item.private}
+                                          userID={item.invitee.id}
+                                          akcruBadge={item.invitee.badge}
+                                          userDesc={item.invitee.description}
+                                          AddMember={() => {
+                                              // Set the selected member when the user clicks on the "Add Member" button
+                                              setSelectedMember(item.invitee);
+                                              // Show the Add Member confirmation modal
+                                              setShowAddMemberConfirmationModal(true);
+                                          }}
+                                      />
+                                  </View>
+                              )}
+                          />
+                      </View>
+
+                      {/* Add other input fields for member picture, influencer, etc. */}
+                  </SafeAreaView>
+              </Modal>
               {/* Confirmation Modal */}
               <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
                   <SafeAreaView
@@ -387,68 +491,6 @@ const EditCru = () => {
                               </TouchableOpacity>
                           </View>
                       </View>
-                  </SafeAreaView>
-              </Modal>
-
-              {/* Add Member Modal */}
-              <Modal animationType="fade" transparent={false} visible={showAddMemberModal}>
-                  <SafeAreaView
-                      style={{
-                          flex: 1,
-                          backgroundColor: COLORS.AKCRUBACKGROUND,
-                          paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                          paddingTop: 20,
-                      }}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              marginBottom: 20,
-                          }}>
-                          <Pressable onPress={() => setShowAddMemberModal(false)}>
-                              <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
-                          </Pressable>
-                          <Text style={{...FONTS.Title1, marginLeft: 5}}>Cancel</Text>
-                      </View>
-
-                      <Text style={styles.inputlabel}>Add a new member</Text>
-
-                      <View style={{marginBottom: 70, marginTop: 10}}>
-                          <FlatList
-                              data={getAvailableMembers()}
-                              horizontal={false}
-                              showsHorizontalScrollIndicator={false}
-                              scrollEnabled={false}
-                              numColumns={2}
-                              keyExtractor={item => item.userID}
-                              renderItem={({item, index}) => (
-                                  <View style={{marginVertical: 5}}>
-                                      <AddMemberCard
-                                          userPicture={item.userPicture}
-                                          userName={item.userName}
-                                          onPress={() => {
-                                              navigation.navigate('ViewUserScreen', {
-                                                  userID: index,
-                                              });
-                                          }}
-                                          influencer={item.influencer}
-                                          userID={item.userID}
-                                          akcruBadge={item.akcruBadge}
-                                          userDesc={item.userDesc}
-                                          avatarbordercolor={item.avatarbordercolor}
-                                          AddMember={() => {
-                                              // Set the selected member when the user clicks on the "Add Member" button
-                                              setSelectedMember(item);
-                                              // Show the Add Member confirmation modal
-                                              setShowAddMemberConfirmationModal(true);
-                                          }}
-                                      />
-                                  </View>
-                              )}
-                          />
-                      </View>
-
-                      {/* Add other input fields for member picture, influencer, etc. */}
                   </SafeAreaView>
               </Modal>
 

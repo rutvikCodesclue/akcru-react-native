@@ -21,6 +21,7 @@ interface IUserProfile {
     profilePicture?: string;
     phoneNumber?: string;
     password?: string;
+    invitee: string[];
 }
 
 export interface IMovie {
@@ -93,6 +94,7 @@ export type ICruInvite = {
             profilePicture?: string;
             firstName: string;
             lastName: string;
+            username: string;
         };
     };
     createdAt: string;

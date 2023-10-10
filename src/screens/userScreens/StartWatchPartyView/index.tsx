@@ -250,11 +250,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             if (isUserVideoOn) {
                 console.log("muting personal video track...")
                 localPeer?.localVideoTrack()?.setMute(true);
-                setIsUserVideoOn(false);
+                setIsUserVideoOn(true);
             } else {
                 console.log("unmuting personal video track...")
                 localPeer?.localVideoTrack()?.setMute(false);
-                setIsUserVideoOn(true);
+                setIsUserVideoOn(false);
             }
         }
 
