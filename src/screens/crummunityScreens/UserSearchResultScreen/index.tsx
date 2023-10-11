@@ -128,6 +128,7 @@ const UserSearchResultScreen = () => {
                   userPicture={item.profilePicture}
                   userName={item.username}
                   onPress={() => {
+                    console.log('Navigating to ViewUserDetailScreen with userID:', item.username);
                     navigation.navigate('ViewUserScreen', {
                         userID: item.id,
                     });

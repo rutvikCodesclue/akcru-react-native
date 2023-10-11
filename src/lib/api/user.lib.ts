@@ -110,10 +110,12 @@ export const updateUserProfilePicture = async (params: {
         const {uri, type, name} = params;
 
         // type must be one of the following: image/jpeg, image/png, image/jpg
-        // if (type !== 'image/jpeg' && type !== 'image/png') {
-        //     console.log("type must be one of the following: image/jpeg, image/png:", type);
-        //     return undefined
-        // }
+
+        if (type !== 'image/jpeg' && type !== 'image/png') {
+            console.log('type must be one of the following: image/jpeg, image/png:', type);
+            return undefined;
+        }
+
 
         const form = new FormData();
         form.append('image', {
@@ -129,7 +131,11 @@ export const updateUserProfilePicture = async (params: {
             },
         });
 
+
+        console.log('Data being sent to the server:', form); // Log the data being sent
+        console.log('Response received from the server:', data); // Log the response received
         console.log('data from profilePicture update:', data);
+
 
         if (data.success === false) {
             return undefined;
@@ -141,6 +147,9 @@ export const updateUserProfilePicture = async (params: {
         return undefined;
     }
 };
+
+
+
 
 export const updateUserWatchTime = async (params: {
     watchTime?: number;

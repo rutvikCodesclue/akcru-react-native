@@ -165,8 +165,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           <View style={{marginRight: 8}}>
                               <Pressable
                                   onPress={() => {
+                                    console.log('Navigating to ViewUserDetailScreen with userID:', user?.username);
                                       navigation.navigate('ViewUserDetailScreen', {
-                                          userID,
+                                          userID,        
                                       });
                                   }}>
                                   <Avatar
