@@ -205,14 +205,16 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             console.log('selectedTimeZone:', selectedTimeZone);
             console.log('selectedUser:', selectedUserName);
 
-            // Call API to send MIT Invite
-            const response = await createAMITInvite({
-                movieId: movie.id,
-                username: selectedUserName,
-                startDate: selectedDate.toISOString(),
-            });
-            console.log('response:', response);
+            console.log('DATE SENT TO API:', selectedDate.toISOString());
 
+            // Call API to send MIT Invite
+            // const response = await createAMITInvite({
+            //     movieId: movie.id,
+            //     username: selectedUserName,
+            //     startDate: selectedDate.toISOString(),
+            // });
+            // console.log('response:', response);
+            const response = false;
             if (response) {
                 setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
             }
