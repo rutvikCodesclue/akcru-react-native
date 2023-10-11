@@ -87,45 +87,49 @@ export const updateUser = async (params: { username?: string, firstName?: string
     }
 }
 
-export const updateUserProfilePicture = async (params: { uri: string, type: string, name: string }) : Promise<IUserProfile | undefined> => {
+export const updateUserProfilePicture = async (params: {
+    uri: string;
+    type: string;
+    name: string;
+}): Promise<IUserProfile | undefined> => {
     try {
         // this should be a file object
-        const { uri, type, name } = params
+        const {uri, type, name} = params;
 
         // type must be one of the following: image/jpeg, image/png, image/jpg
         if (type !== 'image/jpeg' && type !== 'image/png') {
-            console.log("type must be one of the following: image/jpeg, image/png:", type);
-            return undefined
+            console.log('type must be one of the following: image/jpeg, image/png:', type);
+            return undefined;
         }
 
         const form = new FormData();
         form.append('image', {
             type, // Adjust the type as needed (e.g. png, jpeg, gif, etc)
             uri,
-            name,  // Adjust the filename as needed
+            name, // Adjust the filename as needed
         });
 
         // PUT /v1/user/profilePicture
-        const { data } = await API.put(`/v1/user/profilePicture`, form,
-        {
+        const {data} = await API.put(`/v1/user/profilePicture`, form, {
             headers: {
-                'Content-Type': 'multipart/form-data'
-            }
+                'Content-Type': 'multipart/form-data',
+            },
         });
 
-        console.log("data from profilePicture update:", data);
-        
-    
+        console.log('Data being sent to the server:', form); // Log the data being sent
+        console.log('Response received from the server:', data); // Log the response received
+
         if (data.success === false) {
-            return undefined
+            return undefined;
         }
-        
+
         return data.updatedUser;
     } catch (error) {
         console.error(error);
         return undefined;
     }
-}
+};
+
 
 export const updateUserWatchTime = async (params: { watchTime?: number, movieId?: string,  }) : Promise<boolean | undefined> => {
     try {

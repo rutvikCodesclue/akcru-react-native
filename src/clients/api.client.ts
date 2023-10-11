@@ -13,7 +13,7 @@ const determineBaseURL = (): string => {
         // case "staging":
         //     return "https://staging.api.akcru.com";
         default:
-            return 'http://localhost:3000/' ?? 'http://10.0.2.2:3000';
+            return DEV_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
 

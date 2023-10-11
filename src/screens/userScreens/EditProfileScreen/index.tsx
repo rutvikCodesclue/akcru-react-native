@@ -206,9 +206,29 @@ export default function EditProfile({session}: {session: Session}) {
                 mediaType: 'photo',
                 includeBase64: false,
             },
-            handleImageUpload,
+            response => {
+                if (response.assets && response.assets.length > 0) {
+                    const selectedImage = response.assets[0];
+                    if (selectedImage.fileSize && selectedImage.fileSize > 2 * 1024 * 1024) {
+                        // Show a modal or display an error message to the user
+                        // indicating that the selected image is too large.
+                        showSizeError();
+                    } else {
+                        // Image is within size limit, proceed with handling the image.
+                        handleImageUpload(selectedImage);
+                    }
+                }
+            },
         );
     };
+
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+
+    // Function to show the size error modal
+    const showSizeError = () => {
+        setShowSizeErrorModal(true);
+    };
+
 
     // Function to handle image upload
     const handleImageUpload = async res => {
@@ -286,6 +306,48 @@ export default function EditProfile({session}: {session: Session}) {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {/* Picture Size Error Modal*/}
+                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    {`Image is too large. Please select an image under 2MB.`}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowSizeErrorModal(false);
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
                     {/* Username */}
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <Text style={styles.inputlabel}>Username</Text>
