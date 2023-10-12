@@ -95,12 +95,12 @@ export default function EditProfile({session}: {session: Session}) {
         }, []),
     );
 
-    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
-    const handleUpdateProfile = () => {
-        // Show the confirmation modal
-        setShowUpdateConfirmation(true);
-    };
+    // const handleUpdateProfile = () => {
+    //     // Show the confirmation modal
+    //     setShowUpdateConfirmation(true);
+    // };
 
     const confirmDescriptionUpdate = async () => {
         try {
@@ -198,65 +198,54 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    // Function to handle the image selection
-    const selectProfileImage = () => {
-        launchImageLibrary(
-            {
-                selectionLimit: 1,
-                mediaType: 'photo',
-                includeBase64: false,
-            },
-            response => {
-                if (response.assets && response.assets.length > 0) {
-                    const selectedImage = response.assets[0];
-                    if (selectedImage.fileSize && selectedImage.fileSize > 2 * 1024 * 1024) {
-                        // Show a modal or display an error message to the user
-                        // indicating that the selected image is too large.
-                        showSizeError();
-                    } else {
-                        // Image is within size limit, proceed with handling the image.
-                        handleImageUpload(selectedImage);
-                    }
-                }
-            },
-        );
-    };
+    const [selectImage, setSelectImage] = useState(user?.profilePicture || '');
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    const selectProfileImage = async () => {
+        let options = {
+            mediaType: 'photo',
+            selectionLimit: 1,
+            includeBase64: false,
+            storageOptions: {
+                path: 'image',
+            },
+        };
 
-    // Function to show the size error modal
-    const showSizeError = () => {
-        setShowSizeErrorModal(true);
-    };
+        console.log('select picture button');
+        launchImageLibrary(options, async response => {
+            if (!response.didCancel) {
+                const selectedImage = response.assets[0].uri;
 
+                // Get the type and name for the selected image
+                const imageType = 'image/jpeg'; // Adjust the type as needed
+                const imageName = 'profile.jpg'; // Adjust the filename as needed
 
-    // Function to handle image upload
-    const handleImageUpload = async res => {
-        if (res.assets) {
-            const uri = res.assets[0].uri;
-            const fileName = res.assets[0].fileName;
-            const type = res.assets[0].type;
+                // Check the size of the selected image
+                const imageSizeInBytes = response.assets[0].fileSize;
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
 
-            if (uri && fileName && type) {
-                try {
-                    const result = await updateUserProfilePicture({
-                        uri,
-                        name: fileName,
-                        type,
-                    });
+                if (imageSizeInBytes > maxSizeInBytes) {
+                    // Show size error modal
+                    setShowSizeErrorModal(true);
+                    return;
+                }
 
-                    if (result) {
-                        setAvatarUrl(result.profilePicture ?? '');
-                    } else {
-                        console.error('Failed to update profile picture.');
-                        // Display an error message to the user
-                    }
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                    // Display an error message to the user
+                // Call the API function to update the user's profile picture
+                const updatedUserProfile = await updateUserProfilePicture({
+                    uri: selectedImage,
+                    type: imageType,
+                    name: imageName,
+                });
+
+                if (updatedUserProfile) {
+                    // Handle success, maybe update your local state with the new profile picture
+                    setSelectImage(updatedUserProfile.profilePicture || '');
+                } else {
+                    // Handle failure or display an error message
+                    console.log('Failed to update profile picture');
                 }
             }
-        }
+        });
     };
 
     async function handleLogout() {
@@ -288,13 +277,16 @@ export default function EditProfile({session}: {session: Session}) {
                             <Avatar
                                 rounded
                                 size={125}
-                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                                source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
                                 avatarStyle={{
                                     borderWidth: 2,
                                     borderColor: COLORS.AKCRUBLUE,
                                 }}
                             />
-                            <TouchableOpacity onPress={selectProfileImage}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    selectProfileImage();
+                                }}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2AkcruBlue,

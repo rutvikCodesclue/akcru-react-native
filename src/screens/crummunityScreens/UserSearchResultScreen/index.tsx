@@ -20,6 +20,8 @@ import {FONTS, COLORS} from '../../../../assets/constants';
 import {ScrollView} from 'react-native-gesture-handler';
 import { searchForUsers } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
+import { ClientStackParams } from '../../../navigation/ClientStack';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 
 
 
@@ -29,7 +31,7 @@ const UserSearchResultScreen = () => {
   const [textInputFocused, setTextInputFocused] = useState(false);
   const textInputRef = useRef(null);
   const navigation =
-    useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
   const contains = ({userName}: {userName: string}, query: string) => {
     if (userName.toLowerCase().includes(query.toLowerCase())) {
@@ -128,7 +130,7 @@ const UserSearchResultScreen = () => {
                   userPicture={item.profilePicture}
                   userName={item.username}
                   onPress={() => {
-                    console.log('Navigating to ViewUserDetailScreen with userID:', item.username);
+                    console.log('Navigating to ViewUserScreen with userID:', item.username, item.id);
                     navigation.navigate('ViewUserScreen', {
                         userID: item.id,
                     });

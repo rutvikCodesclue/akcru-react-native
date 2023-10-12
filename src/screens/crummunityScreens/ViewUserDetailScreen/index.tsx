@@ -24,14 +24,16 @@ import { findAUser } from '../../../lib/api/user.lib';
 import { ICru, IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 import imageindex from '../../../../assets/images/imageindex';
+import { ClientStackParams } from '../../../navigation/ClientStack';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<
-  CrummunityStackParams,
+  UserProfileStackParams,
   'ViewUserDetailScreen'
 >;
 
 type ViewUserDetailScreenRouteProp = RouteProp<
-  CrummunityStackParams,
+  UserProfileStackParams,
   'ViewUserDetailScreen'
 >;
 
@@ -45,6 +47,8 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
     const username: string | undefined = route.params?.userName ?? null;
 
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
+
+    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -118,7 +122,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                         <Avatar
                             rounded
                             size={250}
-                            source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                            source={user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder}
                             avatarStyle={{
                                 borderWidth: 5,
                                 borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
