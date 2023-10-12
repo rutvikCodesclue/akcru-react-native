@@ -295,7 +295,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
               </ImageBackground>
               <View
                   style={{
-                      marginTop: -15,
+                      marginTop: -30,
                       marginHorizontal: 15,
                       flexDirection: 'row',
                       alignItems: 'center',

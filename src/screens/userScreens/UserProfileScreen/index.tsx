@@ -216,9 +216,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
         <View style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <View>
-                    <ImageBackground
-                        source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                        resizeMode="cover"
+                    <View
+                        // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                        // resizeMode="cover"
                         style={{height: SIZES.ScreenHeight / 3.7}}>
                         <View style={{zIndex: 20}}>
                             <Header />
@@ -362,7 +362,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 {/* {FAKE_USER_PROFILES[0].userDesc} */}
                             </Text>
                         </View>
-                    </ImageBackground>
+                    </View>
                 </View>
                 <TabView
                     navigationState={{index, routes}}

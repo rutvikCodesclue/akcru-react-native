@@ -48,6 +48,8 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
 
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
 
+    
+
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
