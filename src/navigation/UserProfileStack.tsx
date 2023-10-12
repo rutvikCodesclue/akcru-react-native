@@ -22,6 +22,7 @@ import {COLORS, SIZES} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
 import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
+import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -45,6 +46,7 @@ export type UserProfileStackParams = {
     EditWatchList: any;
     WatchPartyPreviewScreen: any;
     ContentDetailScreen: any;
+    ViewUserDetailScreen: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -81,6 +83,13 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="ViewUserDetailScreen"
+              component={ViewUserDetailScreen}
               options={() => ({
                   headerShown: false,
               })}

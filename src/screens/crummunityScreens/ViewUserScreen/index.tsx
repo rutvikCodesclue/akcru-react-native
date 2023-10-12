@@ -29,15 +29,17 @@ import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
+import { ClientStackParams } from '../../../navigation/ClientStack';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
-  CrummunityStackParams,
+  UserProfileStackParams,
   'ViewUserScreen'
 >;
 
 type ViewUserScreenRouteProp = RouteProp<
-  CrummunityStackParams,
+  UserProfileStackParams,
   'ViewUserScreen'
 >;
 
@@ -53,7 +55,7 @@ const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const userID: string | undefined = route.params?.userID ?? null;
-    
+    const id: string | undefined = route.params?.id;
     const userprofile: string | undefined = route.params?.userName ?? null;
     const navigation2 = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
@@ -165,9 +167,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           <View style={{marginRight: 8}}>
                               <Pressable
                                   onPress={() => {
-                                    console.log('Navigating to ViewUserDetailScreen with userID:', user?.username);
+                                    console.log('Navigating to ViewUserDetailScreen with userID:', user?.username, user?.id);
                                       navigation.navigate('ViewUserDetailScreen', {
-                                          userID,        
+                                         userID: user?.id       
                                       });
                                   }}>
                                   <Avatar
@@ -175,7 +177,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       size={70}
                                       source={
                                           user?.profilePicture
-                                              ? {uri: user.profilePicture}
+                                              ? {uri: user?.profilePicture}
                                               : imageindex.Akcruplaceholder
                                       }
                                       avatarStyle={{

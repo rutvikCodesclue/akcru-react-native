@@ -44,6 +44,10 @@ const UserNotifications = () => {
                 notification.type === 'CruInviteDeclined'),
     );
 
+    const sortedNotifications: INotification[] = filteredNotifications.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
     
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
@@ -119,7 +123,7 @@ const UserNotifications = () => {
 
                 <View style={{marginHorizontal: 15}}>
                     {/* Render user notifications */}
-                    {filteredNotifications.map((notification, index) => {
+                    {sortedNotifications.map((notification, index) => {
                         const {id, type, message, isRead, createdAt, user} = notification;
 
                         // Console.log the isRead property
