@@ -204,21 +204,32 @@ export default function EditProfile({session}: {session: Session}) {
     const selectProfileImage = async () => {
         let options = {
             mediaType: 'photo',
-            selectionLimit: 1,
-            includeBase64: false,
             storageOptions: {
                 path: 'image',
             },
         };
 
         console.log('select picture button');
+
+        // Add a flag to prevent multiple invocations
+        let callbackExecuted = false;
+
         launchImageLibrary(options, async response => {
             if (!response.didCancel) {
+                // Check if the callback has already been executed
+                if (callbackExecuted) {
+                    return;
+                }
+
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
+                console.log('uri:',response.assets[0].uri);
+                console.log('filesize:',response.assets[0].fileSize);
                 const selectedImage = response.assets[0].uri;
 
                 // Get the type and name for the selected image
                 const imageType = 'image/jpeg'; // Adjust the type as needed
-                const imageName = 'profile.jpg'; // Adjust the filename as needed
+                const imageName = 'proile.jpg'; // Adjust the filename as needed
 
                 // Check the size of the selected image
                 const imageSizeInBytes = response.assets[0].fileSize;
@@ -227,26 +238,27 @@ export default function EditProfile({session}: {session: Session}) {
                 if (imageSizeInBytes > maxSizeInBytes) {
                     // Show size error modal
                     setShowSizeErrorModal(true);
-                    return;
-                }
-
-                // Call the API function to update the user's profile picture
-                const updatedUserProfile = await updateUserProfilePicture({
-                    uri: selectedImage,
-                    type: imageType,
-                    name: imageName,
-                });
-
-                if (updatedUserProfile) {
-                    // Handle success, maybe update your local state with the new profile picture
-                    setSelectImage(updatedUserProfile.profilePicture || '');
                 } else {
-                    // Handle failure or display an error message
-                    console.log('Failed to update profile picture');
+                    // Call the API function to update the user's profile picture
+                    const updatedUserProfilePicture = await updateUserProfilePicture({
+                        uri: selectedImage,
+                        type: imageType,
+                        name: imageName,
+                    });
+
+                    if (updatedUserProfilePicture) {
+                        // Set the new profile picture immediately
+                        console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                        setSelectImage(updatedUserProfilePicture.profilePicture || '');
+                    } else {
+                        // Handle failure or display an error message
+                        console.log('Failed to update profile picture');
+                    }
                 }
             }
         });
     };
+
 
     async function handleLogout() {
         await AsyncStorage.removeItem('access_token'); // Remove the stored token
