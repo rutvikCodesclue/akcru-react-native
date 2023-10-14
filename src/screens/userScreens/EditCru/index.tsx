@@ -54,7 +54,9 @@ const EditCru = () => {
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
                     setPotentialMembers(res.acceptedMembers);
+                    ;
                 }
+
             });
 
             return () => {
