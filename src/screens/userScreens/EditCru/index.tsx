@@ -48,15 +48,13 @@ const EditCru = () => {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Screen focused [EditCruScreen]');
             getMyCRU().then(res => {
+                console.log('Data from getMyCRU:', res); // Log the data
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
                     setPotentialMembers(res.acceptedMembers);
-                    ;
                 }
-
             });
 
             return () => {
@@ -108,6 +106,8 @@ const EditCru = () => {
         }
     };
 
+    
+
     const handleCancelChangeCruName = () => {
         // Hide the confirmation modal without making any changes
         setShowChangeNameConfirmationModal(false);
@@ -158,11 +158,12 @@ const EditCru = () => {
     };
 
     const getAvailableMembers = (): IUserProfile[] | [] => {
+        
         return potentialMembers;
     };
 
     const cruMembers = (): IUserProfile[] | [] => {
-        console.log('Cru Members:', members);
+        
         return members;
     };
 
@@ -353,12 +354,16 @@ const EditCru = () => {
                         numColumns={2}
                         keyExtractor={item => item.id}
                         ListFooterComponent={
-                            <View style={styles.listfooter}>
+                        <View>
+                            {cruMembers().length < 6 && (
+                                <View style={styles.listfooter}>
                                 <Pressable onPress={() => setShowAddMemberModal(true)}>
                                     <Icon name="add-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                                    <Text style={{...FONTS.Title2}}>Add a member</Text>
+                                    <Text style={{ ...FONTS.Title2 }}>Add a member</Text>
                                 </Pressable>
-                            </View>
+                                </View>
+                            )}
+                        </View>
                         }
                         renderItem={({item, index}) => (
                             <View style={{marginVertical: 5, alignItems: 'center'}}>

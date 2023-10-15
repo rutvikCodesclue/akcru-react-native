@@ -110,17 +110,7 @@ const UserProfileDetailsTab = () => {
                       alignItems: 'center',
                   }}>
                   <View style={{width: SIZES.ScreenWidth / 2, flex: 1}}>
-                      <View>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-
-                                  fontSize: 12,
-                                  color: COLORS.MIDORANGE,
-                              }}>
-                              You have "2" CRU Invites left
-                          </Text>
-                      </View>
+                      
                       <View>
                           <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginTop: 10}}>
                               You have "{user?.MITCount}" Movie Invites
