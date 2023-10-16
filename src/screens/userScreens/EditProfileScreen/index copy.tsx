@@ -2,18 +2,18 @@ import {useState, useEffect, useRef, useCallback} from 'react';
 import {supabase} from '../../../../lib/supabase';
 import styles from './styles';
 import {
-    View,
-    Alert,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    Image,
-    SafeAreaView,
-    TextInput,
-    Button,
-    Modal,
-    FlatList,
-    Pressable,
+  View,
+  Alert,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  TextInput,
+  Button,
+  Modal,
+  FlatList,
+  Pressable,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -27,15 +27,15 @@ import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import React from 'react';
 import {ImagePickerResponse, launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import * as ImagePicker from "expo-image-picker";
-import {API} from '../../../clients/api.client';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import useAuthStore from '../../../stores/auth.store';
+import { API } from "../../../clients/api.client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useAuthStore from "../../../stores/auth.store";
 import InputsLrg from '../../../components/inputLrg';
-import {MOVIE_GENRES} from '../../../../assets/constants/Data';
-import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
+import { MOVIE_GENRES } from '../../../../assets/constants/Data';
+import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
-import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import { updateUserProfilePicture, updateUser, searchForUsers } from '../../../lib/api/user.lib';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -95,12 +95,12 @@ export default function EditProfile({session}: {session: Session}) {
         }, []),
     );
 
-    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
-    const handleUpdateProfile = () => {
-        // Show the confirmation modal
-        setShowUpdateConfirmation(true);
-    };
+    // const handleUpdateProfile = () => {
+    //     // Show the confirmation modal
+    //     setShowUpdateConfirmation(true);
+    // };
 
     const confirmDescriptionUpdate = async () => {
         try {
@@ -198,46 +198,67 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    // Function to handle the image selection
-    const selectProfileImage = () => {
-        launchImageLibrary(
-            {
-                selectionLimit: 1,
-                mediaType: 'photo',
-                includeBase64: false,
+    const [selectImage, setSelectImage] = useState(user?.profilePicture || '');
+
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    const selectProfileImage = async () => {
+        let options = {
+            mediaType: 'photo',
+            storageOptions: {
+                path: 'image',
             },
-            handleImageUpload,
-        );
-    };
+        };
 
-    // Function to handle image upload
-    const handleImageUpload = async res => {
-        if (res.assets) {
-            const uri = res.assets[0].uri;
-            const fileName = res.assets[0].fileName;
-            const type = res.assets[0].type;
+        console.log('select picture button');
 
-            if (uri && fileName && type) {
-                try {
-                    const result = await updateUserProfilePicture({
-                        uri,
-                        name: fileName,
-                        type,
+        // Add a flag to prevent multiple invocations
+        let callbackExecuted = false;
+
+        launchImageLibrary(options, async response => {
+            if (!response.didCancel) {
+                // Check if the callback has already been executed
+                if (callbackExecuted) {
+                    return;
+                }
+
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
+                console.log('uri:',response.assets[0].uri);
+                console.log('filesize:',response.assets[0].fileSize);
+                const selectedImage = response.assets[0].uri;
+
+                // Get the type and name for the selected image
+                const imageType = 'image/jpeg'; // Adjust the type as needed
+                const imageName = 'proile.jpg'; // Adjust the filename as needed
+
+                // Check the size of the selected image
+                const imageSizeInBytes = response.assets[0].fileSize;
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+                if (imageSizeInBytes > maxSizeInBytes) {
+                    // Show size error modal
+                    setShowSizeErrorModal(true);
+                } else {
+                    // Call the API function to update the user's profile picture
+                    const updatedUserProfilePicture = await updateUserProfilePicture({
+                        uri: selectedImage,
+                        type: imageType,
+                        name: imageName,
                     });
 
-                    if (result) {
-                        setAvatarUrl(result.profilePicture ?? '');
+                    if (updatedUserProfilePicture) {
+                        // Set the new profile picture immediately
+                        console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                        setSelectImage(updatedUserProfilePicture.profilePicture || '');
                     } else {
-                        console.error('Failed to update profile picture.');
-                        // Display an error message to the user
+                        // Handle failure or display an error message
+                        console.log('Failed to update profile picture');
                     }
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                    // Display an error message to the user
                 }
             }
-        }
+        });
     };
+
 
     async function handleLogout() {
         await AsyncStorage.removeItem('access_token'); // Remove the stored token
@@ -268,13 +289,16 @@ export default function EditProfile({session}: {session: Session}) {
                             <Avatar
                                 rounded
                                 size={125}
-                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                                source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
                                 avatarStyle={{
                                     borderWidth: 2,
                                     borderColor: COLORS.AKCRUBLUE,
                                 }}
                             />
-                            <TouchableOpacity onPress={selectProfileImage}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    selectProfileImage();
+                                }}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2AkcruBlue,
@@ -286,6 +310,48 @@ export default function EditProfile({session}: {session: Session}) {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {/* Picture Size Error Modal*/}
+                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    {`Image is too large. Please select an image under 2MB.`}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowSizeErrorModal(false);
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
                     {/* Username */}
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <Text style={styles.inputlabel}>Username</Text>
