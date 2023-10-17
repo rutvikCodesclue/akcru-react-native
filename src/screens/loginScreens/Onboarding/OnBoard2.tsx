@@ -223,7 +223,7 @@ const OnBoard2 = () => {
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruLogo width={200} height={60} />
                             </View>
-                            <View style={{alignItems: 'center', flexDirection: 'row', marginBottom: 20}}>
+                            {/* <View style={{alignItems: 'center', flexDirection: 'row', marginBottom: 20}}>
                                 <View style={{marginRight: 10}}>
                                     <Avatar
                                         rounded
@@ -256,7 +256,7 @@ const OnBoard2 = () => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                            </View>
+                            </View> */}
                             {/* Picture Size Error Modal*/}
                             <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                                 <View
@@ -342,16 +342,15 @@ const OnBoard2 = () => {
                                     value={description || ''}
                                 />
                             </View>
-
-                            <View>
-                                <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
-                                        color={COLORS.AKCRUBLUE}
-                                        btnname={'Next'}
-                                        onPress={confirmUpdate}
-                                        disabled={false}
-                                    />
-                                </View>
+                        </View>
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruButtons.XlLrgButton
+                                    color={COLORS.AKCRUBLUE}
+                                    btnname={'Next'}
+                                    onPress={confirmUpdate}
+                                    disabled={false}
+                                />
                             </View>
                         </View>
                     </KeyboardAvoidingView>

@@ -119,11 +119,11 @@ export const updateUserProfilePicture = async (params: {
 
         const form = new FormData();
         form.append('image', {
-            type, // Adjust the type as needed (e.g. png, jpeg, gif, etc)
+            type,  // Adjust the type as needed (e.g. png, jpeg, gif, etc)
             uri,
             name, // Adjust the filename as needed
         });
-
+        console.log('Picture Type:', type)
         // PUT /v1/user/profilePicture
         const {data} = await API.put(`/v1/user/profilePicture`, form, {
             headers: {
