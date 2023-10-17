@@ -198,10 +198,10 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                 Your CRU View is set
                             </Text>
                             <Image
-                                source={imageindex.CruLarge}
+                                source={imageindex.NewCru}
                                 style={{
-                                    width: 275,
-                                    height: 120,
+                                    width: 175,
+                                    height: 175,
                                 }}
                             />
                             <Text

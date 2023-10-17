@@ -45,6 +45,7 @@ export default StyleSheet.create({
         flex: 1,
         marginTop: SIZES.ScreenHeight * 0.09,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
+        
     },
     mastercontainer: {
         height: SIZES.ScreenHeight,

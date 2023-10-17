@@ -275,9 +275,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
             activeColor={COLORS.MIDORANGE}
             renderBadge={({route}) => {
                 if (route.key === 'second' && datesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: 'red'}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
                 } else if (route.key === 'third' && cruInvitesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: 'red'}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
                 }
                 return null;
             }}
@@ -424,12 +424,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             style={{
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                backgroundColor: COLORS.WHITE,
+                                                backgroundColor: COLORS.PURPLE,
                                                 width: 20,
                                                 height: 20,
                                                 borderRadius: 15,
                                             }}>
-                                            <Text style={{...FONTS.Title2, color: COLORS.BLACK}}>{inviteCount}</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>{inviteCount}</Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>

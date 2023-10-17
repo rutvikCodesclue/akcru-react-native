@@ -368,10 +368,10 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     marginBottom: 20,
                                 }}>
                                 <Pressable onPress={handleChangeFirstName}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                 </Pressable>
                                 <Pressable onPress={() => setFirstNameModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
                                 </Pressable>
                             </View>
 
@@ -419,7 +419,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={() => setShowUpdateFirstNameConfirmation(false)} // Hide the confirmation modal
                                         style={{
-                                            backgroundColor: 'red',
+                                            backgroundColor: COLORS.DARKAKCRUBLUE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -428,7 +428,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={confirmFirstNameUpdate} // Confirm the update
                                         style={{
-                                            backgroundColor: 'green',
+                                            backgroundColor: COLORS.PURPLE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -471,10 +471,10 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     marginBottom: 20,
                                 }}>
                                 <Pressable onPress={handleChangeLastName}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                 </Pressable>
                                 <Pressable onPress={() => setLastNameModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
                                 </Pressable>
                             </View>
 
@@ -522,7 +522,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={() => setShowUpdateLastNameConfirmation(false)} // Hide the confirmation modal
                                         style={{
-                                            backgroundColor: 'red',
+                                            backgroundColor: COLORS.DARKAKCRUBLUE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -531,7 +531,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={confirmLastNameUpdate} // Confirm the update
                                         style={{
-                                            backgroundColor: 'green',
+                                            backgroundColor: COLORS.PURPLE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -575,10 +575,10 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     marginBottom: 20,
                                 }}>
                                 <Pressable onPress={handleChangePhone}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                 </Pressable>
                                 <Pressable onPress={() => setPhoneModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
                                 </Pressable>
                             </View>
 
@@ -636,7 +636,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={() => setShowUpdatePhoneConfirmation(false)} // Hide the confirmation modal
                                         style={{
-                                            backgroundColor: 'red',
+                                            backgroundColor: COLORS.DARKAKCRUBLUE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -645,7 +645,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     <TouchableOpacity
                                         onPress={confirmPhoneUpdate} // Confirm the update
                                         style={{
-                                            backgroundColor: 'green',
+                                            backgroundColor: COLORS.PURPLE,
                                             padding: 10,
                                             borderRadius: 5,
                                         }}>
@@ -688,10 +688,10 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     marginBottom: 20,
                                 }}>
                                 <Pressable onPress={confirmDobUpdate}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                 </Pressable>
                                 <Pressable onPress={() => setDobModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
                                 </Pressable>
                             </View>
 

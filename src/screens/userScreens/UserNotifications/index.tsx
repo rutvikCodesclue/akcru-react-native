@@ -81,7 +81,7 @@ const UserNotifications = () => {
                     </View>
 
                     <View                   
-                        style={{height: SIZES.ScreenHeight / 5, marginTop: -60}}>
+                        style={{height: SIZES.ScreenHeight / 5, marginTop: -60, backgroundColor: COLORS.AKCRUBACKGROUND}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
