@@ -9,7 +9,8 @@ import {acceptAMITInvite, declineAMITInvite} from '../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../types';
 import imageindex from '../../../assets/images/imageindex';
 import AkcruLevels from '../akcruBadges';
-import { selectAvatarBorderColor } from '../../util/util';
+import { getShortenedTimezone, selectAvatarBorderColor } from '../../util/util';
+import moment from 'moment';
 
 type MITInviteHubCardProp = {
     MITInviteID: any;
@@ -18,9 +19,23 @@ type MITInviteHubCardProp = {
     inviteDate: string;
     onPress: () => void;
     akcruBadge: any;
+    scheduleDate: string;
+    scheduleTime: string;
+    timezone: string;
 };
 
-const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akcruBadge, onPress2}: MITInviteHubCardProp) => {
+const MITInviteHubCard = ({
+    MITInviteID,
+    movie,
+    creator,
+    inviteDate,
+    onPress,
+    akcruBadge,
+    onPress2,
+    scheduleDate,
+    scheduleTime,
+    timezone,
+}: MITInviteHubCardProp) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const _acceptInvite = () => {
@@ -66,21 +81,17 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 10}}>
-                           
-                                <Avatar
-                                    source={
-                                        creator.profilePicture
-                                            ? {uri: creator.profilePicture}
-                                            : imageindex.Akcruplaceholder
-                                    }
-                                    size={50}
-                                    rounded
-                                    avatarStyle={{
-                                        borderWidth: 2,
-                                        borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
-                                    }}
-                                />
-                           
+                            <Avatar
+                                source={
+                                    creator.profilePicture ? {uri: creator.profilePicture} : imageindex.Akcruplaceholder
+                                }
+                                size={50}
+                                rounded
+                                avatarStyle={{
+                                    borderWidth: 2,
+                                    borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
+                                }}
+                            />
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
@@ -116,15 +127,24 @@ const MITInviteHubCard = ({MITInviteID, movie, creator, inviteDate, onPress, akc
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                     <Text style={styles.paragraphText}>
-                        {creator?.firstName} "{creator?.username}" has sent you a MIT Invite for{' '}
+                        "{creator?.username}" has sent you a MIT Invite for{' '}
                         <Text style={styles.paragraphText3}>"{movie.title}"</Text> on
-                        <Text style={styles.paragraphText3}>
+                        {/* <Text style={styles.paragraphText3}>
                             {' '}
                             {new Date(inviteDate).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric',
                             })}
+                        </Text> */}
+                        <Text style={styles.paragraphText3}>
+                            {' '}
+                            {moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}{' '}
+                        </Text>
+                        <Text style={styles.paragraphText}>at </Text>
+                        <Text style={styles.paragraphText3}>
+                            {/* render UTC Time w/ moment */}
+                            {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
                         </Text>
                     </Text>
                 </View>

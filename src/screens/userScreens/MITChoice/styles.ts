@@ -21,9 +21,9 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.TRANSAKCRUBLUE,
-        height: 75,
+        
         borderRadius: 5,
-        width: 175,
+        padding: 20,
         marginBottom: 10,
     },
     datetext: {

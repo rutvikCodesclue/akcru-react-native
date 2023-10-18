@@ -31,7 +31,8 @@ import BottomSheet, {
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { IMovie, IUserProfile } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone } from "../../../util/util";
+import moment from "moment";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -57,6 +58,8 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
   const creator: IUserProfile | null = route.params?.creator ?? null;
   const inviteDate: string | undefined = route.params?.inviteDate ?? null;
   const akcruBadge: any = route.params?.akcruBadge ?? null;
+  const schedule: string | undefined = route.params?.schedule ?? null;
+  const timezone: string | undefined = route.params?.timezone ?? null;
 
   useEffect(() => {
       const timer = setTimeout(() => {
@@ -279,15 +282,14 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                               <View style={{alignItems: 'center', marginTop: 30}}>
                                   <View style={styles.datebox}>
                                       <Text style={styles.datetext}>
-                                          <Text style={styles.datetext}>
-                                              {' '}
-                                              {new Date(inviteDate).toLocaleDateString('en-US', {
-                                                  year: 'numeric',
-                                                  month: 'short',
-                                                  day: 'numeric',
-                                              })}
-                                          </Text>
-                                          {/* {MITDate} */}
+                                          {' '}
+                                          {moment(schedule).tz(timezone).format('ddd, MMM Do')}{' '}
+                                      </Text>
+                                      <Text style={styles.datetext}>@ </Text>
+                                      <Text style={styles.datetext}>
+                                          {/* render UTC Time w/ moment */}
+                                          {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                          {getShortenedTimezone(timezone)}
                                       </Text>
                                       {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                   </View>
