@@ -154,6 +154,11 @@ const UserProfileDatesTab = () => {
         }, []),
     );
 
+    const handleInviterPress = (creatorId: string) => {
+        // Navigate to the ViewUserScreen with the user's ID
+        navigation.navigate('ViewUserScreen', {userID: creatorId});
+    };
+
     // render CRUViews and MITs (when MITs are implemented)
     const _renderMyEvents = () => {
         return myEvents.map(item => {
@@ -161,7 +166,7 @@ const UserProfileDatesTab = () => {
                 // item is a CRUView
                 // scheduleWith  is either the CRU creator or yourself
                 const scheduleWith =
-                    item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator.firstName}'s CRU`;
+                    item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator.username}'s CRU`;
                 return (
                     <View key={item.id} style={{marginBottom: 10}}>
                         <UserDatesCard
@@ -188,6 +193,7 @@ const UserProfileDatesTab = () => {
                                     _checkPermissions,
                                 })
                             }
+                            onPress={() => handleInviterPress(item.cru.creatorId)}
                         />
                     </View>
                 );
@@ -196,8 +202,8 @@ const UserProfileDatesTab = () => {
                 // scheduleWith  is either the MIT creator
                 const scheduleWith =
                     item.creator.id === user?.id
-                        ? `${item.invitee.firstName ?? ''} (${item.invitee.username})`
-                        : `${item.creator.firstName ?? ''} (${item.creator.username})`;
+                        ? ` ${item.invitee.username}`
+                        : `${item.creator.username}`;
                 const isHost = item.creator.id === user?.id;
 
                 // pretty print item in the console
@@ -229,6 +235,7 @@ const UserProfileDatesTab = () => {
                                     _checkPermissions,
                                 })
                             }
+                            onPress={() => handleInviterPress(item.creatorId)}
                         />
                     </View>
                 );

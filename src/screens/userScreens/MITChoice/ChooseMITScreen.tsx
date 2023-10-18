@@ -36,8 +36,9 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
 import { getCRUInvites } from "../../../lib/api/cru.lib";
-import { capitalizeFirstLetterOfString, formatMovieDuration } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone } from "../../../util/util";
 import YoutubePlayer from 'react-native-youtube-iframe';
+import moment from "moment";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -64,6 +65,8 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
   const creator: IUserProfile | null = route.params?.creator ?? null;
   const inviteDate: string | undefined = route.params?.inviteDate ?? null;
   const akcruBadge: any = route.params?.akcruBadge ?? null;
+  const schedule: string | undefined = route.params?.schedule ?? null;
+  const timezone: string | undefined = route.params?.timezone ?? null;
 
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -162,9 +165,9 @@ const toggleTrailerPlaying = useCallback(() => {
                       <Header />
                   </View>
                   <View>
-                      <ImageBackground
-                          source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                          resizeMode="cover"
+                      <View
+                        //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                        //   resizeMode="cover"
                           style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                           <LinearGradient
                               // Background Linear Gradient
@@ -194,7 +197,7 @@ const toggleTrailerPlaying = useCallback(() => {
                                   <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                               </View>
                           </View>
-                      </ImageBackground>
+                      </View>
                       <View
                           style={{
                               flexDirection: 'row',
@@ -365,16 +368,19 @@ const toggleTrailerPlaying = useCallback(() => {
                                   "{creator?.firstName}" wants to watch "{movie?.title}" with you on:
                               </Text>
                           </View>
-                          <View style={{alignItems: 'center', marginVertical: 20}}>
+                          <View style={{alignItems: 'center', marginVertical: 10}}>
                               <View style={styles.datebox}>
                                   <Text style={styles.datetext}>
                                       {' '}
-                                      {new Date(inviteDate).toLocaleDateString('en-US', {
-                                          year: 'numeric',
-                                          month: 'short',
-                                          day: 'numeric',
-                                      })}
+                                      {moment(schedule).tz(timezone).format('ddd, MMM Do')}{' '}
                                   </Text>
+                                  <Text style={styles.datetext}>@ </Text>
+                                  <Text style={styles.datetext}>
+                                      {/* render UTC Time w/ moment */}
+                                      {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                      {getShortenedTimezone(timezone)}
+                                  </Text>
+
                                   {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                               </View>
                               {/* <TouchableOpacity>

@@ -29,6 +29,7 @@ type UserDatesCardProps = {
     scheduleWith: string;
     onPressin: () => void;
     timezone: string;
+    onPress: () => void;
 };
 
 const UserDatesCard = ({
@@ -50,6 +51,7 @@ const UserDatesCard = ({
     type,
     onPressin,
     timezone,
+    onPress
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
@@ -151,15 +153,19 @@ const UserDatesCard = ({
                     <Text style={styles.paragraphText}>with </Text>
 
                     {type === 'MITInvite' && (
-                        <View>
-                            <Text style={styles.paragraphText2}> {scheduleWith}</Text>
-                        </View>
+                        <TouchableOpacity onPress={onPress}>
+                            <View>
+                                <Text style={styles.paragraphText2}> {scheduleWith}</Text>
+                            </View>
+                        </TouchableOpacity>
                     )}
 
                     {type === 'CRUView' && (
-                        <View>
-                            <Text style={styles.paragraphText3}> {scheduleWith}</Text>
-                        </View>
+                        <TouchableOpacity onPress={onPress}>
+                            <View>
+                                <Text style={styles.paragraphText3}> {scheduleWith}</Text>
+                            </View>
+                        </TouchableOpacity>
                     )}
                 </View>
                 <View

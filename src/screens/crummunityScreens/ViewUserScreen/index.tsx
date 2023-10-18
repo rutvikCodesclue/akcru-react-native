@@ -345,7 +345,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   <View style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
                                       <TouchableOpacity
                                           style={{
-                                              backgroundColor: COLORS.GREEN,
+                                              backgroundColor: COLORS.PURPLE,
                                               paddingHorizontal: 20,
                                               paddingVertical: 10,
                                               borderRadius: 5,
@@ -355,7 +355,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       </TouchableOpacity>
                                       <TouchableOpacity
                                           style={{
-                                              backgroundColor: COLORS.CATREDLGT,
+                                              backgroundColor: COLORS.DARKAKCRUBLUE,
                                               paddingHorizontal: 20,
                                               paddingVertical: 10,
                                               marginRight: 10,

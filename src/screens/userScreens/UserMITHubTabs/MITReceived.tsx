@@ -144,6 +144,9 @@ const MITReceived = () => {
                                                 // inviteePicture={item.creator.profilePicture ?? undefined}
                                                 inviteDate={item.createdAt}
                                                 akcruBadge={item.invitee.badge}
+                                                scheduleDate={item.startDate}
+                                                scheduleTime={item.startDate}
+                                                timezone={item.timezone}
                                                 onPress={() =>
                                                     navigation.navigate('ChooseMITScreen', {
                                                         MITID: item.id,
@@ -151,6 +154,8 @@ const MITReceived = () => {
                                                         creator: item.creator,
                                                         inviteDate: item.createdAt,
                                                         akcruBadge: item.invitee.badge,
+                                                        schedule: item.startDate,
+                                                        timezone: item.timezone
                                                     })
                                                 }
                                             />

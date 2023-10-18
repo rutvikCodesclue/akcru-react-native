@@ -290,7 +290,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [routes] = React.useState([
         {key: 'first', title: 'Details'},
         {key: 'second', title: 'Dates'},
-        {key: 'third', title: 'CRU Inv.'},
+        {key: 'third', title: 'CRU Inv'},
         {key: 'fourth', title: 'Wallet'},
     ]);
 
@@ -445,6 +445,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         </View>
                     </View>
                 </View>
+                <View style={{marginTop: '2%'}}/>
                 <TabView
                     navigationState={{index, routes}}
                     renderScene={renderScene}
