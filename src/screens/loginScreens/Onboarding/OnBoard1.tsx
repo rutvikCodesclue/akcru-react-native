@@ -194,7 +194,7 @@ const OnBoard1 = () => {
         <View>
             <ScrollView>
                 <ImageBackground style={styles.bgimage} source={imageindex.AkcruonboardBG} resizeMode={'cover'}>
-                    <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+                    <View style={{flex: 1, marginBottom: 50}}>
                         <View style={styles.container}>
                             <View
                                 style={{
@@ -319,7 +319,7 @@ const OnBoard1 = () => {
                                 />
                             </View>
                         </View>
-                    </KeyboardAvoidingView>
+                    </View>
                 </ImageBackground>
             </ScrollView>
         </View>
