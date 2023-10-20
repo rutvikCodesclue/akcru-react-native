@@ -31,7 +31,6 @@ const MITInviteHubCard = ({
     inviteDate,
     onPress,
     akcruBadge,
-    onPress2,
     scheduleDate,
     scheduleTime,
     timezone,
@@ -120,8 +119,10 @@ const MITInviteHubCard = ({
 
                     <View>
                         {/* <Text style={styles.stamps}>{MITDate}</Text> */}
-                        <TouchableOpacity onPress={onPress}>
-                            <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
+                        <TouchableOpacity onPress={onPress} style={{alignItems: 'center'}}>
+                            <Text style={{...FONTS.Title2AkcruBlue}}>VIEW</Text>
+                            {/* <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} /> */}
+                            
                         </TouchableOpacity>
                     </View>
                 </View>

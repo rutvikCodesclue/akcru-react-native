@@ -31,7 +31,7 @@ import {API} from '../../../clients/api.client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import InputsLrg from '../../../components/inputLrg';
-import {MOVIE_GENRES} from '../../../../assets/constants/Data';
+import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
 import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
@@ -259,12 +259,85 @@ export default function EditProfile({session}: {session: Session}) {
         });
     };
 
-
     async function handleLogout() {
         await AsyncStorage.removeItem('access_token'); // Remove the stored token
         await logout();
         setIsLoggedIn(false);
     }
+
+    const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
+    const [archetypeKey, setArchetypeKey] = useState('');
+
+    const [archetypeName, setArchetypeName] = useState('');
+    const [archetypeImage, setArchetypeImage] = useState<string | null>(null);
+    const [archetypeDescription, setArchetypeDescription] = useState('');
+
+    const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleArchetypeModal = () => {
+        setArchetypeModalVisible(!isArchetypeModalVisible);
+    };
+
+    const handleCheckboxChange = (genreId: string) => {
+        // Check if the genre is already selected
+        if (checkedGenres[genreId]) {
+            // If it's selected, unselect it
+            setCheckedGenres(prevState => ({
+                ...prevState,
+                [genreId]: false,
+            }));
+        } else {
+            // Check if the limit of two genres is reached
+            if (Object.values(checkedGenres).filter(Boolean).length < 2) {
+                // If not reached, select the genre
+                setCheckedGenres(prevState => ({
+                    ...prevState,
+                    [genreId]: true,
+                }));
+            } else {
+                // If limit is reached, show a message or perform an action
+                console.log('You can only select up to two genres.');
+            }
+        }
+    };
+
+    const handleFinishButton = () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+        console.log('Selected Genres:', selectedGenres);
+
+        if (selectedGenres.length === 2) {
+            const genreNames = selectedGenres.map(genreId => {
+                const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+                return genreObject ? genreObject.genre : '';
+            });
+
+            const newArchetypeKey = genreNames.sort().join(', ');
+
+            console.log('Archetype Key:', newArchetypeKey);
+
+            setArchetypeKey(newArchetypeKey);
+
+            const selectedArchetype = archetypeMapping[newArchetypeKey];
+
+            if (selectedArchetype) {
+                const newArchetypeName = selectedArchetype.name;
+                const newArchetypeImage = selectedArchetype.image; // Set the image here
+                const newArchetypeDescription = selectedArchetype.description; // Set the description here
+                console.log('Selected Archetype:', newArchetypeName);
+                setArchetypeName(newArchetypeName);
+                setArchetypeImage(newArchetypeImage);
+                setArchetypeDescription(newArchetypeDescription);
+            } else {
+                console.log('No matching archetype found for the selected genres.');
+            }
+        } else {
+            console.log('Please select exactly 2 genres.');
+        }
+    };
+
+    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
     return (
         <SafeAreaView>
@@ -465,7 +538,7 @@ export default function EditProfile({session}: {session: Session}) {
                     </Modal>
 
                     {/* Description */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
+                    <View style={{alignItems: 'center'}}>
                         <Text style={styles.inputlabel}>Bio</Text>
                         <View style={styles.input}>
                             <Pressable onPress={handleDescriptionModalOpen}>
@@ -576,7 +649,7 @@ export default function EditProfile({session}: {session: Session}) {
                     </Modal>
 
                     {/* Email */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
+                    <View style={{alignItems: 'center'}}>
                         <Text style={styles.inputlabel}>Email</Text>
                         <View style={styles.input}>
                             <Pressable>
@@ -591,6 +664,121 @@ export default function EditProfile({session}: {session: Session}) {
                             </Pressable>
                         </View>
                     </View>
+
+                    <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
+                        At Akcru, your movie-watching preferences shape your unique archetype. This personalized
+                        "Archetype" guides us in curating the finest movie recommendations for you, as well as connecting
+                        you with like-minded users who share similar tastes. At Akcru, we go beyond being a simple
+                        streaming platform; we are a multifaceted streaming experience that caters to your
+                        individuality.
+                    </Text>
+                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
+                        Please choose 2 genres to then press "FINISH":
+                    </Text>
+                    <View style={{flex: 1}}>
+                        <View style={{marginBottom: 20}}>
+                            <FlatList
+                                data={filteredGenres}
+                                horizontal={false}
+                                numColumns={3}
+                                showsHorizontalScrollIndicator={false}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <View>
+                                        <View style={styles.checkboxContainer}>
+                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                                <View style={styles.checkbox}>
+                                                    {checkedGenres[item.id] && (
+                                                        <Icon
+                                                            name="checkmark-sharp"
+                                                            type="ionicon"
+                                                            size={18}
+                                                            color={COLORS.MIDORANGE}
+                                                            style={{marginTop: -3}}
+                                                        />
+                                                    )}
+                                                </View>
+                                            </TouchableOpacity>
+                                            <View>
+                                                <Text style={styles.checkboxText}>{item.genre}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                )}
+                            />
+                        </View>
+
+                        {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
+
+                        {archetypeName && (
+                            <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    color: COLORS.PURPLE,
+                                }}>
+                                "{archetypeName}"
+                            </Text>
+                        )}
+                        <Pressable onPress={()=>{toggleArchetypeModal()}}>
+                            {archetypeImage && (
+                            <Image
+                                source={{uri: archetypeImage}}
+                                style={{
+                                    width: SIZES.ScreenWidth / 2.2,
+                                    height: SIZES.ScreenWidth / 2.2,
+                                    borderRadius: 5,
+                                    alignSelf: 'center',
+                                }}
+                            />
+                        )}
+                        </Pressable>
+                        
+
+                        {archetypeDescription && (
+                            <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
+                                {archetypeDescription}
+                            </Text>
+                        )}
+
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruButtons.XlLrgButton
+                                    color={COLORS.MIDORANGE}
+                                    btnname={'Finish'}
+                                    onPress={handleFinishButton}
+                                    disabled={false}
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Create a modal to display the enlarged image */}
+                    <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            {/* Display the enlarged image */}
+                            {archetypeImage && (
+                                <Image
+                                    source={{uri: archetypeImage}}
+                                    style={{
+                                        width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                        height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                        borderRadius: 5,
+                                    }}
+                                />
+                            )}
+                            <TouchableOpacity onPress={toggleArchetypeModal}>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: 10}}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Modal>
 
                     {/* <View>
                         <Text style={styles.inputlabel}>Email</Text>
@@ -616,15 +804,13 @@ export default function EditProfile({session}: {session: Session}) {
                                 <Text style={styles.settingslabel}>Help</Text>
                                 <View style={{marginLeft: 5}}>
                                     <Icon
-                                name="help-rhombus"
-                                type="material-community"
-                                color={COLORS.MIDORANGE}
-                                size={20}
-                           
-                            />
+                                        name="help-rhombus"
+                                        type="material-community"
+                                        color={COLORS.MIDORANGE}
+                                        size={20}
+                                    />
                                 </View>
-                            
-                            </View>  
+                            </View>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
@@ -635,6 +821,9 @@ export default function EditProfile({session}: {session: Session}) {
                             <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
                         </TouchableOpacity>
                     </View>
+                    <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
+                        version {appVersion[0].version}
+                    </Text>
                 </View>
             </ScrollView>
         </SafeAreaView>

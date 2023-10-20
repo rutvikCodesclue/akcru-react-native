@@ -93,16 +93,13 @@ const MITHubList = () => {
                                                 // inviteePicture={item.creator.profilePicture ?? undefined}
                                                 inviteDate={item.createdAt}
                                                 akcruBadge={item.invitee.badge}
-                                                onPress={() =>
-                                                    navigation.navigate('ChooseMITScreen', {
-                                                        MITID: item.id,
-                                                        movie: item.movie,
-                                                        creator: item.creator,
-                                                        inviteDate: item.createdAt,
-                                                        akcruBadge: item.invitee.badge,
-                                                    })
-                                                }
-                                            />
+                                                onPress={() => navigation.navigate('ChooseMITScreen', {
+                                                    MITID: item.id,
+                                                    movie: item.movie,
+                                                    creator: item.creator,
+                                                    inviteDate: item.createdAt,
+                                                    akcruBadge: item.invitee.badge,
+                                                })} scheduleDate={''} scheduleTime={''} timezone={''}                                            />
                                         </View>
                                     );
                                 }
