@@ -29,7 +29,7 @@ import {Icon} from '@rneui/base';
 import {API} from '../../../clients/api.client';
 import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {launchImageLibrary, ImagePickerResponse} from 'react-native-image-picker';
+import {launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
 import {searchForUsers, updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
 
@@ -88,42 +88,64 @@ const OnBoard2 = () => {
     const [selectImage, setSelectImage] = useState('');
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
-    const selectProfileImage = async () => {
-        let options = {
-            mediaType: 'photo',
-            selectionLimit: 1,
-            includeBase64: false,
-            storageOptions: {
-                path: 'image',
-            },
-        };
+   const selectProfileImage = async () => {
+       let options = {
+           mediaType: 'photo' as MediaType,
+           storageOptions: {
+               path: 'image',
+           },
+       };
 
-        console.log('select picture button');
-        launchImageLibrary(options, async response => {
-            if (!response.didCancel) {
-                const selectedImage = response.assets[0].uri;
+       console.log('select picture button');
 
-                // Get the type and name for the selected image
-                const imageType = 'image/jpeg'; // Adjust the type as needed
-                const imageName = 'profile.jpg'; // Adjust the filename as needed
+       // Add a flag to prevent multiple invocations
+       let callbackExecuted = false;
 
-                // Call the API function to update the user's profile picture
-                const updatedUserProfile = await updateUserProfilePicture({
-                    uri: selectedImage,
-                    type: imageType,
-                    name: imageName,
-                });
+       launchImageLibrary(options, async response => {
+           if (response && !response.didCancel && response.assets) {
+               // Check if the response is defined, not canceled, and has assets
+               if (callbackExecuted) {
+                   return;
+               }
 
-                if (updatedUserProfile) {
-                    // Handle success, maybe update your local state with the new profile picture
-                    setSelectImage(updatedUserProfile.profilePicture || '');
-                } else {
-                    // Handle failure or display an error message
-                    console.log('Failed to update profile picture');
-                }
-            }
-        });
-    };
+               // Set the flag to true to indicate the callback has been executed
+               callbackExecuted = true;
+               console.log('uri:', response.assets[0].uri);
+               console.log('filesize:', response.assets[0].fileSize);
+               const selectedImage = response.assets[0].uri;
+
+               // Get the type and name for the selected image
+               const imageType = response.assets[0].type;
+               const imageName = response.assets[0].fileName;
+
+               // Check the size of the selected image
+               const imageSizeInBytes = response.assets[0].fileSize;
+               const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+               if (imageSizeInBytes > maxSizeInBytes) {
+                   // Show size error modal
+                   setShowSizeErrorModal(true);
+               } else {
+                   // Call the API function to update the user's profile picture
+                   const updatedUserProfilePicture = await updateUserProfilePicture({
+                       uri: selectedImage,
+                       type: imageType,
+                       name: imageName,
+                   });
+
+                   if (updatedUserProfilePicture) {
+                       // Set the new profile picture immediately
+                       console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                       setSelectImage(updatedUserProfilePicture.profilePicture || '');
+                   } else {
+                       // Handle failure or display an error message
+                       console.log('Failed to update profile picture');
+                   }
+               }
+           }
+       });
+   };
+
 
     const confirmUpdate = async () => {
         try {
@@ -199,7 +221,7 @@ const OnBoard2 = () => {
         <View>
             <ScrollView>
                 <ImageBackground style={styles.bgimage} source={imageindex.AkcruonboardBG} resizeMode={'cover'}>
-                    <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+                    <View style={{flex: 1, marginBottom: 50}}>
                         <View style={styles.container}>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
@@ -223,7 +245,7 @@ const OnBoard2 = () => {
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruLogo width={200} height={60} />
                             </View>
-                            {/* <View style={{alignItems: 'center', flexDirection: 'row', marginBottom: 20}}>
+                            <View style={{alignItems: 'center', flexDirection: 'row', marginBottom: 20}}>
                                 <View style={{marginRight: 10}}>
                                     <Avatar
                                         rounded
@@ -256,7 +278,7 @@ const OnBoard2 = () => {
                                         </TouchableOpacity>
                                     </View>
                                 </View>
-                            </View> */}
+                            </View>
                             {/* Picture Size Error Modal*/}
                             <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                                 <View
@@ -312,7 +334,7 @@ const OnBoard2 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => {
+                                    onChangeText={(text: string) => {
                                         // Remove spaces from the input text
                                         const formattedText = text.replace(/\s/g, '');
 
@@ -353,7 +375,7 @@ const OnBoard2 = () => {
                                 />
                             </View>
                         </View>
-                    </KeyboardAvoidingView>
+                    </View>
                 </ImageBackground>
             </ScrollView>
         </View>
