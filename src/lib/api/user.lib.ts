@@ -107,14 +107,13 @@ export const updateUserProfilePicture = async (params: {
 }): Promise<IUserProfile | undefined> => {
     try {
         // this should be a file object
-        const {uri, type, name} = params;
+        const { uri, type, name } = params;
 
         // type must be one of the following: image/jpeg, image/png, image/jpg
-
-        if (type !== 'image/jpeg' && type !== 'image/png') {
-            console.log('type must be one of the following: image/jpeg, image/png:', type);
-            return undefined;
-        }
+        //if (type !== 'image/jpeg' && type !== 'image/png') {
+         //   console.log('type must be one of the following: image/jpeg, image/png:', type);
+           // return undefined;
+        //}
 
 
         const form = new FormData();
@@ -123,18 +122,12 @@ export const updateUserProfilePicture = async (params: {
             uri,
             name, // Adjust the filename as needed
         });
-        console.log('Picture Type:', type)
         // PUT /v1/user/profilePicture
-        const {data} = await API.put(`/v1/user/profilePicture`, form, {
+        const { data } = await API.put(`/v1/user/profilePicture`, form, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-
-
-        console.log('Data being sent to the server:', form); // Log the data being sent
-        console.log('Response received from the server:', data); // Log the response received
-        console.log('data from profilePicture update:', data);
 
 
         if (data.success === false) {
