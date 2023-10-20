@@ -113,49 +113,40 @@ const EditCru = () => {
         setShowChangeNameConfirmationModal(false);
     };
 
-    const handleDeleteMember = async (userID: string) => {
-        try {
-            console.log('Deleting member with userID:', userID);
-
-            // Find the member in the local state
-            const member = members.find(m => m.id === userID);
-            if (member) {
-                // Set memberToDelete to the found member
-                setMemberToDelete(member);
-                // Show the confirmation modal
-                setShowConfirmationModal(true);
-            }
-
-            // Make an API call to remove the user from the CRU
-            const updatedCRU = await removeAUserFromCRU(userID);
-
-            if (updatedCRU) {
-                // Update the local state with the updated CRU
-                setCRU(updatedCRU);
-                getMyCRU().then(res => {
-                    if (res?.CRU.members) {
-                        setMembers(res.CRU.members);
-                    }
-                    if (res?.acceptedMembers) {
-                        setPotentialMembers(res.acceptedMembers);
-                    }
-                });
-                console.log('User removed from CRU:', userID);
-            }
-        } catch (error) {
-            console.error('Error removing user from CRU:', error);
-            // Handle API error here if needed
+    const handleDeleteMember = (userID: string) => {
+        // Find the member in the local state
+        const member = members.find(m => m.id === userID);
+        if (member) {
+            // Set memberToDelete to the found member
+            setMemberToDelete(member);
+            // Show the confirmation modal
+            setShowConfirmationModal(true);
         }
     };
 
-    const handleConfirmDelete = () => {
+
+    const handleConfirmDelete = async () => {
         if (memberToDelete) {
-            // Remove the member with the given userID from the members state
-            setMembers(prevMembers => prevMembers.filter(member => member.id !== memberToDelete.id));
-            // Hide the confirmation modal
-            setShowConfirmationModal(false);
+            try {
+                // Make an API call to remove the user from the CRU
+                const updatedCRU = await removeAUserFromCRU(memberToDelete.id);
+
+                if (updatedCRU) {
+                    // Update the local state with the updated CRU
+                    setCRU(updatedCRU);
+                    // Remove the member with the given userID from the members state
+                    setMembers(prevMembers => prevMembers.filter(member => member.id !== memberToDelete.id));
+                    // Hide the confirmation modal
+                    setShowConfirmationModal(false);
+                    console.log('User removed from CRU:', memberToDelete.id);
+                }
+            } catch (error) {
+                console.error('Error removing user from CRU:', error);
+                // Handle API error here if needed
+            }
         }
     };
+
 
     const getAvailableMembers = (): IUserProfile[] | [] => {
         

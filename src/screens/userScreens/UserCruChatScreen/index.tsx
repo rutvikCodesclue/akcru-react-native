@@ -190,9 +190,9 @@ const UserCruChatScreen = () => {
     return (
         <SafeAreaView style={{flex: 1}}>
             <ScrollView stickyHeaderIndices={[0, 3]}>
-                <ImageBackground
-                    source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                    resizeMode="cover"
+                <View
+                    // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                    // resizeMode="cover"
                     style={{height: SIZES.ScreenHeight / 3.3}}>
                     <View style={{zIndex: 20}}>
                         <Header />
@@ -299,12 +299,12 @@ const UserCruChatScreen = () => {
                                         style={{
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            backgroundColor: COLORS.WHITE,
+                                            backgroundColor: COLORS.PURPLE,
                                             width: 20,
                                             height: 20,
                                             borderRadius: 15,
                                         }}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.BLACK}}>{inviteCount}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>{inviteCount}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
@@ -323,7 +323,7 @@ const UserCruChatScreen = () => {
                                     : 'Create an account and get started today')}
                         </Text>
                     </View>
-                </ImageBackground>
+                </View>
 
                 <View>
                     <View style={{marginBottom: -10}}>

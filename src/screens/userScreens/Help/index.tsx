@@ -8,6 +8,7 @@ import {Icon} from '@rneui/base';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import { helpData } from '../../../../assets/constants/Data';
 
 const Help = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>()
