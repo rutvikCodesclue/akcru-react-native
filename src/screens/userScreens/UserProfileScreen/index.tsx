@@ -15,7 +15,6 @@ import {
   UserProfileDetailsTab,
   UserProfileWalletTab
 } from "../UserProfileTabs";
-import { AkcruDollarAmount, DIGITAL_PASS, FAKE_USER_PROFILES } from "../../../../assets/constants/Mockusers";
 import { SIZES, COLORS, FONTS, AKCRUBADGES } from "../../../../assets/constants";
 import LinearGradient from "react-native-linear-gradient";
 import { Avatar, Icon } from "@rneui/themed";
@@ -36,8 +35,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import useAuthStore from "../../../stores/auth.store";
 import { selectAvatarBorderColor } from "../../../util/util";
-import { ICruInvite, IMITInvite } from "../../../../types";
+import { ICruInvite, ICruView, IMITInvite } from "../../../../types";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
+import { getCRUInvites, getMyCRUViews } from "../../../lib/api/cru.lib";
+import {isAfter, isBefore} from 'date-fns';
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -85,6 +86,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     // Add a state to keep track of the invite count
     const [inviteCount, setInviteCount] = React.useState<number>(0);
+    const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -145,6 +147,78 @@ export default function UserProfileScreen({navigation, route}: Props) {
         setInviteCount(invites.length);
     }, [invites]);
 
+    // Define your state variable to hold the count of pending CRU invites
+    const [pendingCRUInviteCount, setPendingCRUInviteCount] = useState(0);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            getCRUInvites({pending: true}).then(cruInvites => {
+                // Check if cruInvites is not null or undefined
+                if (cruInvites) {
+                    // Filter the cruInvites to keep only the pending ones
+                    const pendingCRUInvites = cruInvites.filter(
+                        ( invite: { status: string; }) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
+                    );
+
+                    // Set the filtered pending CRU invites to your state variable
+                    setPendingCRUInviteCount(pendingCRUInvites.length);
+
+                    // Set any other state or perform additional actions if necessary
+                    setIsLoaded(true);
+                }
+            });
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                // You can perform cleanup or reset state if needed when the screen is unfocused
+            };
+        }, []),
+    );
+
+    const [eventCount, setEventCount] = useState(0); // Initialize the event count state
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // get CRUViews and MITs and merge them
+            const fetchMyEvents = async () => {
+                try {
+                    const myCRUViews = await getMyCRUViews({upcoming: true});
+                    const myMITs = await getMyMITInvites({accepted: true, me: true});
+
+                    if (myCRUViews && myMITs) {
+                        let events = [...myCRUViews, ...myMITs];
+                        // Set the event count state
+                        setEventCount(events.length);
+
+                        // sort invites by date (newest to oldest) and set state
+                        setMyEvents(
+                            events.sort((a, b) => {
+                                let date1 = new Date(a.startDate);
+                                let date2 = new Date(b.startDate);
+
+                                if (isAfter(date1, date2)) {
+                                    return 1;
+                                }
+                                if (isBefore(date1, date2)) {
+                                    return -1;
+                                }
+                                return 0;
+                            }),
+                        );
+                    }
+                } catch (error) {
+                    console.error('Error getting my Events:', error);
+                }
+            };
+            fetchMyEvents();
+        }, []),
+    );
+
+
+    const datesIndicatorCount = eventCount; // Replace this with your actual count
+    const cruInvitesIndicatorCount = pendingCRUInviteCount; // Replace this with your actual count
+
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
             SceneRendererProps & {
@@ -199,6 +273,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 justifyContent: 'center',
             }}
             activeColor={COLORS.MIDORANGE}
+            renderBadge={({route}) => {
+                if (route.key === 'second' && datesIndicatorCount > 0) {
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                } else if (route.key === 'third' && cruInvitesIndicatorCount > 0) {
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                }
+                return null;
+            }}
         />
     );
 
@@ -208,7 +290,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [routes] = React.useState([
         {key: 'first', title: 'Details'},
         {key: 'second', title: 'Dates'},
-        {key: 'third', title: 'CRU Inv.'},
+        {key: 'third', title: 'CRU Inv'},
         {key: 'fourth', title: 'Wallet'},
     ]);
 
@@ -216,9 +298,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
         <View style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <View>
-                    <ImageBackground
-                        source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                        resizeMode="cover"
+                    <View
+                        // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                        // resizeMode="cover"
                         style={{height: SIZES.ScreenHeight / 3.7}}>
                         <View style={{zIndex: 20}}>
                             <Header />
@@ -342,12 +424,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             style={{
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                backgroundColor: COLORS.WHITE,
+                                                backgroundColor: COLORS.PURPLE,
                                                 width: 20,
                                                 height: 20,
                                                 borderRadius: 15,
                                             }}>
-                                            <Text style={{...FONTS.Title2, color: COLORS.BLACK}}>{inviteCount}</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>{inviteCount}</Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>
@@ -359,11 +441,11 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     (user
                                         ? 'Click Edit Profile to add a description'
                                         : 'Create an account and get started today')}
-                                {/* {FAKE_USER_PROFILES[0].userDesc} */}
                             </Text>
                         </View>
-                    </ImageBackground>
+                    </View>
                 </View>
+                <View style={{marginTop: '2%'}}/>
                 <TabView
                     navigationState={{index, routes}}
                     renderScene={renderScene}

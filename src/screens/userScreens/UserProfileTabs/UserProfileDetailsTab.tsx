@@ -110,17 +110,7 @@ const UserProfileDetailsTab = () => {
                       alignItems: 'center',
                   }}>
                   <View style={{width: SIZES.ScreenWidth / 2, flex: 1}}>
-                      <View>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-
-                                  fontSize: 12,
-                                  color: COLORS.MIDORANGE,
-                              }}>
-                              You have "2" CRU Invites left
-                          </Text>
-                      </View>
+                      
                       <View>
                           <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginTop: 10}}>
                               You have "{user?.MITCount}" Movie Invites
@@ -179,104 +169,6 @@ const UserProfileDetailsTab = () => {
                       </TouchableOpacity>
                   </View>
               </View>
-
-              <View
-                  style={{
-                      borderBottomWidth: 1.5,
-                      borderColor: COLORS.DARKERGREY,
-                      marginTop: 20,
-                      marginBottom: 10,
-                  }}
-              />
-
-              <View>
-                  <Text
-                      style={{
-                          ...FONTS.Title2,
-                          marginTop: 10,
-                          marginBottom: 10,
-                          textAlign: 'center',
-                          fontSize: 14,
-                          textDecorationLine: 'underline',
-                      }}>
-                      ARCHETYPE
-                  </Text>
-              </View>
-              <View>
-                  <View style={{flex: 1, alignItems: 'center'}}>
-                      {/* <LineChart
-                          data={data}
-                          hideDataPoints
-                          areaChart
-                          color={COLORS.AKCRUBLUE}
-                          startFillColor={COLORS.AKCRUBLUE}
-                          endFillColor={COLORS.AKCRUBLUE}
-                          startOpacity={0.4}
-                          endOpacity={0.02}
-                          thickness={3}
-                          showVerticalLines={false}
-                          initialSpacing={15}
-                          hideYAxisText
-                          hideAxesAndRules={true}
-                          xAxisLabelTextStyle={{...FONTS.chart}}
-                          spacing={30}
-                          height={80}
-                          curved={true}
-                      /> */}
-                      {/* <Image source={imageindex.Graph1} />
-                      <Image source={imageindex.GraphMetric} /> */}
-                  </View>
-                  <View style={{paddingTop: 10, flexDirection: 'row', justifyContent: 'flex-start'}}>
-                      <View style={{paddingBottom: 10, paddingRight: 10}}>
-                          <Pressable onPress={toggleModal}>
-                              <Image
-                                  source={imageindex.SpaceCrimePuzzler}
-                                  style={{
-                                      width: SIZES.ScreenWidth / 2.2,
-                                      height: SIZES.ScreenWidth / 2.2,
-                                      borderRadius: 5,
-                                  }}
-                              />
-                          </Pressable>
-                      </View>
-                      <View style={{flex: 1}}>
-                          <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
-                          <View style={{flexDirection: 'row', paddingBottom: 5}}>
-                              <Text style={styles.drawfonttag}>Thriller</Text>
-                              <Text style={styles.drawfonttag}> Adventure</Text>
-                          </View>
-                          <Text style={{...FONTS.Title2, fontSize: 12}}>
-                              These individual appreciate movies that combine suspenseful and thrilling elements with
-                              adrenaline-pumping adventures. Experiencing intense suspense and daring escapades is where
-                              they find their cinematic excitement.
-                          </Text>
-                      </View>
-                  </View>
-              </View>
-
-              {/* Create a modal to display the enlarged image */}
-              <Modal visible={isModalVisible} animationType="fade" transparent={true} >
-                  <View
-                      style={{
-                          flex: 1,
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      }}>
-                      {/* Display the enlarged image */}
-                      <Image
-                          source={imageindex.SpaceCrimePuzzler}
-                          style={{
-                              width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                              height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                              borderRadius: 5,
-                          }}
-                      />
-                      <TouchableOpacity onPress={toggleModal}>
-                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
-                      </TouchableOpacity>
-                  </View>
-              </Modal>
 
               <View
                   style={{

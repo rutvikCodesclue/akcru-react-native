@@ -91,7 +91,7 @@ const CruInviteDecline = ({ navigation, route }: Props) => {
                                           fontSize: 16,
                                           textAlign: 'center',
                                       }}>
-                                      {inviteeName}
+                                      {creator?.username}
                                   </Text>
                               </View>
                           </View>
@@ -157,7 +157,7 @@ const CruInviteDecline = ({ navigation, route }: Props) => {
                                       fontSize: 12,
                                       textAlign: 'center',
                                   }}>
-                                  We will notify "{inviteeName}" you have DECLINED to join their CRU
+                                  We will notify "{creator?.username}" you have DECLINED to join their CRU
                               </Text>
                               <View style={{alignItems: 'center', marginTop: 30}}></View>
                           </View>

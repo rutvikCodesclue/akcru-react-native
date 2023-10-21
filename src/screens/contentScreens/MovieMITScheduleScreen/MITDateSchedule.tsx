@@ -25,7 +25,7 @@ import {IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
+import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -195,28 +195,32 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
     const handleSetDateTime = async () => {
         if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
-            setIsDateTimeSelected(true);
-            setIsSelectionDisabled(true);
+            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
             console.log('sending MIT');
             console.log('selectedDate:', selectedDate);
             console.log('selectedTime:', selectedTime);
             console.log('selectedMovie:', movie?.title);
             console.log('selectedTimeZone:', selectedTimeZone);
-            console.log('selectedUser:', selectedUserName);
+            console.log('selectedUser:', user);
 
             console.log('DATE SENT TO API:', selectedDate.toISOString());
 
-            // Call API to send MIT Invite
-            // const response = await createAMITInvite({
-            //     movieId: movie.id,
-            //     username: selectedUserName,
-            //     startDate: selectedDate.toISOString(),
-            // });
-            // console.log('response:', response);
-            const response = false;
-            if (response) {
-                setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+            if (formattedSelectedDateTimeInISO) {
+                // Call API to send MIT Invite
+                const response = await createAMITInvite({
+                    movieId: movie.id,
+                    username: selectedUserName,
+                    startDate: formattedSelectedDateTimeInISO,
+                    timezone: selectedTimeZone,
+                });
+                console.log('response:', response);
+
+                if (response) {
+                    setIsDateTimeSelected(true);
+                    setIsSelectionDisabled(true);
+                    setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+                }
             }
         }
     };

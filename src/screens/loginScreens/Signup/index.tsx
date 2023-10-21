@@ -31,6 +31,7 @@ import {searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
 import { GoTrueClient } from '@supabase/supabase-js';
+import { appVersion } from '../../../../assets/constants/Data';
 
 
 
@@ -347,6 +348,7 @@ const Signup = () => {
                           </View>
                       </Modal>
                   </View>
+                  <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
               </KeyboardAvoidingView>
           </ImageBackground>
       </View>

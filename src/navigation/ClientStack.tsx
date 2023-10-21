@@ -12,8 +12,8 @@ import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScr
 import { SendMITViewUser, SendMITSearchResult, SendMITSchedule, SendMITSearchInput } from '../screens/crummunityScreens/SendViewUserMITScreens';
 import {COLORS} from '../../assets/constants';
 import { supabaseRealtime } from '../../lib/supabase';
-import MITDateScheduler1 from '../screens/contentScreens/MovieMITScheduleScreen/MITDateScheduler1';
 import { CruInviteAccept, CruInviteDecline } from '../screens/userScreens/CruInviteResponse';
+import UserNotifications from '../screens/userScreens/UserNotifications';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -28,9 +28,9 @@ export type ClientStackParams = {
     SendMITSearchResult: any;
     SendMITSchedule: any;
     SendMITSearchInput: any;
-    MITDateScheduler1: any;
     CruInviteAccept: any;
     CruInviteDecline: any;
+    UserNotifications: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -81,13 +81,6 @@ export function ClientStack() {
           <ClientSearch.Screen
               name="MITDateSchedule"
               component={MITDateSchedule}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <ClientSearch.Screen
-              name="MITDateScheduler1"
-              component={MITDateScheduler1}
               options={() => ({
                   headerShown: false,
               })}
@@ -144,6 +137,13 @@ export function ClientStack() {
           <ClientSearch.Screen
               name="CruInviteDecline"
               component={CruInviteDecline}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <ClientSearch.Screen
+              name="UserNotifications"
+              component={UserNotifications}
               options={() => ({
                   headerShown: false,
               })}

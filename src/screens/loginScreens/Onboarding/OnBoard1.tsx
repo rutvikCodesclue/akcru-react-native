@@ -194,7 +194,7 @@ const OnBoard1 = () => {
         <View>
             <ScrollView>
                 <ImageBackground style={styles.bgimage} source={imageindex.AkcruonboardBG} resizeMode={'cover'}>
-                    <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+                    <View style={{flex: 1, marginBottom: 50}}>
                         <View style={styles.container}>
                             <View
                                 style={{
@@ -308,19 +308,18 @@ const OnBoard1 = () => {
                                     />
                                 </View>
                             </View>
-
-                            <View>
-                                <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
-                                        color={COLORS.AKCRUBLUE}
-                                        btnname={'Next'}
-                                        onPress={confirmUpdate}
-                                        disabled={false}
-                                    />
-                                </View>
+                        </View>
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruButtons.XlLrgButton
+                                    color={COLORS.AKCRUBLUE}
+                                    btnname={'Next'}
+                                    onPress={confirmUpdate}
+                                    disabled={false}
+                                />
                             </View>
                         </View>
-                    </KeyboardAvoidingView>
+                    </View>
                 </ImageBackground>
             </ScrollView>
         </View>

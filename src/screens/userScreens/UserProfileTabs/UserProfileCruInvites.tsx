@@ -122,7 +122,10 @@ const UserProfileCruInvites = () => {
         });
     };
 
-
+     const handleCruInviteCardPress = (creatorId: string) => {
+         // Navigate to the ViewUserScreen with the user's ID
+         navigation.navigate('ViewUserScreen', {userID: creatorId});
+     };
 
 
     return (
@@ -147,7 +150,7 @@ const UserProfileCruInvites = () => {
                                 inviteePicture={item.cru.creator.profilePicture ?? undefined}
                                 inviteDate={item.createdAt}
                                 invitee={item.cru.creator}
-                                onPress={() => navigation.navigate('ViewUserScreen', {id: item.inviteeId})}
+                                onPress={() => handleCruInviteCardPress(item.cru.creatorId)} // Navigate to the user's profile
                                 decline={() => _declineCruInvite(item)}
                                 accept={() => _acceptCruInvite(item)}
                             />

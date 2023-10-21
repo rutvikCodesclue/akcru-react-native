@@ -11,6 +11,7 @@ import {
     Alert,
     TextInput,
     FlatList,
+    Modal,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -28,7 +29,7 @@ import {Icon} from '@rneui/base';
 import {API} from '../../../clients/api.client';
 import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {launchImageLibrary, ImagePickerResponse} from 'react-native-image-picker';
+import {launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
 import {searchForUsers, updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
 
@@ -63,11 +64,6 @@ const OnBoard2 = () => {
         }, []),
     );
 
-
- 
-
-
-
     // const handleUserNameChange = (text: string) => {
     //     setUserName(text);
     // };
@@ -89,39 +85,67 @@ const OnBoard2 = () => {
     //     ],
     // );
 
-    const handleImageUpload = async (res: ImagePickerResponse) => {
-        if (res.assets) {
-            const uri = res.assets[0].uri;
-            const fileName = res.assets[0].fileName;
-            const type = res.assets[0].type;
+    const [selectImage, setSelectImage] = useState('');
 
-            if (uri && fileName && type) {
-                try {
-                    // Call the updateUserProfilePicture function to upload the image
-                    const result = await updateUserProfilePicture({
-                        uri,
-                        name: fileName,
-                        type,
-                    });
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+   const selectProfileImage = async () => {
+       let options = {
+           mediaType: 'photo' as MediaType,
+           storageOptions: {
+               path: 'image',
+           },
+       };
 
-                    if (result) {
-                        // Update the user's profile picture URL
-                        setAvatarUrl(result.profilePicture);
+       console.log('select picture button');
 
-                        // You may also want to update the user's profile picture in your state or context
-                        // For example, if your user state is stored in Redux or a context provider
-                        // Update the user's profile picture there as well
+       // Add a flag to prevent multiple invocations
+       let callbackExecuted = false;
 
-                        console.log('Image Upload Result:', result);
-                    } else {
-                        console.error('Failed to update profile picture.');
-                    }
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                }
-            }
-        }
-    };
+       launchImageLibrary(options, async response => {
+           if (response && !response.didCancel && response.assets) {
+               // Check if the response is defined, not canceled, and has assets
+               if (callbackExecuted) {
+                   return;
+               }
+
+               // Set the flag to true to indicate the callback has been executed
+               callbackExecuted = true;
+               console.log('uri:', response.assets[0].uri);
+               console.log('filesize:', response.assets[0].fileSize);
+               const selectedImage = response.assets[0].uri;
+
+               // Get the type and name for the selected image
+               const imageType = response.assets[0].type;
+               const imageName = response.assets[0].fileName;
+
+               // Check the size of the selected image
+               const imageSizeInBytes = response.assets[0].fileSize;
+               const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+               if (imageSizeInBytes > maxSizeInBytes) {
+                   // Show size error modal
+                   setShowSizeErrorModal(true);
+               } else {
+                   // Call the API function to update the user's profile picture
+                   const updatedUserProfilePicture = await updateUserProfilePicture({
+                       uri: selectedImage,
+                       type: imageType,
+                       name: imageName,
+                   });
+
+                   if (updatedUserProfilePicture) {
+                       // Set the new profile picture immediately
+                       console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                       setSelectImage(updatedUserProfilePicture.profilePicture || '');
+                   } else {
+                       // Handle failure or display an error message
+                       console.log('Failed to update profile picture');
+                   }
+               }
+           }
+       });
+   };
+
 
     const confirmUpdate = async () => {
         try {
@@ -193,14 +217,11 @@ const OnBoard2 = () => {
         }
     };
 
-
-
-
     return (
         <View>
             <ScrollView>
                 <ImageBackground style={styles.bgimage} source={imageindex.AkcruonboardBG} resizeMode={'cover'}>
-                    <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+                    <View style={{flex: 1, marginBottom: 50}}>
                         <View style={styles.container}>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                                 <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
@@ -229,7 +250,7 @@ const OnBoard2 = () => {
                                     <Avatar
                                         rounded
                                         size={75}
-                                        source={avatarUrl ? {uri: avatarUrl} : imageindex.Akcruplaceholder}
+                                        source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
                                         avatarStyle={{
                                             borderWidth: 2,
                                             borderColor: COLORS.AKCRUBLUE,
@@ -244,14 +265,7 @@ const OnBoard2 = () => {
                                     <View>
                                         <TouchableOpacity
                                             onPress={() => {
-                                                launchImageLibrary(
-                                                    {
-                                                        selectionLimit: 0,
-                                                        mediaType: 'photo',
-                                                        includeBase64: false,
-                                                    },
-                                                    handleImageUpload,
-                                                );
+                                                selectProfileImage();
                                             }}>
                                             <Text
                                                 style={{
@@ -265,6 +279,48 @@ const OnBoard2 = () => {
                                     </View>
                                 </View>
                             </View>
+                            {/* Picture Size Error Modal*/}
+                            <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                    <View
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                                            padding: 20,
+                                            borderRadius: 10,
+                                            alignItems: 'center',
+                                            marginHorizontal: 15,
+                                        }}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title3,
+                                                marginBottom: 10,
+                                                textAlign: 'center',
+                                            }}>
+                                            {`Image is too large. Please select an image under 2MB.`}
+                                        </Text>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                setShowSizeErrorModal(false);
+                                            }}>
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title2,
+                                                    marginBottom: 10,
+                                                    textAlign: 'center',
+                                                    color: COLORS.MIDORANGE,
+                                                }}>
+                                                {`Close`}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </Modal>
 
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Now let's select a username that will be visible to other users. Additionally, provide
@@ -278,7 +334,7 @@ const OnBoard2 = () => {
                                     iconname={'person'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={text => {
+                                    onChangeText={(text: string) => {
                                         // Remove spaces from the input text
                                         const formattedText = text.replace(/\s/g, '');
 
@@ -308,19 +364,18 @@ const OnBoard2 = () => {
                                     value={description || ''}
                                 />
                             </View>
-
-                            <View>
-                                <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
-                                        color={COLORS.AKCRUBLUE}
-                                        btnname={'Next'}
-                                        onPress={confirmUpdate}
-                                        disabled={false}
-                                    />
-                                </View>
+                        </View>
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruButtons.XlLrgButton
+                                    color={COLORS.AKCRUBLUE}
+                                    btnname={'Next'}
+                                    onPress={confirmUpdate}
+                                    disabled={false}
+                                />
                             </View>
                         </View>
-                    </KeyboardAvoidingView>
+                    </View>
                 </ImageBackground>
             </ScrollView>
         </View>

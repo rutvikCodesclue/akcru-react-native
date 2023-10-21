@@ -12,10 +12,6 @@ import React, { useState } from "react";
 import styles from "./styles";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from "../../../../assets/images/imageindex";
-import {
-  FAKE_USER_PROFILES,
-  AKCRUAPP_TOTAL_AD,
-} from "../../../../assets/constants/Mockusers";
 
 import { Icon } from "@rneui/base";
 import AkcruButtons from "../../../components/akcruButtons";

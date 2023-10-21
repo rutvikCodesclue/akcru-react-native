@@ -26,6 +26,7 @@ import {IMovie} from '../../../../types';
 import { useEffect, useState } from 'react';
 import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
 import useAuthStore from '../../../stores/auth.store';
+import Header2 from '../../../components/header/header2';
 // const data = Akcru_Content[7].movies;
 
 
@@ -341,7 +342,7 @@ export default function ContentSwipe({navigation, route}: Props) {
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
                     <View style={styles.header}>
-                        <Header />
+                        <Header2 />
                     </View>
                     <View
                         style={{

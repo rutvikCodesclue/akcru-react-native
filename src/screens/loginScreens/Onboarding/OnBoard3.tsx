@@ -164,15 +164,15 @@ const OnBoard3 = () => {
                             />
                         </View>
 
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.XlLrgButton
-                                    color={COLORS.MIDORANGE}
-                                    btnname={'Finish'}
-                                    onPress={handleFinishButton}
-                                    disabled={false}
-                                />
-                            </View>
+                    </View>
+                    <View>
+                        <View style={{alignItems: 'center'}}>
+                            <AkcruButtons.XlLrgButton
+                                color={COLORS.MIDORANGE}
+                                btnname={'Finish'}
+                                onPress={handleFinishButton}
+                                disabled={false}
+                            />
                         </View>
                     </View>
                 </KeyboardAvoidingView>

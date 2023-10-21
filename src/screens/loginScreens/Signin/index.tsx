@@ -18,7 +18,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruLogo } from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
-
+import { appVersion } from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
@@ -253,6 +253,10 @@ const Signin = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
+
+                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
+                                    version {appVersion[0].version}
+                                </Text>
                             </View>
                         </View>
                     ) : (
@@ -344,6 +348,9 @@ const Signin = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
+                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
+                                    version {appVersion[0].version}
+                                </Text>
                             </View>
                         </>
                     )}

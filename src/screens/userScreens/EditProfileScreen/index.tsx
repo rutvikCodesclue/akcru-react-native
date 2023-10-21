@@ -2,18 +2,18 @@ import {useState, useEffect, useRef, useCallback} from 'react';
 import {supabase} from '../../../../lib/supabase';
 import styles from './styles';
 import {
-  View,
-  Alert,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-  TextInput,
-  Button,
-  Modal,
-  FlatList,
-  Pressable,
+    View,
+    Alert,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Image,
+    SafeAreaView,
+    TextInput,
+    Button,
+    Modal,
+    FlatList,
+    Pressable,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -25,17 +25,17 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import React from 'react';
-import {ImagePickerResponse, launchCamera, launchImageLibrary} from 'react-native-image-picker';
+import {ImagePickerResponse, MediaType, launchCamera, launchImageLibrary} from 'react-native-image-picker';
 // import * as ImagePicker from "expo-image-picker";
-import { API } from "../../../clients/api.client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import useAuthStore from "../../../stores/auth.store";
+import {API} from '../../../clients/api.client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import useAuthStore from '../../../stores/auth.store';
 import InputsLrg from '../../../components/inputLrg';
-import { MOVIE_GENRES } from '../../../../assets/constants/Data';
-import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
+import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
+import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
-import { updateUserProfilePicture, updateUser, searchForUsers } from '../../../lib/api/user.lib';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -95,12 +95,12 @@ export default function EditProfile({session}: {session: Session}) {
         }, []),
     );
 
-    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
+    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
 
-    const handleUpdateProfile = () => {
-        // Show the confirmation modal
-        setShowUpdateConfirmation(true);
-    };
+    // const handleUpdateProfile = () => {
+    //     // Show the confirmation modal
+    //     setShowUpdateConfirmation(true);
+    // };
 
     const confirmDescriptionUpdate = async () => {
         try {
@@ -198,45 +198,65 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    // Function to handle the image selection
-    const selectProfileImage = () => {
-        launchImageLibrary(
-            {
-                selectionLimit: 1,
-                mediaType: 'photo',
-                includeBase64: false,
+    const [selectImage, setSelectImage] = useState(user?.profilePicture || '');
+
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    const selectProfileImage = async () => {
+        let options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'image',
             },
-            handleImageUpload,
-        );
-    };
+        };
 
-    // Function to handle image upload
-    const handleImageUpload = async res => {
-        if (res.assets) {
-            const uri = res.assets[0].uri;
-            const fileName = res.assets[0].fileName;
-            const type = res.assets[0].type;
+        console.log('select picture button');
 
-            if (uri && fileName && type) {
-                try {
-                    const result = await updateUserProfilePicture({
-                        uri,
-                        name: fileName,
-                        type,
+        // Add a flag to prevent multiple invocations
+        let callbackExecuted = false;
+
+        launchImageLibrary(options, async response => {
+            if (response && !response.didCancel && response.assets) {
+                // Check if the response is defined, not canceled, and has assets
+                if (callbackExecuted) {
+                    return;
+                }
+
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
+                console.log('uri:', response.assets[0].uri);
+                console.log('filesize:', response.assets[0].fileSize);
+                const selectedImage = response.assets[0].uri;
+
+                // Get the type and name for the selected image
+                const imageType = response.assets[0].type;
+                const imageName = response.assets[0].fileName;
+
+                // Check the size of the selected image
+                const imageSizeInBytes = response.assets[0].fileSize;
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+                if (imageSizeInBytes > maxSizeInBytes) {
+                    // Show size error modal
+                    setShowSizeErrorModal(true);
+                } else {
+                    // Call the API function to update the user's profile picture
+                    const updatedUserProfilePicture = await updateUserProfilePicture({
+                        uri: selectedImage,
+                        type: imageType,
+                        name: imageName,
                     });
 
-                    if (result) {
-                        setAvatarUrl(result.profilePicture ?? '');
+                    if (updatedUserProfilePicture) {
+                        // Set the new profile picture immediately
+                        console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                        setSelectImage(updatedUserProfilePicture.profilePicture || '');
                     } else {
-                        console.error('Failed to update profile picture.');
-                        // Display an error message to the user
+                        // Handle failure or display an error message
+                        console.log('Failed to update profile picture');
                     }
-                } catch (error) {
-                    console.error('Error updating profile picture:', error);
-                    // Display an error message to the user
                 }
             }
-        }
+        });
     };
 
     async function handleLogout() {
@@ -244,6 +264,80 @@ export default function EditProfile({session}: {session: Session}) {
         await logout();
         setIsLoggedIn(false);
     }
+
+    const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
+    const [archetypeKey, setArchetypeKey] = useState('');
+
+    const [archetypeName, setArchetypeName] = useState('');
+    const [archetypeImage, setArchetypeImage] = useState<string | null>(null);
+    const [archetypeDescription, setArchetypeDescription] = useState('');
+
+    const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleArchetypeModal = () => {
+        setArchetypeModalVisible(!isArchetypeModalVisible);
+    };
+
+    const handleCheckboxChange = (genreId: string) => {
+        // Check if the genre is already selected
+        if (checkedGenres[genreId]) {
+            // If it's selected, unselect it
+            setCheckedGenres(prevState => ({
+                ...prevState,
+                [genreId]: false,
+            }));
+        } else {
+            // Check if the limit of two genres is reached
+            if (Object.values(checkedGenres).filter(Boolean).length < 2) {
+                // If not reached, select the genre
+                setCheckedGenres(prevState => ({
+                    ...prevState,
+                    [genreId]: true,
+                }));
+            } else {
+                // If limit is reached, show a message or perform an action
+                console.log('You can only select up to two genres.');
+            }
+        }
+    };
+
+    const handleFinishButton = () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+        console.log('Selected Genres:', selectedGenres);
+
+        if (selectedGenres.length === 2) {
+            const genreNames = selectedGenres.map(genreId => {
+                const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+                return genreObject ? genreObject.genre : '';
+            });
+
+            const newArchetypeKey = genreNames.sort().join(', ');
+
+            console.log('Archetype Key:', newArchetypeKey);
+
+            setArchetypeKey(newArchetypeKey);
+
+            const selectedArchetype = archetypeMapping[newArchetypeKey];
+
+            if (selectedArchetype) {
+                const newArchetypeName = selectedArchetype.name;
+                const newArchetypeImage = selectedArchetype.image; // Set the image here
+                const newArchetypeDescription = selectedArchetype.description; // Set the description here
+                console.log('Selected Archetype:', newArchetypeName);
+                setArchetypeName(newArchetypeName);
+                setArchetypeImage(newArchetypeImage);
+                setArchetypeDescription(newArchetypeDescription);
+            } else {
+                console.log('No matching archetype found for the selected genres.');
+            }
+        } else {
+            console.log('Please select exactly 2 genres.');
+        }
+    };
+
+    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
     return (
         <SafeAreaView>
@@ -268,13 +362,16 @@ export default function EditProfile({session}: {session: Session}) {
                             <Avatar
                                 rounded
                                 size={125}
-                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                                source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
                                 avatarStyle={{
                                     borderWidth: 2,
                                     borderColor: COLORS.AKCRUBLUE,
                                 }}
                             />
-                            <TouchableOpacity onPress={selectProfileImage}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    selectProfileImage();
+                                }}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2AkcruBlue,
@@ -286,6 +383,48 @@ export default function EditProfile({session}: {session: Session}) {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {/* Picture Size Error Modal*/}
+                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    {`Image is too large. Please select an image under 2MB.`}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowSizeErrorModal(false);
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
                     {/* Username */}
                     <View style={{alignItems: 'center', marginTop: 20}}>
                         <Text style={styles.inputlabel}>Username</Text>
@@ -399,7 +538,7 @@ export default function EditProfile({session}: {session: Session}) {
                     </Modal>
 
                     {/* Description */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
+                    <View style={{alignItems: 'center'}}>
                         <Text style={styles.inputlabel}>Bio</Text>
                         <View style={styles.input}>
                             <Pressable onPress={handleDescriptionModalOpen}>
@@ -510,7 +649,7 @@ export default function EditProfile({session}: {session: Session}) {
                     </Modal>
 
                     {/* Email */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
+                    <View style={{alignItems: 'center'}}>
                         <Text style={styles.inputlabel}>Email</Text>
                         <View style={styles.input}>
                             <Pressable>
@@ -525,6 +664,121 @@ export default function EditProfile({session}: {session: Session}) {
                             </Pressable>
                         </View>
                     </View>
+
+                    <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
+                        At Akcru, your movie-watching preferences shape your unique archetype. This personalized
+                        "Archetype" guides us in curating the finest movie recommendations for you, as well as connecting
+                        you with like-minded users who share similar tastes. At Akcru, we go beyond being a simple
+                        streaming platform; we are a multifaceted streaming experience that caters to your
+                        individuality.
+                    </Text>
+                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
+                        Please choose 2 genres to then press "FINISH":
+                    </Text>
+                    <View style={{flex: 1}}>
+                        <View style={{marginBottom: 20}}>
+                            <FlatList
+                                data={filteredGenres}
+                                horizontal={false}
+                                numColumns={3}
+                                showsHorizontalScrollIndicator={false}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <View>
+                                        <View style={styles.checkboxContainer}>
+                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                                <View style={styles.checkbox}>
+                                                    {checkedGenres[item.id] && (
+                                                        <Icon
+                                                            name="checkmark-sharp"
+                                                            type="ionicon"
+                                                            size={18}
+                                                            color={COLORS.MIDORANGE}
+                                                            style={{marginTop: -3}}
+                                                        />
+                                                    )}
+                                                </View>
+                                            </TouchableOpacity>
+                                            <View>
+                                                <Text style={styles.checkboxText}>{item.genre}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                )}
+                            />
+                        </View>
+
+                        {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
+
+                        {archetypeName && (
+                            <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    color: COLORS.PURPLE,
+                                }}>
+                                "{archetypeName}"
+                            </Text>
+                        )}
+                        <Pressable onPress={()=>{toggleArchetypeModal()}}>
+                            {archetypeImage && (
+                            <Image
+                                source={{uri: archetypeImage}}
+                                style={{
+                                    width: SIZES.ScreenWidth / 2.2,
+                                    height: SIZES.ScreenWidth / 2.2,
+                                    borderRadius: 5,
+                                    alignSelf: 'center',
+                                }}
+                            />
+                        )}
+                        </Pressable>
+                        
+
+                        {archetypeDescription && (
+                            <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
+                                {archetypeDescription}
+                            </Text>
+                        )}
+
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruButtons.XlLrgButton
+                                    color={COLORS.MIDORANGE}
+                                    btnname={'Finish'}
+                                    onPress={handleFinishButton}
+                                    disabled={false}
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Create a modal to display the enlarged image */}
+                    <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            {/* Display the enlarged image */}
+                            {archetypeImage && (
+                                <Image
+                                    source={{uri: archetypeImage}}
+                                    style={{
+                                        width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                        height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                        borderRadius: 5,
+                                    }}
+                                />
+                            )}
+                            <TouchableOpacity onPress={toggleArchetypeModal}>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: 10}}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Modal>
 
                     {/* <View>
                         <Text style={styles.inputlabel}>Email</Text>
@@ -545,6 +799,19 @@ export default function EditProfile({session}: {session: Session}) {
                         <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
                             <Text style={styles.settingslabel}>Account Settings</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity onPress={() => navigation.navigate('Help')}>
+                            <View style={{flexDirection: 'row', marginTop: 5}}>
+                                <Text style={styles.settingslabel}>Help</Text>
+                                <View style={{marginLeft: 5}}>
+                                    <Icon
+                                        name="help-rhombus"
+                                        type="material-community"
+                                        color={COLORS.MIDORANGE}
+                                        size={20}
+                                    />
+                                </View>
+                            </View>
+                        </TouchableOpacity>
                         <TouchableOpacity
                             onPress={() => {
                                 handleLogout();
@@ -554,6 +821,9 @@ export default function EditProfile({session}: {session: Session}) {
                             <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
                         </TouchableOpacity>
                     </View>
+                    <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
+                        version {appVersion[0].version}
+                    </Text>
                 </View>
             </ScrollView>
         </SafeAreaView>
