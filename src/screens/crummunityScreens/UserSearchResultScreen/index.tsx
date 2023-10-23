@@ -95,7 +95,7 @@ const UserSearchResultScreen = () => {
                   setTextInputFocused(false);
                 }}
                 onChangeText={handleSearch}
-                style={{color: COLORS.LIGHTGREY}}
+                style={{color: COLORS.LIGHTGREY, width: '100%'}}
               /> 
                 </View>
               

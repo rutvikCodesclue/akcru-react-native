@@ -109,13 +109,12 @@ const UserProfileDetailsTab = () => {
                       justifyContent: 'space-around',
                       alignItems: 'center',
                   }}>
-                  <View style={{width: SIZES.ScreenWidth / 2, flex: 1}}>
-                      
-                      <View>
+                  <View style={{width: SIZES.ScreenWidth / 2}}>
+                      {/* <View>
                           <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginTop: 10}}>
                               You have "{user?.MITCount}" Movie Invites
                           </Text>
-                      </View>
+                      </View> */}
                       <View>
                           <Text
                               style={{
@@ -124,7 +123,7 @@ const UserProfileDetailsTab = () => {
                                   color: COLORS.LIGHTGREY,
                                   marginVertical: 20,
                               }}>
-                              Schedule a CRU View through the CRU Chat
+                              Schedule a CRU View through the CRU VIEW scheduler
                           </Text>
                       </View>
                       <TouchableOpacity onPress={() => navigation.navigate('EditCru')}>
@@ -132,39 +131,46 @@ const UserProfileDetailsTab = () => {
                               <Icon
                                   name="square-edit-outline"
                                   type="material-community"
-                                  color={COLORS.DARKGREY}
+                                  color={COLORS.MIDORANGE}
                                   size={15}
                                   style={{marginRight: 5}}
                               />
                               <Text
                                   style={{
                                       ...FONTS.Title2,
-                                      color: COLORS.LIGHTGREY,
+                                      color: COLORS.MIDORANGE,
                                       fontSize: 12,
+                                      
                                   }}>
                                   Edit your CRU
                               </Text>
                           </View>
                       </TouchableOpacity>
                   </View>
-
                   <View style={{alignItems: 'center'}}>
                       <View>
-                          <Image source={imageindex.NewCru} style={{width: 90, height: 90}} resizeMode="cover" />
+                          <Image source={imageindex.NewCru} style={{width: 120, height: 120}} resizeMode="cover" />
                       </View>
 
                       <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
                           <View
                               style={{
-                                  width: 125,
-                                  height: 30,
+                                  padding: 8,
                                   backgroundColor: COLORS.MIDORANGE,
                                   justifyContent: 'center',
                                   alignItems: 'center',
                                   borderRadius: 3,
                                   marginTop: 15,
+                                  flexDirection: 'row',
                               }}>
-                              <Text style={{...FONTS.Title2}}>CRU CHAT</Text>
+                              <Text style={{...FONTS.Title2}}>CRU VIEW </Text>
+                              <Icon
+                                  name="calendar"
+                                  type="material-community"
+                                  color={COLORS.WHITE}
+                                  size={20}
+                                  style={{marginRight: 5}}
+                              />
                           </View>
                       </TouchableOpacity>
                   </View>
@@ -216,7 +222,11 @@ const UserProfileDetailsTab = () => {
                   </TouchableOpacity> */}
                   <View style={{marginBottom: 75}}>
                       <BasicListCategories
-                          Akcru_Content={{id: 'recommendedForYou', title: 'Recommended to you', movies: newerYearMovies}}
+                          Akcru_Content={{
+                              id: 'recommendedForYou',
+                              title: 'Recommended to you',
+                              movies: newerYearMovies,
+                          }}
                       />
                   </View>
               </View>

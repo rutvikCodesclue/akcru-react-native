@@ -86,7 +86,7 @@ const Signup = () => {
 
   const handlePasswordChange = (text: string) => {
     setPassword(text);
-    setPasswordLengthError(text.length < 6);
+    setPasswordLengthError(text.length < 8);
   };
 
   const handleConfirmPasswordChange = (text: string) => {
@@ -237,7 +237,7 @@ const Signup = () => {
                               editable={!loading}
                           />
                           {passwordLengthError && (
-                              <Text style={styles.warningText}>Password must be at least 6 characters long</Text>
+                              <Text style={styles.warningText}>Password must be at least 8 characters long</Text>
                           )}
                           <Inputs
                               placeholdername={'Confirm Password'}
@@ -288,7 +288,7 @@ const Signup = () => {
                                   color={COLORS.AKCRUBLUE}
                                   btnname={'Next'}
                                   onPress={() => attemptSignup()}
-                                  disabled={!isFormComplete || passwordError || emailError || password.length < 6}
+                                  disabled={!isFormComplete || passwordError || emailError || password.length < 8}
                               />
                           </View>
                       </View>

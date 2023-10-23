@@ -11,6 +11,7 @@ export default StyleSheet.create({
   },
   textinput: {
     color: COLORS.WHITE,
+    width: '100%'
   },
   searchinput: {
     width: SIZES.ScreenWidth / 1.1,

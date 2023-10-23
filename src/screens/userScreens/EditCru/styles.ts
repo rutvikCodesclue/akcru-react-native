@@ -8,7 +8,6 @@ export default StyleSheet.create({
     },
     input: {
         width: SIZES.ScreenWidth * 0.92,
-        flexDirection: 'row',
 
         borderBottomWidth: 1,
         borderColor: COLORS.LIGHTGREY,
@@ -18,6 +17,7 @@ export default StyleSheet.create({
     },
     textinput: {
         color: COLORS.LIGHTGREY,
+        width: '100%'
     },
     inputlabel: {
         ...FONTS.Title2White,

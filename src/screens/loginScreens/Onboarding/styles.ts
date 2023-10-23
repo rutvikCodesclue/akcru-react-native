@@ -102,6 +102,7 @@ export default StyleSheet.create({
     },
     textinput: {
         color: COLORS.WHITE,
+        width: '100%'
     },
     datepicker: {
         height: 120,
