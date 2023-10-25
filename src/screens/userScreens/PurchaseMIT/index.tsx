@@ -32,8 +32,10 @@ const PurchaseMITScreen = () => {
 
     const [countMIT, setCountMIT] = useState(0);
     const [countMITError, setCountMITError] = useState(false);
-    const [purchaseModalVisible, setPurchaseModalVisible] = useState(false)
+    const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [insufficientADError, setInsufficientADError] = useState(false);
+    const [purchaseCompleteModalVisible, setPurchaseCompleteModalVisible] = useState(false);
 
     const maxMITs = Math.floor(user?.adAmount / 500);
 
@@ -41,14 +43,28 @@ const PurchaseMITScreen = () => {
         setPurchaseModalVisible(true);
     };
 
+    const handlePurchaseComplete = () => {
+        setPurchaseCompleteModalVisible(true);
+
+        // Automatically close the modal after 4 seconds
+        setTimeout(() => {
+            setPurchaseCompleteModalVisible(false);
+            setCountMIT(0); // Reset countMIT to 0
+        }, 4000);
+    };
+
+
     const confirmPurchase = () => {
         const totalCost = countMIT * 500;
         if (user?.adAmount >= totalCost) {
             // Deduct AD and perform MIT purchase logic
             // Subtract totalCost from user.adAmount
-            setCountMIT(0);
+            // setCountMIT(0);
             setPurchaseModalVisible(false);
+            setInsufficientADError(false);
+            handlePurchaseComplete()
         } else {
+            setInsufficientADError(true)
             // Handle insufficient AD balance
             // Show a warning or error message
         }
@@ -167,7 +183,7 @@ const PurchaseMITScreen = () => {
                                       padding: 20,
                                       borderRadius: 10,
                                   }}>
-                                  <Text style={{...FONTS.Title1}}>You are purchasing {countMIT} MIT(s).</Text>
+                                  <Text style={{...FONTS.Title1}}>You are purchasing '{countMIT}' MIT(s).</Text>
                                   <Text style={{...FONTS.Title1}}>Total Cost: {countMIT * 500} AD</Text>
                                   <View style={{flexDirection: 'row', marginTop: 10}}>
                                       {/* CANCEL BUTTON */}
@@ -201,7 +217,35 @@ const PurchaseMITScreen = () => {
                                               <Text style={{...FONTS.Title2}}>PURCHASE</Text>
                                           </View>
                                       </TouchableOpacity>
+                                      <View style={{marginBottom: 10}}>
+                                          {insufficientADError && (
+                                              <Text style={styles.warningText}>
+                                                  You do not have enough Akcru Dollars.
+                                              </Text>
+                                          )}
+                                      </View>
                                   </View>
+                              </View>
+                          </View>
+                      </Modal>
+                      <Modal animationType="fade" transparent={true} visible={purchaseCompleteModalVisible}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  backgroundColor: COLORS.AKCRUBACKGROUND,
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                  }}>
+                                  <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                                      Congratulations, you have purchased '{countMIT}' MIT(s) for a total cost of{' '}
+                                      {countMIT * 500} AD.
+                                  </Text>
                               </View>
                           </View>
                       </Modal>
