@@ -97,21 +97,27 @@ export const MOVIE_GENRES = [
     },
     {
         genre: 'Horror',
-        photo: 'https://static1.moviewebimages.com/wordpress/wp-content/uploads/2023/05/best-horror-movies-including-the-shining-suspiria-and-texas-chainsaw-massacre.jpg?q=50&fit=contain&w=1140&h=&dpr=1.5',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_1535902877.jpg',
         id: '10',
         color: COLORS.PUREGOLD,
     },
     {
         genre: 'SciFi',
-        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_1823802512.jpg',
         id: '11',
         color: COLORS.BLACK,
     },
     {
         genre: 'Romance',
-        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_77669488.jpg',
         id: '12',
         color: COLORS.CATREDDRK,
+    },
+    {
+        genre: 'Sports',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '13',
+        color: COLORS.PURPLE,
     },
 ];
 
