@@ -6,9 +6,10 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
-  SafeAreaView
+  SafeAreaView,
+  Modal
 } from "react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles";
 import { SIZES, COLORS, FONTS } from "../../../../assets/constants";
 import Header from "../../../components/header";
@@ -17,17 +18,75 @@ import imageindex from "../../../../assets/images/imageindex";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { useNavigation } from "@react-navigation/native";
-import { Icon } from "@rneui/base";
+import { Button, Icon } from "@rneui/base";
 import LottieView from "lottie-react-native";
+import useAuthStore from "../../../stores/auth.store";
 
 
 const PurchaseMITScreen = () => {
 
+    const {user} = useAuthStore();
+
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
+    const [countMIT, setCountMIT] = useState(0);
+    const [countMITError, setCountMITError] = useState(false);
+    const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [insufficientADError, setInsufficientADError] = useState(false);
+    const [purchaseCompleteModalVisible, setPurchaseCompleteModalVisible] = useState(false);
 
-    
+    const maxMITs = Math.floor(user?.adAmount / 500);
+
+    const handlePurchaseModalOpen = () => {
+        setPurchaseModalVisible(true);
+    };
+
+    const handlePurchaseComplete = () => {
+        setPurchaseCompleteModalVisible(true);
+
+        // Automatically close the modal after 4 seconds
+        setTimeout(() => {
+            setPurchaseCompleteModalVisible(false);
+            setCountMIT(0); // Reset countMIT to 0
+        }, 4000);
+    };
+
+
+    const confirmPurchase = () => {
+        const totalCost = countMIT * 500;
+        if (user?.adAmount >= totalCost) {
+            // Deduct AD and perform MIT purchase logic
+            // Subtract totalCost from user.adAmount
+            // setCountMIT(0);
+            setPurchaseModalVisible(false);
+            setInsufficientADError(false);
+            handlePurchaseComplete()
+        } else {
+            setInsufficientADError(true)
+            // Handle insufficient AD balance
+            // Show a warning or error message
+        }
+    };
+
+    const incrementCount = () => {
+        if (countMIT < maxMITs) {
+            setCountMIT(countMIT + 1);
+            setCountMITError(false); // Reset the error state when incrementing
+        } else {
+            setCountMITError(true)
+            // Show a warning that the user doesn't have enough AD
+            // You can display an alert or a modal here
+        }
+    };
+
+    const decrementCount = () => {
+        if (countMIT > 1) {
+            setCountMIT(countMIT - 1);
+            setCountMITError(false); // Reset the error state when decrementing
+        }
+    };
 
   return (
       <View>
@@ -41,8 +100,8 @@ const PurchaseMITScreen = () => {
                   <View>
                       <Header />
                   </View>
-                  <ScrollView>
-                      <View style={{marginBottom: 100}}>
+                  <View>
+                      <View>
                           <Text
                               style={{
                                   ...FONTS.Title2,
@@ -50,83 +109,147 @@ const PurchaseMITScreen = () => {
                                   marginVertical: 10,
                                   color: COLORS.MIDORANGE,
                               }}>
-                              Create a date to watch a movie with someone outside of your CRU.
+                              Create a date to watch a movie with someone outside of your CRU using a Movie Invite
+                              Ticket.
                           </Text>
-
-                          <View style={styles.pricecontainer}>
-                              <Image source={imageindex.MIT2} style={styles.mitimage} />
-                              <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          fontSize: 20,
-                                          marginRight: 10,
-                                          color: COLORS.AKCRUBLUE,
-                                      }}>
-                                      10
-                                  </Text>
-                                  <Text style={{...FONTS.Title3, fontSize: 20}}>Movie Invite Tickets</Text>
-                              </View>
-                              <Text style={{...FONTS.Title2}}>Save 150%</Text>
-                              <Text style={styles.mitprice}>$10.00</Text>
-                              <AkcruButtons.LrgButton btnname="PURCHASE" color={COLORS.CATPURPDRK} onPress={() => {}} />
-                          </View>
                           <View style={styles.pricecontainer}>
                               <Image source={imageindex.MIT1} style={styles.mitimage} />
                               <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          fontSize: 20,
-                                          marginRight: 10,
-                                          color: COLORS.AKCRUBLUE,
-                                      }}>
-                                      6
-                                  </Text>
                                   <Text style={{...FONTS.Title3, fontSize: 20}}>Movie Invite Tickets</Text>
                               </View>
-                              <Text style={{...FONTS.Title2}}>Save 66%</Text>
-                              <Text style={styles.mitprice}>$9.00</Text>
-                              <AkcruButtons.LrgButton btnname="PURCHASE" color={COLORS.CATPURPDRK} onPress={() => {}} />
-                          </View>
-                          <View style={styles.pricecontainer}>
-                              <Image source={imageindex.MIT3} style={styles.mitimage} />
-                              <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          fontSize: 20,
-                                          marginRight: 10,
-                                          color: COLORS.AKCRUBLUE,
-                                      }}>
-                                      4
-                                  </Text>
-                                  <Text style={{...FONTS.Title3, fontSize: 20}}>Movie Invite Tickets</Text>
+
+                              <Text style={styles.mitprice}>
+                                  500 AD /<Text style={{color: COLORS.MIDORANGE}}> pc.</Text>
+                              </Text>
+                              <View style={{marginBottom: 10}}>
+                                  <View style={{flexDirection: 'row'}}>
+                                      <View style={styles.counticonbox}>
+                                          <TouchableOpacity onPress={decrementCount}>
+                                              <Icon
+                                                  name="minus"
+                                                  type="material-community"
+                                                  size={24}
+                                                  color={COLORS.MIDORANGE}
+                                              />
+                                          </TouchableOpacity>
+                                      </View>
+                                      <View
+                                          style={{
+                                              borderWidth: 1,
+                                              borderColor: COLORS.LIGHTGREY,
+                                              width: 40,
+                                              alignItems: 'center',
+                                              justifyContent: 'center',
+                                          }}>
+                                          <Text style={{...FONTS.Title1}}>{countMIT}</Text>
+                                      </View>
+                                      <View style={styles.counticonbox}>
+                                          <TouchableOpacity onPress={incrementCount}>
+                                              <Icon
+                                                  name="plus"
+                                                  type="material-community"
+                                                  size={24}
+                                                  color={COLORS.MIDORANGE}
+                                              />
+                                          </TouchableOpacity>
+                                      </View>
+                                  </View>
                               </View>
-                              <Text style={{...FONTS.Title2}}>Save 25%</Text>
-                              <Text style={styles.mitprice}>$8.00</Text>
-                              <AkcruButtons.LrgButton btnname="PURCHASE" color={COLORS.CATPURPDRK} onPress={() => {}} />
-                          </View>
-                          <View style={styles.pricecontainer}>
-                              <Image source={imageindex.MIT4} style={styles.mitimage} />
-                              <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          fontSize: 20,
-                                          marginRight: 10,
-                                          color: COLORS.AKCRUBLUE,
-                                      }}>
-                                      2
-                                  </Text>
-                                  <Text style={{...FONTS.Title3, fontSize: 20}}>Movie Invite Tickets</Text>
+                              <View style={{marginBottom: 10}}>
+                                  {countMITError && (
+                                      <Text style={styles.warningText}>You do not have enough Akcru Dollars.</Text>
+                                  )}
                               </View>
-                              <Text style={{...FONTS.Title2}}></Text>
-                              <Text style={styles.mitprice}>$5.00</Text>
-                              <AkcruButtons.LrgButton btnname="PURCHASE" color={COLORS.CATPURPDRK} onPress={() => {}} />
+
+                              <AkcruButtons.LrgButton
+                                  btnname="PURCHASE"
+                                  color={COLORS.CATPURPDRK}
+                                  onPress={handlePurchaseModalOpen}
+                                  disabled={false}
+                              />
                           </View>
                       </View>
-                  </ScrollView>
+                      <Modal animationType="fade" transparent={true} visible={purchaseModalVisible}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                  }}>
+                                  <Text style={{...FONTS.Title1}}>You are purchasing '{countMIT}' MIT(s).</Text>
+                                  <Text style={{...FONTS.Title1}}>Total Cost: {countMIT * 500} AD</Text>
+                                  <View style={{flexDirection: 'row', marginTop: 10}}>
+                                      {/* CANCEL BUTTON */}
+                                      <TouchableOpacity
+                                          onPress={() => setPurchaseModalVisible(false)}
+                                          disabled={isLoading}>
+                                          <View
+                                              style={{
+                                                  width: 125,
+                                                  height: 30,
+                                                  backgroundColor: COLORS.AKCRUBLUE,
+                                                  justifyContent: 'center',
+                                                  alignItems: 'center',
+                                                  borderRadius: 3,
+                                                  marginRight: 10,
+                                              }}>
+                                              <Text style={{...FONTS.Title2}}>CANCEL</Text>
+                                          </View>
+                                      </TouchableOpacity>
+                                      {/* PURCHASE BUTTON */}
+                                      <TouchableOpacity onPress={confirmPurchase} disabled={isLoading}>
+                                          <View
+                                              style={{
+                                                  width: 125,
+                                                  height: 30,
+                                                  backgroundColor: COLORS.CATPURPDRK,
+                                                  justifyContent: 'center',
+                                                  alignItems: 'center',
+                                                  borderRadius: 3,
+                                              }}>
+                                              <Text style={{...FONTS.Title2}}>PURCHASE</Text>
+                                          </View>
+                                      </TouchableOpacity>
+                                      <View style={{marginBottom: 10}}>
+                                          {insufficientADError && (
+                                              <Text style={styles.warningText}>
+                                                  You do not have enough Akcru Dollars.
+                                              </Text>
+                                          )}
+                                      </View>
+                                  </View>
+                              </View>
+                          </View>
+                      </Modal>
+                      <Modal animationType="fade" transparent={true} visible={purchaseCompleteModalVisible}>
+                          <View
+                              style={{
+                                  flex: 1,
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  backgroundColor: COLORS.AKCRUBACKGROUND,
+                              }}>
+                              <View
+                                  style={{
+                                      backgroundColor: COLORS.AKCRUBACKGROUND,
+                                      padding: 20,
+                                      borderRadius: 10,
+                                  }}>
+                                  <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                                      Congratulations, you have purchased '{countMIT}' MIT(s) for a total cost of{' '}
+                                      {countMIT * 500} AD.
+                                  </Text>
+                              </View>
+                          </View>
+                      </Modal>
+                  </View>
               </SafeAreaView>
           </ImageBackground>
       </View>
