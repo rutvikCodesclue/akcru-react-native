@@ -31,7 +31,7 @@ export default StyleSheet.create({
     },
     titleText2: {
         ...FONTS.Title2,
-        color: COLORS.DARKGREY,
+        color: COLORS.MIDORANGE,
         fontSize: 12,
         marginVertical: 5,
     },
@@ -72,7 +72,7 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 35,
+        height: 40,
     },
     drawfonttag: {
         ...FONTS.Title2Orange,
@@ -83,5 +83,16 @@ export default StyleSheet.create({
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
+    },
+    searchinput: {
+        width: SIZES.ScreenWidth / 1.1,
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: COLORS.DARKGREY,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        alignItems: 'center',
+        height: 40,
     },
 });

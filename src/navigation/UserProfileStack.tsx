@@ -23,7 +23,9 @@ import UserNotifications from '../screens/userScreens/UserNotifications';
 import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
+import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import Help from '../screens/userScreens/Help';
+import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -49,6 +51,8 @@ export type UserProfileStackParams = {
     ContentDetailScreen: any;
     ViewUserDetailScreen: any;
     Help: any;
+    UserWalletSearch: any;
+    UserProfileWalletTab: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -212,6 +216,20 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="Help"
               component={Help}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="UserWalletSearch"
+              component={UserWalletSearch}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="UserProfileWalletTab"
+              component={UserProfileWalletTab}
               options={() => ({
                   headerShown: false,
               })}
