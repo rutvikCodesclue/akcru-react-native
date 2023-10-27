@@ -30,7 +30,6 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
     container: {
-        marginBottom: 75,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     bgimage: {
