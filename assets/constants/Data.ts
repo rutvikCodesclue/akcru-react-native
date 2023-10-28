@@ -2,7 +2,7 @@ import {COLORS, FONTS} from './theme';
 
 export const appVersion = [
   {
-    version: '1.00.06'
+    version: '1.0.1'
   }
 ]
 

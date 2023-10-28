@@ -157,12 +157,12 @@ export const helpData = [
             {
                 id: '0',
                 question: 'How do I Order Food using Cru Chew?',
-                answer: "To order food on Cru Chew, follow these steps:\n1. Press the food icon located in the lower third of the app interface.\n2. Once you're on the Cru Chew page, simply enter your address or zip code. 3. This action will display a list of local restaurants in your vicinity.",
+                answer: "To order food on Cru Chew, follow these steps:\n1. Press the food icon located in the lower third of the app interface.\n2. Once you're on the Cru Chew page, simply enter your address or zip code.\n3. This action will display a list of local restaurants in your vicinity.",
             },
             {
                 id: '1',
                 question: 'How do I place an Order on Cru Chew?',
-                answer: "Once you've selected a restaurant of your choice from the local options, you can proceed to place an order:\n1. Browse the restaurant's menu and select the dishes you'd like to order.\n2. When you're ready to complete your order, proceed to checkout. 3. At checkout, you can choose to pay for your selected meals using the card on file or opt for another payment method of your choice.",
+                answer: "Once you've selected a restaurant of your choice from the local options, you can proceed to place an order:\n1. Browse the restaurant's menu and select the dishes you'd like to order.\n2. When you're ready to complete your order, proceed to checkout.\n3. At checkout, you can choose to pay for your selected meals using the card on file or opt for another payment method of your choice.",
             },
         ],
     },

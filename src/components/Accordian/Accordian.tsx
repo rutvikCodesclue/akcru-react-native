@@ -61,7 +61,7 @@ export default Accordian
 
 const styles = StyleSheet.create({
 container: {
-    backgroundColor: COLORS.DARKERGREY,
+    backgroundColor: COLORS.CATPURPDRK,
     marginHorizontal: '4%',
     marginVertical: 5,
     borderRadius: 5,
@@ -85,6 +85,6 @@ alignItems: 'center'
 },
 paragraphcontainer: {
    padding: 15,
-   backgroundColor: COLORS.CATPURPDRK 
+   backgroundColor: COLORS.CATPURPLGT
 }
 })

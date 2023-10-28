@@ -78,7 +78,7 @@ export default StyleSheet.create({
     },
     checkboxContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignContent: 'center',
         justifyContent: 'flex-start',
         marginTop: 20,
         width: SIZES.ScreenWidth / 3,

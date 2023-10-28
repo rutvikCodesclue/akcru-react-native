@@ -667,16 +667,16 @@ export default function EditProfile({session}: {session: Session}) {
 
                     <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
                         At Akcru, your movie-watching preferences shape your unique archetype. This personalized
-                        "Archetype" guides us in curating the finest movie recommendations for you, as well as connecting
-                        you with like-minded users who share similar tastes. At Akcru, we go beyond being a simple
-                        streaming platform; we are a multifaceted streaming experience that caters to your
+                        "Archetype" guides us in curating the finest movie recommendations for you, as well as
+                        connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being a
+                        simple streaming platform; we are a multifaceted streaming experience that caters to your
                         individuality.
                     </Text>
                     <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
                         Please choose 2 genres to then press "FINISH":
                     </Text>
                     <View style={{flex: 1}}>
-                        <View style={{marginBottom: 20}}>
+                        {/* <View style={{marginBottom: 20}}>
                             <FlatList
                                 data={filteredGenres}
                                 horizontal={false}
@@ -706,6 +706,30 @@ export default function EditProfile({session}: {session: Session}) {
                                     </View>
                                 )}
                             />
+                        </View> */}
+                        <View style={{marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap', paddingLeft: 10}}>
+                            {filteredGenres.map((item, index) => (
+                                <View key={item.id} style={{width: '33.33%', padding: 4}}>
+                                    <View style={styles.checkboxContainer}>
+                                        <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                            <View style={styles.checkbox}>
+                                                {checkedGenres[item.id] && (
+                                                    <Icon
+                                                        name="checkmark-sharp"
+                                                        type="ionicon"
+                                                        size={18}
+                                                        color={COLORS.MIDORANGE}
+                                                        style={{marginTop: -3}}
+                                                    />
+                                                )}
+                                            </View>
+                                        </TouchableOpacity>
+                                        <View>
+                                            <Text style={styles.checkboxText}>{item.genre}</Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            ))}
                         </View>
 
                         {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
@@ -721,20 +745,22 @@ export default function EditProfile({session}: {session: Session}) {
                                 "{archetypeName}"
                             </Text>
                         )}
-                        <Pressable onPress={()=>{toggleArchetypeModal()}}>
+                        <Pressable
+                            onPress={() => {
+                                toggleArchetypeModal();
+                            }}>
                             {archetypeImage && (
-                            <Image
-                                source={{uri: archetypeImage}}
-                                style={{
-                                    width: SIZES.ScreenWidth / 2.2,
-                                    height: SIZES.ScreenWidth / 2.2,
-                                    borderRadius: 5,
-                                    alignSelf: 'center',
-                                }}
-                            />
-                        )}
+                                <Image
+                                    source={{uri: archetypeImage}}
+                                    style={{
+                                        width: SIZES.ScreenWidth / 2.2,
+                                        height: SIZES.ScreenWidth / 2.2,
+                                        borderRadius: 5,
+                                        alignSelf: 'center',
+                                    }}
+                                />
+                            )}
                         </Pressable>
-                        
 
                         {archetypeDescription && (
                             <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
