@@ -11,6 +11,7 @@ import {
   Pressable,
   Modal,
   TextInput,
+  Alert,
 } from "react-native";
 import styles from "./styles";
 import { COLORS, FONTS, SIZES } from "../../../../assets/constants";
@@ -127,6 +128,8 @@ const handleDeclineNavigation = () => {
         creator: creator,
         inviteDate: inviteDate,
         akcruBadge: akcruBadge,
+        schedule: schedule,
+        timezone: timezone
     });
 };
 
@@ -138,6 +141,8 @@ const handleAcceptNavigation = () => {
         creator: creator,
         inviteDate: inviteDate,
         akcruBadge: akcruBadge,
+        schedule: schedule,
+        timezone: timezone,
     });
 };
 

@@ -60,6 +60,11 @@ const AccountSettings = () => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             console.log('AccountSettings Screen focused [AccountSettings]');
             hydrateUser();
+            console.log(user?.username)
+            console.log(user?.password)
+            console.log(user?.dateOfBirth)
+            console.log(user?.firstName)
+            console.log(user?.email)
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
@@ -74,15 +79,19 @@ const AccountSettings = () => {
     };
 
     const handleLastNameModalOpen = () => {
-        setLastNameModified(firstName);
+        setLastNameModified(lastName);
         setLastNameModalVisible(true);
     };
 
     const handlePhoneModalOpen = () => {
-        setPhoneModified(firstName);
+        setPhoneModified(phone);
         setPhoneModalVisible(true);
     };
 
+    const handlePasswordModalOpen = () => {
+        setPasswordModified(password);
+        setPasswordModalVisible(true);
+    };
 
     const handleUpdateProfile = () => {
         // Show the confirmation modal
@@ -309,8 +318,64 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
         }
     };
 
+    const [password, setPassword] = useState('');
+    const [passwordModified, setPasswordModified] = useState('');
+    const [passwordModalVisible, setPasswordModalVisible] = useState(false);
 
+    const [showUpdatePasswordConfirmation, setShowUpdatePasswordConfirmation] = useState(false);
+    const [showPasswordFormatError, setShowPasswordFormatError] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
+    const [confirmPassword, setConfirmPassword] = useState('');
 
+    const handleChangePassword = () => {
+        if (password.length >= 8) {
+            if (password === confirmPassword) {
+                // Check if passwords match
+                setPasswordError(false);
+                setShowUpdatePasswordConfirmation(true);
+            } else {
+                setPasswordError(true); // Set a password error state
+            }
+        } else {
+            setShowPasswordFormatError(true);
+        }
+    };
+
+    const confirmPasswordUpdate = async () => {
+        try {
+            setLoading(true);
+
+            // Create an object with only the `Password` field to update
+            const updatedFields = {
+                password: password,
+            };
+
+            const updatedUser = await updateUser(updatedFields);
+
+            if (updatedUser) {
+                // Update was successful on both client and backend
+                console.log('Profile updated successfully:', updatedUser);
+            } else {
+                // Handle update failure (e.g., show an error message)
+                console.error('Failed to update profile.');
+            }
+        } catch (error) {
+            // Handle any errors (e.g., network issues)
+            console.error('Error updating profile:', error);
+        } finally {
+            setLoading(false);
+            setShowUpdatePasswordConfirmation(false);
+            setPasswordModalVisible(false);
+
+            const currentUser = useAuthStore.getState().user;
+
+            // Update the username in the user's profile in the store immediately:
+            if (currentUser) {
+                currentUser.password = password;
+                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+            }
+        }
+    };
 
     return (
         <View>
@@ -661,12 +726,12 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                         <View style={styles.input}>
                             <Pressable onPress={handleDobModalOpen}>
                                 <TextInput
-                                    placeholder={user?.dateOfBirth}
+                                    placeholder={user?.dateOfBirth || 'Select Date of Birth'}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={text => setDobModified(text)}
-                                    value={formatDateToDayMonthYear(new Date(dob)) || ''}
+                                    value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''}
                                     editable={false}
                                 />
                             </Pressable>
@@ -730,14 +795,14 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                 {!showPicker && (
                                     <Pressable onPress={toggleDatePicker}>
                                         <TextInput
-                                            placeholder={user?.dateOfBirth} // Use placeholder instead of placeholdername
+                                            placeholder={user?.dateOfBirth || 'Select Date of Birth'} // Use placeholder instead of placeholdername
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={(text: string) => {
                                                 console.log('Input Changed:', text); // Log input changes
                                                 setDob(text); // Call handleDobChange
                                             }}
-                                            value={formatDateToDayMonthYear(new Date(dob))} // Use the dob state
+                                            value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''} // Use the dob state
                                             editable={true}
                                             onPressIn={toggleDatePicker}
                                         />
@@ -746,48 +811,170 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                             </View>
                         </SafeAreaView>
                     </Modal>
-
-                    {/* <View>
-                        <Text style={styles.inputlabel}>DOB</Text>
+                    {/* Password */}
+                    <View>
+                        <Text style={styles.inputlabel}>Change Password</Text>
                         <View style={styles.input}>
-                            <MaskedTextInput
-                                mask="99/99/9999"
-                                placeholder={user?.dateOfBirth}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => setDateOfBirth(text)}
-                                value={dateOfBirth || ''}
-                                keyboardType="phone-pad" // Set keyboard type to phone-pad
-                            />
-                        </View>
-                    </View> */}
-                    {/* <View>
-                        <Text style={styles.inputlabel}>New Password</Text>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={lastName}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={true}
-                                onChangeText={text => setLastName(text)}
-                                value={lastName || ''}
-                            />
+                            <Pressable onPress={handlePasswordModalOpen}>
+                                <TextInput
+                                    placeholder={'**********'}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={true}
+                                    onChangeText={text => setPasswordModified(text)}
+                                    value={password || ''}
+                                    editable={false}
+                                />
+                            </Pressable>
                         </View>
                     </View>
-                    <View>
-                        <Text style={styles.inputlabel}>Confirm New Password</Text>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={lastName}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={true}
-                                onChangeText={text => setLastName(text)}
-                                value={lastName || ''}
-                            />
+                    {/* Password Modal */}
+                    <Modal animationType="fade" transparent={false} visible={passwordModalVisible}>
+                        <SafeAreaView
+                            style={{
+                                flex: 1,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                paddingTop: 20,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <Pressable onPress={handleChangePassword}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                </Pressable>
+                                <Pressable onPress={() => setPasswordModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
+                                </Pressable>
+                            </View>
+
+                            <Text style={styles.inputlabel}>
+                                Change Password{' '}
+                                <Text style={{color: COLORS.MIDORANGE}}>(Must be atleast 8 characters)</Text>
+                            </Text>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={user?.password}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={true}
+                                    onChangeText={text => setPassword(text)}
+                                    value={password} // Use the modified value in the TextInput
+                                    editable={true}
+                                />
+                            </View>
+                            <Text style={styles.inputlabel}>Confirm New Password </Text>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={user?.password}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={true}
+                                    onChangeText={text => {
+                                        setConfirmPassword(text); // Update confirmPassword state
+                                        // Check if the passwords match in real-time
+                                        if (password === text) {
+                                            setPasswordError(false); // Clear the error if they match
+                                        } else {
+                                            setPasswordError(true);
+                                        }
+                                    }}
+                                    value={confirmPassword} // Use the modified value in the TextInput
+                                    editable={true}
+                                />
+                                {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
+                            </View>
+                        </SafeAreaView>
+                    </Modal>
+                    {/* Password Confirmation Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showUpdatePasswordConfirmation}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to update your Password?
+                                    </Text>
+                                </View>
+
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() => setShowUpdatePasswordConfirmation(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: COLORS.DARKAKCRUBLUE,
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={confirmPasswordUpdate} // Confirm the update
+                                        style={{
+                                            backgroundColor: COLORS.PURPLE,
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Update</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
                         </View>
-                    </View> */}
+                    </Modal>
+                    {/* Password Format Error Modal */}
+                    <Modal animationType="fade" transparent={true} visible={showPasswordFormatError}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                }}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Error</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Password must be atleat 8 characters
+                                    </Text>
+                                </View>
+
+                                <View>
+                                    <TouchableOpacity
+                                        onPress={() => setShowPasswordFormatError(false)} // Hide the confirmation modal
+                                        style={{
+                                            backgroundColor: COLORS.DARKAKCRUBLUE,
+                                            padding: 10,
+                                            borderRadius: 5,
+                                            alignSelf: 'center',
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Close</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
 
                     <View
                         style={{

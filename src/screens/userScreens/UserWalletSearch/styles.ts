@@ -1,20 +1,9 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, SIZES, FONTS} from '../../../assets/constants';
+import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
-  searchmodal: {
-    backgroundColor: COLORS.AKCRUBACKGROUND,
-    alignItems: 'center',
-  },
-  icon: {
-    marginRight: 5,
-  },
-  textinput: {
-    color: COLORS.WHITE,
-    width: '100%'
-  },
   searchinput: {
-    width: SIZES.ScreenWidth / 1.1,
+    width: SIZES.ScreenWidth / 1.08,
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: COLORS.DARKGREY,
@@ -23,5 +12,6 @@ export default StyleSheet.create({
     marginVertical: 10,
     alignItems: 'center',
     height: 40,
+    justifyContent: 'space-between'
   },
 });

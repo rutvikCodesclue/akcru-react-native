@@ -16,6 +16,7 @@ export default StyleSheet.create({
   },
   textinput: {
     color: COLORS.WHITE,
+    width: '100%'
     
   },
 });

@@ -157,7 +157,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             <Text style={{...FONTS.Title2}}>{user?.username}</Text>
                         </View>
                         <View style={{flexDirection: 'row', marginVertical: 5}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Location: </Text>
+                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Akcru Dollars Earned: </Text>
                             <Text style={{...FONTS.Title2}}>{user?.location}</Text>
                         </View>
                         <View style={{flexDirection: 'row'}}>

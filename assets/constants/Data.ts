@@ -2,7 +2,7 @@ import {COLORS, FONTS} from './theme';
 
 export const appVersion = [
   {
-    version: '1.00.05'
+    version: '1.00.06'
   }
 ]
 
@@ -97,180 +97,27 @@ export const MOVIE_GENRES = [
     },
     {
         genre: 'Horror',
-        photo: 'https://static1.moviewebimages.com/wordpress/wp-content/uploads/2023/05/best-horror-movies-including-the-shining-suspiria-and-texas-chainsaw-massacre.jpg?q=50&fit=contain&w=1140&h=&dpr=1.5',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_1535902877.jpg',
         id: '10',
         color: COLORS.PUREGOLD,
     },
     {
         genre: 'SciFi',
-        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_1823802512.jpg',
         id: '11',
         color: COLORS.BLACK,
     },
     {
         genre: 'Romance',
-        photo: 'https://storage.prompt-hunt.workers.dev/clftuhxdh002emi088wt81u6i_1',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_77669488.jpg',
         id: '12',
         color: COLORS.CATREDDRK,
     },
-];
-
-export const helpData = [
     {
-        id: 'PointsandRewardsAkcruDollars',
-        faqsTitle: 'Points and Rewards: Akcru Dollars (AD)',
-        faqs: [
-            {
-                id: '0',
-                question: 'What are Akcru Dollars?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'How do I earn AD?',
-                answer: '',
-            },
-            {
-                id: '2',
-                question: 'How much AD can I earn while watching a movie?',
-                answer: '',
-            },
-            {
-                id: '3',
-                question: 'Can I share my AD with other users?',
-                answer: '',
-            },
-            {
-                id: '4',
-                question: 'How can I use my AD in the app?',
-                answer: '',
-            },
-        ],
-    },
-    {
-        id: 'MovieViewing',
-        faqsTitle: 'Movie Viewing',
-        faqs: [
-            {
-                id: '0',
-                question: 'How do I watch a movie?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'Can I share my account with someone else?',
-                answer: '',
-            },
-        ],
-    },
-    {
-        id: 'UpdatingProfile',
-        faqsTitle: 'Updating Profile',
-        faqs: [
-            {
-                id: '0',
-                question: 'How do I upload a photo to my profile?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'How do I edit my profile information?',
-                answer: '',
-            },
-            {
-                id: '2',
-                question: 'What is the Akcruit badge under my name?',
-                answer: '',
-            },
-            {
-                id: '3',
-                question: 'How do I follow someone?',
-                answer: '',
-            },
-            {
-                id: '4',
-                question: 'How do I logout of my account?',
-                answer: '',
-            },
-        ],
-    },
-    {
-        id: 'CruingUp',
-        faqsTitle: 'Cruing Up',
-        faqs: [
-            {
-                id: '0',
-                question: 'What is having a Cru?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'How can I schedule a Cru view with my Cru?',
-                answer: '',
-            },
-            {
-                id: '2',
-                question: 'How many users can I add to my Cru?',
-                answer: '',
-            },
-            {
-                id: '3',
-                question: 'How can I edit my Cru',
-                answer: '',
-            },
-            {
-                id: '4',
-                question: 'How many Cru invites will I have?',
-                answer: '',
-            },
-        ],
-    },
-    {
-        id: 'MovieInviteTickets',
-        faqsTitle: 'Movie Invite Tickets (MITs)',
-        faqs: [
-            {
-                id: '0',
-                question: 'How can I schedule a MIT with another user?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'If I run out of MITs how can I get more?',
-                answer: '',
-            },
-            {
-                id: '2',
-                question: 'Can anyone send me a MIT without my permission?',
-                answer: '',
-            },
-            {
-                id: '3',
-                question: 'If someone rejects my MIT what happens?',
-                answer: '',
-            },
-        ],
-    },
-    {
-        id: 'CruChew',
-        faqsTitle: 'Cru Chew',
-        faqs: [
-            {
-                id: '0',
-                question: 'What is Cru Chew?',
-                answer: '',
-            },
-            {
-                id: '1',
-                question: 'How can I order food using Cru Chew?',
-                answer: '',
-            },
-            {
-                id: '2',
-                question: 'What restaurants can I order from using Cru chew?',
-                answer: '',
-            },
-        ],
+        genre: 'Sports',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '13',
+        color: COLORS.PURPLE,
     },
 ];
 
