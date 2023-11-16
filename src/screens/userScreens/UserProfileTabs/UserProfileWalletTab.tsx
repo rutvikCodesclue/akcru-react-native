@@ -55,7 +55,7 @@ const UserProfileWalletTab = () => {
         }
     };
 
-    console.log('Selected User:', selectedUser);
+    // console.log('Selected User:', selectedUser);
     const toText = selectedUser ? selectedUser.username : '';
     const {user} = useAuthStore();
     const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
@@ -130,7 +130,7 @@ const UserProfileWalletTab = () => {
                 <View style={{alignItems: 'center', marginTop: 30, marginBottom: 20}}>
                     <AkcruButtons.MedButton
                         btnname={'Send'}
-                        onPress={handleSendAD}
+                        onPress={()=>{''}}
                         color={COLORS.AKCRUBLUE}
                         disabled={false}
                     />
