@@ -28,8 +28,19 @@ const CrummunityScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
-    const handlePostPress = (post) => {
-        navigation.navigate('PostScreen', {post});
+    // const handlePostPress = (post) => {
+    //     navigation.navigate('PostScreen', {post});
+    // };
+
+    const handlePostPress = (postId) => {
+        const selectedPost = skinnies.find(post => post.id === postId);
+
+        if (selectedPost) {
+            navigation.navigate('PostScreen', {post: selectedPost});
+        } else {
+            // Handle the case when the post is not found
+            console.error('Error: Post not found');
+        }
     };
 
   return (
@@ -83,7 +94,7 @@ const CrummunityScreen = () => {
                       <FlatList
                           data={skinnies}
                           renderItem={({item}) => (
-                              <Pressable onPress={() => handlePostPress(item)}>
+                              <Pressable onPress={() => handlePostPress(item.id)}>
                                   <View style={styles.postcontainer}>
                                       <SkinnyPostCard post={item} />
                                   </View>
@@ -92,6 +103,15 @@ const CrummunityScreen = () => {
                       />
                   </View>
               </ScrollView>
+              <Pressable style={styles.floatingbutton} onPress={()=>navigation.navigate('NewPost')}>
+                <Icon
+                                          name="add"
+                                          type="ionicon"
+                                          color={COLORS.PURPLE}
+                                          size={45}
+                                          
+                                      />
+              </Pressable>
           </View>
       </SafeAreaView>
   );

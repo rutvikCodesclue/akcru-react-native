@@ -3,15 +3,13 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     input: {
-        flexDirection: 'row',
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
-        justifyContent: 'space-between',
-        marginVertical: 10,
-        paddingLeft: 10,
-        alignItems: 'flex-start',
-        height: 150,
+        width: SIZES.ScreenWidth * 0.92,
+
+        
+        borderColor: COLORS.LIGHTGREY,
+        marginTop: 10,
+        alignSelf: 'center',
+        height: 100,
     },
     textinput: {
         color: COLORS.LIGHTGREY,
@@ -48,15 +46,13 @@ export default StyleSheet.create({
         alignSelf: 'center',
         marginBottom: 5,
     },
-    floatingbutton: {
-       backgroundColor: COLORS.AKCRUBLUE,
-       width: 50,
-       height: 50,
-       borderRadius: 25,
-       position: 'absolute',
-       bottom: "15%",
-       right: "5%",
-       alignItems: 'center',
-       justifyContent: 'center'
+    postButton: {
+        ...FONTS.Title3,
+        marginLeft: 5,
+        backgroundColor: COLORS.PURPLE,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        color: COLORS.AKCRUBLUE,
+        borderRadius: 10,
     },
 });

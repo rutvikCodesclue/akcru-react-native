@@ -10,6 +10,7 @@ import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import { SendMITSchedule, SendMITSearchResult, SendMITViewUser, SendMITSearchInput } from '../screens/crummunityScreens/SendViewUserMITScreens';
 import { COLORS } from '../../assets/constants';
 import PostScreen from '../screens/crummunityScreens/PostScreen';
+import NewPost from '../screens/crummunityScreens/NewPost';
 
 export type CrummunityStackParams = {
     CrummunityScreen: any;
@@ -27,6 +28,7 @@ export type CrummunityStackParams = {
     CruChewScreen: any;
     CruChewOrder: any;
     PostScreen: any;
+    NewPost: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -49,6 +51,13 @@ export function CrummunityStack() {
           <Crummunity.Screen
               name="PostScreen"
               component={PostScreen}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <Crummunity.Screen
+              name="NewPost"
+              component={NewPost}
               options={() => ({
                   headerShown: false,
               })}

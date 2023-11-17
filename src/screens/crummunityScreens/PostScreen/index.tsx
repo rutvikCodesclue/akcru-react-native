@@ -17,6 +17,15 @@ const PostScreen =({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
    const {post} = route.params;
 
+   if (!post) {
+       return (
+           <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND, alignItems: 'center', justifyContent: 'center'}}>
+               <Text style={{...FONTS.Title2Orange}}>Error: Post not found</Text>
+           </View>
+       );
+   }
+
+   console.log(post.user.username)
   return (
       <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
