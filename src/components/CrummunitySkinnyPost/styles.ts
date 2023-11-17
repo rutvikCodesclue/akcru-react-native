@@ -11,6 +11,7 @@ export default StyleSheet.create({
   post: {
     ...FONTS.paragraph1,
     fontSize: 12,
+    lineHeight: 18
   },
   cardcontainer: {
     backgroundColor: '#1C202A',
@@ -36,4 +37,15 @@ export default StyleSheet.create({
     color: COLORS.CATPURPLGT,
     fontSize: 14,
   },
+  postimage: {
+    width: '100%',
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    marginTop: 10
+  }, 
+  postfooter: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  }
 });

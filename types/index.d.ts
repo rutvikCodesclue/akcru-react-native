@@ -282,9 +282,25 @@ export interface IPost {
 }
 
 export interface ICreatePostData {
+    id: string;
+    user: IUserProfile;
     title: string;
     content: string;
     gifUrl?: string; // Add gifUrl as an optional property
-    // Other properties needed to create a post
+    createdAt: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    numberOfLikes?: number;
 }
+
+export type SkinnyType = {
+    id: string;
+    content: string;
+    user: IUserProfile;
+    createdAt: string;
+    image?: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    numberOfLikes?: number;
+};
 
