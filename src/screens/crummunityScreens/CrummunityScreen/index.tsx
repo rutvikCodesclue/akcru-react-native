@@ -9,6 +9,7 @@ import {
   ImageBackground,
   FlatList,
   SafeAreaView,
+  Pressable,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../components/header';
@@ -26,6 +27,10 @@ import skinnies from '../../../../assets/constants/SkinnyPost';
 const CrummunityScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+
+    const handlePostPress = (post) => {
+        navigation.navigate('PostScreen', {post});
+    };
 
   return (
       <SafeAreaView>
@@ -52,7 +57,7 @@ const CrummunityScreen = () => {
                                   height: SIZES.ScreenHeight * 0.26,
                               }}
                           />
-                          <Text style={styles.screenTitle}>Crummunity Feed</Text>
+                          <Text style={styles.screenTitle}>What's the Skinny?</Text>
 
                           <View style={{alignItems: 'center'}}>
                               <TouchableWithoutFeedback
@@ -71,20 +76,21 @@ const CrummunityScreen = () => {
                                   </View>
                               </TouchableWithoutFeedback>
                           </View>
-                          <Text style={styles.screenTitle2}>What's the Skinny?</Text>
+                          <Text style={styles.screenTitle2}>Crummunity Feed</Text>
                       </View>
                   </View>
                   <View style={{marginBottom: '20%'}}>
-                     <FlatList
-                      data={skinnies}
-                      renderItem={({item}) => (
-                          <View style={styles.postcontainer}>
-                              <SkinnyPostCard post={item} />
-                          </View>
-                      )}
-                  />
+                      <FlatList
+                          data={skinnies}
+                          renderItem={({item}) => (
+                              <Pressable onPress={() => handlePostPress(item)}>
+                                  <View style={styles.postcontainer}>
+                                      <SkinnyPostCard post={item} />
+                                  </View>
+                              </Pressable>
+                          )}
+                      />
                   </View>
-                 
               </ScrollView>
           </View>
       </SafeAreaView>

@@ -1,25 +1,25 @@
-import {View, Text, TouchableOpacity, Image} from 'react-native';
-import React from 'react';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable} from 'react-native';
+import React, {useState} from 'react';
 import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 
-type FooterIconsProps ={
+type FooterIconsProps = {
     iconname: string;
     text?: string | number;
-    onPress: () => void
-}
+    onPress: () => void;
+};
 
 const FooterIcons = ({iconname, text, onPress}: FooterIconsProps) => {
     return (
-               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <TouchableOpacity onPress={onPress}>
-                        <Icon name={iconname} type="ionicon" color={COLORS.PURPLE} size={18} />
-                    </TouchableOpacity>
-                    <Text style={{...FONTS.Title2, fontSize: 12, marginLeft: 5}}>{text}</Text>
-                </View>
-    )
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={onPress}>
+                <Icon name={iconname} type="ionicon" color={COLORS.PURPLE} size={18} />
+            </TouchableOpacity>
+            <Text style={{...FONTS.Title2, fontSize: 12, marginLeft: 5}}>{text}</Text>
+        </View>
+    );
 };
 
 type User = {
@@ -48,7 +48,19 @@ type PostProps = {
     post: PostType;
 };
 
-const SkinnyPostCard = ({post}: PostProps) => {
+const SkinnyPostCard = ({post }: PostProps) => {
+    const [isImageModalVisible, setImageModalVisible] = useState(false);
+    const [selectedImage, setSelectedImage] = useState('');
+
+    const openModal = (image: React.SetStateAction<string>) => {
+        setSelectedImage(image);
+        setImageModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setImageModalVisible(false);
+    };
+
     return (
         <View style={styles.cardcontainer}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
@@ -109,8 +121,31 @@ const SkinnyPostCard = ({post}: PostProps) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <Text style={styles.post}>{post.content}</Text>
-            <View>{post.image && <Image src={post.image} style={styles.postimage} />}</View>
+          
+              <Text style={styles.post}>{post.content}</Text>  
+            
+            <View>
+                {post.image && (
+                    <TouchableOpacity onPress={() => openModal(post.image)}>
+                        <Image src={post.image} style={styles.postimage} />
+                    </TouchableOpacity>
+                )}
+            </View>
+            {/* Modal */}
+            <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    }}>
+                    <Image source={{uri: selectedImage}} style={{width: '95%', height: '95%'}} resizeMode="contain" />
+                    <TouchableOpacity onPress={closeModal}>
+                        <Text style={{color: COLORS.MIDORANGE, fontSize: 14, marginTop: 20}}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
             <View style={styles.postfooter}>
                 <FooterIcons
                     iconname={'chatbox'}
