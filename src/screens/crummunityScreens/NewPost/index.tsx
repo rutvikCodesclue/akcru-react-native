@@ -12,10 +12,13 @@ import { selectAvatarBorderColor } from '../../../util/util';
 import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
+import { MediaType, launchImageLibrary } from 'react-native-image-picker';
+import { Image } from 'react-native';
 
 const NewPost = () => {
-    const {user, hydrateUser} = useAuthStore();
+    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
+    const {user, hydrateUser} = useAuthStore();
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
@@ -26,18 +29,43 @@ const NewPost = () => {
             };
         }, []),
     );
-    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
     const [post, setPost] = useState('');
-
-
-
     const OnPostPress =()=> {
-        console.log("Pressed Post Button", post)
-
+        console.log("Pressed Post Button", post, selectImage)
+        
+        setSelectImage('')
         setPost('')
         navigation.goBack()
-    }
+    };
+
+    const [selectImage, setSelectImage] = useState('');
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+
+    const selectPostImage = async () => {
+        let options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'image',
+            },
+        };
+        launchImageLibrary(options, response =>{
+            setSelectImage(response.assets[0].uri)
+            console.log(response.assets[0].uri);
+        })
+        console.log("Select Image")
+    };
+
+    const selectAGIF = async () => {
+        let options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'image',
+            },
+        };
+        console.log('Select a GIF');
+    };
+
     return (
         <SafeAreaView>
             <View style={{zIndex: 100}}>
@@ -71,9 +99,7 @@ const NewPost = () => {
                                 <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
                             </View>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={OnPostPress}
-                            style={{marginLeft: 'auto'}}>
+                        <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
                             <View>
                                 <Text style={styles.postButton}>Post</Text>
                             </View>
@@ -138,6 +164,19 @@ const NewPost = () => {
                         maxLength={200} // Set the maximum character limit
                         editable={true}
                     />
+                </View>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
+                        <Icon name="images" type="ionicon" color={COLORS.PURPLE} size={20} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={selectAGIF}>
+                        <Icon name="file-gif-box" type="material-community" color={COLORS.PURPLE} size={26} />
+                    </TouchableOpacity>
+                </View>
+                <View style={{marginTop: 10}}>
+                    {selectImage && <View style={{marginHorizontal: 5}}>
+                       <Image source={{uri:selectImage}} style={{width: 100, height: 100, borderRadius: 5}}/> 
+                    </View>}    
                 </View>
             </View>
         </SafeAreaView>

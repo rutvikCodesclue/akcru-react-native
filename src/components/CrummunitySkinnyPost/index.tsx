@@ -121,9 +121,9 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     </TouchableOpacity>
                 </View>
             </View>
-          
-              <Text style={styles.post}>{post.content}</Text>  
-            
+
+            <Text style={styles.post}>{post.content}</Text>
+
             <View>
                 {post.image && (
                     <TouchableOpacity onPress={() => openModal(post.image)}>
@@ -149,21 +149,21 @@ const SkinnyPostCard = ({post }: PostProps) => {
             <View style={styles.postfooter}>
                 <FooterIcons
                     iconname={'chatbox'}
-                    text={post.numberOfComments}
+                    text={post.numberOfComments || 0}
                     onPress={() => {
                         ('');
                     }}
                 />
                 <FooterIcons
                     iconname={'happy'}
-                    text={post.numberOfLikes}
+                    text={post.numberOfLikes || 0}
                     onPress={() => {
                         ('');
                     }}
                 />
                 <FooterIcons
                     iconname={'sync'}
-                    text={post.numberOfReposts}
+                    text={post.numberOfReposts || 0}
                     onPress={() => {
                         ('');
                     }}

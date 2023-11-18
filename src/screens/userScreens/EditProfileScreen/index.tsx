@@ -578,7 +578,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
 
                             <Text style={styles.inputlabel}>Change Bio (150 characters max)</Text>
-                            <View style={styles.input}>
+                            <View style={styles.bioinput}>
                                 <TextInput
                                     placeholder={user?.description}
                                     placeholderTextColor={COLORS.DARKGREY}

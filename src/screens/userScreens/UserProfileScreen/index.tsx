@@ -341,7 +341,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     />
                                 </View>
                                 <View>
-                                    <Text style={{...FONTS.Title2}}>
+                                    <Text style={{...FONTS.Title2, fontSize: 12}}>
                                         {/* {FAKE_USER_PROFILES[0].userName} */}
                                         {user ? user?.username : 'Guest'}
                                     </Text>
@@ -404,7 +404,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         alignItems: 'center',
                                     }}>
                                     <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount ?? 0}</Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>Followers</Text>
                                 </TouchableOpacity>
                             </View>
                             <View
