@@ -45,7 +45,7 @@ const Help = () => {
                         return <Accordian value={value} key={index} />;
                     })}
                 </View>
-                <Text style={styles.title}>HOW TO TUTS FROM TRINITY</Text>
+                <Text style={styles.title}>TUTORIALS BY TRINITY</Text>
                 <View style={{}}>
                     <FlatList
                         data={TrinityHowToData}
