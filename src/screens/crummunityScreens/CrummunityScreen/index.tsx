@@ -88,13 +88,13 @@ const CrummunityScreen = () => {
                               </TouchableWithoutFeedback>
                           </View>
                           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                              <Text style={{...FONTS.Title2, color: COLORS.PURPLE, marginRight: 10}}>
+                              <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginRight: 10}}>
                                   Crummunity Feed
                               </Text>
                               <Icon
                                   name="account-group"
                                   type="material-community"
-                                  color={COLORS.PURPLE}
+                                  color={COLORS.MIDORANGE}
                                   size={25}
                               />
                           </View>
@@ -114,7 +114,7 @@ const CrummunityScreen = () => {
                   </View>
               </ScrollView>
               <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
-                  <Icon name="add" type="ionicon" color={COLORS.PURPLE} size={45} />
+                  <Icon name="add" type="ionicon" color={COLORS.MIDORANGE} size={45} />
               </Pressable>
           </View>
       </SafeAreaView>

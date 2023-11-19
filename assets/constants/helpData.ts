@@ -166,4 +166,33 @@ export const helpData = [
             },
         ],
     },
-]; 
+];
+
+export type TrinityHowToData={
+    id: string;
+    title: string;
+    link: string;
+}
+
+export const TrinityHowToData = [
+    {
+        id: '0',
+        title: 'Upload Profile Image',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-UploadPhoto.mp4',
+    },
+    {
+        id: '1',
+        title: 'Schedule a CruView',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-ScheduleCruView.mp4',
+    },
+    {
+        id: '2',
+        title: 'Schedule a MIT',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-Schedule-A-Mit.mp4',
+    },
+    {
+        id: '3',
+        title: 'Change your username',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-ChangeUserName.mp4',
+    },
+];

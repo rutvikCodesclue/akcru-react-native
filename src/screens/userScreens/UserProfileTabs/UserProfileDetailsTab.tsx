@@ -55,7 +55,7 @@ const UserProfileDetailsTab = () => {
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
-                    setPotentialMembers(res.acceptedMembers);
+                    
                 }
             });
 

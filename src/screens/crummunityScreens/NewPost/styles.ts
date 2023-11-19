@@ -49,10 +49,10 @@ export default StyleSheet.create({
     postButton: {
         ...FONTS.Title3,
         marginLeft: 5,
-        backgroundColor: COLORS.PURPLE,
+        backgroundColor: COLORS.MIDORANGE,
         paddingHorizontal: 15,
         paddingVertical: 10,
         color: COLORS.AKCRUBLUE,
-        borderRadius: 10,
+        borderRadius: 5,
     },
 });

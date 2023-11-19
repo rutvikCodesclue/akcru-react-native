@@ -15,7 +15,7 @@ const FooterIcons = ({iconname, text, onPress}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.PURPLE} size={18} />
+                <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={18} />
             </TouchableOpacity>
             <Text style={{...FONTS.Title2, fontSize: 12, marginLeft: 5}}>{text}</Text>
         </View>
@@ -125,9 +125,9 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.PURPLE, marginRight: 10}}>•2h ago</Text>
+                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>•2h ago</Text>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.PURPLE} size={20} />
+                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
@@ -150,7 +150,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                 <Icon
                                     name="person-add"
                                     type="ionicon"
-                                    color={COLORS.PURPLE}
+                                    color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
@@ -160,7 +160,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                 <Icon
                                     name="volume-mute"
                                     type="ionicon"
-                                    color={COLORS.PURPLE}
+                                    color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
@@ -170,7 +170,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                 <Icon
                                     name="hand-left"
                                     type="ionicon"
-                                    color={COLORS.PURPLE}
+                                    color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
@@ -180,7 +180,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                 <Icon
                                     name="flag"
                                     type="ionicon"
-                                    color={COLORS.PURPLE}
+                                    color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />

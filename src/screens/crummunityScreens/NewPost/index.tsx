@@ -179,10 +179,10 @@ const NewPost = () => {
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                        <Icon name="images" type="ionicon" color={COLORS.PURPLE} size={20} />
+                        <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={selectAGIF}>
-                        <Icon name="file-gif-box" type="material-community" color={COLORS.PURPLE} size={26} />
+                        <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
                     </TouchableOpacity>
                 </View>
                 <View style={{marginTop: 10}}>

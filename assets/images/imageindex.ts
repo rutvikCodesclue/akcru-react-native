@@ -31,6 +31,7 @@ const MIT3 = require("./MIT3.png")
 const MIT4 = require("./MIT4.png")
 const LrgMIT = require("./LrgMIT.png");
 const hexbg = require('./hexbg.png');
+const Trinity = require('./Trinity.png');
 
 
 
@@ -69,4 +70,5 @@ export default {
     Akcruplaceholder,
     hexbg,
     SpaceCrimePuzzler,
+    Trinity,
 };
