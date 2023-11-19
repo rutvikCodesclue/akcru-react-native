@@ -52,6 +52,8 @@ const SkinnyPostCard = ({post }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
+    const [isPostOptionsVisible, setPostOptionsVisible] = useState(false);
+
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
         setImageModalVisible(true);
@@ -60,6 +62,14 @@ const SkinnyPostCard = ({post }: PostProps) => {
     const closeModal = () => {
         setImageModalVisible(false);
     };
+
+    const openPostOptions = ()=>{
+        setPostOptionsVisible(true)
+    }
+
+    const closePostOptions = () =>{
+        setPostOptionsVisible(false)
+    }
 
     return (
         <View style={styles.cardcontainer}>
@@ -116,10 +126,69 @@ const SkinnyPostCard = ({post }: PostProps) => {
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.PURPLE, marginRight: 10}}>•2h ago</Text>
-                    <TouchableOpacity>
+                    <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.PURPLE} size={20} />
-                    </TouchableOpacity>
+                    </Pressable>
                 </View>
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                    <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
+                        <View style={styles.postoptionsmodal}>
+                            {/* <Pressable onPress={closePostOptions}>
+                                <Text style={{...FONTS.Title2Orange}}>Close</Text>
+                            </Pressable> */}
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="sad"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
+                            </Pressable>
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="person-add"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {post.user.name}</Text>
+                            </Pressable>
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="volume-mute"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.user.name}</Text>
+                            </Pressable>
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="hand-left"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.user.name}</Text>
+                            </Pressable>
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="flag"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report Skinny</Text>
+                            </Pressable>
+                        </View>
+                    </Pressable>
+                </Modal>
             </View>
 
             <Text style={styles.post}>{post.content}</Text>
@@ -131,7 +200,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     </TouchableOpacity>
                 )}
             </View>
-            {/* Modal */}
+            {/* Image Modal */}
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{

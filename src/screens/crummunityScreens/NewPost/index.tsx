@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -33,7 +33,7 @@ const NewPost = () => {
     const [post, setPost] = useState('');
     const OnPostPress =()=> {
         console.log("Pressed Post Button", post, selectImage)
-        
+
         setSelectImage('')
         setPost('')
         navigation.goBack()
@@ -50,8 +50,20 @@ const NewPost = () => {
             },
         };
         launchImageLibrary(options, response =>{
-            setSelectImage(response.assets[0].uri)
+
+            // Check the size of the selected image
+            const imageSizeInBytes = response.assets[0].fileSize;
+            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+            if (imageSizeInBytes > maxSizeInBytes) {
+                // Show size error modal
+                setShowSizeErrorModal(true);
+                setSelectImage("");
+            } else {
+
+            setSelectImage(response.assets[0].uri);
             console.log(response.assets[0].uri);
+            }
         })
         console.log("Select Image")
     };
@@ -174,10 +186,54 @@ const NewPost = () => {
                     </TouchableOpacity>
                 </View>
                 <View style={{marginTop: 10}}>
-                    {selectImage && <View style={{marginHorizontal: 5}}>
-                       <Image source={{uri:selectImage}} style={{width: 100, height: 100, borderRadius: 5}}/> 
-                    </View>}    
+                    {selectImage && (
+                        <View style={{marginHorizontal: 5}}>
+                            <Image source={{uri: selectImage}} style={{width: 100, height: 100, borderRadius: 5}} />
+                        </View>
+                    )}
                 </View>
+                {/* Picture Size Error Modal*/}
+                <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                                alignItems: 'center',
+                                marginHorizontal: 15,
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                }}>
+                                {`Image is too large. Please select an image under 2MB.`}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setShowSizeErrorModal(false);
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                        color: COLORS.MIDORANGE,
+                                    }}>
+                                    {`Close`}
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </View>
         </SafeAreaView>
     );
