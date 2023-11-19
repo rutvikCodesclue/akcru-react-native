@@ -9,94 +9,115 @@ import {
   ImageBackground,
   FlatList,
   SafeAreaView,
+  Pressable,
 } from 'react-native';
 import React, {useState} from 'react';
 import Header from '../../../components/header';
 import AkcruButtons from '../../../components/akcruButtons';
-import CrummunityPostList from '../../../components/CrummunityPostList';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import { DIGITAL_PASS } from '../../../../assets/constants/Mockusers';
-import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
-
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
+import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
+import skinnies from '../../../../assets/constants/SkinnyPost';
 
 const CrummunityScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
+    // const handlePostPress = (post) => {
+    //     navigation.navigate('PostScreen', {post});
+    // };
+
+    const handlePostPress = (postId) => {
+        const selectedPost = skinnies.find(post => post.id === postId);
+
+        if (selectedPost) {
+            navigation.navigate('PostScreen', {post: selectedPost});
+        } else {
+            // Handle the case when the post is not found
+            console.error('Error: Post not found');
+        }
+    };
+
   return (
-    <SafeAreaView>
-    <View>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View>
-          <Header />
-        </View>
-        <ImageBackground
-          source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-          resizeMode="cover"
-          style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
-          <LinearGradient
-            // Background Linear Gradient
-            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              height: SIZES.ScreenHeight / 4,
-            }}
-          />
-          <Text style={styles.screenTitle}>Crummunity Feed</Text>
+      <SafeAreaView>
+          <View>
+              <ScrollView stickyHeaderIndices={[0]}>
+                  <View>
+                      <View style={{zIndex: 100}}>
+                          <Header />
+                      </View>
+                      <View
+                          style={{
+                              height: SIZES.ScreenHeight * 0.26,
+                              marginTop: -68,
+                              backgroundColor: COLORS.AKCRUBACKGROUND,
+                          }}>
+                          <LinearGradient
+                              // Background Linear Gradient
+                              colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                              style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  right: 0,
+                                  top: 0,
+                                  height: SIZES.ScreenHeight * 0.26,
+                              }}
+                          />
+                          <Text style={styles.screenTitle}>What's the Skinny?</Text>
 
-          <View style={{alignItems: 'center'}}>
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigation.navigate('UserSearchResultScreen');
-              }}>
-              <View style={styles.searchinput}>
-                <Icon
-                  name="magnify"
-                  type="material-community"
-                  color={COLORS.AKCRUBLUE}
-                  size={28}
-                  style={{marginRight: 10}}
-                />
-                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
-                  Search users
-                </Text>
-              </View>
-            </TouchableWithoutFeedback>
+                          <View style={{alignItems: 'center'}}>
+                              <TouchableWithoutFeedback
+                                  onPress={() => {
+                                      navigation.navigate('UserSearchResultScreen');
+                                  }}>
+                                  <View style={styles.searchinput}>
+                                      <Icon
+                                          name="magnify"
+                                          type="material-community"
+                                          color={COLORS.AKCRUBLUE}
+                                          size={28}
+                                          style={{marginRight: 10}}
+                                      />
+                                      <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Search users</Text>
+                                  </View>
+                              </TouchableWithoutFeedback>
+                          </View>
+                          <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                              <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginRight: 10}}>
+                                  Crummunity Feed
+                              </Text>
+                              <Icon
+                                  name="account-group"
+                                  type="material-community"
+                                  color={COLORS.MIDORANGE}
+                                  size={25}
+                              />
+                          </View>
+                      </View>
+                  </View>
+                  <View style={{marginBottom: '20%'}}>
+                      <FlatList
+                          data={skinnies}
+                          renderItem={({item}) => (
+                              <Pressable onPress={() => handlePostPress(item.id)}>
+                                  <View style={styles.postcontainer}>
+                                      <SkinnyPostCard post={item} />
+                                  </View>
+                              </Pressable>
+                          )}
+                      />
+                  </View>
+              </ScrollView>
+              <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
+                  <Icon name="add" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+              </Pressable>
           </View>
-        </ImageBackground>
-
-        <View style={styles.container}>
-          <View style={styles.input}>
-            <TextInput
-              placeholder={'Post something'}
-              placeholderTextColor={COLORS.DARKGREY}
-              style={styles.textinput}
-            />
-          </View>
-          <View style={{alignItems: 'flex-end'}}>
-            <AkcruButtons.XSmallButton
-              btnname={'POST'}
-              onPress={function (): void {}}
-              color=""
-            />
-          </View>
-        </View>
-        <View style={styles.postcontainer}>
-          <CrummunityPostList />
-        </View>
-      </ScrollView>
-    </View>
-    </SafeAreaView>
+      </SafeAreaView>
   );
 };
 

@@ -12,6 +12,7 @@ import {
     FlatList,
     Modal,
     Image,
+    ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -22,6 +23,9 @@ import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
+import Video from 'react-native-video';
+
+import VideoPlayer from 'react-native-media-console';
 
 import {Icon} from '@rneui/base';
 
@@ -36,8 +40,8 @@ const OnBoard3 = () => {
 
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
-    const [archetypeModal, setArchetypeModal]= useState(false)
-    
+    const [archetypeModal, setArchetypeModal] = useState(false);
+
     const handleCheckboxChange = (genreId: string) => {
         // Check if the genre is already selected
         if (checkedGenres[genreId]) {
@@ -97,8 +101,9 @@ const OnBoard3 = () => {
 
                 setTimeout(() => {
                     setArchetypeModal(false); // Hide the archetype modal after 8 seconds
-                    navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-                }, 8000); // 8 seconds (8000 milliseconds)
+                    setTrinityModal(true);
+                    // navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+                }, 4000); // 4 seconds (8000 milliseconds)
             } else {
                 console.log('No matching archetype found for the selected genres.');
             }
@@ -106,11 +111,58 @@ const OnBoard3 = () => {
             console.log('Please select exactly 2 genres.');
         }
     };
-   
 
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
+    const [trinityModal, setTrinityModal] = useState(false);
+    const [videoError, setVideoError] = useState(false);
+    const [skipVideo, setSkipVideo] = useState(false);
 
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const handleVideoLoad = () => {
+        // Set a timeout for 10 seconds
+        const timeout = setTimeout(() => {
+            // If the video still hasn't loaded after 10 seconds, show the skip button
+            setShowSkipButton(true);
+        }, 10000); // 10 seconds in milliseconds
+
+        // Store the timeout ID in state
+        setLoadingTimeout(timeout);
+
+        // Callback when the video is loaded
+        setIsVideoLoaded(true);
+    };
+
+    const handleVideoEnd = () => {
+        setTrinityModal(false); // Hide the trinity modal after the video is played
+
+        if (!videoError) {
+            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+        } else {
+            console.log('Error occurred during video playback.');
+            // You can handle the error in other ways, e.g., show an error message to the user.
+        }
+    };
+
+    const handleVideoError = () => {
+        setVideoError(true);
+        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+    };
+
+    // Function to handle video skip
+    const handleSkipVideo = () => {
+        // Clear the loading timeout if it exists
+        if (loadingTimeout) {
+            clearTimeout(loadingTimeout);
+        }
+
+        setSkipVideo(true);
+        setTrinityModal(false); // Hide the trinity modal after skipping
+        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+    };
+    const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
 
     return (
         <View>
@@ -202,7 +254,6 @@ const OnBoard3 = () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                            
                         }}>
                         <Text style={{...FONTS.Title1}}>Your Archetype is:</Text>
 
@@ -232,11 +283,58 @@ const OnBoard3 = () => {
                         </View>
 
                         {archetypeDescription && (
-                            <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10, marginHorizontal: 15, color: COLORS.MIDORANGE}}>
+                            <Text
+                                style={{
+                                    ...FONTS.paragraph1,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    marginHorizontal: 15,
+                                    color: COLORS.MIDORANGE,
+                                }}>
                                 {archetypeDescription}
                             </Text>
                         )}
-
+                    </View>
+                </Modal>
+                {/* Trinity Modal */}
+                <Modal animationType="fade" transparent={true} visible={trinityModal}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            width: '100%',
+                        }}>
+                        {showSkipButton && (
+                            <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
+                                <AkcruButtons.SmallButton
+                                    color={COLORS.MIDORANGE}
+                                    btnname={'Skip'}
+                                    onPress={handleSkipVideo}
+                                    disabled={false}
+                                />
+                            </View>
+                        )}
+                        {/* Display the loading indicator if the video is still loading */}
+                        {!isVideoLoaded && (
+                            <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
+                                <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                            </View>
+                        )}
+                        <Video
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            source={{
+                                uri: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/Trinity%2Bintro%2Bvideo%2Bfor%2Bsite.mp4',
+                            }}
+                            resizeMode="cover"
+                            onEnd={handleVideoEnd} // Callback for when the video ends
+                            repeat={false}
+                            onError={handleVideoError}
+                            onLoad={handleVideoLoad} // Callback when the video is loaded
+                        />
                     </View>
                 </Modal>
             </ImageBackground>

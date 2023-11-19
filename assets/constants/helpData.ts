@@ -157,13 +157,42 @@ export const helpData = [
             {
                 id: '0',
                 question: 'How do I Order Food using Cru Chew?',
-                answer: "To order food on Cru Chew, follow these steps:\n1. Press the food icon located in the lower third of the app interface.\n2. Once you're on the Cru Chew page, simply enter your address or zip code. 3. This action will display a list of local restaurants in your vicinity.",
+                answer: "To order food on Cru Chew, follow these steps:\n1. Press the food icon located in the lower third of the app interface.\n2. Once you're on the Cru Chew page, simply enter your address or zip code.\n3. This action will display a list of local restaurants in your vicinity.",
             },
             {
                 id: '1',
                 question: 'How do I place an Order on Cru Chew?',
-                answer: "Once you've selected a restaurant of your choice from the local options, you can proceed to place an order:\n1. Browse the restaurant's menu and select the dishes you'd like to order.\n2. When you're ready to complete your order, proceed to checkout. 3. At checkout, you can choose to pay for your selected meals using the card on file or opt for another payment method of your choice.",
+                answer: "Once you've selected a restaurant of your choice from the local options, you can proceed to place an order:\n1. Browse the restaurant's menu and select the dishes you'd like to order.\n2. When you're ready to complete your order, proceed to checkout.\n3. At checkout, you can choose to pay for your selected meals using the card on file or opt for another payment method of your choice.",
             },
         ],
     },
-]; 
+];
+
+export type TrinityHowToData={
+    id: string;
+    title: string;
+    link: string;
+}
+
+export const TrinityHowToData = [
+    {
+        id: '0',
+        title: 'Upload Profile Image',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-UploadPhoto.mp4',
+    },
+    {
+        id: '1',
+        title: 'Schedule a CruView',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-ScheduleCruView.mp4',
+    },
+    {
+        id: '2',
+        title: 'Schedule a MIT',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-Schedule-A-Mit.mp4',
+    },
+    {
+        id: '3',
+        title: 'Change your username',
+        link: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/AKCRU_TRINITY-ChangeUserName.mp4',
+    },
+];

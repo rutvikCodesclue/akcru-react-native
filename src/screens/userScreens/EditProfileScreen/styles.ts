@@ -45,9 +45,18 @@ export default StyleSheet.create({
         alignSelf: 'center',
         height: 40,
     },
+    bioinput: {
+        width: SIZES.ScreenWidth * 0.92,
+
+        borderBottomWidth: 1,
+        borderColor: COLORS.LIGHTGREY,
+        marginBottom: 20,
+        alignSelf: 'center',
+        height: 60,
+    },
     textinput: {
         color: COLORS.WHITE,
-        width: '100%'
+        width: '100%',
     },
     inputlabel: {
         ...FONTS.Title2White,
@@ -78,7 +87,7 @@ export default StyleSheet.create({
     },
     checkboxContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignContent: 'center',
         justifyContent: 'flex-start',
         marginTop: 20,
         width: SIZES.ScreenWidth / 3,

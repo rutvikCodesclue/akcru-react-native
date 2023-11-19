@@ -147,6 +147,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                                     uri: movieURL,
                                 }}
                                 tapAnywhereToPause={false}
+                                preventsDisplaySleepDuringVideoPlayback={true}
                                 toggleResizeModeOnFullscreen={false}
                                 // poster={landscapeURL}
                                 containerStyle={{zIndex: 100}}
@@ -162,10 +163,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                     )
                 ) : (
                     <View style={styles.activitycontainer}>
-                        <Video
-                            source={require('../../../../assets/sounds/akcrusound1.mp3')}
-                            repeat={false}                
-                        />
+                        <Video source={require('../../../../assets/sounds/akcrusound1.mp3')} repeat={false} />
                         <LottieView
                             source={require('../../../../assets/lottie/Akcruopener1.json')}
                             autoPlay

@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform, Image, FlatList} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -10,6 +10,9 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import { helpData } from '../../../../assets/constants/helpData';
 import Accordian from '../../../components/Accordian/Accordian';
+import imageindex from '../../../../assets/images/imageindex';
+import { TrinityHowToData } from '../../../../assets/constants/helpData';
+import HowToTrinity from '../../../components/HowToTrinity';
 
 
 const Help = () => {
@@ -37,11 +40,24 @@ const Help = () => {
                     </View>
                 </View>
 
-                <View style={{marginBottom: 75}}>
+                <View style={{marginBottom: 10}}>
                     {helpData.map((value, index) => {
                         return <Accordian value={value} key={index} />;
                     })}
                 </View>
+                <Text style={styles.title}>TUTORIALS BY TRINITY</Text>
+                <View style={{}}>
+                    <FlatList
+                        data={TrinityHowToData}
+                        keyExtractor={item => item.id}
+                        horizontal={false}
+                        numColumns={2}
+                        renderItem={({item}) => <HowToTrinity value={item} />}
+                        contentContainerStyle={{alignSelf: 'center', marginBottom: 75}}
+                    />
+                </View>
+
+                {/* <View style={{width: '93%', alignSelf: 'center', marginBottom: 75}}></View> */}
             </ScrollView>
         </View>
     );

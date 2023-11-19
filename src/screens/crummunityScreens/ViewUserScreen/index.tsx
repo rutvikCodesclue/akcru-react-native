@@ -218,7 +218,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           </View>
                           <View style={{width: SIZES.ScreenWidth / 2.5}}>
                               <View style={{flexDirection: 'row'}}>
-                                  <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
                                   {/* {
                                   true && (
                                 //   influencer && (

@@ -1,4 +1,4 @@
-import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal} from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal, FlatList} from 'react-native';
 import React, { useEffect, useState } from 'react'
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -9,21 +9,13 @@ import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import BasicListCategories from '../../../components/BasicListCategories';
-import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
-import {LineChart} from 'react-native-gifted-charts';
 import useAuthStore from '../../../stores/auth.store';
-import { IMovie } from '../../../../types';
+import { ICru, IMovie, IUserProfile } from '../../../../types';
 import { findMovies } from '../../../lib/api/movies.lib';
-
-import archetypeData, { archetypeMapping } from '../../../../assets/constants/archetypeMapping'; // Import your mapping
-import { Pressable } from 'react-native';
-
- 
-
+import CruMemberPic from '../../../components/CruMemberPic';
+import { getMyCRU } from '../../../lib/api/cru.lib';
 
 const UserProfileDetailsTab = () => {
-
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
 
     // Function to toggle the modal's visibility
@@ -32,13 +24,10 @@ const UserProfileDetailsTab = () => {
     };
 
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
-    
-  const navigation =
-    useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const {user, hydrateUser} = useAuthStore();
-    
-    
 
     useFocusEffect(
         React.useCallback(() => {
@@ -47,6 +36,34 @@ const UserProfileDetailsTab = () => {
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 hydrateUser();
+            };
+        }, []),
+    );
+
+    const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
+    const [potentialMembers, setPotentialMembers] = useState<IUserProfile[] | []>([]); // Possible member list
+    const [members, setMembers] = useState<IUserProfile[] | []>([]);
+    const cruMembers = (): IUserProfile[] | [] => {
+        return members;
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            getMyCRU().then(res => {
+                console.log('Data from getMyCRU:', res); // Log the data
+                setCRU(res?.CRU);
+                if (res?.CRU.members) {
+                    setMembers(res.CRU.members);
+                    
+                }
+            });
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Screen unfocused [EditCruScreen]');
+
+                // cleanup (if app crashes or user leaves the screen unexpectedly)
             };
         }, []),
     );
@@ -70,169 +87,125 @@ const UserProfileDetailsTab = () => {
         fetchNewerYearMovies();
     }, []);
 
-// const data = [
-//     {value: 10, label: 'FA'},
-//     {value: 20, label: 'SC'},
-//     {value: 30, label: 'DR'},
-//     {value: 100, label: 'MY'},
-//     {value: 40, label: 'TH'},
-//     {value: 50, label: 'CO'},
-//     {value: 10, label: 'SP'},
-//     {value: 50, label: 'FM'},
-//     {value: 50, label: 'HR'},
-//     {value: 30, label: 'AC'},
-//     {value: 50, label: 'CR'},
-//     {value: 20, label: 'AD'},
-//     {value: 100, label: 'RO'},
-// ];
+    return (
+        <View style={{marginHorizontal: SIZES.marginhorizontal}}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View>
+                    <Text
+                        style={{
+                            ...FONTS.Title2,
+                            marginTop: 10,
+                            marginBottom: 20,
+                            textAlign: 'center',
+                            fontSize: 14,
+                            textDecorationLine: 'underline',
+                        }}>
+                        PROFILE DETAILS
+                    </Text>
+                </View>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-around',
+                        alignItems: 'center',
+                    }}>
+                    <View style={{width: SIZES.ScreenWidth / 2}}>
+                        <View>
+                            <FlatList
+                                data={cruMembers()}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                scrollEnabled={false}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <View style={{marginRight: index < cruMembers().length - 1 ? -10 : 0}}>
+                                        <CruMemberPic userPicture={item.profilePicture} akcruBadge={item.badge} />
+                                    </View>
+                                )}
+                            />
+                        </View>
+                        <TouchableOpacity onPress={() => navigation.navigate('EditCru')} style={{marginVertical: 20}}>
+                            <View style={{flexDirection: 'row'}}>
+                                <Icon
+                                    name="square-edit-outline"
+                                    type="material-community"
+                                    color={COLORS.MIDORANGE}
+                                    size={15}
+                                    style={{marginRight: 5}}
+                                />
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        color: COLORS.MIDORANGE,
+                                        fontSize: 12,
+                                    }}>
+                                    Edit your CRU
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    fontSize: 12,
+                                    color: COLORS.LIGHTGREY,
+                                }}>
+                                Schedule a CRU View through the CRU VIEW scheduler
+                            </Text>
+                        </View>
+                    </View>
+                    <View style={{alignItems: 'center'}}>
+                        <View>
+                            <Image source={imageindex.NewCru} style={{width: 120, height: 120}} resizeMode="cover" />
+                        </View>
 
+                        <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
+                            <View
+                                style={{
+                                    padding: 8,
+                                    backgroundColor: COLORS.MIDORANGE,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 3,
+                                    marginTop: 15,
+                                    flexDirection: 'row',
+                                }}>
+                                <Text style={{...FONTS.Title2}}>CRU VIEW </Text>
+                                <Icon
+                                    name="calendar"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={20}
+                                    style={{marginRight: 5}}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
 
-  return (
-      <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-              <View>
-                  <Text
-                      style={{
-                          ...FONTS.Title2,
-                          marginTop: 10,
-                          marginBottom: 20,
-                          textAlign: 'center',
-                          fontSize: 14,
-                          textDecorationLine: 'underline',
-                      }}>
-                      PROFILE DETAILS
-                  </Text>
-              </View>
-              <View
-                  style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-around',
-                      alignItems: 'center',
-                  }}>
-                  <View style={{width: SIZES.ScreenWidth / 2}}>
-                      {/* <View>
-                          <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginTop: 10}}>
-                              You have "{user?.MITCount}" Movie Invites
-                          </Text>
-                      </View> */}
-                      <View>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-                                  fontSize: 12,
-                                  color: COLORS.LIGHTGREY,
-                                  marginVertical: 20,
-                              }}>
-                              Schedule a CRU View through the CRU VIEW scheduler
-                          </Text>
-                      </View>
-                      <TouchableOpacity onPress={() => navigation.navigate('EditCru')}>
-                          <View style={{flexDirection: 'row'}}>
-                              <Icon
-                                  name="square-edit-outline"
-                                  type="material-community"
-                                  color={COLORS.MIDORANGE}
-                                  size={15}
-                                  style={{marginRight: 5}}
-                              />
-                              <Text
-                                  style={{
-                                      ...FONTS.Title2,
-                                      color: COLORS.MIDORANGE,
-                                      fontSize: 12,
-                                      
-                                  }}>
-                                  Edit your CRU
-                              </Text>
-                          </View>
-                      </TouchableOpacity>
-                  </View>
-                  <View style={{alignItems: 'center'}}>
-                      <View>
-                          <Image source={imageindex.NewCru} style={{width: 120, height: 120}} resizeMode="cover" />
-                      </View>
+                <View
+                    style={{
+                        borderBottomWidth: 1.5,
+                        borderColor: COLORS.DARKERGREY,
+                        marginTop: 20,
+                        marginBottom: 10,
+                    }}
+                />
 
-                      <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
-                          <View
-                              style={{
-                                  padding: 8,
-                                  backgroundColor: COLORS.MIDORANGE,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  borderRadius: 3,
-                                  marginTop: 15,
-                                  flexDirection: 'row',
-                              }}>
-                              <Text style={{...FONTS.Title2}}>CRU VIEW </Text>
-                              <Icon
-                                  name="calendar"
-                                  type="material-community"
-                                  color={COLORS.WHITE}
-                                  size={20}
-                                  style={{marginRight: 5}}
-                              />
-                          </View>
-                      </TouchableOpacity>
-                  </View>
-              </View>
-
-              <View
-                  style={{
-                      borderBottomWidth: 1.5,
-                      borderColor: COLORS.DARKERGREY,
-                      marginTop: 20,
-                      marginBottom: 10,
-                  }}
-              />
-
-              <View>
-                  {/* <Text
-                      style={{
-                          ...FONTS.Title2,
-                          marginTop: 10,
-                          marginBottom: 5,
-                          textAlign: 'center',
-                          fontSize: 14,
-                      }}>
-                      Your "CRU LOVE" watchlist
-                  </Text>
-                  <TouchableOpacity onPress={() => navigation.navigate('EditWatchList')}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              marginBottom: 20,
-                              justifyContent: 'center',
-                          }}>
-                          <Icon
-                              name="square-edit-outline"
-                              type="material-community"
-                              color={COLORS.DARKGREY}
-                              size={15}
-                              style={{marginRight: 5}}
-                          />
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-                                  color: COLORS.LIGHTGREY,
-                                  fontSize: 12,
-                              }}>
-                              Edit your watchlist
-                          </Text>
-                      </View>
-                  </TouchableOpacity> */}
-                  <View style={{marginBottom: 75}}>
-                      <BasicListCategories
-                          Akcru_Content={{
-                              id: 'recommendedForYou',
-                              title: 'Recommended to you',
-                              movies: newerYearMovies,
-                          }}
-                      />
-                  </View>
-              </View>
-          </ScrollView>
-      </View>
-  );
+                <View>
+                    <View style={{marginBottom: 75}}>
+                        <BasicListCategories
+                            Akcru_Content={{
+                                id: 'recommendedForYou',
+                                title: 'Recommended to you',
+                                movies: newerYearMovies,
+                            }}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
+        </View>
+    );
 }
 
 export default UserProfileDetailsTab;

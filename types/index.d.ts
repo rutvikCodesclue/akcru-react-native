@@ -130,7 +130,11 @@ export type INotification = {
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
-    message: string?;interface IUserProfile {
+    createdAt: string;
+    updatedAt?: string;
+};
+export interface IUserProfile {
+    message: string?;
     id: string;
     authId: string;
     email: string;
@@ -266,6 +270,37 @@ export type INotification = {
     createdAt: string;
     updatedAt?: string;
 };
+
+export interface IPost {
+    id: string;
+    content: string;
+    user: IUserProfile;
     createdAt: string;
-    updatedAt?: string;
+    updatedAt: string;
+    gifUrl?: string; // Add gifUrl as an optional property
+    // Other properties related to a post
+}
+
+export interface ICreatePostData {
+    id: string;
+    user: IUserProfile;
+    title: string;
+    content: string;
+    gifUrl?: string; // Add gifUrl as an optional property
+    createdAt: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    numberOfLikes?: number;
+}
+
+export type SkinnyType = {
+    id: string;
+    content: string;
+    user: IUserProfile;
+    createdAt: string;
+    image?: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    numberOfLikes?: number;
 };
+

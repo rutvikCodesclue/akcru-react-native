@@ -28,6 +28,7 @@ export default StyleSheet.create({
         textAlign: 'center',
         fontSize: 14,
         textDecorationLine: 'underline',
+        color: COLORS.MIDORANGE
     },
     container: {
         marginHorizontal: SIZES.ScreenWidth * 0.03,

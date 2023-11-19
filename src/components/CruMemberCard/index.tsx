@@ -94,7 +94,7 @@ const CruMemberCard = ({
                       </View>
                       <View>
                           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                              <Text style={{...FONTS.Title2}}>{truncateduserName}</Text>
+                              <Text style={{...FONTS.Title2, fontSize: 12}}>{truncateduserName}</Text>
                               {influencer && (
                                   <Icon
                                       name="ribbon"
