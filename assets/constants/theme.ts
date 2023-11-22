@@ -75,7 +75,7 @@ export const FONTS = {
     },
     Title3: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 16,
+        fontSize: 14,
         color: COLORS.LIGHTGREY,
     },
     Title2Orange: {

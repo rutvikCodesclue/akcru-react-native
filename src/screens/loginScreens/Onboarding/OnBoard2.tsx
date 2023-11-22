@@ -271,7 +271,7 @@ const OnBoard2 = () => {
                                                 style={{
                                                     ...FONTS.Title2AkcruBlue,
                                                     marginTop: 10,
-                                                    color: COLORS.MIDORANGE,
+                                                    color: COLORS.AKCRUBLUE,
                                                 }}>
                                                 Pick a profile photo
                                             </Text>

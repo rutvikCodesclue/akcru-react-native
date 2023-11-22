@@ -82,13 +82,7 @@ export default function ClientTabNavigator() {
           sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
           initialRouteName="ClientStack"
           screenOptions={{
-              tabBarStyle: {
-                  position: 'absolute',
-                  backgroundColor: COLORS.TRANSDARKGREY,
-                  height: SIZES.ScreenHeight / 12,
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
-              },
+              tabBarStyle: styles.tabBar,
               tabBarActiveTintColor: COLORS.AKCRUBLUE,
               tabBarInactiveTintColor: COLORS.LIGHTGREY,
               tabBarShowLabel: false,
@@ -97,9 +91,13 @@ export default function ClientTabNavigator() {
               name="ClientStack"
               component={ClientStack}
               options={{
+                    
                   headerShown: false,
                   tabBarIcon: ({color}) => (
-                      <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                    <View>
+                        <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                    </View>
+                      
                   ),
               }}
           />
@@ -148,3 +146,25 @@ export default function ClientTabNavigator() {
       </ClientTabs.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+    tabBar: {
+        position: 'absolute',
+        padding: 0,
+        left: 16,
+        right: 16,
+        bottom: 18,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: COLORS.TRANSDARKGREY,
+        borderTopColor: 'transparent',
+        shadowColor: COLORS.FADEDBLACK,
+        shadowOffset: {
+            height: 6,
+            width: 0,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+    },
+});
