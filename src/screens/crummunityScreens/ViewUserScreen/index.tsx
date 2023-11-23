@@ -31,6 +31,7 @@ import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -115,7 +116,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 20}}>
                   <Header />
@@ -520,5 +522,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
               )}
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 }

@@ -22,6 +22,7 @@ import {Button, Icon} from '@rneui/base';
 import LottieView from 'lottie-react-native';
 import useAuthStore from '../../../stores/auth.store';
 import {purchaseMIT} from '../../../lib/api/wallet.lib';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const PurchaseMITScreen = () => {
     const {user} = useAuthStore();
@@ -89,7 +90,8 @@ const PurchaseMITScreen = () => {
     };
 
     return (
-        <View>
+        <TabContainer>
+            <View>
             <ImageBackground
                 source={{
                     uri: 'https://akcru.com/wp-content/uploads/2023/05/creepymit.png',
@@ -253,6 +255,8 @@ const PurchaseMITScreen = () => {
                 </SafeAreaView>
             </ImageBackground>
         </View>
+        </TabContainer>
+        
     );
 };
 

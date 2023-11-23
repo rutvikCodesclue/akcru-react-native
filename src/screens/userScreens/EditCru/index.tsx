@@ -23,6 +23,7 @@ import CruMemberCard from '../../../components/CruMemberCard';
 import AddMemberCard from '../../../components/AddMemberCard';
 import {addPotentialMemberToCRU, getMyCRU, removeAUserFromCRU, updateCRUInfo} from '../../../lib/api/cru.lib';
 import {ICru, IUserProfile} from '../../../../types';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const EditCru = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -181,7 +182,8 @@ const EditCru = () => {
     };
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+            <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
                 <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                     <Header />
@@ -546,6 +548,8 @@ const EditCru = () => {
                 </Modal>
             </ScrollView>
         </SafeAreaView>
+        </TabContainer>
+        
     );
 };
 

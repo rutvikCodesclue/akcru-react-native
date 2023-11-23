@@ -22,6 +22,7 @@ import {getMovieGenres} from '../../../lib/api/movies.lib';
 import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../util/util';
 import {IGenreItem, IUserProfile} from '../../../../types';
 import { findAUser } from "../../../lib/api/user.lib";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 type SendMITViewUserNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -83,7 +84,8 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
   }, []);
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
                   <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
@@ -226,6 +228,8 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
               </View>
           </View>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

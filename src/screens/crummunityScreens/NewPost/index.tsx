@@ -14,6 +14,7 @@ import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import { MediaType, launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -79,7 +80,8 @@ const NewPost = () => {
     };
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+            <SafeAreaView>
             <View style={{zIndex: 100}}>
                 <Header />
             </View>
@@ -235,7 +237,11 @@ const NewPost = () => {
                     </View>
                 </Modal>
             </View>
+            <View>
+    </View>
         </SafeAreaView>
+        </TabContainer>
+        
     );
 };
 

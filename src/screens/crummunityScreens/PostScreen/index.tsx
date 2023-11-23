@@ -10,6 +10,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack'
 import Header from '../../../components/header'
+import TabContainer from '../../../components/TabContainer/TabContainer'
 
 
 const PostScreen =({route}) => {
@@ -27,7 +28,8 @@ const PostScreen =({route}) => {
 
    console.log(post.user.username)
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 100}}>
                   <Header />
@@ -67,6 +69,8 @@ const PostScreen =({route}) => {
               </View>
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 }
 export default PostScreen;

@@ -26,6 +26,7 @@ import { selectAvatarBorderColor } from '../../../util/util';
 import imageindex from '../../../../assets/images/imageindex';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -86,7 +87,8 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
     };
 
     return (
-        <View>
+        <TabContainer>
+            <View>
             <ScrollView>
                 <View>
                     <ImageBackground
@@ -203,6 +205,8 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                 </View>
             </ScrollView>
         </View>
+        </TabContainer>
+        
     );
 };
 

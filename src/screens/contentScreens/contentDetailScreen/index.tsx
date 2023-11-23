@@ -29,6 +29,7 @@ import {IMovie} from '../../../../types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import { formatMovieDuration } from '../../../util/util';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -134,7 +135,8 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+            <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
                 <View>
                     <Header />
@@ -234,6 +236,8 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView> 
+        </TabContainer>
+       
     );
 }

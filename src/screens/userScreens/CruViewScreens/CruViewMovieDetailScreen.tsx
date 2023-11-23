@@ -17,6 +17,7 @@ import {createACRUView} from '../../../lib/api/cru.lib';
 import {combineDateAndTime, formatMovieDuration} from '../../../util/util';
 import moment from 'moment-timezone';
 import {set} from 'date-fns';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'CruViewMovieDetailScreen'>;
 
@@ -173,7 +174,8 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     }, [showSendCRUView]);
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+            <SafeAreaView>
             {showSendCRUView ? (
                 <View style={{flex: 1}}>
                     <ImageBackground
@@ -538,5 +540,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                 </View>
             )}
         </SafeAreaView>
+        </TabContainer>
+        
     );
 }

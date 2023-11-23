@@ -23,6 +23,7 @@ import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { Akcru_Content } from "../../../../assets/constants/ListData";
 import {findMovies} from '../../../lib/api/movies.lib';
 import { IMovie } from "../../../../types";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 const SendMITSearchInput = () => {
   //search input function
@@ -64,7 +65,8 @@ const SendMITSearchInput = () => {
   }, []);
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <LinearGradient
               // Background Linear Gradient
               colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
@@ -185,6 +187,8 @@ const SendMITSearchInput = () => {
               </Modal>
           </View>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

@@ -30,6 +30,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const HomeScreen = () => {
   
@@ -185,7 +186,8 @@ const HomeScreen = () => {
     );
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           {isMovieDataLoaded ? (
               <ScrollView stickyHeaderIndices={[0]}>
                   <View>
@@ -293,6 +295,8 @@ const HomeScreen = () => {
               </View>
           )}
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

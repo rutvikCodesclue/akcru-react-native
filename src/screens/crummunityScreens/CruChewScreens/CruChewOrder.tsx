@@ -6,13 +6,15 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CruChewStackParams } from '../../../navigation/CruChewStack';
 import Header from '../../../components/header';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const CruChewOrder = () => {
 
   const navigation =
     useNavigation<NativeStackNavigationProp<CruChewStackParams>>();
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <TabContainer>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View>
         <Header />
       </View>
@@ -25,6 +27,8 @@ const CruChewOrder = () => {
         }}
       />
     </SafeAreaView>
+    </TabContainer>
+    
   );
 }
 

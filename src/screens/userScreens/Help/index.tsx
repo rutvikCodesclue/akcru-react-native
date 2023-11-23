@@ -13,13 +13,15 @@ import Accordian from '../../../components/Accordian/Accordian';
 import imageindex from '../../../../assets/images/imageindex';
 import { TrinityHowToData } from '../../../../assets/constants/helpData';
 import HowToTrinity from '../../../components/HowToTrinity';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 const Help = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>()
 
     return (
-        <View>
+        <TabContainer>
+           <View>
             <ScrollView stickyHeaderIndices={[0]}>
                 <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND}}>
                     <Header />
@@ -59,7 +61,9 @@ const Help = () => {
 
                 {/* <View style={{width: '93%', alignSelf: 'center', marginBottom: 75}}></View> */}
             </ScrollView>
-        </View>
+        </View> 
+        </TabContainer>
+        
     );
 };
 

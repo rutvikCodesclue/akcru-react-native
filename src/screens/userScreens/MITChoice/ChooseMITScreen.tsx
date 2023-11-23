@@ -43,6 +43,7 @@ import YoutubePlayer from 'react-native-youtube-iframe';
 import moment from "moment";
 import { MediaType, launchImageLibrary } from "react-native-image-picker";
 import MITMessage from "../../../../assets/constants/MITmessages";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -205,7 +206,8 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <TabContainer>
+           <View style={{flex: 1}}>
             <View style={styles.sheetcontainer}>
                 <ScrollView stickyHeaderIndices={[0]}>
                     <View>
@@ -632,7 +634,9 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </View> 
+        </TabContainer>
+        
     );
 };
 

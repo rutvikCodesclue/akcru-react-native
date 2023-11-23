@@ -16,7 +16,10 @@ import PurchaseMITScreen from '../screens/userScreens/PurchaseMIT';
 import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
+import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import TestScreen from '../screens/userScreens/TestScreen';
+import { useTabMenu } from '../context/TabContext';
+import { TabContextProvider } from '../context/TabContext';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -33,49 +36,7 @@ export default function ClientTabNavigator() {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
 
-  const [animation] = useState(new Animated.Value(0));
-
-  
-
-  // useEffect(() => {
-  //   const floatUpAnimation = Animated.timing(animation, {
-  //     toValue: 1,
-  //     duration: 300,
-  //     useNativeDriver: true,
-  //   });
-
-  //   const floatDownAnimation = Animated.timing(animation, {
-  //     toValue: 0,
-  //     duration: 300,
-  //     useNativeDriver: true,
-  //   });
-
-  //   // Execute the float up animation when the tab is focused
-  //   const focusListener = navigation.addListener('focus', () => {
-  //     floatUpAnimation.start();
-  //   });
-
-  //   // Execute the float down animation when the tab loses focus
-  //   const blurListener = navigation.addListener('blur', () => {
-  //     floatDownAnimation.start();
-  //   });
-
-  //   return () => {
-  //     focusListener.remove();
-  //     blurListener.remove();
-  //   };
-  // }, []);
-
-  const floatingStyle = {
-    transform: [
-      {
-        translateY: animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [0, -26], // Adjust the translateY value to control the floating effect
-        }),
-      },
-    ],
-  };
+    const {opened, toggleOpened} = useTabMenu();
 
   return (
       <ClientTabs.Navigator
@@ -91,56 +52,88 @@ export default function ClientTabNavigator() {
               name="ClientStack"
               component={ClientStack}
               options={{
-                    
+                  tabBarItemStyle: {
+                      height: 0,
+                  },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
-                    <View>
-                        <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
-                    </View>
-                      
+                      <View style={styles.tabIconContainer}>
+                          <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      </View>
                   ),
+              }}
+              listeners={{
+                  tabPress: e => opened && e.preventDefault(),
               }}
           />
           <ClientTabs.Screen
               name="CrummunityStack"
               component={CrummunityStack}
               options={{
+                  tabBarItemStyle: {
+                      height: 0,
+                  },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
-                      <Icon name="people-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      <View style={styles.tabIconContainer}>
+                          <Icon name="people-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      </View>
                   ),
+              }}
+              listeners={{
+                  tabPress: e => opened && e.preventDefault(),
               }}
           />
           <ClientTabs.Screen
-              name="PurchaseMITScreen"
-              component={PurchaseMITScreen}
+              name="Options"
+              component={ClientStack}
               options={{
+                  tabBarItemStyle: {
+                      height: 0,
+                  },
+                  tabBarButton: () => <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />,
                   headerShown: false,
-                  tabBarIcon: ({}) => (
-                      <Animated.View>
-                          <AkcruControlBtn />
-                      </Animated.View>
-                  ),
+                  //   tabBarIcon: ({}) => (
+                  //       <Animated.View>
+                  //           <AkcruControlBtn />
+                  //       </Animated.View>
+                  //   ),
               }}
           />
           <ClientTabs.Screen
               name="CruChewStack"
               component={CruChewStack}
               options={{
+                  tabBarItemStyle: {
+                      height: 0,
+                  },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
-                      <Icon name="fast-food-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      <View style={styles.tabIconContainer}>
+                          <Icon name="fast-food-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      </View>
                   ),
+              }}
+              listeners={{
+                  tabPress: e => opened && e.preventDefault(),
               }}
           />
           <ClientTabs.Screen
               name="UserProfileStack"
               component={UserProfileStack}
               options={{
+                  tabBarItemStyle: {
+                      height: 0,
+                  },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
-                      <Icon name="person-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      <View style={styles.tabIconContainer}>
+                          <Icon name="person-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                      </View>
                   ),
+              }}
+              listeners={{
+                  tabPress: e => opened && e.preventDefault(),
               }}
           />
       </ClientTabs.Navigator>
@@ -166,5 +159,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
+    },
+    tabIconContainer: {
+        position: 'absolute',
+        top: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
