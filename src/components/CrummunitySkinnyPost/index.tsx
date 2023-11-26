@@ -1,9 +1,11 @@
 import {View, Text, TouchableOpacity, Image, Modal, Pressable} from 'react-native';
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
+import Video from 'react-native-video';
+import AkcruButtons from '../akcruButtons';
 
 type FooterIconsProps = {
     iconname: string;
@@ -42,6 +44,7 @@ type PostType = {
     numberOfReposts?: number;
     numberOfLikes?: number;
     impressions?: number;
+    video: string;
 };
 
 type PostProps = {
@@ -52,15 +55,60 @@ const SkinnyPostCard = ({post }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
+    const [isVideoModalVisible, setVideoModalVisible] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState('');
+
     const [isPostOptionsVisible, setPostOptionsVisible] = useState(false);
+
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+    const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const topVideoRef = useRef(null);
+    const modalVideoRef = useRef(null);
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
         setImageModalVisible(true);
     };
 
+    const openVideoModal = (video: React.SetStateAction<string>) => {
+        setSelectedVideo(video);
+        setVideoModalVisible(true);
+    };
+
+    const handleVideoEnd = () => {
+        // Logic for when the video ends
+        setVideoModalVisible(false);
+    };
+
+    const handleVideoError = () => {
+        // Logic for handling video errors
+        setVideoModalVisible(false);
+    };
+
+    const handleVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
+    };
+
+    const handleModalVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
+        setShowSkipButton(true)
+    };
+
+    const handleSkipVideo = () => {
+        // Logic for skipping the video
+        setVideoModalVisible(false);
+    };
+
     const closeModal = () => {
         setImageModalVisible(false);
+    };
+
+    const closeVideoModal = () => {
+        setVideoModalVisible(false);
     };
 
     const openPostOptions = ()=>{
@@ -125,7 +173,9 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>•2h ago</Text>
+                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>
+                        •2h ago
+                    </Text>
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
                     </Pressable>
@@ -200,6 +250,25 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     </TouchableOpacity>
                 )}
             </View>
+            <View>
+                {post.video && (
+                    <TouchableOpacity onPress={() => openVideoModal(post.video)}>
+                        <View style={styles.postvideo}>
+                            <Video
+                                ref={topVideoRef}
+                                style={{width: '100%', height: '100%'}}
+                                source={{uri: post.video}}
+                                resizeMode="cover"
+                                onEnd={handleVideoEnd}
+                                repeat={false}
+                                onError={handleVideoError}
+                                onLoad={handleVideoLoad}
+                                muted={true}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                )}
+            </View>
             {/* Image Modal */}
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <View
@@ -213,6 +282,38 @@ const SkinnyPostCard = ({post }: PostProps) => {
                     <TouchableOpacity onPress={closeModal}>
                         <Text style={{color: COLORS.MIDORANGE, fontSize: 14, marginTop: 20}}>Close</Text>
                     </TouchableOpacity>
+                </View>
+            </Modal>
+            {/* Video Modal */}
+            <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    }}>
+                    <Video
+                        ref={modalVideoRef}
+                        style={{width: '100%', height: '100%'}}
+                        source={{uri: post.video}}
+                        resizeMode="cover"
+                        onEnd={handleVideoEnd}
+                        repeat={false}
+                        onError={handleVideoError}
+                        onLoad={handleModalVideoLoad}
+                        muted={false}
+                    />
+                    {showSkipButton && (
+                        <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
+                            <AkcruButtons.SmallButton
+                                color={COLORS.MIDORANGE}
+                                btnname={'Skip'}
+                                onPress={handleSkipVideo}
+                                disabled={false}
+                            />
+                        </View>
+                    )}
                 </View>
             </Modal>
             <View style={styles.postfooter}>

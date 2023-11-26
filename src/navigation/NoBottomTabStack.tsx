@@ -12,6 +12,11 @@ import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
 import WatchPartyPreviewScreen from '../screens/userScreens/WatchPartyPreview';
+import AkcruButtonStack from './AkcruButtonStack';
+import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
+import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
+import TrailerPlayer from '../screens/contentScreens/PlayTrailerContent';
 
 export type NoBottomTabStackParams = {
     ContentSwipe: any;
@@ -23,6 +28,11 @@ export type NoBottomTabStackParams = {
     StartWatchPartyView: any;
     WatchPartyPreviewScreen: any;
     Signin: any;
+    AkcruButtonStack:any;
+    FlickFlirtScreen:any;
+    AkcruNetworkScreen:any;
+    PurchaseMITScreen:any;
+    TrailerPlayer: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -54,6 +64,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ContentPlayer"
               component={ContentPlayer}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="TrailerPlayer"
+              component={TrailerPlayer}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
@@ -105,6 +123,38 @@ export default function NoBottomStack() {
               options={{
                   headerShown: false,
                   gestureEnabled: false,
+              }}
+          />
+          {/* <NoBottom.Screen
+              name="AkcruButtonStack"
+              component={AkcruButtonStack}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          /> */}
+          <NoBottom.Screen
+              name="AkcruNetworkScreen"
+              component={AkcruNetworkScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="PurchaseMITScreen"
+              component={PurchaseMITScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="FlickFlirtScreen"
+              component={FlickFlirtScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
               }}
           />
       </NoBottom.Navigator>

@@ -18,7 +18,7 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight / 2,
         width: SIZES.ScreenWidth,
         zindex: 1,
-        marginTop: -70,
+        marginTop: -125,
     },
     buttons: {
         flexDirection: 'row',
@@ -43,11 +43,20 @@ export default StyleSheet.create({
     desc: {
         ...FONTS.Title2,
         marginBottom: 10,
+        fontSize: 12
     },
     activitycontainer: {
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+    },
+    heroButtons: {
+        width: 30,
+        height: 30,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.TRANSAKCRUBLUE,
     },
 });

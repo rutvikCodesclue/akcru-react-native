@@ -4,11 +4,13 @@ import {AkcruControlBtn} from '../../../assets/svg';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import imageindex from '../../../assets/images/imageindex';
 import { Icon } from '@rneui/base';
-import { COLORS } from '../../../assets/constants';
+import { COLORS, FONTS } from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../navigation/CrummunityStack';
 import {useNavigation} from '@react-navigation/native';
 import { ClientStackParams } from '../../navigation/ClientStack';
+import { AkcruButtonStackParams } from '../../navigation/AkcruButtonStack';
+
 
 
 const AkcruCenterButton = ({opened, toggleOpened}) => {
@@ -24,10 +26,12 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
         console.log('handlePressShop');
     };
     const handlePressRobot = () => {
+        navigation.navigate('FlickFlirtScreen');
         toggleOpened();
         console.log('handlePressRobot');
     };
     const handlePressBullhorn = () => {
+        navigation.navigate('AkcruNetworkScreen');
         toggleOpened();
         console.log('handlePressBullhorn');
     };
@@ -78,14 +82,17 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="robot-love"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={25}
-                            style={styles.itemIcon}
-                        />
+                           
+                              <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
+                                <Icon
+                                    name="robot-love"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={25}
+                                    style={styles.itemIcon}
+                                />  
+                     
+
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressBullhorn}>
@@ -179,7 +186,6 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         flex: 1,
-        height: 0,
     },
     box: {
         position: 'relative',

@@ -1,10 +1,10 @@
 import React from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
-import {useTabMenu} from '../../context/TabContext';
+import {UseTabMenu} from '../../context/TabContext';
 import { COLORS } from '../../../assets/constants';
 
 const TabContainer = ({children}) => {
-    const {opened} = useTabMenu();
+    const {opened} = UseTabMenu();
 
     
 
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         bottom: 0,
-        zIndex: 1,
+        zIndex: 0,
         opacity: 0.7,
     },
 });

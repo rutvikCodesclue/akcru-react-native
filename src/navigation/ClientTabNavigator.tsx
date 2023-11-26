@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Image} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
 
 import {Icon} from '@rneui/base';
@@ -17,17 +17,21 @@ import {Animated, Easing} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruControlBtn } from '../../assets/svg';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
-import TestScreen from '../screens/userScreens/TestScreen';
-import { useTabMenu } from '../context/TabContext';
+import { UseTabMenu } from '../context/TabContext';
 import { TabContextProvider } from '../context/TabContext';
+import AkcruButtonStack from './AkcruButtonStack';
+import TabContainer from '../components/TabContainer/TabContainer';
+import imageindex from '../../assets/images/imageindex';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
     ClientStack: any;
     CruChewStack: any;
     CrummunityStack: any;
-    TestScreen: any;
     PurchaseMITScreen: any;
+    AkcruButtonStack: any;
+    TabContainer: any;
+    AkcruCenterButton: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -36,7 +40,7 @@ export default function ClientTabNavigator() {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
 
-    const {opened, toggleOpened} = useTabMenu();
+    const {opened, toggleOpened} = UseTabMenu();
 
   return (
       <ClientTabs.Navigator
@@ -53,7 +57,7 @@ export default function ClientTabNavigator() {
               component={ClientStack}
               options={{
                   tabBarItemStyle: {
-                      height: 0,
+                     
                   },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
@@ -71,7 +75,7 @@ export default function ClientTabNavigator() {
               component={CrummunityStack}
               options={{
                   tabBarItemStyle: {
-                      height: 0,
+                    
                   },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
@@ -85,19 +89,22 @@ export default function ClientTabNavigator() {
               }}
           />
           <ClientTabs.Screen
-              name="Options"
-              component={ClientStack}
+              name="AkcruButtonStack"
+              component={AkcruCenterButton}
               options={{
                   tabBarItemStyle: {
                       height: 0,
                   },
-                  tabBarButton: () => <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />,
+                  //   tabBarButton: () => <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />,
                   headerShown: false,
-                  //   tabBarIcon: ({}) => (
-                  //       <Animated.View>
-                  //           <AkcruControlBtn />
-                  //       </Animated.View>
-                  //   ),
+                  tabBarIcon: ({color}) => (
+                      <View style={styles.tabIconContainer}>
+                          <View style={{marginTop: -15}}>
+                              {/* <AkcruControlBtn/> */}
+                              <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />
+                          </View>
+                      </View>
+                  ),
               }}
           />
           <ClientTabs.Screen
@@ -105,7 +112,7 @@ export default function ClientTabNavigator() {
               component={CruChewStack}
               options={{
                   tabBarItemStyle: {
-                      height: 0,
+                    
                   },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
@@ -123,7 +130,7 @@ export default function ClientTabNavigator() {
               component={UserProfileStack}
               options={{
                   tabBarItemStyle: {
-                      height: 0,
+            
                   },
                   headerShown: false,
                   tabBarIcon: ({color}) => (
@@ -147,7 +154,7 @@ const styles = StyleSheet.create({
         left: 16,
         right: 16,
         bottom: 18,
-        height: 56,
+        height: 60,
         borderRadius: 16,
         backgroundColor: COLORS.TRANSDARKGREY,
         borderTopColor: 'transparent',
@@ -165,5 +172,6 @@ const styles = StyleSheet.create({
         top: 12,
         alignItems: 'center',
         justifyContent: 'center',
+        width: '100%'
     },
 });

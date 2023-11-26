@@ -7,6 +7,7 @@ import {
   Dimensions,
   Pressable,
   Modal,
+  StatusBar,
 } from 'react-native';
 import React, {useCallback, useRef, useState, useEffect} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
@@ -22,6 +23,8 @@ import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import { formatMovieDuration } from '../../util/util';
 import { capitalizeFirstLetterOfString } from '../../util/util';
+import Video, {OnSeekData} from 'react-native-video';
+import VideoPlayer from 'react-native-media-console';
 
 type MovieDetailCardProps = {
     title: string;
@@ -45,6 +48,7 @@ type MovieDetailCardProps = {
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
     onPressOut: () => void;
+    PlayTrailer: () => void;
 };
 
 const MovieDetailCard = ({
@@ -69,11 +73,17 @@ const MovieDetailCard = ({
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
+    PlayTrailer
 }: MovieDetailCardProps) => {
-    const video = React.useRef(null);
+    const video = React.useRef<Video>(null);
     const [status, setStatus] = React.useState({}); //Video Player Status
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+
+     
+
+    const [trailerModal, setTrailerModal] = useState(false)
+
 
     const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
     const [isOpen, setIsOpen] = useState(false);
@@ -97,6 +107,18 @@ const MovieDetailCard = ({
     const toggleTrailerPlaying = useCallback(() => {
         setPlaying(prev => !prev);
     }, []);
+
+    const onPlay = () => {
+        setPlaying(true);
+        // Hide the status bar when the movie starts playing
+        StatusBar.setHidden(true);
+    };
+    const onPause = () => {
+        setPlaying(false);
+        // Show the status bar when the movie is paused
+        StatusBar.setHidden(false);
+    };
+
 
     return (
         <View>
@@ -237,7 +259,7 @@ const MovieDetailCard = ({
 
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
-                            onPress={() => handleSnapPress(1)}
+                            onPress={PlayTrailer}
                             color={COLORS.TAGCOLOR}
                             disabled={false}
                         />
@@ -375,15 +397,35 @@ const MovieDetailCard = ({
                     </View>
                 </View>
             </View>
+            {/* <Modal>
+                <View>
+
+                </View>
+            </Modal> */}
 
             <BottomSheet
                 ref={sheetRef}
                 snapPoints={snapPoints}
                 enablePanDownToClose={true}
                 backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                onClose={() => setIsOpen(true)}>
+                onClose={() => setIsOpen(false)}>
                 <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                    <YoutubePlayer height={225} play={playing} videoId={trailerURL} onChangeState={onStateChange} />
+                    <View style={{height: 175}}>
+                        <VideoPlayer
+                            source={{
+                                uri: trailerURL,
+                            }}
+                            disableBack
+                            toggleResizeModeOnFullscreen={true}
+                            // onChangeState={onStateChange}
+                            poster={landscapeURL}
+                            onPlay={onPlay}
+                            onPause={onPause}
+                            containerStyle={{zIndex: 100}}
+                           videoRef={video}
+                        />
+                    </View>
+
                     <View style={{alignItems: 'center'}}>
                         <AkcruButtons.LrgButton
                             btnname={playing ? 'Pause' : 'Play'}

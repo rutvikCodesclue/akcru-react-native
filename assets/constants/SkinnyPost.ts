@@ -70,7 +70,7 @@ const skinnies = [
             influencer: false,
         },
         content:
-            'Excited to announce that I will be speaking at the upcoming tech conference in San Francisco! 🎉 #womenintech',
+            'Excited to announce that I will be speaking at the upcoming Akcru Film festival in New York! 🎉 #womenintech',
         numberOfComments: 5,
         numberOfReposts: 10,
         numberOfLikes: 50,
@@ -89,7 +89,7 @@ const skinnies = [
         },
         createdAt: '2020-08-27T12:00:00.000Z',
         content:
-            "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+            'So who wants to watch a movie with me? My Cru keeps wanting to watch the same movie over and over again ugh #Ineedanewcru.',
         image: 'https://i.insider.com/5d03aa8e6fc9201bc7002b43?width=1136&format=jpeg',
         numberOfComments: 123,
         numberOfReposts: 11,
@@ -108,8 +108,7 @@ const skinnies = [
             influencer: false,
         },
         createdAt: '2020-08-27T12:00:00.000Z',
-        content:
-            "Hey Hey Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+        content: "Hey Hey Hey, I just watched a movie with my future wife. I'm in love lol.",
         numberOfComments: 4,
         numberOfReposts: 11,
         numberOfLikes: 99,
@@ -136,21 +135,21 @@ const skinnies = [
     {
         id: 't4',
         user: {
-            id: 'u1',
-            username: 'VadimNotJustDev',
-            name: 'Vadim',
-            image: 'https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim.png',
-            akcruBadge: {superhero: true},
+            id: 'u12',
+            username: 'Big Homie',
+            name: 'GodFatherPt3',
+            image: 'https://variety.com/wp-content/uploads/2022/01/godfather-of-harlem.jpg',
+            akcruBadge: {guardian: true},
             avatarbordercolor: AKCRUBADGES.SuperHero.color,
             influencer: false,
         },
         createdAt: '2020-08-27T12:00:00.000Z',
-        content:
-            "Hey Hey Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
-        numberOfComments: 4,
-        numberOfReposts: 11,
+        content: 'Check out my movie review on Den of Thieves. Only Gaurdians can do this. lol',
+        numberOfComments: 67,
+        numberOfReposts: 444,
         numberOfLikes: 99,
-        impressions: 100,
+        impressions: 1400,
+        video: 'https://d17ybuhl825fg.cloudfront.net/sample+videos/Kwaz+review.mp4',
     },
 ];
 

@@ -31,7 +31,7 @@ import Header2 from '../../../components/header/header2';
 
 
 const {width, height} = Dimensions.get('window');
-const TICKER_HEIGHT = 20;
+const TICKER_HEIGHT = 15;
 const LOGO_WIDTH = 220;
 const LOGO_HEIGHT = 40;
 const CIRCLE_SIZE = width * 0.6;
@@ -107,7 +107,7 @@ const Item = ({
                 </TouchableOpacity>
 
                 <View style={styles.textContainer}>
-                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                    <View style={{flexDirection: 'row', marginBottom: 10, alignItems: 'baseline'}}>
                         <Animated.Text
                             style={[
                                 styles.tickername,
@@ -295,6 +295,7 @@ export default function ContentSwipe({navigation, route}: Props) {
     const _scrollX = React.useRef(new Animated.Value(0)).current;
 
     const [movies, setMovies] = useState<IMovie[]>([]);
+    const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
     // create a useFocusEffect hook to fetch movies on focus
     useFocusEffect(
@@ -309,10 +310,30 @@ export default function ContentSwipe({navigation, route}: Props) {
                     console.error('Error fetching movies:', error);
                 }
             };
-
+            fetchRandomMovies();
             fetchMovies();
         }, [])
     );
+
+    const fetchRandomMovies = async () => {
+        try {
+            const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+            // Get 5 random movies from the list
+            const randomMovies: IMovie[] = [];
+            while (randomMovies.length < 5) {
+                const randomIndex = Math.floor(Math.random() * allMovies.length);
+                const randomMovie = allMovies[randomIndex];
+                if (!randomMovies.includes(randomMovie)) {
+                    randomMovies.push(randomMovie);
+                }
+            }
+
+            setRandomMovies(randomMovies);
+        } catch (error) {
+            console.error('Error fetching random movies:', error);
+        }
+    };
 
 
 
@@ -374,7 +395,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                         horizontal
                         keyExtractor={item => item.id}
                         onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
-                        data={movies.slice(0, 5)}
+                        data={randomMovies.slice(0, 5)}
                         renderItem={({item, index}) => (
                             <Item
                                 {...item}
@@ -449,6 +470,7 @@ const styles = StyleSheet.create({
     titlestyle: {
         ...FONTS.paragraph1, 
         marginLeft: 10, 
+        fontSize: 12
        
     },
     description: {

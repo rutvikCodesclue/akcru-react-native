@@ -137,66 +137,72 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     return (
         <TabContainer>
             <SafeAreaView>
-            <ScrollView stickyHeaderIndices={[0]}>
-                <View>
-                    <Header />
-                </View>
+                <ScrollView stickyHeaderIndices={[0]}>
+                    <View>
+                        <Header />
+                    </View>
 
-                {isMovieDataLoaded ? (
-                    <View style={{marginBottom: 75}}>
-                        <View style={{marginTop: -65, marginBottom: 10}}>
-                            <MovieDetailCard
-                                portraitURL={portraitURL}
-                                title={title}
-                                year={year}
-                                duration={duration}
-                                rated={rated}
-                                rating={rating}
-                                description={description}
-                                actors={actors && actors.map(actor => actor.name).join(', ')}
-                                directors={director && director.map(director => director.name).join(', ')}
-                                id={id}
-                                trailerURL={trailerURL}
-                                landscapeURL={landscapeURL}
-                                movieURL={movieURL}
-                                genre1={genres[0]}
-                                genre2={genres[1]}
-                                onPressin={() => {
-                                    navigation2.navigate('ContentPlayer', {
-                                        id: id,
-                                        movieURL: movieURL,
-                                        landscapeURL: landscapeURL,
-                                    });
-                                }}
-                                onPress={() => {
-                                    navigation.navigate('MITDateSchedule', {
-                                        id: id,
-                                        title: title,
-                                        portraitURL: portraitURL,
-                                        year: year,
-                                        
-                                    });
-                                    console.log('Movie Title:', id, description);
-                                }}
-                                onPressOut={() => {
-                                    setShowAddToWatchListConfirmationModal(true);
-                                }}
-                                showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
-                                handleCancelAddToWatchList={handleCancelAddToWatchList}
-                                handleConfirmAddToWatchList={handleConfirmAddToWatchList}
-                            />
-                        </View>
+                    {isMovieDataLoaded ? (
+                        <View style={{marginBottom: 75}}>
+                            <View style={{marginTop: -65, marginBottom: 10}}>
+                                <MovieDetailCard
+                                    portraitURL={portraitURL}
+                                    title={title}
+                                    year={year}
+                                    duration={duration}
+                                    rated={rated}
+                                    rating={rating}
+                                    description={description}
+                                    actors={actors && actors.map(actor => actor.name).join(', ')}
+                                    directors={director && director.map(director => director.name).join(', ')}
+                                    id={id}
+                                    trailerURL={trailerURL}
+                                    landscapeURL={landscapeURL}
+                                    movieURL={movieURL}
+                                    genre1={genres[0]}
+                                    genre2={genres[1]}
+                                    onPressin={() => {
+                                        navigation2.navigate('ContentPlayer', {
+                                            id: id,
+                                            movieURL: movieURL,
+                                            landscapeURL: landscapeURL,
+                                        });
+                                    }}
+                                    PlayTrailer={() => {
+                                        navigation2.navigate('TrailerPlayer', {
+                                            id: id,
+                                            trailerURL: trailerURL,
+                                            landscapeURL: landscapeURL,
+                                        });
+                                    }}
+                                    onPress={() => {
+                                        navigation.navigate('MITDateSchedule', {
+                                            id: id,
+                                            title: title,
+                                            portraitURL: portraitURL,
+                                            year: year,
+                                        });
+                                        console.log('Movie Title:', id, description);
+                                    }}
+                                    onPressOut={() => {
+                                        setShowAddToWatchListConfirmationModal(true);
+                                    }}
+                                    showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
+                                    handleCancelAddToWatchList={handleCancelAddToWatchList}
+                                    handleConfirmAddToWatchList={handleConfirmAddToWatchList}
+                                />
+                            </View>
 
-                        <View style={{marginHorizontal: 15}}>
-                            <BasicListCategories
-                                Akcru_Content={{
-                                    id: 'recommendedForYou',
-                                    title: 'Recommended by Akcru',
-                                    movies: randomMovies,
-                                }}
-                            />
-                        </View>
-                        {/* <View style={{marginHorizontal: 15}}>
+                            <View style={{marginHorizontal: 15}}>
+                                <BasicListCategories
+                                    Akcru_Content={{
+                                        id: 'recommendedForYou',
+                                        title: 'Recommended by Akcru',
+                                        movies: randomMovies,
+                                    }}
+                                />
+                            </View>
+                            {/* <View style={{marginHorizontal: 15}}>
                             <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
                             <View style={{marginBottom: 75}}>
                                 <View>
@@ -229,15 +235,14 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                 </View>
                             </View>
                         </View> */}
-                    </View>
-                ) : (
-                    <View style={styles.activitycontainer}>
-                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
-                    </View>
-                )}
-            </ScrollView>
-        </SafeAreaView> 
+                        </View>
+                    ) : (
+                        <View style={styles.activitycontainer}>
+                            <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                        </View>
+                    )}
+                </ScrollView>
+            </SafeAreaView>
         </TabContainer>
-       
     );
 }

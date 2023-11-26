@@ -14,4 +14,4 @@ export const TabContextProvider = ({children}) => {
     
 };
 
-export const useTabMenu = () => React.useContext(TabContext);
+export const UseTabMenu = () => React.useContext(TabContext);
