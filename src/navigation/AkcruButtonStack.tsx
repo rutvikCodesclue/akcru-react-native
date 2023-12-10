@@ -28,13 +28,13 @@ export default function AkcruButtonStack() {
                 cardOverlayEnabled: true,
                 cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
             }}>
-            {/* <AkcruBtn.Screen
+            <AkcruBtn.Screen
                 name="AkcruCenterButton"
                 component={AkcruCenterButton}
                 options={{
                     headerShown: false,
                 }}
-            /> */}
+            />
             <AkcruBtn.Screen
                 name="PurchaseMITScreen"
                 component={PurchaseMITScreen}

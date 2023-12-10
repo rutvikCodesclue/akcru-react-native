@@ -50,23 +50,35 @@ const NewPost = () => {
                 path: 'image',
             },
         };
-        launchImageLibrary(options, response =>{
 
-            // Check the size of the selected image
-            const imageSizeInBytes = response.assets[0].fileSize;
-            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+        // Flag to track whether the callback has been executed
+        let callbackExecuted = false;
+        
+        launchImageLibrary(options, response => {
+            if (response && !response.didCancel && response.assets) {
+                // Check if the response is defined, not canceled, and has assets
+                if (callbackExecuted) {
+                    return;
+                }
 
-            if (imageSizeInBytes > maxSizeInBytes) {
-                // Show size error modal
-                setShowSizeErrorModal(true);
-                setSelectImage("");
-            } else {
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
 
-            setSelectImage(response.assets[0].uri);
-            console.log(response.assets[0].uri);
+                // Check the size of the selected image
+                const imageSizeInBytes = response.assets[0].fileSize;
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+                if (imageSizeInBytes > maxSizeInBytes) {
+                    // Show size error modal
+                    setShowSizeErrorModal(true);
+                    setSelectImage('');
+                } else {
+                    setSelectImage(response.assets[0].uri);
+                    console.log(response.assets[0].uri);
+                }
             }
-        })
-        console.log("Select Image")
+        });
+        console.log('Select Image');
     };
 
     const selectAGIF = async () => {

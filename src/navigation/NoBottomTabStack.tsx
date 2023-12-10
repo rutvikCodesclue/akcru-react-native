@@ -125,38 +125,6 @@ export default function NoBottomStack() {
                   gestureEnabled: false,
               }}
           />
-          {/* <NoBottom.Screen
-              name="AkcruButtonStack"
-              component={AkcruButtonStack}
-              options={{
-                  headerShown: false,
-                  gestureDirection: 'horizontal',
-              }}
-          /> */}
-          <NoBottom.Screen
-              name="AkcruNetworkScreen"
-              component={AkcruNetworkScreen}
-              options={{
-                  headerShown: false,
-                  gestureDirection: 'horizontal',
-              }}
-          />
-          <NoBottom.Screen
-              name="PurchaseMITScreen"
-              component={PurchaseMITScreen}
-              options={{
-                  headerShown: false,
-                  gestureDirection: 'horizontal',
-              }}
-          />
-          <NoBottom.Screen
-              name="FlickFlirtScreen"
-              component={FlickFlirtScreen}
-              options={{
-                  headerShown: false,
-                  gestureDirection: 'horizontal',
-              }}
-          />
       </NoBottom.Navigator>
   );
 }

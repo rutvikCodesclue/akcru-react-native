@@ -82,7 +82,7 @@ const HomeScreen = () => {
 
     // Start a timer when the video is loaded
     useEffect(() => {
-        let timer;
+        let timer: number;
 
         const handleTimerTick = () => {
             // Increment the elapsed time every second
@@ -263,14 +263,13 @@ const HomeScreen = () => {
                         </View>
                         <View
                             style={{
-                                
                                 width: '100%',
                                 zIndex: 2,
                                 position: 'absolute',
                                 top: '16%',
                                 flexDirection: 'row-reverse',
                                 justifyContent: 'space-between',
-                                paddingHorizontal: 15
+                                paddingHorizontal: 15,
                             }}>
                             <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
                                 <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
@@ -283,7 +282,7 @@ const HomeScreen = () => {
                             <View style={{height: SIZES.ScreenHeight / 1.63}}>
                                 {!isVideoLoaded && (
                                     <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
-                                        <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                                        {/* <ActivityIndicator size="large" color={COLORS.PURPLE} /> */}
                                     </View>
                                 )}
                                 {/* <VideoPlayer
@@ -316,6 +315,7 @@ const HomeScreen = () => {
                                     posterResizeMode="cover"
                                     poster={topBox[topBoxIndex]?.portraitURL}
                                     onLoad={handleVideoLoad}
+                                    paused={!topBoxShouldAutoplay}
                                 />
                             </View>
                             <View>

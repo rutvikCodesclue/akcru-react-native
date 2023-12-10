@@ -90,7 +90,7 @@ export default function ClientTabNavigator() {
           />
           <ClientTabs.Screen
               name="AkcruButtonStack"
-              component={AkcruCenterButton}
+              component={AkcruButtonStack}
               options={{
                   tabBarItemStyle: {
                       height: 0,
@@ -166,12 +166,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
+        
     },
     tabIconContainer: {
         position: 'absolute',
-        top: 12,
+        top: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        width: '100%'
+        width: '100%',
+        
     },
 });

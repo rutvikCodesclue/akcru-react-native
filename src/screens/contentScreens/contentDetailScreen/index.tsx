@@ -156,7 +156,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                     actors={actors && actors.map(actor => actor.name).join(', ')}
                                     directors={director && director.map(director => director.name).join(', ')}
                                     id={id}
-                                    trailerURL={trailerURL}
+                                    // trailerURL={trailerURL}
                                     landscapeURL={landscapeURL}
                                     movieURL={movieURL}
                                     genre1={genres[0]}

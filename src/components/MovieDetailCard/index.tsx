@@ -9,7 +9,7 @@ import {
   Modal,
   StatusBar,
 } from 'react-native';
-import React, {useCallback, useRef, useState, useEffect} from 'react';
+import React from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
@@ -19,12 +19,8 @@ import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
-import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
-import YoutubePlayer from 'react-native-youtube-iframe';
 import { formatMovieDuration } from '../../util/util';
 import { capitalizeFirstLetterOfString } from '../../util/util';
-import Video, {OnSeekData} from 'react-native-video';
-import VideoPlayer from 'react-native-media-console';
 
 type MovieDetailCardProps = {
     title: string;
@@ -36,7 +32,6 @@ type MovieDetailCardProps = {
     actors: string;
     directors: string;
     id: string;
-    trailerURL: string;
     portraitURL: string;
     landscapeURL: string;
     movieURL: string;
@@ -61,7 +56,6 @@ const MovieDetailCard = ({
     description,
     actors,
     directors,
-    trailerURL,
     portraitURL,
     landscapeURL,
     movieURL,
@@ -75,50 +69,8 @@ const MovieDetailCard = ({
     handleConfirmAddToWatchList,
     PlayTrailer
 }: MovieDetailCardProps) => {
-    const video = React.useRef<Video>(null);
-    const [status, setStatus] = React.useState({}); //Video Player Status
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-
-     
-
-    const [trailerModal, setTrailerModal] = useState(false)
-
-
-    const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
-    const [isOpen, setIsOpen] = useState(false);
-
-    const snapPoints = ['1', '75'];
-
-    const handleSnapPress = useCallback((index: number) => {
-        sheetRef.current?.snapToIndex(index);
-        setIsOpen(true);
-    }, []);
-
-    const [playing, setPlaying] = useState(false);
-
-    const onStateChange = useCallback((state: string) => {
-        if (state === 'ended') {
-            setPlaying(false);
-            Alert.alert('Trailer has finished playing!');
-        }
-    }, []);
-
-    const toggleTrailerPlaying = useCallback(() => {
-        setPlaying(prev => !prev);
-    }, []);
-
-    const onPlay = () => {
-        setPlaying(true);
-        // Hide the status bar when the movie starts playing
-        StatusBar.setHidden(true);
-    };
-    const onPause = () => {
-        setPlaying(false);
-        // Show the status bar when the movie is paused
-        StatusBar.setHidden(false);
-    };
-
 
     return (
         <View>
@@ -397,93 +349,6 @@ const MovieDetailCard = ({
                     </View>
                 </View>
             </View>
-            {/* <Modal>
-                <View>
-
-                </View>
-            </Modal> */}
-
-            <BottomSheet
-                ref={sheetRef}
-                snapPoints={snapPoints}
-                enablePanDownToClose={true}
-                backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                onClose={() => setIsOpen(false)}>
-                <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                    <View style={{height: 175}}>
-                        <VideoPlayer
-                            source={{
-                                uri: trailerURL,
-                            }}
-                            disableBack
-                            toggleResizeModeOnFullscreen={true}
-                            // onChangeState={onStateChange}
-                            poster={landscapeURL}
-                            onPlay={onPlay}
-                            onPause={onPause}
-                            containerStyle={{zIndex: 100}}
-                           videoRef={video}
-                        />
-                    </View>
-
-                    <View style={{alignItems: 'center'}}>
-                        <AkcruButtons.LrgButton
-                            btnname={playing ? 'Pause' : 'Play'}
-                            onPress={toggleTrailerPlaying}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={true}
-                        />
-                    </View>
-                    <View>
-                        <Text style={{...FONTS.Title3, fontSize: 20, marginVertical: 15}}>{title} - Trailer</Text>
-                    </View>
-                    <View>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.LIGHTGREY,
-                                lineHeight: 18,
-                                marginBottom: 10,
-                            }}>
-                            {description}
-                        </Text>
-                        <View style={{flexDirection: 'row', marginBottom: 5}}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.DARKGREY,
-                                    marginRight: 10,
-                                }}>
-                                Cast:
-                            </Text>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.AKCRUBLUE,
-                                }}>
-                                {actors}
-                            </Text>
-                        </View>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.DARKGREY,
-                                    marginRight: 10,
-                                }}>
-                                Director:
-                            </Text>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.AKCRUBLUE,
-                                }}>
-                                {directors}
-                            </Text>
-                        </View>
-                    </View>
-                </BottomSheetScrollView>
-            </BottomSheet>
         </View>
     );
 };

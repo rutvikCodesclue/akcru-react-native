@@ -17,7 +17,7 @@ import {
 import styles from "./styles";
 import { COLORS, FONTS, SIZES } from "../../../../assets/constants";
 
-import { Icon, Avatar } from "@rneui/base";
+import { Icon, Avatar, color } from "@rneui/base";
 import MITSwipe from "../../../components/MITSwipe";
 import Header from "../../../components/header";
 import AkcruLevels from "../../../components/akcruBadges";
@@ -207,86 +207,112 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
 
     return (
         <TabContainer>
-           <View style={{flex: 1}}>
-            <View style={styles.sheetcontainer}>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View>
-                        <Header />
-                    </View>
-                    <View>
-                        <View
-                            //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                            //   resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
-                            <LinearGradient
-                                // Background Linear Gradient
-                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                                style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    height: SIZES.ScreenHeight / 4,
-                                }}
-                            />
-                            <View style={styles.topcontainer}>
-                                <TouchableOpacity onPress={() => navigation.navigate('UserMITHubScreen')}>
+            <View style={{flex: 1}}>
+                <View style={styles.sheetcontainer}>
+                    <ScrollView stickyHeaderIndices={[0]}>
+                        <View>
+                            <Header />
+                        </View>
+                        <View>
+                            <View
+                                //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                                //   resizeMode="cover"
+                                style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                                <LinearGradient
+                                    // Background Linear Gradient
+                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        height: SIZES.ScreenHeight / 4,
+                                    }}
+                                />
+                                <View style={styles.topcontainer}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('UserMITHubScreen')}>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}>
+                                            <Icon
+                                                name="chevron-back"
+                                                type="ionicon"
+                                                size={20}
+                                                color={COLORS.LIGHTGREY}
+                                            />
+                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                        </View>
+                                    </TouchableOpacity>
                                     <View
                                         style={{
                                             flexDirection: 'row',
                                             alignItems: 'center',
+                                            justifyContent: 'space-between',
                                         }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
+                                            <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
+                                        </View>
+                                        <TouchableOpacity onPress={() => setShowChat(true)}>
+                                           
+                                                <Icon
+                                                    name="chatbox-ellipses"
+                                                    type="ionicon"
+                                                    size={30}
+                                                    color={COLORS.MIDORANGE}
+                                                    style={{marginRight: 20}}
+                                                />
+                                              
+                                        
+                                        </TouchableOpacity>
                                     </View>
-                                </TouchableOpacity>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
-                                    <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                 </View>
                             </View>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                marginTop: -60,
-                                marginHorizontal: 15,
-                            }}>
-                            <View style={{flexDirection: 'row'}}>
-                                <View style={{marginRight: 8}}>
-                                    <TouchableOpacity
-                                        onPress={() => navigation.navigate('ViewUserScreen', {userID: creator?.id})}>
-                                        <Avatar
-                                            rounded
-                                            size={60}
-                                            source={
-                                                creator?.profilePicture
-                                                    ? {uri: creator?.profilePicture}
-                                                    : imageindex.Akcruplaceholder
-                                            }
-                                            avatarStyle={{
-                                                borderWidth: 2,
-                                                borderColor: COLORS.AKCRUBLUE,
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginTop: -60,
+                                    marginHorizontal: 15,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <View style={{marginRight: 8}}>
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                navigation.navigate('ViewUserScreen', {userID: creator?.id})
+                                            }>
+                                            <Avatar
+                                                rounded
+                                                size={60}
+                                                source={
+                                                    creator?.profilePicture
+                                                        ? {uri: creator?.profilePicture}
+                                                        : imageindex.Akcruplaceholder
+                                                }
+                                                avatarStyle={{
+                                                    borderWidth: 2,
+                                                    borderColor: COLORS.AKCRUBLUE,
+                                                }}
+                                            />
+                                        </TouchableOpacity>
+                                        <View />
+
+                                        <View
+                                            style={{
+                                                backgroundColor: 'green',
+                                                height: 12,
+                                                width: 12,
+                                                borderRadius: 8,
+                                                position: 'absolute',
+                                                right: 8,
                                             }}
                                         />
-                                    </TouchableOpacity>
-                                    <View />
 
-                                    <View
-                                        style={{
-                                            backgroundColor: 'green',
-                                            height: 12,
-                                            width: 12,
-                                            borderRadius: 8,
-                                            position: 'absolute',
-                                            right: 8,
-                                        }}
-                                    />
-
-                                    {/* {!privateaccount ? (
+                                        {/* {!privateaccount ? (
                                       online ? (
                                           <View
                                               style={{
@@ -311,167 +337,178 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
                                           />
                                       )
                                   ) : null} */}
+                                    </View>
+                                    <View style={{width: SIZES.ScreenWidth / 2.5}}>
+                                        <Text style={{...FONTS.Title2, fontSize: 12}}>{creator?.username}</Text>
+                                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>{creator?.firstName}</Text>
+                                        {akcruBadge === 'AKCRUIT' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeAkcruit />
+                                            </View>
+                                        )}
+                                        {akcruBadge === 'GUARDIAN' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeGuardian />
+                                            </View>
+                                        )}
+                                        {akcruBadge === 'HERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeHero />
+                                            </View>
+                                        )}
+                                        {akcruBadge === 'SUPERHERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeSuperHero />
+                                            </View>
+                                        )}
+                                    </View>
                                 </View>
-                                <View style={{width: SIZES.ScreenWidth / 2.5}}>
-                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{creator?.username}</Text>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{creator?.firstName}</Text>
-                                    {akcruBadge === 'AKCRUIT' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeAkcruit />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'GUARDIAN' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeGuardian />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'HERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeHero />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'SUPERHERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeSuperHero />
-                                        </View>
-                                    )}
-                                </View>
-                            </View>
-                            <View style={{marginVertical: 20}}>
-                                <View
-                                    style={{
-                                        alignItems: 'center',
-                                        borderLeftWidth: 1,
-                                        borderColor: COLORS.DARKGREY,
-                                        paddingLeft: 10,
-                                    }}>
+                                <View style={{marginVertical: 20}}>
                                     <View
                                         style={{
-                                            width: 100,
-                                            height: 60,
-                                            justifyContent: 'center',
                                             alignItems: 'center',
+                                            borderLeftWidth: 1,
+                                            borderColor: COLORS.DARKGREY,
+                                            paddingLeft: 10,
                                         }}>
-                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{creator?.followerCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        <View
+                                            style={{
+                                                width: 100,
+                                                height: 60,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                            <Text style={{...FONTS.Title3, fontSize: 14}}>
+                                                {creator?.followerCount}
+                                            </Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                        <View>
-                            <View style={styles.bottomcontainer}>
-                                <View style={{alignItems: 'center', marginBottom: 10}}>
-                                    <View style={{marginTop: 10}}>
-                                        <View style={{flexDirection: 'row', width: '75%'}}>
-                                            <View style={{marginRight: 10}}>
-                                                <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
-                                            </View>
-                                            <View style={{}}>
-                                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.title}</Text>
-                                                <View
-                                                    style={{
-                                                        flexDirection: 'row',
-                                                        marginBottom: 5,
-                                                        alignItems: 'center',
-                                                    }}>
-                                                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>
-                                                        {movie?.year}
-                                                    </Text>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.paragraph1,
-                                                            fontSize: 12,
-                                                            marginHorizontal: 10,
-                                                        }}>
-                                                        {formatMovieDuration(movie?.duration)}
-                                                    </Text>
+                            <View>
+                                <View style={styles.bottomcontainer}>
+                                    <View style={{alignItems: 'center', marginBottom: 10}}>
+                                        <View style={{marginTop: 10}}>
+                                            <View style={{flexDirection: 'row', width: '75%'}}>
+                                                <View style={{marginRight: 10}}>
+                                                    <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
                                                 </View>
-                                                <View style={{flexDirection: 'row', marginVertical: 5}}>
-                                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                                    <Text style={styles.drawfonttag}>
-                                                        {capitalizeFirstLetterOfString(movie?.genres[0])}
-                                                    </Text>
-
-                                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                                </View>
-                                                <TouchableOpacity
-                                                    onPressOut={() => setShowTrailer(true)}
-                                                    disabled={isLoading}
-                                                    style={{marginTop: 10}}>
+                                                <View style={{}}>
+                                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.title}</Text>
                                                     <View
                                                         style={{
-                                                            width: 125,
-                                                            height: 30,
-                                                            backgroundColor: COLORS.CATPURPDRK,
-                                                            justifyContent: 'center',
+                                                            flexDirection: 'row',
+                                                            marginBottom: 5,
                                                             alignItems: 'center',
-                                                            borderRadius: 3,
                                                         }}>
-                                                        <Text style={styles.playButton}>Play Trailer</Text>
+                                                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>
+                                                            {movie?.year}
+                                                        </Text>
+                                                        <Text
+                                                            style={{
+                                                                ...FONTS.paragraph1,
+                                                                fontSize: 12,
+                                                                marginHorizontal: 10,
+                                                            }}>
+                                                            {formatMovieDuration(movie?.duration)}
+                                                        </Text>
                                                     </View>
-                                                </TouchableOpacity>
+                                                    <View style={{flexDirection: 'row', marginVertical: 5}}>
+                                                        <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                                        <Text style={styles.drawfonttag}>
+                                                            {capitalizeFirstLetterOfString(movie?.genres[0])}
+                                                        </Text>
+
+                                                        <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                                    </View>
+                                                    <TouchableOpacity
+                                                        onPressOut={() => {
+                                                            navigation.navigate('TrailerPlayer', {
+                                                                id: movie?.id,
+                                                                trailerURL: movie?.trailerURL,
+                                                                landscapeURL: movie?.landscapeURL,
+                                                            });
+                                                        }}
+                                                        disabled={false}
+                                                        style={{marginTop: 10}}>
+                                                        <View
+                                                            style={{
+                                                                width: 125,
+                                                                height: 30,
+                                                                backgroundColor: COLORS.CATPURPDRK,
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                borderRadius: 3,
+                                                            }}>
+                                                            <Text style={styles.playButton}>Play Trailer</Text>
+                                                        </View>
+                                                    </TouchableOpacity>
+                                                </View>
                                             </View>
                                         </View>
                                     </View>
-                                </View>
 
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        fontSize: 12,
-                                        textAlign: 'center',
-                                        color: COLORS.PURPLE,
-                                    }}>
-                                    "{creator?.firstName}" wants to watch "{movie?.title}" with you on:
-                                </Text>
-                            </View>
-                            <View style={{alignItems: 'center', marginVertical: 10}}>
-                                <View style={styles.datebox}>
-                                    <Text style={styles.datetext}>
-                                        {' '}
-                                        {moment(schedule).tz(timezone).format('ddd, MMM Do')}{' '}
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            fontSize: 12,
+                                            textAlign: 'center',
+                                            color: COLORS.PURPLE,
+                                        }}>
+                                        "{creator?.firstName}" wants to watch "{movie?.title}" with you on:
                                     </Text>
-                                    <Text style={styles.datetext}>@ </Text>
-                                    <Text style={styles.datetext}>
-                                        {/* render UTC Time w/ moment */}
-                                        {moment(schedule).tz(timezone).format('h:mm A')}{' '}
-                                        {getShortenedTimezone(timezone)}
-                                    </Text>
-
-                                    {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                 </View>
-                                {/* <TouchableOpacity>
+                                <View style={{alignItems: 'center', marginVertical: 10}}>
+                                    <View style={styles.datebox}>
+                                        <Text style={styles.datetext}>
+                                            {' '}
+                                            {moment(schedule).tz(timezone).format('ddd, MMM Do')}{' '}
+                                        </Text>
+                                        <Text style={styles.datetext}>@ </Text>
+                                        <Text style={styles.datetext}>
+                                            {/* render UTC Time w/ moment */}
+                                            {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                            {getShortenedTimezone(timezone)}
+                                        </Text>
+
+                                        {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
+                                    </View>
+                                    {/* <TouchableOpacity>
                                   <Text style={styles.datetext}>Request change</Text>
                               </TouchableOpacity> */}
-                            </View>
-                            <View style={{marginTop: 25}}>
-                                <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                </View>
+                                <View style={{marginTop: 25}}>
+                                    <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </ScrollView>
-                <View style={styles.opensheet}>
-                    <TouchableOpacity onPress={() => setShowChat(true)}>
-                        <Icon name="chatbox-ellipses" type="ionicon" size={25} color={COLORS.MIDORANGE} />
-                    </TouchableOpacity>
-                </View>
-                {/* {Chat Room} */}
-                <Modal animationType="slide" transparent={true} visible={showChat}>
-                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                        <ScrollView stickyHeaderIndices={[0]}>
-                            <View style={{paddingHorizontal: 15, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                                <TouchableOpacity onPress={() => setShowChat(false)} style={{marginVertical: '8%'}}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                            {/* <View style={{paddingHorizontal: 15}}>
+                    </ScrollView>
+                    {/* <View style={styles.opensheet}>
+                    
+                    </View> */}
+                    {/* {Chat Room} */}
+                    <Modal animationType="slide" transparent={true} visible={showChat}>
+                        <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
+                            <ScrollView stickyHeaderIndices={[0]}>
+                                <View style={{paddingHorizontal: 15, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                                    <TouchableOpacity onPress={() => setShowChat(false)} style={{marginVertical: '8%'}}>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}>
+                                            <Icon
+                                                name="chevron-back"
+                                                type="ionicon"
+                                                size={20}
+                                                color={COLORS.LIGHTGREY}
+                                            />
+                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                                {/* <View style={{paddingHorizontal: 15}}>
                                 <MITMessages
                                     inviteePicture={creator?.profilePicture}
                                     inviteeName={creator?.username}
@@ -480,163 +517,125 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
                                     avatarbordercolor={COLORS.AKCRUBLUE}
                                 />
                             </View> */}
-                            <FlatList
-                                data={MITMessage}
-                                renderItem={({item}) => (                             
+                                <FlatList
+                                    data={MITMessage}
+                                    renderItem={({item}) => (
                                         <View style={styles.postcontainer}>
-                                            <MITMessages post={item} InviterUserName={creator?.username} InviterPicture={creator?.profilePicture}/>
+                                            <MITMessages
+                                                post={item}
+                                                InviterUserName={creator?.username}
+                                                InviterPicture={creator?.profilePicture}
+                                            />
                                         </View>
-                                )}
-                            />
-                        </ScrollView>
-                        <View style={{paddingHorizontal: 15, marginVertical: '3%'}}>
-                            <View style={[styles.input, {height: containerHeight}]}>
-                                <View style={{width: '80%'}}>
-                                    <TextInput
-                                        placeholder={'Message'}
-                                        placeholderTextColor={COLORS.DARKERGREY}
-                                        style={[styles.textinput, {height: Math.max(40, inputHeight)}]}
-                                        secureTextEntry={false}
-                                        multiline={true}
-                                        onContentSizeChange={e => {
-                                            setInputHeight(e.nativeEvent.contentSize.height);
-                                            setContainerHeight(e.nativeEvent.contentSize.height + 0); // Adjust the padding and margin as needed
-                                        }}
-                                        onChangeText={handleInputChange}
-                                        value={message} // Use the modified value in the TextInput
-                                    />
-                                </View>
+                                    )}
+                                />
+                            </ScrollView>
+                            <View style={{paddingHorizontal: 15, marginVertical: '3%'}}>
+                                <View style={[styles.input, {height: containerHeight}]}>
+                                    <View style={{width: '80%'}}>
+                                        <TextInput
+                                            placeholder={'Message'}
+                                            placeholderTextColor={COLORS.DARKERGREY}
+                                            style={[styles.textinput, {height: Math.max(40, inputHeight)}]}
+                                            secureTextEntry={false}
+                                            multiline={true}
+                                            onContentSizeChange={e => {
+                                                setInputHeight(e.nativeEvent.contentSize.height);
+                                                setContainerHeight(e.nativeEvent.contentSize.height + 0); // Adjust the padding and margin as needed
+                                            }}
+                                            onChangeText={handleInputChange}
+                                            value={message} // Use the modified value in the TextInput
+                                        />
+                                    </View>
 
-                                <View style={{position: 'absolute', right: 10, bottom: 5}}>
-                                    {!isTyping && (
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                                <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={selectAGIF}>
-                                                <Icon
-                                                    name="file-gif-box"
-                                                    type="material-community"
-                                                    color={COLORS.MIDORANGE}
-                                                    size={26}
-                                                />
-                                            </TouchableOpacity>
-                                        </View>
-                                    )}
-                                    {isTyping && (
-                                        <View>
-                                            <TouchableOpacity>
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.Title2,
-                                                        color: COLORS.AKCRUBLUE,
-                                                        textAlign: 'right',
-                                                        paddingBottom: 5,
-                                                    }}>
-                                                    Send
-                                                </Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    )}
+                                    <View style={{position: 'absolute', right: 10, bottom: 5}}>
+                                        {!isTyping && (
+                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                <TouchableOpacity
+                                                    style={{marginHorizontal: 10}}
+                                                    onPress={selectPostImage}>
+                                                    <Icon
+                                                        name="images"
+                                                        type="ionicon"
+                                                        color={COLORS.MIDORANGE}
+                                                        size={20}
+                                                    />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={selectAGIF}>
+                                                    <Icon
+                                                        name="file-gif-box"
+                                                        type="material-community"
+                                                        color={COLORS.MIDORANGE}
+                                                        size={26}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                        {isTyping && (
+                                            <View>
+                                                <TouchableOpacity>
+                                                    <Text
+                                                        style={{
+                                                            ...FONTS.Title2,
+                                                            color: COLORS.AKCRUBLUE,
+                                                            textAlign: 'right',
+                                                            paddingBottom: 5,
+                                                        }}>
+                                                        Send
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                    </View>
                                 </View>
                             </View>
+                        </View>
+                    </Modal>
+                </View>
+                {/* Picture Size Error Modal*/}
+                <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                                alignItems: 'center',
+                                marginHorizontal: 15,
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                }}>
+                                {`Image is too large. Please select an image under 2MB.`}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setShowSizeErrorModal(false);
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                        color: COLORS.MIDORANGE,
+                                    }}>
+                                    {`Close`}
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>
             </View>
-            {/* Play Trailer Modal */}
-            <Modal animationType="fade" transparent={true} visible={showTrailer}>
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    }}>
-                    <View
-                        style={{
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                            padding: 20,
-                            borderRadius: 10,
-                        }}>
-                        <View style={{alignItems: 'center'}}>
-                            <Text style={{...FONTS.Title3, marginBottom: 10}}>{movie?.title} Trailer</Text>
-                            <YoutubePlayer
-                                height={200}
-                                width={300}
-                                play={playing}
-                                videoId={movie?.trailerURL}
-                                onChangeState={onStateChange}
-                            />
-                            <View style={{alignItems: 'center'}}>
-                                <AkcruButtons.LrgButton
-                                    btnname={playing ? 'Pause' : 'Play'}
-                                    onPress={toggleTrailerPlaying}
-                                    color={COLORS.AKCRUBLUE}
-                                    disabled={false}
-                                />
-                            </View>
-                        </View>
-
-                        <View>
-                            <TouchableOpacity
-                                onPress={() => setShowTrailer(false)} // Hide the confirmation modal
-                                style={{
-                                    padding: 10,
-                                    borderRadius: 5,
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title3}}>Close</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
-            {/* Picture Size Error Modal*/}
-            <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                <View
-                    style={{
-                        flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    <View
-                        style={{
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                            padding: 20,
-                            borderRadius: 10,
-                            alignItems: 'center',
-                            marginHorizontal: 15,
-                        }}>
-                        <Text
-                            style={{
-                                ...FONTS.Title3,
-                                marginBottom: 10,
-                                textAlign: 'center',
-                            }}>
-                            {`Image is too large. Please select an image under 2MB.`}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => {
-                                setShowSizeErrorModal(false);
-                            }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    marginBottom: 10,
-                                    textAlign: 'center',
-                                    color: COLORS.MIDORANGE,
-                                }}>
-                                {`Close`}
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
-        </View> 
         </TabContainer>
-        
     );
 };
 

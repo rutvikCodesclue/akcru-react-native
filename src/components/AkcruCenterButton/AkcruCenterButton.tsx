@@ -16,7 +16,7 @@ import { AkcruButtonStackParams } from '../../navigation/AkcruButtonStack';
 const AkcruCenterButton = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
 
-    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
 
     console.log('Akcru Button opened:', opened); // Check if this log is showing in the console
 

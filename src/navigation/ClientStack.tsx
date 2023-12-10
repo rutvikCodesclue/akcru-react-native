@@ -151,13 +151,13 @@ export function ClientStack() {
                   headerShown: false,
               })}
           />
-          {/* <ClientSearch.Screen
+          <ClientSearch.Screen
               name="AkcruButtonStack"
               component={AkcruButtonStack}
               options={{
                   headerShown: false,
               }}
-          /> */}
+          />
           <ClientSearch.Screen
               name="AkcruNetworkScreen"
               component={AkcruNetworkScreen}

@@ -129,7 +129,7 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="AkcruNetworkScreen"
               component={AkcruNetworkScreen}
               options={{
@@ -152,7 +152,7 @@ export function CrummunityStack() {
                   headerShown: false,
                  
               }}
-          />
+          /> */}
       </Crummunity.Navigator>
   );
 }

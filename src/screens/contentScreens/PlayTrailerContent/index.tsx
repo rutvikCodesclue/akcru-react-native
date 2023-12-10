@@ -35,6 +35,22 @@ export default function TrailerPlayer({navigation, route}: Props) {
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true); // start the movie playing
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'TrailerPlayer'>>();
+    const [shouldAutoplay, setShouldAutoplay] = useState(true);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('Trailer Screen focused [Trailer Screen]');
+            setShouldAutoplay(true);
+
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('Trailer Screen unfocused [Trailer Screen]');
+                setShouldAutoplay(false);
+            };
+        }, []),
+    );
+    
 
     
 
@@ -102,7 +118,6 @@ export default function TrailerPlayer({navigation, route}: Props) {
         // Show the status bar when the movie is paused
         StatusBar.setHidden(false);
     };
-    
 
     return (
         <View style={{flex: 1}}>

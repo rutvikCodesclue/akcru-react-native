@@ -16,7 +16,7 @@ export default StyleSheet.create({
         marginHorizontal: 15,
         marginTop: -10,
     },
-    poster: {width: 75, height: 125, borderRadius: 5},
+    poster: {width: 85, height: 115, borderRadius: 5},
     datebox: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -35,10 +35,8 @@ export default StyleSheet.create({
     },
     sheetview: {},
     opensheet: {
-        height: 110,
+        height: SIZES.ScreenHeight * .20,
         backgroundColor: COLORS.TAGCOLOR,
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
         padding: 10,
     },
     input: {

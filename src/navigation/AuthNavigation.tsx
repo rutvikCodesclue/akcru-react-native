@@ -110,7 +110,7 @@ export default function AuthStack() {
                   gestureDirection: 'horizontal',
               }}
           />
-          <Auth.Screen
+          {/* <Auth.Screen
               name="AkcruButtonStack"
               component={AkcruButtonStack}
               options={{
@@ -149,7 +149,7 @@ export default function AuthStack() {
                   headerShown: false,
                   gestureDirection: 'horizontal',
               }}
-          />
+          /> */}
       </Auth.Navigator>
   );
 }

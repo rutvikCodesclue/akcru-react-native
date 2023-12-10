@@ -242,34 +242,6 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-          {/* <UserProfile.Screen
-              name="AkcruButtonStack"
-              component={AkcruButtonStack}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
-          <UserProfile.Screen
-              name="AkcruNetworkScreen"
-              component={AkcruNetworkScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <UserProfile.Screen
-              name="PurchaseMITScreen"
-              component={PurchaseMITScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <UserProfile.Screen
-              name="FlickFlirtScreen"
-              component={FlickFlirtScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
       </UserProfile.Navigator>
   );
 }
