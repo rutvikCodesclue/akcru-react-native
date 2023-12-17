@@ -64,6 +64,8 @@ const SkinnyPostCard = ({post }: PostProps) => {
 
     const [showSkipButton, setShowSkipButton] = useState(false);
 
+    const [shareOptionsVisible, setShareOptionsVisible] = useState(false)
+
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
@@ -117,6 +119,14 @@ const SkinnyPostCard = ({post }: PostProps) => {
 
     const closePostOptions = () =>{
         setPostOptionsVisible(false)
+    }
+
+    const openShareOptions = () => {
+        setShareOptionsVisible(true)
+    }
+
+    const closeShareOptions = () => {
+        setShareOptionsVisible(false)
     }
 
     return (
@@ -239,6 +249,155 @@ const SkinnyPostCard = ({post }: PostProps) => {
                         </View>
                     </Pressable>
                 </Modal>
+                <Modal visible={shareOptionsVisible} transparent={true} animationType="slide">
+                    <Pressable style={styles.postoptioncontainer} onPress={closeShareOptions}>
+                        <View style={styles.postoptionsmodal}>
+                            <View>
+                                <Text style={{...FONTS.Title2Orange, fontSize: 14, marginBottom: 15}}>Share post</Text>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="link" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Copy Link
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center', marginHorizontal: 15}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="bookmark" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Bookmark
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center'}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="share-social" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Share via...
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={{flexDirection: 'row', marginTop: 15}}>
+                                <View style={{alignItems: 'center'}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="logo-whatsapp" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        WhatsApp
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center', marginHorizontal: 15}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="logo-instagram" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Instagram
+                                    </Text>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Stories
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center', marginRight: 15}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon
+                                            name="chatbubble-ellipses"
+                                            type="ionicon"
+                                            color={COLORS.MIDORANGE}
+                                            size={20}
+                                        />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        Messages
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center', marginRight: 15}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="logo-facebook" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        News Feed
+                                    </Text>
+                                </View>
+                                <View style={{alignItems: 'center', marginRight: 15}}>
+                                    <Pressable
+                                        style={{
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                            width: 50,
+                                            height: 50,
+                                            borderRadius: 30,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Icon name="logo-linkedin" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    </Pressable>
+                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
+                                        LinkedIn
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+                    </Pressable>
+                </Modal>
             </View>
 
             <Text style={styles.post}>{post.content}</Text>
@@ -345,12 +504,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                         ('');
                     }}
                 />
-                <FooterIcons
-                    iconname={'share-social'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
+                <FooterIcons iconname={'share-social'} onPress={openShareOptions} />
             </View>
         </View>
     );
