@@ -17,6 +17,7 @@ import { Icon } from "@rneui/base";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { findMovies } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 type CruViewSearchMovieResultScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -84,7 +85,8 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
   };
 
   return (
-    <View>
+    <TabContainer>
+      <View>
       <SafeAreaView>
       <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
         <TouchableOpacity
@@ -167,6 +169,8 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
       </View>
       </SafeAreaView>
     </View>
+    </TabContainer>
+    
   );
 };
 

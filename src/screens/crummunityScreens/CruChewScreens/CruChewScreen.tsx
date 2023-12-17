@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CruChewStackParams } from '../../../navigation/CruChewStack';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -17,7 +18,9 @@ const CruChewScreen = () => {
     useNavigation<NativeStackNavigationProp<CruChewStackParams>>();
   
   return (
-      <SafeAreaView>
+    
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
                   <Header />
@@ -75,6 +78,8 @@ const CruChewScreen = () => {
               </View>
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 }
 

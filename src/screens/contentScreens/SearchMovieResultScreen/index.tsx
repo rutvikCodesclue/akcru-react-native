@@ -11,6 +11,7 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 // const AllMovies = Akcru_Content[0];
 
@@ -80,7 +81,8 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
   };
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <View>
               <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                   <TouchableOpacity
@@ -159,6 +161,8 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
               </View>
           </View>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

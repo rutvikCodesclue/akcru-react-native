@@ -7,8 +7,9 @@ import {
   Dimensions,
   Pressable,
   Modal,
+  StatusBar,
 } from 'react-native';
-import React, {useCallback, useRef, useState, useEffect} from 'react';
+import React from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
@@ -18,8 +19,6 @@ import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
-import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
-import YoutubePlayer from 'react-native-youtube-iframe';
 import { formatMovieDuration } from '../../util/util';
 import { capitalizeFirstLetterOfString } from '../../util/util';
 
@@ -33,7 +32,6 @@ type MovieDetailCardProps = {
     actors: string;
     directors: string;
     id: string;
-    trailerURL: string;
     portraitURL: string;
     landscapeURL: string;
     movieURL: string;
@@ -45,6 +43,7 @@ type MovieDetailCardProps = {
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
     onPressOut: () => void;
+    PlayTrailer: () => void;
 };
 
 const MovieDetailCard = ({
@@ -57,7 +56,6 @@ const MovieDetailCard = ({
     description,
     actors,
     directors,
-    trailerURL,
     portraitURL,
     landscapeURL,
     movieURL,
@@ -69,34 +67,10 @@ const MovieDetailCard = ({
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
+    PlayTrailer
 }: MovieDetailCardProps) => {
-    const video = React.useRef(null);
-    const [status, setStatus] = React.useState({}); //Video Player Status
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-
-    const sheetRef = useRef<BottomSheet>(null); //Pop up trailer
-    const [isOpen, setIsOpen] = useState(false);
-
-    const snapPoints = ['1', '75'];
-
-    const handleSnapPress = useCallback((index: number) => {
-        sheetRef.current?.snapToIndex(index);
-        setIsOpen(true);
-    }, []);
-
-    const [playing, setPlaying] = useState(false);
-
-    const onStateChange = useCallback((state: string) => {
-        if (state === 'ended') {
-            setPlaying(false);
-            Alert.alert('Trailer has finished playing!');
-        }
-    }, []);
-
-    const toggleTrailerPlaying = useCallback(() => {
-        setPlaying(prev => !prev);
-    }, []);
 
     return (
         <View>
@@ -237,7 +211,7 @@ const MovieDetailCard = ({
 
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
-                            onPress={() => handleSnapPress(1)}
+                            onPress={PlayTrailer}
                             color={COLORS.TAGCOLOR}
                             disabled={false}
                         />
@@ -375,73 +349,6 @@ const MovieDetailCard = ({
                     </View>
                 </View>
             </View>
-
-            <BottomSheet
-                ref={sheetRef}
-                snapPoints={snapPoints}
-                enablePanDownToClose={true}
-                backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                onClose={() => setIsOpen(true)}>
-                <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                    <YoutubePlayer height={225} play={playing} videoId={trailerURL} onChangeState={onStateChange} />
-                    <View style={{alignItems: 'center'}}>
-                        <AkcruButtons.LrgButton
-                            btnname={playing ? 'Pause' : 'Play'}
-                            onPress={toggleTrailerPlaying}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={true}
-                        />
-                    </View>
-                    <View>
-                        <Text style={{...FONTS.Title3, fontSize: 20, marginVertical: 15}}>{title} - Trailer</Text>
-                    </View>
-                    <View>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.LIGHTGREY,
-                                lineHeight: 18,
-                                marginBottom: 10,
-                            }}>
-                            {description}
-                        </Text>
-                        <View style={{flexDirection: 'row', marginBottom: 5}}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.DARKGREY,
-                                    marginRight: 10,
-                                }}>
-                                Cast:
-                            </Text>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.AKCRUBLUE,
-                                }}>
-                                {actors}
-                            </Text>
-                        </View>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.DARKGREY,
-                                    marginRight: 10,
-                                }}>
-                                Director:
-                            </Text>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2Orange,
-                                    color: COLORS.AKCRUBLUE,
-                                }}>
-                                {directors}
-                            </Text>
-                        </View>
-                    </View>
-                </BottomSheetScrollView>
-            </BottomSheet>
         </View>
     );
 };

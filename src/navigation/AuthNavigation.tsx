@@ -10,26 +10,35 @@ import NoBottomStack from './NoBottomTabStack';
 import OnBoard1 from '../screens/loginScreens/Onboarding/OnBoard1';
 import OnBoard2 from '../screens/loginScreens/Onboarding/OnBoard2';
 import OnBoard3 from '../screens/loginScreens/Onboarding/OnBoard3';
+import AkcruButtonStack from './AkcruButtonStack';
+import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
+import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
+import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 
 
 
 export type AuthStackParams = {
-  Signin: any;
-  Signup: any;
-  ForgotPassword: any;
-  ClientTabNavigator: any;
-  ClientStack: any;
-  NoBottomStack: any;
-  OnBoard1: any;
-  OnBoard2: any;
-  OnBoard3: any;
+    Signin: any;
+    Signup: any;
+    ForgotPassword: any;
+    ClientTabNavigator: any;
+    ClientStack: any;
+    NoBottomStack: any;
+    OnBoard1: any;
+    OnBoard2: any;
+    OnBoard3: any;
+    AkcruButtonStack: any;
+    AkcruNetworkScreen: any;
+    PurchaseMITScreen: any;
+    FlickFlirtScreen: any;
+    AkcruCenterButton: any;
 };
 
 const Auth = createStackNavigator<AuthStackParams>();
 
 export default function AuthStack() {
   return (
-
       <Auth.Navigator
           screenOptions={{
               animationEnabled: true,
@@ -84,7 +93,7 @@ export default function AuthStack() {
                   gestureDirection: 'horizontal',
               }}
           />
-       
+
           <Auth.Screen
               name="ClientTabNavigator"
               component={ClientTabNavigator}
@@ -101,7 +110,46 @@ export default function AuthStack() {
                   gestureDirection: 'horizontal',
               }}
           />
+          {/* <Auth.Screen
+              name="AkcruButtonStack"
+              component={AkcruButtonStack}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="AkcruNetworkScreen"
+              component={AkcruNetworkScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="PurchaseMITScreen"
+              component={PurchaseMITScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="FlickFlirtScreen"
+              component={FlickFlirtScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="AkcruCenterButton"
+              component={AkcruCenterButton}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          /> */}
       </Auth.Navigator>
-
   );
 }

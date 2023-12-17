@@ -23,6 +23,7 @@ import { IUserProfile } from '../../../../types';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import UserWalletSearchCard from '../../../components/UserWalletSearchCard';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -52,7 +53,8 @@ const UserWalletSearch = () => {
   };
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                   <Header />
@@ -148,6 +150,8 @@ const UserWalletSearch = () => {
               </View>
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

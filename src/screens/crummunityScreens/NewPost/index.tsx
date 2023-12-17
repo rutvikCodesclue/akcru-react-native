@@ -14,6 +14,7 @@ import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import { MediaType, launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -49,23 +50,35 @@ const NewPost = () => {
                 path: 'image',
             },
         };
-        launchImageLibrary(options, response =>{
 
-            // Check the size of the selected image
-            const imageSizeInBytes = response.assets[0].fileSize;
-            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+        // Flag to track whether the callback has been executed
+        let callbackExecuted = false;
+        
+        launchImageLibrary(options, response => {
+            if (response && !response.didCancel && response.assets) {
+                // Check if the response is defined, not canceled, and has assets
+                if (callbackExecuted) {
+                    return;
+                }
 
-            if (imageSizeInBytes > maxSizeInBytes) {
-                // Show size error modal
-                setShowSizeErrorModal(true);
-                setSelectImage("");
-            } else {
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
 
-            setSelectImage(response.assets[0].uri);
-            console.log(response.assets[0].uri);
+                // Check the size of the selected image
+                const imageSizeInBytes = response.assets[0].fileSize;
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+                if (imageSizeInBytes > maxSizeInBytes) {
+                    // Show size error modal
+                    setShowSizeErrorModal(true);
+                    setSelectImage('');
+                } else {
+                    setSelectImage(response.assets[0].uri);
+                    console.log(response.assets[0].uri);
+                }
             }
-        })
-        console.log("Select Image")
+        });
+        console.log('Select Image');
     };
 
     const selectAGIF = async () => {
@@ -79,163 +92,169 @@ const NewPost = () => {
     };
 
     return (
-        <SafeAreaView>
-            <View style={{zIndex: 100}}>
-                <Header />
-            </View>
-            <View
-                style={{
-                    height: SIZES.ScreenHeight * 0.15,
-                    marginTop: -68,
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                }}>
-                <LinearGradient
-                    // Background Linear Gradient
-                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+        <TabContainer>
+            <SafeAreaView>
+                <View style={{zIndex: 100}}>
+                    <Header />
+                </View>
+                <View
                     style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
                         height: SIZES.ScreenHeight * 0.15,
+                        marginTop: -68,
+                        backgroundColor: COLORS.AKCRUBACKGROUND,
                     }}>
-                    <View
+                    <LinearGradient
+                        // Background Linear Gradient
+                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                         style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginTop: '20%',
-                            marginHorizontal: 15,
-                        }}>
-                        <TouchableOpacity onPress={() => navigation.pop()}>
-                            <View>
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
-                            <View>
-                                <Text style={styles.postButton}>Post</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                </LinearGradient>
-            </View>
-            <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                <View style={{flexDirection: 'row'}}>
-                    <View style={{marginRight: 8}}>
-                        <Avatar
-                            rounded
-                            size={40}
-                            source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
-                            avatarStyle={{
-                                borderWidth: 2,
-                                borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                            }}
-                        />
-                    </View>
-                    <View>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>
-                            {/* {FAKE_USER_PROFILES[0].userName} */}
-                            {user ? user?.username : 'Guest'}
-                        </Text>
-                        {user?.badge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {user?.badge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
-                        {user?.badge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {user?.badge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
-                    </View>
-                </View>
-                <View style={styles.input}>
-                    <TextInput
-                        placeholder={'Tell us the "skinny" in 150 characters or less'}
-                        placeholderTextColor={COLORS.DARKGREY}
-                        style={styles.textinput}
-                        secureTextEntry={false}
-                        onChangeText={text => {
-                            // Limit the description to 150 characters
-                            if (text.length <= 200) {
-                                setPost(text);
-                            }
-                        }}
-                        value={post} // Use the modified value in the TextInput
-                        multiline={true}
-                        maxLength={200} // Set the maximum character limit
-                        editable={true}
-                    />
-                </View>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                        <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={selectAGIF}>
-                        <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
-                    </TouchableOpacity>
-                </View>
-                <View style={{marginTop: 10}}>
-                    {selectImage && (
-                        <View style={{marginHorizontal: 5}}>
-                            <Image source={{uri: selectImage}} style={{width: 100, height: 100, borderRadius: 5}} />
-                        </View>
-                    )}
-                </View>
-                {/* Picture Size Error Modal*/}
-                <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                    <View
-                        style={{
-                            flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: SIZES.ScreenHeight * 0.15,
                         }}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
+                                flexDirection: 'row',
                                 alignItems: 'center',
+                                marginTop: '20%',
                                 marginHorizontal: 15,
                             }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    marginBottom: 10,
-                                    textAlign: 'center',
-                                }}>
-                                {`Image is too large. Please select an image under 2MB.`}
+                            <TouchableOpacity onPress={() => navigation.pop()}>
+                                <View>
+                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
+                                <View>
+                                    <Text style={styles.postButton}>Post</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </LinearGradient>
+                </View>
+                <View style={{marginTop: '5%', marginHorizontal: 15}}>
+                    <View style={{flexDirection: 'row'}}>
+                        <View style={{marginRight: 8}}>
+                            <Avatar
+                                rounded
+                                size={40}
+                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
+                                avatarStyle={{
+                                    borderWidth: 2,
+                                    borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
+                                }}
+                            />
+                        </View>
+                        <View>
+                            <Text style={{...FONTS.Title2, fontSize: 12}}>
+                                {/* {FAKE_USER_PROFILES[0].userName} */}
+                                {user ? user?.username : 'Guest'}
                             </Text>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setShowSizeErrorModal(false);
+                            {user?.badge === 'AKCRUIT' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                </View>
+                            )}
+                            {user?.badge === 'GUARDIAN' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeGuardian />
+                                </View>
+                            )}
+                            {user?.badge === 'HERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeHero />
+                                </View>
+                            )}
+                            {user?.badge === 'SUPERHERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                </View>
+                            )}
+                        </View>
+                    </View>
+                    <View style={styles.input}>
+                        <TextInput
+                            placeholder={'Tell us the "skinny" in 150 characters or less'}
+                            placeholderTextColor={COLORS.DARKGREY}
+                            style={styles.textinput}
+                            secureTextEntry={false}
+                            onChangeText={text => {
+                                // Limit the description to 150 characters
+                                if (text.length <= 200) {
+                                    setPost(text);
+                                }
+                            }}
+                            value={post} // Use the modified value in the TextInput
+                            multiline={true}
+                            maxLength={200} // Set the maximum character limit
+                            editable={true}
+                        />
+                    </View>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
+                            <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={selectAGIF}>
+                            <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{marginHorizontal: 8}}>
+                            <Icon name="video-account" type="material-community" color={COLORS.MIDORANGE} size={30} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{marginTop: 10}}>
+                        {selectImage && (
+                            <View style={{marginHorizontal: 5}}>
+                                <Image source={{uri: selectImage}} style={{width: 100, height: 100, borderRadius: 5}} />
+                            </View>
+                        )}
+                    </View>
+                    {/* Picture Size Error Modal*/}
+                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
                                 }}>
                                 <Text
                                     style={{
-                                        ...FONTS.Title2,
+                                        ...FONTS.Title3,
                                         marginBottom: 10,
                                         textAlign: 'center',
-                                        color: COLORS.MIDORANGE,
                                     }}>
-                                    {`Close`}
+                                    {`Image is too large. Please select an image under 2MB.`}
                                 </Text>
-                            </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowSizeErrorModal(false);
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                </Modal>
-            </View>
-        </SafeAreaView>
+                    </Modal>
+                </View>
+                <View></View>
+            </SafeAreaView>
+        </TabContainer>
     );
 };
 

@@ -22,6 +22,7 @@ import { searchForUsers } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -51,7 +52,8 @@ const UserSearchResultScreen = () => {
   };
 
   return (
-    <SafeAreaView>
+    <TabContainer>
+      <SafeAreaView>
       <ScrollView stickyHeaderIndices={[0]}>
         <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
           <Header />
@@ -147,6 +149,8 @@ const UserSearchResultScreen = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </TabContainer>
+    
   );
 };
 

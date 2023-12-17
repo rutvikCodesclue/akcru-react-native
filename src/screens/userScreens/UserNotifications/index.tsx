@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
 import {INotification} from '../../../../types';
 import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -73,7 +74,8 @@ const UserNotifications = () => {
 
 
     return (
-        <SafeAreaView style={{flex: 1}}>
+        <TabContainer>
+            <SafeAreaView style={{flex: 1}}>
             <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
                 <View>
                     <View style={{zIndex: 100}}>
@@ -171,6 +173,8 @@ const UserNotifications = () => {
                 </View>
             </ScrollView>
         </SafeAreaView>
+        </TabContainer>
+        
     );
 };
 

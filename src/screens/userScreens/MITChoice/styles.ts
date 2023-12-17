@@ -16,15 +16,14 @@ export default StyleSheet.create({
         marginHorizontal: 15,
         marginTop: -10,
     },
-    poster: {width: 75, height: 125, borderRadius: 5},
+    poster: {width: 85, height: 115, borderRadius: 5},
     datebox: {
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.TRANSAKCRUBLUE,
-        
+
         borderRadius: 5,
-        padding: 20,
-        marginBottom: 10,
+        padding: 15,
     },
     datetext: {
         ...FONTS.Title2,
@@ -36,10 +35,9 @@ export default StyleSheet.create({
     },
     sheetview: {},
     opensheet: {
-        height: 100,
+        height: SIZES.ScreenHeight * .20,
         backgroundColor: COLORS.TAGCOLOR,
-        borderTopRightRadius: 10,
-        borderTopLeftRadius: 10,
+        padding: 10,
     },
     input: {
         flexDirection: 'row',
@@ -49,11 +47,14 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         marginVertical: 10,
         paddingLeft: 10,
+        alignContent: 'center',
+        height: 40,
         alignItems: 'center',
-        height: 35,
     },
     textinput: {
         color: COLORS.LIGHTGREY,
+        width: '100%',
+        flex: 1,
     },
     drawfonttag: {
         ...FONTS.Title2Orange,
@@ -72,5 +73,10 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
         justifyContent: 'center',
+    },
+    postcontainer: {
+        width: SIZES.ScreenWidth * 0.93,
+        alignSelf: 'center',
+        marginBottom: 5,
     },
 });

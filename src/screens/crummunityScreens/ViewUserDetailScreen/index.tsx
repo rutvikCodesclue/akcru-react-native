@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ImageBackground,
   Animated,
+  Modal,
+  Pressable,
 } from 'react-native';
 import styles from './styles';
 import React, {useRef, useState} from 'react';
@@ -26,6 +28,7 @@ import { selectAvatarBorderColor } from '../../../util/util';
 import imageindex from '../../../../assets/images/imageindex';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -47,6 +50,12 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
     const username: string | undefined = route.params?.userName ?? null;
 
     const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
+    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleAvatarModal = () => {
+        setAvatarModalVisible(!isAvatarModalVisible);
+    };
 
     
 
@@ -86,100 +95,130 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
     };
 
     return (
-        <View>
-            <ScrollView>
-                <View>
-                    <ImageBackground
-                        source={{uri: undefined}}
-                        resizeMode="cover"
-                        style={{height: SIZES.ScreenHeight / 5}}>
-                        <LinearGradient
-                            // Digitalpass Linear Gradient overlay
-                            colors={['transparent', 'transparent', COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: SIZES.ScreenHeight / 5,
-                            }}
-                        />
-                        <Header />
-                        <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
+        <TabContainer>
+            <View>
+                <ScrollView>
+                    <View>
+                        <ImageBackground
+                            source={{uri: undefined}}
+                            resizeMode="cover"
+                            style={{height: SIZES.ScreenHeight / 5}}>
+                            <LinearGradient
+                                // Digitalpass Linear Gradient overlay
+                                colors={['transparent', 'transparent', COLORS.AKCRUBACKGROUND]}
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    height: SIZES.ScreenHeight / 5,
+                                }}
+                            />
+                            <Header />
+                            <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                        marginBottom: 30,
+                                    }}>
+                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                </View>
+                            </TouchableOpacity>
+                        </ImageBackground>
+                        <Pressable style={{alignItems: 'center', marginTop: -50}} onPress={toggleAvatarModal}>
+                            <Avatar
+                                rounded
+                                size={250}
+                                source={
+                                    user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder
+                                }
+                                avatarStyle={{
+                                    borderWidth: 5,
+                                    borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
+                                }}
+                            />
+                        </Pressable>
+                        {/* Create a modal to display the enlarged image */}
+                        <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
                             <View
                                 style={{
-                                    flexDirection: 'row',
+                                    flex: 1,
+                                    justifyContent: 'center',
                                     alignItems: 'center',
-                                    marginHorizontal: 15,
-                                    marginBottom: 30,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
                                 }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                <Image
+                                    source={
+                                        user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder
+                                    }
+                                    style={{width: '95%', height: '95%'}}
+                                    resizeMode="contain"
+                                />
+                                <TouchableOpacity onPress={toggleAvatarModal}>
+                                    <Text style={{color: COLORS.MIDORANGE, fontSize: 14, marginTop: 20}}>Close</Text>
+                                </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
-                    </ImageBackground>
-                    <View style={{alignItems: 'center', marginTop: -50}}>
-                        <Avatar
-                            rounded
-                            size={250}
-                            source={user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder}
-                            avatarStyle={{
-                                borderWidth: 5,
-                                borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                            }}
-                        />
-                    </View>
-                    <View style={{alignItems: 'center', marginTop: 20}}>
-                        {user?.badge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {user?.badge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
-                        {user?.badge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {user?.badge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
-                    </View>
-                    <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Name: </Text>
-                            <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                        </Modal>
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            {user?.badge === 'AKCRUIT' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                </View>
+                            )}
+                            {user?.badge === 'GUARDIAN' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeGuardian />
+                                </View>
+                            )}
+                            {user?.badge === 'HERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeHero />
+                                </View>
+                            )}
+                            {user?.badge === 'SUPERHERO' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                </View>
+                            )}
                         </View>
-                        <View style={{flexDirection: 'row', marginVertical: 5}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Akcru Dollars Earned: </Text>
-                            <Text style={{...FONTS.Title2}}>{user?.location}</Text>
+                        <View style={{marginHorizontal: 15, marginVertical: 10}}>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Name: </Text>
+                                <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                            </View>
+                            <View style={{flexDirection: 'row', marginVertical: 5}}>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Akcru Dollars Earned: </Text>
+                                <Text style={{...FONTS.Title2}}>{user?.location}</Text>
+                            </View>
+                            <View style={{flexDirection: 'row'}}>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
+                                <Text style={{...FONTS.Title2}}>{CRU?.name}</Text>
+                            </View>
                         </View>
-                        <View style={{flexDirection: 'row'}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
-                            <Text style={{...FONTS.Title2}}>{CRU?.name}</Text>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'center',
+                                marginTop: 10,
+                            }}>
+                            <Text style={{...FONTS.Title3}}>Gallery</Text>
+                            <Icon
+                                name="images"
+                                type="ionicon"
+                                color={COLORS.LIGHTGREY}
+                                size={20}
+                                style={{marginLeft: 5}}
+                            />
                         </View>
-                    </View>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            marginTop: 10,
-                        }}>
-                        <Text style={{...FONTS.Title3}}>Gallery</Text>
-                        <Icon name="images" type="ionicon" color={COLORS.LIGHTGREY} size={20} style={{marginLeft: 5}} />
-                    </View>
-                    {/* <View style={styles.gallerycontainer}>
+                        <View style={styles.gallerycontainer}>
                       <ScrollView
                           horizontal
                           showsHorizontalScrollIndicator={false}
                           contentContainerStyle={styles.galleryImagesContainer}>
-                          {gallery.map((imageUri, index) => {
+                          {FAKE_USER_PROFILES[2].gallery.map((imageUri, index) => {
                               return (
                                   <TouchableOpacity
                                       key={index.toString()}
@@ -195,14 +234,15 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                       <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
                           <Animated.Image
                               source={{uri: selectedPhotoUri}}
-                              resizeMode="cover"
+                              resizeMode="contain"
                               style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
                           />
                       </TouchableOpacity>
-                  )} */}
-                </View>
-            </ScrollView>
-        </View>
+                  )}
+                    </View>
+                </ScrollView>
+            </View>
+        </TabContainer>
     );
 };
 

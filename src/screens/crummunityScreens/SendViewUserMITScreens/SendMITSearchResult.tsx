@@ -23,6 +23,7 @@ import filter from 'lodash/filter';
 import { IMovie, IUserProfile } from "../../../../types";
 import { findMovies } from "../../../lib/api/movies.lib";
 import { findAUser } from "../../../lib/api/user.lib";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 type SendMITSearchResultNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -111,7 +112,8 @@ const userID: string | undefined = route.params?.userID ?? null;
   };
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               {/* <View>
           <Header />
@@ -191,6 +193,8 @@ const userID: string | undefined = route.params?.userID ?? null;
               <View></View>
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

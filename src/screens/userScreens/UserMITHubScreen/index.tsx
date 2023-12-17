@@ -32,6 +32,7 @@ import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import MITReceived from '../UserMITHubTabs/MITReceived';
 import MITSent from '../UserMITHubTabs/MITSent';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 
@@ -137,7 +138,8 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
   });
   
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
                   <Header />
@@ -215,6 +217,8 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
               </View>
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 }
 

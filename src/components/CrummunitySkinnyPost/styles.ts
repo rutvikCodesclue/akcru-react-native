@@ -43,6 +43,12 @@ export default StyleSheet.create({
         borderRadius: 10,
         marginTop: 10,
     },
+    postvideo: {
+        width: '100%',
+        aspectRatio: 16 / 9,
+        borderRadius: 10,
+        marginTop: 10,
+    },
     postfooter: {
         marginTop: 10,
         flexDirection: 'row',
@@ -54,7 +60,7 @@ export default StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
-        padding: 15
+        padding: 15,
     },
     postoptioncontainer: {
         flex: 1,

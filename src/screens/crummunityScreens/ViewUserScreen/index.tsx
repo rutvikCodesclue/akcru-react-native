@@ -31,6 +31,7 @@ import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -65,7 +66,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     React.useCallback(() => {
       // This code will run when the screen comes into focus (e.g., when navigating to this screen)
       findAUser({ id: userID }).then((user) => {
-        setUser(user);
+          setUser(user);
       });
 
       return () => {
@@ -84,12 +85,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
-
-
-//   const truncatedstatus =
-//     status.length > MAX_STATUS_LENGTH
-//       ? status.slice(0, MAX_STATUS_LENGTH) + '...'
-//       : status;
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
@@ -121,7 +116,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View style={{zIndex: 20}}>
                   <Header />
@@ -167,9 +163,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           <View style={{marginRight: 8}}>
                               <Pressable
                                   onPress={() => {
-                                    console.log('Navigating to ViewUserDetailScreen with userID:', user?.username, user?.id);
+                                      console.log(
+                                          'Navigating to ViewUserDetailScreen with userID:',
+                                          user?.username,
+                                          user?.id,
+                                      );
                                       navigation.navigate('ViewUserDetailScreen', {
-                                         userID: user?.id       
+                                          userID: user?.id,
                                       });
                                   }}>
                                   <Avatar
@@ -231,7 +231,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       />
                                   )} */}
                               </View>
-
+                              {user?.firstName &&<Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
+                                  {user?.firstName ? user.firstName : ''}
+                              </Text>}
                               {user?.badge === 'AKCRUIT' && (
                                   <View>
                                       <AkcruLevels.AkcruBadgeAkcruit />
@@ -483,7 +485,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                               </View>
                           </Modal>
 
-                        {/* <View style={styles.seperator} />
+                          {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
@@ -520,5 +522,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
               )}
           </ScrollView>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 }

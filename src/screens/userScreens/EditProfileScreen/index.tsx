@@ -36,10 +36,12 @@ import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
 import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
 export default function EditProfile({session}: {session: Session}) {
+
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -340,7 +342,8 @@ export default function EditProfile({session}: {session: Session}) {
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+            <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
                 <View style={{zIndex: 20}}>
                     <Header />
@@ -853,5 +856,7 @@ export default function EditProfile({session}: {session: Session}) {
                 </View>
             </ScrollView>
         </SafeAreaView>
+        </TabContainer>
+        
     );
 }

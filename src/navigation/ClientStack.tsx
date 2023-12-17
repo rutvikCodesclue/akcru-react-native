@@ -14,6 +14,11 @@ import {COLORS} from '../../assets/constants';
 import { supabaseRealtime } from '../../lib/supabase';
 import { CruInviteAccept, CruInviteDecline } from '../screens/userScreens/CruInviteResponse';
 import UserNotifications from '../screens/userScreens/UserNotifications';
+import AkcruButtonStack from './AkcruButtonStack';
+import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
+import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
+import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -31,6 +36,11 @@ export type ClientStackParams = {
     CruInviteAccept: any;
     CruInviteDecline: any;
     UserNotifications: any;
+    AkcruButtonStack: any;
+    AkcruNetworkScreen: any;
+    FlickFlirtScreen: any;
+    PurchaseMITScreen: any;
+    AkcruCenterButton: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -43,13 +53,6 @@ export function ClientStack() {
               cardOverlayEnabled: true,
               cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
           }}>
-          {/* <ClientSearch.Screen
-        name="ContentSwipe"
-        component={ContentSwipe}
-        options={() => ({
-          headerShown: false,
-        })}
-      /> */}
           <ClientSearch.Screen
               name="HomeScreen"
               component={HomeScreen}
@@ -147,6 +150,41 @@ export function ClientStack() {
               options={() => ({
                   headerShown: false,
               })}
+          />
+          <ClientSearch.Screen
+              name="AkcruButtonStack"
+              component={AkcruButtonStack}
+              options={{
+                  headerShown: false,
+              }}
+          />
+          <ClientSearch.Screen
+              name="AkcruNetworkScreen"
+              component={AkcruNetworkScreen}
+              options={{
+                  headerShown: false,
+              }}
+          />
+          <ClientSearch.Screen
+              name="PurchaseMITScreen"
+              component={PurchaseMITScreen}
+              options={{
+                  headerShown: false,
+              }}
+          />
+          <ClientSearch.Screen
+              name="FlickFlirtScreen"
+              component={FlickFlirtScreen}
+              options={{
+                  headerShown: false,
+              }}
+          />
+          <ClientSearch.Screen
+              name="AkcruCenterButton"
+              component={AkcruCenterButton}
+              options={{
+                  headerShown: false,
+              }}
           />
       </ClientSearch.Navigator>
   );

@@ -23,6 +23,7 @@ import {useNavigation} from '@react-navigation/native';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import skinnies from '../../../../assets/constants/SkinnyPost';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 const CrummunityScreen = () => {
   const navigation =
@@ -44,7 +45,8 @@ const CrummunityScreen = () => {
     };
 
   return (
-      <SafeAreaView>
+    <TabContainer>
+        <SafeAreaView>
           <View>
               <ScrollView stickyHeaderIndices={[0]}>
                   <View>
@@ -118,6 +120,8 @@ const CrummunityScreen = () => {
               </Pressable>
           </View>
       </SafeAreaView>
+    </TabContainer>
+      
   );
 };
 

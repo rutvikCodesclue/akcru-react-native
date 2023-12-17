@@ -228,9 +228,11 @@ export const FAKE_USER_PROFILES = [
         id: '102',
         location: 'Philadelphia, PA',
         gallery: [
-            'https://cdn.pixabay.com/photo/2015/01/15/13/06/woman-600238_960_720.jpg',
-            'https://cdn.pixabay.com/photo/2015/01/15/13/06/woman-600238_960_720.jpg',
-            'https://cdn.pixabay.com/photo/2015/01/15/13/06/woman-600238_960_720.jpg',
+            'https://people.com/thmb/SJHU8gw9LAGCXNf9zGU5NtXD7_w=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(374x289:376x291)/John-David-and-Denzel-Washington_090722-de1f4ee822ab4d7c8cddae297a6c3f89.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Denzel_Washington_cropped_02.jpg/170px-Denzel_Washington_cropped_02.jpg',
+            'https://www.cheatsheet.com/wp-content/uploads/2023/07/Denzel-Washington-Leading-Man.jpg?strip=all&quality=89',
+            'https://images.paramount.tech/uri/mgid:arc:imageassetref:bet.com:b574ad2b-48e5-11e7-a442-0e40cf2fc285?quality=0.7&gen=ntrn&legacyStatusCode=true&height=565&width=400&crop=true&format=webp&width=600',
+            'https://world-celebs.com/public/media/celebrity/2019/08/22/o9v9p7yl6vp6-don-cheadle.jpg',
         ],
     },
     {

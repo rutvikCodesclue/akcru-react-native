@@ -31,6 +31,7 @@ import {createAMITInvite} from '../../../lib/api/mit.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -211,7 +212,8 @@ export default function SendMITSchedule({route}: Props) {
     }, [showSendMIT]);
 
     return (
-        <SafeAreaView>
+        <TabContainer>
+           <SafeAreaView>
             <ScrollView stickyHeaderIndices={[1]}>
                 {showSendMIT ? (
                     <View style={{flex: 1}}>
@@ -714,6 +716,8 @@ export default function SendMITSchedule({route}: Props) {
                     </View>
                 )}
             </ScrollView>
-        </SafeAreaView>
+        </SafeAreaView> 
+        </TabContainer>
+        
     );
 }

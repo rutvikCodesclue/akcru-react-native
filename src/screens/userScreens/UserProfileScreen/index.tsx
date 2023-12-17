@@ -39,6 +39,7 @@ import { ICruInvite, ICruView, IMITInvite } from "../../../../types";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
 import { getCRUInvites, getMyCRUViews } from "../../../lib/api/cru.lib";
 import {isAfter, isBefore} from 'date-fns';
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -295,7 +296,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
     ]);
 
     return (
-        <View style={{flex: 1}}>
+        <TabContainer>
+            <View style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <View>
                     <View
@@ -456,5 +458,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 />
             </SafeAreaView>
         </View>
+        </TabContainer>
+        
     );
 }

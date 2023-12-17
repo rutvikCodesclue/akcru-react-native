@@ -11,6 +11,7 @@ import { MOVIE_GENRES } from "../../../../assets/constants/Data";
 import { getMovieGenres } from "../../../lib/api/movies.lib";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
 import { IGenreItem } from "../../../../types";
+import TabContainer from "../../../components/TabContainer/TabContainer";
 
 const CruViewSearchMovieScreen = () => {
   const navigation =
@@ -36,7 +37,8 @@ const CruViewSearchMovieScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <TabContainer>
+      <SafeAreaView style={{ flex: 1 }}>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND }}>
@@ -121,6 +123,8 @@ const CruViewSearchMovieScreen = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </TabContainer>
+    
   );
 };
 

@@ -11,6 +11,8 @@ import { SendMITSchedule, SendMITSearchResult, SendMITViewUser, SendMITSearchInp
 import { COLORS } from '../../assets/constants';
 import PostScreen from '../screens/crummunityScreens/PostScreen';
 import NewPost from '../screens/crummunityScreens/NewPost';
+import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
+import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 
 export type CrummunityStackParams = {
     CrummunityScreen: any;
@@ -29,6 +31,8 @@ export type CrummunityStackParams = {
     CruChewOrder: any;
     PostScreen: any;
     NewPost: any;
+    AkcruNetworkScreen: any;
+    FlickFlirtScreen: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -125,13 +129,30 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
+          {/* <Crummunity.Screen
+              name="AkcruNetworkScreen"
+              component={AkcruNetworkScreen}
+              options={{
+                  headerShown: false,
+                 
+              }}
+          />
           <Crummunity.Screen
               name="PurchaseMITScreen"
               component={PurchaseMITScreen}
-              options={() => ({
+              options={{
                   headerShown: false,
-              })}
+                  
+              }}
           />
+          <Crummunity.Screen
+              name="FlickFlirtScreen"
+              component={FlickFlirtScreen}
+              options={{
+                  headerShown: false,
+                 
+              }}
+          /> */}
       </Crummunity.Navigator>
   );
 }
