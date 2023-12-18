@@ -13,6 +13,14 @@ export default StyleSheet.create({
         fontSize: 12,
         lineHeight: 18,
     },
+    footStats: {
+        ...FONTS.paragraph1,
+        fontSize: 12,
+        lineHeight: 18,
+        color: COLORS.AKCRUBLUE,
+        opacity: 0.5,
+        paddingTop: 10,
+    },
     cardcontainer: {
         backgroundColor: '#1C202A',
         borderRadius: 5,
@@ -51,12 +59,16 @@ export default StyleSheet.create({
     },
     postfooter: {
         marginTop: 10,
+        width: SIZES.ScreenWidth / 2,
         flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    postfooterside: {
         justifyContent: 'space-between',
     },
     postoptionsmodal: {
         width: '100%',
-        height: '30%',
+        height: '35%',
         backgroundColor: COLORS.AKCRUBACKGROUND,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,

@@ -105,13 +105,15 @@ const CrummunityScreen = () => {
                   <View style={{marginBottom: '20%'}}>
                       <FlatList
                           data={skinnies}
-                          renderItem={({item}) => (
+                          renderItem={({item}) => {
+                            return <View>
                               <Pressable onPress={() => handlePostPress(item.id)}>
                                   <View style={styles.postcontainer}>
                                       <SkinnyPostCard post={item} />
                                   </View>
                               </Pressable>
-                          )}
+                              </View>
+                          }}
                       />
                   </View>
               </ScrollView>

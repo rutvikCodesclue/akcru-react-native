@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
@@ -9,18 +9,49 @@ import AkcruButtons from '../akcruButtons';
 
 type FooterIconsProps = {
     iconname: string;
-    text?: string | number;
     onPress: () => void;
 };
 
-const FooterIcons = ({iconname, text, onPress}: FooterIconsProps) => {
+const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
                 <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={18} />
             </TouchableOpacity>
-            <Text style={{...FONTS.Title2, fontSize: 12, marginLeft: 5}}>{text}</Text>
+           
         </View>
+    );
+};
+
+type ShareOptionProps = {
+    iconname: string;
+    sharename?: string | number;
+    sharePress: () => void;
+};
+
+const ShareOptions =({iconname, sharename, sharePress}: ShareOptionProps) => {
+    return (
+        <View style={{marginRight: 15}}>
+          <View style={{alignItems: 'center'}}>
+            <Pressable
+                onPress={sharePress}
+                style={{
+                    backgroundColor: COLORS.AKCRUBLUE,
+                    width: 50,
+                    height: 50,
+                    borderRadius: 30,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={20} />
+            </Pressable>
+            <View style={{marginTop: 5, width: 70}}>
+             <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE, textAlign: 'center'}}>{sharename}</Text>   
+            </View>
+            
+          </View>  
+        </View>
+        
     );
 };
 
@@ -255,146 +286,37 @@ const SkinnyPostCard = ({post }: PostProps) => {
                             <View>
                                 <Text style={{...FONTS.Title2Orange, fontSize: 14, marginBottom: 15}}>Share post</Text>
                             </View>
-                            <View style={{flexDirection: 'row'}}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="link" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Copy Link
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center', marginHorizontal: 15}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="bookmark" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Bookmark
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center'}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="share-social" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Share via...
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={{flexDirection: 'row', marginTop: 15}}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="logo-whatsapp" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        WhatsApp
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center', marginHorizontal: 15}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="logo-instagram" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Instagram
-                                    </Text>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Stories
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center', marginRight: 15}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon
-                                            name="chatbubble-ellipses"
-                                            type="ionicon"
-                                            color={COLORS.MIDORANGE}
-                                            size={20}
-                                        />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        Messages
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center', marginRight: 15}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="logo-facebook" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        News Feed
-                                    </Text>
-                                </View>
-                                <View style={{alignItems: 'center', marginRight: 15}}>
-                                    <Pressable
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                            width: 50,
-                                            height: 50,
-                                            borderRadius: 30,
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Icon name="logo-linkedin" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                                    </Pressable>
-                                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE}}>
-                                        LinkedIn
-                                    </Text>
-                                </View>
-                            </View>
+                            <ScrollView horizontal={true}>
+                                <ShareOptions iconname={'link'} sharename={'Copy Link'} sharePress={() => {}} />
+                                <ShareOptions iconname={'bookmark'} sharename={'Bookmark'} sharePress={() => {}} />
+                                <ShareOptions
+                                    iconname={'share-social'}
+                                    sharename={'Share via...'}
+                                    sharePress={() => {}}
+                                />
+                            </ScrollView>
+                            <ScrollView
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                style={{paddingTop: 15}}>
+                                <ShareOptions iconname={'logo-whatsapp'} sharename={'WhatsApp'} sharePress={() => {}} />
+                                <ShareOptions
+                                    iconname={'logo-instagram'}
+                                    sharename={'Instagram Stories'}
+                                    sharePress={() => {}}
+                                />
+                                <ShareOptions
+                                    iconname={'chatbubble-ellipses'}
+                                    sharename={'Messages'}
+                                    sharePress={() => {}}
+                                />
+                                <ShareOptions
+                                    iconname={'logo-facebook'}
+                                    sharename={'News Feed'}
+                                    sharePress={() => {}}
+                                />
+                                <ShareOptions iconname={'logo-linkedin'} sharename={'LinkedIn'} sharePress={() => {}} />
+                            </ScrollView>
                         </View>
                     </Pressable>
                 </Modal>
@@ -415,7 +337,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                         <View style={styles.postvideo}>
                             <Video
                                 ref={topVideoRef}
-                                style={{width: '100%', height: '100%'}}
+                                style={{width: '100%', height: '100%', borderRadius: 10}}
                                 source={{uri: post.video}}
                                 resizeMode="cover"
                                 onEnd={handleVideoEnd}
@@ -478,33 +400,36 @@ const SkinnyPostCard = ({post }: PostProps) => {
             <View style={styles.postfooter}>
                 <FooterIcons
                     iconname={'chatbox'}
-                    text={post.numberOfComments || 0}
                     onPress={() => {
                         ('');
                     }}
                 />
                 <FooterIcons
                     iconname={'happy'}
-                    text={post.numberOfLikes || 0}
                     onPress={() => {
                         ('');
                     }}
                 />
                 <FooterIcons
                     iconname={'sync'}
-                    text={post.numberOfReposts || 0}
                     onPress={() => {
                         ('');
                     }}
                 />
-                <FooterIcons
+                {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
                     onPress={() => {
                         ('');
                     }}
-                />
+                /> */}
                 <FooterIcons iconname={'share-social'} onPress={openShareOptions} />
+            </View>
+            <View>
+                <Text style={styles.footStats}>
+                    {post.numberOfComments || 0} Comments • {post.numberOfLikes || 0} Likes •{' '}
+                    {post.numberOfReposts || 0} Repost
+                </Text>
             </View>
         </View>
     );
