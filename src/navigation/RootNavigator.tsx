@@ -1,16 +1,31 @@
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
+import {NavigationContainer, createNavigationContainerRef} from '@react-navigation/native';
 import AuthStack from './AuthNavigation';
 import {TabContextProvider} from '../context/TabContext';
-import AkcruButtonStack from './AkcruButtonStack';
+
+// Define the deep link prefix
+const DEEP_LINK_PREFIX = 'akcruapp://';
+
+const linking = {
+    prefixes: [DEEP_LINK_PREFIX],
+    config: {
+        screens: {
+            ResetPassword: 'reset-password',
+            OTPVerification: 'otp-verification',
+            // Define other screens and paths as needed
+        },
+    },
+};
+
+// Create a navigation ref
+export const navigationRef = createNavigationContainerRef();
 
 export default function RootNavigator() {
-  return (
-      <TabContextProvider>
-          <NavigationContainer>
-              <AuthStack />
-             
-          </NavigationContainer>
-      </TabContextProvider>
-  );
+    return (
+        <TabContextProvider>
+            <NavigationContainer ref={navigationRef} linking={linking}>
+                <AuthStack />
+            </NavigationContainer>
+        </TabContextProvider>
+    );
 }

@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { selectAvatarBorderColor } from '../../util/util';
 import { IUserProfile } from '../../../types';
 import imageindex from '../../../assets/images/imageindex';
+import HexAvatar from '../HexAvatar';
 
 const MAX_USERDESC_LENGTH = 50; // Maximum number of characters for the userDesc
 
@@ -63,7 +64,7 @@ const UserSearchCard = ({
               <View style={{flexDirection: 'row'}}>
                   <View style={{marginRight: 8}}>
                       <TouchableOpacity onPress={onPress}>
-                          <Avatar
+                          {/* <Avatar
                               rounded
                               size={40}
                               source={
@@ -77,6 +78,11 @@ const UserSearchCard = ({
                                   borderWidth: 2,
                                   borderColor: selectAvatarBorderColor(akcruBadge),
                               }}
+                          /> */}
+                          <HexAvatar
+                              source={{uri: userPicture}}
+                              size={45}
+                              bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                           />
                       </TouchableOpacity>
                   </View>

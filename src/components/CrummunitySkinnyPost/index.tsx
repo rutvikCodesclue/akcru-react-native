@@ -6,6 +6,8 @@ import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
+import HexAvatar from '../HexAvatar';
+import imageindex from '../../../assets/images/imageindex';
 
 type FooterIconsProps = {
     iconname: string;
@@ -164,7 +166,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
         <View style={styles.cardcontainer}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <View style={{marginRight: 8}}>
-                    <TouchableOpacity>
+                    {/* <TouchableOpacity>
                         <Avatar
                             rounded
                             size={40}
@@ -175,6 +177,13 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                 borderWidth: 2,
                                 borderColor: post.user.avatarbordercolor,
                             }}
+                        />
+                    </TouchableOpacity> */}
+                    <TouchableOpacity>
+                        <HexAvatar
+                            source={{uri: post.user.image}}
+                            size={45}
+                            bordercolor={post.user.avatarbordercolor}
                         />
                     </TouchableOpacity>
                 </View>

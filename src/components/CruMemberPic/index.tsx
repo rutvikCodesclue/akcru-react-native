@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import {Avatar, Icon} from '@rneui/base';
 import {selectAvatarBorderColor} from '../../util/util';
 import imageindex from '../../../assets/images/imageindex';
+import HexAvatar from '../HexAvatar';
 
 
 
@@ -13,23 +14,32 @@ type CruMemberPicProps = {
 
 const CruMemberPic = ({userPicture, akcruBadge}: CruMemberPicProps) => {
     return (
-        
-            <Avatar
-                rounded
-                size={40}
-                source={
-                    userPicture
-                        ? {
-                              uri: userPicture,
-                          }
-                        : imageindex.Akcruplaceholder
-                }
-                avatarStyle={{
-                    borderWidth: 2,
-                    borderColor: selectAvatarBorderColor(akcruBadge),
-                }}
-            />
-       
+        // <Avatar
+        //     rounded
+        //     size={40}
+        //     source={
+        //         userPicture
+        //             ? {
+        //                   uri: userPicture,
+        //               }
+        //             : imageindex.Akcruplaceholder
+        //     }
+        //     avatarStyle={{
+        //         borderWidth: 2,
+        //         borderColor: selectAvatarBorderColor(akcruBadge),
+        //     }}
+        // />
+        <HexAvatar
+            source={
+                userPicture
+                    ? {
+                          uri: userPicture,
+                      }
+                    : imageindex.Akcruplaceholder
+            }
+            size={45}
+            bordercolor={selectAvatarBorderColor(akcruBadge)}
+        />
     );
 };
 

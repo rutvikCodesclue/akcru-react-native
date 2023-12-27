@@ -15,6 +15,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import { MediaType, launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -136,15 +137,15 @@ const NewPost = () => {
                 <View style={{marginTop: '5%', marginHorizontal: 15}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 8}}>
-                            <Avatar
-                                rounded
-                                size={40}
-                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
-                                avatarStyle={{
-                                    borderWidth: 2,
-                                    borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                }}
-                            />
+                            <TouchableOpacity>
+                                <HexAvatar
+                                    source={
+                                        user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder
+                                    }
+                                    size={45}
+                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                />
+                            </TouchableOpacity>
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2, fontSize: 12}}>

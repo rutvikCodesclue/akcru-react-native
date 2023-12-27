@@ -226,7 +226,6 @@ const Signin = () => {
                                 onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
                                 disabled={loading}
                             />
-
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{
@@ -315,7 +314,7 @@ const Signin = () => {
                                     <Applelogo width={50} height={50} onPress={() => {}} />
                                 </TouchableOpacity>
                             </View> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2Orange,
@@ -324,6 +323,15 @@ const Signin = () => {
                                     }}>
                                     Forgot your password?
                                 </Text>
+                            </TouchableOpacity>
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('OTPVerification')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>OTP Verification</Text>
+                            </TouchableOpacity> */}
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('TestScreen')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>TestScreen</Text>
+                            </TouchableOpacity> */}
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>ResetPassword</Text>
                             </TouchableOpacity> */}
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View

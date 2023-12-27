@@ -29,6 +29,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -129,7 +130,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             </TouchableOpacity>
                         </ImageBackground>
                         <Pressable style={{alignItems: 'center', marginTop: -50}} onPress={toggleAvatarModal}>
-                            <Avatar
+                            {/* <Avatar
                                 rounded
                                 size={250}
                                 source={
@@ -139,6 +140,11 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                     borderWidth: 5,
                                     borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
                                 }}
+                            /> */}
+                            <HexAvatar
+                                source={{uri: user?.profilePicture}}
+                                size={260}
+                                bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                             />
                         </Pressable>
                         {/* Create a modal to display the enlarged image */}
@@ -214,31 +220,34 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             />
                         </View>
                         <View style={styles.gallerycontainer}>
-                      <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.galleryImagesContainer}>
-                          {FAKE_USER_PROFILES[2].gallery.map((imageUri, index) => {
-                              return (
-                                  <TouchableOpacity
-                                      key={index.toString()}
-                                      onPress={() => openPhoto(imageUri)}
-                                      activeOpacity={0.8}>
-                                      <Image source={{uri: imageUri}} style={styles.galleryImage} />
-                                  </TouchableOpacity>
-                              );
-                          })}
-                      </ScrollView>
-                  </View>
-                  {selectedPhotoUri && (
-                      <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
-                          <Animated.Image
-                              source={{uri: selectedPhotoUri}}
-                              resizeMode="contain"
-                              style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
-                          />
-                      </TouchableOpacity>
-                  )}
+                            <ScrollView
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={styles.galleryImagesContainer}>
+                                {FAKE_USER_PROFILES[2].gallery.map((imageUri, index) => {
+                                    return (
+                                        <TouchableOpacity
+                                            key={index.toString()}
+                                            onPress={() => openPhoto(imageUri)}
+                                            activeOpacity={0.8}>
+                                            <Image source={{uri: imageUri}} style={styles.galleryImage} />
+                                        </TouchableOpacity>
+                                    );
+                                })}
+                            </ScrollView>
+                        </View>
+                        {selectedPhotoUri && (
+                            <TouchableOpacity
+                                style={styles.selectedPhotoContainer}
+                                onPress={closePhoto}
+                                activeOpacity={1}>
+                                <Animated.Image
+                                    source={{uri: selectedPhotoUri}}
+                                    resizeMode="contain"
+                                    style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
+                                />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </ScrollView>
             </View>

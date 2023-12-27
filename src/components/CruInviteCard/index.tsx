@@ -12,6 +12,7 @@ import { selectAvatarBorderColor } from '../../util/util';
 import {useNavigation} from '@react-navigation/native';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import HexAvatar from '../HexAvatar';
 
 type CruInviteCardProp = {
     cruInviteID: any;
@@ -84,7 +85,7 @@ const CruInviteCard = ({
           <View style={{flexDirection: 'row', alignItems: 'center', margin: 10}}>
               <View style={{marginRight: 10}}>
                   <TouchableOpacity onPress={onPress}>
-                      <Avatar
+                      {/* <Avatar
                           source={invitee.profilePicture ? {uri: invitee.profilePicture} : imageindex.Akcruplaceholder}
                           size={50}
                           rounded
@@ -92,6 +93,11 @@ const CruInviteCard = ({
                               borderWidth: 2,
                               borderColor: selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT'),
                           }}
+                      /> */}
+                      <HexAvatar
+                          source={{uri: invitee.profilePicture}}
+                          size={55}
+                          bordercolor={selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT')}
                       />
                   </TouchableOpacity>
               </View>

@@ -118,7 +118,7 @@ const UserProfileDetailsTab = () => {
                                 scrollEnabled={false}
                                 keyExtractor={item => item.id}
                                 renderItem={({item, index}) => (
-                                    <View style={{marginRight: index < cruMembers().length - 1 ? -10 : 0}}>
+                                    <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
                                         <CruMemberPic userPicture={item.profilePicture} akcruBadge={item.badge} />
                                     </View>
                                 )}
