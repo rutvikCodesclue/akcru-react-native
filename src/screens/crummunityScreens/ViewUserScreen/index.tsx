@@ -21,7 +21,6 @@ import imageindex from '../../../../assets/images/imageindex';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import BasicListCategories from '../../../components/BasicListCategories';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { findAUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
@@ -33,6 +32,7 @@ import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
+import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -89,6 +89,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
+
+  const [userOptionModal, setUserOptionModal] = useState(false);
   
     const handleSendCruInvite = async () => {
         try {
@@ -139,7 +141,14 @@ export default function ViewUserScreen({route, navigation}: Props) {
                               height: SIZES.ScreenHeight / 3.7,
                           }}
                       />
-                      <View style={{marginTop: 60, marginHorizontal: 15, marginBottom: 10}}>
+                      <View
+                          style={{
+                              marginTop: 60,
+                              marginHorizontal: 15,
+                              marginBottom: 10,
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                          }}>
                           <TouchableOpacity onPress={() => navigation.pop()}>
                               <View
                                   style={{
@@ -150,14 +159,21 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                               </View>
                           </TouchableOpacity>
+                          <TouchableOpacity onPress={() => setUserOptionModal(true)}>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                  }}>
+                                  <Icon name="ellipsis-vertical" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              </View>
+                          </TouchableOpacity>
                       </View>
 
                       <View
                           style={{
                               flexDirection: 'row',
                               justifyContent: 'space-between',
-                              alignItems: 'center',
-
                               marginHorizontal: 15,
                           }}>
                           <View style={{flexDirection: 'row'}}>
@@ -173,19 +189,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                               userID: user?.id,
                                           });
                                       }}>
-                                      {/* <Avatar
-                                          rounded
-                                          size={70}
-                                          source={
-                                              user?.profilePicture
-                                                  ? {uri: user?.profilePicture}
-                                                  : imageindex.Akcruplaceholder
-                                          }
-                                          avatarStyle={{
-                                              borderWidth: 2,
-                                              borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                          }}
-                                      /> */}
                                       <HexAvatar
                                           source={{uri: user?.profilePicture}}
                                           size={60}
@@ -262,18 +265,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           <AkcruLevels.AkcruBadgeSuperHero />
                                       </View>
                                   )}
-
-                                  {/* <TouchableOpacity>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title2,
-                                          color: COLORS.MIDORANGE,
-                                          fontSize: 12,
-                                          marginTop: 5,
-                                      }}>
-                                      Block {user?.username}
-                                  </Text>
-                              </TouchableOpacity> */}
                               </View>
                           </View>
                           <View
@@ -310,7 +301,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           flexDirection: 'row',
                           alignItems: 'center',
                       }}>
-                      <View
+                      <Pressable
+                          onPress={() => navigation.navigate('FollowList')}
                           style={{
                               width: 100,
                               height: 30,
@@ -319,7 +311,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           }}>
                           <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
                           <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
-                      </View>
+                      </Pressable>
                       <View style={{flexDirection: 'row'}}>
                           <TouchableOpacity onPress={() => setShowConfirmationModal(true)}>
                               <View style={styles.cruinvitebutton}>
@@ -407,6 +399,22 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   </View>
                               </View>
                           </Modal>
+
+                              <Modal visible={userOptionModal} transparent={true} animationType="slide">
+                                  <ViewUserOptionModal
+                                      username={user?.username}
+                                      closeModal={() => setUserOptionModal(false)}
+                                      blockUser={() => {
+                                          ('');
+                                      }}
+                                      reportUser={() => {
+                                          ('');
+                                      }}
+                                      followUser={() => setFollowing(!following)}
+                                      cruInviteUser={() => setShowConfirmationModal(true)}
+                                  />
+                              </Modal>
+          
 
                           <Pressable onPress={() => setFollowing(!following)}>
                               <View style={following ? styles.unfollowbutton : styles.followbutton}>

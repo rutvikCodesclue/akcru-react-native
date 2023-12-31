@@ -11,11 +11,11 @@ const [data, setData] = useState([...FAKE_USER_PROFILES]);
 const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
 return (
-    <View style={{marginHorizontal: 15, marginBottom: 70}}>
+    <View style={{marginHorizontal: 15}}>
         <FlatList
             data={data}
             horizontal={false}
-            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
             scrollEnabled={true}
             keyExtractor={item => item.userID}
             renderItem={({item, index}) => (
@@ -32,7 +32,7 @@ return (
                         userID={item.userID}
                         akcruBadge={item.akcruBadge}
                         userDesc={item.userDesc}
-                        avatarbordercolor={item.avatarbordercolor}
+                        firstName={item.firstName}
                     />
                 </View>
             )}

@@ -5,7 +5,7 @@ import MaskedView from '@react-native-masked-view/masked-view';
 import imageindex from '../../../assets/images/imageindex';
 
 type HexAvatarProp = {
-    source: any;
+    source?: any;
     size: number;
     bordercolor: any;
 };

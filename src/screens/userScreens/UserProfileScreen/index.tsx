@@ -406,7 +406,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         alignItems: 'center',
                                     }}>
                                     <TouchableOpacity
-                                        // onPress={() => navigation.navigate('FollowList')}
+                                        onPress={() => navigation.navigate('FollowList')}
                                         style={{
                                             alignItems: 'center',
                                         }}>

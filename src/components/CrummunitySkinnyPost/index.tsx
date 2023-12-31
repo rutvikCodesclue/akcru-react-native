@@ -166,19 +166,6 @@ const SkinnyPostCard = ({post }: PostProps) => {
         <View style={styles.cardcontainer}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <View style={{marginRight: 8}}>
-                    {/* <TouchableOpacity>
-                        <Avatar
-                            rounded
-                            size={40}
-                            source={{
-                                uri: post.user.image,
-                            }}
-                            avatarStyle={{
-                                borderWidth: 2,
-                                borderColor: post.user.avatarbordercolor,
-                            }}
-                        />
-                    </TouchableOpacity> */}
                     <TouchableOpacity>
                         <HexAvatar
                             source={{uri: post.user.image}}

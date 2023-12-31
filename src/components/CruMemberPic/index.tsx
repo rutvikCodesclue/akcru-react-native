@@ -14,21 +14,6 @@ type CruMemberPicProps = {
 
 const CruMemberPic = ({userPicture, akcruBadge}: CruMemberPicProps) => {
     return (
-        // <Avatar
-        //     rounded
-        //     size={40}
-        //     source={
-        //         userPicture
-        //             ? {
-        //                   uri: userPicture,
-        //               }
-        //             : imageindex.Akcruplaceholder
-        //     }
-        //     avatarStyle={{
-        //         borderWidth: 2,
-        //         borderColor: selectAvatarBorderColor(akcruBadge),
-        //     }}
-        // />
         <HexAvatar
             source={
                 userPicture

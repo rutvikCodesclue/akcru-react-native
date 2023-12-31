@@ -144,6 +144,28 @@ const Signin = () => {
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
+    // useEffect(() => {
+    //     const checkAuth = async () => {
+    //         await authStore.hydrateAuth();
+    //         const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
+
+    //         const accessToken = await AsyncStorage.getItem('access_token');
+    //         const isLoggedInWithToken = isAuthed && accessToken !== null;
+
+    //         setTimeout(() => {
+    //             if (accessToken) {
+    //                 setIsLoggedIn(true);
+    //                 // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
+    //             } else {
+    //                 setIsLoggedIn(false);
+    //             }
+    //         }, 100); // Wait for 3 seconds before executing the code
+    //     };
+
+    //     checkAuth().catch(err => {
+    //         console.error('Error checking auth', err);
+    //     });
+    // }, []);
     useEffect(() => {
         const checkAuth = async () => {
             await authStore.hydrateAuth();
@@ -152,14 +174,7 @@ const Signin = () => {
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
 
-            setTimeout(() => {
-                if (accessToken) {
-                    setIsLoggedIn(true);
-                    // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-                } else {
-                    setIsLoggedIn(false);
-                }
-            }, 1000); // Wait for 3 seconds before executing the code
+            setIsLoggedIn(isLoggedInWithToken); // Set login status based on actual auth check
         };
 
         checkAuth().catch(err => {

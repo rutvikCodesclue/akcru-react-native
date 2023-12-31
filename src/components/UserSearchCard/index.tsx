@@ -20,6 +20,7 @@ type UserSearchCardProps = {
   onPress: () => void;
   userID: any;
   userDesc?: string;
+  firstName?: string
 };
 
 const UserSearchCard = ({
@@ -30,6 +31,7 @@ const UserSearchCard = ({
   onPress,
   userID,
   userDesc,
+  firstName,
 }: UserSearchCardProps) => {
   const truncateduserDesc =
     userDesc && userDesc.length > MAX_USERDESC_LENGTH
@@ -45,7 +47,7 @@ const UserSearchCard = ({
               borderRadius: 5,
               backgroundColor: COLORS.TAGCOLOR,
               width: SIZES.ScreenWidth,
-              height: SIZES.ScreenHeight / 9.3,
+             
           }}>
           <LinearGradient
               // Background Linear Gradient
@@ -55,51 +57,36 @@ const UserSearchCard = ({
                   left: 0,
                   right: 0,
                   top: 0,
-                  width: SIZES.ScreenWidth,
+                  width: '100%',
                   borderRadius: 5,
-                  height: SIZES.ScreenHeight / 9.3,
+                  height: '100%',
               }}
           />
           <View style={{padding: 10}}>
               <View style={{flexDirection: 'row'}}>
                   <View style={{marginRight: 8}}>
                       <TouchableOpacity onPress={onPress}>
-                          {/* <Avatar
-                              rounded
-                              size={40}
-                              source={
-                                  userPicture
-                                      ? {
-                                            uri: userPicture,
-                                        }
-                                      : imageindex.Akcruplaceholder
-                              }
-                              avatarStyle={{
-                                  borderWidth: 2,
-                                  borderColor: selectAvatarBorderColor(akcruBadge),
-                              }}
-                          /> */}
                           <HexAvatar
                               source={{uri: userPicture}}
-                              size={45}
+                              size={58}
                               bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                           />
                       </TouchableOpacity>
                   </View>
                   <View>
                       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                          <Text style={{...FONTS.Title2}}>{userName}</Text>
+                          <Text style={{...FONTS.Title3, fontSize: 12}}>{userName}</Text>
                           {influencer && (
                               <Icon
                                   name="ribbon"
                                   type="ionicon"
                                   color={COLORS.AKCRUBLUE}
-                                  size={20}
+                                  size={18}
                                   style={{marginLeft: 5}}
                               />
                           )}
                       </View>
-
+                      <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
                       {akcruBadge === 'AKCRUIT' && (
                           <View>
                               <AkcruLevels.AkcruBadgeAkcruit />

@@ -130,17 +130,6 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             </TouchableOpacity>
                         </ImageBackground>
                         <Pressable style={{alignItems: 'center', marginTop: -50}} onPress={toggleAvatarModal}>
-                            {/* <Avatar
-                                rounded
-                                size={250}
-                                source={
-                                    user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder
-                                }
-                                avatarStyle={{
-                                    borderWidth: 5,
-                                    borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                }}
-                            /> */}
                             <HexAvatar
                                 source={{uri: user?.profilePicture}}
                                 size={260}
@@ -197,11 +186,11 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             </View>
                             <View style={{flexDirection: 'row', marginVertical: 5}}>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Akcru Dollars Earned: </Text>
-                                <Text style={{...FONTS.Title2}}>{user?.location}</Text>
+                                <Text style={{...FONTS.Title2}}>{user?.adAmount}</Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
-                                <Text style={{...FONTS.Title2}}>{CRU?.name}</Text>
+                                <Text style={{...FONTS.Title2}}>{CRU?.id}</Text>
                             </View>
                         </View>
                         <View

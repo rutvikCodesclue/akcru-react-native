@@ -119,7 +119,7 @@ const UserSearchResultScreen = () => {
           </View>
         </View>
 
-        <View style={{marginHorizontal: 15, marginBottom: 70}}>
+        <View style={{marginHorizontal: 15, marginBottom: '20%'}}>
           <FlatList
             data={data}
             horizontal={false}
@@ -142,6 +142,7 @@ const UserSearchResultScreen = () => {
                   userID={item.id}
                   akcruBadge={item.badge}
                   userDesc={item.description}
+                  firstName={item.firstName}
                 />
               </View>
             )}
