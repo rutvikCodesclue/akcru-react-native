@@ -274,16 +274,18 @@ export type INotification = {
 export interface IPost {
     id: string;
     content: string;
-    user: IUserProfile;
     createdAt: string;
     updatedAt: string;
-    gifUrl?: string; // Add gifUrl as an optional property
+    likes?: number;
+    author: IUserProfile;
+    authorId: string;
+    _count: string;
     // Other properties related to a post
 }
 
 export interface ICreatePostData {
     id: string;
-    user: IUserProfile;
+    user?: IUserProfile;
     title: string;
     content: string;
     gifUrl?: string; // Add gifUrl as an optional property

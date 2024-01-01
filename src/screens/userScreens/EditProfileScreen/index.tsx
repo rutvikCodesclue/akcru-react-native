@@ -364,16 +364,6 @@ export default function EditProfile({session}: {session: Session}) {
                         <View>
                             <Text style={styles.title}>EDIT PROFILE</Text>
                             <View style={{alignItems: 'center'}}>
-                                {/* <Avatar
-                                    rounded
-                                    size={125}
-                                    source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
-                                    avatarStyle={{
-                                        borderWidth: 2,
-                                        borderColor: COLORS.AKCRUBLUE,
-                                    }}
-                                /> */}
-                                
                                     <HexAvatar
                                         source={{uri: selectImage}}
                                         size={140}

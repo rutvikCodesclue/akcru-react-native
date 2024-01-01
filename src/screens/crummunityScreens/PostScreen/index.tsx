@@ -25,8 +25,7 @@ const PostScreen =({route}) => {
            </View>
        );
    }
-
-   console.log(post.user.username)
+   
   return (
     <TabContainer>
         <SafeAreaView>

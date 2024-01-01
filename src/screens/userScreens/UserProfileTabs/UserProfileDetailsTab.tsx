@@ -1,5 +1,5 @@
-import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal, FlatList} from 'react-native';
-import React, { useEffect, useState } from 'react'
+import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal, FlatList, Pressable} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react'
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
@@ -14,6 +14,7 @@ import { ICru, IMovie, IUserProfile } from '../../../../types';
 import { findMovies } from '../../../lib/api/movies.lib';
 import CruMemberPic from '../../../components/CruMemberPic';
 import { getMyCRU } from '../../../lib/api/cru.lib';
+import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -51,7 +52,7 @@ const UserProfileDetailsTab = () => {
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getMyCRU().then(res => {
-                console.log('Data from getMyCRU:', res); // Log the data
+                // console.log('Data from getMyCRU:', res); // Log the data
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
@@ -86,6 +87,10 @@ const UserProfileDetailsTab = () => {
         };
         fetchNewerYearMovies();
     }, []);
+
+    const addToGallery = (image: any) => {}
+
+    const removeFromGallery = (image: any) => {};
 
     return (
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -191,13 +196,84 @@ const UserProfileDetailsTab = () => {
                         marginBottom: 10,
                     }}
                 />
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginTop: 10,
+                        marginBottom: 20,
+                    }}>
+                    <Text
+                        style={{
+                            ...FONTS.Title2,
+                            marginRight: 5,
+                            textAlign: 'center',
+                            fontSize: 14,
+                            textDecorationLine: 'underline',
+                        }}>
+                        GALLERY
+                    </Text>
+                    <Icon name="image" type="ionicon" color={COLORS.WHITE} size={20} style={{marginRight: 5}} />
+                </View>
+                <View style={styles.gallerycontainer}>
+                    <FlatList
+                        data={FAKE_USER_PROFILES[2].gallery}
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        keyExtractor={(item, index) => index.toString()}
+                        ListHeaderComponent={() => (
+                            <TouchableOpacity
+                                onPress={() => {
+                                    addToGallery();
+                                }}
+                                style={{
+                                    width: SIZES.ScreenWidth / 3.3,
+                                    height: SIZES.ScreenWidth / 3.3,
+                                    marginRight: 10,
+                                    borderRadius: 5,
+                                    borderWidth: 1,
+                                    borderColor: COLORS.CATPURPLGT,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        color: COLORS.LIGHTGREY,
+                                        fontSize: 12,
+                                        marginBottom: 5,
+                                    }}>
+                                    Add to Gallery
+                                </Text>
+                                <Icon name="add-circle" type="ionicon" color={COLORS.CATPURPLGT} size={30} />
+                            </TouchableOpacity>
+                        )}
+                        renderItem={({item}) => (
+                            <View>
+                                <Image source={{uri: item}} style={styles.galleryImage} />
+                                <Pressable style={{position: 'absolute', top: -3, right: 8}} onPress={() => removeFromGallery(item)}>
+                                    <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
+                                </Pressable>
+                            </View>
+                        )}
+                    />
+                </View>
+                <View
+                    style={{
+                        borderBottomWidth: 1.5,
+                        borderColor: COLORS.DARKERGREY,
+                        marginTop: 20,
+                        marginBottom: 10,
+                    }}
+                />
 
                 <View>
                     <View style={{marginBottom: 75}}>
                         <BasicListCategories
                             Akcru_Content={{
                                 id: 'recommendedForYou',
-                                title: 'Recommended to you',
+                                title: 'Recommended for you',
                                 movies: newerYearMovies,
                             }}
                         />

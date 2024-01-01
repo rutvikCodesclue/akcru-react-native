@@ -8,6 +8,7 @@ import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import imageindex from '../../../assets/images/imageindex';
+import { timeSince } from '../../util/util';
 
 type FooterIconsProps = {
     iconname: string;
@@ -20,7 +21,6 @@ const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
             <TouchableOpacity onPress={onPress}>
                 <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={18} />
             </TouchableOpacity>
-           
         </View>
     );
 };
@@ -31,60 +31,66 @@ type ShareOptionProps = {
     sharePress: () => void;
 };
 
-const ShareOptions =({iconname, sharename, sharePress}: ShareOptionProps) => {
+const ShareOptions = ({iconname, sharename, sharePress}: ShareOptionProps) => {
     return (
         <View style={{marginRight: 15}}>
-          <View style={{alignItems: 'center'}}>
-            <Pressable
-                onPress={sharePress}
-                style={{
-                    backgroundColor: COLORS.AKCRUBLUE,
-                    width: 50,
-                    height: 50,
-                    borderRadius: 30,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={20} />
-            </Pressable>
-            <View style={{marginTop: 5, width: 70}}>
-             <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE, textAlign: 'center'}}>{sharename}</Text>   
+            <View style={{alignItems: 'center'}}>
+                <Pressable
+                    onPress={sharePress}
+                    style={{
+                        backgroundColor: COLORS.AKCRUBLUE,
+                        width: 50,
+                        height: 50,
+                        borderRadius: 30,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}>
+                    <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                </Pressable>
+                <View style={{marginTop: 5, width: 70}}>
+                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE, textAlign: 'center'}}>
+                        {sharename}
+                    </Text>
+                </View>
             </View>
-            
-          </View>  
         </View>
-        
     );
 };
 
 type User = {
     id: string;
     username: string;
-    name: string;
     image?: string;
     akcruBadge?: string;
     avatarbordercolor?: string;
     influencer?: string;
+    profilePicture?: string;
+    firstName: string;
 };
+
+type PostStats = {
+    comments: number; 
+    likes: number; 
+    reposts: number};
 
 type PostType = {
     id: string;
     content: string;
-    user: User;
+    author: User;
     createdAt: string;
-    image: string;
     numberOfComments?: number;
     numberOfReposts?: number;
-    numberOfLikes?: number;
+    likes?: number;
     impressions?: number;
-    video: string;
+    _count?: PostStats;
 };
 
 type PostProps = {
     post: PostType;
+    openProfile: () => void;
 };
 
-const SkinnyPostCard = ({post }: PostProps) => {
+const SkinnyPostCard = ({post, openProfile}: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
@@ -97,7 +103,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
 
     const [showSkipButton, setShowSkipButton] = useState(false);
 
-    const [shareOptionsVisible, setShareOptionsVisible] = useState(false)
+    const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -130,7 +136,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
     const handleModalVideoLoad = () => {
         // Logic for when the video is loaded
         setIsVideoLoaded(true);
-        setShowSkipButton(true)
+        setShowSkipButton(true);
     };
 
     const handleSkipVideo = () => {
@@ -146,38 +152,38 @@ const SkinnyPostCard = ({post }: PostProps) => {
         setVideoModalVisible(false);
     };
 
-    const openPostOptions = ()=>{
-        setPostOptionsVisible(true)
-    }
+    const openPostOptions = () => {
+        setPostOptionsVisible(true);
+    };
 
-    const closePostOptions = () =>{
-        setPostOptionsVisible(false)
-    }
+    const closePostOptions = () => {
+        setPostOptionsVisible(false);
+    };
 
     const openShareOptions = () => {
-        setShareOptionsVisible(true)
-    }
+        setShareOptionsVisible(true);
+    };
 
     const closeShareOptions = () => {
-        setShareOptionsVisible(false)
-    }
+        setShareOptionsVisible(false);
+    };
 
     return (
         <View style={styles.cardcontainer}>
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <View style={{marginRight: 8}}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
-                            source={{uri: post.user.image}}
+                            source={{uri: post.author?.profilePicture}}
                             size={45}
-                            bordercolor={post.user.avatarbordercolor}
+                            bordercolor={COLORS.AKCRUBLUE}
                         />
                     </TouchableOpacity>
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.user.name}</Text>
-                        {post.user.influencer && (
+                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
@@ -187,31 +193,32 @@ const SkinnyPostCard = ({post }: PostProps) => {
                             />
                         )}
                     </View>
+                    <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.firstName}</Text>
 
-                    {post.user.akcruBadge.akcruit && (
+                    {post.user?.akcruBadge.akcruit && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
                         </View>
                     )}
-                    {post.user.akcruBadge.guardian && (
+                    {post.user?.akcruBadge.guardian && (
                         <View>
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
-                    {post.user.akcruBadge.hero && (
+                    {post.user?.akcruBadge.hero && (
                         <View>
                             <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
-                    {post.user.akcruBadge.superhero && (
+                    {post.user?.akcruBadge.superhero && (
                         <View>
                             <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                 </View>
-                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
+                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>
-                        •2h ago
+                        {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
@@ -241,7 +248,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {post.user.name}</Text>
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {post.author.username}</Text>
                             </Pressable>
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
@@ -251,7 +258,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.user.name}</Text>
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author.username}</Text>
                             </Pressable>
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
@@ -261,7 +268,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.user.name}</Text>
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                             </Pressable>
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
@@ -423,7 +430,7 @@ const SkinnyPostCard = ({post }: PostProps) => {
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {post.numberOfComments || 0} Comments • {post.numberOfLikes || 0} Likes •{' '}
+                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
             </View>

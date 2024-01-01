@@ -329,19 +329,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}>
                                 <View style={{flexDirection: 'row'}}>
                                     <View style={{marginRight: 8}}>
-                                        {/* <Avatar
-                                            rounded
-                                            size={70}
-                                            source={
-                                                user?.profilePicture
-                                                    ? {uri: user.profilePicture}
-                                                    : imageindex.Akcruplaceholder
-                                            }
-                                            avatarStyle={{
-                                                borderWidth: 2,
-                                                borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                            }}
-                                        /> */}
                                         <HexAvatar
                                             source={{uri: user?.profilePicture}}
                                             size={70}
@@ -410,7 +397,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount ?? 0}</Text>
+                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
                                         <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>
                                             Followers
                                         </Text>
