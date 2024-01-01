@@ -53,9 +53,9 @@ export default StyleSheet.create({
        width: 50,
        height: 50,
        borderRadius: 25,
-       position: 'absolute',
-       bottom: "15%",
-       right: "5%",
+       position: 'relative',
+       bottom: "23%",  
+       left: "80%",
        alignItems: 'center',
        justifyContent: 'center'
     },

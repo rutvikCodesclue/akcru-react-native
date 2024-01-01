@@ -11,6 +11,7 @@ import imageindex from '../../../assets/images/imageindex';
 import AkcruLevels from '../akcruBadges';
 import { getShortenedTimezone, selectAvatarBorderColor } from '../../util/util';
 import moment from 'moment';
+import HexAvatar from '../HexAvatar';
 
 type MITInviteHubCardProp = {
     MITInviteID: any;
@@ -80,7 +81,7 @@ const MITInviteHubCard = ({
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 10}}>
-                            <Avatar
+                            {/* <Avatar
                                 source={
                                     creator.profilePicture ? {uri: creator.profilePicture} : imageindex.Akcruplaceholder
                                 }
@@ -90,6 +91,11 @@ const MITInviteHubCard = ({
                                     borderWidth: 2,
                                     borderColor: selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT'),
                                 }}
+                            /> */}
+                            <HexAvatar
+                                source={{uri: creator?.profilePicture}}
+                                size={55}
+                                bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                             />
                         </View>
                         <View>
@@ -122,7 +128,6 @@ const MITInviteHubCard = ({
                         <TouchableOpacity onPress={onPress} style={{alignItems: 'center'}}>
                             <Text style={{...FONTS.Title2AkcruBlue}}>VIEW</Text>
                             {/* <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} /> */}
-                            
                         </TouchableOpacity>
                     </View>
                 </View>

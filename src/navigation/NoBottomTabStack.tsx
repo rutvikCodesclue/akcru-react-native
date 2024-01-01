@@ -2,7 +2,7 @@ import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 import {COLORS} from '../../assets/constants';
 import Signin from '../screens/loginScreens/Signin';
-import ForgotPassword from '../screens/loginScreens/resetPassword';
+import ForgotPassword from '../screens/loginScreens/resetPassword/ForgotPassword';
 import Signup from '../screens/loginScreens/Signup';
 import ClientTabNavigator from './ClientTabNavigator';
 import {ClientStack} from './ClientStack';

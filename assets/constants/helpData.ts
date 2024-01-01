@@ -12,7 +12,7 @@ export type helpData = {
 export const helpData = [
     {
         id: 'PointsandRewardsAkcruDollars',
-        faqsTitle: 'Points and Rewards: Akcru Dollars (AD)',
+        faqsTitle: 'Points and Rewards',
         faqs: [
             {
                 id: '0',

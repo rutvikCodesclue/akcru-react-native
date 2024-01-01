@@ -37,12 +37,16 @@ type Props = {
 };
 
 const FirstRoute = () => (
-    <View>
+    <View style={{marginBottom: '20%'}}>
         <FollowersTab />
     </View>
 );
 
-const SecondRoute = () => <FollowingTab />;
+const SecondRoute = () => (
+    <View style={{marginBottom: '20%'}}>
+        <FollowingTab />
+    </View>
+);
 
 const FollowList = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();

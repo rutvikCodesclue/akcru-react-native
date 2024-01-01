@@ -166,3 +166,113 @@ export const updateUserWatchTime = async (params: {
         return undefined;
     }
 };
+
+/*
+    TODO: test these
+*/
+
+export const followUser = async (params: {userId?: string}): Promise<boolean | undefined> => {
+    try {
+        const {userId} = params;
+        // PUT /v1/watchtime/me
+        const {data} = await API.post(`/v1/user/follow`, {
+            id: userId,
+        });
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+export const unfollowUser = async (params: {userId?: string}): Promise<boolean | undefined> => {
+    try {
+        const {userId} = params;
+        // PUT /v1/watchtime/me
+        const {data} = await API.post(`/v1/user/unfollow`, {
+            id: userId,
+        });
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+// TODO: type this
+export const getFollowers = async (): Promise<Object | undefined> => {
+    try {
+        // PUT /v1/watchtime/me
+        const {data} = await API.get(`/v1/user/unfollow`);
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+// TODO: type this
+export const getFollowersCount = async (): Promise<Object | undefined> => {
+    try {
+        // PUT /v1/watchtime/me
+        const {data} = await API.get(`/v1/user/unfollow?count=true`);
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+// TODO: type this
+export const getUserFollowing = async (): Promise<Object | undefined> => {
+    try {
+        // PUT /v1/watchtime/me
+        const {data} = await API.get(`/v1/user/unfollow`);
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+// TODO: type this
+export const getUserFollowingCount = async (): Promise<Object | undefined> => {
+    try {
+        // PUT /v1/watchtime/me
+        const {data} = await API.get(`/v1/user/unfollow?count=true`);
+
+        if (data.success === false) {
+            return false;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};

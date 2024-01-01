@@ -7,9 +7,8 @@ export default StyleSheet.create({
     },
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        marginTop: SIZES.ScreenHeight * 0.25,
+        justifyContent: 'center'
     },
     container2: {
         flex: 1,
@@ -19,5 +18,16 @@ export default StyleSheet.create({
     mastercontainer: {
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
+    },
+    input: {
+        width: 45,
+        height: 55,
+        fontSize: 24,
+        fontWeight: '700',
+        textAlign: 'center',
+        color: COLORS.DARKERGREY,
+        backgroundColor: COLORS.AKCRUBLUE,
+        borderRadius: 5,
+       
     },
 });

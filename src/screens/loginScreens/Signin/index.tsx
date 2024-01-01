@@ -144,6 +144,28 @@ const Signin = () => {
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
+    // useEffect(() => {
+    //     const checkAuth = async () => {
+    //         await authStore.hydrateAuth();
+    //         const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
+
+    //         const accessToken = await AsyncStorage.getItem('access_token');
+    //         const isLoggedInWithToken = isAuthed && accessToken !== null;
+
+    //         setTimeout(() => {
+    //             if (accessToken) {
+    //                 setIsLoggedIn(true);
+    //                 // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
+    //             } else {
+    //                 setIsLoggedIn(false);
+    //             }
+    //         }, 100); // Wait for 3 seconds before executing the code
+    //     };
+
+    //     checkAuth().catch(err => {
+    //         console.error('Error checking auth', err);
+    //     });
+    // }, []);
     useEffect(() => {
         const checkAuth = async () => {
             await authStore.hydrateAuth();
@@ -152,14 +174,7 @@ const Signin = () => {
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
 
-            setTimeout(() => {
-                if (accessToken) {
-                    setIsLoggedIn(true);
-                    // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-                } else {
-                    setIsLoggedIn(false);
-                }
-            }, 1000); // Wait for 3 seconds before executing the code
+            setIsLoggedIn(isLoggedInWithToken); // Set login status based on actual auth check
         };
 
         checkAuth().catch(err => {
@@ -226,7 +241,6 @@ const Signin = () => {
                                 onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
                                 disabled={loading}
                             />
-
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{
@@ -315,7 +329,7 @@ const Signin = () => {
                                     <Applelogo width={50} height={50} onPress={() => {}} />
                                 </TouchableOpacity>
                             </View> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                                 <Text
                                     style={{
                                         ...FONTS.Title2Orange,
@@ -324,6 +338,15 @@ const Signin = () => {
                                     }}>
                                     Forgot your password?
                                 </Text>
+                            </TouchableOpacity>
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('OTPVerification')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>OTP Verification</Text>
+                            </TouchableOpacity> */}
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('TestScreen')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>TestScreen</Text>
+                            </TouchableOpacity> */}
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>ResetPassword</Text>
                             </TouchableOpacity> */}
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View

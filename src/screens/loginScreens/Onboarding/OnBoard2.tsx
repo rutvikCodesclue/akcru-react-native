@@ -32,6 +32,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {launchImageLibrary, ImagePickerResponse, MediaType} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
 import {searchForUsers, updateUser, updateUserProfilePicture} from '../../../lib/api/user.lib';
+import HexAvatar from '../../../components/HexAvatar';
 
 const OnBoard2 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -247,7 +248,7 @@ const OnBoard2 = () => {
                             </View>
                             <View style={{alignItems: 'center', flexDirection: 'row', marginBottom: 20}}>
                                 <View style={{marginRight: 10}}>
-                                    <Avatar
+                                    {/* <Avatar
                                         rounded
                                         size={75}
                                         source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
@@ -255,7 +256,8 @@ const OnBoard2 = () => {
                                             borderWidth: 2,
                                             borderColor: COLORS.AKCRUBLUE,
                                         }}
-                                    />
+                                    /> */}
+                                    <HexAvatar source={{uri: selectImage}} size={75} bordercolor={COLORS.AKCRUBLUE} />
                                 </View>
 
                                 <View>

@@ -39,15 +39,6 @@ import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 // import * as ScreenOrientation from "expo-screen-orientation";
 
-function setOrientation() {
-  if (Dimensions.get("window").height > Dimensions.get("window").width) {
-    //Device is in portrait mode, rotate to landscape mode.
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-  } else {
-    //Device is in landscape mode, rotate to portrait mode.
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-  }
-}
 
 type StartMITDateNavigationProp = StackNavigationProp<
   UserProfileStackParams,

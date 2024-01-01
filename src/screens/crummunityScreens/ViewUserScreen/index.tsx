@@ -21,7 +21,6 @@ import imageindex from '../../../../assets/images/imageindex';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import BasicListCategories from '../../../components/BasicListCategories';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { findAUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
@@ -32,6 +31,8 @@ import { createACRUInvite } from '../../../lib/api/cru.lib';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
+import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
@@ -88,6 +89,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [showCruInviteSent, setShowCruInviteSent] = useState(false);
+
+  const [userOptionModal, setUserOptionModal] = useState(false);
   
     const handleSendCruInvite = async () => {
         try {
@@ -116,80 +119,86 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
 
   return (
-    <TabContainer>
-        <SafeAreaView>
-          <ScrollView stickyHeaderIndices={[0]}>
-              <View style={{zIndex: 20}}>
-                  <Header />
-              </View>
-              <ImageBackground
-                  //   source={{uri: digitalpass ?? undefined}}
-                  source={{uri: undefined}}
-                  resizeMode="cover"
-                  style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
-                  <LinearGradient
-                      // Digitalpass Linear Gradient overlay
-                      colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                      style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          height: SIZES.ScreenHeight / 3.7,
-                      }}
-                  />
-                  <View style={{marginTop: 60, marginHorizontal: 15, marginBottom: 10}}>
-                      <TouchableOpacity onPress={() => navigation.pop()}>
-                          <View
-                              style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                              }}>
-                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                          </View>
-                      </TouchableOpacity>
+      <TabContainer>
+          <SafeAreaView>
+              <ScrollView stickyHeaderIndices={[0]}>
+                  <View style={{zIndex: 20}}>
+                      <Header />
                   </View>
-
-                  <View
-                      style={{
-                          flexDirection: 'row',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-
-                          marginHorizontal: 15,
-                      }}>
-                      <View style={{flexDirection: 'row'}}>
-                          <View style={{marginRight: 8}}>
-                              <Pressable
-                                  onPress={() => {
-                                      console.log(
-                                          'Navigating to ViewUserDetailScreen with userID:',
-                                          user?.username,
-                                          user?.id,
-                                      );
-                                      navigation.navigate('ViewUserDetailScreen', {
-                                          userID: user?.id,
-                                      });
+                  <ImageBackground
+                      //   source={{uri: digitalpass ?? undefined}}
+                      source={{uri: undefined}}
+                      resizeMode="cover"
+                      style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
+                      <LinearGradient
+                          // Digitalpass Linear Gradient overlay
+                          colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                          style={{
+                              position: 'absolute',
+                              left: 0,
+                              right: 0,
+                              top: 0,
+                              height: SIZES.ScreenHeight / 3.7,
+                          }}
+                      />
+                      <View
+                          style={{
+                              marginTop: 60,
+                              marginHorizontal: 15,
+                              marginBottom: 10,
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                          }}>
+                          <TouchableOpacity onPress={() => navigation.pop()}>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
                                   }}>
-                                  <Avatar
-                                      rounded
-                                      size={70}
-                                      source={
-                                          user?.profilePicture
-                                              ? {uri: user?.profilePicture}
-                                              : imageindex.Akcruplaceholder
-                                      }
-                                      avatarStyle={{
-                                          borderWidth: 2,
-                                          borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                      }}
-                                  />
-                              </Pressable>
+                                  <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                              </View>
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => setUserOptionModal(true)}>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                  }}>
+                                  <Icon name="ellipsis-vertical" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              </View>
+                          </TouchableOpacity>
+                      </View>
 
-                              <View />
+                      <View
+                          style={{
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                              marginHorizontal: 15,
+                          }}>
+                          <View style={{flexDirection: 'row'}}>
+                              <View style={{marginRight: 8}}>
+                                  <Pressable
+                                      onPress={() => {
+                                          console.log(
+                                              'Navigating to ViewUserDetailScreen with userID:',
+                                              user?.username,
+                                              user?.id,
+                                          );
+                                          navigation.navigate('ViewUserDetailScreen', {
+                                              userID: user?.id,
+                                          });
+                                      }}>
+                                      <HexAvatar
+                                          source={{uri: user?.profilePicture}}
+                                          size={60}
+                                          bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                      />
+                                  </Pressable>
 
-                              {/* {!user?.private ? (
+                                  <View />
+
+                                  {/* {!user?.private ? (
                                   true ? (
                                 //   online ? (
                                       <View
@@ -215,11 +224,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                       />
                                   )
                               ) : null} */}
-                          </View>
-                          <View style={{width: SIZES.ScreenWidth / 2.5}}>
-                              <View style={{flexDirection: 'row'}}>
-                                  <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
-                                  {/* {
+                              </View>
+                              <View style={{width: SIZES.ScreenWidth / 2.5}}>
+                                  <View style={{flexDirection: 'row'}}>
+                                      <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
+                                      {/* {
                                   true && (
                                 //   influencer && (
                                       <Icon
@@ -230,262 +239,270 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                           style={{marginLeft: 5}}
                                       />
                                   )} */}
+                                  </View>
+                                  {user?.firstName && (
+                                      <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
+                                          {user?.firstName ? user.firstName : ''}
+                                      </Text>
+                                  )}
+                                  {user?.badge === 'AKCRUIT' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeAkcruit />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'GUARDIAN' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeGuardian />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'HERO' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeHero />
+                                      </View>
+                                  )}
+                                  {user?.badge === 'SUPERHERO' && (
+                                      <View>
+                                          <AkcruLevels.AkcruBadgeSuperHero />
+                                      </View>
+                                  )}
                               </View>
-                              {user?.firstName &&<Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
-                                  {user?.firstName ? user.firstName : ''}
-                              </Text>}
-                              {user?.badge === 'AKCRUIT' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeAkcruit />
-                                  </View>
-                              )}
-                              {user?.badge === 'GUARDIAN' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeGuardian />
-                                  </View>
-                              )}
-                              {user?.badge === 'HERO' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeHero />
-                                  </View>
-                              )}
-                              {user?.badge === 'SUPERHERO' && (
-                                  <View>
-                                      <AkcruLevels.AkcruBadgeSuperHero />
-                                  </View>
-                              )}
-
-                              {/* <TouchableOpacity>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title2,
-                                          color: COLORS.MIDORANGE,
-                                          fontSize: 12,
-                                          marginTop: 5,
-                                      }}>
-                                      Block {user?.username}
-                                  </Text>
-                              </TouchableOpacity> */}
                           </View>
-                      </View>
-                      <View
-                          style={{
-                              height: 50,
-                              justifyContent: 'center',
-                              alignItems: 'flex-end',
-                          }}>
                           <View
                               style={{
-                                  alignItems: 'center',
-                                  borderLeftWidth: 1,
-                                  borderColor: COLORS.DARKGREY,
-                                  paddingLeft: 10,
+                                  height: 50,
+                                  justifyContent: 'center',
+                                  alignItems: 'flex-end',
                               }}>
-                              <TouchableOpacity
-                                  style={{alignItems: 'center'}}
-                                  onPress={() => {
-                                      navigation.navigate('SendMITViewUser', {
-                                          userID,
-                                      });
+                              <View
+                                  style={{
+                                      alignItems: 'center',
+                                      borderLeftWidth: 1,
+                                      borderColor: COLORS.DARKGREY,
+                                      paddingLeft: 10,
                                   }}>
-                                  <Image source={imageindex.MITticket} style={{height: 40}} />
-                                  <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
-                              </TouchableOpacity>
+                                  <TouchableOpacity
+                                      style={{alignItems: 'center'}}
+                                      onPress={() => {
+                                          navigation.navigate('SendMITViewUser', {
+                                              userID,
+                                          });
+                                      }}>
+                                      <Image source={imageindex.MITticket} style={{height: 40}} />
+                                      <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
+                                  </TouchableOpacity>
+                              </View>
                           </View>
                       </View>
-                  </View>
-              </ImageBackground>
-              <View
-                  style={{
-                      marginTop: -30,
-                      marginHorizontal: 15,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                  }}>
+                  </ImageBackground>
                   <View
                       style={{
-                          width: 100,
-                          height: 30,
-                          justifyContent: 'center',
+                          marginTop: -30,
+                          marginHorizontal: 15,
+                          flexDirection: 'row',
                           alignItems: 'center',
                       }}>
-                      <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
-                      <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
-                  </View>
-                  <View style={{flexDirection: 'row'}}>
-                      <TouchableOpacity onPress={() => setShowConfirmationModal(true)}>
-                          <View style={styles.cruinvitebutton}>
-                              <Text style={{...FONTS.Title2}}>CRU INVITE</Text>
-                          </View>
-                      </TouchableOpacity>
-
-                      {/* Cru Invite Confirmation Modal */}
-                      <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                          <View
-                              style={{
-                                  flex: 1,
-                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                              }}>
-                              <View
-                                  style={{
-                                      backgroundColor: COLORS.AKCRUBACKGROUND,
-                                      padding: 20,
-                                      borderRadius: 10,
-                                      alignItems: 'center',
-                                      marginHorizontal: 15,
-                                  }}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          marginBottom: 10,
-                                          textAlign: 'center',
-                                      }}>
-                                      {`Are you sure you want to send "${user?.username}" a Cru invite?`}
-                                  </Text>
-                                  <View style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
-                                      <TouchableOpacity
-                                          style={{
-                                              backgroundColor: COLORS.PURPLE,
-                                              paddingHorizontal: 20,
-                                              paddingVertical: 10,
-                                              borderRadius: 5,
-                                          }}
-                                          onPress={handleSendCruInvite}>
-                                          <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Yes</Text>
-                                      </TouchableOpacity>
-                                      <TouchableOpacity
-                                          style={{
-                                              backgroundColor: COLORS.DARKAKCRUBLUE,
-                                              paddingHorizontal: 20,
-                                              paddingVertical: 10,
-                                              marginRight: 10,
-                                              borderRadius: 5,
-                                          }}
-                                          onPress={() => setShowConfirmationModal(false)}>
-                                          <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>No</Text>
-                                      </TouchableOpacity>
-                                  </View>
-                              </View>
-                          </View>
-                      </Modal>
-                      {/* Cru Invite Sent Modal */}
-                      <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
-                          <View
-                              style={{
-                                  flex: 1,
-                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                              }}>
-                              <View
-                                  style={{
-                                      backgroundColor: COLORS.AKCRUBACKGROUND,
-                                      padding: 20,
-                                      borderRadius: 10,
-                                      alignItems: 'center',
-                                      marginHorizontal: 15,
-                                  }}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          marginBottom: 10,
-                                          textAlign: 'center',
-                                      }}>
-                                      {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
-                                  </Text>
-                              </View>
-                          </View>
-                      </Modal>
-
-                      <Pressable onPress={() => setFollowing(!following)}>
-                          <View style={following ? styles.unfollowbutton : styles.followbutton}>
-                              <Text style={{...FONTS.Title2}}>{following ? 'UNFOLLOW' : 'FOLLOW'}</Text>
-                          </View>
+                      <Pressable
+                          onPress={() => navigation.navigate('FollowList')}
+                          style={{
+                              width: 100,
+                              height: 30,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                          }}>
+                          <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
+                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                       </Pressable>
-                  </View>
-              </View>
-              {user?.private ? (
-                  <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
-                      <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
-                          This account is private
-                      </Text>
-                      <Icon name="lock" type="material-community" color={COLORS.LIGHTGREY} size={65} />
-                  </View>
-              ) : (
-                  <View>
-                      <View style={{marginHorizontal: 15, paddingTop: 20}}>
-                          <Text
-                              style={{
-                                  ...FONTS.Title2,
-                                  color: COLORS.LIGHTGREY,
-                                  fontSize: 12,
-                              }}>
-                              {user?.description}
-                          </Text>
-                      </View>
-                      <View>
-                          <Text style={styles.desctext}>ARCHETYPE</Text>
-
-                          <View
-                              style={{
-                                  paddingTop: 10,
-                                  flexDirection: 'row',
-                                  justifyContent: 'center',
-                                  paddingHorizontal: 10,
-                              }}>
-                              <View style={{paddingBottom: 10, paddingRight: 10}}>
-                                  <Pressable onPress={toggleModal}>
-                                      <Image
-                                          source={imageindex.SpaceCrimePuzzler}
-                                          style={{
-                                              width: SIZES.ScreenWidth / 2.2,
-                                              height: SIZES.ScreenWidth / 2.2,
-                                              borderRadius: 5,
-                                          }}
-                                      />
-                                  </Pressable>
+                      <View style={{flexDirection: 'row'}}>
+                          <TouchableOpacity onPress={() => setShowConfirmationModal(true)}>
+                              <View style={styles.cruinvitebutton}>
+                                  <Text style={{...FONTS.Title2}}>CRU INVITE</Text>
                               </View>
-                              <View style={{flex: 1}}>
-                                  <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
-                                  <View style={{flexDirection: 'row', paddingBottom: 5}}>
-                                      <Text style={styles.drawfonttag}>Thriller</Text>
-                                      <Text style={styles.drawfonttag}> Adventure</Text>
-                                  </View>
-                                  <Text style={{...FONTS.Title2, fontSize: 12}}>
-                                      These individual appreciate movies that combine suspenseful and thrilling elements
-                                      with adrenaline-pumping adventures. Experiencing intense suspense and daring
-                                      escapades is where they find their cinematic excitement.
-                                  </Text>
-                              </View>
-                          </View>
+                          </TouchableOpacity>
 
-                          {/* Create a modal to display the enlarged image */}
-                          <Modal visible={isModalVisible} animationType="fade" transparent={true}>
+                          {/* Cru Invite Confirmation Modal */}
+                          <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
                               <View
                                   style={{
                                       flex: 1,
+                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                       justifyContent: 'center',
                                       alignItems: 'center',
-                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                   }}>
-                                  {/* Display the enlarged image */}
-                                  <Image
-                                      source={imageindex.SpaceCrimePuzzler}
+                                  <View
                                       style={{
-                                          width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                          height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                          borderRadius: 5,
-                                      }}
-                                  />
-                                  <TouchableOpacity onPress={toggleModal}>
-                                      <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
-                                  </TouchableOpacity>
+                                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                                          padding: 20,
+                                          borderRadius: 10,
+                                          alignItems: 'center',
+                                          marginHorizontal: 15,
+                                      }}>
+                                      <Text
+                                          style={{
+                                              ...FONTS.Title3,
+                                              marginBottom: 10,
+                                              textAlign: 'center',
+                                          }}>
+                                          {`Are you sure you want to send "${user?.username}" a Cru invite?`}
+                                      </Text>
+                                      <View
+                                          style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
+                                          <TouchableOpacity
+                                              style={{
+                                                  backgroundColor: COLORS.PURPLE,
+                                                  paddingHorizontal: 20,
+                                                  paddingVertical: 10,
+                                                  borderRadius: 5,
+                                              }}
+                                              onPress={handleSendCruInvite}>
+                                              <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Yes</Text>
+                                          </TouchableOpacity>
+                                          <TouchableOpacity
+                                              style={{
+                                                  backgroundColor: COLORS.DARKAKCRUBLUE,
+                                                  paddingHorizontal: 20,
+                                                  paddingVertical: 10,
+                                                  marginRight: 10,
+                                                  borderRadius: 5,
+                                              }}
+                                              onPress={() => setShowConfirmationModal(false)}>
+                                              <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>No</Text>
+                                          </TouchableOpacity>
+                                      </View>
+                                  </View>
+                              </View>
+                          </Modal>
+                          {/* Cru Invite Sent Modal */}
+                          <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
+                              <View
+                                  style={{
+                                      flex: 1,
+                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                      justifyContent: 'center',
+                                      alignItems: 'center',
+                                  }}>
+                                  <View
+                                      style={{
+                                          backgroundColor: COLORS.AKCRUBACKGROUND,
+                                          padding: 20,
+                                          borderRadius: 10,
+                                          alignItems: 'center',
+                                          marginHorizontal: 15,
+                                      }}>
+                                      <Text
+                                          style={{
+                                              ...FONTS.Title3,
+                                              marginBottom: 10,
+                                              textAlign: 'center',
+                                          }}>
+                                          {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
+                                      </Text>
+                                  </View>
                               </View>
                           </Modal>
 
-                          {/* <View style={styles.seperator} />
+                              <Modal visible={userOptionModal} transparent={true} animationType="slide">
+                                  <ViewUserOptionModal
+                                      username={user?.username}
+                                      closeModal={() => setUserOptionModal(false)}
+                                      blockUser={() => {
+                                          ('');
+                                      }}
+                                      reportUser={() => {
+                                          ('');
+                                      }}
+                                      followUser={() => setFollowing(!following)}
+                                      cruInviteUser={() => setShowConfirmationModal(true)}
+                                  />
+                              </Modal>
+          
+
+                          <Pressable onPress={() => setFollowing(!following)}>
+                              <View style={following ? styles.unfollowbutton : styles.followbutton}>
+                                  <Text style={{...FONTS.Title2}}>{following ? 'UNFOLLOW' : 'FOLLOW'}</Text>
+                              </View>
+                          </Pressable>
+                      </View>
+                  </View>
+                  {user?.private ? (
+                      <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
+                          <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
+                              This account is private
+                          </Text>
+                          <Icon name="lock" type="material-community" color={COLORS.LIGHTGREY} size={65} />
+                      </View>
+                  ) : (
+                      <View>
+                          <View style={{marginHorizontal: 15, paddingTop: 20}}>
+                              <Text
+                                  style={{
+                                      ...FONTS.Title2,
+                                      color: COLORS.LIGHTGREY,
+                                      fontSize: 12,
+                                  }}>
+                                  {user?.description}
+                              </Text>
+                          </View>
+                          <View>
+                              <Text style={styles.desctext}>ARCHETYPE</Text>
+
+                              <View
+                                  style={{
+                                      paddingTop: 10,
+                                      flexDirection: 'row',
+                                      justifyContent: 'center',
+                                      paddingHorizontal: 10,
+                                  }}>
+                                  <View style={{paddingBottom: 10, paddingRight: 10}}>
+                                      <Pressable onPress={toggleModal}>
+                                          <Image
+                                              source={imageindex.SpaceCrimePuzzler}
+                                              style={{
+                                                  width: SIZES.ScreenWidth / 2.2,
+                                                  height: SIZES.ScreenWidth / 2.2,
+                                                  borderRadius: 5,
+                                              }}
+                                          />
+                                      </Pressable>
+                                  </View>
+                                  <View style={{flex: 1}}>
+                                      <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
+                                      <View style={{flexDirection: 'row', paddingBottom: 5}}>
+                                          <Text style={styles.drawfonttag}>Thriller</Text>
+                                          <Text style={styles.drawfonttag}> Adventure</Text>
+                                      </View>
+                                      <Text style={{...FONTS.Title2, fontSize: 12}}>
+                                          These individual appreciate movies that combine suspenseful and thrilling
+                                          elements with adrenaline-pumping adventures. Experiencing intense suspense and
+                                          daring escapades is where they find their cinematic excitement.
+                                      </Text>
+                                  </View>
+                              </View>
+
+                              {/* Create a modal to display the enlarged image */}
+                              <Modal visible={isModalVisible} animationType="fade" transparent={true}>
+                                  <View
+                                      style={{
+                                          flex: 1,
+                                          justifyContent: 'center',
+                                          alignItems: 'center',
+                                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                      }}>
+                                      {/* Display the enlarged image */}
+                                      <Image
+                                          source={imageindex.SpaceCrimePuzzler}
+                                          style={{
+                                              width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                              height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                              borderRadius: 5,
+                                          }}
+                                      />
+                                      <TouchableOpacity onPress={toggleModal}>
+                                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
+                                      </TouchableOpacity>
+                                  </View>
+                              </Modal>
+
+                              {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
@@ -517,12 +534,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                           <View style={{marginBottom: 75, marginTop: -20}}>
                               <BasicListCategories Akcru_Content={ViewUserwatchlist} />
                           </View> */}
+                          </View>
                       </View>
-                  </View>
-              )}
-          </ScrollView>
-      </SafeAreaView>
-    </TabContainer>
-      
+                  )}
+              </ScrollView>
+          </SafeAreaView>
+      </TabContainer>
   );
 }

@@ -1,7 +1,13 @@
-import {add, addMinutes, format, formatDuration, intervalToDuration, parse, parseISO, set, sub} from 'date-fns';
+import {add, addMinutes, format, formatDistance, formatDuration, intervalToDuration, parse, parseISO, set, sub} from 'date-fns';
 import {AKCRUBADGES, COLORS} from '../../assets/constants';
 import {min} from 'lodash';
 import {DateTime, IANAZone} from 'luxon';
+
+export function timeSince(dateCreated: string): string {
+    const now = new Date();
+    const postDate = new Date(dateCreated);
+    return formatDistance(postDate, now) + ' ago';
+}
 
 export function capitalizeFirstLetterOfString(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

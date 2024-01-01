@@ -11,6 +11,7 @@ import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
+import HexAvatar from '../HexAvatar';
 
 type MITHubCardProps = {
     inviteePicture: string;
@@ -66,7 +67,7 @@ MITHubCardProps) => {
                 <View style={{flexDirection: 'row'}}>
                     <View style={{marginRight: 8}}>
                         <TouchableOpacity onPressIn={onPressIn}>
-                            <Avatar
+                            {/* <Avatar
                                 rounded
                                 size={50}
                                 source={
@@ -80,6 +81,11 @@ MITHubCardProps) => {
                                     borderWidth: 2,
                                     borderColor: selectAvatarBorderColor(akcruBadge),
                                 }}
+                            /> */}
+                            <HexAvatar
+                                source={{uri: inviteePicture}}
+                                size={55}
+                                bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                             />
                         </TouchableOpacity>
                     </View>

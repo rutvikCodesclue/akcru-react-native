@@ -37,6 +37,8 @@ import imageindex from '../../../../assets/images/imageindex';
 import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -344,342 +346,339 @@ export default function EditProfile({session}: {session: Session}) {
     return (
         <TabContainer>
             <SafeAreaView>
-            <ScrollView stickyHeaderIndices={[0]}>
-                <View style={{zIndex: 20}}>
-                    <Header />
-                </View>
-                <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <View>
-                        <Text style={styles.title}>EDIT PROFILE</Text>
-                        <View style={{alignItems: 'center'}}>
-                            <Avatar
-                                rounded
-                                size={125}
-                                source={selectImage ? {uri: selectImage} : imageindex.Akcruplaceholder}
-                                avatarStyle={{
-                                    borderWidth: 2,
-                                    borderColor: COLORS.AKCRUBLUE,
-                                }}
-                            />
-                            <TouchableOpacity
-                                onPress={() => {
-                                    selectProfileImage();
-                                }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2AkcruBlue,
-                                        marginTop: 10,
-                                        color: COLORS.MIDORANGE,
-                                    }}>
-                                    Edit profile photo
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
+                <ScrollView stickyHeaderIndices={[0]}>
+                    <View style={{zIndex: 20}}>
+                        <Header />
                     </View>
-                    {/* Picture Size Error Modal*/}
-                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                        <View
-                            style={{
-                                flex: 1,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
+                    <View style={styles.container}>
+                        <TouchableOpacity onPress={() => navigation.pop()}>
                             <View
                                 style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
+                                    flexDirection: 'row',
                                     alignItems: 'center',
-                                    marginHorizontal: 15,
                                 }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title3,
-                                        marginBottom: 10,
-                                        textAlign: 'center',
-                                    }}>
-                                    {`Image is too large. Please select an image under 2MB.`}
-                                </Text>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View>
+                            <Text style={styles.title}>EDIT PROFILE</Text>
+                            <View style={{alignItems: 'center'}}>
+                                    <HexAvatar
+                                        source={{uri: selectImage}}
+                                        size={140}
+                                        bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                    />
+                               
                                 <TouchableOpacity
                                     onPress={() => {
-                                        setShowSizeErrorModal(false);
+                                        selectProfileImage();
                                     }}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title2,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
+                                            ...FONTS.Title2AkcruBlue,
+                                            marginTop: 10,
                                             color: COLORS.MIDORANGE,
                                         }}>
-                                        {`Close`}
+                                        Edit profile photo
                                     </Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </Modal>
-                    {/* Username */}
-                    <View style={{alignItems: 'center', marginTop: 20}}>
-                        <Text style={styles.inputlabel}>Username</Text>
-                        <View style={styles.input}>
-                            <Pressable onPress={handleUsernameModalOpen}>
-                                <TextInput
-                                    placeholder={user?.username}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setModifiedUserName(text)}
-                                    value={userName || ''} // Display the original value, not the modified one
-                                    editable={false}
-                                />
-                            </Pressable>
-                        </View>
-                    </View>
-                    {/* Username Modal */}
-                    <Modal animationType="fade" transparent={false} visible={usernameModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
+                        {/* Picture Size Error Modal*/}
+                        <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginBottom: 20,
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
                                 }}>
-                                <Pressable onPress={handleChangeUsername}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                                </Pressable>
-                                <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
-                                </Pressable>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title3,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                        }}>
+                                        {`Image is too large. Please select an image under 2MB.`}
+                                    </Text>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setShowSizeErrorModal(false);
+                                        }}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginBottom: 10,
+                                                textAlign: 'center',
+                                                color: COLORS.MIDORANGE,
+                                            }}>
+                                            {`Close`}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-
-                            <Text style={styles.inputlabel}>Change Username (12 character max)</Text>
+                        </Modal>
+                        {/* Username */}
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <Text style={styles.inputlabel}>Username</Text>
                             <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.username}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => {
-                                        // Remove spaces from the input text
-                                        const formattedText = text.replace(/\s/g, '');
-
-                                        // Enforce the 11-character limit
-                                        if (formattedText.length <= 12) {
-                                            setUserName(formattedText);
-                                        }
-                                    }}
-                                    value={userName} // Use the modified value in the TextInput
-                                    editable={true}
-                                />
+                                <Pressable onPress={handleUsernameModalOpen}>
+                                    <TextInput
+                                        placeholder={user?.username}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => setModifiedUserName(text)}
+                                        value={userName || ''} // Display the original value, not the modified one
+                                        editable={false}
+                                    />
+                                </Pressable>
                             </View>
-                        </SafeAreaView>
-                    </Modal>
-                    {/* Username Confirmation Modal */}
-                    <Modal animationType="fade" transparent={true} visible={showUpdateUsernameConfirmation}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
+                        </View>
+                        {/* Username Modal */}
+                        <Modal animationType="fade" transparent={false} visible={usernameModalVisible}>
+                            <SafeAreaView
                                 style={{
+                                    flex: 1,
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
+                                    paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                    paddingTop: 20,
                                 }}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                        Are you sure you want to update your Username?
-                                    </Text>
-                                </View>
-
                                 <View
                                     style={{
                                         flexDirection: 'row',
                                         justifyContent: 'space-between',
+                                        marginBottom: 20,
                                     }}>
-                                    <TouchableOpacity
-                                        onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                    <Pressable onPress={handleChangeUsername}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    </Pressable>
+                                    <Pressable onPress={() => setUsernameModalVisible(false)}>
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    </Pressable>
+                                </View>
+
+                                <Text style={styles.inputlabel}>Change Username (12 character max)</Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.username}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => {
+                                            // Remove spaces from the input text
+                                            const formattedText = text.replace(/\s/g, '');
+
+                                            // Enforce the 11-character limit
+                                            if (formattedText.length <= 12) {
+                                                setUserName(formattedText);
+                                            }
+                                        }}
+                                        value={userName} // Use the modified value in the TextInput
+                                        editable={true}
+                                    />
+                                </View>
+                            </SafeAreaView>
+                        </Modal>
+                        {/* Username Confirmation Modal */}
+                        <Modal animationType="fade" transparent={true} visible={showUpdateUsernameConfirmation}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                    }}>
+                                    <View style={{alignItems: 'center'}}>
+                                        <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                        <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                            Are you sure you want to update your Username?
+                                        </Text>
+                                    </View>
+
+                                    <View
                                         style={{
-                                            backgroundColor: 'red',
-                                            padding: 10,
-                                            borderRadius: 5,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
                                         }}>
-                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={confirmUsernameUpdate} // Confirm the update
-                                        style={{
-                                            backgroundColor: 'green',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Update</Text>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                            style={{
+                                                backgroundColor: 'red',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={confirmUsernameUpdate} // Confirm the update
+                                            style={{
+                                                backgroundColor: 'green',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </Modal>
+                        </Modal>
 
-                    {/* Description */}
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.inputlabel}>Bio</Text>
-                        <View style={styles.input}>
-                            <Pressable onPress={handleDescriptionModalOpen}>
-                                <TextInput
-                                    placeholder={user?.description}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setModifiedDescription(text)}
-                                    value={description || ''} // Display the original value, not the modified one
-                                    editable={false}
-                                />
-                            </Pressable>
-                        </View>
-                    </View>
-                    {/* Description Modal */}
-                    <Modal animationType="fade" transparent={false} visible={descriptionModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginBottom: 20,
-                                }}>
-                                <Pressable onPress={handleChangeDescription}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                                </Pressable>
-                                <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                        {/* Description */}
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.inputlabel}>Bio</Text>
+                            <View style={styles.input}>
+                                <Pressable onPress={handleDescriptionModalOpen}>
+                                    <TextInput
+                                        placeholder={user?.description}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => setModifiedDescription(text)}
+                                        value={description || ''} // Display the original value, not the modified one
+                                        editable={false}
+                                    />
                                 </Pressable>
                             </View>
-
-                            <Text style={styles.inputlabel}>Change Bio (150 characters max)</Text>
-                            <View style={styles.bioinput}>
-                                <TextInput
-                                    placeholder={user?.description}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => {
-                                        // Limit the description to 150 characters
-                                        if (text.length <= 150) {
-                                            setDescription(text);
-                                        }
-                                    }}
-                                    value={description} // Use the modified value in the TextInput
-                                    multiline={true}
-                                    maxLength={150} // Set the maximum character limit
-                                    editable={true}
-                                />
-                            </View>
-                        </SafeAreaView>
-                    </Modal>
-                    {/* Description Confirmation Modal */}
-                    <Modal animationType="fade" transparent={true} visible={showUpdateDescriptionConfirmation}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
+                        </View>
+                        {/* Description Modal */}
+                        <Modal animationType="fade" transparent={false} visible={descriptionModalVisible}>
+                            <SafeAreaView
                                 style={{
+                                    flex: 1,
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
+                                    paddingHorizontal: SIZES.ScreenWidth * 0.03,
+                                    paddingTop: 20,
                                 }}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                        Are you sure you want to update your Bio?
-                                    </Text>
-                                </View>
-
                                 <View
                                     style={{
                                         flexDirection: 'row',
                                         justifyContent: 'space-between',
+                                        marginBottom: 20,
                                     }}>
-                                    <TouchableOpacity
-                                        onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                    <Pressable onPress={handleChangeDescription}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    </Pressable>
+                                    <Pressable onPress={() => setDescriptionModalVisible(false)}>
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    </Pressable>
+                                </View>
+
+                                <Text style={styles.inputlabel}>Change Bio (150 characters max)</Text>
+                                <View style={styles.bioinput}>
+                                    <TextInput
+                                        placeholder={user?.description}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => {
+                                            // Limit the description to 150 characters
+                                            if (text.length <= 150) {
+                                                setDescription(text);
+                                            }
+                                        }}
+                                        value={description} // Use the modified value in the TextInput
+                                        multiline={true}
+                                        maxLength={150} // Set the maximum character limit
+                                        editable={true}
+                                    />
+                                </View>
+                            </SafeAreaView>
+                        </Modal>
+                        {/* Description Confirmation Modal */}
+                        <Modal animationType="fade" transparent={true} visible={showUpdateDescriptionConfirmation}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                    }}>
+                                    <View style={{alignItems: 'center'}}>
+                                        <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                        <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                            Are you sure you want to update your Bio?
+                                        </Text>
+                                    </View>
+
+                                    <View
                                         style={{
-                                            backgroundColor: 'red',
-                                            padding: 10,
-                                            borderRadius: 5,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
                                         }}>
-                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={confirmDescriptionUpdate} // Confirm the update
-                                        style={{
-                                            backgroundColor: 'green',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Update</Text>
-                                    </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                            style={{
+                                                backgroundColor: 'red',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={confirmDescriptionUpdate} // Confirm the update
+                                            style={{
+                                                backgroundColor: 'green',
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                    </Modal>
+                        </Modal>
 
-                    {/* Email */}
-                    <View style={{alignItems: 'center'}}>
-                        <Text style={styles.inputlabel}>Email</Text>
-                        <View style={styles.input}>
-                            <Pressable>
-                                <TextInput
-                                    placeholder={user?.email}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    value={session?.user?.email} // Display the original value, not the modified one
-                                    editable={false}
-                                />
-                            </Pressable>
+                        {/* Email */}
+                        <View style={{alignItems: 'center'}}>
+                            <Text style={styles.inputlabel}>Email</Text>
+                            <View style={styles.input}>
+                                <Pressable>
+                                    <TextInput
+                                        placeholder={user?.email}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        value={session?.user?.email} // Display the original value, not the modified one
+                                        editable={false}
+                                    />
+                                </Pressable>
+                            </View>
                         </View>
-                    </View>
 
-                    <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
-                        At Akcru, your movie-watching preferences shape your unique archetype. This personalized
-                        "Archetype" guides us in curating the finest movie recommendations for you, as well as
-                        connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being a
-                        simple streaming platform; we are a multifaceted streaming experience that caters to your
-                        individuality.
-                    </Text>
-                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
-                        Please choose 2 genres to then press "FINISH":
-                    </Text>
-                    <View style={{flex: 1}}>
-                        {/* <View style={{marginBottom: 20}}>
+                        <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
+                            At Akcru, your movie-watching preferences shape your unique archetype. This personalized
+                            "Archetype" guides us in curating the finest movie recommendations for you, as well as
+                            connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
+                            a simple streaming platform; we are a multifaceted streaming experience that caters to your
+                            individuality.
+                        </Text>
+                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
+                            Please choose 2 genres to then press "FINISH":
+                        </Text>
+                        <View style={{flex: 1}}>
+                            {/* <View style={{marginBottom: 20}}>
                             <FlatList
                                 data={filteredGenres}
                                 horizontal={false}
@@ -710,106 +709,106 @@ export default function EditProfile({session}: {session: Session}) {
                                 )}
                             />
                         </View> */}
-                        <View style={{marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap', paddingLeft: 10}}>
-                            {filteredGenres.map((item, index) => (
-                                <View key={item.id} style={{width: '33.33%', padding: 4}}>
-                                    <View style={styles.checkboxContainer}>
-                                        <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
-                                            <View style={styles.checkbox}>
-                                                {checkedGenres[item.id] && (
-                                                    <Icon
-                                                        name="checkmark-sharp"
-                                                        type="ionicon"
-                                                        size={18}
-                                                        color={COLORS.MIDORANGE}
-                                                        style={{marginTop: -3}}
-                                                    />
-                                                )}
+                            <View style={{marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap', paddingLeft: 10}}>
+                                {filteredGenres.map((item, index) => (
+                                    <View key={item.id} style={{width: '33.33%', padding: 4}}>
+                                        <View style={styles.checkboxContainer}>
+                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                                <View style={styles.checkbox}>
+                                                    {checkedGenres[item.id] && (
+                                                        <Icon
+                                                            name="checkmark-sharp"
+                                                            type="ionicon"
+                                                            size={18}
+                                                            color={COLORS.MIDORANGE}
+                                                            style={{marginTop: -3}}
+                                                        />
+                                                    )}
+                                                </View>
+                                            </TouchableOpacity>
+                                            <View>
+                                                <Text style={styles.checkboxText}>{item.genre}</Text>
                                             </View>
-                                        </TouchableOpacity>
-                                        <View>
-                                            <Text style={styles.checkboxText}>{item.genre}</Text>
                                         </View>
                                     </View>
-                                </View>
-                            ))}
-                        </View>
+                                ))}
+                            </View>
 
-                        {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
+                            {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
 
-                        {archetypeName && (
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    textAlign: 'center',
-                                    marginVertical: 10,
-                                    color: COLORS.PURPLE,
-                                }}>
-                                "{archetypeName}"
-                            </Text>
-                        )}
-                        <Pressable
-                            onPress={() => {
-                                toggleArchetypeModal();
-                            }}>
-                            {archetypeImage && (
-                                <Image
-                                    source={{uri: archetypeImage}}
+                            {archetypeName && (
+                                <Text
                                     style={{
-                                        width: SIZES.ScreenWidth / 2.2,
-                                        height: SIZES.ScreenWidth / 2.2,
-                                        borderRadius: 5,
-                                        alignSelf: 'center',
-                                    }}
-                                />
+                                        ...FONTS.Title3,
+                                        textAlign: 'center',
+                                        marginVertical: 10,
+                                        color: COLORS.PURPLE,
+                                    }}>
+                                    "{archetypeName}"
+                                </Text>
                             )}
-                        </Pressable>
+                            <Pressable
+                                onPress={() => {
+                                    toggleArchetypeModal();
+                                }}>
+                                {archetypeImage && (
+                                    <Image
+                                        source={{uri: archetypeImage}}
+                                        style={{
+                                            width: SIZES.ScreenWidth / 2.2,
+                                            height: SIZES.ScreenWidth / 2.2,
+                                            borderRadius: 5,
+                                            alignSelf: 'center',
+                                        }}
+                                    />
+                                )}
+                            </Pressable>
 
-                        {archetypeDescription && (
-                            <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
-                                {archetypeDescription}
-                            </Text>
-                        )}
+                            {archetypeDescription && (
+                                <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
+                                    {archetypeDescription}
+                                </Text>
+                            )}
 
-                        <View>
-                            <View style={{alignItems: 'center'}}>
-                                <AkcruButtons.XlLrgButton
-                                    color={COLORS.MIDORANGE}
-                                    btnname={'Finish'}
-                                    onPress={handleFinishButton}
-                                    disabled={false}
-                                />
+                            <View>
+                                <View style={{alignItems: 'center'}}>
+                                    <AkcruButtons.XlLrgButton
+                                        color={COLORS.MIDORANGE}
+                                        btnname={'Finish'}
+                                        onPress={handleFinishButton}
+                                        disabled={false}
+                                    />
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    {/* Create a modal to display the enlarged image */}
-                    <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            {/* Display the enlarged image */}
-                            {archetypeImage && (
-                                <Image
-                                    source={{uri: archetypeImage}}
-                                    style={{
-                                        width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                        height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                        borderRadius: 5,
-                                    }}
-                                />
-                            )}
-                            <TouchableOpacity onPress={toggleArchetypeModal}>
-                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: 10}}>Close</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </Modal>
+                        {/* Create a modal to display the enlarged image */}
+                        <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                {/* Display the enlarged image */}
+                                {archetypeImage && (
+                                    <Image
+                                        source={{uri: archetypeImage}}
+                                        style={{
+                                            width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                            height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
+                                            borderRadius: 5,
+                                        }}
+                                    />
+                                )}
+                                <TouchableOpacity onPress={toggleArchetypeModal}>
+                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: 10}}>Close</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Modal>
 
-                    {/* <View>
+                        {/* <View>
                         <Text style={styles.inputlabel}>Email</Text>
                         <View style={{alignItems: 'center'}}>
                             <InputsLrg
@@ -824,39 +823,38 @@ export default function EditProfile({session}: {session: Session}) {
                         </View>
                     </View> */}
 
-                    <View style={{alignItems: 'center', marginVertical: 20}}>
-                        <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
-                            <Text style={styles.settingslabel}>Account Settings</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.navigate('Help')}>
-                            <View style={{flexDirection: 'row', marginTop: 5}}>
-                                <Text style={styles.settingslabel}>Help</Text>
-                                <View style={{marginLeft: 5}}>
-                                    <Icon
-                                        name="help-rhombus"
-                                        type="material-community"
-                                        color={COLORS.MIDORANGE}
-                                        size={20}
-                                    />
+                        <View style={{alignItems: 'center', marginVertical: 20}}>
+                            <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
+                                <Text style={styles.settingslabel}>Account Settings</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation.navigate('Help')}>
+                                <View style={{flexDirection: 'row', marginTop: 5}}>
+                                    <Text style={styles.settingslabel}>Help</Text>
+                                    <View style={{marginLeft: 5}}>
+                                        <Icon
+                                            name="help-rhombus"
+                                            type="material-community"
+                                            color={COLORS.MIDORANGE}
+                                            size={20}
+                                        />
+                                    </View>
                                 </View>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                handleLogout();
-                                // after logging out, navigate to the Signin screen
-                                navigation2.navigate('Signin');
-                            }}>
-                            <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
-                        </TouchableOpacity>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    handleLogout();
+                                    // after logging out, navigate to the Signin screen
+                                    navigation2.navigate('Signin');
+                                }}>
+                                <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
+                            version {appVersion[0].version}
+                        </Text>
                     </View>
-                    <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
-                        version {appVersion[0].version}
-                    </Text>
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                </ScrollView>
+            </SafeAreaView>
         </TabContainer>
-        
     );
 }

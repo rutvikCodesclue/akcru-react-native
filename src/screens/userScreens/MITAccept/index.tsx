@@ -31,8 +31,9 @@ import BottomSheet, {
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { IMovie, IUserProfile } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone, selectAvatarBorderColor } from "../../../util/util";
 import moment from "moment";
+import HexAvatar from "../../../components/HexAvatar";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -131,7 +132,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                           }}>
                           <View style={{flexDirection: 'row'}}>
                               <View style={{marginRight: 8}}>
-                                  <Avatar
+                                  {/* <Avatar
                                       rounded
                                       size={70}
                                       source={{uri: creator?.profilePicture}}
@@ -139,6 +140,11 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                                           borderWidth: 2,
                                           borderColor: COLORS.AKCRUBLUE,
                                       }}
+                                  /> */}
+                                  <HexAvatar
+                                      source={{uri: creator?.profilePicture}}
+                                      size={75}
+                                      bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                                   />
                                   <View />
 

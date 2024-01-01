@@ -15,6 +15,8 @@ import imageindex from '../../../../assets/images/imageindex';
 import { MediaType, launchImageLibrary } from 'react-native-image-picker';
 import { Image } from 'react-native';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
+import { createPost } from '../../../lib/api/post.lib';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -32,13 +34,36 @@ const NewPost = () => {
     );
 
     const [post, setPost] = useState('');
-    const OnPostPress =()=> {
-        console.log("Pressed Post Button", post, selectImage)
+    
+    const OnPostPress = async () => {
+        if (!post && !selectImage) {
+            console.log('No post content to submit');
+            return;
+        }
 
-        setSelectImage('')
-        setPost('')
-        navigation.goBack()
+        try {
+            const type = selectImage ? 'image' : 'text'; // Determine the type based on whether an image is selected
+            const content = post;
+
+            // Call the createPost API function
+            const result = await createPost(type, content);
+            if (result) {
+                console.log('Post created successfully', result);
+                // Handle the post-creation logic, like navigating back or showing a success message
+                navigation.goBack();
+            } else {
+                // Handle the error case
+                console.log('Failed to create the post');
+            }
+        } catch (error) {
+            console.error('Error creating the post:', error);
+        }
+
+        // Reset the state
+        setSelectImage('');
+        setPost('');
     };
+
 
     const [selectImage, setSelectImage] = useState('');
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
@@ -136,15 +161,15 @@ const NewPost = () => {
                 <View style={{marginTop: '5%', marginHorizontal: 15}}>
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 8}}>
-                            <Avatar
-                                rounded
-                                size={40}
-                                source={user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder}
-                                avatarStyle={{
-                                    borderWidth: 2,
-                                    borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                }}
-                            />
+                            <TouchableOpacity>
+                                <HexAvatar
+                                    source={
+                                        user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder
+                                    }
+                                    size={45}
+                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                />
+                            </TouchableOpacity>
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2, fontSize: 12}}>

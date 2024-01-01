@@ -6,9 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AuthStackParams } from '../../navigation/AuthNavigation';
-import { ClientStackParams } from '../../navigation/ClientStack';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
 import useAuthStore from '../../stores/auth.store';
 import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
 

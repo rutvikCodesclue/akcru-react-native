@@ -1,12 +1,10 @@
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   ImageBackground,
   Pressable,
-  Platform,
   Modal,
   KeyboardAvoidingView,
   Alert,
@@ -24,16 +22,10 @@ import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
 import Tos from './tos';
-import { API } from '../../../clients/api.client';
-import { supabase } from '../../../../lib/supabase';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {searchForUsers} from '../../../lib/api/user.lib';
-import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import { GoTrueClient } from '@supabase/supabase-js';
 import { appVersion } from '../../../../assets/constants/Data';
-
-
+import axios from 'axios';
+import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 
 const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
 
@@ -60,7 +52,6 @@ const TOSModal = ({visible, children}: {visible: boolean, children: any}) => {
  );
 };
 
-
 const Signup = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -76,8 +67,9 @@ const Signup = () => {
   const [emailError, setEmailError] = useState(false);
   const [passwordLengthError, setPasswordLengthError] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [theEmailHasError, setTheEmailHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [signupErrorMessage, setSignupErrorMessage] = useState('');
 
   const handleEmailChange = (text: string) => {
     setEmail(text);
@@ -133,65 +125,66 @@ const Signup = () => {
     isChecked,
   ]);
 
-
-   const checkEmailExists = async (email: string) => {
-       // Send a request to your backend or API to search for users with the given email
-       // If a user with the email is found, return true; otherwise, return false
-       const users = await searchForUsers(email); // Use your actual function or API call here
-
-       return users.length > 0;
-   };
-
    const attemptSignup = async () => {
-       setIsLoading(true);
-       const emailExists = await checkEmailExists(email);
+       try {
+           setIsLoading(true);
 
-       if (emailExists) {
-           setTheEmailHasError(true)
-           setIsLoading(false)
-          //  Alert.alert('Email already in use. Please use a different email.');
-           return;
-       }
+           setLoading(true);
+           console.log('Attempting to Signup w/ Email/Password:', email, password);
 
-       setLoading(true);
-       console.log(
-           'Attempting to Signup w/ Email/Password:',
-           email,
-           password,
-           // userName,
-       );
+           // Create an email signup
+           const {user, error: signupError} = await useAuthStore.getState().signUpWithEmail(email, password);
+           if (signupError) {
+               throw new Error(signupError.message || 'Error during signup');
+           }
 
-       // create an email signup
-       let {user, response} = await useAuthStore.getState().signUpWithEmail(email, password);
-       if (!user) {
-           console.log('There was an error signin up');
+           console.log('Signup Successful!', user);
 
-           Alert.alert('There was an error signin up');
+           // Login through the API
+           const {
+               user: loggedInUser,
+               session,
+               error: loginError,
+           } = await useAuthStore.getState().loginWithEmail(user.email, password);
+           if (loginError || !loggedInUser || !session) {
+               throw new Error(loginError.message || 'Error logging in after signup');
+           }
+
+           console.log('Login AFTER SIGNUP Successful!', session);
+           await useAuthStore.getState().hydrateAuth();
+           await useAuthStore.getState().hydrateUser();
+           console.log('Hydrated auth and user after successful login and signup', session);
+
+           // Navigate to the next screen on successful signup and login
+           navigation.navigate('OnBoard1');
+       } catch (error) {
+           if (axios.isAxiosError(error)) {
+               console.error('Axios error during signup:', {
+                   message: error.message,
+                   response: error.response?.data,
+                   status: error.response?.status,
+                   headers: error.response?.headers,
+               });
+
+               let userMessage = 'An unexpected error occurred during signup.';
+               if (error.response?.status === 400) {
+                   userMessage = error.response.data.message || 'Invalid request. Please check your input.';
+               } else if (error.response?.status === 401) {
+                   userMessage = 'Unauthorized. Please check your credentials.';
+               }
+               setSignupErrorMessage(userMessage); // Set the error message for the modal
+              //  Alert.alert('Signup Error', userMessage);
+           } else {
+              setSignupErrorMessage('An unexpected error occurred during signup.');
+               console.error('Non-Axios error during signup:', error);
+               Alert.alert('Signup Error', 'An unexpected error occurred during signup.');
+           }
+       } finally {
            setLoading(false);
-           return;
+           setIsLoading(false);
        }
 
-       console.log('Signup Successful!', response.data);
-
-       // login through the API
-       let {user: loggedInUser, session} = await useAuthStore.getState().loginWithEmail(user.email, password);
-
-       if (!loggedInUser || !session) {
-           Alert.alert('Error logging In after Signup');
-           setLoading(false);
-           return null;
-       }
-       console.log('Login AFTER SIGNUP Successful!', session);
-       await useAuthStore.getState().hydrateAuth();
-       await useAuthStore.getState().hydrateUser();
-       console.log('hydrated auth and user AFTER LOGIN AFTER Successful SIGNUP!', session);
-       //
-       setLoading(false);
-       // move the user to onboarding, on success
-       navigation.navigate('OnBoard1');
-       setIsLoading(false);
    };
-
 
   return (
       <View>
@@ -292,46 +285,13 @@ const Signup = () => {
                               />
                           </View>
                       </View>
-                      <Modal animationType="fade" transparent={true} visible={theEmailHasError}>
-                          <View
-                              style={{
-                                  flex: 1,
-                                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                              }}>
-                              <View
-                                  style={{
-                                      backgroundColor: COLORS.AKCRUBACKGROUND,
-                                      padding: 20,
-                                      borderRadius: 10,
-                                      alignItems: 'center',
-                                      marginHorizontal: 15,
-                                  }}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title3,
-                                          marginBottom: 10,
-                                          textAlign: 'center',
-                                      }}>
-                                      {`An error has occured. This email may already be in use, please try again.`}
-                                  </Text>
-                                  <TouchableOpacity
-                                      onPress={() => {
-                                          setTheEmailHasError(false);
-                                      }}>
-                                      <Text
-                                          style={{
-                                              ...FONTS.Title2,
-                                              marginBottom: 10,
-                                              textAlign: 'center',
-                                              color: COLORS.MIDORANGE,
-                                          }}>
-                                          {`Close`}
-                                      </Text>
-                                  </TouchableOpacity>
-                              </View>
-                          </View>
+                      <Modal animationType="fade" transparent={true} visible={!!signupErrorMessage}>
+                          <ErrorModal
+                              closeModal={() => setSignupErrorMessage('')}
+                              message={signupErrorMessage}
+                              iconcolor={COLORS.CATREDLGT}
+                              iconname={'alert-circle'}
+                          />
                       </Modal>
                       <Modal animationType="fade" transparent={true} visible={isLoading}>
                           <View

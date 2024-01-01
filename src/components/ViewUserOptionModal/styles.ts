@@ -68,7 +68,7 @@ export default StyleSheet.create({
     },
     postoptionsmodal: {
         width: '100%',
-        height: '35%',
+        height: '25%',
         backgroundColor: COLORS.AKCRUBACKGROUND,
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,

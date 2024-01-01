@@ -17,6 +17,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { el } from 'date-fns/locale';
 import { selectAvatarBorderColor } from '../../util/util';
 import imageindex from '../../../assets/images/imageindex';
+import HexAvatar from '../HexAvatar';
 
 const MAX_USERNAME_LENGTH = 10; // Maximum number of characters for the userDesc
 
@@ -75,7 +76,7 @@ const CruMemberCard = ({
                   <View style={{flexDirection: 'row'}}>
                       <View style={{marginRight: 8}}>
                           <TouchableOpacity onPress={onPress}>
-                              <Avatar
+                              {/* <Avatar
                                   rounded
                                   size={40}
                                   source={
@@ -89,6 +90,11 @@ const CruMemberCard = ({
                                       borderWidth: 2,
                                       borderColor: selectAvatarBorderColor(akcruBadge),
                                   }}
+                              /> */}
+                              <HexAvatar
+                                  source={{uri: userPicture}}
+                                  size={45}
+                                  bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                               />
                           </TouchableOpacity>
                       </View>
