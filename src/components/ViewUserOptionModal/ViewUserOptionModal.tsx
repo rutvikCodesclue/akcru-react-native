@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Icon } from '@rneui/base';
 import { COLORS, FONTS } from '../../../assets/constants/theme';
@@ -11,9 +11,12 @@ type ViewUserOptionModalProps = {
     reportUser: () => void;
     followUser: () => void;
     cruInviteUser: () => void;
+    followToggleText: string;
+    followToggleIcon: string;
+    followIconType: string;
 };
 
-const ViewUserOptionModal = ({closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
+const ViewUserOptionModal = ({followIconType,followToggleIcon,followToggleText,closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
   return (
       <Pressable style={styles.postoptioncontainer} onPress={closeModal}>
           <View style={styles.postoptionsmodal}>
@@ -29,9 +32,13 @@ const ViewUserOptionModal = ({closeModal, username, blockUser, reportUser, follo
                   <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                   <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {username}</Text>
               </Pressable>
-              <Pressable onPress={followUser} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                  <Icon name="person-add" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                  <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {username}</Text>
+              <Pressable onPress={followUser}>
+                  <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                      <Icon name="person" type={followIconType} color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                      <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                          {followToggleText} {username}
+                      </Text>
+                  </View>
               </Pressable>
               <Pressable onPress={cruInviteUser} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                   <Icon

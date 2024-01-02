@@ -12,9 +12,9 @@ export default StyleSheet.create({
         marginRight: 10,
     },
     followbutton: {
-        width: 125,
+        width: '25%',
         height: 30,
-        backgroundColor: COLORS.TAGCOLOR,
+        backgroundColor: COLORS.CATPURPLGT,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 3,
@@ -22,7 +22,7 @@ export default StyleSheet.create({
     unfollowbutton: {
         width: 125,
         height: 30,
-        backgroundColor: COLORS.DARKORANGE,
+        backgroundColor: COLORS.CATPURPDRK,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 3,

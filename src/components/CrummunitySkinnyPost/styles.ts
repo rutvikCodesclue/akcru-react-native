@@ -19,7 +19,7 @@ export default StyleSheet.create({
         lineHeight: 18,
         color: COLORS.AKCRUBLUE,
         opacity: 0.5,
-        paddingTop: 10,
+        paddingTop: 3,
     },
     cardcontainer: {
         backgroundColor: '#1C202A',
