@@ -42,33 +42,69 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     // const handlePostPress = (post) => {
     //     navigation.navigate('PostScreen', {post});
     // };
+    
 
     const [posts, setPosts] = useState<IPost[]>([]);
     // const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
+    // useEffect(() => {
+    //     const fetchPosts = async () => {
+    //         setLoading(true); // Assuming you have a setLoading function
+    //         try {
+    //             const fetchedPosts = await getPosts(); // Default to the first page
+    //             if (fetchedPosts) {
+    //                 console.log('fetchedPosts right now', fetchedPosts);
+    //                 setPosts(fetchedPosts); // Update your state with the fetched posts
+    //             } else {
+    //                 console.log('No posts fetched');
+    //             }
+    //         } catch (error) {
+    //             console.error('Failed to fetch posts:', error);
+    //             setError(error.message || 'Failed to fetch posts'); // Assuming you have a setError function
+    //         } finally {
+    //             setLoading(false); // Hide loading indicator
+    //         }
+    //     };
+
+    //     fetchPosts();
+    // }, []); // Add any dependencies here if needed
+
     useEffect(() => {
         const fetchPosts = async () => {
-            setLoading(true); // Assuming you have a setLoading function
+            setLoading(true);
             try {
-                const fetchedPosts = await getPosts(); // Default to the first page
+                const fetchedPosts = await getPosts();
                 if (fetchedPosts) {
-                    console.log('fetchedPosts right now', fetchedPosts);
-                    setPosts(fetchedPosts); // Update your state with the fetched posts
+                    setPosts(fetchedPosts);
                 } else {
                     console.log('No posts fetched');
                 }
             } catch (error) {
                 console.error('Failed to fetch posts:', error);
-                setError(error.message || 'Failed to fetch posts'); // Assuming you have a setError function
+                setError(error.message || 'Failed to fetch posts');
             } finally {
-                setLoading(false); // Hide loading indicator
+                setLoading(false);
             }
         };
 
+        const handleFocus = () => {
+            // Add this code to fetch and refresh data when the screen gains focus
+            fetchPosts();
+        };
+
+        // Add a listener for the focus event
+        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
+
+        // Fetch data when the component mounts
         fetchPosts();
-    }, []); // Add any dependencies here if needed
+
+        // Cleanup the listener when the component unmounts
+        return () => {
+            unsubscribeFocus();
+        };
+    }, [navigation]); // Include 'navigation' as a dependency
 
     const handlePostPress = postId => {
         const selectedPost = posts.find(post => post.id === postId);
@@ -145,7 +181,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 style={styles.postcontainer}
                                 keyExtractor={item => item.id.toString()}
                                 renderItem={({item}) => (
-                                    <Pressable onPress={() => handlePostPress(item.id)}>
+                                    <Pressable onPress={() => handlePostPress(item.id)} style={{marginBottom:10}}>
                                         <SkinnyPostCard
                                             post={item}
                                             openProfile={() =>

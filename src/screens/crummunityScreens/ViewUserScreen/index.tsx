@@ -22,7 +22,7 @@ import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { findAUser } from '../../../lib/api/user.lib';
+import { findAUser, followUser, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -33,7 +33,8 @@ import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
-
+import ComfirmationModal from '../../../components/ConfirmationModal';
+import useAuthStore from '../../../stores/auth.store';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -56,29 +57,56 @@ const ViewUserwatchlist = Akcru_Content[6];
 const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
+
+    const [follow, setFollow] = useState(false);
+    //Get current user
+    const currentuser = useAuthStore(state => state.user);
+    const {hydrateUser} = useAuthStore();
     const userID: string | undefined = route.params?.userID ?? null;
     const id: string | undefined = route.params?.id;
     const userprofile: string | undefined = route.params?.userName ?? null;
-    const navigation2 = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
     const userId = route.params?.userId;
+
+    const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     
-  useFocusEffect(
+
+useFocusEffect(
     React.useCallback(() => {
-      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-      findAUser({ id: userID }).then((user) => {
-          setUser(user);
-      });
+        // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+        console.log('ViewUserScreen focused [ViewUserScreen]');
+        hydrateUser();
 
-      return () => {
-        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-      };
-    }, [])
-  );
+        return () => {
+            // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+            console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
+        };
+    }, []),
+);
+
+useFocusEffect(
+    React.useCallback(() => {
+        //Find and set the viewed user
+        findAUser({id: userID}).then(user => {
+            setUser(user);
+        });
+
+        getUserFollowing().then(response => {
+            if (response && response.success) {
+                const isFollowing = response.following.some(followedUser => followedUser.id === userID);
+                setFollow(isFollowing);
+            } else {
+                setFollow(false);
+            }
+        });
+
+        return () => {
+            // Cleanup code if needed
+        };
+    }, [userID, currentuser?.id]),
+);
 
 
-  const [user, setUser] = useState<IUserProfile | undefined>(undefined)
-  const [following, setFollowing] = useState(false)
 
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
 
@@ -116,7 +144,23 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }
     };
 
+console.log('ViewUserScreen render', {follow});
 
+const handleFollowPress = async () => {
+    if (follow) {
+        const success = await unfollowUser({userId: userID});
+        if (success) {
+            setFollow(false);
+            setUserOptionModal(false);
+        }
+    } else {
+        const success = await followUser({userId: userID});
+        if (success) {
+            setFollow(true);
+            setUserOptionModal(false);
+        }
+    }
+};
 
   return (
       <TabContainer>
@@ -318,58 +362,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                   <Text style={{...FONTS.Title2}}>CRU INVITE</Text>
                               </View>
                           </TouchableOpacity>
-
                           {/* Cru Invite Confirmation Modal */}
                           <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                              <View
-                                  style={{
-                                      flex: 1,
-                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                  }}>
-                                  <View
-                                      style={{
-                                          backgroundColor: COLORS.AKCRUBACKGROUND,
-                                          padding: 20,
-                                          borderRadius: 10,
-                                          alignItems: 'center',
-                                          marginHorizontal: 15,
-                                      }}>
-                                      <Text
-                                          style={{
-                                              ...FONTS.Title3,
-                                              marginBottom: 10,
-                                              textAlign: 'center',
-                                          }}>
-                                          {`Are you sure you want to send "${user?.username}" a Cru invite?`}
-                                      </Text>
-                                      <View
-                                          style={{flexDirection: 'row', justifyContent: 'space-evenly', width: '100%'}}>
-                                          <TouchableOpacity
-                                              style={{
-                                                  backgroundColor: COLORS.PURPLE,
-                                                  paddingHorizontal: 20,
-                                                  paddingVertical: 10,
-                                                  borderRadius: 5,
-                                              }}
-                                              onPress={handleSendCruInvite}>
-                                              <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Yes</Text>
-                                          </TouchableOpacity>
-                                          <TouchableOpacity
-                                              style={{
-                                                  backgroundColor: COLORS.DARKAKCRUBLUE,
-                                                  paddingHorizontal: 20,
-                                                  paddingVertical: 10,
-                                                  marginRight: 10,
-                                                  borderRadius: 5,
-                                              }}
-                                              onPress={() => setShowConfirmationModal(false)}>
-                                              <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>No</Text>
-                                          </TouchableOpacity>
-                                      </View>
-                                  </View>
-                              </View>
+                              <ComfirmationModal
+                                  confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
+                                  onPressYes={handleSendCruInvite}
+                                  onPressNo={() => setShowConfirmationModal(false)}
+                              />
                           </Modal>
                           {/* Cru Invite Sent Modal */}
                           <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
@@ -400,25 +399,27 @@ export default function ViewUserScreen({route, navigation}: Props) {
                               </View>
                           </Modal>
 
-                              <Modal visible={userOptionModal} transparent={true} animationType="slide">
-                                  <ViewUserOptionModal
-                                      username={user?.username}
-                                      closeModal={() => setUserOptionModal(false)}
-                                      blockUser={() => {
-                                          ('');
-                                      }}
-                                      reportUser={() => {
-                                          ('');
-                                      }}
-                                      followUser={() => setFollowing(!following)}
-                                      cruInviteUser={() => setShowConfirmationModal(true)}
-                                  />
-                              </Modal>
-          
+                          <Modal visible={userOptionModal} transparent={true} animationType="slide">
+                              <ViewUserOptionModal
+                                  username={user?.username}
+                                  closeModal={() => setUserOptionModal(false)}
+                                  blockUser={() => {
+                                      ('');
+                                  }}
+                                  reportUser={() => {
+                                      ('');
+                                  }}
+                                  followUser={handleFollowPress}
+                                  followToggleIcon={follow ? 'person-subtract' : 'person-add'}
+                                  followIconType = {"ionicon"}
+                                  followToggleText={follow ? 'Unfollow' : 'Follow'}
+                                  cruInviteUser={() => setShowConfirmationModal(true)}
+                              />
+                          </Modal>
 
-                          <Pressable onPress={() => setFollowing(!following)}>
-                              <View style={following ? styles.unfollowbutton : styles.followbutton}>
-                                  <Text style={{...FONTS.Title2}}>{following ? 'UNFOLLOW' : 'FOLLOW'}</Text>
+                          <Pressable onPress={handleFollowPress} style={{width: '100%'}}>
+                              <View style={follow ? styles.unfollowbutton : styles.followbutton}>
+                                  <Text style={{...FONTS.Title2}}>{follow ? 'UNFOLLOW' : 'FOLLOW'}</Text>
                               </View>
                           </Pressable>
                       </View>

@@ -9,6 +9,7 @@ import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import imageindex from '../../../assets/images/imageindex';
 import { timeSince } from '../../util/util';
+import LinearGradient from 'react-native-linear-gradient';
 
 type FooterIconsProps = {
     iconname: string;
@@ -170,6 +171,18 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
 
     return (
         <View style={styles.cardcontainer}>
+            <LinearGradient
+                // Background Linear Gradient
+                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: 5,
+                }}
+            />
             <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <View style={{marginRight: 8}}>
                     <TouchableOpacity onPress={() => openProfile()}>
@@ -324,8 +337,10 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                     </Pressable>
                 </Modal>
             </View>
-
-            <Text style={styles.post}>{post.content}</Text>
+<View style={{marginTop: 10}}>
+    <Text style={styles.post}>{post.content}</Text>
+</View>
+            
 
             <View>
                 {post.image && (

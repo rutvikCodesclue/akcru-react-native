@@ -247,7 +247,7 @@ export const getFollowersCount = async (): Promise<Object | undefined> => {
 export const getUserFollowing = async (): Promise<Object | undefined> => {
     try {
         // PUT /v1/watchtime/me
-        const {data} = await API.get(`/v1/user/unfollow`);
+        const {data} = await API.get(`/v1/user/following`);
 
         if (data.success === false) {
             return false;
@@ -259,6 +259,32 @@ export const getUserFollowing = async (): Promise<Object | undefined> => {
         return undefined;
     }
 };
+// export const getUserFollowing = async (): Promise<IUserProfile[] | undefined> => {
+//     try {
+//         // Your existing code to fetch data
+//         const {data} = await API.get(`/v1/user/following`); // Adjust the endpoint as necessary
+
+//         if (data.success === false) {
+//             return undefined;
+//         }
+
+//         return data.followingUsers; // Assuming the response contains an array of users in followingUsers
+//     } catch (error) {
+//         console.error(error);
+//         return undefined;
+//     }
+// };
+// export const getUserFollowing = async (): Promise<IUserProfile[] | []> => {
+//     try {
+//         const {data} = await API.get(`/v1/user/following`);
+//         return data.followingUsers || []; // Make sure to return an empty array if no users are found
+//     } catch (error) {
+//         console.error('Error fetching following users:', error);
+//         return [];
+//     }
+// };
+
+
 
 // TODO: type this
 export const getUserFollowingCount = async (): Promise<Object | undefined> => {
