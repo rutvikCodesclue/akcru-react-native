@@ -32,15 +32,16 @@ import { RouteProp, useFocusEffect } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthStore from "../../../stores/auth.store";
 import { selectAvatarBorderColor } from "../../../util/util";
-import { ICruInvite, ICruView, IMITInvite } from "../../../../types";
+import { ICruInvite, ICruView, IMITInvite, IUserProfile } from "../../../../types";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
 import { getCRUInvites, getMyCRUViews } from "../../../lib/api/cru.lib";
 import {isAfter, isBefore} from 'date-fns';
 import TabContainer from "../../../components/TabContainer/TabContainer";
 import HexAvatar from "../../../components/HexAvatar";
+import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -296,6 +297,22 @@ export default function UserProfileScreen({navigation, route}: Props) {
         {key: 'fourth', title: 'Wallet'},
     ]);
 
+    const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getFollowers();
+            // console.log('Data received:', result);
+            if (result && result.followers && Array.isArray(result.followers)) {
+                setFollowersData(result.followers); // Set the 'following' array as your data
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    const followersCount = followersData.length;
+
     return (
         <TabContainer>
             <View style={{flex: 1}}>
@@ -397,7 +414,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
+                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
                                         <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>
                                             Followers
                                         </Text>

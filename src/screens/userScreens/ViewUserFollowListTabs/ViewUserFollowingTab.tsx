@@ -7,22 +7,21 @@ import UserSearchCard from '../../../components/UserSearchCard';
 import {getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 
-const FollowingTab = () => {
+const ViewUserFollowingTab = () => {
     const [data, setData] = useState<IUserProfile[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getUserFollowing();
-            // console.log('Data received:', result);
-            if (result && result.following && Array.isArray(result.following)) {
-                setData(result.following); // Set the 'following' array as your data
+            const result = await getUserFollowing(userID);
+            if (result && Array.isArray(result)) {
+                setData(result);
             }
         };
 
         fetchData();
-    }, []);
+    }, [userID]); // Dependency array includes userID to refetch if it changes
 
     return (
         <View style={{marginHorizontal: 15}}>
@@ -61,4 +60,4 @@ const FollowingTab = () => {
     );
 };
 
-export default FollowingTab;
+export default ViewUserFollowingTab;

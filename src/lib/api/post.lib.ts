@@ -11,7 +11,7 @@ export async function getPosts(page?: number) {
             },
         });
 
-        console.log('API response for getPost:', data); // Logging the entire response
+        // console.log('API response for getPost:', data); // Logging the entire response
 
         if (data.success === false) {
             throw new Error(data.message);
@@ -120,11 +120,26 @@ export async function likePost(id: string) {
     }
 }
 
+// export async function unlikePost(id: string) {
+//     try {
+//         // Make a POST request using the API client
+//         const {data} = await API.post(`/v1/post/unlike`, {
+//             id,
+//         });
+
+//         if (data.success === false) {
+//             throw new Error(data.message);
+//         }
+//     } catch (error) {
+//         console.error(error);
+//         throw new Error('Failed to unlike the post.');
+//     }
+// }
+
 export async function unlikePost(id: string) {
     try {
-        // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/unlike`, {
-            id,
+        const {data} = await API.delete(`/v1/post/unlike`, {
+            data: {id}, // In axios, the DELETE body should be in the `data` field
         });
 
         if (data.success === false) {

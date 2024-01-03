@@ -84,14 +84,23 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
+    isLiked?: boolean;
 };
 
 type PostProps = {
     post: PostType;
     openProfile: () => void;
+    onLike: (postId: string) => void;
+    onUnlike: (postId: string) => void;
+    onFollow: () => void;
+    onUnfollow: () => void;
+    isFollowing: boolean; // Add this to track follow status
+    
 };
 
-const SkinnyPostCard = ({post, openProfile}: PostProps) => {
+
+
+const SkinnyPostCard = ({post, openProfile, onLike, onUnlike, onFollow, onUnfollow, isFollowing}: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
@@ -167,6 +176,23 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
 
     const closeShareOptions = () => {
         setShareOptionsVisible(false);
+    };
+
+    const handleLikePress = () => {
+        if (post.isLiked) {
+            // Assuming `existingLike` is a field in your post object
+            onUnlike(post.id);
+        } else {
+            onLike(post.id);
+        }
+    };
+
+    const handleFollowPress = () => {
+        if (isFollowing) {
+            onUnfollow();
+        } else {
+            onFollow();
+        }
     };
 
     return (
@@ -253,16 +279,20 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                                 />
                                 <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
                             </Pressable>
-                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                            {/* <Pressable
+                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                                onPress={handleFollowPress}>
                                 <Icon
-                                    name="person-add"
+                                    name="person"
                                     type="ionicon"
                                     color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {post.author.username}</Text>
-                            </Pressable>
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
+                                </Text>
+                            </Pressable> */}
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
                                     name="volume-mute"
@@ -282,6 +312,16 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                                     style={{marginLeft: 5}}
                                 />
                                 <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
+                            </Pressable>
+                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                                <Icon
+                                    name="trash"
+                                    type="ionicon"
+                                    color={COLORS.MIDORANGE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                             </Pressable>
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
@@ -337,10 +377,9 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                     </Pressable>
                 </Modal>
             </View>
-<View style={{marginTop: 10}}>
-    <Text style={styles.post}>{post.content}</Text>
-</View>
-            
+            <View style={{marginTop: 10}}>
+                <Text style={styles.post}>{post.content}</Text>
+            </View>
 
             <View>
                 {post.image && (
@@ -422,12 +461,7 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                         ('');
                     }}
                 />
-                <FooterIcons
-                    iconname={'happy'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
+                <FooterIcons iconname={'happy'} onPress={handleLikePress} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
@@ -441,7 +475,7 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                         ('');
                     }}
                 /> */}
-                <FooterIcons iconname={'share-social'} onPress={openShareOptions} />
+                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
             <View>
                 <Text style={styles.footStats}>

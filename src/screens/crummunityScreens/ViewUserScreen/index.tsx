@@ -346,7 +346,9 @@ const handleFollowPress = async () => {
                           alignItems: 'center',
                       }}>
                       <Pressable
-                          onPress={() => navigation.navigate('FollowList')}
+                          onPress={() => navigation.navigate('ViewUserFollowList', {
+                                              userID: user?.id,
+                                          })}
                           style={{
                               width: 100,
                               height: 30,

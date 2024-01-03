@@ -116,10 +116,6 @@ const NewPost = () => {
         console.log('Select a GIF');
     };
 
-    const dismissKeyboard = () => {
-        Keyboard.dismiss();
-    };
-
     return (
         <TabContainer>
             <SafeAreaView>

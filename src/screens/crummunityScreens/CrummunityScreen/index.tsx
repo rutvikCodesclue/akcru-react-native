@@ -22,9 +22,10 @@ import {RouteProp, useNavigation} from '@react-navigation/native';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { getPosts } from '../../../lib/api/post.lib';
+import { getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
+import {followUser, unfollowUser} from '../../../lib/api/user.lib';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -39,37 +40,10 @@ type Props = {
 const CrummunityScreen = ({navigation, route}: Props) => {
     const author: IUserProfile | null = route.params?.author ?? null;
 
-    // const handlePostPress = (post) => {
-    //     navigation.navigate('PostScreen', {post});
-    // };
-    
-
     const [posts, setPosts] = useState<IPost[]>([]);
     // const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
-    // useEffect(() => {
-    //     const fetchPosts = async () => {
-    //         setLoading(true); // Assuming you have a setLoading function
-    //         try {
-    //             const fetchedPosts = await getPosts(); // Default to the first page
-    //             if (fetchedPosts) {
-    //                 console.log('fetchedPosts right now', fetchedPosts);
-    //                 setPosts(fetchedPosts); // Update your state with the fetched posts
-    //             } else {
-    //                 console.log('No posts fetched');
-    //             }
-    //         } catch (error) {
-    //             console.error('Failed to fetch posts:', error);
-    //             setError(error.message || 'Failed to fetch posts'); // Assuming you have a setError function
-    //         } finally {
-    //             setLoading(false); // Hide loading indicator
-    //         }
-    //     };
-
-    //     fetchPosts();
-    // }, []); // Add any dependencies here if needed
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -114,6 +88,75 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         } else {
             // Handle the case when the post is not found
             console.error('Error: Post not found');
+        }
+    };
+
+const onLike = async postId => {
+    try {
+        await likePost(postId);
+        setPosts(prevPosts =>
+            prevPosts.map(post => {
+                if (post.id === postId) {
+                    return {...post, isLiked: true, _count: {...post._count, likes: (post._count?.likes || 0) + 1}};
+                }
+                return post;
+            }),
+        );
+    } catch (error) {
+        console.error('Error liking the post:', error);
+    }
+};
+
+const onUnlike = async postId => {
+    try {
+        await unlikePost(postId);
+        setPosts(prevPosts =>
+            prevPosts.map(post => {
+                if (post.id === postId) {
+                    return {
+                        ...post,
+                        isLiked: false,
+                        _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
+                    };
+                }
+                return post;
+            }),
+        );
+    } catch (error) {
+        console.error('Error unliking the post:', error);
+    }
+};
+
+
+    // Function to handle follow action
+    const handleFollow = async (userId: string) => {
+        try {
+            const success = await followUser({userId});
+            if (success) {
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.author.id === userId ? {...post, author: {...post.author, isFollowed: true}} : post,
+                    ),
+                );
+            }
+        } catch (error) {
+            console.error('Error following user:', error);
+        }
+    };
+
+    // Function to handle unfollow action
+    const handleUnfollow = async (userId: string) => {
+        try {
+            const success = await unfollowUser({userId});
+            if (success) {
+                setPosts(prevPosts =>
+                    prevPosts.map(post =>
+                        post.author.id === userId ? {...post, author: {...post.author, isFollowed: false}} : post,
+                    ),
+                );
+            }
+        } catch (error) {
+            console.error('Error unfollowing user:', error);
         }
     };
 
@@ -181,12 +224,16 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 style={styles.postcontainer}
                                 keyExtractor={item => item.id.toString()}
                                 renderItem={({item}) => (
-                                    <Pressable onPress={() => handlePostPress(item.id)} style={{marginBottom:10}}>
+                                    <Pressable onPress={() => handlePostPress(item.id)} style={{marginBottom: 10}}>
                                         <SkinnyPostCard
                                             post={item}
                                             openProfile={() =>
                                                 navigation.navigate('ViewUserScreen', {userID: item.author?.id})
                                             }
+                                            onLike={onLike}
+                                            onUnlike={onUnlike}
+                                            // onFollow={() => handleFollow(item.author.id)}
+                                            // onUnfollow={() => handleUnfollow(item.author.id)}
                                         />
                                     </Pressable>
                                 )}

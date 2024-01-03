@@ -272,6 +272,7 @@ export type INotification = {
 };
 
 export interface IPost {
+    isLiked: boolean;
     id: string;
     content: string;
     createdAt: string;

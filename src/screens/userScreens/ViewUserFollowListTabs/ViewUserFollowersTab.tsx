@@ -4,20 +4,20 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import UserSearchCard from '../../../components/UserSearchCard';
-import {getUserFollowing} from '../../../lib/api/user.lib';
+import { getFollowers } from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 
-const FollowingTab = () => {
+const ViewUserFollowersTab = () => {
     const [data, setData] = useState<IUserProfile[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getUserFollowing();
+            const result = await getFollowers();
             // console.log('Data received:', result);
-            if (result && result.following && Array.isArray(result.following)) {
-                setData(result.following); // Set the 'following' array as your data
+            if (result && result.followers && Array.isArray(result.followers)) {
+                setData(result.followers); // Set the 'following' array as your data
             }
         };
 
@@ -48,10 +48,10 @@ const FollowingTab = () => {
                                     userID: item.id,
                                 });
                             }}
-                            influencer={item.influencer}
-                            userID={item.userID}
-                            akcruBadge={item.akcruBadge}
-                            userDesc={item.userDesc}
+                            influencer={item.influencerStatus}
+                            userID={item.authId}
+                            akcruBadge={item.badge}
+                            userDesc={item.description}
                             firstName={item.firstName}
                         />
                     </View>
@@ -61,4 +61,4 @@ const FollowingTab = () => {
     );
 };
 
-export default FollowingTab;
+export default ViewUserFollowersTab;

@@ -26,10 +26,7 @@ import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScr
 import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import Help from '../screens/userScreens/Help';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
-import AkcruButtonStack from './AkcruButtonStack';
-import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
-import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
-import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
+import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -61,6 +58,7 @@ export type UserProfileStackParams = {
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     FlickFlirtScreen: any;
+    ViewUserFollowList: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -104,6 +102,13 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="ViewUserDetailScreen"
               component={ViewUserDetailScreen}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="ViewUserFollowList"
+              component={ViewUserFollowList}
               options={() => ({
                   headerShown: false,
               })}
