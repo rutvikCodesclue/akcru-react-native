@@ -10,6 +10,7 @@ import HexAvatar from '../HexAvatar';
 import imageindex from '../../../assets/images/imageindex';
 import { timeSince } from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import { deletePost } from '../../lib/api/post.lib';
 
 type FooterIconsProps = {
     iconname: string;
@@ -84,7 +85,7 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
-    isLiked?: boolean;
+    
 };
 
 type PostProps = {
@@ -95,12 +96,25 @@ type PostProps = {
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
-    
+    isPostLiked: boolean; // Add this to track like status
+    onDeletePost: any;
+    currentUserID: string;
 };
 
 
 
-const SkinnyPostCard = ({post, openProfile, onLike, onUnlike, onFollow, onUnfollow, isFollowing}: PostProps) => {
+const SkinnyPostCard = ({
+    post,
+    openProfile,
+    onLike,
+    onUnlike,
+    onFollow,
+    onUnfollow,
+    isFollowing,
+    isPostLiked,
+    onDeletePost,
+    currentUserID,
+}: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
@@ -117,6 +131,18 @@ const SkinnyPostCard = ({post, openProfile, onLike, onUnlike, onFollow, onUnfoll
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
+
+    // Check if the current user is the author of the post
+    const isCurrentUserAuthor = post.author.id === currentUserID;
+
+    const handleDeletePost = async () => {
+        try {
+            await deletePost(post.id);
+            onDeletePost(post.id); // Inform parent component to remove the post from its state
+        } catch (error) {
+            console.error('Error deleting the post:', error);
+        }
+    };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -179,12 +205,27 @@ const SkinnyPostCard = ({post, openProfile, onLike, onUnlike, onFollow, onUnfoll
     };
 
     const handleLikePress = () => {
-        if (post.isLiked) {
+        if (isPostLiked) {
             // Assuming `existingLike` is a field in your post object
             onUnlike(post.id);
         } else {
             onLike(post.id);
         }
+    };
+
+    // Only show delete option if the current user is the author of the post
+    const renderDeleteSkinny = () => {
+        if (isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={handleDeletePost}>
+                    <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
+                </Pressable>
+            );
+        }
+        return null;
     };
 
     const handleFollowPress = () => {
@@ -313,16 +354,7 @@ const SkinnyPostCard = ({post, openProfile, onLike, onUnlike, onFollow, onUnfoll
                                 />
                                 <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                             </Pressable>
-                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                                <Icon
-                                    name="trash"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={20}
-                                    style={{marginLeft: 5}}
-                                />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
-                            </Pressable>
+                            {renderDeleteSkinny()}
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
                                     name="flag"

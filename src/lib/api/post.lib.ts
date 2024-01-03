@@ -91,8 +91,8 @@ export async function createPost(type: string, content: string) {
 export async function deletePost(id: string) {
     try {
         // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/delete`, {
-            id,
+        const {data} = await API.delete(`/v1/post/delete`, {
+            data: {id}, // In axios, the DELETE body should be in the `data` field
         });
 
         if (data.success === false) {

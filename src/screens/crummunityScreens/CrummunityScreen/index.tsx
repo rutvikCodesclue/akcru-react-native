@@ -26,6 +26,7 @@ import { getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {followUser, unfollowUser} from '../../../lib/api/user.lib';
+import useAuthStore from '../../../stores/auth.store';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -38,7 +39,15 @@ type Props = {
 
 
 const CrummunityScreen = ({navigation, route}: Props) => {
-    const author: IUserProfile | null = route.params?.author ?? null;
+    
+    const {user, hydrateUser} = useAuthStore();
+    // console.log('user', user?.username);
+    const currentUserID = user?.id;
+
+    const author: IPost | null = route.params?.author ?? null;
+
+    const [likedPosts, setLikedPosts] = useState(new Set());
+
 
     const [posts, setPosts] = useState<IPost[]>([]);
     // const [posts, setPosts] = useState([]);
@@ -49,12 +58,14 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const fetchPosts = async () => {
             setLoading(true);
             try {
-                const fetchedPosts = await getPosts();
-                if (fetchedPosts) {
-                    setPosts(fetchedPosts);
-                } else {
-                    console.log('No posts fetched');
-                }
+                const fetchedPosts = await getPosts();               
+               if (fetchedPosts) {
+                   setPosts(fetchedPosts);
+                   // Reset likedPosts state, as we cannot determine likes from fetched data
+                   setLikedPosts(new Set());
+               } else {
+                   console.log('No posts fetched');
+               }
             } catch (error) {
                 console.error('Failed to fetch posts:', error);
                 setError(error.message || 'Failed to fetch posts');
@@ -92,41 +103,76 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
 const onLike = async postId => {
+    setPosts(prevPosts =>
+        prevPosts.map(post => {
+            if (post.id === postId) {
+                return {
+                    ...post,
+                    _count: {...post._count, likes: (post._count?.likes || 0) + 1},
+                };
+            }
+            return post;
+        }),
+    );
     try {
         await likePost(postId);
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.id === postId) {
-                    return {...post, isLiked: true, _count: {...post._count, likes: (post._count?.likes || 0) + 1}};
-                }
-                return post;
-            }),
-        );
+        setLikedPosts(prevLikedPosts => new Set(prevLikedPosts).add(postId));
     } catch (error) {
+        // Revert the optimistic update in case of an error
         console.error('Error liking the post:', error);
-    }
-};
-
-const onUnlike = async postId => {
-    try {
-        await unlikePost(postId);
         setPosts(prevPosts =>
             prevPosts.map(post => {
                 if (post.id === postId) {
                     return {
                         ...post,
-                        isLiked: false,
                         _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
                     };
                 }
                 return post;
             }),
         );
-    } catch (error) {
-        console.error('Error unliking the post:', error);
     }
 };
 
+const onUnlike = async postId => {
+    setPosts(prevPosts =>
+        prevPosts.map(post => {
+            if (post.id === postId) {
+                return {
+                    ...post,
+                    _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
+                };
+            }
+            return post;
+        }),
+    );
+    try {
+        await unlikePost(postId);
+        setLikedPosts(prevLikedPosts => {
+            const updatedLikedPosts = new Set(prevLikedPosts);
+            updatedLikedPosts.delete(postId);
+            return updatedLikedPosts;
+        });
+    } catch (error) {
+        // Revert the optimistic update in case of an error
+        console.error('Error unliking the post:', error);
+        setPosts(prevPosts =>
+            prevPosts.map(post => {
+                if (post.id === postId) {
+                    return {
+                        ...post,
+                        _count: {...post._count, likes: (post._count?.likes || 0) + 1},
+                    };
+                }
+                return post;
+            }),
+        );
+    }
+};
+
+const handleDeletePost = postId => {
+    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+};
 
     // Function to handle follow action
     const handleFollow = async (userId: string) => {
@@ -143,6 +189,8 @@ const onUnlike = async postId => {
             console.error('Error following user:', error);
         }
     };
+
+    
 
     // Function to handle unfollow action
     const handleUnfollow = async (userId: string) => {
@@ -234,6 +282,9 @@ const onUnlike = async postId => {
                                             onUnlike={onUnlike}
                                             // onFollow={() => handleFollow(item.author.id)}
                                             // onUnfollow={() => handleUnfollow(item.author.id)}
+                                            isPostLiked={likedPosts.has(item.id)}
+                                            onDeletePost={handleDeletePost}
+                                            currentUserID={currentUserID}
                                         />
                                     </Pressable>
                                 )}
