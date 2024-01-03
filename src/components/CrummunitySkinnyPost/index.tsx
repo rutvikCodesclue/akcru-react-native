@@ -10,6 +10,7 @@ import HexAvatar from '../HexAvatar';
 import imageindex from '../../../assets/images/imageindex';
 import { timeSince } from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import { deletePost } from '../../lib/api/post.lib';
 
 type FooterIconsProps = {
     iconname: string;
@@ -84,14 +85,36 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
+    
 };
 
 type PostProps = {
     post: PostType;
     openProfile: () => void;
+    onLike: (postId: string) => void;
+    onUnlike: (postId: string) => void;
+    onFollow: () => void;
+    onUnfollow: () => void;
+    isFollowing: boolean; // Add this to track follow status
+    isPostLiked: boolean; // Add this to track like status
+    onDeletePost: any;
+    currentUserID: string;
 };
 
-const SkinnyPostCard = ({post, openProfile}: PostProps) => {
+
+
+const SkinnyPostCard = ({
+    post,
+    openProfile,
+    onLike,
+    onUnlike,
+    onFollow,
+    onUnfollow,
+    isFollowing,
+    isPostLiked,
+    onDeletePost,
+    currentUserID,
+}: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
@@ -108,6 +131,18 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
+
+    // Check if the current user is the author of the post
+    const isCurrentUserAuthor = post.author.id === currentUserID;
+
+    const handleDeletePost = async () => {
+        try {
+            await deletePost(post.id);
+            onDeletePost(post.id); // Inform parent component to remove the post from its state
+        } catch (error) {
+            console.error('Error deleting the post:', error);
+        }
+    };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -167,6 +202,38 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
 
     const closeShareOptions = () => {
         setShareOptionsVisible(false);
+    };
+
+    const handleLikePress = () => {
+        if (isPostLiked) {
+            // Assuming `existingLike` is a field in your post object
+            onUnlike(post.id);
+        } else {
+            onLike(post.id);
+        }
+    };
+
+    // Only show delete option if the current user is the author of the post
+    const renderDeleteSkinny = () => {
+        if (isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={handleDeletePost}>
+                    <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
+                </Pressable>
+            );
+        }
+        return null;
+    };
+
+    const handleFollowPress = () => {
+        if (isFollowing) {
+            onUnfollow();
+        } else {
+            onFollow();
+        }
     };
 
     return (
@@ -253,16 +320,20 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                                 />
                                 <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
                             </Pressable>
-                            <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                            {/* <Pressable
+                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                                onPress={handleFollowPress}>
                                 <Icon
-                                    name="person-add"
+                                    name="person"
                                     type="ionicon"
                                     color={COLORS.MIDORANGE}
                                     size={20}
                                     style={{marginLeft: 5}}
                                 />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>Follow {post.author.username}</Text>
-                            </Pressable>
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
+                                </Text>
+                            </Pressable> */}
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
                                     name="volume-mute"
@@ -283,6 +354,7 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                                 />
                                 <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                             </Pressable>
+                            {renderDeleteSkinny()}
                             <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                                 <Icon
                                     name="flag"
@@ -337,10 +409,9 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                     </Pressable>
                 </Modal>
             </View>
-<View style={{marginTop: 10}}>
-    <Text style={styles.post}>{post.content}</Text>
-</View>
-            
+            <View style={{marginTop: 10}}>
+                <Text style={styles.post}>{post.content}</Text>
+            </View>
 
             <View>
                 {post.image && (
@@ -422,12 +493,7 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                         ('');
                     }}
                 />
-                <FooterIcons
-                    iconname={'happy'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
+                <FooterIcons iconname={'happy'} onPress={handleLikePress} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
@@ -441,7 +507,7 @@ const SkinnyPostCard = ({post, openProfile}: PostProps) => {
                         ('');
                     }}
                 /> */}
-                <FooterIcons iconname={'share-social'} onPress={openShareOptions} />
+                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
             <View>
                 <Text style={styles.footStats}>

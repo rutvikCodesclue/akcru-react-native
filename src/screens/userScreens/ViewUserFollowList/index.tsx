@@ -22,34 +22,35 @@ import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {Route} from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
-import FollowersTab from '../FollowListTabs/FollowersTab';
-import FollowingTab from '../FollowListTabs/FollowingTab';
+import ViewUserFollowersTab from '../ViewUserFollowListTabs/ViewUserFollowersTab';
+import ViewUserFollowingTab from '../ViewUserFollowListTabs/ViewUserFollowingTab';
 import { getFollowers, getUserFollowing } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 
-type FollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'FollowList'>;
+type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
 
-type FollowListRouteProp = RouteProp<UserProfileStackParams, 'FollowList'>;
+type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewUserFollowList'>;
 
 type Props = {
-    navigation: FollowListNavigationProp;
-    route: FollowListRouteProp;
+    navigation: ViewUserFollowListNavigationProp;
+    route: ViewUserFollowListRouteProp;
 };
 
 const FirstRoute = () => (
     <View style={{marginBottom: '20%'}}>
-        <FollowersTab />
+        <ViewUserFollowersTab />
     </View>
 );
 
 const SecondRoute = () => (
     <View style={{marginBottom: '20%'}}>
-        <FollowingTab />
+        <ViewUserFollowingTab />
     </View>
 );
 
-const FollowList = () => {
+const ViewUserFollowList = ({route}: Props) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const userID: string | undefined = route.params?.userID ?? null;
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -109,7 +110,7 @@ const FollowList = () => {
     );
 
     const layout = useWindowDimensions();
-    
+
     const [followingData, setFollowingData] = useState<IUserProfile[]>([]);
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
     const [index, setIndex] = useState(0);
@@ -118,28 +119,28 @@ const FollowList = () => {
         {key: 'second', title: 'Following (0)'},
     ]);
 
-     useEffect(() => {
-         const fetchData = async () => {
-             const result = await getUserFollowing();
-             console.log('Data received on FollowList Screen:', result);
-             if (result && result.following && Array.isArray(result.following)) {
-                 setFollowingData(result.following); // Set the 'following' array as your data
-             }
-         };
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getUserFollowing();
+            console.log('Data received on FollowList Screen:', result);
+            if (result && result.following && Array.isArray(result.following)) {
+                setFollowingData(result.following); // Set the 'following' array as your data
+            }
+        };
 
-         fetchData();
-     }, []);
+        fetchData();
+    }, []);
 
-     useEffect(() => {
-         const fetchData = async () => {
-             const result = await getFollowers();
-             if (result && result.followers && Array.isArray(result.followers)) {
-                 setFollowersData(result.followers); // Set the 'following' array as your data
-             }
-         };
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getFollowers();
+            if (result && result.followers && Array.isArray(result.followers)) {
+                setFollowersData(result.followers); // Set the 'following' array as your data
+            }
+        };
 
-         fetchData();
-     }, []);
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const numberOfFollowers = followersData.length;
@@ -185,4 +186,4 @@ const FollowList = () => {
     );
 };
 
-export default FollowList;
+export default ViewUserFollowList;
