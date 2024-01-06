@@ -49,9 +49,9 @@ const FollowingTab = () => {
                                 });
                             }}
                             influencer={item.influencer}
-                            userID={item.userID}
-                            akcruBadge={item.akcruBadge}
-                            userDesc={item.userDesc}
+                            userID={item.id}
+                            akcruBadge={item.badge}
+                            userDesc={item.description}
                             firstName={item.firstName}
                         />
                     </View>

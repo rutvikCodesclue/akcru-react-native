@@ -85,7 +85,6 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
-
 };
 
 type PostProps = {
@@ -99,10 +98,10 @@ type PostProps = {
     isPostLiked: boolean; // Add this to track like status
     onDeletePost: any;
     currentUserID: string;
-    akcruBadge?: string;
+    deleteThePost: () => void;
 };
 
-const SkinnyPostCard = ({
+const PostCard = ({
     post,
     openProfile,
     onLike,
@@ -113,6 +112,7 @@ const SkinnyPostCard = ({
     isPostLiked,
     onDeletePost,
     currentUserID,
+    deleteThePost
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -134,14 +134,14 @@ const SkinnyPostCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-    const handleDeletePost = async () => {
-        try {
-            await deletePost(post.id);
-            onDeletePost(post.id); // Inform parent component to remove the post from its state
-        } catch (error) {
-            console.error('Error deleting the post:', error);
-        }
-    };
+    // const handleDeletePost = async () => {
+    //     try {
+    //         await deletePost(post.id);
+    //         onDeletePost(post.id); // Inform parent component to remove the post from its state
+    //     } catch (error) {
+    //         console.error('Error deleting the post:', error);
+    //     }
+    // };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -218,7 +218,7 @@ const SkinnyPostCard = ({
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={handleDeletePost}>
+                    onPress={deleteThePost}>
                     <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
@@ -304,7 +304,7 @@ const SkinnyPostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={45}
+                            size={55}
                             bordercolor={COLORS.AKCRUBLUE}
                         />
                     </TouchableOpacity>
@@ -324,35 +324,35 @@ const SkinnyPostCard = ({
                     </View>
                     <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
 
-                    {post.author?.akcruBadge === 'AKCRUIT' && (
+                    {post.user?.akcruBadge.akcruit && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'HERO' && (
+                    {post.user?.akcruBadge.guardian && (
                         <View>
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'SUPERHERO' && (
+                    {post.user?.akcruBadge.hero && (
                         <View>
                             <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'GUARDIAN' && (
+                    {post.user?.akcruBadge.superhero && (
                         <View>
                             <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                 </View>
-                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
+                {/* <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
                     </Pressable>
-                </View>
+                </View> */}
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
@@ -529,4 +529,4 @@ const SkinnyPostCard = ({
     );
 };
 
-export default SkinnyPostCard;
+export default PostCard;

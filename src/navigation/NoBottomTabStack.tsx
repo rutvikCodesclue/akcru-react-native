@@ -17,6 +17,7 @@ import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import TrailerPlayer from '../screens/contentScreens/PlayTrailerContent';
+import PostScreen from '../screens/crummunityScreens/PostScreen';
 
 export type NoBottomTabStackParams = {
     ContentSwipe: any;
@@ -33,6 +34,7 @@ export type NoBottomTabStackParams = {
     AkcruNetworkScreen:any;
     PurchaseMITScreen:any;
     TrailerPlayer: any;
+    PostScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -120,6 +122,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="StartWatchPartyView"
               component={StartWatchPartyView}
+              options={{
+                  headerShown: false,
+                  gestureEnabled: false,
+              }}
+          />
+          <NoBottom.Screen
+              name="PostScreen"
+              component={PostScreen}
               options={{
                   headerShown: false,
                   gestureEnabled: false,

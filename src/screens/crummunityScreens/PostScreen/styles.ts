@@ -41,11 +41,33 @@ export default StyleSheet.create({
         marginHorizontal: 15,
         marginBottom: 10,
         marginTop: '2%',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     postcontainer: {
         width: SIZES.ScreenWidth * 0.93,
         alignSelf: 'center',
         marginBottom: 5,
     },
+    floatingbutton: {
+        backgroundColor: COLORS.AKCRUBLUE,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        position: 'relative',
+        bottom: '23%',
+        left: '80%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    floatingbuttonContainer: {
+        width: 55,
+        height: 55,
+        borderRadius: 25,
+        position: 'relative',
+        bottom: '23%',
+        left: '80%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    
 });

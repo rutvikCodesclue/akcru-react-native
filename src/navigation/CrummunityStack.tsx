@@ -11,8 +11,10 @@ import { SendMITSchedule, SendMITSearchResult, SendMITViewUser, SendMITSearchInp
 import { COLORS } from '../../assets/constants';
 import PostScreen from '../screens/crummunityScreens/PostScreen';
 import NewPost from '../screens/crummunityScreens/NewPost';
+import NewComment from '../screens/crummunityScreens/NewComment';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import { IPost } from '../../types';
 
 export type CrummunityStackParams = {
     CrummunityScreen: any;
@@ -29,10 +31,14 @@ export type CrummunityStackParams = {
     SendMITSchedule: any;
     CruChewScreen: any;
     CruChewOrder: any;
-    PostScreen: any;
+    PostScreen: {
+        post: IPost;
+        // other params if there are any
+    };
     NewPost: any;
     AkcruNetworkScreen: any;
     FlickFlirtScreen: any;
+    NewComment: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -62,6 +68,13 @@ export function CrummunityStack() {
           <Crummunity.Screen
               name="NewPost"
               component={NewPost}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <Crummunity.Screen
+              name="NewComment"
+              component={NewComment}
               options={() => ({
                   headerShown: false,
               })}

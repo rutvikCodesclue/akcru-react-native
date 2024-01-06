@@ -85,7 +85,6 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
-
 };
 
 type PostProps = {
@@ -99,10 +98,10 @@ type PostProps = {
     isPostLiked: boolean; // Add this to track like status
     onDeletePost: any;
     currentUserID: string;
-    akcruBadge?: string;
+    deleteThePost: () => void;
 };
 
-const SkinnyPostCard = ({
+const PostCommentCard = ({
     post,
     openProfile,
     onLike,
@@ -113,6 +112,7 @@ const SkinnyPostCard = ({
     isPostLiked,
     onDeletePost,
     currentUserID,
+    deleteThePost
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -132,16 +132,16 @@ const SkinnyPostCard = ({
     const modalVideoRef = useRef(null);
 
     // Check if the current user is the author of the post
-    const isCurrentUserAuthor = post.author.id === currentUserID;
+    const isCurrentUserAuthor = post.author?.id === currentUserID;
 
-    const handleDeletePost = async () => {
-        try {
-            await deletePost(post.id);
-            onDeletePost(post.id); // Inform parent component to remove the post from its state
-        } catch (error) {
-            console.error('Error deleting the post:', error);
-        }
-    };
+    // const handleDeletePost = async () => {
+    //     try {
+    //         await deletePost(post.id);
+    //         onDeletePost(post.id); // Inform parent component to remove the post from its state
+    //     } catch (error) {
+    //         console.error('Error deleting the post:', error);
+    //     }
+    // };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -218,7 +218,7 @@ const SkinnyPostCard = ({
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={handleDeletePost}>
+                    onPress={deleteThePost}>
                     <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
@@ -237,7 +237,7 @@ const SkinnyPostCard = ({
                         size={20}
                         style={{marginLeft: 5}}
                     />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author?.username}</Text>
                 </Pressable>
             );
         }
@@ -248,7 +248,7 @@ const SkinnyPostCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author?.username}</Text>
                 </Pressable>
             );
         }
@@ -324,22 +324,22 @@ const SkinnyPostCard = ({
                     </View>
                     <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
 
-                    {post.author?.akcruBadge === 'AKCRUIT' && (
+                    {post.user?.akcruBadge.akcruit && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'HERO' && (
+                    {post.user?.akcruBadge.guardian && (
                         <View>
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'SUPERHERO' && (
+                    {post.user?.akcruBadge.hero && (
                         <View>
                             <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'GUARDIAN' && (
+                    {post.user?.akcruBadge.superhero && (
                         <View>
                             <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
@@ -420,7 +420,7 @@ const SkinnyPostCard = ({
                 </Modal>
             </View>
             <View style={{marginTop: 10}}>
-                <Text style={styles.post}>{post.content}</Text>
+                <Text style={styles.post}>{post.text}</Text>
             </View>
 
             <View>
@@ -529,4 +529,4 @@ const SkinnyPostCard = ({
     );
 };
 
-export default SkinnyPostCard;
+export default PostCommentCard;

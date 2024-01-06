@@ -27,6 +27,9 @@ import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {followUser, unfollowUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import HexShape from '../../../components/HexShape';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -48,6 +51,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [posts, setPosts] = useState<IPost[]>([]);
     // const [posts, setPosts] = useState([]);
@@ -285,6 +289,7 @@ const handleDeletePost = postId => {
                                             isPostLiked={likedPosts.has(item.id)}
                                             onDeletePost={handleDeletePost}
                                             currentUserID={currentUserID}
+                                            akcruBadge={item.author?.badge}
                                         />
                                     </Pressable>
                                 )}
@@ -292,7 +297,12 @@ const handleDeletePost = postId => {
                         </View>
                     </ScrollView>
                     <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
-                        <Icon name="add" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+                        <View style={{position: 'relative'}}>
+                            <HexShape size={55} color={COLORS.AKCRUBLUE} />
+                            <View style={{position: 'absolute', top: '5%', right: '6%'}}>
+                                <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
+                            </View>
+                        </View>
                     </Pressable>
                 </View>
             </SafeAreaView>

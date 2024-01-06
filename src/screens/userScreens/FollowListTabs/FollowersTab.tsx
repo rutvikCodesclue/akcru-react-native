@@ -49,7 +49,7 @@ const FollowersTab = () => {
                                 });
                             }}
                             influencer={item.influencerStatus}
-                            userID={item.authId}
+                            userID={item.id}
                             akcruBadge={item.badge}
                             userDesc={item.description}
                             firstName={item.firstName}
