@@ -2,20 +2,14 @@
 import {IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
-
-
-
-export async function getPosts(page?: number) {
+export async function getPosts(page = 1) {
+    // Default to page 1 if no page is provided
     try {
-        
-        // Make a GET request using the API client
         const {data} = await API.get(`/v1/post`, {
             params: {
-                page,
+                page: page - 1, // Adjust if your backend expects zero-based indexing for pages
             },
         });
-
-        // console.log('API response for getPost:', data); // Logging the entire response
 
         if (data.success === false) {
             throw new Error(data.message);
@@ -26,7 +20,31 @@ export async function getPosts(page?: number) {
         console.error(error);
         throw new Error('Failed to fetch posts');
     }
-};
+}
+
+
+// export async function getPosts(page?: number) {
+//     try {
+        
+//         // Make a GET request using the API client
+//         const {data} = await API.get(`/v1/post`, {
+//             params: {
+//                 page,
+//             },
+//         });
+
+//         // console.log('API response for getPost:', data); // Logging the entire response
+
+//         if (data.success === false) {
+//             throw new Error(data.message);
+//         }
+
+//         return data.posts;
+//     } catch (error) {
+//         console.error(error);
+//         throw new Error('Failed to fetch posts');
+//     }
+// };
 
 export const getPostComments = async (postId: number): Promise<Object | undefined> => {
     console.log(`Making request to /v1/post/comments with postId: ${postId}`);
@@ -43,7 +61,7 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
             // that falls out of the range of 2xx
             console.error('Response data:', error.response.data);
             console.error('Response status:', error.response.status);
-            console.error('Response headers:', error.response.headers);
+            // console.error('Response headers:', error.response.headers);
         } else if (error.request) {
             // The request was made but no response was received
             console.error('Request:', error.request);
@@ -101,7 +119,7 @@ export async function createPost(type: string, content: string) {
 }
 
 
-export async function deletePost(id: string) {
+export async function deletePost(id: number) {
     try {
         // Make a POST request using the API client
         const {data} = await API.delete(`/v1/post/delete`, {
@@ -117,7 +135,7 @@ export async function deletePost(id: string) {
     }
 }
 
-export async function likePost(id: string) {
+export async function likePost(id: number) {
     try {
         // Make a POST request using the API client
         const {data} = await API.post(`/v1/post/like`, {
@@ -133,33 +151,18 @@ export async function likePost(id: string) {
     }
 }
 
-// export async function unlikePost(id: string) {
-//     try {
-//         // Make a POST request using the API client
-//         const {data} = await API.post(`/v1/post/unlike`, {
-//             id,
-//         });
-
-//         if (data.success === false) {
-//             throw new Error(data.message);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Failed to unlike the post.');
-//     }
-// }
-
-export async function unlikePost(id: string) {
+export async function unlikePost(id: number) {
     try {
-        const {data} = await API.delete(`/v1/post/unlike`, {
-            data: {id}, // In axios, the DELETE body should be in the `data` field
+        // Make a POST request using the API client
+        const {data} = await API.post(`/v1/post/unlike`, {
+            id,
         });
 
         if (data.success === false) {
-            throw new Error(data.message);
+            throw new Error(data.message || 'Unliking the post failed.');
         }
     } catch (error) {
-        console.error(error);
+        console.error('Error in unlikePost:', error);
         throw new Error('Failed to unlike the post.');
     }
 }

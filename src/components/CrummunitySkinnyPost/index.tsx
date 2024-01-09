@@ -20,7 +20,7 @@ const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={18} />
+                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -91,15 +91,17 @@ type PostType = {
 type PostProps = {
     post: PostType;
     openProfile: () => void;
-    onLike: (postId: string) => void;
-    onUnlike: (postId: string) => void;
+    onLike: (postId: number) => void;
+    onUnlike: (postId: number) => void;
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
     isPostLiked: boolean; // Add this to track like status
     onDeletePost: any;
-    currentUserID: string;
+    currentUserID?: string;
     akcruBadge?: string;
+    onLikeOrUnlike: (postId: number) => void;
+    CommentOnPostButton: any;
 };
 
 const SkinnyPostCard = ({
@@ -113,6 +115,9 @@ const SkinnyPostCard = ({
     isPostLiked,
     onDeletePost,
     currentUserID,
+    akcruBadge,
+    onLikeOrUnlike,
+    CommentOnPostButton
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -304,7 +309,7 @@ const SkinnyPostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={45}
+                            size={58}
                             bordercolor={COLORS.AKCRUBLUE}
                         />
                     </TouchableOpacity>
@@ -324,33 +329,33 @@ const SkinnyPostCard = ({
                     </View>
                     <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
 
-                    {post.author?.akcruBadge === 'AKCRUIT' && (
+                    {akcruBadge === 'AKCRUIT' && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'HERO' && (
+                    {akcruBadge === 'HERO' && (
                         <View>
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'SUPERHERO' && (
+                    {akcruBadge === 'SUPERHERO' && (
                         <View>
                             <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
-                    {post.author?.akcruBadge === 'GUARDIAN' && (
+                    {akcruBadge === 'GUARDIAN' && (
                         <View>
                             <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>
+                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
@@ -497,13 +502,9 @@ const SkinnyPostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons
-                    iconname={'chatbox'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
-                <FooterIcons iconname={'happy'} onPress={handleLikePress} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
+                {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {

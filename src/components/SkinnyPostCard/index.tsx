@@ -20,7 +20,7 @@ const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={18} />
+                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -99,6 +99,7 @@ type PostProps = {
     onDeletePost: any;
     currentUserID: string;
     deleteThePost: () => void;
+    akcruBadge?: string;
 };
 
 const PostCard = ({
@@ -112,7 +113,8 @@ const PostCard = ({
     isPostLiked,
     onDeletePost,
     currentUserID,
-    deleteThePost
+    deleteThePost,
+    akcruBadge
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -304,7 +306,7 @@ const PostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={55}
+                            size={70}
                             bordercolor={COLORS.AKCRUBLUE}
                         />
                     </TouchableOpacity>
@@ -324,22 +326,22 @@ const PostCard = ({
                     </View>
                     <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
 
-                    {post.user?.akcruBadge.akcruit && (
+                    {akcruBadge === 'AKCRUIT' && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
                         </View>
                     )}
-                    {post.user?.akcruBadge.guardian && (
+                    {akcruBadge === 'HERO' && (
                         <View>
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
-                    {post.user?.akcruBadge.hero && (
+                    {akcruBadge === 'SUPERHERO' && (
                         <View>
                             <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
-                    {post.user?.akcruBadge.superhero && (
+                    {akcruBadge === 'GUARDIAN' && (
                         <View>
                             <AkcruLevels.AkcruBadgeSuperHero />
                         </View>

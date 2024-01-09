@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, TouchableWithoutFeedback, TouchableOpacity, ScrollView, FlatList, Pressable } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, FlatList, Pressable, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import styles from './styles'
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants/theme'
@@ -34,6 +34,8 @@ const PostScreen = ({navigation, route}: Props) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [comments, setComments] = useState<IPost[]>([]);
+    const [loadingComments, setLoadingComments] = useState(true);
+
 
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
@@ -65,9 +67,11 @@ const PostScreen = ({navigation, route}: Props) => {
                     if (response && response.success) {
                         setComments(response.comments); // Set only the comments array
                     }
+                    setLoadingComments(false);
                 } catch (error) {
                     console.error('Failed to fetch comments:', error);
                     setError(error.message || 'Failed to fetch comments');
+                    setLoadingComments(false);
                 }
             } else {
                 console.log('Post or post.id is not defined');
@@ -91,32 +95,6 @@ const PostScreen = ({navigation, route}: Props) => {
             unsubscribeFocus();
         };
     }, [post, navigation]); // Include navigation in the dependency array
-
-    // useEffect(() => {
-    //     const fetchComments = async () => {
-    //         console.log('fetchComments function called');
-    //         if (post && post.id !== undefined) {
-    //             console.log('Post:', post);
-    //             try {
-    //                 console.log('Fetching comments for post ID:', post.id);
-    //                 const response = await getPostComments(post.id);
-    //                 console.log('Response:', response);
-    //                 if (response && response.success) {
-    //                     setComments(response.comments); // Set only the comments array
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Failed to fetch comments:', error);
-    //                 setError(error.message || 'Failed to fetch comments');
-    //             }
-    //         } else {
-    //             console.log('Post or post.id is not defined');
-    //         }
-    //     };
-
-    //     if (post && post.id !== undefined) {
-    //         fetchComments();
-    //     }
-    // }, [post]);
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -297,31 +275,44 @@ const PostScreen = ({navigation, route}: Props) => {
                             // onFollow={() => handleFollow(item.author.id)}
                             // onUnfollow={() => handleUnfollow(item.author.id)}
                             isPostLiked={likedPosts.has(post.id)}
+                            akcruBadge={post.author?.badge}
                         />
                     </View>
                     <View style={{marginBottom: '30%'}}>
-                        <FlatList
-                            data={comments}
-                            style={styles.postcontainer}
-                            keyExtractor={item => item.id.toString()}
-                            renderItem={({item}) => (
-                                <View style={{marginBottom: 10}}>
-                                    <PostCommentCard
-                                        post={item}
-                                        openProfile={() =>
-                                            navigation.navigate('ViewUserScreen', {userID: item.author?.id})
-                                        }
-                                        onLike={onLike}
-                                        onUnlike={onUnlike}
-                                        // onFollow={() => handleFollow(item.author.id)}
-                                        // onUnfollow={() => handleUnfollow(item.author.id)}
-                                        isPostLiked={likedPosts.has(item.id)}
-                                        onDeletePost={handleDeletePost}
-                                        currentUserID={currentUserID}
-                                    />
-                                </View>
-                            )}
-                        />
+                        {loadingComments ? (
+                            <View style={{marginTop: '25%'}}>
+                                <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                            </View>
+                        ) : // You can customize the size and color
+                        comments.length === 0 ? (
+                            <View>
+                                <Text style={styles.noCommentsText}>No comments yet</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={comments}
+                                style={styles.postcontainer}
+                                keyExtractor={item => item.id.toString()}
+                                renderItem={({item}) => (
+                                    <View style={{marginBottom: 10}}>
+                                        <PostCommentCard
+                                            post={item}
+                                            openProfile={() =>
+                                                navigation.navigate('ViewUserScreen', {userID: item.author?.id})
+                                            }
+                                            onLike={onLike}
+                                            onUnlike={onUnlike}
+                                            // onFollow={() => handleFollow(item.author.id)}
+                                            // onUnfollow={() => handleUnfollow(item.author.id)}
+                                            isPostLiked={likedPosts.has(item.id)}
+                                            onDeletePost={handleDeletePost}
+                                            currentUserID={currentUserID}
+                                            akcruBadge={item.author?.badge}
+                                        />
+                                    </View>
+                                )}
+                            />
+                        )}
                     </View>
                 </ScrollView>
                 <Pressable

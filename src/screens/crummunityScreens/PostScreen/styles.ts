@@ -43,6 +43,13 @@ export default StyleSheet.create({
         marginTop: '2%',
         textAlign: 'center',
     },
+    noCommentsText: {
+        ...FONTS.Title3,
+        marginHorizontal: 15,
+        marginBottom: 10,
+        marginTop: '25%',
+        textAlign: 'center',
+    },
     postcontainer: {
         width: SIZES.ScreenWidth * 0.93,
         alignSelf: 'center',

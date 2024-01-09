@@ -279,7 +279,11 @@ export interface IPost {
     likes?: number;
     author: IUserProfile;
     authorId: string;
-    _count: string;
+    _count: {
+        likes: number;
+        comments: number;
+    };
+    isLikedByCurrentUser: boolean;
     // Other properties related to a post
 }
 
