@@ -90,31 +90,28 @@ type PostType = {
 type PostProps = {
     post: PostType;
     openProfile: () => void;
-    onLike: (postId: string) => void;
-    onUnlike: (postId: string) => void;
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
-    isPostLiked: boolean; // Add this to track like status
-    onDeletePost: any;
+    onDeletePost: (postId: number) => void;
     currentUserID: string;
-    deleteThePost: () => void;
     akcruBadge?: string;
+    onLikeOrUnlike: (postId: number) => void;
+    CommentOnPostButton: any;
+    handleDeletePost: (postId: number) => void;
 };
 
 const PostCard = ({
     post,
     openProfile,
-    onLike,
-    onUnlike,
     onFollow,
     onUnfollow,
     isFollowing,
-    isPostLiked,
     onDeletePost,
     currentUserID,
-    deleteThePost,
-    akcruBadge
+    akcruBadge,
+    onLikeOrUnlike,
+    CommentOnPostButton,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -136,14 +133,9 @@ const PostCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-    // const handleDeletePost = async () => {
-    //     try {
-    //         await deletePost(post.id);
-    //         onDeletePost(post.id); // Inform parent component to remove the post from its state
-    //     } catch (error) {
-    //         console.error('Error deleting the post:', error);
-    //     }
-    // };
+         const handleDeletePost = () => {
+             onDeletePost(+post.id);
+         };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -205,22 +197,13 @@ const PostCard = ({
         setShareOptionsVisible(false);
     };
 
-    const handleLikePress = () => {
-        if (isPostLiked) {
-            // Assuming `existingLike` is a field in your post object
-            onUnlike(post.id);
-        } else {
-            onLike(post.id);
-        }
-    };
-
     // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={deleteThePost}>
+                    onPress={handleDeletePost}>
                     <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
@@ -347,15 +330,15 @@ const PostCard = ({
                         </View>
                     )}
                 </View>
-                {/* <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE, marginRight: 10}}>
+                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
+                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
-                </View> */}
-                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                </View>
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
                             {renderNotInterested()}
@@ -499,13 +482,8 @@ const PostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons
-                    iconname={'chatbox'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
-                <FooterIcons iconname={'happy'} onPress={handleLikePress} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {

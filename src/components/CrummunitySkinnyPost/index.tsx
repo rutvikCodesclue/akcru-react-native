@@ -91,33 +91,28 @@ type PostType = {
 type PostProps = {
     post: PostType;
     openProfile: () => void;
-    onLike: (postId: number) => void;
-    onUnlike: (postId: number) => void;
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
-    isPostLiked: boolean; // Add this to track like status
-    onDeletePost: any;
+    onDeletePost: (postId: number) => void;
     currentUserID?: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
+    handleDeletePost: (postId: number) => void;
 };
 
 const SkinnyPostCard = ({
     post,
     openProfile,
-    onLike,
-    onUnlike,
     onFollow,
     onUnfollow,
     isFollowing,
-    isPostLiked,
     onDeletePost,
     currentUserID,
     akcruBadge,
     onLikeOrUnlike,
-    CommentOnPostButton
+    CommentOnPostButton,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -139,14 +134,9 @@ const SkinnyPostCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-    const handleDeletePost = async () => {
-        try {
-            await deletePost(post.id);
-            onDeletePost(post.id); // Inform parent component to remove the post from its state
-        } catch (error) {
-            console.error('Error deleting the post:', error);
-        }
-    };
+     const handleDeletePost = () => {
+         onDeletePost(+post.id);
+     };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -206,15 +196,6 @@ const SkinnyPostCard = ({
 
     const closeShareOptions = () => {
         setShareOptionsVisible(false);
-    };
-
-    const handleLikePress = () => {
-        if (isPostLiked) {
-            // Assuming `existingLike` is a field in your post object
-            onUnlike(post.id);
-        } else {
-            onLike(post.id);
-        }
     };
 
     // Conditional rendering of options in option modal
@@ -358,7 +339,7 @@ const SkinnyPostCard = ({
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
                 </View>
-                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
                             {renderNotInterested()}

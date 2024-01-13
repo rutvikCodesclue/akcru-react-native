@@ -87,34 +87,51 @@ type PostType = {
     _count?: PostStats;
 };
 
+type CommentType = {
+    id: string;
+    content: string;
+    author: User;
+    createdAt: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    likes?: number;
+    impressions?: number;
+    _count?: PostStats;
+};
+
 type PostProps = {
     post: PostType;
     openProfile: () => void;
-    onLike: (postId: string) => void;
-    onUnlike: (postId: string) => void;
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
-    isPostLiked: boolean; // Add this to track like status
-    onDeletePost: any;
-    currentUserID: string;
-    deleteThePost: () => void;
+    onDeleteComment: () => void;
+    currentUserID?: string;
     akcruBadge?: string;
+    onLikeOrUnlike: (postId: number) => void;
+    CommentOnPostButton: any;
+    handleDeletePost: (postId: number) => void;
+    comment: any;
+    likeCount: number
+    userName: string
+    firstName: string
 };
 
 const PostCommentCard = ({
+    comment,
     post,
     openProfile,
-    onLike,
-    onUnlike,
     onFollow,
     onUnfollow,
     isFollowing,
-    isPostLiked,
-    onDeletePost,
+    onDeleteComment,
     currentUserID,
-    deleteThePost,
-    akcruBadge
+    akcruBadge,
+    onLikeOrUnlike,
+    CommentOnPostButton,
+    likeCount,
+    userName,
+    firstName
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -135,15 +152,6 @@ const PostCommentCard = ({
 
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author?.id === currentUserID;
-
-    // const handleDeletePost = async () => {
-    //     try {
-    //         await deletePost(post.id);
-    //         onDeletePost(post.id); // Inform parent component to remove the post from its state
-    //     } catch (error) {
-    //         console.error('Error deleting the post:', error);
-    //     }
-    // };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -205,22 +213,13 @@ const PostCommentCard = ({
         setShareOptionsVisible(false);
     };
 
-    const handleLikePress = () => {
-        if (isPostLiked) {
-            // Assuming `existingLike` is a field in your post object
-            onUnlike(post.id);
-        } else {
-            onLike(post.id);
-        }
-    };
-
     // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={deleteThePost}>
+                    onPress={onDeleteComment}>
                     <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
@@ -313,7 +312,7 @@ const PostCommentCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Title2, fontSize: 12}}>{userName}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -324,7 +323,7 @@ const PostCommentCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
+                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -499,19 +498,14 @@ const PostCommentCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons
-                    iconname={'chatbox'}
-                    onPress={() => {
-                        ('');
-                    }}
-                />
-                <FooterIcons iconname={'happy'} onPress={handleLikePress} />
-                <FooterIcons
+                {/* <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} /> */}
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
+                {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
-                />
+                /> */}
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -523,8 +517,10 @@ const PostCommentCard = ({
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
-                    {post.numberOfReposts || 0} Repost
+                    {/* {post._count?.comments || 0} Comments •  */}
+                    {likeCount} Likes 
+                    {/* • {post?.numberOfReposts || 0}{' '}
+                    Repost */}
                 </Text>
             </View>
         </View>

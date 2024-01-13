@@ -14,6 +14,7 @@ import {
     Modal,
     FlatList,
     Pressable,
+    TouchableWithoutFeedback,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -50,6 +51,7 @@ export default function EditProfile({session}: {session: Session}) {
 
     // get user from auth store, also get the logout function
     const user = useAuthStore(state => state.user);
+    const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
     const {hydrateUser} = useAuthStore();
 
@@ -306,9 +308,53 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    const handleFinishButton = () => {
-        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+    // const handleFinishButton = async () => {
+    //     const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+    //     console.log('Selected Genres:', selectedGenres);
 
+    //     if (selectedGenres.length === 2) {
+    //         const genreNames = selectedGenres.map(genreId => {
+    //             const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+    //             return genreObject ? genreObject.genre : '';
+    //         });
+
+    //         const newArchetypeKey = genreNames.sort().join(', ');
+    //         console.log('Archetype Key:', newArchetypeKey);
+
+    //         const selectedArchetype = archetypeMapping[newArchetypeKey];
+
+    //         if (selectedArchetype) {
+    //             // Serialize the archetype data
+    //             const archetypeData = JSON.stringify({
+    //                 name: selectedArchetype.name,
+    //                 image: selectedArchetype.image,
+    //                 description: selectedArchetype.description,
+    //             });
+
+    //             try {
+    //                 // Update the user's archetype in the backend
+    //                 const updatedUser = await updateUser({archetype: archetypeData});
+    //                 if (updatedUser) {
+    //                     console.log('Archetype updated successfully:', updatedUser);
+
+    //                     // Update the global state/context with the new user data
+    //                     useAuthStore.setState({user: updatedUser});
+
+    //                     // Optionally update local component state here
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error updating archetype:', error);
+    //             }
+    //         } else {
+    //             console.log('No matching archetype found for the selected genres.');
+    //         }
+    //     } else {
+    //         console.log('Please select exactly 2 genres.');
+    //     }
+    // };
+
+    const handleFinishButton = async () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
         console.log('Selected Genres:', selectedGenres);
 
         if (selectedGenres.length === 2) {
@@ -318,21 +364,33 @@ export default function EditProfile({session}: {session: Session}) {
             });
 
             const newArchetypeKey = genreNames.sort().join(', ');
-
             console.log('Archetype Key:', newArchetypeKey);
-
-            setArchetypeKey(newArchetypeKey);
 
             const selectedArchetype = archetypeMapping[newArchetypeKey];
 
             if (selectedArchetype) {
-                const newArchetypeName = selectedArchetype.name;
-                const newArchetypeImage = selectedArchetype.image; // Set the image here
-                const newArchetypeDescription = selectedArchetype.description; // Set the description here
-                console.log('Selected Archetype:', newArchetypeName);
-                setArchetypeName(newArchetypeName);
-                setArchetypeImage(newArchetypeImage);
-                setArchetypeDescription(newArchetypeDescription);
+                // Serialize the archetype data including the genres
+                const archetypeData = JSON.stringify({
+                    name: selectedArchetype.name,
+                    image: selectedArchetype.image,
+                    description: selectedArchetype.description,
+                    genres: genreNames, // Add the selected genre names
+                });
+
+                try {
+                    // Update the user's archetype in the backend
+                    const updatedUser = await updateUser({archetype: archetypeData});
+                    if (updatedUser) {
+                        console.log('Archetype updated successfully:', updatedUser);
+
+                        // Update the global state/context with the new user data
+                        useAuthStore.setState({user: updatedUser});
+
+                        // Optionally update local component state here
+                    }
+                } catch (error) {
+                    console.error('Error updating archetype:', error);
+                }
             } else {
                 console.log('No matching archetype found for the selected genres.');
             }
@@ -340,6 +398,7 @@ export default function EditProfile({session}: {session: Session}) {
             console.log('Please select exactly 2 genres.');
         }
     };
+
 
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
@@ -364,12 +423,12 @@ export default function EditProfile({session}: {session: Session}) {
                         <View>
                             <Text style={styles.title}>EDIT PROFILE</Text>
                             <View style={{alignItems: 'center'}}>
-                                    <HexAvatar
-                                        source={{uri: selectImage}}
-                                        size={140}
-                                        bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                    />
-                               
+                                <HexAvatar
+                                    source={{uri: selectImage}}
+                                    size={140}
+                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                />
+
                                 <TouchableOpacity
                                     onPress={() => {
                                         selectProfileImage();
@@ -733,10 +792,17 @@ export default function EditProfile({session}: {session: Session}) {
                                     </View>
                                 ))}
                             </View>
+                            {/* <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    color: COLORS.PURPLE,
+                                }}>
+                                "{archetype && archetype.genres ? archetype.genres.join(', ') : 'No Genres Selected'}"
+                            </Text> */}
 
-                            {/* <Text style={{...FONTS.Title2, textAlign: 'center'}}>{archetypeKey}</Text> */}
-
-                            {archetypeName && (
+                            {archetype && (
                                 <Text
                                     style={{
                                         ...FONTS.Title3,
@@ -744,16 +810,16 @@ export default function EditProfile({session}: {session: Session}) {
                                         marginVertical: 10,
                                         color: COLORS.PURPLE,
                                     }}>
-                                    "{archetypeName}"
+                                    "{archetype ? archetype.name : 'No Archetype Selected'}"
                                 </Text>
                             )}
                             <Pressable
                                 onPress={() => {
                                     toggleArchetypeModal();
                                 }}>
-                                {archetypeImage && (
+                                {archetype && (
                                     <Image
-                                        source={{uri: archetypeImage}}
+                                        source={{uri: archetype ? archetype.image : ''}}
                                         style={{
                                             width: SIZES.ScreenWidth / 2.2,
                                             height: SIZES.ScreenWidth / 2.2,
@@ -764,9 +830,9 @@ export default function EditProfile({session}: {session: Session}) {
                                 )}
                             </Pressable>
 
-                            {archetypeDescription && (
+                            {archetype && (
                                 <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
-                                    {archetypeDescription}
+                                    {archetype ? archetype.description : 'No Archetype Selected'}
                                 </Text>
                             )}
 
@@ -784,7 +850,8 @@ export default function EditProfile({session}: {session: Session}) {
 
                         {/* Create a modal to display the enlarged image */}
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
-                            <View
+                            <Pressable
+                                onPress={toggleArchetypeModal}
                                 style={{
                                     flex: 1,
                                     justifyContent: 'center',
@@ -792,20 +859,20 @@ export default function EditProfile({session}: {session: Session}) {
                                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                 }}>
                                 {/* Display the enlarged image */}
-                                {archetypeImage && (
-                                    <Image
-                                        source={{uri: archetypeImage}}
-                                        style={{
-                                            width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                            height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                            borderRadius: 5,
-                                        }}
-                                    />
+                                {archetype && (
+                                    <TouchableWithoutFeedback>
+                                        <Image
+                                            source={{uri: archetype ? archetype.image : ''}}
+                                            style={{
+                                                width: '100%', // Adjust the size as needed
+                                                height: '50%', // Adjust the size as needed
+                                                borderRadius: 5,
+                                            }}
+                                            resizeMode="contain"
+                                        />
+                                    </TouchableWithoutFeedback>
                                 )}
-                                <TouchableOpacity onPress={toggleArchetypeModal}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: 10}}>Close</Text>
-                                </TouchableOpacity>
-                            </View>
+                            </Pressable>
                         </Modal>
 
                         {/* <View>

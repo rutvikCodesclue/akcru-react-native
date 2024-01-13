@@ -14,7 +14,7 @@ import NewPost from '../screens/crummunityScreens/NewPost';
 import NewComment from '../screens/crummunityScreens/NewComment';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
-import { IPost } from '../../types';
+import { IComment, IPost } from '../../types';
 
 export type CrummunityStackParams = {
     CrummunityScreen: any;
@@ -33,6 +33,7 @@ export type CrummunityStackParams = {
     CruChewOrder: any;
     PostScreen: {
         post: IPost;
+        comment: IComment
         // other params if there are any
     };
     NewPost: any;

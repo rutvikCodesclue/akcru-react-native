@@ -9,10 +9,10 @@ import { CrummunityStackParams } from '../../../navigation/CrummunityStack'
 import Header from '../../../components/header'
 import TabContainer from '../../../components/TabContainer/TabContainer'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { IPost, IUserProfile } from '../../../../types'
+import { IComment, IPost, IUserProfile } from '../../../../types'
 import useAuthStore from '../../../stores/auth.store'
 import PostCard from '../../../components/SkinnyPostCard'
-import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib'
+import { deleteComment, deletePost, getPosts, likeComment, likePost, unlikeComment, unlikePost } from '../../../lib/api/post.lib'
 import PostCommentCard from '../../../components/PostCommentCard'
 import { getPostComments } from '../../../lib/api/post.lib'
 import HexShape from '../../../components/HexShape'
@@ -33,13 +33,14 @@ const PostScreen = ({navigation, route}: Props) => {
     // console.log('user', user?.username);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [comments, setComments] = useState<IPost[]>([]);
+    const [comments, setComments] = useState<IComment[]>([]);
     const [loadingComments, setLoadingComments] = useState(true);
-
 
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
-    const {post} = route.params;
+    // const {post} = route.params;
+    const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
+    const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
 
     if (!post) {
         return (
@@ -56,16 +57,23 @@ const PostScreen = ({navigation, route}: Props) => {
     }
 
     useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            // Refresh posts or update state here
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
+    useEffect(() => {
         const fetchComments = async () => {
             console.log('fetchComments function called');
             if (post && post.id !== undefined) {
                 console.log('Post:', post);
                 try {
-                    console.log('Fetching comments for post ID:', post.id);
-                    const response = await getPostComments(post.id);
-                    console.log('Response:', response);
-                    if (response && response.success) {
-                        setComments(response.comments); // Set only the comments array
+                    const fetchedComments = await getPostComments(+post.id);
+                    console.log('Fetched Comments:',JSON.stringify(fetchedComments, null, 2));
+                    if (fetchedComments && fetchedComments.success) {
+                        setComments(fetchedComments.comments); // Set only the comments array
                     }
                     setLoadingComments(false);
                 } catch (error) {
@@ -95,133 +103,104 @@ const PostScreen = ({navigation, route}: Props) => {
             unsubscribeFocus();
         };
     }, [post, navigation]); // Include navigation in the dependency array
-
-    useEffect(() => {
-        const fetchPosts = async () => {
-            setLoading(true);
-            try {
-                const fetchedPosts = await getPosts();
-                if (fetchedPosts) {
-                    setPosts(fetchedPosts);
-                    // Reset likedPosts state, as we cannot determine likes from fetched data
-                    setLikedPosts(new Set());
-                } else {
-                    console.log('No posts fetched');
-                }
-            } catch (error) {
-                console.error('Failed to fetch posts:', error);
-                setError(error.message || 'Failed to fetch posts');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        const handleFocus = () => {
-            // Add this code to fetch and refresh data when the screen gains focus
-            fetchPosts();
-        };
-
-        // Add a listener for the focus event
-        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-        // Fetch data when the component mounts
-        fetchPosts();
-
-        // Cleanup the listener when the component unmounts
-        return () => {
-            unsubscribeFocus();
-        };
-    }, [navigation]); // Include 'navigation' as a dependency
-
-    const handleDeletePost = async postId => {
+    
+    const handleDeletePost = async (postId: number) => {
         try {
-            await deletePost(postId); // Call the API to delete the post
-            // After successful deletion, navigate back to the CrummunityScreen
+            // If the post is liked by the current user, unlike it first
+            if (post.isLikedByCurrentUser) {
+                await unlikePost(postId);
+            }
+
+            // Proceed to delete the post
+            await deletePost(postId);
+
+            // Navigate back to CrummunityScreen
             navigation.navigate('CrummunityScreen');
         } catch (error) {
-            console.error('Failed to delete the post:', error);
-            // Optionally handle the error (e.g., show an error message)
+            console.error('Error in deleting post:', error);
+            // Handle error (e.g., show a message to the user)
         }
     };
 
-    const handleCommentPress = postId => {
-        const selectedPost = posts.find(post => post.id === postId);
-
-        if (selectedPost) {
-            navigation.navigate('PostScreen', {post: selectedPost});
-        } else {
-            // Handle the case when the post is not found
-            console.error('Error: Post not found');
-        }
-    };
-
-    const onLike = async postId => {
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.id === postId) {
-                    return {
-                        ...post,
-                        _count: {...post._count, likes: (post._count?.likes || 0) + 1},
-                    };
-                }
-                return post;
-            }),
-        );
+    const handleDeleteComment = async (commentId: number) => {
         try {
-            await likePost(postId);
-            setLikedPosts(prevLikedPosts => new Set(prevLikedPosts).add(postId));
+            // Check if the comment is liked by the current user and unlike it if necessary
+            // This step depends on your app's logic. If unliking before deleting is not needed, you can remove this part.
+            const commentIndex = comments.findIndex(comment => +comment.id === commentId);
+            if (commentIndex !== -1) {
+                const comment = comments[commentIndex];
+                if (comment.isLikedByCurrentUser) {
+                    await unlikeComment(commentId);
+                }
+            }
+
+            // Proceed to delete the comment
+            await deleteComment(commentId);
+
+            // Update local state to remove the comment from the UI
+            setComments(prevComments => prevComments.filter(comment => +comment.id !== commentId));
         } catch (error) {
-            // Revert the optimistic update in case of an error
-            console.error('Error liking the post:', error);
-            setPosts(prevPosts =>
-                prevPosts.map(post => {
-                    if (post.id === postId) {
-                        return {
-                            ...post,
-                            _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
-                        };
-                    }
-                    return post;
-                }),
-            );
+            console.error('Error in deleting comment:', error);
+            // Handle error (e.g., show a message to the user)
         }
     };
 
-    const onUnlike = async postId => {
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.id === postId) {
-                    return {
-                        ...post,
-                        _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
-                    };
-                }
-                return post;
-            }),
-        );
+    const onLikeOrUnlikePost = async (postId: number) => {
         try {
-            await unlikePost(postId);
-            setLikedPosts(prevLikedPosts => {
-                const updatedLikedPosts = new Set(prevLikedPosts);
-                updatedLikedPosts.delete(postId);
-                return updatedLikedPosts;
+            const isLiked = post.isLikedByCurrentUser;
+
+            // Perform the like or unlike action
+            if (isLiked) {
+                await unlikePost(postId);
+            } else {
+                await likePost(postId);
+            }
+
+            // Optimistically update the UI
+            setPost({
+                ...post,
+                isLikedByCurrentUser: !isLiked,
+                _count: {
+                    ...post._count,
+                    likes: post._count.likes + (isLiked ? -1 : 1),
+                },
             });
         } catch (error) {
-            // Revert the optimistic update in case of an error
-            console.error('Error unliking the post:', error);
-            setPosts(prevPosts =>
-                prevPosts.map(post => {
-                    if (post.id === postId) {
-                        return {
-                            ...post,
-                            _count: {...post._count, likes: (post._count?.likes || 0) + 1},
-                        };
-                    }
-                    return post;
-                }),
-            );
+            console.error('Error changing like status:', error);
+            // Optionally handle reversion or user notification here
         }
     };
+
+    const onLikeOrUnlikeComment = async (commentId: number) => {
+        try {
+            const commentIndex = comments.findIndex(c => +c.id === commentId);
+            if (commentIndex === -1) return;
+
+            const comment = comments[commentIndex];
+            const isLiked = comment.isLikedByCurrentUser;
+
+            // Perform the like or unlike action
+            if (isLiked) {
+                await unlikeComment(commentId); // Make sure this is awaited
+            } else {
+                await likeComment(commentId); // Make sure this is awaited
+            }
+
+            // Optimistically update the UI
+            const updatedComments = [...comments];
+            updatedComments[commentIndex] = {
+                ...comment,
+                isLikedByCurrentUser: !isLiked,
+                likeCount: comment.likeCount + (isLiked ? -1 : 1), // Assuming likeCount holds the number of likes
+            };
+
+            setComments(updatedComments);
+        } catch (error) {
+            console.error('Error changing like status for comment:', error);
+            // Optionally handle reversion or user notification here
+        }
+    };
+
 
     return (
         <TabContainer>
@@ -269,13 +248,14 @@ const PostScreen = ({navigation, route}: Props) => {
                             post={post}
                             openProfile={() => navigation.navigate('ViewUserScreen', {userID: post.author?.id})}
                             currentUserID={currentUserID ?? ''}
-                            deleteThePost={() => handleDeletePost(post.id)}
-                            onLike={onLike}
-                            onUnlike={onUnlike}
+                            deleteThePost={() => handleDeletePost(+post.id)}
                             // onFollow={() => handleFollow(item.author.id)}
                             // onUnfollow={() => handleUnfollow(item.author.id)}
-                            isPostLiked={likedPosts.has(post.id)}
+                            onDeletePost={handleDeletePost}
+                            isPostLiked={post.isLikedByCurrentUser}
+                            onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
                             akcruBadge={post.author?.badge}
+                            CommentOnPostButton={() => navigation.navigate('NewComment', {postId: post.id})}
                         />
                     </View>
                     <View style={{marginBottom: '30%'}}>
@@ -292,7 +272,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             <FlatList
                                 data={comments}
                                 style={styles.postcontainer}
-                                keyExtractor={item => item.id.toString()}
+                                keyExtractor={item => item.id}
                                 renderItem={({item}) => (
                                     <View style={{marginBottom: 10}}>
                                         <PostCommentCard
@@ -300,14 +280,16 @@ const PostScreen = ({navigation, route}: Props) => {
                                             openProfile={() =>
                                                 navigation.navigate('ViewUserScreen', {userID: item.author?.id})
                                             }
-                                            onLike={onLike}
-                                            onUnlike={onUnlike}
+                                            userName={item.author?.username}
+                                            firstName={item.author?.firstName}
                                             // onFollow={() => handleFollow(item.author.id)}
                                             // onUnfollow={() => handleUnfollow(item.author.id)}
-                                            isPostLiked={likedPosts.has(item.id)}
-                                            onDeletePost={handleDeletePost}
-                                            currentUserID={currentUserID}
+                                            isCommentLiked={item.isLikedByCurrentUser}
+                                            onDeleteComment={() => handleDeleteComment(+item.id)}
+                                            currentUserID={currentUserID || ''}
                                             akcruBadge={item.author?.badge}
+                                            onLikeOrUnlike={() => onLikeOrUnlikeComment(+item.id)}
+                                            likeCount={item.likeCount || 0}
                                         />
                                     </View>
                                 )}

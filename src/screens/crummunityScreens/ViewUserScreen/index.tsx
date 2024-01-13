@@ -8,7 +8,8 @@ import {
   ScrollView,
   Pressable,
   Modal,
-  SafeAreaView
+  SafeAreaView,
+  TouchableWithoutFeedback
 } from 'react-native';
 import styles from './styles';
 import React, {useState} from 'react';
@@ -24,7 +25,7 @@ import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { findAUser, followUser, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
-import { selectAvatarBorderColor } from '../../../util/util';
+import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
@@ -69,6 +70,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const userId = route.params?.userId;
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
+    const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     
 
 useFocusEffect(
@@ -162,6 +164,9 @@ const handleFollowPress = async () => {
     }
 };
 
+const isValidImageUrl = (url: string) => {
+    return url && url.trim() !== '';
+};
   return (
       <TabContainer>
           <SafeAreaView>
@@ -346,9 +351,11 @@ const handleFollowPress = async () => {
                           alignItems: 'center',
                       }}>
                       <Pressable
-                          onPress={() => navigation.navigate('ViewUserFollowList', {
-                                              userID: user?.id,
-                                          })}
+                          onPress={() =>
+                              navigation.navigate('ViewUserFollowList', {
+                                  userID: user?.id,
+                              })
+                          }
                           style={{
                               width: 100,
                               height: 30,
@@ -413,7 +420,7 @@ const handleFollowPress = async () => {
                                   }}
                                   followUser={handleFollowPress}
                                   followToggleIcon={follow ? 'person-subtract' : 'person-add'}
-                                  followIconType = {"ionicon"}
+                                  followIconType={'ionicon'}
                                   followToggleText={follow ? 'Unfollow' : 'Follow'}
                                   cruInviteUser={() => setShowConfirmationModal(true)}
                               />
@@ -450,15 +457,17 @@ const handleFollowPress = async () => {
 
                               <View
                                   style={{
-                                      paddingTop: 10,
-                                      flexDirection: 'row',
                                       justifyContent: 'center',
                                       paddingHorizontal: 10,
                                   }}>
-                                  <View style={{paddingBottom: 10, paddingRight: 10}}>
+                                  <Text style={{...FONTS.Title2, paddingBottom: 5, textAlign: 'center', color: COLORS.PURPLE}}>
+                                      {archetype ? archetype.name : 'No Archetype Selected'}
+                                  </Text>
+                                  <View style={{paddingBottom: 10, paddingRight: 10, alignItems: 'center'}}>
+                                    {archetype && isValidImageUrl(archetype.image) && (
                                       <Pressable onPress={toggleModal}>
                                           <Image
-                                              source={imageindex.SpaceCrimePuzzler}
+                                              source={{uri: archetype ? archetype.image : ''}}
                                               style={{
                                                   width: SIZES.ScreenWidth / 2.2,
                                                   height: SIZES.ScreenWidth / 2.2,
@@ -466,24 +475,28 @@ const handleFollowPress = async () => {
                                               }}
                                           />
                                       </Pressable>
+                                    )}
                                   </View>
-                                  <View style={{flex: 1}}>
-                                      <Text style={{...FONTS.Title2, paddingBottom: 5}}>Action Junkie</Text>
-                                      <View style={{flexDirection: 'row', paddingBottom: 5}}>
-                                          <Text style={styles.drawfonttag}>Thriller</Text>
-                                          <Text style={styles.drawfonttag}> Adventure</Text>
+                                  <View>
+                                      <View style={{flexDirection: 'row', paddingBottom: 5, justifyContent:'center'}}>
+                                          <Text style={styles.drawfonttag}>
+                                              {capitalizeFirstLetterOfString(archetype ? archetype.genres[0]: '')}
+                                          </Text>
+                                          <Text style={styles.drawfonttag}>
+                                              {' '}
+                                              {capitalizeFirstLetterOfString(archetype ? archetype.genres[1]: '')}
+                                          </Text>
                                       </View>
-                                      <Text style={{...FONTS.Title2, fontSize: 12}}>
-                                          These individual appreciate movies that combine suspenseful and thrilling
-                                          elements with adrenaline-pumping adventures. Experiencing intense suspense and
-                                          daring escapades is where they find their cinematic excitement.
+                                      <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
+                                          {archetype ? archetype.description : ''}
                                       </Text>
                                   </View>
                               </View>
 
                               {/* Create a modal to display the enlarged image */}
                               <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-                                  <View
+                                  <Pressable
+                                      onPress={toggleModal}
                                       style={{
                                           flex: 1,
                                           justifyContent: 'center',
@@ -491,18 +504,20 @@ const handleFollowPress = async () => {
                                           backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                       }}>
                                       {/* Display the enlarged image */}
-                                      <Image
-                                          source={imageindex.SpaceCrimePuzzler}
-                                          style={{
-                                              width: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                              height: SIZES.ScreenWidth / 1.2, // Adjust the size as needed
-                                              borderRadius: 5,
-                                          }}
-                                      />
-                                      <TouchableOpacity onPress={toggleModal}>
+                                      <TouchableWithoutFeedback>
+                                          <Image
+                                              source={{uri: archetype ? archetype.image : ''}}
+                                              style={{
+                                                  width: '100%',
+                                                  height: '50%',
+                                                  borderRadius: 5,
+                                              }}
+                                          />
+                                      </TouchableWithoutFeedback>
+                                      {/* <TouchableOpacity onPress={toggleModal}>
                                           <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
-                                      </TouchableOpacity>
-                                  </View>
+                                      </TouchableOpacity> */}
+                                  </Pressable>
                               </Modal>
 
                               {/* <View style={styles.seperator} />

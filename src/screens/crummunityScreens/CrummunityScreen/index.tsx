@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
-import AkcruButtons from '../../../components/akcruButtons';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
@@ -21,7 +20,7 @@ import {RouteProp, useNavigation} from '@react-navigation/native';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
+import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {followUser, unfollowUser} from '../../../lib/api/user.lib';
@@ -49,8 +48,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
-    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
     const [posts, setPosts] = useState<IPost[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingPosts, setLoadingPosts] = useState(true);
@@ -59,6 +56,15 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            // Refresh posts or update state here
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -136,117 +142,64 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-// const onLikeOrUnlike = async (postId: number) => {
-//     const isLiked = likedPosts.has(postId);
-
-//     try {
-//         if (isLiked) {
-//             // Perform unlike action
-//             await unlikePost(postId);
-//             setLikedPosts(prev => new Set([...prev].filter(id => id !== postId)));
-//         } else {
-//             // Perform like action
-//             await likePost(postId);
-//             setLikedPosts(prev => new Set(prev).add(postId));
-           
-//         }
-
-//         // Update posts array
-//         setPosts(prevPosts =>
-//             prevPosts.map(post => {
-//                 if (Number(post.id) === postId) {
-//                     return {
-//                         ...post,
-//                         isLikedByCurrentUser: !isLiked,
-//                         _count: {
-//                             ...post._count,
-//                             // likes: isLiked ? post._count.likes - 1 : post._count.likes + 1,
-//                             likes: post._count.likes + (isLiked ? -1 : 1),
-//                         },
-//                     };
-//                 }
-//                 return post;
-//             }),
-//         );
-//     } catch (error) {
-//         console.error('Error changing like status:', error);
-//         // Revert the optimistic updates in case of an error
-//         setLikedPosts(prev => (isLiked ? new Set(prev).add(postId) : new Set([...prev].filter(id => id !== postId))));
-//         setPosts(prevPosts =>
-//             prevPosts.map(post => {
-//                 if (Number(post.id) === postId) {
-//                     return {
-//                         ...post,
-//                         isLikedByCurrentUser: isLiked,
-//                         _count: {
-//                             ...post._count,
-//                             // likes: isLiked ? post._count.likes : post._count.likes - 1,
-//                             likes: isLiked ? post._count.likes + 1 : post._count.likes - 1,
-//                         },
-//                     };
-//                 }
-//                 return post;
-//             }),
-//         );
-//     }
-// };
+    
 
 const onLikeOrUnlike = async (postId: number) => {
-    const isLiked = likedPosts.has(postId);
-
     try {
+        // Find the post in the current state
+        const postIndex = posts.findIndex(post => +post.id === postId);
+        if (postIndex === -1) return;
+
+        const post = posts[postIndex];
+        const isLiked = post.isLikedByCurrentUser;
+
+        // Perform the like or unlike action
         if (isLiked) {
-            // If the post is already liked, perform the unlike action
             await unlikePost(postId);
-            setLikedPosts(prev => new Set([...prev].filter(id => id !== postId)));
         } else {
-            // If the post is not liked, perform the like action
             await likePost(postId);
-            setLikedPosts(prev => new Set(prev).add(postId));
         }
 
-        // Update posts array
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (Number(post.id) === postId) {
-                    return {
-                        ...post,
-                        isLikedByCurrentUser: !isLiked, // Toggle the like status
-                        _count: {
-                            ...post._count,
-                            likes: post._count.likes + (isLiked ? -1 : 1), // Adjust the likes count
-                        },
-                    };
-                }
-                return post;
-            }),
-        );
+        // Optimistically update the UI
+        const updatedPosts = [...posts];
+        updatedPosts[postIndex] = {
+            ...post,
+            isLikedByCurrentUser: !isLiked,
+            _count: {
+                ...post._count,
+                likes: post._count.likes + (isLiked ? -1 : 1),
+            },
+        };
+        setPosts(updatedPosts);
     } catch (error) {
         console.error('Error changing like status:', error);
-        // Revert the optimistic updates in case of an error
-        setLikedPosts(prev => (isLiked ? new Set(prev).add(postId) : new Set([...prev].filter(id => id !== postId))));
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (Number(post.id) === postId) {
-                    return {
-                        ...post,
-                        isLikedByCurrentUser: isLiked, // Revert the like status
-                        _count: {
-                            ...post._count,
-                            likes: isLiked ? post._count.likes : post._count.likes - 1, // Revert the likes count
-                        },
-                    };
-                }
-                return post;
-            }),
-        );
+        // Optionally handle reversion or user notification here
     }
 };
 
+const handleDeletePost = async (postId: number) => {
+    // Find the post in the current state
+    const postIndex = posts.findIndex(post => +post.id === postId);
+    if (postIndex === -1) return;
 
-    const handleDeletePost = (postId: number) => {
+    const post = posts[postIndex];
+
+    try {
+        // If the post is liked by the current user, unlike it first
+        if (post.isLikedByCurrentUser) {
+            await unlikePost(postId);
+        }
+
+        // Proceed to delete the post
+        await deletePost(postId);
+
+        // Update the local state to remove the post
         setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
-    };
+    } catch (error) {
+        console.error('Error in deleting post:', error);
+        // Handle error (e.g., show a message to the user)
+    }
+};
 
     // Function to handle follow action
     const handleFollow = async (userId: string) => {
@@ -354,7 +307,7 @@ const onLikeOrUnlike = async (postId: number) => {
                                     style={styles.postcontainer}
                                     keyExtractor={item => item.id}
                                     renderItem={({item}) => (
-                                        <Pressable onPress={() => handlePostPress(item.id)} style={{marginBottom: 10}}>
+                                        <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
                                                 post={item}
                                                 openProfile={() =>
