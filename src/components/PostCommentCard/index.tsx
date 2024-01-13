@@ -85,7 +85,18 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
+};
 
+type CommentType = {
+    id: string;
+    content: string;
+    author: User;
+    createdAt: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    likes?: number;
+    impressions?: number;
+    _count?: PostStats;
 };
 
 type PostProps = {
@@ -94,25 +105,33 @@ type PostProps = {
     onFollow: () => void;
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
-    onDeletePost: (postId: number) => void;
+    onDeleteComment: () => void;
     currentUserID?: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
+    comment: any;
+    likeCount: number
+    userName: string
+    firstName: string
 };
 
-const SkinnyPostCard = ({
+const PostCommentCard = ({
+    comment,
     post,
     openProfile,
     onFollow,
     onUnfollow,
     isFollowing,
-    onDeletePost,
+    onDeleteComment,
     currentUserID,
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
+    likeCount,
+    userName,
+    firstName
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -132,11 +151,7 @@ const SkinnyPostCard = ({
     const modalVideoRef = useRef(null);
 
     // Check if the current user is the author of the post
-    const isCurrentUserAuthor = post.author.id === currentUserID;
-
-     const handleDeletePost = () => {
-         onDeletePost(+post.id);
-     };
+    const isCurrentUserAuthor = post.author?.id === currentUserID;
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -204,7 +219,7 @@ const SkinnyPostCard = ({
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={handleDeletePost}>
+                    onPress={onDeleteComment}>
                     <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
@@ -223,7 +238,7 @@ const SkinnyPostCard = ({
                         size={20}
                         style={{marginLeft: 5}}
                     />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author?.username}</Text>
                 </Pressable>
             );
         }
@@ -234,7 +249,7 @@ const SkinnyPostCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author?.username}</Text>
                 </Pressable>
             );
         }
@@ -297,7 +312,7 @@ const SkinnyPostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Title2, fontSize: 12}}>{userName}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -308,7 +323,7 @@ const SkinnyPostCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
+                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -339,7 +354,7 @@ const SkinnyPostCard = ({
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
                 </View>
-                <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
                             {renderNotInterested()}
@@ -406,7 +421,7 @@ const SkinnyPostCard = ({
                 </Modal>
             </View>
             <View style={{marginTop: 10}}>
-                <Text style={styles.post}>{post.content}</Text>
+                <Text style={styles.post}>{post.text}</Text>
             </View>
 
             <View>
@@ -483,15 +498,14 @@ const SkinnyPostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
-                {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
+                {/* <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
-                <FooterIcons
+                {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
-                />
+                /> */}
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -503,12 +517,14 @@ const SkinnyPostCard = ({
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
-                    {post.numberOfReposts || 0} Repost
+                    {/* {post._count?.comments || 0} Comments •  */}
+                    {likeCount} Likes 
+                    {/* • {post?.numberOfReposts || 0}{' '}
+                    Repost */}
                 </Text>
             </View>
         </View>
     );
 };
 
-export default SkinnyPostCard;
+export default PostCommentCard;

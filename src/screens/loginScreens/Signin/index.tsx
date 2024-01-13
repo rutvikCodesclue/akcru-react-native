@@ -173,10 +173,10 @@ const Signin = () => {
 
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
-
+            // console.log('access token', accessToken);
             setIsLoggedIn(isLoggedInWithToken); // Set login status based on actual auth check
         };
-
+;
         checkAuth().catch(err => {
             console.error('Error checking auth', err);
         });
@@ -207,7 +207,7 @@ const Signin = () => {
             // set the acces_token in local storage
             const accessToken = session.access_token;
             AsyncStorage.setItem('access_token', accessToken);
-
+            // console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});

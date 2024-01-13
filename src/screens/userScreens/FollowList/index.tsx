@@ -121,7 +121,6 @@ const FollowList = () => {
      useEffect(() => {
          const fetchData = async () => {
              const result = await getUserFollowing();
-             console.log('Data received on FollowList Screen:', result);
              if (result && result.following && Array.isArray(result.following)) {
                  setFollowingData(result.following); // Set the 'following' array as your data
              }

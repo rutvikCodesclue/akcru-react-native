@@ -1,17 +1,15 @@
+
 import {IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
-export async function getPosts(page?: number) {
+export async function getPosts(page = 1) {
+    // Default to page 1 if no page is provided
     try {
-        
-        // Make a GET request using the API client
         const {data} = await API.get(`/v1/post`, {
             params: {
-                page,
+                page: page - 1, // Adjust if your backend expects zero-based indexing for pages
             },
         });
-
-        // console.log('API response for getPost:', data); // Logging the entire response
 
         if (data.success === false) {
             throw new Error(data.message);
@@ -22,49 +20,32 @@ export async function getPosts(page?: number) {
         console.error(error);
         throw new Error('Failed to fetch posts');
     }
-};
+}
 
-// export const getPosts = async (params: {page?: number}): Promise<Object | undefined> => {
-//     try {
-//         const {page} = params;
-
-//         // Make a GET request using the API client
-//         const {data} = await API.get(`/v1/post`, {
-//             params: {
-//                 page,
-//             },
-//         });
-
-//         console.log('API response for getPosts:', data); // Logging the entire response
-
-//         if (data.success === false) {
-//             throw new Error(data.message);
-//         }
-
-//         return data.posts;
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Failed to fetch posts');
-//     }
-// };
-
-
-
-
-
-export const getPostComments = async (params: {id: number}): Promise<Object | undefined> => {
+export const getPostComments = async (postId: number): Promise<Object | undefined> => {
+    console.log(`Making request to /v1/post/comments with postId: ${postId}`);
     try {
-        const {id} = params;
-        // GET /v1/post/comments
-        const {data} = await API.get(`/v1/post/comments/${id.toString()}`);
-
-        if (data.success === false) {
-            return undefined;
-        }
-
+        const {data} = await API.get(`/v1/post/comments`, {params: {id: postId}});
+        console.log('Received data:', data); // Log the received data
         return data;
     } catch (error) {
-        console.error(error);
+        console.error('Error fetching post comments:', error);
+
+        // Detailed error logging
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            // console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Request:', error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error message:', error.message);
+        }
+
         return undefined;
     }
 };
@@ -88,7 +69,8 @@ export async function createPost(type: string, content: string) {
     }
 }
 
-export async function deletePost(id: string) {
+
+export async function deletePost(id: number) {
     try {
         // Make a POST request using the API client
         const {data} = await API.delete(`/v1/post/delete`, {
@@ -104,7 +86,7 @@ export async function deletePost(id: string) {
     }
 }
 
-export async function likePost(id: string) {
+export async function likePost(id: number) {
     try {
         // Make a POST request using the API client
         const {data} = await API.post(`/v1/post/like`, {
@@ -120,25 +102,40 @@ export async function likePost(id: string) {
     }
 }
 
-// export async function unlikePost(id: string) {
-//     try {
-//         // Make a POST request using the API client
-//         const {data} = await API.post(`/v1/post/unlike`, {
-//             id,
-//         });
-
-//         if (data.success === false) {
-//             throw new Error(data.message);
-//         }
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Failed to unlike the post.');
-//     }
-// }
-
-export async function unlikePost(id: string) {
+export async function unlikePost(id: number) {
     try {
         const {data} = await API.delete(`/v1/post/unlike`, {
+            data: {id}, // In axios, the DELETE body should be in the `data` field
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to unlike the post.');
+    }
+}
+
+export async function likeComment(id: number) {
+    try {
+        // Make a POST request using the API client
+        const {data} = await API.post(`/v1/post/comment/like`, {
+            id,
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to like the post.');
+    }
+}
+
+export async function unlikeComment(id: number) {
+    try {
+        const {data} = await API.delete(`/v1/post/comment/unlike`, {
             data: {id}, // In axios, the DELETE body should be in the `data` field
         });
 
@@ -170,11 +167,10 @@ export async function commentOnPost(id: string, text: string) {
     }
 }
 
-export async function deleteComment(id: string) {
+export async function deleteComment(commentId: number) {
     try {
-        // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/comment/delete`, {
-            id,
+        const {data} = await API.delete(`/v1/post/comment/delete`, {
+            data: {id: commentId},
         });
 
         if (data.success === false) {

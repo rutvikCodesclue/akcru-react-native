@@ -3,17 +3,15 @@ import {
   View,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   TouchableWithoutFeedback,
   Modal,
-  ImageBackground,
   FlatList,
   SafeAreaView,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
-import AkcruButtons from '../../../components/akcruButtons';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
@@ -22,11 +20,14 @@ import {RouteProp, useNavigation} from '@react-navigation/native';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
+import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {followUser, unfollowUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import HexShape from '../../../components/HexShape';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -39,60 +40,99 @@ type Props = {
 
 
 const CrummunityScreen = ({navigation, route}: Props) => {
-    
     const {user, hydrateUser} = useAuthStore();
     // console.log('user', user?.username);
     const currentUserID = user?.id;
-
+    console.log(`CurrentUserID: ${user?.id}, Type: ${typeof user?.id}`);
     const author: IPost | null = route.params?.author ?? null;
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
-
     const [posts, setPosts] = useState<IPost[]>([]);
-    // const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [loadingPosts, setLoadingPosts] = useState(true);
     const [error, setError] = useState('');
+
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            // Refresh posts or update state here
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
 
     useEffect(() => {
         const fetchPosts = async () => {
             setLoading(true);
             try {
-                const fetchedPosts = await getPosts();               
-               if (fetchedPosts) {
-                   setPosts(fetchedPosts);
-                   // Reset likedPosts state, as we cannot determine likes from fetched data
-                   setLikedPosts(new Set());
-               } else {
-                   console.log('No posts fetched');
-               }
+                const fetchedPosts = await getPosts(1); // Fetch the first page
+                console.log("Fetched posts:", fetchedPosts);
+                if (fetchedPosts && fetchedPosts.length > 0) {
+                    setPosts(fetchedPosts);
+                    setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page
+                    setPage(1);
+                    const newLikedPosts = new Set();
+                    fetchedPosts.forEach(post => {
+                        if (post.isLikedCurrentUser) {
+                            newLikedPosts.add(post.id);
+                        }
+                    });
+                    setLikedPosts(newLikedPosts);
+                } else {
+                    console.log('No posts fetched');
+                    setHasMore(false);
+                }
             } catch (error) {
                 console.error('Failed to fetch posts:', error);
                 setError(error.message || 'Failed to fetch posts');
             } finally {
                 setLoading(false);
+                setLoadingPosts(false);
             }
         };
 
         const handleFocus = () => {
-            // Add this code to fetch and refresh data when the screen gains focus
-            fetchPosts();
+            console.log('Screen gained focus');
+            fetchPosts(); // Call fetchPosts when screen gains focus
         };
 
-        // Add a listener for the focus event
         const unsubscribeFocus = navigation.addListener('focus', handleFocus);
 
-        // Fetch data when the component mounts
-        fetchPosts();
+        fetchPosts(); // Initial fetch
 
-        // Cleanup the listener when the component unmounts
         return () => {
             unsubscribeFocus();
+            console.log('Screen lost focus');
         };
-    }, [navigation]); // Include 'navigation' as a dependency
+    }, [navigation, currentUserID]);
 
-    const handlePostPress = postId => {
-        const selectedPost = posts.find(post => post.id === postId);
+
+    const loadMorePosts = async () => {
+        if (!hasMore) return; // Do nothing if there are no more posts to load
+
+        setIsLoadingMore(true);
+        try {
+            const additionalPosts = await getPosts(page + 1);
+            if (additionalPosts.length > 0) {
+                setPosts(prevPosts => [...prevPosts, ...additionalPosts]);
+                setPage(page + 1); // Increment the page number
+            } else {
+                setHasMore(false); // No more posts to load
+            }
+        } catch (error) {
+            console.error('Failed to load more posts:', error);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
+
+    const handlePostPress = (postId: number) => {
+        const selectedPost = posts.find(post => +post.id === postId);
 
         if (selectedPost) {
             navigation.navigate('PostScreen', {post: selectedPost});
@@ -102,76 +142,63 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-const onLike = async postId => {
-    setPosts(prevPosts =>
-        prevPosts.map(post => {
-            if (post.id === postId) {
-                return {
-                    ...post,
-                    _count: {...post._count, likes: (post._count?.likes || 0) + 1},
-                };
-            }
-            return post;
-        }),
-    );
+    
+
+const onLikeOrUnlike = async (postId: number) => {
     try {
-        await likePost(postId);
-        setLikedPosts(prevLikedPosts => new Set(prevLikedPosts).add(postId));
+        // Find the post in the current state
+        const postIndex = posts.findIndex(post => +post.id === postId);
+        if (postIndex === -1) return;
+
+        const post = posts[postIndex];
+        const isLiked = post.isLikedByCurrentUser;
+
+        // Perform the like or unlike action
+        if (isLiked) {
+            await unlikePost(postId);
+        } else {
+            await likePost(postId);
+        }
+
+        // Optimistically update the UI
+        const updatedPosts = [...posts];
+        updatedPosts[postIndex] = {
+            ...post,
+            isLikedByCurrentUser: !isLiked,
+            _count: {
+                ...post._count,
+                likes: post._count.likes + (isLiked ? -1 : 1),
+            },
+        };
+        setPosts(updatedPosts);
     } catch (error) {
-        // Revert the optimistic update in case of an error
-        console.error('Error liking the post:', error);
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.id === postId) {
-                    return {
-                        ...post,
-                        _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
-                    };
-                }
-                return post;
-            }),
-        );
+        console.error('Error changing like status:', error);
+        // Optionally handle reversion or user notification here
     }
 };
 
-const onUnlike = async postId => {
-    setPosts(prevPosts =>
-        prevPosts.map(post => {
-            if (post.id === postId) {
-                return {
-                    ...post,
-                    _count: {...post._count, likes: Math.max(0, (post._count?.likes || 0) - 1)},
-                };
-            }
-            return post;
-        }),
-    );
-    try {
-        await unlikePost(postId);
-        setLikedPosts(prevLikedPosts => {
-            const updatedLikedPosts = new Set(prevLikedPosts);
-            updatedLikedPosts.delete(postId);
-            return updatedLikedPosts;
-        });
-    } catch (error) {
-        // Revert the optimistic update in case of an error
-        console.error('Error unliking the post:', error);
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.id === postId) {
-                    return {
-                        ...post,
-                        _count: {...post._count, likes: (post._count?.likes || 0) + 1},
-                    };
-                }
-                return post;
-            }),
-        );
-    }
-};
+const handleDeletePost = async (postId: number) => {
+    // Find the post in the current state
+    const postIndex = posts.findIndex(post => +post.id === postId);
+    if (postIndex === -1) return;
 
-const handleDeletePost = postId => {
-    setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+    const post = posts[postIndex];
+
+    try {
+        // If the post is liked by the current user, unlike it first
+        if (post.isLikedByCurrentUser) {
+            await unlikePost(postId);
+        }
+
+        // Proceed to delete the post
+        await deletePost(postId);
+
+        // Update the local state to remove the post
+        setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
+    } catch (error) {
+        console.error('Error in deleting post:', error);
+        // Handle error (e.g., show a message to the user)
+    }
 };
 
     // Function to handle follow action
@@ -189,8 +216,6 @@ const handleDeletePost = postId => {
             console.error('Error following user:', error);
         }
     };
-
-    
 
     // Function to handle unfollow action
     const handleUnfollow = async (userId: string) => {
@@ -254,45 +279,85 @@ const handleDeletePost = postId => {
                                     </TouchableWithoutFeedback>
                                 </View>
                                 <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginRight: 10}}>
+                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                                         Crummunity Feed
                                     </Text>
                                     <Icon
                                         name="account-group"
                                         type="material-community"
-                                        color={COLORS.MIDORANGE}
+                                        color={COLORS.AKCRUBLUE}
                                         size={25}
                                     />
                                 </View>
                             </View>
                         </View>
                         <View style={{marginBottom: '30%'}}>
-                            <FlatList
-                                data={posts}
-                                style={styles.postcontainer}
-                                keyExtractor={item => item.id.toString()}
-                                renderItem={({item}) => (
-                                    <Pressable onPress={() => handlePostPress(item.id)} style={{marginBottom: 10}}>
-                                        <SkinnyPostCard
-                                            post={item}
-                                            openProfile={() =>
-                                                navigation.navigate('ViewUserScreen', {userID: item.author?.id})
-                                            }
-                                            onLike={onLike}
-                                            onUnlike={onUnlike}
-                                            // onFollow={() => handleFollow(item.author.id)}
-                                            // onUnfollow={() => handleUnfollow(item.author.id)}
-                                            isPostLiked={likedPosts.has(item.id)}
-                                            onDeletePost={handleDeletePost}
-                                            currentUserID={currentUserID}
-                                        />
-                                    </Pressable>
-                                )}
-                            />
+                            {loadingPosts ? (
+                                <View style={{marginTop: '25%'}}>
+                                    <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                                </View>
+                            ) : // You can customize the size and color
+                            posts.length === 0 ? (
+                                <View>
+                                    <Text style={styles.noPostText}>No Post yet</Text>
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={posts}
+                                    style={styles.postcontainer}
+                                    keyExtractor={item => item.id}
+                                    renderItem={({item}) => (
+                                        <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
+                                            <SkinnyPostCard
+                                                post={item}
+                                                openProfile={() =>
+                                                    navigation.navigate('ViewUserScreen', {userID: item.author?.id})
+                                                }
+                                                // onLike={onLike}
+                                                // onUnlike={onUnlike}
+                                                // onFollow={() => handleFollow(item.author.id)}
+                                                // onUnfollow={() => handleUnfollow(item.author.id)}
+                                                onDeletePost={handleDeletePost}
+                                                currentUserID={currentUserID || ''}
+                                                akcruBadge={item.author?.badge}
+                                                isPostLiked={item.isLikedByCurrentUser}
+                                                onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
+                                                CommentOnPostButton={() =>
+                                                    navigation.navigate('NewComment', {postId: item.id})
+                                                }
+                                            />
+                                        </Pressable>
+                                    )}
+                                    ListFooterComponent={() =>
+                                        hasMore ? (
+                                            <TouchableOpacity onPress={loadMorePosts}>
+                                                {isLoadingMore ? (
+                                                    <ActivityIndicator color={COLORS.MIDORANGE} />
+                                                ) : (
+                                                    <Text
+                                                        style={{
+                                                            textAlign: 'center',
+                                                            margin: 10,
+                                                            ...FONTS.Title2,
+                                                            color: COLORS.MIDORANGE,
+                                                        }}>
+                                                        Load More
+                                                    </Text>
+                                                )}
+                                            </TouchableOpacity>
+                                        ) : null
+                                    }
+                                />
+                            )}
                         </View>
                     </ScrollView>
                     <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
-                        <Icon name="add" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+                        <View style={{position: 'relative'}}>
+                            <HexShape size={55} color={COLORS.AKCRUBLUE} />
+                            <View style={{position: 'absolute', top: '5%', right: '6%'}}>
+                                <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
+                            </View>
+                        </View>
                     </Pressable>
                 </View>
             </SafeAreaView>

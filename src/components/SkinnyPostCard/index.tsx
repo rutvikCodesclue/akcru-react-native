@@ -85,7 +85,6 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
-
 };
 
 type PostProps = {
@@ -95,14 +94,14 @@ type PostProps = {
     onUnfollow: () => void;
     isFollowing: boolean; // Add this to track follow status
     onDeletePost: (postId: number) => void;
-    currentUserID?: string;
+    currentUserID: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
 };
 
-const SkinnyPostCard = ({
+const PostCard = ({
     post,
     openProfile,
     onFollow,
@@ -134,9 +133,9 @@ const SkinnyPostCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-     const handleDeletePost = () => {
-         onDeletePost(+post.id);
-     };
+         const handleDeletePost = () => {
+             onDeletePost(+post.id);
+         };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -290,7 +289,7 @@ const SkinnyPostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={58}
+                            size={70}
                             bordercolor={COLORS.AKCRUBLUE}
                         />
                     </TouchableOpacity>
@@ -331,7 +330,7 @@ const SkinnyPostCard = ({
                         </View>
                     )}
                 </View>
-                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
+                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
                     <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
@@ -484,7 +483,6 @@ const SkinnyPostCard = ({
             </Modal>
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
-                {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
                 <FooterIcons
                     iconname={'sync'}
@@ -511,4 +509,4 @@ const SkinnyPostCard = ({
     );
 };
 
-export default SkinnyPostCard;
+export default PostCard;

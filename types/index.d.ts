@@ -21,6 +21,7 @@ interface IUserProfile {
     profilePicture?: string;
     phoneNumber?: string;
     password?: string;
+    archetype?: string;
 }
 
 export interface IMovie {
@@ -157,6 +158,7 @@ export interface IUserProfile {
     profilePicture?: string;
     phoneNumber?: string;
     password?: string;
+    archetype?: string;
 }
 
 export interface IMovie {
@@ -279,11 +281,44 @@ export interface IPost {
     likes?: number;
     author: IUserProfile;
     authorId: string;
-    _count: string;
+    _count: {
+        likes: number;
+        comments: number;
+    };
+    isLikedByCurrentUser: boolean;
+    comments?: IComment[];
     // Other properties related to a post
 }
 
 export interface ICreatePostData {
+    id: string;
+    user?: IUserProfile;
+    title: string;
+    content: string;
+    gifUrl?: string; // Add gifUrl as an optional property
+    createdAt: string;
+    numberOfComments?: number;
+    numberOfReposts?: number;
+    numberOfLikes?: number;
+}
+
+export interface IComment {
+    id: string;
+    content: string;
+    createdAt: string;
+    updatedAt: string;
+    likes?: number;
+    author: string;
+    authorId: string;
+    _count: {
+        likes: number;
+        comments: number;
+    };
+    isLikedByCurrentUser: boolean;
+    // Other properties related to a post
+}
+
+export interface ICreateCommentData {
     id: string;
     user?: IUserProfile;
     title: string;

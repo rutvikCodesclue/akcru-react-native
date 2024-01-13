@@ -3,15 +3,13 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     input: {
-        flexDirection: 'row',
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
-        justifyContent: 'space-between',
-        marginVertical: 10,
-        paddingLeft: 10,
-        alignItems: 'flex-start',
-        height: 150,
+        width: SIZES.ScreenWidth * 0.92,
+
+        
+        borderColor: COLORS.LIGHTGREY,
+        marginTop: 10,
+        alignSelf: 'center',
+        height: 100,
     },
     textinput: {
         color: COLORS.LIGHTGREY,
@@ -43,38 +41,18 @@ export default StyleSheet.create({
         marginTop: '2%',
         textAlign: 'center',
     },
-    noCommentsText: {
-        ...FONTS.Title3,
-        marginHorizontal: 15,
-        marginBottom: 10,
-        marginTop: '25%',
-        textAlign: 'center',
-    },
     postcontainer: {
         width: SIZES.ScreenWidth * 0.93,
         alignSelf: 'center',
         marginBottom: 5,
     },
-    floatingbutton: {
-        backgroundColor: COLORS.AKCRUBLUE,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        position: 'relative',
-        bottom: '23%',
-        left: '80%',
-        alignItems: 'center',
-        justifyContent: 'center',
+    postButton: {
+        ...FONTS.Title3,
+        marginLeft: 5,
+        backgroundColor: COLORS.MIDORANGE,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        color: COLORS.AKCRUBLUE,
+        borderRadius: 5,
     },
-    floatingbuttonContainer: {
-        width: 55,
-        height: 55,
-        borderRadius: 25,
-        position: 'relative',
-        bottom: '23%',
-        left: '80%',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    
 });
