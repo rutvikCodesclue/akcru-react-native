@@ -64,6 +64,11 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             findAUser({id: userID}).then(user => {
+                // Assuming the user object has a gallery array
+                // If there are more than 6 images, slice the array to keep only the first 6
+                if (user && user.gallery && user.gallery.length > 6) {
+                    user.gallery = user.gallery.slice(0, 6);
+                }
                 setUser(user);
             });
 
@@ -213,16 +218,17 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                 horizontal
                                 showsHorizontalScrollIndicator={false}
                                 contentContainerStyle={styles.galleryImagesContainer}>
-                                {FAKE_USER_PROFILES[2].gallery.map((imageUri, index) => {
-                                    return (
-                                        <TouchableOpacity
-                                            key={index.toString()}
-                                            onPress={() => openPhoto(imageUri)}
-                                            activeOpacity={0.8}>
-                                            <Image source={{uri: imageUri}} style={styles.galleryImage} />
-                                        </TouchableOpacity>
-                                    );
-                                })}
+                                {user?.gallery &&
+                                    user.gallery.map((imageUri, index) => {
+                                        return (
+                                            <TouchableOpacity
+                                                key={index.toString()}
+                                                onPress={() => openPhoto(imageUri)}
+                                                activeOpacity={0.8}>
+                                                <Image source={{uri: imageUri}} style={styles.galleryImage} />
+                                            </TouchableOpacity>
+                                        );
+                                    })}
                             </ScrollView>
                         </View>
                         {selectedPhotoUri && (

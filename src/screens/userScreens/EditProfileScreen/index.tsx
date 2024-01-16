@@ -308,51 +308,6 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    // const handleFinishButton = async () => {
-    //     const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-    //     console.log('Selected Genres:', selectedGenres);
-
-    //     if (selectedGenres.length === 2) {
-    //         const genreNames = selectedGenres.map(genreId => {
-    //             const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
-    //             return genreObject ? genreObject.genre : '';
-    //         });
-
-    //         const newArchetypeKey = genreNames.sort().join(', ');
-    //         console.log('Archetype Key:', newArchetypeKey);
-
-    //         const selectedArchetype = archetypeMapping[newArchetypeKey];
-
-    //         if (selectedArchetype) {
-    //             // Serialize the archetype data
-    //             const archetypeData = JSON.stringify({
-    //                 name: selectedArchetype.name,
-    //                 image: selectedArchetype.image,
-    //                 description: selectedArchetype.description,
-    //             });
-
-    //             try {
-    //                 // Update the user's archetype in the backend
-    //                 const updatedUser = await updateUser({archetype: archetypeData});
-    //                 if (updatedUser) {
-    //                     console.log('Archetype updated successfully:', updatedUser);
-
-    //                     // Update the global state/context with the new user data
-    //                     useAuthStore.setState({user: updatedUser});
-
-    //                     // Optionally update local component state here
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error updating archetype:', error);
-    //             }
-    //         } else {
-    //             console.log('No matching archetype found for the selected genres.');
-    //         }
-    //     } else {
-    //         console.log('Please select exactly 2 genres.');
-    //     }
-    // };
-
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
         console.log('Selected Genres:', selectedGenres);

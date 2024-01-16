@@ -1,20 +1,37 @@
-import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView, Animated, Modal, FlatList, Pressable} from 'react-native';
-import React, { useEffect, useRef, useState } from 'react'
+import {
+    View,
+    Text,
+    Image,
+    TouchableOpacity,
+    StyleSheet,
+    ScrollView,
+    Animated,
+    Modal,
+    FlatList,
+    Pressable,
+    Alert,
+    TouchableWithoutFeedback,
+} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
-import { Icon } from '@rneui/base';
+import {Icon} from '@rneui/base';
 
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import BasicListCategories from '../../../components/BasicListCategories';
 import useAuthStore from '../../../stores/auth.store';
-import { ICru, IMovie, IUserProfile } from '../../../../types';
-import { findMovies } from '../../../lib/api/movies.lib';
+import {ICru, IMovie, IUserProfile} from '../../../../types';
+import {findMovies} from '../../../lib/api/movies.lib';
 import CruMemberPic from '../../../components/CruMemberPic';
-import { getMyCRU } from '../../../lib/api/cru.lib';
-import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
+import {getMyCRU} from '../../../lib/api/cru.lib';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import {supabase} from '../../../../lib/supabase';
+import {deleteUserGalleryImage, fetchUserGallery, updateUserGallery} from '../../../lib/api/user.lib';
+import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import { set } from 'lodash';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -27,8 +44,8 @@ const UserProfileDetailsTab = () => {
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-
-    const {user, hydrateUser} = useAuthStore();
+    const user = useAuthStore(state => state.user);
+    const {hydrateUser} = useAuthStore();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -56,7 +73,6 @@ const UserProfileDetailsTab = () => {
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
-                    
                 }
             });
 
@@ -87,201 +103,322 @@ const UserProfileDetailsTab = () => {
         };
         fetchNewerYearMovies();
     }, []);
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    const [showImageCountErrorModal, setShowImageCountErrorModal] = useState(false);
 
-    const addToGallery = (image: any) => {}
+    const [userPics, setUserPics] = useState<string[]>(user?.gallery || []);
 
-    const removeFromGallery = (image: any) => {};
+    useEffect(() => {
+        if (user?.gallery) {
+            setUserPics(user.gallery);
+        }
+    }, [user]);
+
+    const selectGalleryImage = async () => {
+        // Check if the user already has 6 images
+        if (userPics.length >= 6) {
+            setShowImageCountErrorModal(true);
+            // Alert.alert('You cannot upload more than 6 images.');
+            return; // Exit the function
+        }
+        let options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'images',
+            },
+            selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
+        };
+
+        console.log('select picture button');
+
+        launchImageLibrary(options, async response => {
+            if (response && !response.didCancel && response.assets && response.assets.length) {
+                console.log('Number of images selected:', response.assets.length);
+
+                // Array to hold URIs of successfully uploaded images
+                let uploadedImages = [];
+
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+                for (const asset of response.assets) {
+                    console.log('uri:', asset.uri);
+                    console.log('filesize:', asset.fileSize);
+                    const selectedImage = asset.uri;
+                    const imageType = asset.type;
+                    const imageName = asset.fileName;
+
+                    // Check the size of each selected image
+                    if (asset.fileSize > maxSizeInBytes) {
+                        // Show size error modal
+                        setShowSizeErrorModal(true);
+                        return; // Exit the function if any image is too large
+                    } else {
+                        // Call the API function to update the user's gallery
+                        try {
+                            const updatedUser = await updateUserGallery({
+                                uri: selectedImage,
+                                type: imageType,
+                                name: imageName,
+                            });
+
+                            if (updatedUser) {
+                                console.log('updatedUserProfileGallery:', updatedUser);
+                                // Update user gallery state here
+                                uploadedImages.push(asset.uri); // Add the new image URI to the array
+                            } else {
+                                console.log('Failed to update profile Gallery');
+                            }
+                        } catch (error) {
+                            console.error('Error updating gallery:', error);
+                            // Handle errors here
+                        }
+                    }
+                }
+                // Update the state to reflect the newly uploaded images
+                if (uploadedImages.length > 0) {
+                    // Combine new and existing images, but limit the total to 6
+                    const newGallery = [...userPics, ...uploadedImages].slice(0, 6);
+                    setUserPics(newGallery);
+                }
+            }
+        });
+    };
+
+    const removeFromGallery = async (image: string) => {
+        console.log('removeFromGallery called with image:', image);
+        try {
+            const updatedUser = await deleteUserGalleryImage(image);
+            if (updatedUser) {
+                // Update local state to reflect changes
+                setUserPics(updatedUser.gallery);
+            } else {
+                console.log('Failed to delete image from gallery');
+                // Handle failure (e.g., show a notification to the user)
+            }
+        } catch (error) {
+            console.error('Error removing image from gallery:', error);
+            // Handle error (e.g., show a notification to the user)
+
+        }
+    };
+
+    const [selectedImageUrl, setSelectedImageUrl] = useState(null);
+
+    const selectedPhoto = imageUrl => {
+        setSelectedImageUrl(imageUrl);
+    };
+
+    // const [selectedPhoto, setSelectedPhoto] = useState(false);
 
     return (
-        <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View>
-                    <Text
+        <View>
+            <View style={{marginHorizontal: SIZES.marginhorizontal}}>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                    <View>
+                        <Text
+                            style={{
+                                ...FONTS.Title2,
+                                marginTop: 10,
+                                marginBottom: 20,
+                                textAlign: 'center',
+                                fontSize: 14,
+                                textDecorationLine: 'underline',
+                            }}>
+                            PROFILE DETAILS
+                        </Text>
+                    </View>
+                    <View
                         style={{
-                            ...FONTS.Title2,
+                            flexDirection: 'row',
+                            justifyContent: 'space-around',
+                            alignItems: 'center',
+                        }}>
+                        <View style={{width: SIZES.ScreenWidth / 2}}>
+                            <View>
+                                <FlatList
+                                    data={cruMembers()}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                    scrollEnabled={false}
+                                    keyExtractor={item => item.id}
+                                    renderItem={({item, index}) => (
+                                        <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
+                                            <CruMemberPic userPicture={item.profilePicture} akcruBadge={item.badge} />
+                                        </View>
+                                    )}
+                                />
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => navigation.navigate('EditCru')}
+                                style={{marginVertical: 20}}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <Icon
+                                        name="square-edit-outline"
+                                        type="material-community"
+                                        color={COLORS.MIDORANGE}
+                                        size={15}
+                                        style={{marginRight: 5}}
+                                    />
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            color: COLORS.MIDORANGE,
+                                            fontSize: 12,
+                                        }}>
+                                        Edit your CRU
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                            <View>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        fontSize: 12,
+                                        color: COLORS.LIGHTGREY,
+                                    }}>
+                                    Schedule a CRU View through the CRU VIEW scheduler
+                                </Text>
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View>
+                                <Image
+                                    source={imageindex.NewCru}
+                                    style={{width: 120, height: 120}}
+                                    resizeMode="cover"
+                                />
+                            </View>
+
+                            <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
+                                <View
+                                    style={{
+                                        padding: 8,
+                                        backgroundColor: COLORS.MIDORANGE,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        borderRadius: 3,
+                                        marginTop: 15,
+                                        flexDirection: 'row',
+                                    }}>
+                                    <Text style={{...FONTS.Title2}}>CRU VIEW </Text>
+                                    <Icon
+                                        name="calendar"
+                                        type="material-community"
+                                        color={COLORS.WHITE}
+                                        size={20}
+                                        style={{marginRight: 5}}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <View
+                        style={{
+                            borderBottomWidth: 1.5,
+                            borderColor: COLORS.DARKERGREY,
+                            marginTop: 20,
+                            marginBottom: 10,
+                        }}
+                    />
+                    {/* <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
                             marginTop: 10,
                             marginBottom: 20,
-                            textAlign: 'center',
-                            fontSize: 14,
-                            textDecorationLine: 'underline',
                         }}>
-                        PROFILE DETAILS
-                    </Text>
-                </View>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                        alignItems: 'center',
-                    }}>
-                    <View style={{width: SIZES.ScreenWidth / 2}}>
-                        <View>
-                            <FlatList
-                                data={cruMembers()}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                                scrollEnabled={false}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
-                                        <CruMemberPic userPicture={item.profilePicture} akcruBadge={item.badge} />
-                                    </View>
-                                )}
-                            />
-                        </View>
-                        <TouchableOpacity onPress={() => navigation.navigate('EditCru')} style={{marginVertical: 20}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <Icon
-                                    name="square-edit-outline"
-                                    type="material-community"
-                                    color={COLORS.MIDORANGE}
-                                    size={15}
-                                    style={{marginRight: 5}}
-                                />
-                                <Text
+                        <Text
+                            style={{
+                                ...FONTS.Title2,
+                                marginRight: 5,
+                                textAlign: 'center',
+                                fontSize: 14,
+                                textDecorationLine: 'underline',
+                            }}>
+                            GALLERY
+                        </Text>
+                        <Icon name="image" type="ionicon" color={COLORS.WHITE} size={20} style={{marginRight: 5}} />
+                    </View> */}
+                    <View style={styles.gallerycontainer}>
+                        <FlatList
+                            data={userPics}
+                            numColumns={3}
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={(item, index) => index.toString()}
+                            ListHeaderComponent={() => (
+                                <TouchableOpacity
+                                    onPress={selectGalleryImage}
                                     style={{
-                                        ...FONTS.Title2,
-                                        color: COLORS.MIDORANGE,
-                                        fontSize: 12,
+                                        width: '95%',
+                                        height: 40,
+                                        alignSelf: 'center',
+                                        borderRadius: 5,
+                                        borderWidth: 1,
+                                        borderColor: COLORS.CATPURPLGT,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginBottom: 10,
+                                        marginTop: 10,
                                     }}>
-                                    Edit your CRU
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    fontSize: 12,
-                                    color: COLORS.LIGHTGREY,
-                                }}>
-                                Schedule a CRU View through the CRU VIEW scheduler
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{alignItems: 'center'}}>
-                        <View>
-                            <Image source={imageindex.NewCru} style={{width: 120, height: 120}} resizeMode="cover" />
-                        </View>
-
-                        <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
-                            <View
-                                style={{
-                                    padding: 8,
-                                    backgroundColor: COLORS.MIDORANGE,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: 3,
-                                    marginTop: 15,
-                                    flexDirection: 'row',
-                                }}>
-                                <Text style={{...FONTS.Title2}}>CRU VIEW </Text>
-                                <Icon
-                                    name="calendar"
-                                    type="material-community"
-                                    color={COLORS.WHITE}
-                                    size={20}
-                                    style={{marginRight: 5}}
-                                />
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-
-                <View
-                    style={{
-                        borderBottomWidth: 1.5,
-                        borderColor: COLORS.DARKERGREY,
-                        marginTop: 20,
-                        marginBottom: 10,
-                    }}
-                />
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        marginTop: 10,
-                        marginBottom: 20,
-                    }}>
-                    <Text
-                        style={{
-                            ...FONTS.Title2,
-                            marginRight: 5,
-                            textAlign: 'center',
-                            fontSize: 14,
-                            textDecorationLine: 'underline',
-                        }}>
-                        GALLERY
-                    </Text>
-                    <Icon name="image" type="ionicon" color={COLORS.WHITE} size={20} style={{marginRight: 5}} />
-                </View>
-                <View style={styles.gallerycontainer}>
-                    <FlatList
-                        data={FAKE_USER_PROFILES[2].gallery}
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        keyExtractor={(item, index) => index.toString()}
-                        ListHeaderComponent={() => (
-                            <TouchableOpacity
-                                onPress={() => {
-                                    addToGallery();
-                                }}
-                                style={{
-                                    width: SIZES.ScreenWidth / 3.3,
-                                    height: SIZES.ScreenWidth / 3.3,
-                                    marginRight: 10,
-                                    borderRadius: 5,
-                                    borderWidth: 1,
-                                    borderColor: COLORS.CATPURPLGT,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        color: COLORS.LIGHTGREY,
-                                        fontSize: 12,
-                                        marginBottom: 5,
-                                    }}>
-                                    Add to Gallery
-                                </Text>
-                                <Icon name="add-circle" type="ionicon" color={COLORS.CATPURPLGT} size={30} />
-                            </TouchableOpacity>
-                        )}
-                        renderItem={({item}) => (
-                            <View>
-                                <Image source={{uri: item}} style={styles.galleryImage} />
-                                <Pressable style={{position: 'absolute', top: -3, right: 8}} onPress={() => removeFromGallery(item)}>
-                                    <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
-                                </Pressable>
-                            </View>
-                        )}
-                    />
-                </View>
-                <View
-                    style={{
-                        borderBottomWidth: 1.5,
-                        borderColor: COLORS.DARKERGREY,
-                        marginTop: 20,
-                        marginBottom: 10,
-                    }}
-                />
-
-                <View>
-                    <View style={{marginBottom: 75}}>
-                        <BasicListCategories
-                            Akcru_Content={{
-                                id: 'recommendedForYou',
-                                title: 'Recommended for you',
-                                movies: newerYearMovies,
-                            }}
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            color: COLORS.LIGHTGREY,
+                                            fontSize: 14,
+                                         
+                                        }}>
+                                        Add to Gallery
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            renderItem={({item}) => (
+                                <View>
+                                    <Pressable>
+                                        <Image source={{uri: item}} style={styles.galleryImage} />
+                                    </Pressable>
+                                    <Pressable
+                                        style={{position: 'absolute', top: 2, right: 2}}
+                                        onPress={() => removeFromGallery(item)}>
+                                        <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
+                                    </Pressable>
+                                </View>
+                            )}
                         />
                     </View>
-                </View>
-            </ScrollView>
+                    <View
+                        style={{
+                            borderBottomWidth: 1.5,
+                            borderColor: COLORS.DARKERGREY,
+                            
+                            marginBottom: 10,
+                        }}
+                    />
+
+                    <View>
+                        <View style={{marginBottom: 75}}>
+                            <BasicListCategories
+                                Akcru_Content={{
+                                    id: 'recommendedForYou',
+                                    title: 'Recommended for you',
+                                    movies: newerYearMovies,
+                                }}
+                            />
+                        </View>
+                    </View>
+                    <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
+                        <ErrorModal
+                            closeModal={() => setShowImageCountErrorModal(false)}
+                            message={'You cannot upload more than 6 images.'}
+                            iconcolor={COLORS.CATREDLGT}
+                            iconname={'alert-circle'}
+                        />
+                    </Modal>
+                </ScrollView>
+            </View>
         </View>
     );
-}
+};
 
 export default UserProfileDetailsTab;

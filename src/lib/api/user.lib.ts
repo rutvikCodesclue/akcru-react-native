@@ -143,7 +143,74 @@ export const updateUserProfilePicture = async (params: {
     }
 };
 
+export const updateUserGallery = async (params: {
+    uri: string;
+    type: string;
+    name: string;
+}): Promise<IUserProfile | undefined> => {
+    try {
+        // this should be a file object
+        const {uri, type, name} = params;
 
+        const form = new FormData();
+        form.append('images', {
+            type, // Adjust the type as needed (e.g. png, jpeg, gif, etc)
+            uri,
+            name, // Adjust the filename as needed
+        });
+        // PUT /v1/user/profilePicture
+        const {data} = await API.post(`/v1/user/profileGallery`, form, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data.updatedUser;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserProfile | undefined> => {
+    try {
+        // Send a DELETE request to the backend with imageUrl as a query parameter
+        const {data} = await API.delete(`/v1/user/profileGallery?imageUrl=${encodeURIComponent(imageUrl)}`);
+
+        console.log('data', data);
+
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data.updatedUser;
+    } catch (error) {
+        console.error('Error deleting image from gallery:', error);
+        return undefined;
+    }
+};
+
+
+export const fetchUserGallery = async (id: IUserProfile) => {
+    try {
+        const response = await fetch(`/api/user/profileGallery`);
+        const data = await response.json();
+
+        if (data.success) {
+            return data.gallery; // Return the gallery data
+        } else {
+            console.error('Failed to fetch gallery:', data.message);
+            return []; // Return empty array in case of failure
+        }
+    } catch (error) {
+        console.error('Error fetching user gallery:', error);
+        return []; // Return empty array in case of error
+    }
+};
 
 
 export const updateUserWatchTime = async (params: {

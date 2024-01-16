@@ -17,15 +17,17 @@ export default StyleSheet.create({
     },
     gallerycontainer: {
         marginBottom: 20,
+        alignItems: 'center',
+        
     },
     gallerycontainer2: {
         marginHorizontal: 15,
         marginBottom: 90,
     },
     galleryImage: {
-        width: SIZES.ScreenWidth / 3.3,
-        height: SIZES.ScreenWidth / 3.3,
-        marginRight: 10,
+        width: SIZES.ScreenWidth / 3.55,
+        height: SIZES.ScreenWidth / 2.35,
+        margin: 5,
         borderRadius: 5,
     },
     galleryImagesContainer: {
@@ -108,6 +110,17 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    selectedPhotoContainer2: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%'
     },
     selectedPhoto: {
         width: SIZES.ScreenWidth,
