@@ -18,6 +18,8 @@ export default StyleSheet.create({
     gallerycontainer: {
         marginBottom: 20,
         alignItems: 'center',
+        width: '100%',
+
         
     },
     gallerycontainer2: {

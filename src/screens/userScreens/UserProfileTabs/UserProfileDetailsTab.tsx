@@ -374,7 +374,7 @@ const UserProfileDetailsTab = () => {
                                 </TouchableOpacity>
                             )}
                             renderItem={({item}) => (
-                                <View>
+                                <View >
                                     <Pressable>
                                         <Image source={{uri: item}} style={styles.galleryImage} />
                                     </Pressable>

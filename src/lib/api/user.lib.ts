@@ -159,7 +159,7 @@ export const updateUserGallery = async (params: {
             name, // Adjust the filename as needed
         });
         // PUT /v1/user/profilePicture
-        const {data} = await API.post(`/v1/user/profileGallery`, form, {
+        const {data} = await API.post(`/v1/user/profileGallery/add`, form, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -179,7 +179,7 @@ export const updateUserGallery = async (params: {
 export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserProfile | undefined> => {
     try {
         // Send a DELETE request to the backend with imageUrl as a query parameter
-        const {data} = await API.delete(`/v1/user/profileGallery?imageUrl=${encodeURIComponent(imageUrl)}`);
+        const {data} = await API.delete(`/v1/user/profileGallery/delete?imageUrl=${encodeURIComponent(imageUrl)}`);
 
         console.log('data', data);
 
