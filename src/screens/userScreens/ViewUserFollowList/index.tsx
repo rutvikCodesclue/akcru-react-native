@@ -36,15 +36,15 @@ type Props = {
     route: ViewUserFollowListRouteProp;
 };
 
-const FirstRoute = () => (
+const FirstRoute = ({userID}) => (
     <View style={{marginBottom: '20%'}}>
-        <ViewUserFollowersTab />
+        <ViewUserFollowersTab userID={userID} />
     </View>
 );
 
-const SecondRoute = () => (
+const SecondRoute = ({userID}) => (
     <View style={{marginBottom: '20%'}}>
-        <ViewUserFollowingTab />
+        <ViewUserFollowingTab userID={userID} />
     </View>
 );
 
@@ -121,7 +121,7 @@ const ViewUserFollowList = ({route}: Props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getUserFollowing();
+            const result = await getUserFollowing(userID);
             console.log('Data received on FollowList Screen:', result);
             if (result && result.following && Array.isArray(result.following)) {
                 setFollowingData(result.following); // Set the 'following' array as your data
@@ -133,7 +133,7 @@ const ViewUserFollowList = ({route}: Props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getFollowers();
+            const result = await getFollowers(userID);
             if (result && result.followers && Array.isArray(result.followers)) {
                 setFollowersData(result.followers); // Set the 'following' array as your data
             }
@@ -152,10 +152,16 @@ const ViewUserFollowList = ({route}: Props) => {
         ]);
     }, [followingData, followersData]);
 
-    const renderScene = SceneMap({
-        first: FirstRoute,
-        second: SecondRoute,
-    });
+    const renderScene = ({route}) => {
+        switch (route.key) {
+            case 'first':
+                return <FirstRoute userID={userID} />;
+            case 'second':
+                return <SecondRoute userID={userID} />;
+            default:
+                return null;
+        }
+    };
 
     return (
         <View style={{flex: 1}}>

@@ -7,14 +7,15 @@ import UserSearchCard from '../../../components/UserSearchCard';
 import { getFollowers } from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 
-const ViewUserFollowersTab = () => {
+const ViewUserFollowersTab = ({userID}) => {
     const [data, setData] = useState<IUserProfile[]>([]);
+   
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getFollowers();
+            const result = await getFollowers(userID);
             // console.log('Data received:', result);
             if (result && result.followers && Array.isArray(result.followers)) {
                 setData(result.followers); // Set the 'following' array as your data

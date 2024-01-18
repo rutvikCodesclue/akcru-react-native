@@ -14,7 +14,7 @@ import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
@@ -26,6 +26,7 @@ import FollowersTab from '../FollowListTabs/FollowersTab';
 import FollowingTab from '../FollowListTabs/FollowingTab';
 import { getFollowers, getUserFollowing } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
+import useAuthStore from '../../../stores/auth.store';
 
 type FollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'FollowList'>;
 
@@ -50,6 +51,19 @@ const SecondRoute = () => (
 
 const FollowList = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+    const {user, hydrateUser} = useAuthStore();
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            hydrateUser();
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                hydrateUser();
+            };
+        }, []),
+    );
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -120,25 +134,39 @@ const FollowList = () => {
 
      useEffect(() => {
          const fetchData = async () => {
-             const result = await getUserFollowing();
-             if (result && result.following && Array.isArray(result.following)) {
-                 setFollowingData(result.following); // Set the 'following' array as your data
+             if (user?.id) {
+                 try {
+                     const result = await getUserFollowing(user.id);
+                     if (result && result.following && Array.isArray(result.following)) {
+                         setFollowingData(result.following); // Set the 'following' array as your data
+                     }
+                 } catch (error) {
+                     console.error('Error fetching following:', error);
+                     // Optionally, handle the error by showing a message to the user or taking other actions
+                 }
              }
          };
 
          fetchData();
-     }, []);
+     }, [user?.id]);
 
      useEffect(() => {
          const fetchData = async () => {
-             const result = await getFollowers();
-             if (result && result.followers && Array.isArray(result.followers)) {
-                 setFollowersData(result.followers); // Set the 'following' array as your data
+             if (user?.id) {
+                 try {
+                     const result = await getFollowers(user.id);
+                     if (result && result.followers && Array.isArray(result.followers)) {
+                         setFollowersData(result.followers); // Set the 'following' array as your data
+                     }
+                 } catch (error) {
+                     console.error('Error fetching followers:', error);
+                     // Optionally, handle the error by showing a message to the user or taking other actions
+                 }
              }
          };
 
          fetchData();
-     }, []);
+     }, [user?.id]);
 
     useEffect(() => {
         const numberOfFollowers = followersData.length;

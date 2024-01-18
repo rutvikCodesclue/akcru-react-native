@@ -1,28 +1,48 @@
 import {View, Text, FlatList} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import UserSearchCard from '../../../components/UserSearchCard';
 import {getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
+import useAuthStore from '../../../stores/auth.store';
 
 const FollowingTab = () => {
     const [data, setData] = useState<IUserProfile[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    
+    const {user, hydrateUser} = useAuthStore();
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            hydrateUser();
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                hydrateUser();
+            };
+        }, []),
+    );
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getUserFollowing();
-            // console.log('Data received:', result);
-            if (result && result.following && Array.isArray(result.following)) {
-                setData(result.following); // Set the 'following' array as your data
+            if (user?.id) {
+                try {
+                    const result = await getUserFollowing(user.id);
+                    if (result && result.following && Array.isArray(result.following)) {
+                        setData(result.following); // Set the 'following' array as your data
+                    }
+                } catch (error) {
+                    console.error('Error fetching following:', error);
+                    // Optionally, handle the error by showing a message to the user or taking other actions
+                }
             }
         };
 
         fetchData();
-    }, []);
+    }, [user?.id]);
 
     return (
         <View style={{marginHorizontal: 15}}>

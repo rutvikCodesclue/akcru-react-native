@@ -280,55 +280,55 @@ export const unfollowUser = async (params: {userId?: string}): Promise<boolean |
 };
 
 // TODO: type this
-export const getFollowers = async (): Promise<Object | undefined> => {
-    try {
-        // PUT /v1/watchtime/me
-        const {data} = await API.get(`/v1/user/followers`);
+// export const getFollowers = async (): Promise<Object | undefined> => {
+//     try {
+//         // PUT /v1/watchtime/me
+//         const {data} = await API.get(`/v1/user/followers`);
 
-        if (data.success === false) {
-            return false;
-        }
+//         if (data.success === false) {
+//             return false;
+//         }
 
-        return data;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
-};
-
-// TODO: type this
-export const getFollowersCount = async (): Promise<Object | undefined> => {
-    try {
-        // PUT /v1/watchtime/me
-        const {data} = await API.get(`/v1/user/unfollow?count=true`);
-
-        if (data.success === false) {
-            return false;
-        }
-
-        return data;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
-};
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//         return undefined;
+//     }
+// };
 
 // TODO: type this
-export const getUserFollowing = async (): Promise<Object | undefined> => {
-    try {
-        // PUT /v1/watchtime/me
-        const {data} = await API.get(`/v1/user/following`);
+// export const getFollowersCount = async (): Promise<Object | undefined> => {
+//     try {
+//         // PUT /v1/watchtime/me
+//         const {data} = await API.get(`/v1/user/unfollow?count=true`);
 
-        if (data.success === false) {
-            return false;
-        }
+//         if (data.success === false) {
+//             return false;
+//         }
 
-        return data;
-    } catch (error) {
-        console.error(error);
-        return undefined;
-    }
-};
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//         return undefined;
+//     }
+// };
+
+// TODO: type this
+// export const getUserFollowing = async (): Promise<Object | undefined> => {
+//     try {
+//         // PUT /v1/watchtime/me
+//         const {data} = await API.get(`/v1/user/following`);
+
+//         if (data.success === false) {
+//             return false;
+//         }
+
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//         return undefined;
+//     }
+// };
 
 // export const getUserFollowing = async (userId: string): Promise<IUserProfile[] | undefined> => {
 //     try {
@@ -345,13 +345,28 @@ export const getUserFollowing = async (): Promise<Object | undefined> => {
 
 
 // TODO: type this
-export const getUserFollowingCount = async (): Promise<Object | undefined> => {
+// export const getUserFollowingCount = async (): Promise<Object | undefined> => {
+//     try {
+//         // PUT /v1/watchtime/me
+//         const {data} = await API.get(`/v1/user/unfollow?count=true`);
+
+//         if (data.success === false) {
+//             return false;
+//         }
+
+//         return data;
+//     } catch (error) {
+//         console.error(error);
+//         return undefined;
+//     }
+// };
+
+export const getFollowers = async (userId: string): Promise<Object | undefined> => {
     try {
-        // PUT /v1/watchtime/me
-        const {data} = await API.get(`/v1/user/unfollow?count=true`);
+        const {data} = await API.get(`/v1/user/followers?userId=${encodeURIComponent(userId)}`);
 
         if (data.success === false) {
-            return false;
+            return undefined;
         }
 
         return data;
@@ -360,3 +375,49 @@ export const getUserFollowingCount = async (): Promise<Object | undefined> => {
         return undefined;
     }
 };
+
+export const getFollowersCount = async (userId: string): Promise<Object | undefined> => {
+    try {
+        const {data} = await API.get(`/v1/user/followers?count=true&userId=${encodeURIComponent(userId)}`);
+
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+export const getUserFollowing = async (userId: string): Promise<Object | undefined> => {
+    try {
+        const {data} = await API.get(`/v1/user/following?userId=${encodeURIComponent(userId)}`);
+
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+
+export const getUserFollowingCount = async (userId: string): Promise<Object | undefined> => {
+    try {
+        const {data} = await API.get(`/v1/user/following?count=true&userId=${encodeURIComponent(userId)}`);
+
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data;
+    } catch (error) {
+        console.error(error);
+        return undefined;
+    }
+};
+

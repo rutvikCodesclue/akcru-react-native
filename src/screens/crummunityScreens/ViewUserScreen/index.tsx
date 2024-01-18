@@ -27,10 +27,7 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { findAUser, followUser, getFollowers, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
-import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
@@ -87,33 +84,6 @@ useFocusEffect(
     }, []),
 );
 
-const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
-
-// useEffect(() => {
-//     const fetchFollowers = async () => {
-//         const data = await getFollowers(userId); // Your API call
-//         setFollowersData(data);
-//     };
-
-//     fetchFollowers();
-// }, [userId]);
-
-useEffect(() => {
-    const fetchData = async () => {
-        const result = await getFollowers();
-        // console.log('Data received:', result);
-        if (result && result.followers && Array.isArray(result.followers)) {
-            setFollowersData(result.followers); // Set the 'following' array as your data
-        }
-    };
-
-    fetchData();
-}, []);
-
-const followersCount = followersData.length;
-
-
-
 useFocusEffect(
     React.useCallback(() => {
         //Find and set the viewed user
@@ -121,7 +91,7 @@ useFocusEffect(
             setUser(user);
         });
 
-        getUserFollowing().then(response => {
+        getUserFollowing(currentuser?.id).then(response => {
             if (response && response.success) {
                 const isFollowing = response.following.some(followedUser => followedUser.id === userID);
                 setFollow(isFollowing);
@@ -135,6 +105,22 @@ useFocusEffect(
         };
     }, [userID, currentuser?.id]),
 );
+
+const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+
+useEffect(() => {
+    const fetchData = async () => {
+        const result = await getFollowers(userID);
+        // console.log('Data received:', result);
+        if (result && result.followers && Array.isArray(result.followers)) {
+            setFollowersData(result.followers); // Set the 'following' array as your data
+        }
+    };
+
+    fetchData();
+}, [userID]);
+
+const followersCount = followersData.length;
 
 
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -176,20 +162,35 @@ useFocusEffect(
 console.log('ViewUserScreen render', {follow});
 
 const handleFollowPress = async () => {
+    console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
+
     if (follow) {
-        const success = await unfollowUser({userId: userID});
-        if (success) {
-            setFollow(false);
-            setUserOptionModal(false);
+        try {
+            const success = await unfollowUser({userId: userID});
+            if (success) {
+                setFollow(false);
+                setUserOptionModal(false);
+            } else {
+                console.error('Unfollow failed');
+            }
+        } catch (error) {
+            console.error('Error on unfollow:', error);
         }
     } else {
-        const success = await followUser({userId: userID});
-        if (success) {
-            setFollow(true);
-            setUserOptionModal(false);
+        try {
+            const success = await followUser({userId: userID});
+            if (success) {
+                setFollow(true);
+                setUserOptionModal(false);
+            } else {
+                console.error('Follow failed');
+            }
+        } catch (error) {
+            console.error('Error on follow:', error);
         }
     }
 };
+
 
 const isValidImageUrl = (url: string) => {
     return url && url.trim() !== '';
@@ -311,33 +312,6 @@ const toggleAvatarModal = () => {
                                           </TouchableWithoutFeedback>
                                       </Pressable>
                                   </Modal>
-
-                                  {/* {!user?.private ? (
-                                  true ? (
-                                //   online ? (
-                                      <View
-                                          style={{
-                                              backgroundColor: 'green',
-                                              height: 12,
-                                              width: 12,
-                                              borderRadius: 8,
-                                              position: 'absolute',
-                                              right: 8,
-                                          }}
-                                      />
-                                  ) : (
-                                      <View
-                                          style={{
-                                              backgroundColor: 'red',
-                                              height: 12,
-                                              width: 12,
-                                              borderRadius: 8,
-                                              position: 'absolute',
-                                              right: 8,
-                                          }}
-                                      />
-                                  )
-                              ) : null} */}
                               </View>
                               <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                   <View style={{flexDirection: 'row'}}>
@@ -419,7 +393,7 @@ const toggleAvatarModal = () => {
                       <Pressable
                           onPress={() =>
                               navigation.navigate('ViewUserFollowList', {
-                                  userID: user?.id,
+                                  userID: userID,
                               })
                           }
                           style={{
@@ -597,9 +571,6 @@ const toggleAvatarModal = () => {
                                               }}
                                           />
                                       </TouchableWithoutFeedback>
-                                      {/* <TouchableOpacity onPress={toggleModal}>
-                                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
-                                      </TouchableOpacity> */}
                                   </Pressable>
                               </Modal>
                               <View style={styles.seperator} />
