@@ -14,14 +14,15 @@ const ViewUserFollowingTab = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const result = await getUserFollowing(userID);
-            if (result && Array.isArray(result)) {
-                setData(result);
+            const result = await getUserFollowing();
+            // console.log('Data received:', result);
+            if (result && result.following && Array.isArray(result.following)) {
+                setData(result.following); // Set the 'following' array as your data
             }
         };
 
         fetchData();
-    }, [userID]); // Dependency array includes userID to refetch if it changes
+    }, []);
 
     return (
         <View style={{marginHorizontal: 15}}>

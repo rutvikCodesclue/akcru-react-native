@@ -17,8 +17,6 @@ import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
-import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/index';
 import {Avatar, Icon} from '@rneui/base';
 import LinearGradient from 'react-native-linear-gradient';
@@ -195,7 +193,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
-                                <Text style={{...FONTS.Title2}}>{CRU?.id}</Text>
+                                <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
                             </View>
                         </View>
                         <View
@@ -214,10 +212,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             />
                         </View>
                         <View style={styles.gallerycontainer}>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={styles.galleryImagesContainer}>
+                            <View style={styles.galleryImagesContainer}>
                                 {user?.gallery &&
                                     user.gallery.map((imageUri, index) => {
                                         return (
@@ -229,22 +224,19 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                             </TouchableOpacity>
                                         );
                                     })}
-                            </ScrollView>
+                            </View>
                         </View>
-                        {selectedPhotoUri && (
-                            <TouchableOpacity
-                                style={styles.selectedPhotoContainer}
-                                onPress={closePhoto}
-                                activeOpacity={1}>
-                                <Animated.Image
-                                    source={{uri: selectedPhotoUri}}
-                                    resizeMode="contain"
-                                    style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
-                                />
-                            </TouchableOpacity>
-                        )}
                     </View>
                 </ScrollView>
+                {selectedPhotoUri && (
+                    <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
+                        <Animated.Image
+                            source={{uri: selectedPhotoUri}}
+                            resizeMode="contain"
+                            style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
+                        />
+                    </TouchableOpacity>
+                )}
             </View>
         </TabContainer>
     );

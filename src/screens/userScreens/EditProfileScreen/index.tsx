@@ -14,7 +14,6 @@ import {
     Modal,
     FlatList,
     Pressable,
-    TouchableWithoutFeedback,
 } from 'react-native';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -40,6 +39,8 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import { selectAvatarBorderColor } from '../../../util/util';
+import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImageModal';
+
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -692,37 +693,6 @@ export default function EditProfile({session}: {session: Session}) {
                             Please choose 2 genres to then press "FINISH":
                         </Text>
                         <View style={{flex: 1}}>
-                            {/* <View style={{marginBottom: 20}}>
-                            <FlatList
-                                data={filteredGenres}
-                                horizontal={false}
-                                numColumns={3}
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <View>
-                                        <View style={styles.checkboxContainer}>
-                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
-                                                <View style={styles.checkbox}>
-                                                    {checkedGenres[item.id] && (
-                                                        <Icon
-                                                            name="checkmark-sharp"
-                                                            type="ionicon"
-                                                            size={18}
-                                                            color={COLORS.MIDORANGE}
-                                                            style={{marginTop: -3}}
-                                                        />
-                                                    )}
-                                                </View>
-                                            </TouchableOpacity>
-                                            <View>
-                                                <Text style={styles.checkboxText}>{item.genre}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                )}
-                            />
-                        </View> */}
                             <View style={{marginBottom: 20, flexDirection: 'row', flexWrap: 'wrap', paddingLeft: 10}}>
                                 {filteredGenres.map((item, index) => (
                                     <View key={item.id} style={{width: '33.33%', padding: 4}}>
@@ -805,29 +775,10 @@ export default function EditProfile({session}: {session: Session}) {
 
                         {/* Create a modal to display the enlarged image */}
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
-                            <Pressable
-                                onPress={toggleArchetypeModal}
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                }}>
-                                {/* Display the enlarged image */}
-                                {archetype && (
-                                    <TouchableWithoutFeedback>
-                                        <Image
-                                            source={{uri: archetype ? archetype.image : ''}}
-                                            style={{
-                                                width: '100%', // Adjust the size as needed
-                                                height: '50%', // Adjust the size as needed
-                                                borderRadius: 5,
-                                            }}
-                                            resizeMode="contain"
-                                        />
-                                    </TouchableWithoutFeedback>
-                                )}
-                            </Pressable>
+                            <EnlargeImageModal
+                            image={archetype ? archetype.image : ''}
+                            closeModal={toggleArchetypeModal}
+                            />
                         </Modal>
 
                         {/* <View>

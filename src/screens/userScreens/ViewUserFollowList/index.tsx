@@ -162,7 +162,7 @@ const ViewUserFollowList = ({route}: Props) => {
             <View>
                 <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                     <Header />
-                    <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.pop()}>
+                    <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
                         <View
                             style={{
                                 flexDirection: 'row',

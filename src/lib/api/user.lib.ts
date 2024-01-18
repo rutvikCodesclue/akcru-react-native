@@ -164,7 +164,7 @@ export const updateUserGallery = async (params: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-
+        console.log('data', data);
         if (data.success === false) {
             return undefined;
         }
@@ -172,6 +172,7 @@ export const updateUserGallery = async (params: {
         return data.updatedUser;
     } catch (error) {
         console.error(error);
+        console.log('Update add to gallery', error);
         return undefined;
     }
 };

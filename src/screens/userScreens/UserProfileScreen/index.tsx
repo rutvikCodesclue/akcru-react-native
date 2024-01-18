@@ -346,11 +346,13 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}>
                                 <View style={{flexDirection: 'row'}}>
                                     <View style={{marginRight: 8}}>
-                                        <HexAvatar
-                                            source={{uri: user?.profilePicture}}
-                                            size={70}
-                                            bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                        />
+                                        <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen', { userID: user?.id })}>
+                                            <HexAvatar
+                                                source={{uri: user?.profilePicture}}
+                                                size={70}
+                                                bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                            />
+                                        </TouchableOpacity>
                                     </View>
                                     <View>
                                         <Text style={{...FONTS.Title2, fontSize: 12}}>

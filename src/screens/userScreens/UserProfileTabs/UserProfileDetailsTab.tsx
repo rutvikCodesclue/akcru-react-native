@@ -32,6 +32,7 @@ import {supabase} from '../../../../lib/supabase';
 import {deleteUserGalleryImage, fetchUserGallery, updateUserGallery} from '../../../lib/api/user.lib';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import { set } from 'lodash';
+import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -114,75 +115,169 @@ const UserProfileDetailsTab = () => {
         }
     }, [user]);
 
-    const selectGalleryImage = async () => {
-        // Check if the user already has 6 images
-        if (userPics.length >= 6) {
-            setShowImageCountErrorModal(true);
-            // Alert.alert('You cannot upload more than 6 images.');
-            return; // Exit the function
-        }
-        let options = {
-            mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'images',
-            },
-            selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
-        };
+    // const selectGalleryImage = async () => {
+    //     // Check if the user already has 6 images
+    //     if (userPics.length >= 6) {
+    //         setShowImageCountErrorModal(true);
+    //         // Alert.alert('You cannot upload more than 6 images.');
+    //         return; // Exit the function
+    //     }
+    //     let options = {
+    //         mediaType: 'photo' as MediaType,
+    //         storageOptions: {
+    //             path: 'images',
+    //         },
+    //         selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
+    //     };
 
-        console.log('select picture button');
+    //     console.log('select picture button');
 
-        launchImageLibrary(options, async response => {
-            if (response && !response.didCancel && response.assets && response.assets.length) {
-                console.log('Number of images selected:', response.assets.length);
+    //     launchImageLibrary(options, async response => {
+    //         if (response && !response.didCancel && response.assets && response.assets.length) {
+    //             console.log('Number of images selected:', response.assets.length);
 
-                // Array to hold URIs of successfully uploaded images
-                let uploadedImages = [];
+    //             // Array to hold URIs of successfully uploaded images
+    //             let uploadedImages = [];
 
-                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+    //             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
 
-                for (const asset of response.assets) {
-                    console.log('uri:', asset.uri);
-                    console.log('filesize:', asset.fileSize);
-                    const selectedImage = asset.uri;
-                    const imageType = asset.type;
-                    const imageName = asset.fileName;
+    //             for (const asset of response.assets) {
+    //                 console.log('uri:', asset.uri);
+    //                 console.log('filesize:', asset.fileSize);
+    //                 const size = asset.fileSize;
+    //                 const selectedImage = asset.uri;
+    //                 const imageType = asset.type;
+    //                 const imageName = asset.fileName;
 
-                    // Check the size of each selected image
-                    if (asset.fileSize > maxSizeInBytes) {
-                        // Show size error modal
-                        setShowSizeErrorModal(true);
-                        return; // Exit the function if any image is too large
-                    } else {
-                        // Call the API function to update the user's gallery
-                        try {
-                            const updatedUser = await updateUserGallery({
-                                uri: selectedImage,
-                                type: imageType,
-                                name: imageName,
-                            });
+    //                 // Check the size of each selected image
+    //                 if (size > maxSizeInBytes) {
+    //                     // Show size error modal
+    //                     setShowSizeErrorModal(true);
+    //                     return; // Exit the function if any image is too large
+    //                 } 
+    //                 if (selectedImage) {
+    //                     // Ensure asset.uri is not undefined before pushing
+    //                     uploadedImages.push(asset.uri); // Add the new image URI to the array
+    //                 } else {
+    //                     // Call the API function to update the user's gallery
+    //                     try {
+    //                         const updatedUser = await updateUserGallery({
+    //                             uri: selectedImage,
+    //                             type: imageType,
+    //                             name: imageName,
+    //                         });
 
-                            if (updatedUser) {
-                                console.log('updatedUserProfileGallery:', updatedUser);
-                                // Update user gallery state here
-                                uploadedImages.push(asset.uri); // Add the new image URI to the array
-                            } else {
-                                console.log('Failed to update profile Gallery');
-                            }
-                        } catch (error) {
-                            console.error('Error updating gallery:', error);
-                            // Handle errors here
-                        }
-                    }
-                }
-                // Update the state to reflect the newly uploaded images
-                if (uploadedImages.length > 0) {
-                    // Combine new and existing images, but limit the total to 6
-                    const newGallery = [...userPics, ...uploadedImages].slice(0, 6);
-                    setUserPics(newGallery);
-                }
-            }
-        });
-    };
+    //                         if (updatedUser) {
+    //                             console.log('updatedUserProfileGallery:', updatedUser);
+    //                             // Update user gallery state here
+    //                             uploadedImages.push(asset.uri); // Add the new image URI to the array
+    //                         } else {
+    //                             console.log('Failed to update profile Gallery');
+    //                         }
+    //                     } catch (error) {
+    //                         console.error('Error updating gallery:', error);
+    //                         // Handle errors here
+    //                     }
+    //                 }
+    //             }
+    //             // Update the state to reflect the newly uploaded images
+    //             if (uploadedImages.length > 0) {
+    //                 // Combine new and existing images, but limit the total to 6
+    //                 const newGallery = [...userPics, ...uploadedImages].slice(0, 6);
+    //                 setUserPics(newGallery);
+    //             }
+    //         }
+    //     });
+    // };
+
+ const selectGalleryImage = async () => {
+     // Check if the user already has 6 images
+     if (userPics.length >= 6) {
+         setShowImageCountErrorModal(true);
+         return; // Exit the function
+     }
+
+     let options = {
+         mediaType: 'photo' as MediaType,
+         storageOptions: {
+             path: 'images',
+         },
+         selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
+     };
+
+     console.log('select picture button');
+
+     // Add a flag to prevent multiple invocations
+     let callbackExecuted = false;
+
+     launchImageLibrary(options, async response => {
+         if (response && !response.didCancel && response.assets) {
+             // Check if the response is defined, not canceled, and has assets
+             if (callbackExecuted) {
+                 return;
+             }
+
+             // Set the flag to true to indicate the callback has been executed
+             callbackExecuted = true;
+             console.log('Number of images selected:', response.assets.length);
+
+             // Array to hold URIs of successfully uploaded images
+             let uploadedImages = [];
+
+             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+
+             for (const asset of response.assets) {
+                 console.log('uri:', asset.uri);
+                 console.log('filesize:', asset.fileSize);
+                 const selectedImage = asset.uri;
+                 const imageType = asset.type;
+                 const imageName = asset.fileName;
+
+                 // Check the size of each selected image
+                 if (asset.fileSize > maxSizeInBytes) {
+                     // Show size error modal
+                     setShowSizeErrorModal(true);
+                     return; // Exit the function if any image is too large
+                 } else {
+                     if (selectedImage) {
+                         // Ensure selectedImage is not undefined before attempting to upload
+                         // Call the API function to update the user's gallery
+                         try {
+                             const updatedUser = await updateUserGallery({
+                                 uri: selectedImage,
+                                 type: imageType,
+                                 name: imageName,
+                             });
+
+                             if (updatedUser) {
+                                 console.log('updatedUserProfileGallery:', updatedUser);
+                                         console.log('Addedtogallery called with image:', selectedImage);
+                                 uploadedImages.push(selectedImage); // Add the new image URI to the array
+                             } else {
+                                 console.log('Failed to update profile Gallery');
+                             }
+                         } catch (error) {
+                             console.error('Error updating gallery:', error);
+                             // Handle errors here
+                         }
+                     }
+                 }
+             }
+
+             // Filter out undefined values from uploadedImages just to be extra sure
+             const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
+
+             // Update the state to reflect the newly uploaded images
+             if (filteredUploadedImages.length > 0) {
+                 // Combine new and existing images, but limit the total to 6
+                 const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 6);
+                 setUserPics(newGallery);
+             }
+         }
+     });
+ };
+
+
 
     const removeFromGallery = async (image: string) => {
         console.log('removeFromGallery called with image:', image);
@@ -202,13 +297,20 @@ const UserProfileDetailsTab = () => {
         }
     };
 
-    const [selectedImageUrl, setSelectedImageUrl] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null); // State for the selected image
 
-    const selectedPhoto = imageUrl => {
-        setSelectedImageUrl(imageUrl);
+    // Function to handle image press
+    const handleImageEnlarge = imageUri => {
+        setSelectedImage(imageUri); // Set the selected image
+        setEnlargeModalVisible(true); // Open the modal
     };
 
-    // const [selectedPhoto, setSelectedPhoto] = useState(false);
+    const [enlargeModalVisible, setEnlargeModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleEnlargeModal = () => {
+        setEnlargeModalVisible(!enlargeModalVisible);
+    };
 
     return (
         <View>
@@ -321,68 +423,45 @@ const UserProfileDetailsTab = () => {
                             marginBottom: 10,
                         }}
                     />
-                    {/* <View
+                    <TouchableOpacity
+                        onPress={selectGalleryImage}
                         style={{
-                            flexDirection: 'row',
-                            justifyContent: 'center',
+                            width: '95%',
+                            height: 40,
+                            alignSelf: 'center',
+                            borderRadius: 5,
+                            borderWidth: 1,
+                            borderColor: COLORS.CATPURPLGT,
                             alignItems: 'center',
+                            justifyContent: 'center',
+                            marginBottom: 10,
                             marginTop: 10,
-                            marginBottom: 20,
                         }}>
                         <Text
                             style={{
                                 ...FONTS.Title2,
-                                marginRight: 5,
-                                textAlign: 'center',
+                                color: COLORS.LIGHTGREY,
                                 fontSize: 14,
-                                textDecorationLine: 'underline',
                             }}>
-                            GALLERY
+                            Add to Gallery
                         </Text>
-                        <Icon name="image" type="ionicon" color={COLORS.WHITE} size={20} style={{marginRight: 5}} />
-                    </View> */}
+                    </TouchableOpacity>
                     <View style={styles.gallerycontainer}>
                         <FlatList
                             data={userPics}
                             numColumns={3}
                             showsHorizontalScrollIndicator={false}
                             keyExtractor={(item, index) => index.toString()}
-                            ListHeaderComponent={() => (
-                                <TouchableOpacity
-                                    onPress={selectGalleryImage}
-                                    style={{
-                                        width: '95%',
-                                        height: 40,
-                                        alignSelf: 'center',
-                                        borderRadius: 5,
-                                        borderWidth: 1,
-                                        borderColor: COLORS.CATPURPLGT,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        marginBottom: 10,
-                                        marginTop: 10,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.LIGHTGREY,
-                                            fontSize: 14,
-                                         
-                                        }}>
-                                        Add to Gallery
-                                    </Text>
-                                </TouchableOpacity>
-                            )}
                             renderItem={({item}) => (
-                                <View >
-                                    <Pressable>
+                                <View>
+                                    <Pressable onPress={() => handleImageEnlarge(item)}>
                                         <Image source={{uri: item}} style={styles.galleryImage} />
                                     </Pressable>
-                                    <Pressable
+                                    {/* <Pressable
                                         style={{position: 'absolute', top: 2, right: 2}}
                                         onPress={() => removeFromGallery(item)}>
                                         <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
-                                    </Pressable>
+                                    </Pressable> */}
                                 </View>
                             )}
                         />
@@ -391,7 +470,7 @@ const UserProfileDetailsTab = () => {
                         style={{
                             borderBottomWidth: 1.5,
                             borderColor: COLORS.DARKERGREY,
-                            
+
                             marginBottom: 10,
                         }}
                     />
@@ -414,6 +493,9 @@ const UserProfileDetailsTab = () => {
                             iconcolor={COLORS.CATREDLGT}
                             iconname={'alert-circle'}
                         />
+                    </Modal>
+                    <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
+                        <EnlargeGalleryModal closeModal={toggleEnlargeModal} image={selectedImage} deleteImage={removeFromGallery}/>
                     </Modal>
                 </ScrollView>
             </View>
