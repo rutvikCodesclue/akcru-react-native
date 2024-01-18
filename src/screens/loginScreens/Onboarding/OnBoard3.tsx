@@ -34,6 +34,8 @@ import {supabase} from '../../../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import { archetypeMapping } from '../../../../assets/constants/archetypeMapping';
+import { updateUser } from '../../../lib/api/user.lib';
+import useAuthStore from '../../../stores/auth.store';
 
 const OnBoard3 = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -70,9 +72,8 @@ const OnBoard3 = () => {
     const [archetypeImage, setArchetypeImage] = useState<string | null>(null);
     const [archetypeDescription, setArchetypeDescription] = useState('');
 
-    const handleFinishButton = () => {
+    const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-
         console.log('Selected Genres:', selectedGenres);
 
         if (selectedGenres.length === 2) {
@@ -82,14 +83,12 @@ const OnBoard3 = () => {
             });
 
             const newArchetypeKey = genreNames.sort().join(', ');
-
             console.log('Archetype Key:', newArchetypeKey);
-
-            setArchetypeKey(newArchetypeKey);
 
             const selectedArchetype = archetypeMapping[newArchetypeKey];
 
             if (selectedArchetype) {
+                // Set the archetype information in the state
                 setArchetypeModal(true);
                 const newArchetypeName = selectedArchetype.name;
                 const newArchetypeImage = selectedArchetype.image; // Set the image here
@@ -99,11 +98,35 @@ const OnBoard3 = () => {
                 setArchetypeImage(newArchetypeImage);
                 setArchetypeDescription(newArchetypeDescription);
 
-                setTimeout(() => {
-                    setArchetypeModal(false); // Hide the archetype modal after 8 seconds
-                    setTrinityModal(true);
-                    // navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-                }, 4000); // 4 seconds (8000 milliseconds)
+                // Serialize the archetype data including the genres
+                const archetypeData = JSON.stringify({
+                    name: selectedArchetype.name,
+                    image: selectedArchetype.image,
+                    description: selectedArchetype.description,
+                    genres: genreNames, // Add the selected genre names
+                });
+
+                try {
+                    // Update the user's archetype in the backend
+                    const updatedUser = await updateUser({archetype: archetypeData});
+                    if (updatedUser) {
+                        console.log('Archetype updated successfully:', updatedUser);
+
+                        // Update the global state/context with the new user data
+                        useAuthStore.setState({user: updatedUser});
+
+                        // Optionally update local component state here
+
+                        // Hide the archetype modal after 4 seconds and show the TrinityModal or navigate
+                        setTimeout(() => {
+                            setArchetypeModal(false); // Hide the archetype modal
+                            setTrinityModal(true); // Show the TrinityModal
+                            // navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+                        }, 4000); // 4 seconds
+                    }
+                } catch (error) {
+                    console.error('Error updating archetype:', error);
+                }
             } else {
                 console.log('No matching archetype found for the selected genres.');
             }
@@ -111,6 +134,49 @@ const OnBoard3 = () => {
             console.log('Please select exactly 2 genres.');
         }
     };
+
+
+    // const handleFinishButton = () => {
+    //     const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+    //     console.log('Selected Genres:', selectedGenres);
+
+    //     if (selectedGenres.length === 2) {
+    //         const genreNames = selectedGenres.map(genreId => {
+    //             const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+    //             return genreObject ? genreObject.genre : '';
+    //         });
+
+    //         const newArchetypeKey = genreNames.sort().join(', ');
+
+    //         console.log('Archetype Key:', newArchetypeKey);
+
+    //         setArchetypeKey(newArchetypeKey);
+
+    //         const selectedArchetype = archetypeMapping[newArchetypeKey];
+
+    //         if (selectedArchetype) {
+    //             setArchetypeModal(true);
+    //             const newArchetypeName = selectedArchetype.name;
+    //             const newArchetypeImage = selectedArchetype.image; // Set the image here
+    //             const newArchetypeDescription = selectedArchetype.description; // Set the description here
+    //             console.log('Selected Archetype:', newArchetypeName);
+    //             setArchetypeName(newArchetypeName);
+    //             setArchetypeImage(newArchetypeImage);
+    //             setArchetypeDescription(newArchetypeDescription);
+
+    //             setTimeout(() => {
+    //                 setArchetypeModal(false); // Hide the archetype modal after 8 seconds
+    //                 setTrinityModal(true);
+    //                 // navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+    //             }, 4000); // 4 seconds (8000 milliseconds)
+    //         } else {
+    //             console.log('No matching archetype found for the selected genres.');
+    //         }
+    //     } else {
+    //         console.log('Please select exactly 2 genres.');
+    //     }
+    // };
 
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 

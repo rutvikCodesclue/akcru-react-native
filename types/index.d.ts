@@ -22,6 +22,7 @@ interface IUserProfile {
     phoneNumber?: string;
     password?: string;
     archetype?: string;
+    Cru?: ICru;
 }
 
 export interface IMovie {

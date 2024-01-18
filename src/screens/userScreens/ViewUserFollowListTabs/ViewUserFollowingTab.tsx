@@ -7,7 +7,7 @@ import UserSearchCard from '../../../components/UserSearchCard';
 import {getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 
-const ViewUserFollowingTab = () => {
+const ViewUserFollowingTab = ({userID}) => {
     const [data, setData] = useState<IUserProfile[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -15,13 +15,14 @@ const ViewUserFollowingTab = () => {
     useEffect(() => {
         const fetchData = async () => {
             const result = await getUserFollowing(userID);
-            if (result && Array.isArray(result)) {
-                setData(result);
+            // console.log('Data received:', result);
+            if (result && result.following && Array.isArray(result.following)) {
+                setData(result.following); // Set the 'following' array as your data
             }
         };
 
         fetchData();
-    }, [userID]); // Dependency array includes userID to refetch if it changes
+    }, []);
 
     return (
         <View style={{marginHorizontal: 15}}>
@@ -42,6 +43,7 @@ const ViewUserFollowingTab = () => {
                                     item.username,
                                     item.id,
                                     item.firstName,
+                                    item.description
                                 );
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
@@ -50,7 +52,7 @@ const ViewUserFollowingTab = () => {
                             influencer={item.influencer}
                             userID={item.userID}
                             akcruBadge={item.akcruBadge}
-                            userDesc={item.userDesc}
+                            userDesc={item.description}
                             firstName={item.firstName}
                         />
                     </View>

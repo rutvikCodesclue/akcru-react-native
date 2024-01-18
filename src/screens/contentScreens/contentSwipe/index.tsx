@@ -362,15 +362,16 @@ export default function ContentSwipe({navigation, route}: Props) {
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
-                    <View style={styles.header}>
-                        <Header2 />
-                    </View>
-                    <View
-                        style={{
-                            position: 'absolute',
-                            width: SIZES.ScreenWidth,
-                            bottom: SIZES.ScreenHeight / 1.3,
-                        }}>
+                <View style={styles.header}>
+                    <Header2 />
+                </View>
+                <View
+                    style={{
+                        position: 'absolute',
+                        width: SIZES.ScreenWidth,
+                        bottom: SIZES.ScreenHeight / 1.3,
+                    }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
                         <Text
                             style={{
                                 ...FONTS.Title2,
@@ -381,42 +382,46 @@ export default function ContentSwipe({navigation, route}: Props) {
                             }}>
                             Watch any of our top 5 movies today and earn 2x the Akcru Dollars
                         </Text>
+                    </TouchableOpacity>
 
-                        <Image
-                            source={imageindex.AkcruHexLogo}
-                            style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
-                        />
-                    </View>
-                    <Circle scrollX={_scrollX} movies={movies} />
-                    <Animated.FlatList
-                        pagingEnabled
-                        showsHorizontalScrollIndicator={false}
-                        scrollEventThrottle={16}
-                        horizontal
-                        keyExtractor={item => item.id}
-                        onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
-                        data={randomMovies.slice(0, 5)}
-                        renderItem={({item, index}) => (
-                            <Item
-                                {...item}
-                                index={index}
-                                scrollX={_scrollX}
-                                onPress={() => {
-                                    console.log('id:', item.id);
-                                    console.log('movie:', item.title);
-                                    navigation.navigate('ContentDetailScreen', {
-                                        id: item.id,
-                                        movie: item.id,
-                                    });
-                                }}
-                            />
-                        )}
+                    <Image
+                        source={imageindex.AkcruHexLogo}
+                        style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
                     />
-                    
-                        <Pagination scrollX={_scrollX} onPress2={() => navigation.navigate('ClientTabNavigator')} movies={movies} />
-                    
-                    
-                    {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
+                </View>
+                <Circle scrollX={_scrollX} movies={movies} />
+                <Animated.FlatList
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    horizontal
+                    keyExtractor={item => item.id}
+                    onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
+                    data={randomMovies.slice(0, 5)}
+                    renderItem={({item, index}) => (
+                        <Item
+                            {...item}
+                            index={index}
+                            scrollX={_scrollX}
+                            onPress={() => {
+                                console.log('id:', item.id);
+                                console.log('movie:', item.title);
+                                navigation.navigate('ContentDetailScreen', {
+                                    id: item.id,
+                                    movie: item.id,
+                                });
+                            }}
+                        />
+                    )}
+                />
+
+                <Pagination
+                    scrollX={_scrollX}
+                    onPress2={() => navigation.navigate('ClientTabNavigator')}
+                    movies={movies}
+                />
+
+                {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
             </View>
         </SafeAreaView>
     );

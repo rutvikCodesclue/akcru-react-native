@@ -161,7 +161,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 if (cruInvites) {
                     // Filter the cruInvites to keep only the pending ones
                     const pendingCRUInvites = cruInvites.filter(
-                        ( invite: { status: string; }) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
+                        (invite: {status: string}) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
                     );
 
                     // Set the filtered pending CRU invites to your state variable
@@ -217,7 +217,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
             fetchMyEvents();
         }, []),
     );
-
 
     const datesIndicatorCount = eventCount; // Replace this with your actual count
     const cruInvitesIndicatorCount = pendingCRUInviteCount; // Replace this with your actual count
@@ -299,19 +298,36 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const result = await getFollowers();
-            // console.log('Data received:', result);
-            if (result && result.followers && Array.isArray(result.followers)) {
-                setFollowersData(result.followers); // Set the 'following' array as your data
-            }
-        };
+    // Fetch followers data when the screen comes into focus
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchData = async () => {
+                if (user?.id) {
+                    try {
+                        const result = await getFollowers(user.id);
+                        if (result && result.followers && Array.isArray(result.followers)) {
+                            setFollowersData(result.followers); // Set the 'following' array as your data
+                        }
+                    } catch (error) {
+                        console.error('Error fetching followers:', error);
+                        // Optionally, handle the error by showing a message to the user or taking other actions
+                    }
+                }
+            };
 
-        fetchData();
-    }, []);
+            fetchData();
+
+            // Optional: Return a cleanup function if needed
+            return () => {
+                // For example: reset followers data
+                // setFollowersData([]);
+            };
+        }, [user?.id]), // Only re-run the effect if user.id changes
+    );
 
     const followersCount = followersData.length;
+
+    console.log('User Id:', user?.id);
 
     return (
         <TabContainer>
@@ -346,11 +362,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}>
                                 <View style={{flexDirection: 'row'}}>
                                     <View style={{marginRight: 8}}>
-                                        <HexAvatar
-                                            source={{uri: user?.profilePicture}}
-                                            size={70}
-                                            bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                        />
+                                        <TouchableOpacity
+                                            onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
+                                            <HexAvatar
+                                                source={{uri: user?.profilePicture}}
+                                                size={70}
+                                                bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                            />
+                                        </TouchableOpacity>
                                     </View>
                                     <View>
                                         <Text style={{...FONTS.Title2, fontSize: 12}}>

@@ -2,16 +2,17 @@ import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
+    galleryImage: {
+        width: SIZES.ScreenWidth / 3.55,
+        height: SIZES.ScreenWidth / 2.35,
+        margin: 5,
+        borderRadius: 5,
+    },
     gallerycontainer: {
         marginHorizontal: 15,
         marginBottom: 90,
     },
-    galleryImage: {
-        width: SIZES.ScreenWidth / 3.3,
-        height: SIZES.ScreenWidth / 3.3,
-        marginRight: 10,
-        borderRadius: 8,
-    },
+    
     galleryImagesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',

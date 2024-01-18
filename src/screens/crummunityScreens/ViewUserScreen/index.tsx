@@ -9,10 +9,11 @@ import {
   Pressable,
   Modal,
   SafeAreaView,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  Animated
 } from 'react-native';
 import styles from './styles';
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
@@ -23,13 +24,10 @@ import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { findAUser, followUser, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
+import { findAUser, followUser, getFollowers, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
-import { ClientStackParams } from '../../../navigation/ClientStack';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
@@ -93,7 +91,7 @@ useFocusEffect(
             setUser(user);
         });
 
-        getUserFollowing().then(response => {
+        getUserFollowing(currentuser?.id).then(response => {
             if (response && response.success) {
                 const isFollowing = response.following.some(followedUser => followedUser.id === userID);
                 setFollow(isFollowing);
@@ -108,6 +106,21 @@ useFocusEffect(
     }, [userID, currentuser?.id]),
 );
 
+const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+
+useEffect(() => {
+    const fetchData = async () => {
+        const result = await getFollowers(userID);
+        // console.log('Data received:', result);
+        if (result && result.followers && Array.isArray(result.followers)) {
+            setFollowersData(result.followers); // Set the 'following' array as your data
+        }
+    };
+
+    fetchData();
+}, [userID]);
+
+const followersCount = followersData.length;
 
 
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -149,24 +162,67 @@ useFocusEffect(
 console.log('ViewUserScreen render', {follow});
 
 const handleFollowPress = async () => {
+    console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
+
     if (follow) {
-        const success = await unfollowUser({userId: userID});
-        if (success) {
-            setFollow(false);
-            setUserOptionModal(false);
+        try {
+            const success = await unfollowUser({userId: userID});
+            if (success) {
+                setFollow(false);
+                setUserOptionModal(false);
+            } else {
+                console.error('Unfollow failed');
+            }
+        } catch (error) {
+            console.error('Error on unfollow:', error);
         }
     } else {
-        const success = await followUser({userId: userID});
-        if (success) {
-            setFollow(true);
-            setUserOptionModal(false);
+        try {
+            const success = await followUser({userId: userID});
+            if (success) {
+                setFollow(true);
+                setUserOptionModal(false);
+            } else {
+                console.error('Follow failed');
+            }
+        } catch (error) {
+            console.error('Error on follow:', error);
         }
     }
 };
 
+
 const isValidImageUrl = (url: string) => {
     return url && url.trim() !== '';
 };
+
+const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
+const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
+
+const openPhoto = (photoUri: string) => {
+    setSelectedPhotoUri(photoUri);
+    Animated.timing(selectedPhotoAnimatedOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+    }).start();
+};
+
+const closePhoto = () => {
+    Animated.timing(selectedPhotoAnimatedOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+    }).start(() => setSelectedPhotoUri(null));
+};
+
+const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
+
+// Function to toggle the modal's visibility
+const toggleAvatarModal = () => {
+    setAvatarModalVisible(!isAvatarModalVisible);
+};
+
   return (
       <TabContainer>
           <SafeAreaView>
@@ -227,56 +283,40 @@ const isValidImageUrl = (url: string) => {
                           }}>
                           <View style={{flexDirection: 'row'}}>
                               <View style={{marginRight: 8}}>
-                                  <Pressable
-                                      onPress={() => {
-                                          console.log(
-                                              'Navigating to ViewUserDetailScreen with userID:',
-                                              user?.username,
-                                              user?.id,
-                                          );
-                                          navigation.navigate('ViewUserDetailScreen', {
-                                              userID: user?.id,
-                                          });
-                                      }}>
+                                  <Pressable onPress={toggleAvatarModal}>
                                       <HexAvatar
                                           source={{uri: user?.profilePicture}}
                                           size={60}
                                           bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                       />
                                   </Pressable>
-
-                                  <View />
-
-                                  {/* {!user?.private ? (
-                                  true ? (
-                                //   online ? (
-                                      <View
+                                  <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
+                                      <Pressable
+                                          onPress={toggleAvatarModal}
                                           style={{
-                                              backgroundColor: 'green',
-                                              height: 12,
-                                              width: 12,
-                                              borderRadius: 8,
-                                              position: 'absolute',
-                                              right: 8,
-                                          }}
-                                      />
-                                  ) : (
-                                      <View
-                                          style={{
-                                              backgroundColor: 'red',
-                                              height: 12,
-                                              width: 12,
-                                              borderRadius: 8,
-                                              position: 'absolute',
-                                              right: 8,
-                                          }}
-                                      />
-                                  )
-                              ) : null} */}
+                                              flex: 1,
+                                              justifyContent: 'center',
+                                              alignItems: 'center',
+                                              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                          }}>
+                                          <TouchableWithoutFeedback>
+                                              <Image
+                                                  source={
+                                                      user?.profilePicture
+                                                          ? {uri: user?.profilePicture}
+                                                          : imageindex.Akcruplaceholder
+                                                  }
+                                                  style={{width: '95%', height: '50%'}}
+                                                  resizeMode="contain"
+                                              />
+                                          </TouchableWithoutFeedback>
+                                      </Pressable>
+                                  </Modal>
                               </View>
                               <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                   <View style={{flexDirection: 'row'}}>
                                       <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
+
                                       {/* {
                                   true && (
                                 //   influencer && (
@@ -353,7 +393,7 @@ const isValidImageUrl = (url: string) => {
                       <Pressable
                           onPress={() =>
                               navigation.navigate('ViewUserFollowList', {
-                                  userID: user?.id,
+                                  userID: userID,
                               })
                           }
                           style={{
@@ -362,7 +402,7 @@ const isValidImageUrl = (url: string) => {
                               justifyContent: 'center',
                               alignItems: 'center',
                           }}>
-                          <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount}</Text>
+                          <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
                           <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                       </Pressable>
                       <View style={{flexDirection: 'row'}}>
@@ -460,37 +500,54 @@ const isValidImageUrl = (url: string) => {
                                       justifyContent: 'center',
                                       paddingHorizontal: 10,
                                   }}>
-                                  <Text style={{...FONTS.Title2, paddingBottom: 5, textAlign: 'center', color: COLORS.PURPLE}}>
+                                  <Text
+                                      style={{
+                                          ...FONTS.Title2,
+                                          paddingBottom: 5,
+                                          textAlign: 'center',
+                                          color: COLORS.PURPLE,
+                                      }}>
                                       {archetype ? archetype.name : 'No Archetype Selected'}
                                   </Text>
                                   <View style={{paddingBottom: 10, paddingRight: 10, alignItems: 'center'}}>
-                                    {archetype && isValidImageUrl(archetype.image) && (
-                                      <Pressable onPress={toggleModal}>
-                                          <Image
-                                              source={{uri: archetype ? archetype.image : ''}}
-                                              style={{
-                                                  width: SIZES.ScreenWidth / 2.2,
-                                                  height: SIZES.ScreenWidth / 2.2,
-                                                  borderRadius: 5,
-                                              }}
-                                          />
-                                      </Pressable>
-                                    )}
+                                      {archetype && isValidImageUrl(archetype.image) && (
+                                          <Pressable onPress={toggleModal}>
+                                              <Image
+                                                  source={{uri: archetype ? archetype.image : ''}}
+                                                  style={{
+                                                      width: SIZES.ScreenWidth / 2.2,
+                                                      height: SIZES.ScreenWidth / 2.2,
+                                                      borderRadius: 5,
+                                                  }}
+                                              />
+                                          </Pressable>
+                                      )}
                                   </View>
-                                  <View>
-                                      <View style={{flexDirection: 'row', paddingBottom: 5, justifyContent:'center'}}>
-                                          <Text style={styles.drawfonttag}>
-                                              {capitalizeFirstLetterOfString(archetype ? archetype.genres[0]: '')}
-                                          </Text>
-                                          <Text style={styles.drawfonttag}>
-                                              {' '}
-                                              {capitalizeFirstLetterOfString(archetype ? archetype.genres[1]: '')}
+                                  {archetype && (
+                                      <View>
+                                          <View
+                                              style={{
+                                                  flexDirection: 'row',
+                                                  paddingBottom: 5,
+                                                  justifyContent: 'center',
+                                              }}>
+                                              <Text style={styles.drawfonttag}>
+                                                  {capitalizeFirstLetterOfString(archetype ? archetype.genres[0] : '')}
+                                              </Text>
+                                              <Text style={styles.drawfonttag}>
+                                                  {' '}
+                                                  {capitalizeFirstLetterOfString(archetype ? archetype.genres[1] : '')}
+                                              </Text>
+                                          </View>
+                                          <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
+                                              {archetype ? archetype.description : ''}
                                           </Text>
                                       </View>
-                                      <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
-                                          {archetype ? archetype.description : ''}
-                                      </Text>
-                                  </View>
+                                  )}
+                              </View>
+                              <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
+                                  <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
+                                  <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
                               </View>
 
                               {/* Create a modal to display the enlarged image */}
@@ -514,11 +571,39 @@ const isValidImageUrl = (url: string) => {
                                               }}
                                           />
                                       </TouchableWithoutFeedback>
-                                      {/* <TouchableOpacity onPress={toggleModal}>
-                                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Close</Text>
-                                      </TouchableOpacity> */}
                                   </Pressable>
                               </Modal>
+                              <View style={styles.seperator} />
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      justifyContent: 'center',
+                                      marginTop: 10,
+                                  }}>
+                                  <Text style={{...FONTS.Title3}}>GALLERY</Text>
+                                  <Icon
+                                      name="images"
+                                      type="ionicon"
+                                      color={COLORS.LIGHTGREY}
+                                      size={20}
+                                      style={{marginLeft: 5}}
+                                  />
+                              </View>
+                              <View style={styles.gallerycontainer}>
+                                  <View style={styles.galleryImagesContainer}>
+                                      {user?.gallery &&
+                                          user.gallery.map((imageUri, index) => {
+                                              return (
+                                                  <TouchableOpacity
+                                                      key={index.toString()}
+                                                      onPress={() => openPhoto(imageUri)}
+                                                      activeOpacity={0.8}>
+                                                      <Image source={{uri: imageUri}} style={styles.galleryImage} />
+                                                  </TouchableOpacity>
+                                              );
+                                          })}
+                                  </View>
+                              </View>
 
                               {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
@@ -556,6 +641,15 @@ const isValidImageUrl = (url: string) => {
                       </View>
                   )}
               </ScrollView>
+              {selectedPhotoUri && (
+                  <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
+                      <Animated.Image
+                          source={{uri: selectedPhotoUri}}
+                          resizeMode="contain"
+                          style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
+                      />
+                  </TouchableOpacity>
+              )}
           </SafeAreaView>
       </TabContainer>
   );
