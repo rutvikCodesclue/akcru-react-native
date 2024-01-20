@@ -57,10 +57,19 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
           return;
       }
 
+      // Sort movies by createdAt in descending order (newest first)
+      const sortedMovies = movies.sort((b, a) => {
+          const dateA = new Date(a.createdAt);
+          const dateB = new Date(b.createdAt);
+          return dateA.getTime() - dateB.getTime();
+      });
+
       // console.log('Found movies: ', movies);
-      setFilteredMovies(movies);
+      setFilteredMovies(sortedMovies);
       return;
   };
+
+  
 
   const renderItem = ({item, index}: {item: any; index: number}) => {
       const isActive = item.genre === selectedGenre;

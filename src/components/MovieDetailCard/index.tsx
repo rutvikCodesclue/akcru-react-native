@@ -21,6 +21,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import { formatMovieDuration } from '../../util/util';
 import { capitalizeFirstLetterOfString } from '../../util/util';
+import ConfirmationModal from '../ConfirmationModal';
 
 type MovieDetailCardProps = {
     title: string;
@@ -42,7 +43,7 @@ type MovieDetailCardProps = {
     showAddToWatchListConfirmationModal: boolean;
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
-    onPressOut: () => void;
+    watchlistButton: () => void;
     PlayTrailer: () => void;
 };
 
@@ -63,13 +64,12 @@ const MovieDetailCard = ({
     genre2,
     onPress,
     onPressin,
-    onPressOut,
+    watchlistButton,
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
-    PlayTrailer
+    PlayTrailer,
 }: MovieDetailCardProps) => {
-
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     return (
@@ -79,7 +79,7 @@ const MovieDetailCard = ({
                     <Image
                         source={{uri: portraitURL}}
                         style={{
-                            height: SIZES.ScreenHeight / 1.5,
+                            height: SIZES.ScreenHeight / 1.6,
                         }}
                         resizeMode="cover"
                     />
@@ -87,7 +87,7 @@ const MovieDetailCard = ({
 
                 <View
                     style={{
-                        height: 200,
+                        height: '35%',
                         justifyContent: 'flex-end',
                         position: 'absolute',
                         left: 0,
@@ -123,6 +123,32 @@ const MovieDetailCard = ({
                             <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                         </View>
                     </TouchableOpacity>
+                    {/* <View style={{flexDirection: 'row', marginTop: 10}}>
+                                        <View style={{flexDirection: 'row'}}>
+                                            <View style={{marginRight: 25}}>
+                                                <TouchableOpacity>
+                                                    <Icon
+                                                        name="thumb-up-outline"
+                                                        type="material-community"
+                                                        color={'green'}
+                                                        size={SIZES.MedIcon}
+                                                    />
+                                                </TouchableOpacity>
+                                                <Text style={{...FONTS.Title2}}>I Like</Text>
+                                            </View>
+                                            <View>
+                                                <TouchableOpacity>
+                                                    <Icon
+                                                        name="thumb-down-outline"
+                                                        type="material-community"
+                                                        color={'red'}
+                                                        size={SIZES.MedIcon}
+                                                    />
+                                                </TouchableOpacity>
+                                                <Text style={{...FONTS.Title2}}>Nah</Text>
+                                            </View>
+                                        </View>
+                                    </View> */}
                     <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
                         <View
                             style={{
@@ -130,70 +156,27 @@ const MovieDetailCard = ({
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}>
-                            {/* <Text
+                            <Text
                                 style={{
                                     ...FONTS.Title3,
                                     textAlign: 'center',
                                     marginRight: 10,
                                 }}>
                                 Add to watchlist
-                            </Text> */}
-                            <Pressable onPressOut={onPressOut}>
-                                {/* <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={45} /> */}
-                            </Pressable>
+                            </Text>
+                            <TouchableOpacity onPress={watchlistButton}>
+                                <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+                            </TouchableOpacity>
                         </View>
                     </View>
 
                     {/* Add to watchlist Confirmation Modal */}
                     <Modal animationType="fade" transparent={true} visible={showAddToWatchListConfirmationModal}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                }}>
-                                <View>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title3,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
-                                        }}>
-                                        {`Are you sure you want to add "${title}" to your watchlist?`}
-                                    </Text>
-                                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                        <TouchableOpacity
-                                            style={{
-                                                backgroundColor: COLORS.CATREDLGT,
-                                                paddingHorizontal: 20,
-                                                paddingVertical: 10,
-                                                marginRight: 10,
-                                                borderRadius: 5,
-                                            }}
-                                            onPress={handleCancelAddToWatchList}>
-                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={{
-                                                backgroundColor: COLORS.GREEN,
-                                                paddingHorizontal: 20,
-                                                paddingVertical: 10,
-                                                borderRadius: 5,
-                                            }}
-                                            onPress={handleConfirmAddToWatchList}>
-                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Add To List</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
+                        <ConfirmationModal
+                            onPressYes={handleConfirmAddToWatchList}
+                            onPressNo={handleCancelAddToWatchList}
+                            confirmationText={`Are you sure you want to add "${title}" to your watchlist?`}
+                        />
                     </Modal>
 
                     <View
@@ -212,7 +195,7 @@ const MovieDetailCard = ({
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
                             onPress={PlayTrailer}
-                            color={COLORS.TAGCOLOR}
+                            color={COLORS.CATPURPDRK}
                             disabled={false}
                         />
                     </View>
@@ -222,39 +205,12 @@ const MovieDetailCard = ({
             <View style={{marginTop: 20, marginBottom: 15}}>
                 <View
                     style={{
-                        flexDirection: 'row',
                         marginHorizontal: 15,
                         justifyContent: 'space-between',
                         marginBottom: 10,
                     }}>
-                    <View style={{width: 175}}>
-                        <Text style={{...FONTS.Title3, fontSize: 20}}>{title}</Text>
-                    </View>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{flexDirection: 'row', marginLeft: 15}}>
-                            <View style={{marginRight: 25}}>
-                                {/* <TouchableOpacity>
-                                    <Icon
-                                        name="thumb-up-outline"
-                                        type="material-community"
-                                        color={'green'}
-                                        size={SIZES.MedIcon}
-                                    />
-                                </TouchableOpacity>
-                                <Text style={{...FONTS.Title2}}>I Like</Text> */}
-                            </View>
-                            <View>
-                                {/* <TouchableOpacity>
-                                    <Icon
-                                        name="thumb-down-outline"
-                                        type="material-community"
-                                        color={'red'}
-                                        size={SIZES.MedIcon}
-                                    />
-                                </TouchableOpacity>
-                                <Text style={{...FONTS.Title2}}>Nah</Text> */}
-                            </View>
-                        </View>
+                    <View style={{width: '100%'}}>
+                        <Text style={{...FONTS.Title3, fontSize: 18}}>{title}</Text>
                     </View>
                 </View>
                 <View
@@ -295,6 +251,7 @@ const MovieDetailCard = ({
                         </Text>
                     </View>
                 </View>
+
                 <View style={{marginHorizontal: 15, marginVertical: 10}}>
                     <TouchableOpacity onPress={onPress}>
                         <View style={styles.MITbutton}>
