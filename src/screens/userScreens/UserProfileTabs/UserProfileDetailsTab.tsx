@@ -25,6 +25,7 @@ import BasicListCategories from '../../../components/BasicListCategories';
 import useAuthStore from '../../../stores/auth.store';
 import {ICru, IMovie, IUserProfile} from '../../../../types';
 import {findMovies} from '../../../lib/api/movies.lib';
+import {getWatchlist} from '../../../lib/api/movies.lib'; 
 import CruMemberPic from '../../../components/CruMemberPic';
 import {getMyCRU} from '../../../lib/api/cru.lib';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
@@ -33,6 +34,7 @@ import {deleteUserGalleryImage, fetchUserGallery, updateUserGallery} from '../..
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import { set } from 'lodash';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
+import WatchListCategory from '../../../components/WatchlistCategory';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -104,6 +106,30 @@ const UserProfileDetailsTab = () => {
         };
         fetchNewerYearMovies();
     }, []);
+
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // ... (other code)
+
+            const fetchWatchlist = async () => {
+                try {
+                    const watchlistMovies = await getWatchlist(user?.id);
+                    setWatchlist(watchlistMovies);
+                } catch (error) {
+                    console.error('Error fetching watchlist:', error);
+                }
+            };
+
+            fetchWatchlist();
+        }, []),
+    );
+
+     const updateWatchlist = (updatedWatchlist: IMovie[]) => {
+         setWatchlist(updatedWatchlist);
+     };
+
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
     const [showImageCountErrorModal, setShowImageCountErrorModal] = useState(false);
 
@@ -114,81 +140,6 @@ const UserProfileDetailsTab = () => {
             setUserPics(user.gallery);
         }
     }, [user]);
-
-    // const selectGalleryImage = async () => {
-    //     // Check if the user already has 6 images
-    //     if (userPics.length >= 6) {
-    //         setShowImageCountErrorModal(true);
-    //         // Alert.alert('You cannot upload more than 6 images.');
-    //         return; // Exit the function
-    //     }
-    //     let options = {
-    //         mediaType: 'photo' as MediaType,
-    //         storageOptions: {
-    //             path: 'images',
-    //         },
-    //         selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
-    //     };
-
-    //     console.log('select picture button');
-
-    //     launchImageLibrary(options, async response => {
-    //         if (response && !response.didCancel && response.assets && response.assets.length) {
-    //             console.log('Number of images selected:', response.assets.length);
-
-    //             // Array to hold URIs of successfully uploaded images
-    //             let uploadedImages = [];
-
-    //             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
-
-    //             for (const asset of response.assets) {
-    //                 console.log('uri:', asset.uri);
-    //                 console.log('filesize:', asset.fileSize);
-    //                 const size = asset.fileSize;
-    //                 const selectedImage = asset.uri;
-    //                 const imageType = asset.type;
-    //                 const imageName = asset.fileName;
-
-    //                 // Check the size of each selected image
-    //                 if (size > maxSizeInBytes) {
-    //                     // Show size error modal
-    //                     setShowSizeErrorModal(true);
-    //                     return; // Exit the function if any image is too large
-    //                 } 
-    //                 if (selectedImage) {
-    //                     // Ensure asset.uri is not undefined before pushing
-    //                     uploadedImages.push(asset.uri); // Add the new image URI to the array
-    //                 } else {
-    //                     // Call the API function to update the user's gallery
-    //                     try {
-    //                         const updatedUser = await updateUserGallery({
-    //                             uri: selectedImage,
-    //                             type: imageType,
-    //                             name: imageName,
-    //                         });
-
-    //                         if (updatedUser) {
-    //                             console.log('updatedUserProfileGallery:', updatedUser);
-    //                             // Update user gallery state here
-    //                             uploadedImages.push(asset.uri); // Add the new image URI to the array
-    //                         } else {
-    //                             console.log('Failed to update profile Gallery');
-    //                         }
-    //                     } catch (error) {
-    //                         console.error('Error updating gallery:', error);
-    //                         // Handle errors here
-    //                     }
-    //                 }
-    //             }
-    //             // Update the state to reflect the newly uploaded images
-    //             if (uploadedImages.length > 0) {
-    //                 // Combine new and existing images, but limit the total to 6
-    //                 const newGallery = [...userPics, ...uploadedImages].slice(0, 6);
-    //                 setUserPics(newGallery);
-    //             }
-    //         }
-    //     });
-    // };
 
  const selectGalleryImage = async () => {
      // Check if the user already has 6 images
@@ -475,8 +426,8 @@ const UserProfileDetailsTab = () => {
                         }}
                     />
 
-                    <View>
-                        <View style={{marginBottom: 75}}>
+                    <View style={{marginBottom: 75}}>
+                        {/* <View style={{marginBottom: 10}}>
                             <BasicListCategories
                                 Akcru_Content={{
                                     id: 'recommendedForYou',
@@ -484,7 +435,19 @@ const UserProfileDetailsTab = () => {
                                     movies: newerYearMovies,
                                 }}
                             />
-                        </View>
+                        </View> */}
+                        {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
+                            <View>
+                                <WatchListCategory
+                                    Akcru_Content={{
+                                        id: 'YourFavourite',
+                                        title: 'Your Watchlist',
+                                        movies: watchlist,
+                                    }}
+                                    updateWatchlist={updateWatchlist}
+                                />
+                            </View>
+                        )}
                     </View>
                     <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
                         <ErrorModal
@@ -495,7 +458,11 @@ const UserProfileDetailsTab = () => {
                         />
                     </Modal>
                     <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
-                        <EnlargeGalleryModal closeModal={toggleEnlargeModal} image={selectedImage} deleteImage={removeFromGallery}/>
+                        <EnlargeGalleryModal
+                            closeModal={toggleEnlargeModal}
+                            image={selectedImage}
+                            deleteImage={removeFromGallery}
+                        />
                     </Modal>
                 </ScrollView>
             </View>

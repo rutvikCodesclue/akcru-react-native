@@ -12,7 +12,7 @@ interface IUserProfile {
     followerCount?: number;
     MITCount?: number;
     adAmount?: number;
-    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO'; // FIXME: add remianing badges
+    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO' | 'CELEBRITY'; // FIXME: add remianing badges
     gallery?: string[];
     lastReview?: string;
     published?: boolean;
@@ -23,6 +23,15 @@ interface IUserProfile {
     password?: string;
     archetype?: string;
     Cru?: ICru;
+    influencerStatus: boolean;
+    ownerStatus: boolean;
+    companyStatus: boolean;
+    blocking?: IUserBlock[]; // This assumes you have an IUserBlock interface defined
+    blockedBy?: IUserBlock[]; // Same as above
+    followers?: string[]; // This is a recursive relation, assuming followers are also of type IUserProfile
+    following?: string[]; // Same as above
+    wallet?: IWallet; // This assumes you have an IWallet interface defined
+    watchlist?: IWatchlist[]; // Array of watchlist items
 }
 
 export interface IMovie {
@@ -160,6 +169,44 @@ export interface IUserProfile {
     phoneNumber?: string;
     password?: string;
     archetype?: string;
+    Cru?: ICru;
+    influencerStatus: boolean;
+    ownerStatus: boolean;
+    companyStatus: boolean;
+    blocking?: IUserBlock[]; // This assumes you have an IUserBlock interface defined
+    blockedBy?: IUserBlock[]; // Same as above
+    followers?: IUserProfile[]; // This is a recursive relation, assuming followers are also of type IUserProfile
+    following?: IUserProfile[]; // Same as above
+    wallet?: IWallet; // This assumes you have an IWallet interface defined
+    watchlist?: IWatchlist[]; // Array of watchlist items
+}
+
+export interface IWatchlist {
+    id: string; // Unique identifier for the watchlist record
+    userId: string; // ID of the user who owns the watchlist
+    movieId: string; // ID of the movie added to the watchlist
+    createdAt: Date | string; // Date when the movie was added to the watchlist, use Date for actual Date objects, string if dates are kept in ISO format
+    updatedAt: Date | string; // Date when the watchlist record was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    movie?: IMovie;
+}
+
+
+export interface IUserBlock {
+    id: string; // Unique identifier for the block record
+    blockerId: string; // ID of the user who initiated the block
+    blockedId: string; // ID of the user who is being blocked
+    createdAt: Date | string; // Date when the block was created, use Date for actual Date objects, string if dates are kept in ISO format
+    updatedAt: Date | string; // Date when the block record was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    blocker?: IUserProfile;
+    blocked?: IUserProfile;
+}
+
+export interface IWallet {
+    id: string; // Unique identifier for the wallet
+    userId: string; // ID of the user who owns the wallet
+    balance: number; // The current balance in the wallet
+    updatedAt: Date | string; // Date when the wallet was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    user?: IUserProfile;
 }
 
 export interface IMovie {

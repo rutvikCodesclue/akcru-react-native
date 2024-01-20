@@ -43,3 +43,45 @@ export const findMovieById = async (id: string): Promise<IMovie | null> => {
         return null;
     }
 }
+
+export const getWatchlist = async (userId: string): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        // GET /v1/movies/watchlist/:userId
+        const {data} = await API.get(`/v1/movies/watchlist/${userId}`);
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return data.watchlist;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+export const addToWatchlist = async (movieId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const { data } = await API.post(`/v1/movies/${movieId}/add-to-watchlist`);
+        return data.success;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
+
+export const removeFromWatchlist = async (movieId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post(`/v1/movies/${movieId}/remove-from-watchlist`);
+        return data.success;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+};
+
+
+

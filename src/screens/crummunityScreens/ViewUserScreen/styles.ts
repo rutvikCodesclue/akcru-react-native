@@ -30,15 +30,14 @@ export default StyleSheet.create({
     watchlisttext: {
         ...FONTS.Title2,
         marginTop: 10,
-        marginBottom: 20,
-        textAlign: 'center',
+        marginBottom: -20,
         fontSize: 14,
     },
     watchlistcontainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+        
+        
         marginHorizontal: 15,
-        marginBottom: 20,
+        marginBottom: 10,
     },
     seperator: {
         borderBottomWidth: 1.5,
@@ -67,7 +66,7 @@ export default StyleSheet.create({
     },
     gallerycontainer: {
         marginHorizontal: 10,
-        marginBottom: '20%',
+       
         alignItems: 'center',
     },
 

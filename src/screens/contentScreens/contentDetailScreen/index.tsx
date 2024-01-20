@@ -2,34 +2,32 @@ import {
   View,
   Text,
   ScrollView,
-  TextInput,
-  TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
+  Alert,
+  Modal,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import styles from './styles';
 
 import Header from '../../../components/header';
-import AkcruReviewCard from '../../../components/AkcruReviewCard';
-import AkcruButtons from '../../../components/akcruButtons';
 import MovieDetailCard from '../../../components/MovieDetailCard';
 import BasicListCategories from '../../../components/BasicListCategories';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {ClientStackParams} from '../../../navigation/ClientStack';
-import { FAKE_USER_PROFILES } from '../../../../assets/constants/Mockusers';
-import {Icon} from '@rneui/base';
-import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { findMovieById, findMovies } from '../../../lib/api/movies.lib';
+import { addToWatchlist, findMovieById, findMovies, getWatchlist } from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import { formatMovieDuration } from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import { set } from 'lodash';
+import ResultModal from '../../../components/ResultModal/ResultModal';
+import useAuthStore from '../../../stores/auth.store';
 
 
 
@@ -54,6 +52,8 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
     const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
+
+    const user = useAuthStore(state => state.user);
 
    useEffect(() => {
        const fetchMovie = async () => {
@@ -123,14 +123,71 @@ export default function ContentDetailScreen({navigation, route}: Props) {
         // Handle cancel logic
     };
 
-    const handleConfirmAddToWatchList = () => {
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+
+    // Fetch the watchlist when the component is focused or when the user ID changes
+    useFocusEffect(
+        React.useCallback(() => {
+            // ... (other code)
+
+            const fetchWatchlist = async () => {
+                try {
+                    const userId = user?.id; // Get the current user's ID
+                    if (userId) {
+                        const watchlistMovies = await getWatchlist(userId);
+                        setWatchlist(watchlistMovies);
+                    }
+                } catch (error) {
+                    console.error('Error fetching watchlist:', error);
+                }
+            };
+
+            fetchWatchlist();
+        }, [user?.id]), // Re-run the effect if the user's ID changes
+    );
+
+    const handleConfirmAddToWatchList = async () => {
         setShowAddToWatchListConfirmationModal(false);
-        // Handle confirm logic
+
+        if (id) {
+            // Check if the movie is already in the watchlist
+            const isMovieInWatchlist = watchlist.some(movie => movie.id === id);
+
+            if (isMovieInWatchlist) {
+                // If the movie is already in the watchlist, show the message
+                handleShowResultModal('alreadyInList');
+            } else {
+                setResult(true);
+                // Ensure that the movie ID is available
+                const success = await addToWatchlist(id);
+                if (success) {
+                    // Handle the UI or state updates for successful addition
+                    setResult(false);
+                    handleShowResultModal('success');
+                } else {
+                    setResult(false);
+                    handleShowResultModal('failed');
+                }
+            }
+        }
+    };
+
+     const [result, setResult] = useState(false);
+    const [typeResultModal, setTypeResultModal] = useState('');
+    const [showResultModal, setShowResultModal] = useState(false);
+
+    const handleShowResultModal = (typeResultModal: React.SetStateAction<string>) => {
+        setTypeResultModal(typeResultModal);
+        setShowResultModal(true);
+    };
+
+    const handleCloseResultModal = () => {
+        if (typeResultModal === 'success') {
+            //do something
+        }
+        setShowResultModal(false);
     };
         console.log('Movie Title:',title, year )
-    //  const actorsNames = actors.map(actor => actor.name).join(', ');
-    //   const directorNames = director.map(director => director.name).join(', ');
-// console.log ("length in H and m", formatMovieDuration(duration))
     
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -184,7 +241,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                         });
                                         console.log('Movie Title:', id, description);
                                     }}
-                                    onPressOut={() => {
+                                    watchlistButton={() => {
                                         setShowAddToWatchListConfirmationModal(true);
                                     }}
                                     showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
@@ -242,6 +299,9 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                         </View>
                     )}
                 </ScrollView>
+                <Modal animationType="fade" transparent={true} visible={showResultModal}>
+                    <ResultModal closeModal={handleCloseResultModal} type={typeResultModal} />
+                </Modal>
             </SafeAreaView>
         </TabContainer>
     );

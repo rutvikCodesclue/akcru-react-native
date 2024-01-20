@@ -25,7 +25,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { findAUser, followUser, getFollowers, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
-import { IUserProfile } from '../../../../types';
+import { IMovie, IUserProfile } from '../../../../types';
 import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
 import { createACRUInvite } from '../../../lib/api/cru.lib';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
@@ -34,6 +34,9 @@ import HexAvatar from '../../../components/HexAvatar';
 import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import useAuthStore from '../../../stores/auth.store';
+import { getWatchlist } from '../../../lib/api/movies.lib';
+import WatchListCategory from '../../../components/WatchlistCategory';
+import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -223,9 +226,32 @@ const toggleAvatarModal = () => {
     setAvatarModalVisible(!isAvatarModalVisible);
 };
 
+const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+
+// Fetch the watchlist when the component is focused or when the user ID changes
+useFocusEffect(
+    React.useCallback(() => {
+        // ... (other code)
+
+        const fetchWatchlist = async () => {
+            try {
+                const userId = user?.id; // Get the current user's ID
+                if (userId) {
+                    const watchlistMovies = await getWatchlist(userId);
+                    setWatchlist(watchlistMovies);
+                }
+            } catch (error) {
+                console.error('Error fetching watchlist:', error);
+            }
+        };
+
+        fetchWatchlist();
+    }, [user?.id]), // Re-run the effect if the user's ID changes
+);
+
   return (
       <TabContainer>
-          <SafeAreaView>
+          <SafeAreaView style={{marginBottom: '20%'}}>
               <ScrollView stickyHeaderIndices={[0]}>
                   <View style={{zIndex: 20}}>
                       <Header />
@@ -604,7 +630,22 @@ const toggleAvatarModal = () => {
                                           })}
                                   </View>
                               </View>
-
+                              <View style={styles.seperator} />
+                              {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
+                                  <View style={styles.watchlistcontainer}>
+                                      <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
+                                      <View>
+                                          <ViewUserWatchListCategory
+                                              Akcru_Content={{
+                                                  id: 'YourFavourite',
+                                                  title: '',
+                                                  movies: watchlist,
+                                              }}
+                                              updateWatchlist={''}
+                                          />
+                                      </View>
+                                  </View>
+                              )}
                               {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
