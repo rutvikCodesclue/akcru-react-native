@@ -15,14 +15,19 @@ import CodeInput from '../../../components/CodeInput/CodeInput';
 import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import { supabase } from '../../../../lib/supabase';
+import { API } from '../../../clients/api.client';
 
 
-const OTPVerification = () => {
+const OTPVerification = ({route}) => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
-    const route = useRoute();
+    // const route = useRoute();
+
+    // Retrieve both email and phoneNumber from route.params
+    const email = route.params?.email;
+    const phoneNumber = route.params?.phoneNumber;
 
     const [otp, setOTP] = useState<string>('');
 
@@ -101,26 +106,34 @@ const OTPVerification = () => {
         try {
             setVerify(true);
 
-            // Assuming the email is stored or passed to this component. If not, you need to provide it.
-            const email = "user's email";
+            // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
+            // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
+            const payload = email ? {email} : {phoneNumber};
 
-            // Call verifyOtp() with the user's email and the OTP code
-            const {data, error} = await supabase.auth.verifyOtp({
-                email,
-                token: code,
-                type: 'email',
+            // Call verifyOTP() with the user's email or phone number and the OTP code
+            const response = await API.post('/v1/user/verifyOTP', {
+                ...payload,
+                otp: code,
+                // emailOrPhoneNumber: emailOrPhoneNumber,
             });
 
-            if (error) {
-                throw error;
+            const data = response.data;
+
+            if (data.success) {
+                console.log('Verification successful', data);
+                setVerify(false);
+                handleShowOTPModal('success');
+
+                // Navigate to ResetPassword screen
+                // Pass any necessary data as parameters
+                navigation.navigate('ResetPassword', {
+                    email: email,
+                    phoneNumber: phoneNumber,
+                });
+            } else {
+                // Handle the case where data.success is false
+                throw new Error(data.message || 'Verification failed');
             }
-
-            console.log('Verification successful', data);
-            setVerify(false);
-            handleShowOTPModal('success');
-
-            // You may want to navigate the user or perform other actions upon successful verification
-            // navigation.navigate('SomeScreen');
         } catch (error) {
             console.error('Verification failed', error);
             setVerify(false);

@@ -32,6 +32,17 @@ interface IUserProfile {
     following?: string[]; // Same as above
     wallet?: IWallet; // This assumes you have an IWallet interface defined
     watchlist?: IWatchlist[]; // Array of watchlist items
+    watching?: IUserWatching; // Array of movies being watched
+}
+
+interface IUserWatching {
+    id: string;
+    user: IUserProfile;
+    userId: string;
+    movieId: string;
+    movie: IMovie;
+    startedAt: string;
+    finishedAt: string;
 }
 
 export interface IMovie {
@@ -137,12 +148,14 @@ export type INotification = {
         | 'CruInviteDeclined'
         | 'CruViewScheduled'
         | 'CruViewStarted'
-        | 'UserFollowed';
+        | 'UserFollowed'
+        | 'UserCommentedOnPost';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
     createdAt: string;
     updatedAt?: string;
+    message?: string;
 };
 export interface IUserProfile {
     message: string?;

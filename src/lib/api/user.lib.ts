@@ -279,88 +279,6 @@ export const unfollowUser = async (params: {userId?: string}): Promise<boolean |
     }
 };
 
-// TODO: type this
-// export const getFollowers = async (): Promise<Object | undefined> => {
-//     try {
-//         // PUT /v1/watchtime/me
-//         const {data} = await API.get(`/v1/user/followers`);
-
-//         if (data.success === false) {
-//             return false;
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//         return undefined;
-//     }
-// };
-
-// TODO: type this
-// export const getFollowersCount = async (): Promise<Object | undefined> => {
-//     try {
-//         // PUT /v1/watchtime/me
-//         const {data} = await API.get(`/v1/user/unfollow?count=true`);
-
-//         if (data.success === false) {
-//             return false;
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//         return undefined;
-//     }
-// };
-
-// TODO: type this
-// export const getUserFollowing = async (): Promise<Object | undefined> => {
-//     try {
-//         // PUT /v1/watchtime/me
-//         const {data} = await API.get(`/v1/user/following`);
-
-//         if (data.success === false) {
-//             return false;
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//         return undefined;
-//     }
-// };
-
-// export const getUserFollowing = async (userId: string): Promise<IUserProfile[] | undefined> => {
-//     try {
-//         const {data} = await API.get(`/v1/user/${userId}/following`);
-//         if (data && data.success) {
-//             return data.following;
-//         }
-//     } catch (error) {
-//         console.error('Error fetching user following:', error);
-//     }
-//     return undefined;
-// };
-
-
-
-// TODO: type this
-// export const getUserFollowingCount = async (): Promise<Object | undefined> => {
-//     try {
-//         // PUT /v1/watchtime/me
-//         const {data} = await API.get(`/v1/user/unfollow?count=true`);
-
-//         if (data.success === false) {
-//             return false;
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error(error);
-//         return undefined;
-//     }
-// };
-
 export const getFollowers = async (userId: string): Promise<Object | undefined> => {
     try {
         const {data} = await API.get(`/v1/user/followers?userId=${encodeURIComponent(userId)}`);
@@ -418,6 +336,102 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
     } catch (error) {
         console.error(error);
         return undefined;
+    }
+};
+
+export const startUserWatching = async (userId: string, movieId: string) => {
+    console.log('startUserWatching function called');
+    console.log(`Received userId: ${userId}, movieId: ${movieId}`);
+    console.log(`Type of userId: ${typeof userId}, Type of movieId: ${typeof movieId}`);
+
+    // Check if userId and movieId are strings (or whatever type you expect)
+    if (typeof userId !== 'string' || typeof movieId !== 'string') {
+        console.error('userId or movieId is not of type string.');
+        return false;
+    }
+
+    try {
+        const response = await API.post('/v1/user/currentWatching/start', {
+            userId,
+            movieId,
+        });
+
+        if (response.data && response.data.success) {
+            console.log('User started watching movie successfully:', response.data.userWatching);
+            return true;
+        } else {
+            console.error('Failed to start watching movie:', response.data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error starting watching movie:', error);
+        return false;
+    }
+};
+
+export const finishUserWatching = async (userId: string, movieId: string) => {
+    console.log('finishUserWatching function called');
+    console.log(`Received userId: ${userId}, movieId: ${movieId}`);
+
+    // Check if userId and movieId are strings (or whatever type you expect)
+    if (typeof userId !== 'string' || typeof movieId !== 'string') {
+        console.error('userId or movieId is not of type string.');
+        return false;
+    }
+
+    try {
+        const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`, {
+            userId, // If needed, though userId might be inferred from the session on the backend
+        });
+
+        if (response.data && response.data.success) {
+            console.log('User finished watching movie successfully:', response.data.userWatching);
+            return true;
+        } else {
+            console.error('Failed to finish watching movie:', response.data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error finishing watching movie:', error);
+        return false;
+    }
+};
+
+export const getUserCurrentWatching = async (userId: string): Promise<any | undefined> => {
+    try {
+        // GET /v1/user/currentWatching/:userId
+        const {data} = await API.get(`/v1/user/currentWatching/${encodeURIComponent(userId)}`);
+
+        if (data.success === false) {
+            console.error(data.message);
+            return undefined;
+        }
+
+        return data.currentWatching; // Returns the list of movies the user is currently watching or the last movie they watched
+    } catch (error) {
+        console.error("Error fetching user's current watching:", error);
+        return undefined;
+    }
+};
+
+
+export const logUserMovieWatchHistory = async (userId: string, movieId: string) => {
+    try {
+        const response = await API.post('/v1/user/logMovieWatch', {
+            userId,
+            movieId,
+        });
+
+        if (response.data && response.data.success) {
+            console.log('Watch history logged successfully:', response.data.watchHistory);
+            return true;
+        } else {
+            console.error('Failed to log watch history:', response.data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error logging watch history:', error);
+        return false;
     }
 };
 

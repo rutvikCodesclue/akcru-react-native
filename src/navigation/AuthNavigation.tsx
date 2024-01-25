@@ -12,11 +12,13 @@ import OnBoard2 from '../screens/loginScreens/Onboarding/OnBoard2';
 import OnBoard3 from '../screens/loginScreens/Onboarding/OnBoard3';
 import OTPVerification from '../screens/loginScreens/OTPVerification';
 import TestScreen from '../screens/userScreens/TestScreen/TestScreen';
+import PhoneForgotPassword from '../screens/loginScreens/resetPassword/PhoneForgotPassword';
 
 export type AuthStackParams = {
     Signin: any;
     Signup: any;
     ForgotPassword: any;
+    PhoneForgotPassword: any;
     ClientTabNavigator: any;
     NoBottomStack: any;
     OnBoard1: any;
@@ -25,7 +27,9 @@ export type AuthStackParams = {
     OTPVerification: any;
     TestScreen: any;
     ResetPassword: {
-        accessToken: string;
+        accessToken?: string;
+        email?: string;
+        phoneNumber?: string;
     };
 };
 
@@ -50,6 +54,14 @@ export default function AuthStack() {
           <Auth.Screen
               name="ForgotPassword"
               component={ForgotPassword}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="PhoneForgotPassword"
+              component={PhoneForgotPassword}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
@@ -120,6 +132,7 @@ export default function AuthStack() {
                   gestureDirection: 'horizontal',
               }}
           />
+
           <Auth.Screen
               name="TestScreen"
               component={TestScreen}
