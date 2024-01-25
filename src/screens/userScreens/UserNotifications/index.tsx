@@ -42,7 +42,9 @@ const UserNotifications = () => {
             (notification.type === 'MITAccepted' ||
                 notification.type === 'MITDeclined' ||
                 notification.type === 'CruInviteAccepted' ||
-                notification.type === 'CruInviteDeclined'),
+                notification.type === 'CruInviteDeclined' ||
+                notification.type === 'UserFollowed' ||
+                notification.type === 'UserCommentedOnPost'),
     );
 
     const sortedNotifications: INotification[] = filteredNotifications.sort(

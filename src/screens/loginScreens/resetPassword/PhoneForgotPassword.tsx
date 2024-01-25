@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert, Pressable} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert, TextInput} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -8,69 +8,58 @@ import imageindex from '../../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {supabase} from '../../../../lib/supabase';
 import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import { API } from '../../../clients/api.client';
 
-const ForgotPassword = () => {
+const PhoneForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
-    const [email, setEmail] = useState<string>('');
-    const [loading, setLoading] = useState<boolean>(false);
-    const [emailError, setEmailError] = useState(false);
+    const [phone, setPhone] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [phoneError, setPhoneError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    // Enhanced Email Validation
-    const isEmailValid = (email: string) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
+    // Phone Number Validation
+    const isPhoneValid = (phone: string) => {
+        // Add your phone number validation logic here
+        // Example: return true if phone number length is 10 digits
+        return /^\d{11}$/.test(phone);
     };
 
-    const handleEmailChange = text => {
-        setEmail(text);
-        setEmailError(!isEmailValid(text));
+    const handlePhoneNumberChange = (text: string) => {
+        const numericText = text.replace(/[^0-9]/g, '');
+        setPhone(numericText);
+        setPhoneError(!isPhoneValid(numericText));
+        checkFormCompletion(numericText);
     };
 
-    const checkFormCompletion = () => {
-        if (
-            email &&
-            isEmailValid(email) // Check email format
-        ) {
-            setIsFormComplete(true);
-        } else {
-            setIsFormComplete(false);
-        }
-    };
+      const checkFormCompletion = (phoneNumber: string) => {
+          setIsFormComplete(isPhoneValid(phoneNumber));
+      };
 
-    useEffect(() => {
-        checkFormCompletion();
-    }, [email]);
+      const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+      //reset password modal
+      const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
+      const [resetResultType, setResetResultType] = useState({
+          messageheader: '',
+          messageheadercolor: '',
+          message: '',
+          iconname: '',
+          iconcolor: '',
+      });
 
-    //reset password modal
-
-    const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
-    const [resetResultType, setResetResultType] = useState({
-        messageheader: '',
-        messageheadercolor: '',
-        message: '',
-        iconname: '',
-        iconcolor: '',
-    });
-
-    // Reset Password Function with Email Existence Check
     const SendOTP = async () => {
-        if (!isEmailValid(email)) {
-            setEmailError(true);
+        if (!isFormComplete) {
+            setPhoneError(true);
             return;
         }
 
         setLoading(true);
         try {
             // Replace the following line with your API call to send OTP
-            const {data, error} = await API.post('/v1/user/sendOTP', {email});
+            const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: phone});
 
             if (error) {
                 setResetResultType({
@@ -80,22 +69,21 @@ const ForgotPassword = () => {
                     iconname: 'alert-circle',
                     iconcolor: COLORS.CATREDLGT,
                 });
+                setShowPasswordResetModal(true);
             } else {
-                setResetResultType({
-                    messageheader: 'Success',
-                    messageheadercolor: COLORS.CATGREENDRK,
-                    message: 'OTP has been sent to your email.',
-                    iconname: 'send',
-                    iconcolor: COLORS.CATGREENLGT,
-                });
-
+                 setResetResultType({
+                     messageheader: 'Success',
+                     messageheadercolor: COLORS.CATGREENDRK,
+                     message: 'OTP has been sent to your phone.',
+                     iconname: 'send',
+                     iconcolor: COLORS.CATGREENLGT,
+                 });
+                 setShowPasswordResetModal(true);
                 // Navigate to otpVerification screen after showing the success message
                 setTimeout(() => {
-                    navigation.navigate('OTPVerification', {email});
+                    navigation.navigate('OTPVerification', {phoneNumber: phone});
                 }, 3000); // 5 seconds delay
             }
-
-            setShowPasswordResetModal(true);
         } catch (error) {
             setResetResultType({
                 messageheader: 'Error',
@@ -121,7 +109,7 @@ const ForgotPassword = () => {
                                 alignItems: 'center',
                             }}>
                             <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back to Signin</Text>
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                         </View>
                     </TouchableOpacity>
                     <View style={{flex: 1, alignItems: 'center', marginTop: '45%'}}>
@@ -142,18 +130,29 @@ const ForgotPassword = () => {
                             />
                         </View>
                         <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Forgot your password?</Text>
-                        <Text style={{...FONTS.Title2, marginBottom: '5%'}}>Enter your email below</Text>
-                        <View style={{marginBottom: 10}}>
-                            <Inputs
-                                placeholdername={'Enter Your Email'}
-                                iconname={'mail'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleEmailChange}
-                                value={email}
-                                editable={true}
-                            />
-                            {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
+                        <Text style={{...FONTS.Title2, marginBottom: '5%'}}>Enter your phone number below</Text>
+                        <View style={{marginTop: 10, marginBottom: 20}}>
+                            <View style={styles.input}>
+                                <Icon
+                                    name={'call'}
+                                    type="ionicon"
+                                    size={20}
+                                    color={COLORS.LIGHTGREY}
+                                    style={{marginRight: 5}}
+                                />
+                                <TextInput
+                                    // mask="+1-999-999-9999"
+                                    placeholder="+1-234-456-7890"
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={handlePhoneNumberChange}
+                                    value={phone}
+                                    keyboardType="phone-pad"
+                                    editable={true}
+                                />
+                            </View>
+                            {phoneError && <Text style={styles.warningText2}>Invalid phone number</Text>}
                         </View>
 
                         <AkcruButtons.LrgButton
@@ -162,12 +161,6 @@ const ForgotPassword = () => {
                             onPress={SendOTP}
                             disabled={!isFormComplete || loading}
                         />
-                        <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
-                           <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: '5%'}}>
-                            Enter your phone number
-                        </Text> 
-                        </Pressable>
-                        
                     </View>
                     <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
                         <ResetPasswordResultModal
@@ -185,7 +178,7 @@ const ForgotPassword = () => {
     );
 };
 
-export default ForgotPassword;
+export default PhoneForgotPassword;
 function alert(arg0: string) {
     throw new Error('Function not implemented.');
 }

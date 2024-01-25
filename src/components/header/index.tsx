@@ -29,7 +29,14 @@ const Header = () => {
         try {
             const notifications = await getMyNotifications();
             if (notifications && notifications.length > 0) {
-                const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined'];
+                const specificTypes = [
+                    'MITAccepted',
+                    'MITDeclined',
+                    'CruInviteAccepted',
+                    'CruInviteDeclined',
+                    'UserFollowed',
+                    'UserCommentedOnPost',
+                ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );

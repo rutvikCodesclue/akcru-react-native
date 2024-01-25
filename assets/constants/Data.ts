@@ -2,7 +2,7 @@ import {COLORS, FONTS} from './theme';
 
 export const appVersion = [
   {
-    version: '1.0.75'
+    version: '1.0.77'
   }
 ]
 
@@ -118,6 +118,12 @@ export const MOVIE_GENRES = [
         photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
         id: '13',
         color: COLORS.PURPLE,
+    },
+    {
+        genre: 'Biography',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '14',
+        color: COLORS.AKCRUBACKGROUND,
     },
 ];
 

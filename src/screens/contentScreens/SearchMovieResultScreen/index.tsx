@@ -58,10 +58,10 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
       }
 
       // Sort movies by createdAt in descending order (newest first)
-      const sortedMovies = movies.sort((b, a) => {
+      const sortedMovies = movies.sort((a, b) => {
           const dateA = new Date(a.createdAt);
           const dateB = new Date(b.createdAt);
-          return dateA.getTime() - dateB.getTime();
+          return dateB.getTime() - dateA.getTime();
       });
 
       // console.log('Found movies: ', movies);
