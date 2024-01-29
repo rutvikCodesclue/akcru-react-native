@@ -9,7 +9,7 @@ import {
   Modal,
   StatusBar,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, SIZES } from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
@@ -22,6 +22,9 @@ import {ClientStackParams} from '../../navigation/ClientStack';
 import { formatMovieDuration } from '../../util/util';
 import { capitalizeFirstLetterOfString } from '../../util/util';
 import ConfirmationModal from '../ConfirmationModal';
+import { getUserReactions } from '../../lib/api/movies.lib';
+import { API } from '../../clients/api.client';
+
 
 type MovieDetailCardProps = {
     title: string;
@@ -45,10 +48,12 @@ type MovieDetailCardProps = {
     handleConfirmAddToWatchList: () => void;
     watchlistButton: () => void;
     PlayTrailer: () => void;
+    reactions: any;
 };
 
+
 const MovieDetailCard = ({
-    id,
+    id: movieId,
     title,
     year,
     duration,
@@ -69,8 +74,98 @@ const MovieDetailCard = ({
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
     PlayTrailer,
+    reactions
 }: MovieDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+
+    const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
+    const [reactionStats, setReactionStats] = useState<any>(null);
+    useEffect(() => {
+        const fetchReactionStats = async () => {
+            try {
+                const response = await API.get(`/v1/movies/${movieId}/reaction-stats`);
+                if (response.data && response.data.success) {
+                    setReactionStats(response.data.reactionStats);
+                    console.log('Reaction Stats:', response.data.reactionStats);
+                }
+            } catch (error) {
+                console.error('Error fetching reaction statistics:', error);
+            }
+        };
+
+        fetchReactionStats();
+    }, [movieId]);
+
+
+    useEffect(() => {
+        const fetchUserReaction = async () => {
+            try {
+                const response = await API.get(`/v1/movies/${movieId}/user-reaction`);
+                if (response.data && response.data.success) {
+                    setSelectedReaction(response.data.reaction);
+                    
+                }
+            } catch (error) {
+                console.error('Error fetching user reaction:', error);
+            }
+        };
+
+        fetchUserReaction();
+    }, [movieId]);
+    // The getIconForReaction function
+
+    const postReaction = async reactionType => {
+        try {
+            const response = await API.post(`/v1/movies/${movieId}/reactions`, {reactionType});
+            console.log('Reaction posted:', response.data);
+            // Additional logic to handle the response
+            setSelectedReaction(reactionType); // Update the selected reaction
+            console.log('Selected Reaction State:', selectedReaction);
+        } catch (error) {
+            console.error('Error posting reaction:', error);
+        }
+    };
+    
+    const handleReactionClick = reactionType => {
+        if (selectedReaction !== reactionType) {
+            postReaction(reactionType);
+        }
+    };
+
+    const getIconForReaction = (reactionType: any) => {
+        let color = COLORS.LIGHTGREY;
+        if (reactionType === selectedReaction) {
+            color = COLORS.PURPLE; // Highlight color for selected reaction
+        }
+
+        return (
+            <Icon
+                key={selectedReaction} // Force re-render
+                name={reactionType === 'LOVE' ? 'heart' : reactionType === 'LIKE' ? 'thumbs-up' : 'thumbs-down'}
+                type="ionicon"
+                size={20}
+                color={color}
+            />
+        );
+    };
+
+    // const getIconForReaction = (reactionType: any) => {
+    //     let color = COLORS.LIGHTGREY;
+    //     if (reactionType === selectedReaction) {
+    //         color = COLORS.MIDORANGE; // Highlight color for selected reaction
+    //         console.log(`Color changed for ${reactionType}`);
+    //     }
+    //     switch (reactionType) {
+    //         case 'LOVE':
+    //             return <Icon name="heart" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
+    //         case 'LIKE':
+    //             return <Icon name="thumbs-up" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
+    //         case 'DISLIKE':
+    //             return <Icon name="thumbs-down" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
+    //         default:
+    //             return null; // or a default icon
+    //     }
+    // };
 
     return (
         <View>
@@ -123,32 +218,6 @@ const MovieDetailCard = ({
                             <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                         </View>
                     </TouchableOpacity>
-                    {/* <View style={{flexDirection: 'row', marginTop: 10}}>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <View style={{marginRight: 25}}>
-                                                <TouchableOpacity>
-                                                    <Icon
-                                                        name="thumb-up-outline"
-                                                        type="material-community"
-                                                        color={'green'}
-                                                        size={SIZES.MedIcon}
-                                                    />
-                                                </TouchableOpacity>
-                                                <Text style={{...FONTS.Title2}}>I Like</Text>
-                                            </View>
-                                            <View>
-                                                <TouchableOpacity>
-                                                    <Icon
-                                                        name="thumb-down-outline"
-                                                        type="material-community"
-                                                        color={'red'}
-                                                        size={SIZES.MedIcon}
-                                                    />
-                                                </TouchableOpacity>
-                                                <Text style={{...FONTS.Title2}}>Nah</Text>
-                                            </View>
-                                        </View>
-                                    </View> */}
                     <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
                         <View
                             style={{
@@ -250,6 +319,28 @@ const MovieDetailCard = ({
                             {rating}/10
                         </Text>
                     </View>
+                </View>
+
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-evenly',
+                        width: '100%',
+                        alignContent: 'center',
+                        marginVertical: 10,
+                    }}>
+                    {Array.isArray(reactions) &&
+                        reactions.map((reactionType, reactionStats) => (
+                            <TouchableOpacity
+                                onPress={() => handleReactionClick(reactionType)}
+                                key={reactionType}
+                                style={{alignItems: 'center'}}>
+                                {getIconForReaction(reactionType)}
+                                <Text style={{...FONTS.paragraph1}}>
+                                    {capitalizeFirstLetterOfString(reactionType)} {reactionStats}%
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
                 </View>
 
                 <View style={{marginHorizontal: 15, marginVertical: 10}}>

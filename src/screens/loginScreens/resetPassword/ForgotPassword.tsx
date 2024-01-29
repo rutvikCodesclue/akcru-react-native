@@ -13,6 +13,7 @@ import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 const ForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -27,7 +28,7 @@ const ForgotPassword = () => {
         return emailRegex.test(email);
     };
 
-    const handleEmailChange = text => {
+    const handleEmailChange = (text: string) => {
         setEmail(text);
         setEmailError(!isEmailValid(text));
     };
@@ -113,6 +114,17 @@ const ForgotPassword = () => {
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
                         <View
@@ -163,11 +175,10 @@ const ForgotPassword = () => {
                             disabled={!isFormComplete || loading}
                         />
                         <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
-                           <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: '5%'}}>
-                            Enter your phone number
-                        </Text> 
+                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: '5%'}}>
+                                Enter your phone number
+                            </Text>
                         </Pressable>
-                        
                     </View>
                     <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
                         <ResetPasswordResultModal

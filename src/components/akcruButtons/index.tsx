@@ -15,7 +15,7 @@ const SmallButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 3, height: 40}}
+        style={{width: SIZES.ScreenWidth / 3, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -33,7 +33,7 @@ const SmallButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -48,7 +48,7 @@ const MedButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 2.2, height: 40}}
+        style={{width: SIZES.ScreenWidth / 2.2, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -66,7 +66,7 @@ const MedButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -81,7 +81,7 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 1.5, height: 40}}
+        style={{width: SIZES.ScreenWidth * .85, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -99,7 +99,7 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -114,7 +114,7 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
             <TouchableOpacity
-                style={{width: SIZES.ScreenWidth * 0.8, height: 40}}
+                style={{width: SIZES.ScreenWidth * 0.8, height: 45}}
                 onPress={onPress}
                 disabled={disabled}>
                 <View
@@ -132,7 +132,7 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 40,
+                            height: 45,
                             borderRadius: 5,
                         }}
                     />

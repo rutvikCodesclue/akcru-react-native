@@ -198,7 +198,7 @@ const AccountSettings = () => {
     const [showUpdatePhoneConfirmation, setShowUpdatePhoneConfirmation] = useState(false);
 
     const handleChangePhone = () => {
-        // Check if the phone number has at least 10 digits
+        // Check if the phone number has at least 11 digits
         if (phone.length < 11) {
             // Show an alert to inform the user
             Alert.alert('Invalid Phone Number', 'Phone number must have at least 11 digits.');

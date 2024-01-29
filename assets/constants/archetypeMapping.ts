@@ -1,5 +1,3 @@
-
-
 export type ArchetypeMapping = {
     [key: string]: {
     name:string;

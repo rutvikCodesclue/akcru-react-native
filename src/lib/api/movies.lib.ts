@@ -83,5 +83,36 @@ export const removeFromWatchlist = async (movieId: string): Promise<boolean> => 
     }
 };
 
+export const getUserReactions = async () => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const response = await API.get('/v1/movies/reactionTypes', {
+            headers: {
+                'Content-Type': 'application/json',
+                // Include any necessary authorization headers
+            },
+        });
+
+        return response.data.reactions;
+    } catch (error) {
+        console.error('Error fetching user reactions:', error);
+        // Handle error appropriately
+    }
+};
+
+export const postUserReaction = async (movieId: string, reactionType: any) => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const response = await API.post(`/v1/movies/${movieId}/reactions`, {
+            reactionType,
+        });
+        return response.data; // Handle the response as needed
+    } catch (error) {
+        console.error('Error posting user reaction:', error);
+        // Handle the error appropriately
+    }
+};
+
+
 
 

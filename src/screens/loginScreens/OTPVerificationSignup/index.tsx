@@ -19,41 +19,18 @@ import { API } from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 
 
-const OTPVerification = ({route}) => {
-    const authStore = useAuthStore();
+const OTPVerificationSignup = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
     // const route = useRoute();
 
     // Retrieve both email and phoneNumber from route.params
     const email = route.params?.email;
+    console.log('Email passed:', email);
     const phoneNumber = route.params?.phoneNumber;
+    console.log('Phone number passed:', phoneNumber);
 
     const [otp, setOTP] = useState<string>('');
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            await authStore.hydrateAuth();
-            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
-
-            const accessToken = await AsyncStorage.getItem('access_token');
-            const isLoggedInWithToken = isAuthed && accessToken !== null;
-
-            setTimeout(() => {
-                if (accessToken) {
-                    setIsLoggedIn(true);
-                    // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-                } else {
-                    setIsLoggedIn(false);
-                }
-            }, 1000); // Wait for 3 seconds before executing the code
-        };
-
-        checkAuth().catch(err => {
-            console.error('Error checking auth', err);
-        });
-    }, []);
 
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
     //code length
@@ -103,44 +80,44 @@ const OTPVerification = ({route}) => {
         }
     };
 
-    const handleOTPVerification = async () => {
-        try {
-            setVerify(true);
+     const handleOTPVerification = async () => {
+         try {
+             setVerify(true);
 
-            // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
-            // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
-            const payload = email ? {email} : {phoneNumber};
+             // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
+             // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
+             const payload = email ? {email} : {phoneNumber};
 
-            // Call verifyOTP() with the user's email or phone number and the OTP code
-            const response = await API.post('/v1/user/verifyOTP', {
-                ...payload,
-                otp: code,
-                // emailOrPhoneNumber: emailOrPhoneNumber,
-            });
+             // Call verifyOTP() with the user's email or phone number and the OTP code
+             const response = await API.post('/v1/auth/verify', {
+                 ...payload,
+                 otp: code,
+                 // emailOrPhoneNumber: emailOrPhoneNumber,
+             });
 
-            const data = response.data;
+             const data = response.data;
 
-            if (data.success) {
-                console.log('Verification successful', data);
-                setVerify(false);
-                handleShowOTPModal('success');
+             if (data.success) {
+                 console.log('Verification successful', data);
+                 setVerify(false);
+                 handleShowOTPModal('success');
 
-                // Navigate to ResetPassword screen
-                // Pass any necessary data as parameters
-                navigation.navigate('ResetPassword', {
-                    email: email,
-                    phoneNumber: phoneNumber,
-                });
-            } else {
-                // Handle the case where data.success is false
-                throw new Error(data.message || 'Verification failed');
-            }
-        } catch (error) {
-            console.error('Verification failed', error);
-            setVerify(false);
-            handleShowOTPModal('failed');
-        }
-    };
+                 // Navigate to ResetPassword screen
+                 // Pass any necessary data as parameters
+                 navigation.navigate('OnboardEmailOrPassword', {
+                     email: email,
+                     phoneNumber: phoneNumber,
+                 });
+             } else {
+                 // Handle the case where data.success is false
+                 throw new Error(data.message || 'Verification failed');
+             }
+         } catch (error) {
+             console.error('Verification failed', error);
+             setVerify(false);
+             handleShowOTPModal('failed');
+         }
+     };
 
     return (
         <View>
@@ -200,7 +177,7 @@ const OTPVerification = ({route}) => {
                         <View>
                             {!verify && pinReady && (
                                 <AkcruButtons.LrgButton
-                                    color={COLORS.MIDORANGE}
+                                    color={COLORS.AKCRUBLUE}
                                     btnname={'Verify'}
                                     onPress={handleOTPVerification}
                                     disabled={false}
@@ -234,4 +211,4 @@ const OTPVerification = ({route}) => {
     );
 };
 
-export default OTPVerification;
+export default OTPVerificationSignup;

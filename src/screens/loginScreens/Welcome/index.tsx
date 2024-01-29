@@ -7,12 +7,11 @@ import {
   Modal,
 } from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons'
-import Inputs from '../../../components/input'
-import { COLORS, FONTS } from '../../../../assets/constants'
-import React, {useState, useEffect} from 'react';
+import { COLORS, FONTS, SIZES } from '../../../../assets/constants'
+import React, {useState, useEffect, useCallback} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import { useNavigation} from '@react-navigation/native';
+import { useFocusEffect, useNavigation} from '@react-navigation/native';
 import { AuthStackParams } from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AkcruLogo } from '../../../../assets/svg';
@@ -21,9 +20,10 @@ import useAuthStore from '../../../stores/auth.store';
 import { appVersion } from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import LinearGradient from 'react-native-linear-gradient';
 
 
-const Signin = () => {
+const Welcome = () => {
     useEffect(() => {
         const _checkPermissions = async () => {
             // Check permissions for camera and microphone on Android
@@ -129,51 +129,26 @@ const Signin = () => {
 
 
     const authStore = useAuthStore();
+
+ 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    // const showErrorAlert = () => {
-    //     Alert.alert('Login error', 'Please try again.', [
-    //         {text: 'OK', onPress: () => {}}, // You can add a callback function if needed
-    //     ]);
-    // };
     const [showLoginError, setShowLoginError] = useState(false);
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
 
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
+
+    
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
-    // useEffect(() => {
-    //     const checkAuth = async () => {
-    //         await authStore.hydrateAuth();
-    //         const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
-
-    //         const accessToken = await AsyncStorage.getItem('access_token');
-    //         const isLoggedInWithToken = isAuthed && accessToken !== null;
-
-    //         setTimeout(() => {
-    //             if (accessToken) {
-    //                 setIsLoggedIn(true);
-    //                 // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-    //             } else {
-    //                 setIsLoggedIn(false);
-    //             }
-    //         }, 100); // Wait for 3 seconds before executing the code
-    //     };
-
-    //     checkAuth().catch(err => {
-    //         console.error('Error checking auth', err);
-    //     });
-    // }, []);
     useEffect(() => {
         const checkAuth = async () => {
+            // console.log('Auth store', authStore);
             await authStore.hydrateAuth();
-            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
-
             const accessToken = await AsyncStorage.getItem('access_token');
+            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
             const isLoggedInWithToken = isAuthed && accessToken !== null;
-            
+
             setIsLoggedIn(isLoggedInWithToken); // Set login status based on actual auth check
         };
 ;
@@ -183,51 +158,36 @@ const Signin = () => {
     }, []);
 
     
-    async function attemptLogin() {
-        try {
-            setLoading(true);
-            console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-            // login through the API
-            const loginResponse = await authStore.loginWithEmail(email, password);
-            const session = loginResponse?.session;
-            const user = loginResponse?.user;
-
-            if (!session || !user) {
-                Alert.alert('Error Logging In');
-                setShowLoginError(true); // Display the error alert
-                setLoading(false);
-                return;
-            }
-            if (!loginResponse) {
-                Alert.alert('Error Logging In. Please try again.');
-                setShowLoginError(true); // Display the error alert
-                setLoading(false);
-                return;
-            }
-
-            // set the acces_token in local storage
-            const accessToken = session.access_token;
-            AsyncStorage.setItem('access_token', accessToken);
-            console.log('LOGIN Successful. Access Token:', accessToken);
-            console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
-            setLoading(false);
-            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-        } catch (error) {
-            setShowLoginError(true); // Display the error alert
-            console.log('LOGIN Error:', error);
-            setLoading(false);
-        }
-    }
 
     async function handleLogout() {
         await AsyncStorage.removeItem('access_token'); // Remove the stored token
         await authStore.logout();
+        navigation.navigate('Signin');
         setIsLoggedIn(false);
     }
+// if (loading) {
+//     // Render a loading spinner or any placeholder here until the check is complete
+//     return (
+//         <View style={styles.container}>
+//             <Text>Loading...</Text>
+//         </View>
+//     );
+// }
 
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     {isLoggedIn ? ( // Display different content for logged-in and logged-out users
                         <View style={styles.container2}>
@@ -240,7 +200,7 @@ const Signin = () => {
                                 color={COLORS.AKCRUBLUE}
                                 btnname="Enter Akcru"
                                 onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
-                                disabled={loading}
+                                disabled={!loading}
                             />
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
@@ -275,108 +235,35 @@ const Signin = () => {
                             </View>
                         </View>
                     ) : (
-                        <>
-                            <AkcruLogo width={200} height={60} />
-                            <View style={{marginBottom: 10}}>
-                                <Text style={{...FONTS.Title1}}>Welcome back, sign in below</Text>
+                        <View>
+                            <View style={{alignItems: 'center'}}>
+                                <AkcruLogo width={200} height={60} />
                             </View>
-                            <View>
-                                <Inputs
-                                    placeholdername={'Email'}
-                                    iconname={'mail'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={false}
-                                    onChangeText={(text: React.SetStateAction<string>) => setEmail(text)}
-                                    value={email}
-                                    editable={true}
-                                />
-                                <Inputs
-                                    placeholdername={'Password'}
-                                    iconname={'lock-closed'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={true}
-                                    onChangeText={(text: React.SetStateAction<string>) => setPassword(text)}
-                                    value={password}
-                                    editable={true}
-                                />
-                            </View>
-                            <View style={{marginVertical: 10}}>
-                                <AkcruButtons.LrgButton
-                                    color={COLORS.AKCRUBLUE}
-                                    btnname={'Login'}
-                                    onPress={() => attemptLogin()}
-                                    disabled={loading}
-                                />
-                            </View>
-                            {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <TouchableOpacity>
-                                    <Googlelogo
-                                        width={42}
-                                        height={42}
-                                        onPress={() =>
-                                            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'})
-                                        }
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Fblogo
-                                        width={40}
-                                        height={40}
-                                        style={{marginLeft: 25, marginRight: 25}}
-                                        onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Applelogo width={50} height={50} onPress={() => {}} />
-                                </TouchableOpacity>
-                            </View> */}
-                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2Orange,
-                                        fontSize: 14,
-                                        marginTop: 10,
-                                    }}>
-                                    Forgot your password?
-                                </Text>
-                            </TouchableOpacity>
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('OTPVerification')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>OTP Verification</Text>
-                            </TouchableOpacity> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('TestScreen')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>TestScreen</Text>
-                            </TouchableOpacity> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>ResetPassword</Text>
-                            </TouchableOpacity> */}
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
-                                <View
-                                    style={{
-                                        marginBottom: 25,
-                                        flexDirection: 'row',
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2White,
-                                            marginRight: 5,
-                                        }}>
-                                        Not a subscriber?
-                                    </Text>
-
-                                    <TouchableOpacity onPress={() => navigation.navigate('OnboardEmail')}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2Orange,
-                                            }}>
-                                            Sign up here
-                                        </Text>
-                                    </TouchableOpacity>
+                                <View style={{marginBottom: '15%'}}>
+                                    <View style={{marginVertical: 15}}>
+                                        <AkcruButtons.LrgButton
+                                            color={COLORS.AKCRUBLUE}
+                                            btnname={'Sign in'}
+                                            onPress={() => navigation.navigate('Signin')}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                    <View>
+                                        <AkcruButtons.LrgButton
+                                            color={COLORS.PURPLE}
+                                            btnname={'Create Account'}
+                                            onPress={() => navigation.navigate('OnboardEmail')}
+                                            disabled={false}
+                                        />
+                                    </View>
                                 </View>
+
                                 <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
                                     version {appVersion[0].version}
                                 </Text>
                             </View>
-                        </>
+                        </View>
                     )}
                     <Modal animationType="fade" transparent={true} visible={showLoginError}>
                         <View
@@ -425,4 +312,4 @@ const Signin = () => {
     );
 }
 
-export default Signin;
+export default Welcome;

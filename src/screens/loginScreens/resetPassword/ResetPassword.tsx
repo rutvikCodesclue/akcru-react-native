@@ -1,7 +1,7 @@
 import {View, Text, ImageBackground, Modal, TouchableOpacity, Alert, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -13,6 +13,7 @@ import Inputs from '../../../components/input';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import useAuthStore from '../../../stores/auth.store';
 import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const ResetPassword = () => {
@@ -148,6 +149,17 @@ const ResetPassword = () => {
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
                         <View
@@ -169,7 +181,7 @@ const ResetPassword = () => {
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
-                                name="key"
+                                name="lock-open"
                                 type="ionicon"
                                 size={80}
                                 color={COLORS.MIDORANGE}

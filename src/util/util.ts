@@ -9,6 +9,20 @@ export function timeSince(dateCreated: string): string {
     return formatDistance(postDate, now) + ' ago';
 }
 
+// export function capitalizeFirstLetterOfString(str: string) {
+//     if (typeof str !== 'string') {
+//         console.error('Input is not a string:', str);
+//         return str; // or return a default value or throw an error, depending on your use case
+//     }
+
+//     if (str.length === 0) {
+//         return str; // Return the original string if it's empty
+//     }
+
+//     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+// }
+
+
 export function capitalizeFirstLetterOfString(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
