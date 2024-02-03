@@ -143,13 +143,13 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
     );
 };
 
-const XSmallButton = ({btnname, onPress, disabled}: Props) => {
+const XSmallButton = ({btnname, onPress, disabled, color}: Props) => {
   return (
     <View>
       <TouchableOpacity onPress={onPress} disabled={disabled}>
         <View
           style={{
-            backgroundColor: COLORS.AKCRUBLUE,
+            backgroundColor: color,
             height: 35,
             justifyContent: 'center',
             width: 90,

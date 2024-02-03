@@ -25,6 +25,16 @@ import ConfirmationModal from '../ConfirmationModal';
 import { getUserReactions } from '../../lib/api/movies.lib';
 import { API } from '../../clients/api.client';
 
+type ReactionStat = {
+    type: string;
+    percentage: string;
+};
+
+type CombinedReaction = {
+    type: string;
+    percentage: string;
+};
+
 
 type MovieDetailCardProps = {
     title: string;
@@ -79,7 +89,9 @@ const MovieDetailCard = ({
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
-    const [reactionStats, setReactionStats] = useState<any>(null);
+    const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
+     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
+     
     useEffect(() => {
         const fetchReactionStats = async () => {
             try {
@@ -114,7 +126,7 @@ const MovieDetailCard = ({
     }, [movieId]);
     // The getIconForReaction function
 
-    const postReaction = async reactionType => {
+    const postReaction = async (reactionType: string | null) => {
         try {
             const response = await API.post(`/v1/movies/${movieId}/reactions`, {reactionType});
             console.log('Reaction posted:', response.data);
@@ -126,13 +138,13 @@ const MovieDetailCard = ({
         }
     };
     
-    const handleReactionClick = reactionType => {
+    const handleReactionClick = (reactionType: string | null) => {
         if (selectedReaction !== reactionType) {
             postReaction(reactionType);
         }
     };
 
-    const getIconForReaction = (reactionType: any) => {
+    const getIconForReaction = (reactionType: string | null) => {
         let color = COLORS.LIGHTGREY;
         if (reactionType === selectedReaction) {
             color = COLORS.PURPLE; // Highlight color for selected reaction
@@ -149,23 +161,21 @@ const MovieDetailCard = ({
         );
     };
 
-    // const getIconForReaction = (reactionType: any) => {
-    //     let color = COLORS.LIGHTGREY;
-    //     if (reactionType === selectedReaction) {
-    //         color = COLORS.MIDORANGE; // Highlight color for selected reaction
-    //         console.log(`Color changed for ${reactionType}`);
-    //     }
-    //     switch (reactionType) {
-    //         case 'LOVE':
-    //             return <Icon name="heart" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
-    //         case 'LIKE':
-    //             return <Icon name="thumbs-up" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
-    //         case 'DISLIKE':
-    //             return <Icon name="thumbs-down" type="ionicon" size={20} color={COLORS.LIGHTGREY} />;
-    //         default:
-    //             return null; // or a default icon
-    //     }
-    // };
+    
+   
+
+    useEffect(() => {
+        if (Array.isArray(reactions) && reactionStats) {
+            const updatedReactions: CombinedReaction[] = reactions.map(reaction => {
+                const stats = reactionStats.find((stat: ReactionStat) => stat.type === reaction) || {percentage: '0'};
+                return {
+                    type: reaction,
+                    percentage: stats.percentage,
+                };
+            });
+            setCombinedReactions(updatedReactions);
+        }
+    }, [reactions, reactionStats]);
 
     return (
         <View>
@@ -320,7 +330,6 @@ const MovieDetailCard = ({
                         </Text>
                     </View>
                 </View>
-
                 <View
                     style={{
                         flexDirection: 'row',
@@ -329,18 +338,17 @@ const MovieDetailCard = ({
                         alignContent: 'center',
                         marginVertical: 10,
                     }}>
-                    {Array.isArray(reactions) &&
-                        reactions.map((reactionType, reactionStats) => (
-                            <TouchableOpacity
-                                onPress={() => handleReactionClick(reactionType)}
-                                key={reactionType}
-                                style={{alignItems: 'center'}}>
-                                {getIconForReaction(reactionType)}
-                                <Text style={{...FONTS.paragraph1}}>
-                                    {capitalizeFirstLetterOfString(reactionType)} {reactionStats}%
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
+                    {combinedReactions.map(reaction => (
+                        <TouchableOpacity
+                            onPress={() => handleReactionClick(reaction.type)}
+                            key={reaction.type}
+                            style={{alignItems: 'center'}}>
+                            {getIconForReaction(reaction.type)}
+                            <Text style={{...FONTS.paragraph1}}>
+                                {capitalizeFirstLetterOfString(reaction.type)} {reaction.percentage}%
+                            </Text>
+                        </TouchableOpacity>
+                    ))}
                 </View>
 
                 <View style={{marginHorizontal: 15, marginVertical: 10}}>

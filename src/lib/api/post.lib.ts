@@ -50,11 +50,35 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
     }
 };
 
-export async function createPost(type: string, content: string) {
+// export async function createPost(type: string, content: string) {
+//     try {
+//         // Make a POST request using the API client
+//         const {data} = await API.post(`/v1/post/create`, {
+//             type,
+//             content,
+//         });
+
+//         if (data.success === false) {
+//             throw new Error(data.message);
+//         }
+
+//         return data.post;
+//     } catch (error) {
+//         console.error(error);
+//         throw new Error('Failed to create a post.');
+//     }
+// }
+
+export async function createPost(postType: string, content: string[]) {
     try {
+        // Validate content based on postType
+        if (!validateContentForPostType(postType, content)) {
+            throw new Error('Invalid content for the specified post type.');
+        }
+
         // Make a POST request using the API client
         const {data} = await API.post(`/v1/post/create`, {
-            type,
+            postType,
             content,
         });
 
@@ -68,6 +92,29 @@ export async function createPost(type: string, content: string) {
         throw new Error('Failed to create a post.');
     }
 }
+
+function validateContentForPostType(postType: string, content: string[]): boolean {
+    switch (postType) {
+        case 'TEXT':
+            return content.length === 1 && typeof content[0] === 'string';
+        case 'IMAGE':
+            // Add logic for IMAGE type validation
+            // Example:
+            return content.every(c => isImageUrl(c));
+        // Handle other types similarly
+        // ...
+        default:
+            return false; // Default case to handle any unexpected post types
+    }
+}
+
+function isImageUrl(url: string): boolean {
+    // Implement logic to validate if a string is a URL for an image
+    // This is just a placeholder example
+    return url.startsWith('http://') || url.startsWith('https://');
+}
+
+
 
 
 export async function deletePost(id: number) {

@@ -21,7 +21,7 @@ import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import { DIGITAL_PASS } from '../../../../assets/constants/Mockusers'
-import { Icon } from '@rneui/base'
+import { Icon, color } from '@rneui/base'
 import { Route, RouteProp, useFocusEffect, useNavigation } from '@react-navigation/native';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import imageindex from '../../../../assets/images/imageindex';
@@ -33,6 +33,7 @@ import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from '
 import MITReceived from '../UserMITHubTabs/MITReceived';
 import MITSent from '../UserMITHubTabs/MITSent';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import AkcruButtons from '../../../components/akcruButtons';
 
 
 
@@ -170,9 +171,17 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                               <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                           </View>
                       </TouchableOpacity>
-                      <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                          <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
+                      <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
                           <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
+                        </View> 
+                          <View style={{width: '25%', justifyContent: 'flex-end'}}>
+                            <AkcruButtons.XSmallButton
+                          btnname='Chat' disabled={false} onPress={() => {''}} color={COLORS.AKCRUBLUE} />
+                          </View>
+                          
+                          
                       </View>
                   </View>
 
