@@ -418,3 +418,47 @@ export type SkinnyType = {
     numberOfLikes?: number;
 };
 
+
+
+
+export type IChatType = {
+    id: string;
+    content: string;
+    senderId: string;
+    receiverId: string;
+    createdAt: string;
+    updatedAt: string;
+    chatRoomId: string;
+    
+};
+
+export type IChatUser = {
+    id:string,
+    movieId:string,
+    status:string,
+    creatorId:string,
+    inviteeId:string,
+    startDate:string,
+    timezone:string,
+    createdAt:string,
+    updatedAt:string,
+    lastMessage:string,
+    lastMessageAt:string,
+    movie: IChatMovie
+
+}
+
+export type IChatMovie ={
+    id:string,
+    title:string,
+    description:string,
+    duration:number,
+    year: number,
+    movieURL?:string,
+    trailerURL?:string,
+    landscapeURL?:string,
+    image?:string,
+    price?:string,
+    portraitURL?:string
+    rating:string
+}
