@@ -1,6 +1,6 @@
 import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, TextInput} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -16,6 +16,7 @@ import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import { supabase } from '../../../../lib/supabase';
 import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 
 const OTPVerification = ({route}) => {
@@ -144,61 +145,84 @@ const OTPVerification = ({route}) => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
-                    <View>
-                        <Svg
-                            height={150}
-                            width={150}
-                            viewBox={`0 0 270 234`}
-                            style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
-                            <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
-                        </Svg>
-                        <Icon
-                            name="lock-open"
-                            type="ionicon"
-                            size={80}
-                            color={COLORS.MIDORANGE}
-                            style={{marginBottom: '8%'}}
-                        />
-                    </View>
-                    <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
-                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>
-                            Enter the 6-digit code sent to your email
-                        </Text>
-                    </View>
-                    <View style={{marginVertical: '15%'}}>
-                        <CodeInput
-                            maxLength={MAX_CODE_LENGTH}
-                            code={code}
-                            setCode={setCode}
-                            setPinReady={setPinReady}
-                        />
-                    </View>
-                    <View>
-                        {!verify && pinReady && (
-                            <AkcruButtons.LrgButton
-                                color={COLORS.MIDORANGE}
-                                btnname={'Verify'}
-                                onPress={handleOTPVerification}
-                                disabled={false}
-                            />
-                        )}
-                        {!verify && !pinReady && (
-                            <AkcruButtons.LrgButton
-                                color={COLORS.DARKGREY}
-                                btnname={'Verify'}
-                                onPress={() => ''}
-                                disabled={true}
-                            />
-                        )}
+                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
-                            <ResendTimer
-                                setActiveResend={setActiveResend}
-                                activeResend={activeResend}
-                                resendStatus={resendStatus}
-                                resendingEmail={resendingEmail}
-                                resendEmail={resendEmail}
+                            <Svg
+                                height={150}
+                                width={150}
+                                viewBox={`0 0 270 234`}
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                                <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
+                            </Svg>
+                            <Icon
+                                name="lock-open"
+                                type="ionicon"
+                                size={80}
+                                color={COLORS.MIDORANGE}
+                                style={{marginBottom: '8%'}}
                             />
+                        </View>
+                        <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
+                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                                Enter the 6-digit code sent to your email
+                            </Text>
+                        </View>
+                        <View style={{marginVertical: '15%'}}>
+                            <CodeInput
+                                maxLength={MAX_CODE_LENGTH}
+                                code={code}
+                                setCode={setCode}
+                                setPinReady={setPinReady}
+                            />
+                        </View>
+                        <View>
+                            {!verify && pinReady && (
+                                <AkcruButtons.LrgButton
+                                    color={COLORS.MIDORANGE}
+                                    btnname={'Verify'}
+                                    onPress={handleOTPVerification}
+                                    disabled={false}
+                                />
+                            )}
+                            {!verify && !pinReady && (
+                                <AkcruButtons.LrgButton
+                                    color={COLORS.DARKGREY}
+                                    btnname={'Verify'}
+                                    onPress={() => ''}
+                                    disabled={true}
+                                />
+                            )}
+                            <View>
+                                <ResendTimer
+                                    setActiveResend={setActiveResend}
+                                    activeResend={activeResend}
+                                    resendStatus={resendStatus}
+                                    resendingEmail={resendingEmail}
+                                    resendEmail={resendEmail}
+                                />
+                            </View>
                         </View>
                     </View>
                     <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>

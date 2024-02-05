@@ -269,11 +269,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     return (
         <TabContainer>
-            <SafeAreaView style={{marginBottom: '20%'}}>
+            <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]}>
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
+                    <View style={{marginBottom: '20%'}}>
                     <ImageBackground
                         //   source={{uri: digitalpass ?? undefined}}
                         source={{uri: undefined}}
@@ -606,10 +607,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         </View>
                                     )}
                                 </View>
+                                {user?.Cru?.name !== "My Cru" && user?.Cru?.name !== null && (
                                 <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
                                     <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
                                     <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
-                                </View>
+                                </View>)}
 
                                 {/* Create a modal to display the enlarged image */}
                                 <Modal visible={isModalVisible} animationType="fade" transparent={true}>
@@ -716,6 +718,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                         </View>
                     )}
+                    </View>
                 </ScrollView>
                 {selectedPhotoUri && (
                     <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>

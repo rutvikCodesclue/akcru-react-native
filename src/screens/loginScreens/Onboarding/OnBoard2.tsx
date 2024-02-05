@@ -65,27 +65,6 @@ const OnBoard2 = () => {
         }, []),
     );
 
-    // const handleUserNameChange = (text: string) => {
-    //     setUserName(text);
-    // };
-
-    // const checkFormCompletion = () => {
-    //     if (userName ) {
-    //         setIsFormComplete(true);
-    //     } else {
-    //         setIsFormComplete(false);
-    //     }
-    // };
-
-    // useEffect(
-    //     () => {
-    //         checkFormCompletion();
-    //     },
-    //     [
-    //         // dob,
-    //     ],
-    // );
-
     const [selectImage, setSelectImage] = useState('');
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);

@@ -34,6 +34,21 @@ export const CATEGORIES = [
   },
 ];
 
+export const GENDER = [
+  {
+    gender: 'Male',
+    id: '0',
+  },
+  {
+    gender: 'Female',
+    id: '1',
+  },
+  {
+    gender: 'Nonbinary',
+    id: '2',
+  },
+];
+
 export const MOVIE_GENRES = [
     {
         genre: 'All',
@@ -118,12 +133,6 @@ export const MOVIE_GENRES = [
         photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
         id: '13',
         color: COLORS.PURPLE,
-    },
-    {
-        genre: 'Biography',
-        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
-        id: '14',
-        color: COLORS.AKCRUBACKGROUND,
     },
 ];
 

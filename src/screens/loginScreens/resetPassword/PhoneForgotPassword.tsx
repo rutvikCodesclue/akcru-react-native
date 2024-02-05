@@ -1,8 +1,7 @@
 import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert, TextInput} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import styles from './styles';
 import AkcruButtons from '../../../components/akcruButtons';
-import Inputs from '../../../components/input';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
@@ -12,6 +11,7 @@ import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 const PhoneForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -22,8 +22,6 @@ const PhoneForgotPassword = () => {
 
     // Phone Number Validation
     const isPhoneValid = (phone: string) => {
-        // Add your phone number validation logic here
-        // Example: return true if phone number length is 10 digits
         return /^\d{11}$/.test(phone);
     };
 
@@ -101,6 +99,17 @@ const PhoneForgotPassword = () => {
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
                         <View
@@ -142,7 +151,7 @@ const PhoneForgotPassword = () => {
                                 />
                                 <TextInput
                                     // mask="+1-999-999-9999"
-                                    placeholder="+1-234-456-7890"
+                                    placeholder="1-234-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}

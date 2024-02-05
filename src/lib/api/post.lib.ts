@@ -1,4 +1,5 @@
 
+import { da } from 'date-fns/locale';
 import {IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
@@ -50,12 +51,15 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
     }
 };
 
-export async function createPost(type: string, content: string) {
+export async function createPost(postType: string, content: string[]) {
     try {
+        const postContent = Array.isArray(content) ? content : [content];
+        console.log('Post Content:', postContent);
+
         // Make a POST request using the API client
         const {data} = await API.post(`/v1/post/create`, {
-            type,
-            content,
+            postType,
+            content: postContent,
         });
 
         if (data.success === false) {
@@ -69,6 +73,108 @@ export async function createPost(type: string, content: string) {
     }
 }
 
+export async function commentOnPost(postId: number, postType: string, content) {
+    try {
+        const commentData = {
+            postId,
+            postType,
+            content,
+        };
+
+        console.log('Sending Comment Data:', commentData);
+
+        const response = await API.post(`/v1/post/comment`, commentData);
+
+        if (response.data.success === false) {
+            throw new Error(response.data.message);
+        }
+
+        return response.data.comment;
+    } catch (error) {
+        console.error('Error commenting on the post:', error);
+        throw error;
+    }
+}
+
+export async function uploadPictures(imageFiles: any[]) {
+    console.log('uploadPictures');
+    console.log('imageFiles:', imageFiles);
+    let formData = new FormData();
+    
+    imageFiles.forEach((uri, index) => {
+        // Extract the file extension from the URI
+        const fileExtension = uri.match(/\.(jpeg|jpg|png)$/)[0];
+
+        // Determine the MIME type
+        let mimeType = 'image/jpeg'; // Default MIME type
+        if (fileExtension === '.png') {
+            mimeType = 'image/png';
+        }
+
+        // Convert the URI to a Blob or File-like object
+        const file = {
+            uri: uri,
+            type: mimeType,
+            name: `image-${index}${fileExtension}`, // Append the correct file extension
+        };
+
+        formData.append('images', file);
+        console.log('formData:', formData);
+    });
+
+    try {
+        const response = await API.post('/v1/user/uploadPictures', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+           
+        });
+         console.log('response:', response.data.content);
+        return response.data.content;
+    } catch (error) {
+        console.error('Error uploading pictures:', error);
+        throw error;
+    }
+}
+
+export async function uploadVideo(videoFileUri: any, uploadType: any, durationInSeconds: any) {
+    console.log('uploadVideo');
+    let formData = new FormData();
+
+    // Extract the file extension from the URI
+    const fileExtension = videoFileUri.match(/\.(mov|mp4)$/)[0];
+
+    // Determine the MIME type
+    let mimeType = 'video/mp4'; // Default MIME type for mp4
+    if (fileExtension === '.mov') {
+        mimeType = 'video/quicktime'; // MIME type for mov
+    }
+
+    // Convert the URI to a Blob or File-like object
+    const videoFile = {
+        uri: videoFileUri,
+        type: mimeType,
+        name: `video${fileExtension}`, // Append the correct file extension
+    };
+
+    // Append the video file, upload type, and video duration to FormData
+    formData.append('video', videoFile);
+    formData.append('uploadType', uploadType);
+    formData.append('videoDuration', durationInSeconds.toString());
+
+    try {
+        const response = await API.post('/v1/user/uploadVideo', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        console.log('response:', response.data.videoLink);
+        return response.data.videoLink; // Assuming the API returns the video link
+    } catch (error) {
+        console.error('Error uploading video:', error);
+        throw error;
+    }
+}
 
 export async function deletePost(id: number) {
     try {
@@ -145,25 +251,6 @@ export async function unlikeComment(id: number) {
     } catch (error) {
         console.error(error);
         throw new Error('Failed to unlike the post.');
-    }
-}
-
-export async function commentOnPost(id: string, text: string) {
-    try {
-        // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/comment`, {
-            id,
-            text,
-        });
-
-        if (data.success === false) {
-            throw new Error(data.message);
-        }
-
-        return data.comment;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Failed to comment on the post.');
     }
 }
 

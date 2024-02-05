@@ -408,11 +408,6 @@ const UserProfileDetailsTab = () => {
                                     <Pressable onPress={() => handleImageEnlarge(item)}>
                                         <Image source={{uri: item}} style={styles.galleryImage} />
                                     </Pressable>
-                                    {/* <Pressable
-                                        style={{position: 'absolute', top: 2, right: 2}}
-                                        onPress={() => removeFromGallery(item)}>
-                                        <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
-                                    </Pressable> */}
                                 </View>
                             )}
                         />

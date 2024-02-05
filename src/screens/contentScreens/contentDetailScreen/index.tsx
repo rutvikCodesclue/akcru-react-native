@@ -19,7 +19,7 @@ import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import { useRoute } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
-import { addToWatchlist, findMovieById, findMovies, getWatchlist } from '../../../lib/api/movies.lib';
+import { addToWatchlist, findMovieById, findMovies, getUserReactions, getWatchlist } from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
@@ -188,6 +188,18 @@ export default function ContentDetailScreen({navigation, route}: Props) {
         setShowResultModal(false);
     };
         console.log('Movie Title:',title, year )
+        
+const [reactions, setReactions] = useState<string[]>([]); // Initialize as an empty array of strings
+
+useEffect(() => {
+    getUserReactions().then(fetchedReactions => {
+        console.log('Fetched Reactions:', fetchedReactions); // Log for debugging
+        if (Array.isArray(fetchedReactions)) {
+            setReactions(fetchedReactions);
+        }
+    });
+}, []);
+
     
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -203,6 +215,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                         <View style={{marginBottom: 75}}>
                             <View style={{marginTop: -65, marginBottom: 10}}>
                                 <MovieDetailCard
+                                    reactions={reactions} // Pass the reactions here
                                     portraitURL={portraitURL}
                                     title={title}
                                     year={year}
@@ -249,6 +262,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
                                     handleConfirmAddToWatchList={handleConfirmAddToWatchList}
                                 />
                             </View>
+                            <View></View>
 
                             <View style={{marginHorizontal: 15}}>
                                 <BasicListCategories

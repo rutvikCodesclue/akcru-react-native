@@ -29,14 +29,14 @@ export default StyleSheet.create({
         marginTop: 10,
     },
     input: {
-        width: SIZES.ScreenWidth / 1.5,
+        width: SIZES.ScreenWidth * .85,
         flexDirection: 'row',
         borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,
         borderRadius: 5,
         paddingHorizontal: 10,
         alignItems: 'center',
-        height: 40,
+        height: 45,
         backgroundColor: COLORS.TRANSDARKGREY,
     },
     textinput: {

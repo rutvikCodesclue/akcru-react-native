@@ -43,7 +43,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
     // console.log('user', user?.username);
     const currentUserID = user?.id;
-    console.log(`CurrentUserID: ${user?.id}, Type: ${typeof user?.id}`);
     const author: IPost | null = route.params?.author ?? null;
 
     const [likedPosts, setLikedPosts] = useState(new Set());
@@ -71,7 +70,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setLoading(true);
             try {
                 const fetchedPosts = await getPosts(1); // Fetch the first page
-                console.log("Fetched posts:", fetchedPosts);
+    
                 if (fetchedPosts && fetchedPosts.length > 0) {
                     setPosts(fetchedPosts);
                     setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page

@@ -5,7 +5,6 @@ export default StyleSheet.create({
     input: {
         width: SIZES.ScreenWidth * 0.92,
 
-        
         borderColor: COLORS.LIGHTGREY,
         marginTop: 10,
         alignSelf: 'center',
@@ -54,5 +53,16 @@ export default StyleSheet.create({
         paddingVertical: 10,
         color: COLORS.AKCRUBLUE,
         borderRadius: 5,
+    },
+    postgallerycontainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+        width: '100%',
+    },
+    postvideo: {
+        width: '100%',
+        aspectRatio: 16 / 9,
+        borderRadius: 10,
+        marginTop: 10,
     },
 });

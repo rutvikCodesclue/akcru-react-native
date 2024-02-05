@@ -70,9 +70,10 @@ export const updateUser = async (params: {
     password?: string;
     dob?: string;
     archetype?: string;
+    gender?: string;
 }): Promise<IUserProfile | undefined> => {
     try {
-        const {username, firstName, lastName, email, description, phone, password, dob, archetype} = params;
+        const {username, firstName, lastName, email, description, phone, password, dob, archetype, gender} = params;
         // PUT /v1/user/
         const updateUserObj = {
             ...(username && {username}),
@@ -84,6 +85,7 @@ export const updateUser = async (params: {
             ...(password && {password}),
             ...(dob && {dateOfBirth: dob}),
             ...(archetype && {archetype}),
+            ...(gender && {gender}),
         };
 
         // Log the updateUserObj to verify its contents
