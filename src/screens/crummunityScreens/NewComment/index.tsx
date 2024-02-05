@@ -165,7 +165,7 @@ const NewComment = ({navigation, route}: Props) => {
 
             if (postType === 'TEXT') {
                 content = [comment];
-            } else if (postType === 'IMAGE') {
+            } else if (postType === 'IMAGE') {     
                 // If images are selected, upload them and get URLs
                 content = await uploadPictures(selectedImages);
                 content = content.join(', '); // Convert array of URLs to a comma-separated string
@@ -182,9 +182,12 @@ const NewComment = ({navigation, route}: Props) => {
                         : await uploadVideo(selectedVideo, 'YourUploadType', videoDuration);
                 content = content.concat(mediaUrls);
             }
+
+            
             const postId = route.params.postId;
             // Call the createPost API function
-            const result = await commentOnPost(postType, content, postId);
+            const result = await commentOnPost(postId, postType, content);
+;
             
             if (result) {
                 console.log('Comment created successfully', result);
@@ -201,75 +204,6 @@ const NewComment = ({navigation, route}: Props) => {
         setSelectedImages([]);
         setSelectedVideo('');
     };
-
-    // const OnCommentPress = async () => {
-    //     if (!comment) {
-    //         console.log('No comment content to submit');
-    //         return;
-    //     }
-
-    //     try {
-    //         // Assuming post ID is passed via route params
-    //         const postId = route.params.postId; // You need to pass the post ID when navigating to this screen
-
-    //         // Call the commentOnPost API function
-    //         const result = await commentOnPost(postId, comment);
-    //         if (result) {
-    //             console.log('Comment created successfully', result);
-    //             // Handle the post-creation logic, like navigating back or showing a success message
-    //             navigation.goBack();
-    //         } else {
-    //             // Handle the error case
-    //             console.log('Failed to create the comment');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error creating the comment:', error);
-    //     }
-
-    //     // Reset the state
-    //     setComment('');
-    // };
-
-    const [selectImage, setSelectImage] = useState('');
-    
-
-    // const selectCommentImage = async () => {
-    //     let options = {
-    //         mediaType: 'photo' as MediaType,
-    //         storageOptions: {
-    //             path: 'image',
-    //         },
-    //     };
-
-    //     // Flag to track whether the callback has been executed
-    //     let callbackExecuted = false;
-
-    //     launchImageLibrary(options, response => {
-    //         if (response && !response.didCancel && response.assets) {
-    //             // Check if the response is defined, not canceled, and has assets
-    //             if (callbackExecuted) {
-    //                 return;
-    //             }
-
-    //             // Set the flag to true to indicate the callback has been executed
-    //             callbackExecuted = true;
-
-    //             // Check the size of the selected image
-    //             const imageSizeInBytes = response.assets[0].fileSize;
-    //             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
-
-    //             if (imageSizeInBytes > maxSizeInBytes) {
-    //                 // Show size error modal
-    //                 setShowSizeErrorModal(true);
-    //                 setSelectImage('');
-    //             } else {
-    //                 setSelectImage(response.assets[0].uri);
-    //                 console.log(response.assets[0].uri);
-    //             }
-    //         }
-    //     });
-    //     console.log('Select Image');
-    // };
 
     return (
         <TabContainer>

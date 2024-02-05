@@ -24,6 +24,7 @@ const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
     const {user} = useAuthStore();
     const [postText, setPostText] = useState('');
+    console.log('Post Text:', postText);
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
     console.log('Selected Images:', selectedImages);
     const [selectedVideo, setSelectedVideo] = useState('');

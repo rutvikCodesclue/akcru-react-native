@@ -73,25 +73,26 @@ export async function createPost(postType: string, content: string[]) {
     }
 }
 
-export async function commentOnPost(postId: string, postType: string, content: string[]) {
+export async function commentOnPost(postId: number, postType: string, content) {
     try {
-        // Prepare the content for the POST request
-        const commentContent = Array.isArray(content) ? content : [content];
-        // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/comment`, {
+        const commentData = {
             postId,
             postType,
-            content: commentContent,
-        });
+            content,
+        };
 
-        if (data.success === false) {
-            throw new Error(data.message);
+        console.log('Sending Comment Data:', commentData);
+
+        const response = await API.post(`/v1/post/comment`, commentData);
+
+        if (response.data.success === false) {
+            throw new Error(response.data.message);
         }
 
-        return data.comment;
+        return response.data.comment;
     } catch (error) {
-        console.error(error);
-        throw new Error('Failed to comment on the post.');
+        console.error('Error commenting on the post:', error);
+        throw error;
     }
 }
 
