@@ -1,4 +1,5 @@
 
+import { da } from 'date-fns/locale';
 import {IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
@@ -50,36 +51,15 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
     }
 };
 
-// export async function createPost(type: string, content: string) {
-//     try {
-//         // Make a POST request using the API client
-//         const {data} = await API.post(`/v1/post/create`, {
-//             type,
-//             content,
-//         });
-
-//         if (data.success === false) {
-//             throw new Error(data.message);
-//         }
-
-//         return data.post;
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Failed to create a post.');
-//     }
-// }
-
 export async function createPost(postType: string, content: string[]) {
     try {
-        // Validate content based on postType
-        if (!validateContentForPostType(postType, content)) {
-            throw new Error('Invalid content for the specified post type.');
-        }
+        const postContent = Array.isArray(content) ? content : [content];
+        console.log('Post Content:', postContent);
 
         // Make a POST request using the API client
         const {data} = await API.post(`/v1/post/create`, {
             postType,
-            content,
+            content: postContent,
         });
 
         if (data.success === false) {
@@ -93,29 +73,107 @@ export async function createPost(postType: string, content: string[]) {
     }
 }
 
-function validateContentForPostType(postType: string, content: string[]): boolean {
-    switch (postType) {
-        case 'TEXT':
-            return content.length === 1 && typeof content[0] === 'string';
-        case 'IMAGE':
-            // Add logic for IMAGE type validation
-            // Example:
-            return content.every(c => isImageUrl(c));
-        // Handle other types similarly
-        // ...
-        default:
-            return false; // Default case to handle any unexpected post types
+export async function commentOnPost(postId: string, postType: string, content: string[]) {
+    try {
+        // Prepare the content for the POST request
+        const commentContent = Array.isArray(content) ? content : [content];
+        // Make a POST request using the API client
+        const {data} = await API.post(`/v1/post/comment`, {
+            postId,
+            postType,
+            content: commentContent,
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+
+        return data.comment;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to comment on the post.');
     }
 }
 
-function isImageUrl(url: string): boolean {
-    // Implement logic to validate if a string is a URL for an image
-    // This is just a placeholder example
-    return url.startsWith('http://') || url.startsWith('https://');
+export async function uploadPictures(imageFiles: any[]) {
+    console.log('uploadPictures');
+    console.log('imageFiles:', imageFiles);
+    let formData = new FormData();
+    
+    imageFiles.forEach((uri, index) => {
+        // Extract the file extension from the URI
+        const fileExtension = uri.match(/\.(jpeg|jpg|png)$/)[0];
+
+        // Determine the MIME type
+        let mimeType = 'image/jpeg'; // Default MIME type
+        if (fileExtension === '.png') {
+            mimeType = 'image/png';
+        }
+
+        // Convert the URI to a Blob or File-like object
+        const file = {
+            uri: uri,
+            type: mimeType,
+            name: `image-${index}${fileExtension}`, // Append the correct file extension
+        };
+
+        formData.append('images', file);
+        console.log('formData:', formData);
+    });
+
+    try {
+        const response = await API.post('/v1/user/uploadPictures', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+           
+        });
+         console.log('response:', response.data.content);
+        return response.data.content;
+    } catch (error) {
+        console.error('Error uploading pictures:', error);
+        throw error;
+    }
 }
 
+export async function uploadVideo(videoFileUri: any, uploadType: any, durationInSeconds: any) {
+    console.log('uploadVideo');
+    let formData = new FormData();
 
+    // Extract the file extension from the URI
+    const fileExtension = videoFileUri.match(/\.(mov|mp4)$/)[0];
 
+    // Determine the MIME type
+    let mimeType = 'video/mp4'; // Default MIME type for mp4
+    if (fileExtension === '.mov') {
+        mimeType = 'video/quicktime'; // MIME type for mov
+    }
+
+    // Convert the URI to a Blob or File-like object
+    const videoFile = {
+        uri: videoFileUri,
+        type: mimeType,
+        name: `video${fileExtension}`, // Append the correct file extension
+    };
+
+    // Append the video file, upload type, and video duration to FormData
+    formData.append('video', videoFile);
+    formData.append('uploadType', uploadType);
+    formData.append('videoDuration', durationInSeconds.toString());
+
+    try {
+        const response = await API.post('/v1/user/uploadVideo', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        console.log('response:', response.data.videoLink);
+        return response.data.videoLink; // Assuming the API returns the video link
+    } catch (error) {
+        console.error('Error uploading video:', error);
+        throw error;
+    }
+}
 
 export async function deletePost(id: number) {
     try {
@@ -192,25 +250,6 @@ export async function unlikeComment(id: number) {
     } catch (error) {
         console.error(error);
         throw new Error('Failed to unlike the post.');
-    }
-}
-
-export async function commentOnPost(id: string, text: string) {
-    try {
-        // Make a POST request using the API client
-        const {data} = await API.post(`/v1/post/comment`, {
-            id,
-            text,
-        });
-
-        if (data.success === false) {
-            throw new Error(data.message);
-        }
-
-        return data.comment;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Failed to comment on the post.');
     }
 }
 

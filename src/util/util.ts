@@ -3,6 +3,9 @@ import {AKCRUBADGES, COLORS} from '../../assets/constants';
 import {min} from 'lodash';
 import {DateTime, IANAZone} from 'luxon';
 
+import React, {useState, useEffect} from 'react';
+
+
 export function timeSince(dateCreated: string): string {
     const now = new Date();
     const postDate = new Date(dateCreated);
@@ -142,4 +145,28 @@ export function formatTimestampToAMPM(timestamp: string | number | Date) {
 
     return `${formattedHours}:${minutes} ${ampm}`;
 }
+
+export function classifyPostContent (contentArray: string[]) {
+    let textContentParts: string[] = [];
+    let imageUrls: string[] = [];
+    let videoUrl = '';
+
+    contentArray.forEach(item => {
+        if (/^https?:\/\/.+\.(jpeg|jpg|png)$/.test(item) && item.includes('user-pictures')) {
+            // Item is an image URL
+            imageUrls.push(item);
+        } else if (/^https?:\/\/.+\.(mov|mp4)$/.test(item) && item.includes('user-videos')) {
+            // Item is a video URL
+            videoUrl = item;
+        } else {
+            // Item is considered as part of the text content
+            textContentParts.push(item);
+        }
+    });
+
+    let textContent = textContentParts.join(' '); // Concatenate all text parts
+    return {textContent, imageUrls, videoUrl};
+};
+
+
 

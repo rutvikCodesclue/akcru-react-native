@@ -33,6 +33,7 @@ interface IUserProfile {
     wallet?: IWallet; // This assumes you have an IWallet interface defined
     watchlist?: IWatchlist[]; // Array of watchlist items
     watching?: IUserWatching; // Array of movies being watched
+    posts?: IPost[]; // Array of posts created by the user
 }
 
 interface IUserWatching {
@@ -336,20 +337,21 @@ export type INotification = {
 
 export interface IPost {
     id: string;
-    content: string;
+    type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
+    content: string[]; // Array of content, could be text, image URLs, video URLs etc.
     createdAt: string;
     updatedAt: string;
-    likes?: number;
     author: IUserProfile;
     authorId: string;
-    _count: {
+    likes?: ILike[];
+    comments?: IComment[];
+    _count?: {
         likes: number;
         comments: number;
     };
-    isLikedByCurrentUser: boolean;
-    comments?: IComment[];
-    // Other properties related to a post
+    isLikedByCurrentUser?: boolean;
 }
+
 
 export interface ICreatePostData {
     id: string;
@@ -361,6 +363,9 @@ export interface ICreatePostData {
     numberOfComments?: number;
     numberOfReposts?: number;
     numberOfLikes?: number;
+    type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
+    content: string[]; // Array of strings representing content
+    authorId: string; // ID of the author creating the post
 }
 
 export interface IComment {
@@ -379,6 +384,14 @@ export interface IComment {
     // Other properties related to a post
 }
 
+export interface ICommentLike {
+    id: string;
+    userId: string;
+    commentId: string;
+    user: IUserProfile;
+    comment: IComment;
+}
+
 export interface ICreateCommentData {
     id: string;
     user?: IUserProfile;
@@ -389,6 +402,9 @@ export interface ICreateCommentData {
     numberOfComments?: number;
     numberOfReposts?: number;
     numberOfLikes?: number;
+    text: string;
+    postId: string;
+    authorId: string;
 }
 
 export type SkinnyType = {
