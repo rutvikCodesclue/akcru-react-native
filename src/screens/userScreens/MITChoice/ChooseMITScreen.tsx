@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -44,6 +44,11 @@ import moment from "moment";
 import { MediaType, launchImageLibrary } from "react-native-image-picker";
 import MITMessage from "../../../../assets/constants/MITmessages";
 import TabContainer from "../../../components/TabContainer/TabContainer";
+import { GiftedChat, IMessage } from "react-native-gifted-chat";
+import { HMSAudioTrackSettings, HMSCameraFacing, HMSConfig, HMSMessage, HMSPeer, HMSSDK, HMSTrack, HMSTrackSettings, HMSTrackSettingsInitState, HMSTrackUpdate, HMSUpdateListenerActions, HMSVideoTrackSettings } from "@100mslive/react-native-hms";
+import { createChatRoom, getTextMessages, saveTextMessage } from "../../../lib/api/rooms.lib";
+import useAuthStore from "../../../stores/auth.store";
+import { TouchableRipple } from "react-native-paper";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -63,6 +68,8 @@ type Props = {
 
 const ChooseMITScreen = ({ navigation, route }: Props) => {
     const MITID: number | undefined = route.params?.MITID ?? null;
+    const {user} = useAuthStore();
+
     const inviteeName: string | undefined = route.params?.inviteeName ?? null;
 
     // Access other passed parameters
@@ -76,6 +83,153 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
     const [showTrailer, setShowTrailer] = useState(false);
+
+
+
+  const [messages, setMessages] = useState<IMessage []>([])
+
+  var roomId =""
+  
+  const hmsInstanceRef = useRef<HMSSDK | null>(null);
+  useEffect(()=>{
+    intializeChat();
+    return () =>  {
+      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.removeAllListeners();
+      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.leave();
+    }
+  },[])
+
+
+
+const getTrackSettings = () => {
+let audioSettings = new HMSAudioTrackSettings({
+  initialState:HMSTrackSettingsInitState.MUTED
+});
+
+let videoSettings = new HMSVideoTrackSettings({
+  initialState: HMSTrackSettingsInitState.MUTED,
+  cameraFacing: HMSCameraFacing.FRONT,
+  forceSoftwareDecoder: true,
+});
+return new HMSTrackSettings({
+    video: videoSettings,
+    audio: audioSettings,
+  });
+};
+
+const getTextMessage =  async(roomId:string)=>{
+  const response  =   await  getTextMessages(roomId)
+  console.log(JSON.stringify(response));
+  setMessages(response!);
+}
+
+  const intializeChat = async()=>{
+    const trackSettings = getTrackSettings();
+    const hmsInstance = await HMSSDK.build({trackSettings});
+    const fetchRoomInfo =  await  createChatRoom(creator?.id!,MITID!.toString());
+    const chatId = fetchRoomInfo.room.roomId;
+    roomId =chatId;
+       const token =  fetchRoomInfo.roomAuthToken.token // await hmsInstance.getAuthTokenByRoomCode(fetchRoomInfo.room.roomId);
+        const hmsConfig = new HMSConfig({
+          authToken: token,
+          username: user?.username!,
+        });
+        hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinSuccess);
+        hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
+        
+        //  const localPeer = await hmsInstance.getLocalPeer();
+        //  localPeer.audioTrack!.mute  =false;
+        //  To Mute Video of local peer - other peers will stop seeing video
+        hmsInstance.join(hmsConfig);
+        hmsInstance.onMessageListener = onMessageListener
+        hmsInstanceRef.current = hmsInstance;
+        getTextMessage(MITID!.toString())
+    /**
+     * Create `HMSConfig` with the above auth token and username
+     */
+  }
+
+  const onTrackListener = ({
+    track,
+    peer,
+    type
+}: {
+    track: HMSTrack,
+    peer: HMSPeer,
+    type: HMSTrackUpdate
+}) => {
+    // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
+    // use these objects to update your local and remote peers.
+};
+
+
+ 
+
+
+const onMessageListener = (data: HMSMessage) => {
+ 
+    var messsages: IMessage [] = []
+    const iMessage : IMessage = {
+             _id: creator?.id!,
+             text: data.message,
+             user: { _id: creator?.id!,},
+             createdAt: data.time,
+         };
+         messsages.push(iMessage);
+   setMessages(previousMessages =>
+   GiftedChat.append(previousMessages, messsages),
+ )
+};
+
+
+  const onReceiverMessage = (data: HMSMessage)=>
+  {
+    var messsages: IMessage [] = []
+    const iMessage : IMessage = {
+             _id: creator?.id!,
+             text: data.message,
+             user: { _id: creator?.id!,},
+             createdAt: data.time,
+         };
+         messsages.push(iMessage);
+   setMessages(previousMessages =>
+   GiftedChat.append(previousMessages, messsages),
+ )
+
+  }
+
+
+  const onJoinSuccess = async(a :any)=>
+  {
+
+    hmsInstanceRef.current!.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onReceiverMessage);
+    hmsInstanceRef.current!.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackListener);
+  }
+
+  const onError = (e :any ) =>{
+    console.log('FAILLL'+JSON.stringify(e));
+  }
+ 
+
+  /*
+  const allMessages = useHMSStore(selectHMSMessages); // get all messages
+  const broadcastMessages = useHMSStore(selectBroadcastMessages); // get all broadcasted messages
+  const groupMessagesByRole = useHMSStore(selectMessagesByRole('host')); // get conversation with the host role
+  const directMessages = useHMSStore(selectMessagesByPeerID('')); // get private conversation with peer
+  */
+
+
+
+
+  const onSend = useCallback( async (messages : IMessage[] = []) => {
+    hmsInstanceRef.current!.sendBroadcastMessage(messages[0]!.text!,'chat');
+    setMessages(previousMessages =>
+        GiftedChat.append(previousMessages, messages),
+      )
+      saveTextMessage(MITID!.toString(),messages[0]!.text!, creator?.id!,);
+    }, [])
+
+
 
     const handleDecline = () => {
         setIsLoading(true);
@@ -488,7 +642,40 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
                     
                     </View> */}
                     {/* {Chat Room} */}
+
+
+
                     <Modal animationType="slide" transparent={true} visible={showChat}>
+                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
+                    <View style={{zIndex: 20}}>
+                <Header />
+            </View>
+            <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
+                        <TouchableRipple onPress={() => navigation.pop()}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            </View>
+                        </TouchableRipple>
+                    </View>
+              <GiftedChat
+                messages={messages}
+                onSend={messages => onSend(messages)}
+                user={{
+                  _id:user?.id!,
+                  name: user?.username
+                }}
+               />  
+               </View>
+
+                    </Modal>
+
+
+                    <Modal animationType="slide" transparent={true} visible={false}>
                         <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
                             <ScrollView stickyHeaderIndices={[0]}>
                                 <View style={{paddingHorizontal: 15, backgroundColor: COLORS.AKCRUBACKGROUND}}>

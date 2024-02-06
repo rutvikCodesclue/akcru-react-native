@@ -27,6 +27,8 @@ import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import Help from '../screens/userScreens/Help';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
+import { CruChat } from '../screens/ChatScreens';
+import { ChatList } from '../screens/ChatList';
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -59,6 +61,8 @@ export type UserProfileStackParams = {
     PurchaseMITScreen: any;
     FlickFlirtScreen: any;
     ViewUserFollowList: any;
+    ViewChat :{'userId': string ,'mItInviteId':string };
+    ChatList: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -243,6 +247,20 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="UserProfileWalletTab"
               component={UserProfileWalletTab}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="ViewChat"
+              component={CruChat}
+              options={() => ({
+                  headerShown: false,
+              })}
+          />
+          <UserProfile.Screen
+              name="ChatList"
+              component={ChatList}
               options={() => ({
                   headerShown: false,
               })}
