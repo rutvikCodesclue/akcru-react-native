@@ -168,5 +168,18 @@ export function classifyPostContent (contentArray: string[]) {
     return {textContent, imageUrls, videoUrl};
 };
 
+export function extractUsernamesFromText  (text: string) {
+    const usernamePattern = /@(\w+)/g; // Matches '@' followed by any word character (alphanumeric and underscore)
+    let match;
+    const usernames = [];
+
+    while ((match = usernamePattern.exec(text)) !== null) {
+        // match[1] contains the captured group, which is the username without the '@'
+        usernames.push(match[1]);
+    }
+
+    return usernames;
+};
+
 
 

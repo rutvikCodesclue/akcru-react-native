@@ -64,7 +64,7 @@ const Header2 = () => {
                 }}>
                 <View>
                     <Pressable onPress={() => navigation.navigate('ClientTabNavigator')}>
-                        <Image source={imageindex.AkcruLogo} style={{width: 100, height: 70}} resizeMode="contain" />
+                        <Image source={imageindex.AkcruLogo} style={{width: 90, height: 60}} resizeMode="contain" />
                     </Pressable>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>

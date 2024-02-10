@@ -13,11 +13,12 @@ import {getMyNotifications, markNotificationRead} from '../../../lib/api/notify.
 import {INotification} from '../../../../types';
 import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 
 
 
 const UserNotifications = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
 
@@ -35,6 +36,29 @@ const UserNotifications = () => {
         fetchNotifications();
     }, []);
 
+    // Example function to handle navigation based on notification
+    const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
+        // Determine the destination based on notification type
+        // This assumes you have screens for viewing posts and comments, and their routes are 'ViewPost' and 'ViewComment'
+        switch (notification.type) {
+            case 'UserLikedPost':
+            case 'UserTaggedOnPost':
+                navigation.navigate('PostScreen', {postId: notification.postId});
+                console.log('Navigated to post', notification.postId);
+                console.log('Type', notification.type);
+                break;
+            case 'UserCommentedOnPost':
+            case 'UserLikedComment':
+            case 'UserTaggedOnComment':
+                navigation.navigate('PostScreen', {commentId: notification.commentId});
+                console.log('Navigated to comment', notification.commentId);
+                break;
+            // Add cases for other notification types as needed
+            default:
+                console.warn('Unhandled notification type:', notification.type);
+        }
+    };
+
     // Filter notifications based on specific types and unread status
     const filteredNotifications = notifications.filter(
         notification =>
@@ -44,14 +68,15 @@ const UserNotifications = () => {
                 notification.type === 'CruInviteAccepted' ||
                 notification.type === 'CruInviteDeclined' ||
                 notification.type === 'UserFollowed' ||
-                notification.type === 'UserCommentedOnPost'),
+                notification.type === 'UserCommentedOnPost' ||
+                notification.type === 'UserLikedComment' ||
+                notification.type === 'UserTaggedOnPost' ||
+                notification.type === 'UserTaggedOnComment'),
     );
-
     const sortedNotifications: INotification[] = filteredNotifications.sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
             // Call the API to mark the notification as read
@@ -74,109 +99,116 @@ const UserNotifications = () => {
         }
     };
 
-
     return (
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
-            <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
-                <View>
-                    <View style={{zIndex: 100}}>
-                        <Header />
-                    </View>
+                <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
+                    <View>
+                        <View style={{zIndex: 100}}>
+                            <Header />
+                        </View>
 
-                    <View                   
-                        style={{height: SIZES.ScreenHeight / 5, marginTop: -60, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                        <LinearGradient
-                            // Background Linear Gradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                        <View
                             style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
                                 height: SIZES.ScreenHeight / 5,
-                            }}
-                        />
-                        <View>
-                            <TouchableOpacity
-                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
-                                onPress={() => navigation.pop()}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <Text
+                                marginTop: -60,
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                            }}>
+                            <LinearGradient
+                                // Background Linear Gradient
+                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
-                                    ...FONTS.Title2,
-                                    marginTop: 10,
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    height: SIZES.ScreenHeight / 5,
+                                }}
+                            />
+                            <View>
+                                <TouchableOpacity
+                                    style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
+                                    onPress={() => navigation.pop()}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginTop: 10,
 
-                                    textAlign: 'center',
-                                    fontSize: 14,
-                                    textDecorationLine: 'underline',
-                                }}>
-                                NOTIFICATIONS
-                            </Text>
+                                        textAlign: 'center',
+                                        fontSize: 14,
+                                        textDecorationLine: 'underline',
+                                    }}>
+                                    NOTIFICATIONS
+                                </Text>
+                            </View>
                         </View>
                     </View>
-                </View>
 
-                <View style={{marginHorizontal: 15}}>
-                    {/* Render user notifications */}
-                    {sortedNotifications.map((notification, index) => {
-                        const {id, type, message, isRead, createdAt, user} = notification;
+                    <View style={{marginHorizontal: 15}}>
+                        {/* Render user notifications */}
+                        {sortedNotifications.map((notification, index) => {
+                            const {id, type, message, isRead, createdAt, user} = notification;
 
-                        // Console.log the isRead property
-                        console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                        console.log("User Data:", filteredNotifications[0].user?.username);
+                            // Console.log the isRead property
+                            console.log(`Notification ID: ${id}, isRead: ${isRead}`);
+                            console.log('User Data:', filteredNotifications[0].user?.username);
 
-                        return (
-                            <View key={index} style={styles.cardcontainer}>
-                                <LinearGradient
-                                    // Background Linear Gradient
-                                    colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        top: 0,
-                                        bottom: 0,
-                                        borderRadius: 5,
-                                    }}
-                                />
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
-                                        {formatDatestamp(createdAt)}
-                                    </Text>
-                                </View>
-                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
-                                    {formatTimestampToAMPM(createdAt)}
-                                </Text>
-                                {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
-                                <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.MIDORANGE,
-                                            textAlign: 'right',
-                                        }}>
-                                        {isRead ? 'Marked as Read' : 'Mark as Read'}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        );
-                    })}
-                </View>
-            </ScrollView>
-        </SafeAreaView>
+                            return (
+                                // <TouchableOpacity
+                                //     key={index}
+                                //     onPress={() => navigateToContent(notification)}
+                                //     >
+                                    <View key={index} style={styles.cardcontainer}>
+                                        <LinearGradient
+                                            // Background Linear Gradient
+                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                borderRadius: 5,
+                                            }}
+                                        />
+                                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
+                                                {formatDatestamp(createdAt)}
+                                            </Text>
+                                        </View>
+                                        <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
+                                            {formatTimestampToAMPM(createdAt)}
+                                        </Text>
+                                        {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
+                                        <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
+                                        <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title2,
+                                                    color: COLORS.MIDORANGE,
+                                                    textAlign: 'right',
+                                                }}>
+                                                {isRead ? 'Marked as Read' : 'Mark as Read'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                // </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
         </TabContainer>
-        
     );
 };
 

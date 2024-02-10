@@ -148,7 +148,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
               <View
                 //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                 //   resizeMode="cover"
-                  style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
+                  style={{height: SIZES.ScreenHeight / 3.7, marginTop: "-15%"}}>
                   <LinearGradient
                       // Background Linear Gradient
                       colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -176,12 +176,19 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                             <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
                           <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                         </View> 
-                          <View style={{width: '25%', justifyContent: 'flex-end'}}>
-                            <AkcruButtons.XSmallButton
-                          btnname='Chat' disabled={false} onPress={() => {''}} color={COLORS.AKCRUBLUE} />
-                          </View>
-                          
-                          
+                        <TouchableOpacity 
+                                onPress={()=>{
+                                    navigation.navigate('ChatList');
+                                }}
+                        >
+                       <Icon
+                                                    name="chatbox-ellipses"
+                                                    type="ionicon"
+                                                    size={30}
+                                                    color={COLORS.AKCRUBLUE}
+                                                    style={{marginRight: 20}}
+                                                />
+                        </TouchableOpacity>
                       </View>
                   </View>
 
