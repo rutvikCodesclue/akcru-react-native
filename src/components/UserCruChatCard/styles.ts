@@ -21,7 +21,7 @@ export default StyleSheet.create({
   },
   stamps: {
     ...FONTS.Title2Orange,
-    marginBottom: 3,
+    fontSize: 12,
   },
   stamps2: {
     ...FONTS.Title2AkcruBlue,

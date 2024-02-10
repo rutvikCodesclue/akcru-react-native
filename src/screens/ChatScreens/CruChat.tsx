@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from "react";
 import { SafeAreaView, View } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { GiftedChat, IMessage } from 'react-native-gifted-chat'
+import { Avatar, Bubble, GiftedChat, IMessage, Send } from 'react-native-gifted-chat'
 import { Icon } from "@rneui/base";
 import {
   HMSAudioTrackSettings,
@@ -31,6 +31,8 @@ import { UserProfileStackParams } from "../../navigation/UserProfileStack";
 import useAuthStore from "../../stores/auth.store";
 import { createChatRoom, getTextMessages, saveTextMessage } from "../../lib/api/rooms.lib";
 import Header from "../../components/header";
+import HexAvatar from "../../components/HexAvatar";
+import { selectAvatarBorderColor } from "../../util/util";
 
 
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
@@ -43,6 +45,8 @@ const CruChat = ( {route}: Props) => {
     const [messages, setMessages] = useState<IMessage []>([])
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userId ?? null;
+    const { creatorProfilePicture, inviteeProfilePicture} = route.params;
+
     const {user} = useAuthStore();
     const mItInviteId : string | undefined = route.params?.mItInviteId ?? null;
     var roomId =""
@@ -152,6 +156,7 @@ const getTrackSettings = () => {
                createdAt: data.time,
            };
            messsages.push(iMessage);
+           console.log('User ID:',userID);
      setMessages(previousMessages =>
      GiftedChat.append(previousMessages, messsages),
    )
@@ -183,37 +188,98 @@ const getTrackSettings = () => {
 
     const onSend = useCallback( async (messages : IMessage[] = []) => {
       hmsInstanceRef.current!.sendBroadcastMessage(messages[0]!.text!,'chat');
+      console.log('SENDING MESSAGE'+messages[0]!.text);
       setMessages(previousMessages =>
           GiftedChat.append(previousMessages, messages),
         )
         saveTextMessage(mItInviteId,messages[0]!.text!, userID!,);
       }, [])
       
+      const handleAvatarPress = (user: any) => {
+          // Navigate to the user's profile screen
+          navigation.navigate('ViewUserScreen', {userID: user._id});
+      };
+
     return (
-        <SafeAreaView style={{flex: 1, paddingBottom:100}}>
-             <View style={{zIndex: 20}}>
+        <SafeAreaView style={{flex: 1, paddingBottom: 100}}>
+            <View style={{zIndex: 20}}>
                 <Header />
             </View>
             <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                        <TouchableRipple onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableRipple>
+                <TouchableRipple onPress={() => navigation.pop()}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                        }}>
+                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                     </View>
-              <GiftedChat
-                messages={messages}
-                onSend={messages => onSend(messages)}
-                user={{
-                  _id:user?.id!,
-                  name: user?.username
-                }}
-               />  
+                </TouchableRipple>
+            </View>
+            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                <GiftedChat
+                    messages={messages}
+                    onSend={messages => onSend(messages)}
+                    user={{
+                        _id: user?.id!,
+                        name: user?.username,
+                    }}
+                    textInputProps={{
+                        style: {
+                            color: COLORS.BLACK, // Set the color of the text inside the input area
+                            width: '85%', // Adjust the width based on typing status
+                            // You can add more custom styles here if needed
+                        },
+                    }}
+                    renderUsernameOnMessage={true}
+                    showUserAvatar={true}
+                    renderAvatar={props => (
+                        <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                            <HexAvatar
+                                size={45}
+                                bordercolor={selectAvatarBorderColor(
+                                    props.currentMessage?.user?._id === user?.id
+                                        ? user?.badge ?? 'AKCRUIT'
+                                        : 'OTHER_USER_BADGE',
+                                )}
+                                source={{
+                                    uri:
+                                        props.currentMessage?.user?._id === user?.id
+                                            ? user?.profilePicture
+                                            : creatorProfilePicture || inviteeProfilePicture,
+                                }}
+                                {...props}
+                            />
+                        </TouchableRipple>
+                    )}
+                    renderBubble={props => (
+                        <Bubble
+                            {...props}
+                            wrapperStyle={{
+                                right: {
+                                    // Change the background color for messages sent by the current user
+                                    backgroundColor: COLORS.AKCRUBLUE,
+                                },
+                                left: {
+                                    // Change the background color for messages sent by other users
+                                    backgroundColor: COLORS.CATPURPDRK,
+                                },
+                            }}
+                            textStyle={{
+                                right: {
+                                    // Text color for messages sent by the current user
+                                    color: COLORS.WHITE,
+                                },
+                                left: {
+                                    // Text color for messages sent by other users
+                                    color: COLORS.WHITE,
+                                },
+                            }}
+                        />
+                    )}
+                />
+            </View>
         </SafeAreaView>
     );
 };

@@ -14,13 +14,14 @@ import {deletePost} from '../../lib/api/post.lib';
 type FooterIconsProps = {
     iconname: string;
     onPress: () => void;
+    color: string;
 };
 
-const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -99,6 +100,7 @@ type PostProps = {
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
+    isLikedByCurrentUser?: boolean; // Assuming this property exists
 };
 
 const PostCard = ({
@@ -127,15 +129,18 @@ const PostCard = ({
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
+    // Determine the color for the "happy" icon based on whether the post is liked by the current user
+    const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
+
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-         const handleDeletePost = () => {
-             onDeletePost(+post.id);
-         };
+    const handleDeletePost = () => {
+        onDeletePost(+post.id);
+    };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -489,13 +494,14 @@ const PostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
+                    color={COLORS.AKCRUBLUE}
                 />
                 {/* <FooterIcons
                     iconname={'stats-chart'}

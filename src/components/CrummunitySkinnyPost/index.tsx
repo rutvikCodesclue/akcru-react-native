@@ -14,13 +14,14 @@ import {deletePost} from '../../lib/api/post.lib';
 type FooterIconsProps = {
     iconname: string;
     onPress: () => void;
+    color: string;
 };
 
-const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -100,6 +101,7 @@ type PostProps = {
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
+    isLikedByCurrentUser?: boolean; // Assuming this property exists
 };
 
 const SkinnyPostCard = ({
@@ -127,6 +129,8 @@ const SkinnyPostCard = ({
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
+
+    const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -494,14 +498,15 @@ const SkinnyPostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor}/>
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
+                    color={COLORS.AKCRUBLUE}
                 />
                 {/* <FooterIcons
                     iconname={'stats-chart'}

@@ -16,8 +16,17 @@ type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ChatList'>
 type Props = {
   route: ViewUserFollowListRouteProp;
 };
+
+type NavigationParams = {
+    mItInviteId: string;
+    userId: string;
+    creatorProfilePicture?: string;
+    inviteeProfilePicture?: string;
+};
+
 const ChatList = ( {route}: Props) => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser []>([])
+    
     const {user} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     useEffect(()=>{
@@ -39,21 +48,29 @@ const ChatList = ( {route}: Props) => {
 
             var receiverUserId = "";
             if(user?.id == item.creatorId){
-               receiverUserId = item.inviteeId;
+               receiverUserId = item.inviteeId
             }else{
               receiverUserId = item.creatorId
             }
-            navigation.navigate('ViewChat',{'mItInviteId': item.id, 'userId':receiverUserId})
+            console.log('ReceiverUserId:',receiverUserId)
+            navigation.navigate('ViewChat', {
+                'mItInviteId': item.id,
+                'userId': receiverUserId,
+                'creatorProfilePicture': item.creator?.profilePicture,
+                'inviteeProfilePicture': item.invitee?.profilePicture,
+            } as NavigationParams);
         }}
       style={{marginHorizontal: 10,marginBottom:10}}>
             <UserCruChatCard
                 userID={item.id}
-                userName= {item.movie.title}
+                userName= {item.creator?.username}
+                movie={item.movie.title}
+                moviePoster={item.movie.landscapeURL}
                 CruChatDate ={ new Date( item.lastMessageAt).toLocaleDateString()}
                 CruChatTime ={ new Date( item.lastMessageAt).toLocaleTimeString() }
                 CRUChat={item.lastMessage}
                 avatarbordercolor={""}
-                userPicture={item.movie.portraitURL!}
+                userPicture={item.creator?.profilePicture}
             />
             </TouchableOpacity>
     );
@@ -81,8 +98,8 @@ const ChatList = ( {route}: Props) => {
               data={chatUsersData}
               keyExtractor={item => item.id}
               renderItem={renderItem}
-           
             />
+            
         </SafeAreaView>
     );
 };

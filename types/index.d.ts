@@ -150,7 +150,10 @@ export type INotification = {
         | 'CruViewScheduled'
         | 'CruViewStarted'
         | 'UserFollowed'
-        | 'UserCommentedOnPost';
+        | 'UserCommentedOnPost'
+        | 'UserLikedComment'
+        | 'UserTaggedOnPost'
+        | 'UserTaggedOnComment';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
@@ -437,6 +440,8 @@ export type IChatUser = {
     movieId:string,
     status:string,
     creatorId:string,
+    creator:IUserProfile,
+    invitee:IUserProfile,
     inviteeId:string,
     startDate:string,
     timezone:string,

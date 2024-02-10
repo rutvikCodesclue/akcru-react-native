@@ -36,3 +36,18 @@ export const markNotificationRead = async (params: {id: string}): Promise<INotif
         console.error(error);
     }
 };
+
+export const sendTagNotification = async (tagUserId: any, notificationType: any, contentId: any) => {
+    try {
+        const {data} = await API.post('/v1/notify/sentTagNotification', {
+            tagUserId,
+            notificationType,
+            contentId,
+        });
+
+        return data.success;
+    } catch (error) {
+        console.error('Error sending tag notification:', error);
+        return false;
+    }
+};

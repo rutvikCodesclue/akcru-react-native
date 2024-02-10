@@ -38,17 +38,18 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
 import { getCRUInvites } from "../../../lib/api/cru.lib";
-import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone } from "../../../util/util";
+import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone, selectAvatarBorderColor } from "../../../util/util";
 import YoutubePlayer from 'react-native-youtube-iframe';
 import moment from "moment";
 import { MediaType, launchImageLibrary } from "react-native-image-picker";
 import MITMessage from "../../../../assets/constants/MITmessages";
 import TabContainer from "../../../components/TabContainer/TabContainer";
-import { GiftedChat, IMessage } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, IMessage } from "react-native-gifted-chat";
 import { HMSAudioTrackSettings, HMSCameraFacing, HMSConfig, HMSMessage, HMSPeer, HMSSDK, HMSTrack, HMSTrackSettings, HMSTrackSettingsInitState, HMSTrackUpdate, HMSUpdateListenerActions, HMSVideoTrackSettings } from "@100mslive/react-native-hms";
 import { createChatRoom, getTextMessages, saveTextMessage } from "../../../lib/api/rooms.lib";
 import useAuthStore from "../../../stores/auth.store";
 import { TouchableRipple } from "react-native-paper";
+import HexAvatar from "../../../components/HexAvatar";
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
@@ -309,54 +310,12 @@ const onMessageListener = (data: HMSMessage) => {
 
     //Chat Room functions
 
-    const [inputHeight, setInputHeight] = useState(40); // Set an initial height for the TextInput
-    const [containerHeight, setContainerHeight] = useState(40); // Set an initial height for the container view
-
     const [showChat, setShowChat] = useState(false);
-    const [selectImage, setSelectImage] = useState('');
-    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    
 
-    const [message, setMessage] = useState('');
-
-    const [isTyping, setIsTyping] = useState(false);
-
-    const handleInputChange = text => {
-        setMessage(text);
-        setIsTyping(text.length > 0);
-    };
-
-    const selectPostImage = async () => {
-        let options = {
-            mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'image',
-            },
-        };
-        launchImageLibrary(options, response => {
-            // Check the size of the selected image
-            const imageSizeInBytes = response.assets[0].fileSize;
-            const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
-
-            if (imageSizeInBytes > maxSizeInBytes) {
-                // Show size error modal
-                setShowSizeErrorModal(true);
-                setSelectImage('');
-            } else {
-                setSelectImage(response.assets[0].uri);
-                console.log(response.assets[0].uri);
-            }
-        });
-        console.log('Select Image');
-    };
-
-    const selectAGIF = async () => {
-        let options = {
-            mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'image',
-            },
-        };
-        console.log('Select a GIF');
+    const handleAvatarPress = (user: any) => {
+        // Navigate to the user's profile screen
+        navigation.navigate('ViewUserScreen', {userID: user._id});
     };
 
     return (
@@ -411,16 +370,13 @@ const onMessageListener = (data: HMSMessage) => {
                                             <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                         </View>
                                         <TouchableOpacity onPress={() => setShowChat(true)}>
-                                           
-                                                <Icon
-                                                    name="chatbox-ellipses"
-                                                    type="ionicon"
-                                                    size={30}
-                                                    color={COLORS.MIDORANGE}
-                                                    style={{marginRight: 20}}
-                                                />
-                                              
-                                        
+                                            <Icon
+                                                name="chatbox-ellipses"
+                                                type="ionicon"
+                                                size={30}
+                                                color={COLORS.MIDORANGE}
+                                                style={{marginRight: 20}}
+                                            />
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -439,19 +395,12 @@ const onMessageListener = (data: HMSMessage) => {
                                             onPress={() =>
                                                 navigation.navigate('ViewUserScreen', {userID: creator?.id})
                                             }>
-                                            <Avatar
-                                                rounded
-                                                size={60}
-                                                source={
-                                                    creator?.profilePicture
-                                                        ? {uri: creator?.profilePicture}
-                                                        : imageindex.Akcruplaceholder
-                                                }
-                                                avatarStyle={{
-                                                    borderWidth: 2,
-                                                    borderColor: COLORS.AKCRUBLUE,
-                                                }}
+                                            <HexAvatar
+                                                source={{uri: creator?.profilePicture}}
+                                                size={58}
+                                                bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                                             />
+                                
                                         </TouchableOpacity>
                                         <View />
 
@@ -628,9 +577,6 @@ const onMessageListener = (data: HMSMessage) => {
 
                                         {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                     </View>
-                                    {/* <TouchableOpacity>
-                                  <Text style={styles.datetext}>Request change</Text>
-                              </TouchableOpacity> */}
                                 </View>
                                 <View style={{marginTop: 25}}>
                                     <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
@@ -643,184 +589,89 @@ const onMessageListener = (data: HMSMessage) => {
                     </View> */}
                     {/* {Chat Room} */}
 
-
-
-                    <Modal animationType="slide" transparent={true} visible={showChat}>
-                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                    <View style={{zIndex: 20}}>
-                <Header />
-            </View>
-            <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                        <TouchableRipple onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableRipple>
-                    </View>
-              <GiftedChat
-                messages={messages}
-                onSend={messages => onSend(messages)}
-                user={{
-                  _id:user?.id!,
-                  name: user?.username
-                }}
-               />  
-               </View>
-
-                    </Modal>
-
-
-                    <Modal animationType="slide" transparent={true} visible={false}>
+                    <Modal animationType="fade" transparent={true} visible={showChat}>
                         <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                            <ScrollView stickyHeaderIndices={[0]}>
-                                <View style={{paddingHorizontal: 15, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                                    <TouchableOpacity onPress={() => setShowChat(false)} style={{marginVertical: '8%'}}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}>
-                                            <Icon
-                                                name="chevron-back"
-                                                type="ionicon"
-                                                size={20}
-                                                color={COLORS.LIGHTGREY}
+                            <View style={{zIndex: 20}}>
+                                <Header />
+                            </View>
+                            <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
+                                <TouchableRipple onPress={() => setShowChat(false)}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                    </View>
+                                </TouchableRipple>
+                            </View>
+                            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                                <GiftedChat
+                                    messages={messages}
+                                    onSend={messages => onSend(messages)}
+                                    user={{
+                                        _id: user?.id!,
+                                        name: user?.username,
+                                    }}
+                                    textInputProps={{
+                                        style: {
+                                            color: COLORS.BLACK, // Set the color of the text inside the input area
+                                            width: '85%', // Adjust the width based on typing status
+                                            // You can add more custom styles here if needed
+                                        },
+                                    }}
+                                    renderUsernameOnMessage={true}
+                                    showUserAvatar={true}
+                                    renderAvatar={props => (
+                                        <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                                            <HexAvatar
+                                                size={45}
+                                                bordercolor={selectAvatarBorderColor(
+                                                    props.currentMessage?.user?._id === user?.id
+                                                        ? user?.badge ?? 'AKCRUIT'
+                                                        : 'OTHER_USER_BADGE',
+                                                )}
+                                                source={{
+                                                    uri:
+                                                        props.currentMessage?.user?._id === user?.id
+                                                            ? user?.profilePicture
+                                                            : creator?.profilePicture,
+                                                }}
+                                                {...props}
                                             />
-                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                                {/* <View style={{paddingHorizontal: 15}}>
-                                <MITMessages
-                                    inviteePicture={creator?.profilePicture}
-                                    inviteeName={creator?.username}
-                                    akcruBadge={creator?.badge}
-                                    // influencer={influencer}
-                                    avatarbordercolor={COLORS.AKCRUBLUE}
-                                />
-                            </View> */}
-                                <FlatList
-                                    data={MITMessage}
-                                    renderItem={({item}) => (
-                                        <View style={styles.postcontainer}>
-                                            <MITMessages
-                                                post={item}
-                                                InviterUserName={creator?.username}
-                                                InviterPicture={creator?.profilePicture}
-                                            />
-                                        </View>
+                                        </TouchableRipple>
+                                    )}
+                                    renderBubble={props => (
+                                        <Bubble
+                                            {...props}
+                                            wrapperStyle={{
+                                                right: {
+                                                    // Change the background color for messages sent by the current user
+                                                    backgroundColor: COLORS.AKCRUBLUE,
+                                                },
+                                                left: {
+                                                    // Change the background color for messages sent by other users
+                                                    backgroundColor: COLORS.CATPURPDRK,
+                                                },
+                                            }}
+                                            textStyle={{
+                                                right: {
+                                                    // Text color for messages sent by the current user
+                                                    color: COLORS.WHITE,
+                                                },
+                                                left: {
+                                                    // Text color for messages sent by other users
+                                                    color: COLORS.WHITE,
+                                                },
+                                            }}
+                                        />
                                     )}
                                 />
-                            </ScrollView>
-                            <View style={{paddingHorizontal: 15, marginVertical: '3%'}}>
-                                <View style={[styles.input, {height: containerHeight}]}>
-                                    <View style={{width: '80%'}}>
-                                        <TextInput
-                                            placeholder={'Message'}
-                                            placeholderTextColor={COLORS.DARKERGREY}
-                                            style={[styles.textinput, {height: Math.max(40, inputHeight)}]}
-                                            secureTextEntry={false}
-                                            multiline={true}
-                                            onContentSizeChange={e => {
-                                                setInputHeight(e.nativeEvent.contentSize.height);
-                                                setContainerHeight(e.nativeEvent.contentSize.height + 0); // Adjust the padding and margin as needed
-                                            }}
-                                            onChangeText={handleInputChange}
-                                            value={message} // Use the modified value in the TextInput
-                                        />
-                                    </View>
-
-                                    <View style={{position: 'absolute', right: 10, bottom: 5}}>
-                                        {!isTyping && (
-                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <TouchableOpacity
-                                                    style={{marginHorizontal: 10}}
-                                                    onPress={selectPostImage}>
-                                                    <Icon
-                                                        name="images"
-                                                        type="ionicon"
-                                                        color={COLORS.MIDORANGE}
-                                                        size={20}
-                                                    />
-                                                </TouchableOpacity>
-                                                <TouchableOpacity onPress={selectAGIF}>
-                                                    <Icon
-                                                        name="file-gif-box"
-                                                        type="material-community"
-                                                        color={COLORS.MIDORANGE}
-                                                        size={26}
-                                                    />
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
-                                        {isTyping && (
-                                            <View>
-                                                <TouchableOpacity>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2,
-                                                            color: COLORS.AKCRUBLUE,
-                                                            textAlign: 'right',
-                                                            paddingBottom: 5,
-                                                        }}>
-                                                        Send
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            </View>
-                                        )}
-                                    </View>
-                                </View>
                             </View>
                         </View>
                     </Modal>
                 </View>
-                {/* Picture Size Error Modal*/}
-                <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                    <View
-                        style={{
-                            flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}>
-                        <View
-                            style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
-                                alignItems: 'center',
-                                marginHorizontal: 15,
-                            }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    marginBottom: 10,
-                                    textAlign: 'center',
-                                }}>
-                                {`Image is too large. Please select an image under 2MB.`}
-                            </Text>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setShowSizeErrorModal(false);
-                                }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        marginBottom: 10,
-                                        textAlign: 'center',
-                                        color: COLORS.MIDORANGE,
-                                    }}>
-                                    {`Close`}
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </Modal>
             </View>
         </TabContainer>
     );
