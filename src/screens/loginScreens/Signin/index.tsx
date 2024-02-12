@@ -22,6 +22,7 @@ import { appVersion } from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
+import { getPushToken } from '../../../../lib/pushNotifications';
 
 
 const Signin = () => {
@@ -221,6 +222,7 @@ const Signin = () => {
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
+            await getPushToken(user.id); // or use another unique identifier like email
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {

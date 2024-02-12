@@ -61,7 +61,7 @@ export type UserProfileStackParams = {
     PurchaseMITScreen: any;
     FlickFlirtScreen: any;
     ViewUserFollowList: any;
-    ViewChat :{'userId': string ,'mItInviteId':string };
+    // ViewChat :{'userId': string ,'mItInviteId':string, 'profilePicture':string, 'username':string};
     ChatList: any;
 };
 
@@ -251,13 +251,13 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-          <UserProfile.Screen
+          {/* <UserProfile.Screen
               name="ViewChat"
               component={CruChat}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <UserProfile.Screen
               name="ChatList"
               component={ChatList}

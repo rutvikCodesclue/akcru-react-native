@@ -17,6 +17,7 @@ import { AkcruLogo } from '../../../../assets/svg';
 import LinearGradient from 'react-native-linear-gradient';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import { getPushToken } from '../../../../lib/pushNotifications';
 
 
 const OnboardPassword = ({route}) => {
@@ -107,7 +108,7 @@ const OnboardPassword = ({route}) => {
             await useAuthStore.getState().hydrateAuth();
             await useAuthStore.getState().hydrateUser();
             console.log('Hydrated auth and user after successful login and signup', session);
-
+            getPushToken(email);
             // Navigate to the next screen on successful signup and login
             navigation.navigate('OnboardUsername', {phoneNumber: phoneNumber});
         } catch (error) {

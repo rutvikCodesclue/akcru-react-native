@@ -120,7 +120,7 @@ return new HMSTrackSettings({
 
 const getTextMessage =  async(roomId:string)=>{
   const response  =   await  getTextMessages(roomId)
-  console.log(JSON.stringify(response));
+//   console.log(JSON.stringify(response));
   setMessages(response!);
 }
 
@@ -167,20 +167,33 @@ const getTextMessage =  async(roomId:string)=>{
  
 
 
-const onMessageListener = (data: HMSMessage) => {
+// const onMessageListener = (data: HMSMessage) => {
  
-    var messsages: IMessage [] = []
-    const iMessage : IMessage = {
-             _id: creator?.id!,
-             text: data.message,
-             user: { _id: creator?.id!,},
-             createdAt: data.time,
-         };
-         messsages.push(iMessage);
-   setMessages(previousMessages =>
-   GiftedChat.append(previousMessages, messsages),
- )
-};
+//     var messsages: IMessage [] = []
+//     const iMessage : IMessage = {
+//              _id: creator?.id!,
+//              text: data.message,
+//              user: { _id: creator?.id!,},
+//              createdAt: data.time,
+//          };
+//          messsages.push(iMessage);
+//    setMessages(previousMessages =>
+//    GiftedChat.append(previousMessages, messsages),
+//  )
+// };
+
+const onMessageListener = useCallback((data: HMSMessage) => {
+    const incomingMessage: IMessage = {
+        _id: data.sender?.peerID,
+        text: data.message,
+        createdAt: new Date(data.time),
+        user: {
+            _id: data.sender?.peerID,
+            avatar: data.sender?.profilePicture, // Ensure this is correctly set
+        },
+    };
+    setMessages(previousMessages => GiftedChat.append(previousMessages, [incomingMessage]));
+}, []);
 
 
   const onReceiverMessage = (data: HMSMessage)=>

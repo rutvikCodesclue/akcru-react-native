@@ -18,6 +18,7 @@ import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import TrailerPlayer from '../screens/contentScreens/PlayTrailerContent';
 import PostScreen from '../screens/crummunityScreens/PostScreen';
+import {CruChat} from '../screens/ChatScreens';
 
 export type NoBottomTabStackParams = {
     ContentSwipe: any;
@@ -29,12 +30,13 @@ export type NoBottomTabStackParams = {
     StartWatchPartyView: any;
     WatchPartyPreviewScreen: any;
     Signin: any;
-    AkcruButtonStack:any;
-    FlickFlirtScreen:any;
-    AkcruNetworkScreen:any;
-    PurchaseMITScreen:any;
+    AkcruButtonStack: any;
+    FlickFlirtScreen: any;
+    AkcruNetworkScreen: any;
+    PurchaseMITScreen: any;
     TrailerPlayer: any;
     PostScreen: any;
+    ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -133,6 +135,14 @@ export default function NoBottomStack() {
               options={{
                   headerShown: false,
                   gestureEnabled: false,
+              }}
+          />
+          <NoBottom.Screen
+              name="ViewChat"
+              component={CruChat}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
               }}
           />
       </NoBottom.Navigator>
