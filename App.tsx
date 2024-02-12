@@ -17,28 +17,13 @@ import {
 
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';
-import { FB_API_KEY, FB_APP_ID, FB_MESSAGING_SENDER_ID } from '@env';
-import messaging from '@react-native-firebase/messaging';
+import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import firebase from '@react-native-firebase/app';
 import notifee from '@notifee/react-native';
 import {AndroidColor} from '@notifee/react-native';
 import {getPushToken} from './lib/pushNotifications'
+import useAuthStore from './src/stores/auth.store';
 
-// // Extracting Firebase configuration from google-services.json
-// const firebaseConfig = {
-//     apiKey: FB_API_KEY, // Your API key
-//     authDomain: "akcru-app.firebaseapp.com", // Constructed using project_id
-//     projectId: "akcru-app",
-//     storageBucket: "akcru-app.appspot.com",
-//     messagingSenderId: FB_MESSAGING_SENDER_ID, // Your project number
-//     appId: FB_APP_ID, // Your mobilesdk_app_id
-//     // Optional, if available: measurementId: "<your-measurement-id>"
-// };
-
-// Initialize Firebase
-// if (!firebase.apps.length) {
-//     firebase.initializeApp(firebaseConfig);
-// }
 
 function App(): JSX.Element {
     // Deep link handling function
@@ -77,66 +62,150 @@ function App(): JSX.Element {
     //         urlEventListener.remove();
     //     };
     // }, []);
+const userId = useAuthStore(state => state.user?.id);
 
-    useEffect(() => {
-        const unsubscribe = messaging().onMessage(async remoteMessage => {
-            console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
-            onDisplayNotification()
-        });
-        // Register background handler
-        messaging().setBackgroundMessageHandler(async remoteMessage => {
-            console.log('Message handled in the background!', remoteMessage);
-        });
+// useEffect(() => {
+//     if (userId) {
+//         getPushToken(userId);
+//     }
+// }, [userId]);
 
-        messaging().onNotificationOpenedApp(remoteMessage => {
-            console.log('Notification caused app to open from background state:', remoteMessage.data);
-        });
+ useEffect(() => {
+     // Subscribe to foreground message handling
+     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+         console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+         onDisplayNotification(remoteMessage);
+     });
 
-        messaging()
-            .getInitialNotification()
-            .then(remoteMessage => {
-                if (remoteMessage) {
-                    console.log('Notification caused app to open from quit state:', remoteMessage.data);
-                }
-            });
-        getPushToken();
-        return unsubscribe;
-    }, []);
+     // Handle background messages
+     messaging().setBackgroundMessageHandler(async remoteMessage => {
+         console.log('Message handled in the background!', remoteMessage);
+     });
 
-    // async function pushNotifications() {
-    //     let fcmToken = await messaging().getToken();
-    //     if (fcmToken) {
-    //         console.log('fcmToken log:', fcmToken);
-    //     }
-    // }
+     // Handle notification clicks
+     messaging().onNotificationOpenedApp(remoteMessage => {
+         console.log('Notification caused app to open from background state:', remoteMessage.data);
+     });
 
+     // Handle the initial notification when the app is opened from a quit state
+     messaging()
+         .getInitialNotification()
+         .then(remoteMessage => {
+             if (remoteMessage) {
+                 console.log('Notification caused app to open from quit state:', remoteMessage.data);
+             }
+         });
+
+     // Handle token refresh
+     const unsubscribeTokenRefresh = messaging().onTokenRefresh(token => {
+         if (userId) {
+             getPushToken(userId); // This function needs to update the token on your server
+         }
+     });
+
+     // Initial token registration
+     if (userId) {
+         getAndSendToken(userId);
+     }
+
+     // Cleanup subscriptions
+     return () => {
+         unsubscribeForeground();
+         unsubscribeTokenRefresh();
+     };
+ }, [userId]);
+
+ const getAndSendToken = async (userId: string) => {
+     const token = await messaging().getToken();
+     if (token) {
+         getPushToken(userId); // This function needs to update the token on your server
+     }
+ };
+
+ async function onDisplayNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
+     await notifee.requestPermission();
+     const channelId = await notifee.createChannel({
+         id: 'default',
+         name: 'Default Channel',
+     });
+
+     await notifee.displayNotification({
+         title: remoteMessage.notification?.title || 'Notification Title',
+         body: remoteMessage.notification?.body || 'Main body content of the notification',
+         android: {
+             channelId,
+             smallIcon: 'ic_launcher_round',
+             pressAction: {
+                 id: 'default',
+             },
+         },
+     });
+ }
+
+
+            
         
-            async function onDisplayNotification() {
-                // Request permissions (required for iOS)
-                await notifee.requestPermission();
-                getPushToken();
-                // Create a channel (required for Android)
-                const channelId = await notifee.createChannel({
-                    id: 'default',
-                    name: 'Default Channel',
-                });
+            // useEffect(() => {
+            //     // Handle foreground messages
+            //     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+            //         console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+            //         // Display a notification based on the content of the FCM message
+            //         onDisplayNotification(remoteMessage);
+            //     });
 
-                // Display a notification
-                await notifee.displayNotification({
-                    title: 'Notification Title',
-                    body: 'Main body content of the notification',
-                    android: {
-                        channelId,
-                        // smallIcon: "AkcruHexLogo.png", // optional, defaults to 'ic_launcher'.
-                        // pressAction is needed if you want the notification to open the app when pressed
-                        pressAction: {
-                            id: 'default',
-                        },
-                    },
-                });
-            }
-        
+            //     // Handle background messages and notification clicks
+            //     messaging().setBackgroundMessageHandler(async remoteMessage => {
+            //         console.log('Message handled in the background!', remoteMessage);
+            //         // Handling for background messages if needed
+            //     });
 
+            //     messaging().onNotificationOpenedApp(remoteMessage => {
+            //         console.log('Notification caused app to open from background state:', remoteMessage.data);
+            //         // Navigate to a specific screen based on the notification
+            //     });
+
+            //     messaging()
+            //         .getInitialNotification()
+            //         .then(remoteMessage => {
+            //             if (remoteMessage) {
+            //                 console.log('Notification caused app to open from quit state:', remoteMessage.data);
+            //                 // Handle the initial notification, e.g., navigate to a specific screen
+            //             }
+            //         });
+
+            //     // getPushToken(userId);
+
+            //     // Cleanup
+            //     return () => {
+            //         unsubscribeForeground();
+            //     };
+            // }, []);
+
+            // async function onDisplayNotification(remoteMessage: FirebaseMessagingTypes.RemoteMessage) {
+            //     // Request permissions (required for iOS)
+            //     await notifee.requestPermission();
+
+            //     // Create a channel (required for Android)
+            //     const channelId = await notifee.createChannel({
+            //         id: 'default',
+            //         name: 'Default Channel',
+            //     });
+
+            //     // Customize the notification based on `remoteMessage` if needed
+            //     // For example, use remoteMessage.notification.title and remoteMessage.notification.body
+            //     await notifee.displayNotification({
+            //         title: remoteMessage.notification?.title || 'Notification Title',
+            //         body: remoteMessage.notification?.body || 'Main body content of the notification',
+            //         android: {
+            //             channelId,
+            //             smallIcon: 'ic_launcher_round', // Specify your icon's resource name here
+            //             pressAction: {
+            //                 id: 'default',
+            //                 launchActivity: 'default',
+            //             },
+            //         },
+            //     });
+            // }
 
     return (
         <View style={styles.container}>

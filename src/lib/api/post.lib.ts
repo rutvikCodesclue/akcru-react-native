@@ -73,7 +73,7 @@ export async function createPost(postType: string, content: string[]) {
     }
 }
 
-export async function commentOnPost(postId: number, postType: string, content) {
+export async function commentOnPost(postId: number, postType: string, content: string[]) {
     try {
         const commentData = {
             postId,

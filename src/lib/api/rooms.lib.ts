@@ -50,7 +50,7 @@ export const getUsers = async(): Promise<IChatUser[]| undefined> =>{
     try {
         // POST /v1/cru/me/add-user
         const {data} = await API.post(`/v1/rooms/chats`,{});
-        console.log('getUsers:',data);
+        // console.log('getUsers:',data);
         return data.room;
     } catch (error) {
         console.error(error);

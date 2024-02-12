@@ -14,6 +14,7 @@ import {INotification} from '../../../../types';
 import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
+import { displayLocalNotification } from '../../../../lib/notificationHelper';
 
 
 
@@ -23,11 +24,31 @@ const UserNotifications = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
 
     // Fetch notifications when the component mounts
+    // useEffect(() => {
+    //     async function fetchNotifications() {
+    //         try {
+    //             const fetchedNotifications = await getMyNotifications();
+    //             setNotifications(fetchedNotifications || []);
+    //         } catch (error) {
+    //             console.error(error);
+    //         }
+    //     }
+
+    //     fetchNotifications();
+    // }, []);
+
     useEffect(() => {
         async function fetchNotifications() {
             try {
                 const fetchedNotifications = await getMyNotifications();
                 setNotifications(fetchedNotifications || []);
+
+                // Example: Display a local notification for each unread notification
+                fetchedNotifications?.forEach(notification => {
+                    if (!notification.isRead) {
+                        displayLocalNotification('New Notification', notification.message);
+                    }
+                });
             } catch (error) {
                 console.error(error);
             }
@@ -35,6 +56,7 @@ const UserNotifications = () => {
 
         fetchNotifications();
     }, []);
+
 
     // Example function to handle navigation based on notification
     const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
