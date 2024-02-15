@@ -272,6 +272,9 @@ export default function EditProfile({session}: {session: Session}) {
         setIsLoggedIn(false);
     }
 
+
+
+
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
     const [archetypeKey, setArchetypeKey] = useState('');
 

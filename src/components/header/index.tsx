@@ -36,6 +36,9 @@ const Header = () => {
                     'CruInviteDeclined',
                     'UserFollowed',
                     'UserCommentedOnPost',
+                    'UserLikedComment',
+                    'UserTaggedOnPost',
+                    'UserTaggedOnComment'
                 ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),

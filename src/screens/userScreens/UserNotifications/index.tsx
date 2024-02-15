@@ -5,18 +5,15 @@ import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {DIGITAL_PASS, FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import {getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
+import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
 import {INotification} from '../../../../types';
 import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import { displayLocalNotification } from '../../../../lib/notificationHelper';
-
-
+import AkcruButtons from '../../../components/akcruButtons';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -24,31 +21,11 @@ const UserNotifications = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
 
     // Fetch notifications when the component mounts
-    // useEffect(() => {
-    //     async function fetchNotifications() {
-    //         try {
-    //             const fetchedNotifications = await getMyNotifications();
-    //             setNotifications(fetchedNotifications || []);
-    //         } catch (error) {
-    //             console.error(error);
-    //         }
-    //     }
-
-    //     fetchNotifications();
-    // }, []);
-
     useEffect(() => {
         async function fetchNotifications() {
             try {
                 const fetchedNotifications = await getMyNotifications();
                 setNotifications(fetchedNotifications || []);
-
-                // Example: Display a local notification for each unread notification
-                fetchedNotifications?.forEach(notification => {
-                    if (!notification.isRead) {
-                        displayLocalNotification('New Notification', notification.message);
-                    }
-                });
             } catch (error) {
                 console.error(error);
             }
@@ -59,27 +36,53 @@ const UserNotifications = () => {
 
 
     // Example function to handle navigation based on notification
-    const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
-        // Determine the destination based on notification type
-        // This assumes you have screens for viewing posts and comments, and their routes are 'ViewPost' and 'ViewComment'
-        switch (notification.type) {
-            case 'UserLikedPost':
-            case 'UserTaggedOnPost':
-                navigation.navigate('PostScreen', {postId: notification.postId});
-                console.log('Navigated to post', notification.postId);
-                console.log('Type', notification.type);
-                break;
-            case 'UserCommentedOnPost':
-            case 'UserLikedComment':
-            case 'UserTaggedOnComment':
-                navigation.navigate('PostScreen', {commentId: notification.commentId});
-                console.log('Navigated to comment', notification.commentId);
-                break;
-            // Add cases for other notification types as needed
-            default:
-                console.warn('Unhandled notification type:', notification.type);
+    // const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
+    //     // Determine the destination based on notification type
+    //     // This assumes you have screens for viewing posts and comments, and their routes are 'ViewPost' and 'ViewComment'
+    //     switch (notification.type) {
+    //         case 'UserLikedPost':
+    //         case 'UserTaggedOnPost':
+    //             navigation.navigate('PostScreen', {postId: notification.postId});
+    //             console.log('Navigated to post', notification.postId);
+    //             console.log('Type', notification.type);
+    //             break;
+    //         case 'UserCommentedOnPost':
+    //         case 'UserLikedComment':
+    //         case 'UserTaggedOnComment':
+    //             navigation.navigate('PostScreen', {commentId: notification.commentId});
+    //             console.log('Navigated to comment', notification.commentId);
+    //             break;
+    //         // Add cases for other notification types as needed
+    //         default:
+    //             console.warn('Unhandled notification type:', notification.type);
+    //     }
+    // };
+
+    const navigateToContent = notification => {
+        if (notification.type === 'UserLikedPost' || notification.type === 'UserTaggedOnPost') {
+            const postId = notification.postId; // Ensure this matches the payload structure
+            console.log('Navigating to PostScreen with postId:', postId);
+            navigation.navigate('PostScreen', {postId});
         }
+        // Handle other notification types...
     };
+    const getNotificationDisplayName = (type: string) => {
+        const typeDisplayNames: {[key: string]: string} = {
+            MITAccepted: 'Your MIT was Accepted',
+            MITDeclined: 'Your MIT was Declined',
+            CruInviteAccepted: 'Your Cru Invite was Accepted',
+            CruInviteDeclined: 'Your Cru Invite was Declined',
+            UserFollowed: 'New follower',
+            UserCommentedOnPost: 'New comment on your post',
+            UserLikedComment: 'New like on your comment',
+            UserTaggedOnPost: 'You were tagged in post',
+            UserTaggedOnComment: 'You were tagged in comment',
+            // Add more mappings as needed
+        };
+
+        return typeDisplayNames[type] || type; // Return the original type if not found in the map
+    };
+
 
     // Filter notifications based on specific types and unread status
     const filteredNotifications = notifications.filter(
@@ -120,6 +123,26 @@ const UserNotifications = () => {
             console.error(`Error marking notification ${notificationId} as read:`, error);
         }
     };
+
+    const handleMarkAllAsRead = async () => {
+        const unreadNotificationIds = notifications.filter(notif => !notif.isRead).map(notif => notif.id);
+
+        if (unreadNotificationIds.length > 0) {
+            try {
+                const response = await batchMarkNotificationsRead(unreadNotificationIds); // Implement this function
+                if (response.success) {
+                    setNotifications(notifications.map(notif => ({...notif, isRead: true})));
+                    console.log('All notifications marked as read');
+                } else {
+                    console.error('Failed to mark all notifications as read');
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            }
+        }
+    };
+
+    const hasUnreadNotifications = notifications.some(notif => !notif.isRead);
 
     return (
         <TabContainer>
@@ -166,7 +189,7 @@ const UserNotifications = () => {
                                         marginTop: 10,
 
                                         textAlign: 'center',
-                                        fontSize: 14,
+                                        fontSize: 13,
                                         textDecorationLine: 'underline',
                                     }}>
                                     NOTIFICATIONS
@@ -182,13 +205,13 @@ const UserNotifications = () => {
 
                             // Console.log the isRead property
                             console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                            console.log('User Data:', filteredNotifications[0].user?.username);
+                            console.log('User Data Notification:', notification);
+
+                            // Use the mapping function to get the display name
+                            const displayName = getNotificationDisplayName(type);
 
                             return (
-                                // <TouchableOpacity
-                                //     key={index}
-                                //     onPress={() => navigateToContent(notification)}
-                                //     >
+                                <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
                                     <View key={index} style={styles.cardcontainer}>
                                         <LinearGradient
                                             // Background Linear Gradient
@@ -203,7 +226,9 @@ const UserNotifications = () => {
                                             }}
                                         />
                                         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{`${type}:`}</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                {displayName}
+                                            </Text>
                                             <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
                                                 {formatDatestamp(createdAt)}
                                             </Text>
@@ -224,10 +249,26 @@ const UserNotifications = () => {
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
-                                // </TouchableOpacity>
+                                </TouchableOpacity>
                             );
                         })}
                     </View>
+                    {hasUnreadNotifications ? (
+                        <View style={{alignItems: 'center', marginVertical: 10}}>
+                            <AkcruButtons.LrgButton
+                                btnname={'Mark All as Read'}
+                                onPress={handleMarkAllAsRead}
+                                color={COLORS.PURPLE}
+                                disabled={false}
+                            />
+                        </View>
+                    ) : (
+                        <View style={{alignItems: 'center', marginVertical: 20}}>
+                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                No new notifications available
+                            </Text>
+                        </View>
+                    )}
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>
