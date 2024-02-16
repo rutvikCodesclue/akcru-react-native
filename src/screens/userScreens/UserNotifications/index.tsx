@@ -14,11 +14,13 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import { displayLocalNotification } from '../../../../lib/notificationHelper';
 import AkcruButtons from '../../../components/akcruButtons';
+import LoadingComponent from '../../../components/Loading';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
+    const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
 
     // Fetch notifications when the component mounts
     useEffect(() => {
@@ -28,12 +30,13 @@ const UserNotifications = () => {
                 setNotifications(fetchedNotifications || []);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setIsLoading(false); // End loading, regardless of the outcome
             }
         }
 
         fetchNotifications();
     }, []);
-
 
     // Example function to handle navigation based on notification
     // const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
@@ -58,7 +61,7 @@ const UserNotifications = () => {
     //     }
     // };
 
-    const navigateToContent = notification => {
+    const navigateToContent = (notification: {type: any; postId: any; commentId: any}) => {
         if (notification.type === 'UserLikedPost' || notification.type === 'UserTaggedOnPost') {
             const postId = notification.postId; // Ensure this matches the payload structure
             console.log('Navigating to PostScreen with postId:', postId);
@@ -82,7 +85,6 @@ const UserNotifications = () => {
 
         return typeDisplayNames[type] || type; // Return the original type if not found in the map
     };
-
 
     // Filter notifications based on specific types and unread status
     const filteredNotifications = notifications.filter(
@@ -147,129 +149,139 @@ const UserNotifications = () => {
     return (
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
-                <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
-                    <View>
-                        <View style={{zIndex: 100}}>
-                            <Header />
-                        </View>
+                {isLoading ? (
+                    // Render LoadingComponent only when isLoading is true
+                    <LoadingComponent />
+                ) : (
+                    <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
+                        <View>
+                            <View style={{zIndex: 100}}>
+                                <Header />
+                            </View>
 
-                        <View
-                            style={{
-                                height: SIZES.ScreenHeight / 5,
-                                marginTop: -60,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                            }}>
-                            <LinearGradient
-                                // Background Linear Gradient
-                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                            <View
                                 style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
                                     height: SIZES.ScreenHeight / 5,
-                                }}
-                            />
-                            <View>
-                                <TouchableOpacity
-                                    style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
-                                    onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <Text
+                                    marginTop: -60,
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                }}>
+                                <LinearGradient
+                                    // Background Linear Gradient
+                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
-                                        ...FONTS.Title2,
-                                        marginTop: 10,
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        height: SIZES.ScreenHeight / 5,
+                                    }}
+                                />
+                                <View>
+                                    <TouchableOpacity
+                                        style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
+                                        onPress={() => navigation.pop()}>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                            }}>
+                                            <Icon
+                                                name="chevron-back"
+                                                type="ionicon"
+                                                size={20}
+                                                color={COLORS.LIGHTGREY}
+                                            />
+                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginTop: 10,
 
-                                        textAlign: 'center',
-                                        fontSize: 13,
-                                        textDecorationLine: 'underline',
-                                    }}>
-                                    NOTIFICATIONS
-                                </Text>
+                                            textAlign: 'center',
+                                            fontSize: 13,
+                                            textDecorationLine: 'underline',
+                                        }}>
+                                        NOTIFICATIONS
+                                    </Text>
+                                </View>
                             </View>
                         </View>
-                    </View>
 
-                    <View style={{marginHorizontal: 15}}>
-                        {/* Render user notifications */}
-                        {sortedNotifications.map((notification, index) => {
-                            const {id, type, message, isRead, createdAt, user} = notification;
+                        <View style={{marginHorizontal: 15}}>
+                            {/* Render user notifications */}
+                            {sortedNotifications.map((notification, index) => {
+                                const {id, type, message, isRead, createdAt, user} = notification;
 
-                            // Console.log the isRead property
-                            console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                            console.log('User Data Notification:', notification);
+                                // Console.log the isRead property
+                                console.log(`Notification ID: ${id}, isRead: ${isRead}`);
+                                console.log('User Data Notification:', notification);
 
-                            // Use the mapping function to get the display name
-                            const displayName = getNotificationDisplayName(type);
+                                // Use the mapping function to get the display name
+                                const displayName = getNotificationDisplayName(type);
 
-                            return (
-                                <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
-                                    <View key={index} style={styles.cardcontainer}>
-                                        <LinearGradient
-                                            // Background Linear Gradient
-                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                bottom: 0,
-                                                borderRadius: 5,
-                                            }}
-                                        />
-                                        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                {displayName}
-                                            </Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
-                                                {formatDatestamp(createdAt)}
-                                            </Text>
-                                        </View>
-                                        <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
-                                            {formatTimestampToAMPM(createdAt)}
-                                        </Text>
-                                        {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
-                                        <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                        <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
-                                            <Text
+                                return (
+                                    <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
+                                        <View key={index} style={styles.cardcontainer}>
+                                            <LinearGradient
+                                                // Background Linear Gradient
+                                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                                 style={{
-                                                    ...FONTS.Title2,
-                                                    color: COLORS.MIDORANGE,
-                                                    textAlign: 'right',
-                                                }}>
-                                                {isRead ? 'Marked as Read' : 'Mark as Read'}
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    right: 0,
+                                                    top: 0,
+                                                    bottom: 0,
+                                                    borderRadius: 5,
+                                                }}
+                                            />
+                                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                    {displayName}
+                                                </Text>
+                                                <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
+                                                    {formatDatestamp(createdAt)}
+                                                </Text>
+                                            </View>
+                                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
+                                                {formatTimestampToAMPM(createdAt)}
                                             </Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                    {hasUnreadNotifications ? (
-                        <View style={{alignItems: 'center', marginVertical: 10}}>
-                            <AkcruButtons.LrgButton
-                                btnname={'Mark All as Read'}
-                                onPress={handleMarkAllAsRead}
-                                color={COLORS.PURPLE}
-                                disabled={false}
-                            />
+                                            {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
+                                            <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
+                                            <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
+                                                <Text
+                                                    style={{
+                                                        ...FONTS.Title2,
+                                                        color: COLORS.MIDORANGE,
+                                                        textAlign: 'right',
+                                                    }}>
+                                                    {isRead ? 'Marked as Read' : 'Mark as Read'}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
                         </View>
-                    ) : (
-                        <View style={{alignItems: 'center', marginVertical: 20}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
-                                No new notifications available
-                            </Text>
-                        </View>
-                    )}
-                </ScrollView>
+                        {hasUnreadNotifications ? (
+                            <View style={{alignItems: 'center', marginVertical: 10}}>
+                                <AkcruButtons.LrgButton
+                                    btnname={'Mark All as Read'}
+                                    onPress={handleMarkAllAsRead}
+                                    color={COLORS.PURPLE}
+                                    disabled={false}
+                                />
+                            </View>
+                        ) : (
+                            <View style={{alignItems: 'center', marginVertical: 20}}>
+                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                    No new notifications available
+                                </Text>
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
             </SafeAreaView>
         </TabContainer>
     );
