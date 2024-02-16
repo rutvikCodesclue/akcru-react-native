@@ -261,7 +261,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     ) => (
         <TabBar
             {...props}
-            indicatorStyle={{backgroundColor: COLORS.DARKORANGE}}
+            indicatorStyle={{backgroundColor: COLORS.CATPURPDRK}}
             scrollEnabled={false}
             tabStyle={{width: SIZES.ScreenWidth / 4}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
@@ -274,7 +274,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 alignContent: 'center',
                 justifyContent: 'center',
             }}
-            activeColor={COLORS.MIDORANGE}
+            activeColor={COLORS.PURPLE}
             renderBadge={({route}) => {
                 if (route.key === 'second' && datesIndicatorCount > 0) {
                     return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;

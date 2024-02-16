@@ -34,6 +34,7 @@ export type CrummunityStackParams = {
     PostScreen: {
         post: IPost;
         comment: IComment
+        postId: number | string;
         // other params if there are any
     };
     // NewPost: any;

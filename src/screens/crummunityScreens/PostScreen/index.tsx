@@ -74,7 +74,7 @@ const PostScreen = ({navigation, route}: Props) => {
                 console.log('Post:', post);
                 try {
                     const fetchedComments = await getPostComments(+post.id);
-                    console.log('Fetched Comments:',JSON.stringify(fetchedComments, null, 2));
+                    console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
                     if (fetchedComments && fetchedComments.success) {
                         setComments(fetchedComments.comments); // Set only the comments array
                     }
@@ -106,7 +106,7 @@ const PostScreen = ({navigation, route}: Props) => {
             unsubscribeFocus();
         };
     }, [post, navigation]); // Include navigation in the dependency array
-    
+
     const handleDeletePost = async (postId: number) => {
         try {
             // If the post is liked by the current user, unlike it first
@@ -203,7 +203,6 @@ const PostScreen = ({navigation, route}: Props) => {
             // Optionally handle reversion or user notification here
         }
     };
-
 
     return (
         <TabContainer>
