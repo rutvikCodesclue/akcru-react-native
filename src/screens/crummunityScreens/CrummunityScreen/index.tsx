@@ -45,6 +45,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const currentUserID = user?.id;
     const author: IPost | null = route.params?.author ?? null;
 
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
     const [likedPosts, setLikedPosts] = useState(new Set());
 
     const [posts, setPosts] = useState<IPost[]>([]);
@@ -55,6 +57,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+
+    
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -350,7 +354,7 @@ const handleDeletePost = async (postId: number) => {
                             )}
                         </View>
                     </ScrollView>
-                    <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
+                    <Pressable style={styles.floatingbutton} onPress={() => navigation2.navigate('NewPost')}>
                         <View style={{position: 'relative'}}>
                             <HexShape size={55} color={COLORS.AKCRUBLUE} />
                             <View style={{position: 'absolute', top: '5%', right: '6%'}}>

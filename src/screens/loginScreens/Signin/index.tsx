@@ -76,15 +76,15 @@ const Signin = () => {
                 }
             }
             // Android 13 (API level 33) and above: Check POST_NOTIFICATIONS permission
-            // if (Platform.OS === 'android' && Platform.Version >= 33) {
-            //     const notificationPermission = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
-            //     if (notificationPermission !== RESULTS.GRANTED) {
-            //         const requestResult = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
-            //         if (requestResult === RESULTS.GRANTED) {
-            //             console.log('Post notifications permission granted');
-            //         }
-            //     }
-            // }
+            if (Platform.OS === 'android' && Platform.Version >= 33) {
+                const notificationPermission = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+                if (notificationPermission !== RESULTS.GRANTED) {
+                    const requestResult = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+                    if (requestResult === RESULTS.GRANTED) {
+                        console.log('Post notifications permission granted');
+                    }
+                }
+            }
 
             // Check permissions for camera and microphone on iOS
             if (Platform.OS === 'ios') {

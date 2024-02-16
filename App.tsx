@@ -21,7 +21,7 @@ import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messag
 import firebase from '@react-native-firebase/app';
 import notifee from '@notifee/react-native';
 import {AndroidColor} from '@notifee/react-native';
-import {getPushToken} from './lib/pushNotifications'
+import {getPushToken, requestUserPermission} from './lib/pushNotifications'
 import useAuthStore from './src/stores/auth.store';
 
 
@@ -64,11 +64,7 @@ function App(): JSX.Element {
     // }, []);
 const userId = useAuthStore(state => state.user?.id);
 
-// useEffect(() => {
-//     if (userId) {
-//         getPushToken(userId);
-//     }
-// }, [userId]);
+
 
  useEffect(() => {
      // Subscribe to foreground message handling
@@ -80,6 +76,7 @@ const userId = useAuthStore(state => state.user?.id);
      // Handle background messages
      messaging().setBackgroundMessageHandler(async remoteMessage => {
          console.log('Message handled in the background!', remoteMessage);
+         
      });
 
      // Handle notification clicks

@@ -36,10 +36,10 @@ export type CrummunityStackParams = {
         comment: IComment
         // other params if there are any
     };
-    NewPost: any;
+    // NewPost: any;
     AkcruNetworkScreen: any;
     FlickFlirtScreen: any;
-    NewComment: any;
+    // NewComment: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -66,20 +66,20 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="NewPost"
               component={NewPost}
               options={() => ({
                   headerShown: false,
               })}
-          />
-          <Crummunity.Screen
+          /> */}
+          {/* <Crummunity.Screen
               name="NewComment"
               component={NewComment}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <Crummunity.Screen
               name="UserSearchResultScreen"
               component={UserSearchResultScreen}

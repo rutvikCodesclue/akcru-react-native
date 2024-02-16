@@ -28,7 +28,8 @@ if (!firebase.apps.length) {
 // This function now expects `userId` to be passed in directly.
 export async function getPushToken(userId: string) {
     let deviceToken = await messaging().getToken();
-    if (deviceToken && userId) {
+    console.log('deviceToken:', deviceToken);
+    if (userId && deviceToken) {
         // Send the token to the server
         sendTokenToServer(userId, deviceToken);
     } else {
@@ -45,9 +46,19 @@ export const sendTokenToServer = async (userId: string, deviceToken: string): Pr
             userId,
             deviceToken,
         });
-
         console.log('Device token sent to server:', response.data);
     } catch (error) {
         console.error('Error sending device token to server:', error);
     }
 };
+
+export async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+        authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+        console.log('Authorization status:', authStatus);
+    }
+}

@@ -16,6 +16,8 @@ import { deleteComment, deletePost, getPosts, likeComment, likePost, unlikeComme
 import PostCommentCard from '../../../components/PostCommentCard'
 import { getPostComments } from '../../../lib/api/post.lib'
 import HexShape from '../../../components/HexShape'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack'
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
 
@@ -41,6 +43,7 @@ const PostScreen = ({navigation, route}: Props) => {
     // const {post} = route.params;
     const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
     const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     if (!post) {
         return (
@@ -255,7 +258,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
                             akcruBadge={post.author?.badge}
-                            CommentOnPostButton={() => navigation.navigate('NewComment', {postId: post.id})}
+                            CommentOnPostButton={() => navigation2.navigate('NewComment', {postId: post.id})}
                         />
                     </View>
                     <View style={{marginBottom: '30%'}}>
