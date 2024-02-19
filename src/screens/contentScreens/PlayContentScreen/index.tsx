@@ -1,79 +1,73 @@
-import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import styles from './styles'
-import VideoPlayer from 'react-native-media-console';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { IMovie } from '../../../../types';
-import { findMovieById } from '../../../lib/api/movies.lib';
+import {ActivityIndicator, Text, View, StatusBar} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import styles from './styles';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {Akcru_Content} from '../../../../assets/constants/ListData';
+import {IMovie} from '../../../../types';
+import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
-import { COLORS, SIZES } from '../../../../assets/constants';
+import {COLORS, SIZES} from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
-import Video, { OnSeekData } from 'react-native-video';
+import Video, {OnLoadData, OnProgressData, OnSeekData} from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 
+type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
-// import { OnSeekData } from 'react-native-video';
-
-type ContentPlayerNavigationProp = StackNavigationProp<
-  NoBottomTabStackParams,
-  'ContentPlayer'
->;
-
-type ContentPlayerRouteProp = RouteProp<
-  NoBottomTabStackParams,
-  'ContentPlayer'
->;
+type ContentPlayerRouteProp = RouteProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
 type Props = {
-  navigation: ContentPlayerNavigationProp;
-  route: ContentPlayerRouteProp;
+    navigation: ContentPlayerNavigationProp;
+    route: ContentPlayerRouteProp;
 };
 
-
 export default function ContentPlayer({navigation, route}: Props) {
-    // const id: number | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
-    const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true); // start the movie playing
+    const [isMoviePlaying, setIsMoviePlaying] = useState<number>(0);
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    const { startTimer, pauseTimer, resetTimer } = useWatchTimeStore();
+    const {resumeVideo, startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition} =
+        useWatchTimeStore();
     const isFocused = useIsFocused();
+    const videoRef = useRef<Video>(null);
+    const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
 
-    // ON FOCUS/UNFOCUS
     useFocusEffect(
         React.useCallback(() => {
-            // Start the timer when the component mounts and the movie is playing
             if (isMoviePlaying) {
                 startTimer();
             }
 
-            // Clean up the timer when the component unmounts
             return () => {
                 if (isFocused) {
-                    // pause the timer
-                    console.log("pausing timer...");
                     pauseTimer();
                 } else {
-                    console.log("resetting timer...");
-                    // reset the timer
                     resetTimer();
                 }
             };
-        }, 
-    [isMoviePlaying]));
+        }, [isMoviePlaying]),
+    );
 
     useEffect(() => {
-        // Fetch movie data based on the route parameter ID
+        resumeVideo(videoRef);
+    }, []);
+
+    // useEffect(() => {
+    //     if (videoRef.current) {
+    //         console.log('Video reference obtained: ', videoRef.current);
+    //     }
+    // }, [hasLottieFirstLoopCompleted]);
+
+    useEffect(() => {
         const fetchMovie = async () => {
             try {
                 const id: string | undefined = routeParams.params?.id;
                 if (id) {
                     const fetchedMovie: IMovie | null = await findMovieById(id);
                     if (fetchedMovie) {
+                        // console.log(fetchedMovie);
                         setMovie([fetchedMovie]);
                     } else {
                         setMovie([]);
@@ -84,24 +78,16 @@ export default function ContentPlayer({navigation, route}: Props) {
             }
         };
 
-        // Fetch movie data
         fetchMovie();
 
-        // Lock landscape orientation when entering this screen
         Orientation.lockToLandscape();
 
-        // Allow landscape orientation when entering this screen
-        // Orientation.unlockAllOrientations();
-
-        // Lock the orientation back to portrait when leaving this screen
         return () => {
             Orientation.lockToPortrait();
 
             StatusBar.setHidden(false);
         };
     }, [routeParams.params?.id]);
-
-
 
     const {
         title,
@@ -119,22 +105,54 @@ export default function ContentPlayer({navigation, route}: Props) {
         genres,
     } = movie[0] || {};
 
-
-    const onPlay = () => {
-        setIsMoviePlaying(true);
-        // Hide the status bar when the movie starts playing
+    const onLoad = (data: OnLoadData) => {
+        setIsMoviePlaying(1);
         StatusBar.setHidden(true);
+        // Seek to the last playback position if available
+        const lastPlaybackPosition = getLastPlaybackPosition();
+        console.log(`Last playback position: ${lastPlaybackPosition}`);
+        if (videoRef.current && lastPlaybackPosition > 0) {
+            videoRef.current.seek(lastPlaybackPosition);
+        }
     };
+
+    const onProgress = (data: OnProgressData) => {
+        const watchTime = Math.floor(data.currentTime); // Ensure it's an integer
+        const storedWatchTime = getLastPlaybackPosition(); // Retrieve the stored watch time
+
+        // Only update the progress if the current watch time is greater than the stored watch time
+        if (watchTime > storedWatchTime) {
+            if (watchTime % 10 === 0 && !hasLoggedRecently) {
+                // Check if it's a multiple of   10 seconds and hasn't been logged recently
+                console.log(`Current watch time: ${watchTime}`);
+                setHasLoggedRecently(true); // Set the flag to true after logging
+                setLastPlaybackPosition(watchTime);
+            } else if (watchTime % 10 !== 0) {
+                // Reset the flag when the watch time is not a multiple of 10 seconds
+                setHasLoggedRecently(false);
+            }
+        }
+    };
+
     const onPause = () => {
-        setIsMoviePlaying(false);
-        // Show the status bar when the movie is paused
+        setIsMoviePlaying(0);
         StatusBar.setHidden(false);
     };
+
     const onSeek = (data: OnSeekData) => {
         resetTimer();
         startTimer();
     };
-    
+
+    const handlePlaybackRateChange = rate => {
+        // Update isMoviePlaying based on the new playback rate
+        if (rate === 1) {
+            setIsMoviePlaying(1);
+        } else {
+            setIsMoviePlaying(0);
+        }
+        // Perform any additional actions needed when the playback rate changes
+    };
 
     return (
         <View style={{flex: 1}}>
@@ -142,20 +160,25 @@ export default function ContentPlayer({navigation, route}: Props) {
                 {hasLottieFirstLoopCompleted ? (
                     movieURL ? (
                         <>
-                            <VideoPlayer
+                            <Video
+                                ref={videoRef}
                                 source={{
                                     uri: movieURL,
                                 }}
-                                tapAnywhereToPause={false}
-                                preventsDisplaySleepDuringVideoPlayback={true}
-                                toggleResizeModeOnFullscreen={false}
-                                // poster={landscapeURL}
-                                containerStyle={{zIndex: 100}}
-                                onBack={() => navigation.pop()}
-                                paused={!isMoviePlaying}
-                                onPlay={onPlay}
-                                onPause={onPause}
-                                onSeek={onSeek}
+                                resizeMode="cover"
+                                controls={true}
+                                onLoad={onLoad}
+                                onPlaybackRateChange={handlePlaybackRateChange}
+                                // paused={!isMoviePlaying}
+                                onProgress={onProgress}
+                                // onSeek={onSeek}
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    right: 0,
+                                }}
                             />
                         </>
                     ) : (

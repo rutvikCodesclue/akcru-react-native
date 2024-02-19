@@ -7,10 +7,14 @@ import useAuthStore from "./auth.store";
 interface IWatchTimeState {
     watchTime: number;
     timer: NodeJS.Timer | null;
+    lastPlaybackPosition: number;
+    resumeVideo: (videoRef: React.RefObject<Video>) => void;
     startTimer: () => void;
     pauseTimer: () => void;
     resetTimer: () => void;
     handleCountWatchTime: () => Promise<void>;
+    setLastPlaybackPosition: (position: number) => void; // Add this line
+    getLastPlaybackPosition: () => number; // Add this line
 }
 
 const POINTS_INTERVAL = 30; // time in seconds to send user AD for watching content
@@ -18,7 +22,23 @@ const POINTS_INTERVAL = 30; // time in seconds to send user AD for watching cont
 const useWatchTimeStore = create<IWatchTimeState>()(persist(
     (set, get) => ({
         watchTime: 0,
-        timer: null,
+        timer: null as NodeJS.Timer | null, // Update the type to allow null
+        lastPlaybackPosition: 0, // Initialize with 0
+        resumeVideo: (videoRef: React.RefObject<Video>) => {
+            if (videoRef.current) {
+                const lastPlaybackPosition = get().getLastPlaybackPosition();
+                videoRef.current.seek(lastPlaybackPosition);
+                // Optionally, you can start the timer again if needed
+                // get().startTimer();
+            }
+        },
+        // Other properties...
+        setLastPlaybackPosition: (position: number) => {
+            set({ lastPlaybackPosition: position });
+        },
+        getLastPlaybackPosition: () => {
+            return get().lastPlaybackPosition;
+        },
         startTimer: () => {
             const interval = setInterval(async () => {
                 set((state) => ({ watchTime: state.watchTime + 1 }));
@@ -34,7 +54,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             
             if (interval) {
                 clearInterval(interval);
-                set({ timer: null });
+                set({ timer: null }); // Update the value to null
             }
         },
         resetTimer: () => {
@@ -43,7 +63,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             
             if (interval) {
                 clearInterval(interval);
-                set({ timer: null, watchTime: 0 });
+                set({ timer: null, watchTime: 0 }); // Update the value to null
             }
         },
         handleSkip: () => {
@@ -63,6 +83,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             
             if (interval) {
                 clearInterval(interval);
+                get().setLastPlaybackPosition(currentPlaybackPosition);
                 // Handle pause logic here, e.g., pause the video playback
             }
             
@@ -82,6 +103,11 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
                 // TODO: find a more efficient way to do this
                 await useAuthStore.getState().hydrateUser();
             }
+        },
+        handlePlay: () => {
+            // Get the last playback position
+            const lastPlaybackPosition = get().getLastPlaybackPosition();
+            // Resume the video from the last playback position
         },
     }), 
     ({ name: "watchTime-store", storage: createJSONStorage(() => AsyncStorage) })) );
