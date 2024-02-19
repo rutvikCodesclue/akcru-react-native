@@ -23,6 +23,20 @@ export async function getPosts(page = 1) {
     }
 }
 
+export async function getPost(postId: number) {
+    try {
+        const {data} = await API.get(`/v1/post/${postId}`);
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+        return data.post;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch the post');
+    }
+}
+
+
 export const getPostComments = async (postId: number): Promise<Object | undefined> => {
     console.log(`Making request to /v1/post/comments with postId: ${postId}`);
     try {
@@ -33,15 +47,15 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
         console.error('Error fetching post comments:', error);
 
         // Detailed error logging
-        if (error.response) {
+        if (error instanceof Error) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
             console.error('Response data:', error.response.data);
             console.error('Response status:', error.response.status);
             // console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
+        } else if (error instanceof Error) {
             // The request was made but no response was received
-            console.error('Request:', error.request);
+            console.error('Request:', error.name);
         } else {
             // Something happened in setting up the request that triggered an Error
             console.error('Error message:', error.message);

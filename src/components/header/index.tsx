@@ -38,12 +38,14 @@ const Header = () => {
                     'UserCommentedOnPost',
                     'UserLikedComment',
                     'UserTaggedOnPost',
-                    'UserTaggedOnComment'
+                    'UserTaggedOnComment',
+                    'UserLikedPost',
                 ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
                 setUnreadCount(unreadNotifications.length.toString());
+                console.log('Unread Notifications:', unreadNotifications);
             }
         } catch (error) {
             console.error(error);

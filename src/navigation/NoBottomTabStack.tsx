@@ -11,7 +11,7 @@ import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
-import WatchPartyPreviewScreen from '../screens/userScreens/WatchPartyPreview';
+import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 import AkcruButtonStack from './AkcruButtonStack';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
@@ -22,6 +22,7 @@ import {CruChat} from '../screens/ChatScreens';
 import NewPost from '../screens/crummunityScreens/NewPost';
 import NewComment from '../screens/crummunityScreens/NewComment';
 import { IComment, IPost } from '../../types';
+import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 
 export type NoBottomTabStackParams = {
     ContentSwipe: any;
@@ -31,7 +32,7 @@ export type NoBottomTabStackParams = {
     ContentDetailScreen: any;
     StartMITDate: any;
     StartWatchPartyView: any;
-    WatchPartyPreviewScreen: any;
+    WatchPartyPreview: any;
     Signin: any;
     AkcruButtonStack: any;
     FlickFlirtScreen: any;
@@ -39,13 +40,15 @@ export type NoBottomTabStackParams = {
     PurchaseMITScreen: any;
     TrailerPlayer: any;
     PostScreen: {
-        post: IPost;
-        comment: IComment;
+        post?: IPost;
+        comment?: IComment;
+        postId: number;
         // other params if there are any
     };
     ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
     NewPost: any;
     NewComment: any;
+    ViewUserScreen: {userId: string; profilePicture: string; username: string};
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -124,7 +127,7 @@ export default function NoBottomStack() {
           />
           <NoBottom.Screen
               name="WatchPartyPreview"
-              component={WatchPartyPreviewScreen}
+              component={WatchPartyPreview}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
@@ -165,6 +168,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="NewComment"
               component={NewComment}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ViewUserScreen"
+              component={ViewUserScreen}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

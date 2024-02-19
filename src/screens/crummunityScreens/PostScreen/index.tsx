@@ -12,15 +12,14 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { IComment, IPost, IUserProfile } from '../../../../types'
 import useAuthStore from '../../../stores/auth.store'
 import PostCard from '../../../components/SkinnyPostCard'
-import { deleteComment, deletePost, getPosts, likeComment, likePost, unlikeComment, unlikePost } from '../../../lib/api/post.lib'
+import { deleteComment, deletePost, getPost, getPosts, likeComment, likePost, unlikeComment, unlikePost } from '../../../lib/api/post.lib'
 import PostCommentCard from '../../../components/PostCommentCard'
 import { getPostComments } from '../../../lib/api/post.lib'
 import HexShape from '../../../components/HexShape'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack'
 
-type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
-
+type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
 
 type Props = {
@@ -29,6 +28,8 @@ type Props = {
 };
 
 const PostScreen = ({navigation, route}: Props) => {
+    const postId = route.params?.postId;
+    console.log('PostScreen postId:', postId);
     const {user, hydrateUser} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
@@ -42,6 +43,7 @@ const PostScreen = ({navigation, route}: Props) => {
     const author: IUserProfile | null = route.params?.author ?? null;
     // const {post} = route.params;
     const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
+    console.log('PostScreen post:', post);
     const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -66,6 +68,24 @@ const PostScreen = ({navigation, route}: Props) => {
 
         return unsubscribe;
     }, [navigation]);
+
+    // useEffect(() => {
+    //     const fetchPost = async () => {
+    //         if (route.params?.postId) {
+    //             const numericPostId = parseInt(route.params.postId, 10);
+    //             try {
+    //                 const fetchedPost = await getPost(numericPostId);
+    //                 // Assuming setPost is your state setter for storing fetched post data
+    //                 setPost(fetchedPost);
+    //             } catch (error) {
+    //                 console.error('Error fetching post:', error);
+    //             }
+    //         }
+    //     };
+
+    //     fetchPost();
+    // }, [route.params?.postId]);
+
 
     useEffect(() => {
         const fetchComments = async () => {
