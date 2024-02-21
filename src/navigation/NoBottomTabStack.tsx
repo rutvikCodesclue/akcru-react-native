@@ -29,9 +29,12 @@ import EditProfile from '../screens/userScreens/EditProfileScreen';
 import AccountSettings from '../screens/userScreens/AccountSettings';
 import Suggestions from '../screens/userScreens/Suggestions';
 import Questions from '../screens/userScreens/Questions';
+import ReportUser from '../screens/userScreens/ReportUser';
+
 
 
 export type NoBottomTabStackParams = {
+    ReportUser: any;
     Questions: any;
     Suggestions: any;
     AccountSettings: any;
@@ -237,6 +240,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="Questions"
               component={Questions}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ReportUser"
+              component={ReportUser}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

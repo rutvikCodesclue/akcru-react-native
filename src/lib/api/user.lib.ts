@@ -521,4 +521,44 @@ if (response.data && response.data.success) {
     }
 };
 
+interface ReportData {
+    description: string;
+    email: string;
+    imageURL?: string; // Make imageURL optional since it may not always be provided
+    type: string;
+    reportedByUserId: string;
+    userId: string;
+}
 
+export const sendAbuseReportToBackend = async ({
+    description,
+    email,
+    imageURL,
+    type,
+    reportedByUserId,
+    userId,
+}: ReportData): Promise<{success: boolean; message: string}> => {
+    try {
+        const response = await API.post('/v1/user/report-user', {
+            description,
+            email,
+            imageURL,
+            type,
+            reportedByUserId,
+            userId,
+        });
+        if (response.data && response.data.success) {
+            console.log('Report successfully submitted:', response.data);
+            return {success: true, message: 'Report successfully submitted.'};
+        } else {
+            console.error('Failed to submit report:', response.data);
+            return {success: false, message: response.data.message || 'Failed to submit report.'};
+        }
+    } catch (error) {
+        console.error('Error submitting report:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || 'An error occurred while submitting the report.',
+        };
+    }
+};

@@ -37,9 +37,11 @@ import useAuthStore from '../../../stores/auth.store';
 import { getWatchlist } from '../../../lib/api/movies.lib';
 import WatchListCategory from '../../../components/WatchlistCategory';
 import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
+  NoBottomTabStackParams,
   'ViewUserScreen'
 >;
 
@@ -71,6 +73,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -160,6 +163,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
     };
 
     console.log('ViewUserScreen render', {follow});
+
+    const handleReportUser = () => {
+        // Using navigation2 as per your provided code snippet for navigating
+        navigation2.navigate('ReportUser', {userID: userID});
+        setUserOptionModal(false);
+    };
 
     const handleFollowPress = async () => {
         console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
@@ -513,9 +522,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     blockUser={() => {
                                         ('');
                                     }}
-                                    reportUser={() => {
-                                        ('');
-                                    }}
+                                    reportUser={handleReportUser}
                                     followUser={handleFollowPress}
                                     followToggleIcon={follow ? 'person-subtract' : 'person-add'}
                                     followIconType={'ionicon'}

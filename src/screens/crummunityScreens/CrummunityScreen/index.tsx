@@ -314,7 +314,7 @@ const handleDeletePost = async (postId: number) => {
                                             <SkinnyPostCard
                                                 post={item}
                                                 openProfile={() =>
-                                                    navigation.navigate('ViewUserScreen', {userID: item.author?.id})
+                                                    navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
                                                 // onLike={onLike}
                                                 // onUnlike={onUnlike}
