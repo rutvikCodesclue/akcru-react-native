@@ -23,8 +23,21 @@ import NewPost from '../screens/crummunityScreens/NewPost';
 import NewComment from '../screens/crummunityScreens/NewComment';
 import { IComment, IPost } from '../../types';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
+import BugReport from '../screens/userScreens/BugReport';
+import Help from '../screens/userScreens/Help';
+import EditProfile from '../screens/userScreens/EditProfileScreen';
+import AccountSettings from '../screens/userScreens/AccountSettings';
+import Suggestions from '../screens/userScreens/Suggestions';
+import Questions from '../screens/userScreens/Questions';
+
 
 export type NoBottomTabStackParams = {
+    Questions: any;
+    Suggestions: any;
+    AccountSettings: any;
+    EditProfile: any;
+    Help: any;
+    BugReport: any;
     ContentSwipe: any;
     ClientTabNavigator: any;
     ClientStack: any;
@@ -176,6 +189,54 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="BugReport"
+              component={BugReport}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="Help"
+              component={Help}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="EditProfile"
+              component={EditProfile}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="AccountSettings"
+              component={AccountSettings}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="Suggestions"
+              component={Suggestions}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="Questions"
+              component={Questions}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

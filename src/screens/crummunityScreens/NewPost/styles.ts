@@ -4,7 +4,6 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 export default StyleSheet.create({
     input: {
         width: SIZES.ScreenWidth * 0.92,
-
         borderColor: COLORS.LIGHTGREY,
         marginTop: 10,
         alignSelf: 'center',

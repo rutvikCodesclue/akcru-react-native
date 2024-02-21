@@ -40,12 +40,12 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import { selectAvatarBorderColor } from '../../../util/util';
 import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImageModal';
+import HelpModal from '../../../components/HelpModal/HelpModal';
 
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
 export default function EditProfile({session}: {session: Session}) {
-
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -272,9 +272,6 @@ export default function EditProfile({session}: {session: Session}) {
         setIsLoggedIn(false);
     }
 
-
-
-
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
     const [archetypeKey, setArchetypeKey] = useState('');
 
@@ -283,6 +280,7 @@ export default function EditProfile({session}: {session: Session}) {
     const [archetypeDescription, setArchetypeDescription] = useState('');
 
     const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false); // State to control modal visibility
+    const [isHelpModalVisible, setHelpModalVisible] = useState(false); // State to control modal visibility
 
     // Function to toggle the modal's visibility
     const toggleArchetypeModal = () => {
@@ -357,7 +355,6 @@ export default function EditProfile({session}: {session: Session}) {
             console.log('Please select exactly 2 genres.');
         }
     };
-
 
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
@@ -779,8 +776,8 @@ export default function EditProfile({session}: {session: Session}) {
                         {/* Create a modal to display the enlarged image */}
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
                             <EnlargeImageModal
-                            image={archetype ? archetype.image : ''}
-                            closeModal={toggleArchetypeModal}
+                                image={archetype ? archetype.image : ''}
+                                closeModal={toggleArchetypeModal}
                             />
                         </Modal>
 
@@ -800,10 +797,10 @@ export default function EditProfile({session}: {session: Session}) {
                     </View> */}
 
                         <View style={{alignItems: 'center', marginVertical: 20}}>
-                            <TouchableOpacity onPress={() => navigation.navigate('AccountSettings')}>
+                            <TouchableOpacity onPress={() => navigation2.navigate('AccountSettings')}>
                                 <Text style={styles.settingslabel}>Account Settings</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('Help')}>
+                            <TouchableOpacity onPress={() => setHelpModalVisible(true)}>
                                 <View style={{flexDirection: 'row', marginTop: 5}}>
                                     <Text style={styles.settingslabel}>Help</Text>
                                     <View style={{marginLeft: 5}}>
@@ -828,6 +825,27 @@ export default function EditProfile({session}: {session: Session}) {
                         <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
                             version {appVersion[0].version}
                         </Text>
+                        <Modal visible={isHelpModalVisible} animationType="fade" transparent={true}>
+                            <HelpModal
+                                closeModal={() => setHelpModalVisible(false)}
+                                faq={() => {
+                                    setHelpModalVisible(false); // Close the modal first
+                                    navigation2.navigate('Help');
+                                }}
+                                bugReport={() => {
+                                    setHelpModalVisible(false); // Close the modal first
+                                    navigation2.navigate('BugReport');
+                                }}
+                                suggestion={() => {
+                                    setHelpModalVisible(false); // Close the modal first
+                                    navigation2.navigate('Suggestions');
+                                }}
+                                question={() => {
+                                    setHelpModalVisible(false); // Close the modal first
+                                    navigation2.navigate('Questions');
+                                }}
+                            />
+                        </Modal>
                     </View>
                 </ScrollView>
             </SafeAreaView>

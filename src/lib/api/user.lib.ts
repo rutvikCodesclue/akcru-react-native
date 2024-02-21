@@ -437,3 +437,88 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
     }
 };
 
+interface ReportData {
+    email: string;
+    imageURL?: string; // Make imageURL optional since it may not always be provided
+    description: string;
+    type: string;
+    name: string;
+}
+
+export const sendReportToBackend = async ({
+    email,
+    imageURL,
+    description,
+    type,
+    name,
+}: ReportData): Promise<{success: boolean; message: string}> => {
+    try {
+        const response = await API.post('/v1/user/raise-a-query', {
+            email,
+            imageURL,
+            description,
+            type,
+            name,
+        });
+        if (response.data && response.data.success) {
+            console.log('Report successfully submitted:', response.data);
+            return {success: true, message: 'Report successfully submitted.'};
+        } else {
+            console.error('Failed to submit report:', response.data);
+            return {success: false, message: response.data.message || 'Failed to submit report.'};
+        }
+    } catch (error) {
+        console.error('Error submitting report:', error);
+        return {
+            success: false,
+            message: error.response?.data?.message || 'An error occurred while submitting the report.',
+        };
+    }
+};
+
+export const uploadImage = async (uri?: string): Promise<string | undefined> => {
+    console.log('Attempting to upload image:', uri);
+    if (!uri) {
+        console.log('No URI provided for upload');
+        return undefined;
+    }
+
+    const fileExtension = uri.split('.').pop().toLowerCase();
+    let mimeType = 'image/jpeg';
+    if (fileExtension === 'png') {
+        mimeType = 'image/png';
+    }
+
+    const formData = new FormData();
+    formData.append('images', {
+        // Ensure this matches the backend expectation
+        uri: uri,
+        type: mimeType,
+        name: `upload.${fileExtension}`,
+    });
+
+    try {
+        const response = await API.post('/v1/user/uploadPictures', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        console.log('Upload response:', response.data);
+
+        // Inside your uploadImage function
+if (response.data && response.data.success) {
+    return response.data; // Adjust this to match the structure of your actual response
+
+
+        } else {
+            console.error('Failed to upload image:', response.data.message);
+            return undefined;
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        return undefined;
+    }
+};
+
+
