@@ -152,6 +152,7 @@ export type INotification = {
         | 'UserFollowed'
         | 'UserCommentedOnPost'
         | 'UserLikedComment'
+        | 'UserLikedPost'
         | 'UserTaggedOnPost'
         | 'UserTaggedOnComment';
     userId: string;
@@ -160,6 +161,8 @@ export type INotification = {
     createdAt: string;
     updatedAt?: string;
     message?: string;
+    postId: number;
+    senderId: string;
 };
 export interface IUserProfile {
     message: string?;
@@ -466,4 +469,17 @@ export type IChatMovie ={
     price?:string,
     portraitURL?:string
     rating:string
+}
+
+export type ITicket = {
+    id: string;
+    createdAt: string;
+    email: string;
+    imageURL: string;
+    description: string;
+    type: 'BUG' | 'SUGGESTION' | 'QUESTION' | 'REPORT';
+    reportedByUserId: string;
+    reportedBy: string;
+    reportedUserId:  string;
+    reported: string;
 }

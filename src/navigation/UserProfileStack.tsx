@@ -12,9 +12,7 @@ import CruViewSearchMovieScreen from '../screens/userScreens/CruViewScreens/CruV
 import ChooseMITScreen from '../screens/userScreens/MITChoice/ChooseMITScreen';
 import DeclineMITScreen from '../screens/userScreens/MITDecline';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
-import EditProfile from '../screens/userScreens/EditProfileScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
-import AccountSettings from '../screens/userScreens/AccountSettings';
 import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
 import EditWatchList from '../screens/userScreens/EditWatchList';
@@ -24,7 +22,6 @@ import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
-import Help from '../screens/userScreens/Help';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import { CruChat } from '../screens/ChatScreens';
@@ -44,8 +41,6 @@ export type UserProfileStackParams = {
     CruViewSearchMovieScreen: any;
     CruViewSearchMovieResultScreen: any;
     CruViewMovieDetailScreen: any;
-    EditProfile: any;
-    AccountSettings: any;
     EditCru: any;
     FollowList: any;
     UserNotifications: any;
@@ -53,7 +48,6 @@ export type UserProfileStackParams = {
     WatchPartyPreviewScreen: any;
     ContentDetailScreen: any;
     ViewUserDetailScreen: any;
-    Help: any;
     UserWalletSearch: any;
     UserProfileWalletTab: any;
     AkcruButtonStack: any;
@@ -167,20 +161,6 @@ export function UserProfileStack() {
               })}
           />
           <UserProfile.Screen
-              name="EditProfile"
-              component={EditProfile}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <UserProfile.Screen
-              name="AccountSettings"
-              component={AccountSettings}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <UserProfile.Screen
               name="EditCru"
               component={EditCru}
               options={() => ({
@@ -226,13 +206,6 @@ export function UserProfileStack() {
           <UserProfile.Screen
               name="ContentDetailScreen"
               component={ContentDetailScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          />
-          <UserProfile.Screen
-              name="Help"
-              component={Help}
               options={() => ({
                   headerShown: false,
               })}

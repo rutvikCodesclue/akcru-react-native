@@ -11,13 +11,13 @@ import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} fr
 import {INotification} from '../../../../types';
 import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
-import { displayLocalNotification } from '../../../../lib/notificationHelper';
 import AkcruButtons from '../../../components/akcruButtons';
 import LoadingComponent from '../../../components/Loading';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import { getPost } from '../../../lib/api/post.lib';
 
 const UserNotifications = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
@@ -27,6 +27,7 @@ const UserNotifications = () => {
         async function fetchNotifications() {
             try {
                 const fetchedNotifications = await getMyNotifications();
+                console.log('Fetched Notifications:', fetchedNotifications);
                 setNotifications(fetchedNotifications || []);
             } catch (error) {
                 console.error(error);
@@ -39,36 +40,46 @@ const UserNotifications = () => {
     }, []);
 
     // Example function to handle navigation based on notification
-    // const navigateToContent = (notification: { type: any; postId: any; commentId: any; }) => {
-    //     // Determine the destination based on notification type
-    //     // This assumes you have screens for viewing posts and comments, and their routes are 'ViewPost' and 'ViewComment'
-    //     switch (notification.type) {
-    //         case 'UserLikedPost':
-    //         case 'UserTaggedOnPost':
-    //             navigation.navigate('PostScreen', {postId: notification.postId});
-    //             console.log('Navigated to post', notification.postId);
-    //             console.log('Type', notification.type);
-    //             break;
-    //         case 'UserCommentedOnPost':
-    //         case 'UserLikedComment':
-    //         case 'UserTaggedOnComment':
-    //             navigation.navigate('PostScreen', {commentId: notification.commentId});
-    //             console.log('Navigated to comment', notification.commentId);
-    //             break;
-    //         // Add cases for other notification types as needed
-    //         default:
-    //             console.warn('Unhandled notification type:', notification.type);
-    //     }
-    // };
+  const navigateToContent = async (notification: INotification) => {
+      try {
+          switch (notification.type) {
+              case 'UserLikedComment':
+              case 'UserLikedPost':
+              case 'UserTaggedOnPost':
+              case 'UserCommentedOnPost':
+              case 'UserTaggedOnComment':
+                  // Fetch the post data before navigating
+                  const postId = notification.postId;
+                  if (postId) {
+                      const numericPostId = parseInt(postId, 10);
+                      const post = await getPost(numericPostId);
+                      if (post) {
+                          navigation.navigate('PostScreen', {post: post});
+                      } else {
+                          console.error('Post not found');
+                      }
+                  }
+                  break;
+              // Handle other cases as needed
+              default:
+                  console.warn('Unhandled notification type:', notification.type);
+                  break;
+              case 'UserFollowed':
+                  // Assuming the notification includes the user ID of the follower
+                  const userId = notification.senderId; // Adjust this to match your notification structure
+                  console.log('Notification Data:', notification)
+                  if (userId) {
+                      navigation.navigate('ViewUserScreen', {userID: userId});
+                  } else {
+                      console.error('User ID not found');
+                  }
+                  break;
+          }
+      } catch (error) {
+          console.error('Error navigating to content:', error);
+      }
+  };
 
-    const navigateToContent = (notification: {type: any; postId: any; commentId: any}) => {
-        if (notification.type === 'UserLikedPost' || notification.type === 'UserTaggedOnPost') {
-            const postId = notification.postId; // Ensure this matches the payload structure
-            console.log('Navigating to PostScreen with postId:', postId);
-            navigation.navigate('PostScreen', {postId});
-        }
-        // Handle other notification types...
-    };
     const getNotificationDisplayName = (type: string) => {
         const typeDisplayNames: {[key: string]: string} = {
             MITAccepted: 'Your MIT was Accepted',
@@ -78,6 +89,7 @@ const UserNotifications = () => {
             UserFollowed: 'New follower',
             UserCommentedOnPost: 'New comment on your post',
             UserLikedComment: 'New like on your comment',
+            UserLikedPost: 'New like on your post',
             UserTaggedOnPost: 'You were tagged in post',
             UserTaggedOnComment: 'You were tagged in comment',
             // Add more mappings as needed
@@ -98,11 +110,15 @@ const UserNotifications = () => {
                 notification.type === 'UserCommentedOnPost' ||
                 notification.type === 'UserLikedComment' ||
                 notification.type === 'UserTaggedOnPost' ||
-                notification.type === 'UserTaggedOnComment'),
+                notification.type === 'UserTaggedOnComment'||
+                notification.type === 'UserLikedPost'),
     );
     const sortedNotifications: INotification[] = filteredNotifications.sort(
+        
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        
     );
+    
 
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
@@ -222,7 +238,9 @@ const UserNotifications = () => {
                                 const displayName = getNotificationDisplayName(type);
 
                                 return (
-                                    <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
+                                    <TouchableOpacity key={index} onPress={
+                                        () => navigateToContent (notification) }>
+                                        
                                         <View key={index} style={styles.cardcontainer}>
                                             <LinearGradient
                                                 // Background Linear Gradient
