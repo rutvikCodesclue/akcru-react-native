@@ -65,6 +65,9 @@ const UserNotifications = () => {
                   console.warn('Unhandled notification type:', notification.type);
                   break;
               case 'UserFollowed':
+              case 'CruInviteReceived':
+              case 'CruInviteAccepted':
+              case 'CruInviteDeclined':
                   // Assuming the notification includes the user ID of the follower
                   const userId = notification.senderId; // Adjust this to match your notification structure
                   console.log('Notification Data:', notification)
@@ -92,6 +95,9 @@ const UserNotifications = () => {
             UserLikedPost: 'New like on your post',
             UserTaggedOnPost: 'You were tagged in post',
             UserTaggedOnComment: 'You were tagged in comment',
+            CruViewScheduled: 'A Cru View was scheduled',
+            CruViewStarted: 'A Cru View was started',
+            CruInviteReceived: 'A Cru Invite was received',
             // Add more mappings as needed
         };
 
@@ -110,8 +116,11 @@ const UserNotifications = () => {
                 notification.type === 'UserCommentedOnPost' ||
                 notification.type === 'UserLikedComment' ||
                 notification.type === 'UserTaggedOnPost' ||
-                notification.type === 'UserTaggedOnComment'||
-                notification.type === 'UserLikedPost'),
+                notification.type === 'UserTaggedOnComment' ||
+                notification.type === 'UserLikedPost' ||
+                notification.type === 'CruViewScheduled' ||
+                notification.type === 'CruViewStarted' ||
+                notification.type === 'CruInviteReceived'),
     );
     const sortedNotifications: INotification[] = filteredNotifications.sort(
         

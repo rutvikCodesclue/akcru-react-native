@@ -93,11 +93,11 @@ export const createACRUView = async (params: {movieId: string; startTime: string
     }
 };
 
-export const createACRUInvite = async (params: {username: string}): Promise<ICruInvite | undefined> => {
+export const createACRUInvite = async (params: {username: string; senderId: string}): Promise<ICruInvite | undefined> => {
     // POST /v1/cru/invite/create
     try {
-        const {username} = params;
-        const {data} = await API.post(`/v1/cru/invite/create`, {username});
+        const {username, senderId} = params;
+        const {data} = await API.post(`/v1/cru/invite/create`, {username, senderId});
 
         return data.invite;
     } catch (error) {
@@ -143,3 +143,27 @@ export const declineACRUInvite = async (params: {inviteId: string}) => {
         console.error(error);
     }
 };
+
+export const getCruInviteStatus = async (viewedUserId: string) => {
+    try {
+        const response = await API.get(`/v1/cru/invite/status?viewedUserId=${viewedUserId}`);
+        return response.data.status; // 'Pending', 'Accepted', 'Declined', or 'No Invite'
+    } catch (error) {
+        console.error('Error fetching CRU invite status:', error);
+        return 'Error'; // Handle error state as needed
+    }
+};
+
+export const checkUserMembership = async (viewedUserId: string) => {
+    try {
+        // Directly use `viewedUserId` as a path parameter in the URL
+        const response = await API.get(`/v1/cru/check-crumembership/${viewedUserId}`);
+        // Assuming the backend returns a JSON object with a boolean property `isMember`
+        return response.data.isMember;
+    } catch (error) {
+        console.error('Error checking user membership:', error);
+        throw error; // Re-throw the error to be handled by the caller
+    }
+};
+
+

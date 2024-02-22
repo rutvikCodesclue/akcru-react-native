@@ -277,13 +277,13 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                 {visibleMovies.map((item, index) => {
                     return (
                         <View key={item.id} style={styles.paginationDotContainer}>
-                            <View style={[styles.paginationDot, {backgroundColor: COLORS.TRANSLIGHTGREY}]} />
+                            <View style={[styles.paginationDot, {backgroundColor: COLORS.PURPLE}]} />
                         </View>
                     );
                 })}
             </View>
             <TouchableOpacity onPress={onPress2}>
-                <Text style={{...FONTS.Title2Orange, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999}}>Skip to Homepage</Text>
+                <Text style={{...FONTS.Title2Orange, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PURPLE}}>Skip to Homepage</Text>
             </TouchableOpacity>
         </View>
     );
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
         height: DOT_SIZE,
         borderRadius: DOT_SIZE / 2,
         borderWidth: 2,
-        borderColor: COLORS.MIDORANGE,
+        borderColor: COLORS.AKCRUBLUE,
         position: 'absolute',
     },
     logo: {

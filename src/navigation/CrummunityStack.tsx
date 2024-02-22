@@ -19,7 +19,7 @@ import { IComment, IPost } from '../../types';
 export type CrummunityStackParams = {
     CrummunityScreen: any;
     UserSearchResultScreen: any;
-    ViewUserScreen: any;
+    // ViewUserScreen: any;
     ViewUserDetailScreen: any;
     PurchaseMITScreen: any;
     //   AcceptMITScreen: any;
@@ -31,12 +31,12 @@ export type CrummunityStackParams = {
     SendMITSchedule: any;
     CruChewScreen: any;
     CruChewOrder: any;
-    PostScreen: {
-        post: IPost;
-        comment: IComment
-        postId: number | string;
-        // other params if there are any
-    };
+    // PostScreen: {
+    //     post: IPost;
+    //     comment: IComment
+    //     postId: number | string;
+    //     // other params if there are any
+    // };
     // NewPost: any;
     AkcruNetworkScreen: any;
     FlickFlirtScreen: any;
@@ -60,13 +60,13 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="PostScreen"
               component={PostScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           {/* <Crummunity.Screen
               name="NewPost"
               component={NewPost}
@@ -88,13 +88,13 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <Crummunity.Screen
               name="ViewUserDetailScreen"
               component={ViewUserDetailScreen}

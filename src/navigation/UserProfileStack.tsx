@@ -30,7 +30,7 @@ import { ChatList } from '../screens/ChatList';
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
     UserProfileScreen: any;
-    ViewUserScreen: any;
+    // ViewUserScreen: any;
     UserSearchResultScreen: any;
     ChooseMITScreen: any;
     UserMITHubScreen: any;
@@ -90,13 +90,13 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-          <UserProfile.Screen
+          {/* <UserProfile.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <UserProfile.Screen
               name="ViewUserDetailScreen"
               component={ViewUserDetailScreen}
