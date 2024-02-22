@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
@@ -7,20 +7,21 @@ import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
-import {timeSince} from '../../util/util';
+import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 
 type FooterIconsProps = {
     iconname: string;
     onPress: () => void;
+    color: string;
 };
 
-const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -100,6 +101,8 @@ type PostProps = {
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
+    isLikedByCurrentUser?: boolean; // Assuming this property exists
+    isSuggestedUser: boolean;
 };
 
 const SkinnyPostCard = ({
@@ -113,6 +116,7 @@ const SkinnyPostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
+    isSuggestedUser
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -127,6 +131,8 @@ const SkinnyPostCard = ({
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
+
+    const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -271,6 +277,8 @@ const SkinnyPostCard = ({
         }
     };
 
+    const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
+
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
@@ -405,25 +413,30 @@ const SkinnyPostCard = ({
                     </Pressable>
                 </Modal>
             </View>
-            <View style={{marginTop: 10}}>
-                <Text style={styles.post}>{post.content}</Text>
-            </View>
+            {/* Render text if available */}
+            {textContent && (
+                <View style={{marginTop: 10}}>
+                    <Text style={styles.post}>{textContent}</Text>
+                </View>
+            )}
 
             <View>
-                {post.image && (
-                    <TouchableOpacity onPress={() => openModal(post.image)}>
-                        <Image src={post.image} style={styles.postimage} />
+                {/* Render images */}
+                {imageUrls.map((url, index) => (
+                    <TouchableOpacity key={index} onPress={() => openModal(url)}>
+                        <Image source={{uri: url}} style={styles.postimage} />
                     </TouchableOpacity>
-                )}
+                ))}
             </View>
             <View>
-                {post.video && (
-                    <TouchableOpacity onPress={() => openVideoModal(post.video)}>
+                {/* Render video if available */}
+                {videoUrl && (
+                    <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
                         <View style={styles.postvideo}>
                             <Video
                                 ref={topVideoRef}
                                 style={{width: '100%', height: '100%', borderRadius: 10}}
-                                source={{uri: post.video}}
+                                source={{uri: videoUrl}}
                                 resizeMode="cover"
                                 onEnd={handleVideoEnd}
                                 repeat={false}
@@ -437,18 +450,22 @@ const SkinnyPostCard = ({
             </View>
             {/* Image Modal */}
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
-                <View
+                <Pressable
+                    onPress={closeModal}
                     style={{
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
                         backgroundColor: 'rgba(0, 0, 0, 0.9)',
                     }}>
-                    <Image source={{uri: selectedImage}} style={{width: '95%', height: '95%'}} resizeMode="contain" />
-                    <TouchableOpacity onPress={closeModal}>
-                        <Text style={{color: COLORS.MIDORANGE, fontSize: 14, marginTop: 20}}>Close</Text>
-                    </TouchableOpacity>
-                </View>
+                    <TouchableWithoutFeedback>
+                        <Image
+                            source={{uri: selectedImage}}
+                            style={{width: '95%', height: '70%'}}
+                            resizeMode="contain"
+                        />
+                    </TouchableWithoutFeedback>
+                </Pressable>
             </Modal>
             {/* Video Modal */}
             <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
@@ -462,7 +479,7 @@ const SkinnyPostCard = ({
                     <Video
                         ref={modalVideoRef}
                         style={{width: '100%', height: '100%'}}
-                        source={{uri: post.video}}
+                        source={{uri: videoUrl}}
                         resizeMode="cover"
                         onEnd={handleVideoEnd}
                         repeat={false}
@@ -483,14 +500,15 @@ const SkinnyPostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
+                    color={COLORS.AKCRUBLUE}
                 />
                 {/* <FooterIcons
                     iconname={'stats-chart'}
@@ -501,11 +519,12 @@ const SkinnyPostCard = ({
                 /> */}
                 {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
-            <View>
+            <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
+                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested</Text>)}
             </View>
         </View>
     );

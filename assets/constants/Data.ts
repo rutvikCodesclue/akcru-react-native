@@ -2,7 +2,7 @@ import {COLORS, FONTS} from './theme';
 
 export const appVersion = [
   {
-    version: '1.0.75'
+    version: '1.0.86'
   }
 ]
 
@@ -31,6 +31,21 @@ export const CATEGORIES = [
     category: 'Live TV',
     color: COLORS.AKCRUBLUE,
     id: '4',
+  },
+];
+
+export const GENDER = [
+  {
+    gender: 'Male',
+    id: '0',
+  },
+  {
+    gender: 'Female',
+    id: '1',
+  },
+  {
+    gender: 'Nonbinary',
+    id: '2',
   },
 ];
 

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons'
 import Inputs from '../../../components/input'
-import { COLORS, FONTS } from '../../../../assets/constants'
+import { COLORS, FONTS, SIZES } from '../../../../assets/constants'
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -21,6 +21,8 @@ import useAuthStore from '../../../stores/auth.store';
 import { appVersion } from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import LinearGradient from 'react-native-linear-gradient';
+import { getPushToken } from '../../../../lib/pushNotifications';
 
 
 const Signin = () => {
@@ -70,6 +72,16 @@ const Signin = () => {
                     const videoMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                     if (videoMediaRequestResult === RESULTS.GRANTED) {
                         console.log('READ_MEDIA_VIDEO permission granted');
+                    }
+                }
+            }
+            // Android 13 (API level 33) and above: Check POST_NOTIFICATIONS permission
+            if (Platform.OS === 'android' && Platform.Version >= 33) {
+                const notificationPermission = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+                if (notificationPermission !== RESULTS.GRANTED) {
+                    const requestResult = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+                    if (requestResult === RESULTS.GRANTED) {
+                        console.log('Post notifications permission granted');
                     }
                 }
             }
@@ -182,6 +194,7 @@ const Signin = () => {
         });
     }, []);
 
+    
     async function attemptLogin() {
         try {
             setLoading(true);
@@ -209,6 +222,7 @@ const Signin = () => {
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
+            await getPushToken(user.id); // or use another unique identifier like email
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
@@ -227,6 +241,17 @@ const Signin = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     {isLoggedIn ? ( // Display different content for logged-in and logged-out users
                         <View style={styles.container2}>
@@ -362,7 +387,7 @@ const Signin = () => {
                                         Not a subscriber?
                                     </Text>
 
-                                    <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                                    <TouchableOpacity onPress={() => navigation.navigate('OnboardEmail')}>
                                         <Text
                                             style={{
                                                 ...FONTS.Title2Orange,
@@ -424,4 +449,4 @@ const Signin = () => {
     );
 }
 
-export default Signin
+export default Signin;

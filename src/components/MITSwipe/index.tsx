@@ -40,7 +40,7 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
                     duration: 400,
                     useNativeDriver: false,
                 }).start(
-                    () => decline(),
+                    () => accept(),
                     // navigation.navigate('DeclineMITScreen', {}), // Navigate to the DeclinedScreen
                 );
             } else if (gesture.dx < -50) {
@@ -50,7 +50,7 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
                     duration: 400,
                     useNativeDriver: false,
                 }).start(() => {
-                  accept();
+                  decline();
                     // navigation.navigate('AcceptMITScreen', {}); // Navigate to the DeclinedScreen
                 });
             } else {
@@ -72,7 +72,7 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
         <View>
             <View style={styles.container}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Text style={styles.accept}>ACCEPT </Text>
+                    <Text style={styles.decline}>DECLINE </Text>
                     <Icon name="chevron-back" type="ionicon" size={30} color={COLORS.DARKERGREY} />
                     <Icon name="chevron-back" type="ionicon" size={30} color={COLORS.DARKERGREY} />
                 </View>
@@ -84,7 +84,7 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Icon name="chevron-forward" type="ionicon" size={30} color={COLORS.DARKERGREY} />
                     <Icon name="chevron-forward" type="ionicon" size={30} color={COLORS.DARKERGREY} />
-                    <Text style={styles.decline}>DECLINE</Text>
+                    <Text style={styles.accept}>ACCEPT</Text>
                 </View>
             </View>
         </View>

@@ -24,10 +24,10 @@ import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { findAUser, followUser, getFollowers, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
+import { findAUser, followUser, getFollowers, getUserCurrentWatching, getUserFollowing, unfollowUser } from '../../../lib/api/user.lib';
 import { IMovie, IUserProfile } from '../../../../types';
 import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
-import { createACRUInvite } from '../../../lib/api/cru.lib';
+import { checkUserMembership, createACRUInvite, getCruInviteStatus } from '../../../lib/api/cru.lib';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
@@ -37,9 +37,12 @@ import useAuthStore from '../../../stores/auth.store';
 import { getWatchlist } from '../../../lib/api/movies.lib';
 import WatchListCategory from '../../../components/WatchlistCategory';
 import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import AkcruButtons from '../../../components/akcruButtons';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
+  NoBottomTabStackParams,
   'ViewUserScreen'
 >;
 
@@ -59,7 +62,6 @@ const ViewUserwatchlist = Akcru_Content[6];
 const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
-
     const [follow, setFollow] = useState(false);
     //Get current user
     const currentuser = useAuthStore(state => state.user);
@@ -72,59 +74,107 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
-    
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-useFocusEffect(
-    React.useCallback(() => {
-        // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-        console.log('ViewUserScreen focused [ViewUserScreen]');
-        hydrateUser();
+    useFocusEffect(
+        React.useCallback(() => {
+            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+            console.log('ViewUserScreen focused [ViewUserScreen]');
+            hydrateUser();
 
-        return () => {
-            // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-            console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
+            return () => {
+                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
+                console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
+            };
+        }, []),
+    );
+
+    const [cruInviteStatus, setCruInviteStatus] = useState('');
+
+    useEffect(() => {
+        const fetchCruInviteStatus = async () => {
+            const status = await getCruInviteStatus(userID); // Assuming userID is the ID of the profile being viewed
+            setCruInviteStatus(status);
+            console.log('Cru Invite Status', status);
+            // Update component state with the fetched status
+            // This state will then be used to determine the label and action of the CRU Invite button
         };
-    }, []),
-);
 
-useFocusEffect(
-    React.useCallback(() => {
-        //Find and set the viewed user
-        findAUser({id: userID}).then(user => {
-            setUser(user);
-        });
+        fetchCruInviteStatus();
+    }, [userID]);
 
-        getUserFollowing(currentuser?.id).then(response => {
-            if (response && response.success) {
-                const isFollowing = response.following.some(followedUser => followedUser.id === userID);
-                setFollow(isFollowing);
-            } else {
-                setFollow(false);
+    const [isMember, setIsMember] = useState(false);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (userID) {
+                // Assuming `userID` is the ID of the user being viewed
+                try {
+                    // Directly call `checkUserMembership` with `userID` (the ID of the user being viewed)
+                    const membershipStatus = await checkUserMembership(userID);
+                    setIsMember(membershipStatus);
+                    console.log('Membership Status:', membershipStatus);
+                } catch (error) {
+                    console.error('Failed to fetch membership status:', error);
+                }
             }
-        });
-
-        return () => {
-            // Cleanup code if needed
         };
-    }, [userID, currentuser?.id]),
-);
 
-const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+        fetchData();
+    }, [userID]); // Dependency array now only needs to include userID since currentuser.id is no longer needed for the API call
 
-useEffect(() => {
-    const fetchData = async () => {
-        const result = await getFollowers(userID);
-        // console.log('Data received:', result);
-        if (result && result.followers && Array.isArray(result.followers)) {
-            setFollowersData(result.followers); // Set the 'following' array as your data
-        }
-    };
+    // Determine button label and disabled status
+    let btnName = 'CRU INVITE';
+    let btnDisabled = false;
+    let btnColor = COLORS.AKCRUBLUE
 
-    fetchData();
-}, [userID]);
+    if (cruInviteStatus === 'PENDING') {
+        btnName = 'PENDING';
+        btnDisabled = true;
+        btnColor = COLORS.DARKGREY;
+    } else if (isMember) {
+        btnName = 'CRU MEMBER';
+        btnDisabled = true;
+        btnColor = COLORS.MIDORANGE;
+    }
 
-const followersCount = followersData.length;
+    useFocusEffect(
+        React.useCallback(() => {
+            //Find and set the viewed user
+            findAUser({id: userID}).then(user => {
+                setUser(user);
+            });
 
+            getUserFollowing(currentuser?.id).then(response => {
+                if (response && response.success) {
+                    const isFollowing = response.following.some(followedUser => followedUser.id === userID);
+                    setFollow(isFollowing);
+                } else {
+                    setFollow(false);
+                }
+            });
+
+            return () => {
+                // Cleanup code if needed
+            };
+        }, [userID, currentuser?.id]),
+    );
+
+    const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getFollowers(userID);
+            // console.log('Data received:', result);
+            if (result && result.followers && Array.isArray(result.followers)) {
+                setFollowersData(result.followers); // Set the 'following' array as your data
+            }
+        };
+
+        fetchData();
+    }, [userID]);
+
+    const followersCount = followersData.length;
 
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
 
@@ -133,17 +183,17 @@ const followersCount = followersData.length;
         setModalVisible(!isModalVisible);
     };
 
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-  const [showCruInviteSent, setShowCruInviteSent] = useState(false);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [showCruInviteSent, setShowCruInviteSent] = useState(false);
 
-  const [userOptionModal, setUserOptionModal] = useState(false);
-  
+    const [userOptionModal, setUserOptionModal] = useState(false);
+
     const handleSendCruInvite = async () => {
         try {
-            // Call the createACRUInvite function with the username of the user you want to invite
-            const response = await createACRUInvite({
-                username: user.username, // Replace with the actual username
-            });
+            // Assume currentuser.id is the sender's ID
+            const senderId = currentuser?.id as string;
+            const username = user?.username as string; // The username of the invitee
+            const response = await createACRUInvite({username, senderId});
 
             // Check the response or handle success/failure accordingly
             if (response) {
@@ -162,188 +212,220 @@ const followersCount = followersData.length;
         }
     };
 
-console.log('ViewUserScreen render', {follow});
+    console.log('ViewUserScreen render', {follow});
 
-const handleFollowPress = async () => {
-    console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
+    const handleReportUser = () => {
+        // Using navigation2 as per your provided code snippet for navigating
+        navigation2.navigate('ReportUser', {userID: userID});
+        setUserOptionModal(false);
+    };
 
-    if (follow) {
-        try {
-            const success = await unfollowUser({userId: userID});
-            if (success) {
-                setFollow(false);
-                setUserOptionModal(false);
-            } else {
-                console.error('Unfollow failed');
-            }
-        } catch (error) {
-            console.error('Error on unfollow:', error);
-        }
-    } else {
-        try {
-            const success = await followUser({userId: userID});
-            if (success) {
-                setFollow(true);
-                setUserOptionModal(false);
-            } else {
-                console.error('Follow failed');
-            }
-        } catch (error) {
-            console.error('Error on follow:', error);
-        }
-    }
-};
+    const handleFollowPress = async () => {
+        console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
 
-
-const isValidImageUrl = (url: string) => {
-    return url && url.trim() !== '';
-};
-
-const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
-const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
-
-const openPhoto = (photoUri: string) => {
-    setSelectedPhotoUri(photoUri);
-    Animated.timing(selectedPhotoAnimatedOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-    }).start();
-};
-
-const closePhoto = () => {
-    Animated.timing(selectedPhotoAnimatedOpacity, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-    }).start(() => setSelectedPhotoUri(null));
-};
-
-const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
-
-// Function to toggle the modal's visibility
-const toggleAvatarModal = () => {
-    setAvatarModalVisible(!isAvatarModalVisible);
-};
-
-const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
-
-// Fetch the watchlist when the component is focused or when the user ID changes
-useFocusEffect(
-    React.useCallback(() => {
-        // ... (other code)
-
-        const fetchWatchlist = async () => {
+        if (follow) {
             try {
-                const userId = user?.id; // Get the current user's ID
-                if (userId) {
-                    const watchlistMovies = await getWatchlist(userId);
-                    setWatchlist(watchlistMovies);
+                const success = await unfollowUser({userId: userID});
+                if (success) {
+                    setFollow(false);
+                    setUserOptionModal(false);
+                } else {
+                    console.error('Unfollow failed');
                 }
             } catch (error) {
-                console.error('Error fetching watchlist:', error);
+                console.error('Error on unfollow:', error);
             }
-        };
+        } else {
+            try {
+                const success = await followUser({userId: userID});
+                if (success) {
+                    setFollow(true);
+                    setUserOptionModal(false);
+                } else {
+                    console.error('Follow failed');
+                }
+            } catch (error) {
+                console.error('Error on follow:', error);
+            }
+        }
+    };
 
-        fetchWatchlist();
-    }, [user?.id]), // Re-run the effect if the user's ID changes
-);
+    const isValidImageUrl = (url: string) => {
+        return url && url.trim() !== '';
+    };
 
-  return (
-      <TabContainer>
-          <SafeAreaView style={{marginBottom: '20%'}}>
-              <ScrollView stickyHeaderIndices={[0]}>
-                  <View style={{zIndex: 20}}>
-                      <Header />
-                  </View>
-                  <ImageBackground
-                      //   source={{uri: digitalpass ?? undefined}}
-                      source={{uri: undefined}}
-                      resizeMode="cover"
-                      style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
-                      <LinearGradient
-                          // Digitalpass Linear Gradient overlay
-                          colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                          style={{
-                              position: 'absolute',
-                              left: 0,
-                              right: 0,
-                              top: 0,
-                              height: SIZES.ScreenHeight / 3.7,
-                          }}
-                      />
-                      <View
-                          style={{
-                              marginTop: 60,
-                              marginHorizontal: 15,
-                              marginBottom: 10,
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                          }}>
-                          <TouchableOpacity onPress={() => navigation.pop()}>
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                  }}>
-                                  <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                              </View>
-                          </TouchableOpacity>
-                          <TouchableOpacity onPress={() => setUserOptionModal(true)}>
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                  }}>
-                                  <Icon name="ellipsis-vertical" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                              </View>
-                          </TouchableOpacity>
-                      </View>
+    const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
+    const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              justifyContent: 'space-between',
-                              marginHorizontal: 15,
-                          }}>
-                          <View style={{flexDirection: 'row'}}>
-                              <View style={{marginRight: 8}}>
-                                  <Pressable onPress={toggleAvatarModal}>
-                                      <HexAvatar
-                                          source={{uri: user?.profilePicture}}
-                                          size={60}
-                                          bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                      />
-                                  </Pressable>
-                                  <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
-                                      <Pressable
-                                          onPress={toggleAvatarModal}
-                                          style={{
-                                              flex: 1,
-                                              justifyContent: 'center',
-                                              alignItems: 'center',
-                                              backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                          }}>
-                                          <TouchableWithoutFeedback>
-                                              <Image
-                                                  source={
-                                                      user?.profilePicture
-                                                          ? {uri: user?.profilePicture}
-                                                          : imageindex.Akcruplaceholder
-                                                  }
-                                                  style={{width: '95%', height: '50%'}}
-                                                  resizeMode="contain"
-                                              />
-                                          </TouchableWithoutFeedback>
-                                      </Pressable>
-                                  </Modal>
-                              </View>
-                              <View style={{width: SIZES.ScreenWidth / 2.5}}>
-                                  <View style={{flexDirection: 'row'}}>
-                                      <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
+    const openPhoto = (photoUri: string) => {
+        setSelectedPhotoUri(photoUri);
+        Animated.timing(selectedPhotoAnimatedOpacity, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+    };
 
-                                      {/* {
+    const closePhoto = () => {
+        Animated.timing(selectedPhotoAnimatedOpacity, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start(() => setSelectedPhotoUri(null));
+    };
+
+    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleAvatarModal = () => {
+        setAvatarModalVisible(!isAvatarModalVisible);
+    };
+
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+
+    // Fetch the watchlist when the component is focused or when the user ID changes
+    useFocusEffect(
+        React.useCallback(() => {
+            // ... (other code)
+
+            const fetchWatchlist = async () => {
+                try {
+                    const userId = user?.id; // Get the current user's ID
+                    if (userId) {
+                        const watchlistMovies = await getWatchlist(userId);
+                        setWatchlist(watchlistMovies);
+                    }
+                } catch (error) {
+                    console.error('Error fetching watchlist:', error);
+                }
+            };
+
+            fetchWatchlist();
+        }, [user?.id]), // Re-run the effect if the user's ID changes
+    );
+
+    const [currentlyWatching, setCurrentlyWatching] = useState([]); // Adjust the initial state based on your data structure
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchCurrentlyWatching = async () => {
+                try {
+                    const userId = user?.id; // Get the current user's ID
+                    if (userId) {
+                        const currentWatchingData = await getUserCurrentWatching(userId); // Replace with your actual API call
+                        console.log('currentWatchingData', currentWatchingData);
+                        setCurrentlyWatching(currentWatchingData);
+                    }
+                } catch (error) {
+                    console.error('Error fetching currently watching:', error);
+                }
+            };
+
+            fetchCurrentlyWatching();
+        }, [user?.id]), // Re-run the effect if the user's ID changes
+    );
+
+    return (
+        <TabContainer>
+            <SafeAreaView>
+                <ScrollView stickyHeaderIndices={[0]}>
+                    <View style={{zIndex: 20}}>
+                        <Header />
+                    </View>
+                    <View style={{marginBottom: '5%'}}>
+                        <ImageBackground
+                            //   source={{uri: digitalpass ?? undefined}}
+                            source={{uri: undefined}}
+                            resizeMode="cover"
+                            style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
+                            <LinearGradient
+                                // Digitalpass Linear Gradient overlay
+                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                style={{
+                                    position: 'absolute',
+                                    left: 0,
+                                    right: 0,
+                                    top: 0,
+                                    height: SIZES.ScreenHeight / 3.7,
+                                }}
+                            />
+                            <View
+                                style={{
+                                    marginTop: 60,
+                                    marginHorizontal: 15,
+                                    marginBottom: 10,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}>
+                                <TouchableOpacity onPress={() => navigation.pop()}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setUserOptionModal(true)}>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                        }}>
+                                        <Icon
+                                            name="ellipsis-vertical"
+                                            type="ionicon"
+                                            size={20}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginHorizontal: 15,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <View style={{marginRight: 8}}>
+                                        <Pressable onPress={toggleAvatarModal}>
+                                            <HexAvatar
+                                                source={{uri: user?.profilePicture}}
+                                                size={60}
+                                                bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                            />
+                                        </Pressable>
+                                        <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
+                                            <Pressable
+                                                onPress={toggleAvatarModal}
+                                                style={{
+                                                    flex: 1,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                                }}>
+                                                <TouchableWithoutFeedback>
+                                                    <Image
+                                                        source={
+                                                            user?.profilePicture
+                                                                ? {uri: user?.profilePicture}
+                                                                : imageindex.Akcruplaceholder
+                                                        }
+                                                        style={{width: '95%', height: '50%'}}
+                                                        resizeMode="contain"
+                                                    />
+                                                </TouchableWithoutFeedback>
+                                            </Pressable>
+                                        </Modal>
+                                    </View>
+                                    <View style={{width: SIZES.ScreenWidth * 0.25}}>
+                                        <View style={{flexDirection: 'row'}}>
+                                            <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
+
+                                            {/* {
                                   true && (
                                 //   influencer && (
                                       <Icon
@@ -354,299 +436,349 @@ useFocusEffect(
                                           style={{marginLeft: 5}}
                                       />
                                   )} */}
-                                  </View>
-                                  {user?.firstName && (
-                                      <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
-                                          {user?.firstName ? user.firstName : ''}
-                                      </Text>
-                                  )}
-                                  {user?.badge === 'AKCRUIT' && (
-                                      <View>
-                                          <AkcruLevels.AkcruBadgeAkcruit />
-                                      </View>
-                                  )}
-                                  {user?.badge === 'GUARDIAN' && (
-                                      <View>
-                                          <AkcruLevels.AkcruBadgeGuardian />
-                                      </View>
-                                  )}
-                                  {user?.badge === 'HERO' && (
-                                      <View>
-                                          <AkcruLevels.AkcruBadgeHero />
-                                      </View>
-                                  )}
-                                  {user?.badge === 'SUPERHERO' && (
-                                      <View>
-                                          <AkcruLevels.AkcruBadgeSuperHero />
-                                      </View>
-                                  )}
-                              </View>
-                          </View>
-                          <View
-                              style={{
-                                  height: 50,
-                                  justifyContent: 'center',
-                                  alignItems: 'flex-end',
-                              }}>
-                              <View
-                                  style={{
-                                      alignItems: 'center',
-                                      borderLeftWidth: 1,
-                                      borderColor: COLORS.DARKGREY,
-                                      paddingLeft: 10,
-                                  }}>
-                                  <TouchableOpacity
-                                      style={{alignItems: 'center'}}
-                                      onPress={() => {
-                                          navigation.navigate('SendMITViewUser', {
-                                              userID,
-                                          });
-                                      }}>
-                                      <Image source={imageindex.MITticket} style={{height: 40}} />
-                                      <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
-                                  </TouchableOpacity>
-                              </View>
-                          </View>
-                      </View>
-                  </ImageBackground>
-                  <View
-                      style={{
-                          marginTop: -30,
-                          marginHorizontal: 15,
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                      }}>
-                      <Pressable
-                          onPress={() =>
-                              navigation.navigate('ViewUserFollowList', {
-                                  userID: userID,
-                              })
-                          }
-                          style={{
-                              width: 100,
-                              height: 30,
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                          }}>
-                          <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
-                          <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
-                      </Pressable>
-                      <View style={{flexDirection: 'row'}}>
-                          <TouchableOpacity onPress={() => setShowConfirmationModal(true)}>
-                              <View style={styles.cruinvitebutton}>
-                                  <Text style={{...FONTS.Title2}}>CRU INVITE</Text>
-                              </View>
-                          </TouchableOpacity>
-                          {/* Cru Invite Confirmation Modal */}
-                          <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                              <ComfirmationModal
-                                  confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
-                                  onPressYes={handleSendCruInvite}
-                                  onPressNo={() => setShowConfirmationModal(false)}
-                              />
-                          </Modal>
-                          {/* Cru Invite Sent Modal */}
-                          <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
-                              <View
-                                  style={{
-                                      flex: 1,
-                                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                      justifyContent: 'center',
-                                      alignItems: 'center',
-                                  }}>
-                                  <View
-                                      style={{
-                                          backgroundColor: COLORS.AKCRUBACKGROUND,
-                                          padding: 20,
-                                          borderRadius: 10,
-                                          alignItems: 'center',
-                                          marginHorizontal: 15,
-                                      }}>
-                                      <Text
-                                          style={{
-                                              ...FONTS.Title3,
-                                              marginBottom: 10,
-                                              textAlign: 'center',
-                                          }}>
-                                          {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
-                                      </Text>
-                                  </View>
-                              </View>
-                          </Modal>
+                                        </View>
+                                        {user?.firstName && (
+                                            <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
+                                                {user?.firstName ? user.firstName : ''}
+                                            </Text>
+                                        )}
+                                        {user?.badge === 'AKCRUIT' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeAkcruit />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'GUARDIAN' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeGuardian />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'HERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeHero />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'SUPERHERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeSuperHero />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <View
+                                        style={{
+                                            borderLeftWidth: 2,
+                                            borderRightWidth: 2,
+                                            borderColor: COLORS.TRANSPURPLE,
+                                            width: 100,
+                                            height: 60,
+                                            justifyContent: 'center',
 
-                          <Modal visible={userOptionModal} transparent={true} animationType="slide">
-                              <ViewUserOptionModal
-                                  username={user?.username}
-                                  closeModal={() => setUserOptionModal(false)}
-                                  blockUser={() => {
-                                      ('');
-                                  }}
-                                  reportUser={() => {
-                                      ('');
-                                  }}
-                                  followUser={handleFollowPress}
-                                  followToggleIcon={follow ? 'person-subtract' : 'person-add'}
-                                  followIconType={'ionicon'}
-                                  followToggleText={follow ? 'Unfollow' : 'Follow'}
-                                  cruInviteUser={() => setShowConfirmationModal(true)}
-                              />
-                          </Modal>
+                                            alignItems: 'center',
+                                        }}>
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                navigation.navigate('ViewUserFollowList', {
+                                                    userID: userID,
+                                                })
+                                            }
+                                            style={{
+                                                alignItems: 'center',
+                                            }}>
+                                            <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>
+                                                Followers
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                                <View
+                                    style={{
+                                        height: 50,
+                                        justifyContent: 'center',
+                                        alignItems: 'flex-end',
+                                    }}>
+                                    <View
+                                        style={{
+                                            alignItems: 'center',
+                                        }}>
+                                        <TouchableOpacity
+                                            style={{alignItems: 'center'}}
+                                            onPress={() => {
+                                                navigation.navigate('SendMITViewUser', {
+                                                    userID,
+                                                });
+                                            }}>
+                                            <Image source={imageindex.MITticket} style={{height: 40}} />
+                                            <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                            {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
+                                <View style={{marginHorizontal: 15}}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.paragraph1,
+                                            fontSize: 12,
+                                            color: COLORS.PURPLE,
+                                            textAlign: 'center',
+                                        }}>
+                                        {user?.username} is watching "{currentlyWatching[0].movie.title}"
+                                    </Text>
+                                </View>
+                            )}
+                        </ImageBackground>
+                        <View
+                            style={{
+                                marginTop: -30,
+                                marginHorizontal: 15,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            {/* <Pressable
+                                onPress={() =>
+                                    navigation.navigate('ViewUserFollowList', {
+                                        userID: userID,
+                                    })
+                                }
+                                style={{
+                                    width: 100,
+                                    height: 30,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
+                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                            </Pressable> */}
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    width: SIZES.ScreenWidth * 0.93,
+                                    alignItems: 'center',
+                                }}>
+                                <AkcruButtons.FollowButton
+                                    btnname={btnName}
+                                    onPress={() => !btnDisabled && setShowConfirmationModal(true)}
+                                    color={btnColor}
+                                    disabled={btnDisabled}
+                                />
+                                {/* Cru Invite Confirmation Modal */}
+                                <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
+                                    <ComfirmationModal
+                                        confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
+                                        onPressYes={handleSendCruInvite}
+                                        onPressNo={() => setShowConfirmationModal(false)}
+                                    />
+                                </Modal>
+                                {/* Cru Invite Sent Modal */}
+                                <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
+                                    <View
+                                        style={{
+                                            flex: 1,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                                padding: 20,
+                                                borderRadius: 10,
+                                                alignItems: 'center',
+                                                marginHorizontal: 15,
+                                            }}>
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title3,
+                                                    marginBottom: 10,
+                                                    textAlign: 'center',
+                                                }}>
+                                                {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </Modal>
 
-                          <Pressable onPress={handleFollowPress} style={{width: '100%'}}>
-                              <View style={follow ? styles.unfollowbutton : styles.followbutton}>
-                                  <Text style={{...FONTS.Title2}}>{follow ? 'UNFOLLOW' : 'FOLLOW'}</Text>
-                              </View>
-                          </Pressable>
-                      </View>
-                  </View>
-                  {user?.private ? (
-                      <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
-                          <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
-                              This account is private
-                          </Text>
-                          <Icon name="lock" type="material-community" color={COLORS.LIGHTGREY} size={65} />
-                      </View>
-                  ) : (
-                      <View>
-                          <View style={{marginHorizontal: 15, paddingTop: 20}}>
-                              <Text
-                                  style={{
-                                      ...FONTS.Title2,
-                                      color: COLORS.LIGHTGREY,
-                                      fontSize: 12,
-                                  }}>
-                                  {user?.description}
-                              </Text>
-                          </View>
-                          <View>
-                              <Text style={styles.desctext}>ARCHETYPE</Text>
+                                <Modal visible={userOptionModal} transparent={true} animationType="slide">
+                                    <ViewUserOptionModal
+                                        username={user?.username}
+                                        closeModal={() => setUserOptionModal(false)}
+                                        blockUser={() => {
+                                            ('');
+                                        }}
+                                        reportUser={handleReportUser}
+                                        followUser={handleFollowPress}
+                                        followToggleIcon={follow ? 'person-subtract' : 'person-add'}
+                                        followIconType={'ionicon'}
+                                        followToggleText={follow ? 'Unfollow' : 'Follow'}
+                                        cruInviteUser={() => setShowConfirmationModal(true)}
+                                    />
+                                </Modal>
 
-                              <View
-                                  style={{
-                                      justifyContent: 'center',
-                                      paddingHorizontal: 10,
-                                  }}>
-                                  <Text
-                                      style={{
-                                          ...FONTS.Title2,
-                                          paddingBottom: 5,
-                                          textAlign: 'center',
-                                          color: COLORS.PURPLE,
-                                      }}>
-                                      {archetype ? archetype.name : 'No Archetype Selected'}
-                                  </Text>
-                                  <View style={{paddingBottom: 10, paddingRight: 10, alignItems: 'center'}}>
-                                      {archetype && isValidImageUrl(archetype.image) && (
-                                          <Pressable onPress={toggleModal}>
-                                              <Image
-                                                  source={{uri: archetype ? archetype.image : ''}}
-                                                  style={{
-                                                      width: SIZES.ScreenWidth / 2.2,
-                                                      height: SIZES.ScreenWidth / 2.2,
-                                                      borderRadius: 5,
-                                                  }}
-                                              />
-                                          </Pressable>
-                                      )}
-                                  </View>
-                                  {archetype && (
-                                      <View>
-                                          <View
-                                              style={{
-                                                  flexDirection: 'row',
-                                                  paddingBottom: 5,
-                                                  justifyContent: 'center',
-                                              }}>
-                                              <Text style={styles.drawfonttag}>
-                                                  {capitalizeFirstLetterOfString(archetype ? archetype.genres[0] : '')}
-                                              </Text>
-                                              <Text style={styles.drawfonttag}>
-                                                  {' '}
-                                                  {capitalizeFirstLetterOfString(archetype ? archetype.genres[1] : '')}
-                                              </Text>
-                                          </View>
-                                          <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
-                                              {archetype ? archetype.description : ''}
-                                          </Text>
-                                      </View>
-                                  )}
-                              </View>
-                              <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
-                                  <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
-                                  <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
-                              </View>
+                                <AkcruButtons.FollowButton
+                                    btnname={follow ? 'UNFOLLOW' : 'FOLLOW'}
+                                    onPress={handleFollowPress}
+                                    color={follow ? COLORS.CATPURPDRK : COLORS.PURPLE}
+                                    disabled={false}
+                                />
+                            </View>
+                        </View>
+                        {user?.private ? (
+                            <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
+                                <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
+                                    This account is private
+                                </Text>
+                                <Icon name="lock" type="material-community" color={COLORS.LIGHTGREY} size={65} />
+                            </View>
+                        ) : (
+                            <View>
+                                <View style={{marginHorizontal: 15, paddingTop: 20}}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            color: COLORS.LIGHTGREY,
+                                            fontSize: 12,
+                                        }}>
+                                        {user?.description}
+                                    </Text>
+                                </View>
+                                <View>
+                                    <Text style={styles.desctext}>ARCHETYPE</Text>
 
-                              {/* Create a modal to display the enlarged image */}
-                              <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-                                  <Pressable
-                                      onPress={toggleModal}
-                                      style={{
-                                          flex: 1,
-                                          justifyContent: 'center',
-                                          alignItems: 'center',
-                                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                      }}>
-                                      {/* Display the enlarged image */}
-                                      <TouchableWithoutFeedback>
-                                          <Image
-                                              source={{uri: archetype ? archetype.image : ''}}
-                                              style={{
-                                                  width: '100%',
-                                                  height: '50%',
-                                                  borderRadius: 5,
-                                              }}
-                                          />
-                                      </TouchableWithoutFeedback>
-                                  </Pressable>
-                              </Modal>
-                              <View style={styles.seperator} />
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      justifyContent: 'center',
-                                      marginTop: 10,
-                                  }}>
-                                  <Text style={{...FONTS.Title3}}>GALLERY</Text>
-                                  <Icon
-                                      name="images"
-                                      type="ionicon"
-                                      color={COLORS.LIGHTGREY}
-                                      size={20}
-                                      style={{marginLeft: 5}}
-                                  />
-                              </View>
-                              <View style={styles.gallerycontainer}>
-                                  <View style={styles.galleryImagesContainer}>
-                                      {user?.gallery &&
-                                          user.gallery.map((imageUri, index) => {
-                                              return (
-                                                  <TouchableOpacity
-                                                      key={index.toString()}
-                                                      onPress={() => openPhoto(imageUri)}
-                                                      activeOpacity={0.8}>
-                                                      <Image source={{uri: imageUri}} style={styles.galleryImage} />
-                                                  </TouchableOpacity>
-                                              );
-                                          })}
-                                  </View>
-                              </View>
-                              <View style={styles.seperator} />
-                              {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
-                                  <View style={styles.watchlistcontainer}>
-                                      <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
-                                      <View>
-                                          <ViewUserWatchListCategory
-                                              Akcru_Content={{
-                                                  id: 'YourFavourite',
-                                                  title: '',
-                                                  movies: watchlist,
-                                              }}
-                                              updateWatchlist={''}
-                                          />
-                                      </View>
-                                  </View>
-                              )}
-                              {/* <View style={styles.seperator} />
+                                    <View
+                                        style={{
+                                            justifyContent: 'center',
+                                            paddingHorizontal: 10,
+                                        }}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                paddingBottom: 5,
+                                                textAlign: 'center',
+                                                color: COLORS.PURPLE,
+                                            }}>
+                                            {archetype ? archetype.name : 'No Archetype Selected'}
+                                        </Text>
+                                        <View style={{paddingBottom: 10, paddingRight: 10, alignItems: 'center'}}>
+                                            {archetype && isValidImageUrl(archetype.image) && (
+                                                <Pressable onPress={toggleModal}>
+                                                    <Image
+                                                        source={{uri: archetype ? archetype.image : ''}}
+                                                        style={{
+                                                            width: SIZES.ScreenWidth / 2.2,
+                                                            height: SIZES.ScreenWidth / 2.2,
+                                                            borderRadius: 5,
+                                                        }}
+                                                    />
+                                                </Pressable>
+                                            )}
+                                        </View>
+                                        {archetype && (
+                                            <View>
+                                                <View
+                                                    style={{
+                                                        flexDirection: 'row',
+                                                        paddingBottom: 5,
+                                                        justifyContent: 'center',
+                                                    }}>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {capitalizeFirstLetterOfString(
+                                                            archetype ? archetype.genres[0] : '',
+                                                        )}
+                                                    </Text>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {' '}
+                                                        {capitalizeFirstLetterOfString(
+                                                            archetype ? archetype.genres[1] : '',
+                                                        )}
+                                                    </Text>
+                                                </View>
+                                                <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
+                                                    {archetype ? archetype.description : ''}
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                    {user?.Cru?.name !== 'My Cru' && user?.Cru?.name !== null && (
+                                        <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
+                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
+                                            <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
+                                        </View>
+                                    )}
+
+                                    {/* Create a modal to display the enlarged image */}
+                                    <Modal visible={isModalVisible} animationType="fade" transparent={true}>
+                                        <Pressable
+                                            onPress={toggleModal}
+                                            style={{
+                                                flex: 1,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            }}>
+                                            {/* Display the enlarged image */}
+                                            <TouchableWithoutFeedback>
+                                                <Image
+                                                    source={{uri: archetype ? archetype.image : ''}}
+                                                    style={{
+                                                        width: '100%',
+                                                        height: '50%',
+                                                        borderRadius: 5,
+                                                    }}
+                                                />
+                                            </TouchableWithoutFeedback>
+                                        </Pressable>
+                                    </Modal>
+                                    <View style={styles.seperator} />
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            marginTop: 10,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>GALLERY</Text>
+                                        <Icon
+                                            name="images"
+                                            type="ionicon"
+                                            color={COLORS.LIGHTGREY}
+                                            size={20}
+                                            style={{marginLeft: 5}}
+                                        />
+                                    </View>
+                                    <View style={styles.gallerycontainer}>
+                                        <View style={styles.galleryImagesContainer}>
+                                            {user?.gallery &&
+                                                user.gallery.map((imageUri, index) => {
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={index.toString()}
+                                                            onPress={() => openPhoto(imageUri)}
+                                                            activeOpacity={0.8}>
+                                                            <Image
+                                                                source={{uri: imageUri}}
+                                                                style={styles.galleryImage}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+                                        </View>
+                                    </View>
+                                    {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
+                                        <View style={styles.watchlistcontainer}>
+                                            <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
+                                            <View>
+                                                <ViewUserWatchListCategory
+                                                    Akcru_Content={{
+                                                        id: 'YourFavourite',
+                                                        title: '',
+                                                        movies: watchlist,
+                                                    }}
+                                                    updateWatchlist={() => ''}
+                                                />
+                                            </View>
+                                        </View>
+                                    )}
+                                    {/* <View style={styles.seperator} />
                           <View style={styles.watchlistcontainer}>
                               <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
                               <View style={{flexDirection: 'row', marginLeft: 15}}>
@@ -678,20 +810,21 @@ useFocusEffect(
                           <View style={{marginBottom: 75, marginTop: -20}}>
                               <BasicListCategories Akcru_Content={ViewUserwatchlist} />
                           </View> */}
-                          </View>
-                      </View>
-                  )}
-              </ScrollView>
-              {selectedPhotoUri && (
-                  <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
-                      <Animated.Image
-                          source={{uri: selectedPhotoUri}}
-                          resizeMode="contain"
-                          style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
-                      />
-                  </TouchableOpacity>
-              )}
-          </SafeAreaView>
-      </TabContainer>
-  );
+                                </View>
+                            </View>
+                        )}
+                    </View>
+                </ScrollView>
+                {selectedPhotoUri && (
+                    <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
+                        <Animated.Image
+                            source={{uri: selectedPhotoUri}}
+                            resizeMode="contain"
+                            style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
+                        />
+                    </TouchableOpacity>
+                )}
+            </SafeAreaView>
+        </TabContainer>
+    );
 }

@@ -191,7 +191,7 @@ const Signup = () => {
           <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
               <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                   <View style={styles.container}>
-                      <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
+                      <TouchableOpacity onPress={() => navigation.navigate('Signin')} style={styles.backbutton}>
                           <View
                               style={{
                                   flexDirection: 'row',

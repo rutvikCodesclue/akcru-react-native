@@ -43,8 +43,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
     // console.log('user', user?.username);
     const currentUserID = user?.id;
-    console.log(`CurrentUserID: ${user?.id}, Type: ${typeof user?.id}`);
     const author: IPost | null = route.params?.author ?? null;
+
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
@@ -56,6 +57,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+
+    
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -71,7 +74,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setLoading(true);
             try {
                 const fetchedPosts = await getPosts(1); // Fetch the first page
-                console.log("Fetched posts:", fetchedPosts);
+    
                 if (fetchedPosts && fetchedPosts.length > 0) {
                     setPosts(fetchedPosts);
                     setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page
@@ -135,7 +138,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const selectedPost = posts.find(post => +post.id === postId);
 
         if (selectedPost) {
-            navigation.navigate('PostScreen', {post: selectedPost});
+            navigation2.navigate('PostScreen', {post: selectedPost});
         } else {
             // Handle the case when the post is not found
             console.error('Error: Post not found');
@@ -311,7 +314,7 @@ const handleDeletePost = async (postId: number) => {
                                             <SkinnyPostCard
                                                 post={item}
                                                 openProfile={() =>
-                                                    navigation.navigate('ViewUserScreen', {userID: item.author?.id})
+                                                    navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
                                                 // onLike={onLike}
                                                 // onUnlike={onUnlike}
@@ -351,7 +354,7 @@ const handleDeletePost = async (postId: number) => {
                             )}
                         </View>
                     </ScrollView>
-                    <Pressable style={styles.floatingbutton} onPress={() => navigation.navigate('NewPost')}>
+                    <Pressable style={styles.floatingbutton} onPress={() => navigation2.navigate('NewPost')}>
                         <View style={{position: 'relative'}}>
                             <HexShape size={55} color={COLORS.AKCRUBLUE} />
                             <View style={{position: 'absolute', top: '5%', right: '6%'}}>

@@ -20,5 +20,27 @@ export default StyleSheet.create({
     warningText: {
         ...FONTS.Title2,
         color: 'red',
+        textAlign: 'center',
+    },
+    warningText2: {
+        ...FONTS.Title2,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    input: {
+        width: SIZES.ScreenWidth * .85,
+        flexDirection: 'row',
+        borderWidth: 1,
+        borderColor: COLORS.LIGHTGREY,
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        alignItems: 'center',
+        height: 45,
+        backgroundColor: COLORS.TRANSDARKGREY,
+    },
+    textinput: {
+        color: COLORS.WHITE,
+        width: '100%',
     },
 });

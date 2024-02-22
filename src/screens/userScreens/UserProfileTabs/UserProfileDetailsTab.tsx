@@ -35,6 +35,7 @@ import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import { set } from 'lodash';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import WatchListCategory from '../../../components/WatchlistCategory';
+import AkcruButtons from '../../../components/akcruButtons';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -374,7 +375,10 @@ const UserProfileDetailsTab = () => {
                             marginBottom: 10,
                         }}
                     />
-                    <TouchableOpacity
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                    <AkcruButtons.LrgButton btnname={"Add to Gallery"} onPress={selectGalleryImage} color={COLORS.PURPLE} disabled={false}/>
+                    </View>
+                    {/* <TouchableOpacity
                         onPress={selectGalleryImage}
                         style={{
                             width: '95%',
@@ -396,7 +400,7 @@ const UserProfileDetailsTab = () => {
                             }}>
                             Add to Gallery
                         </Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <View style={styles.gallerycontainer}>
                         <FlatList
                             data={userPics}
@@ -408,11 +412,6 @@ const UserProfileDetailsTab = () => {
                                     <Pressable onPress={() => handleImageEnlarge(item)}>
                                         <Image source={{uri: item}} style={styles.galleryImage} />
                                     </Pressable>
-                                    {/* <Pressable
-                                        style={{position: 'absolute', top: 2, right: 2}}
-                                        onPress={() => removeFromGallery(item)}>
-                                        <Icon name="close-circle" type="ionicon" color={COLORS.MIDORANGE} size={30} />
-                                    </Pressable> */}
                                 </View>
                             )}
                         />

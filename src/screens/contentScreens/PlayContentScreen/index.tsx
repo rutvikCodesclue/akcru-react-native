@@ -1,3 +1,4 @@
+
 import {ActivityIndicator, Text, View, StatusBar} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
@@ -7,12 +8,25 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
+
+<!-- import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
+import styles from './styles'
+import VideoPlayer from 'react-native-media-console';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import { IMovie } from '../../../../types';
+import { findMovieById } from '../../../lib/api/movies.lib'; -->
+
 import {useRoute} from '@react-navigation/native';
 import {COLORS, SIZES} from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video, {OnLoadData, OnProgressData, OnSeekData} from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
+import {finishUserWatching, getUserCurrentWatching, logUserMovieWatchHistory, startUserWatching} from '../../../lib/api/user.lib';
+import useAuthStore from '../../../stores/auth.store';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -34,6 +48,12 @@ export default function ContentPlayer({navigation, route}: Props) {
     const videoRef = useRef<Video>(null);
     const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
 
+<!--     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
+    const isFocused = useIsFocused(); -->
+    const {user, hydrateUser} = useAuthStore();
+    const [hasStartedWatching, setHasStartedWatching] = useState(false);
+
+
     useFocusEffect(
         React.useCallback(() => {
             if (isMoviePlaying) {
@@ -42,13 +62,23 @@ export default function ContentPlayer({navigation, route}: Props) {
 
             return () => {
                 if (isFocused) {
+
                     pauseTimer();
                 } else {
+
+//                     // pause the timer
+//                     console.log('pausing timer...');
+//                     pauseTimer();
+//                 } else {
+//                     console.log('resetting timer...');
+//                     // reset the timer
+
                     resetTimer();
                 }
             };
         }, [isMoviePlaying]),
     );
+
 
     useEffect(() => {
         resumeVideo(videoRef);
@@ -59,6 +89,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     //         console.log('Video reference obtained: ', videoRef.current);
     //     }
     // }, [hasLottieFirstLoopCompleted]);
+
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -82,12 +113,35 @@ export default function ContentPlayer({navigation, route}: Props) {
 
         Orientation.lockToLandscape();
 
+
+        // Allow landscape orientation when entering this screen
+        // Orientation.unlockAllOrientations();
+        StatusBar.setHidden(true);
+        // Lock the orientation back to portrait when leaving this screen
+
         return () => {
             Orientation.lockToPortrait();
 
             StatusBar.setHidden(false);
+            // If the user has started watching, mark the movie as finished
+            if (hasStartedWatching) {
+                const userId = user?.id; // Replace with actual user ID
+                const movieId = routeParams.params?.id;
+
+                if (userId && movieId) {
+                    finishUserWatching(userId, movieId).then(finishedSuccessfully => {
+                        if (finishedSuccessfully) {
+                            console.log(`User finished watching movie: ${movieId}`);
+                        } else {
+                            console.log(`Failed to mark movie as finished: ${movieId}`);
+                        }
+                    });
+                }
+            }
         };
-    }, [routeParams.params?.id]);
+
+    }, [routeParams.params?.id, user?.id, hasStartedWatching]);
+
 
     const {
         title,
@@ -104,6 +158,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         movieURL,
         genres,
     } = movie[0] || {};
+
 
     const onLoad = (data: OnLoadData) => {
         setIsMoviePlaying(1);
@@ -134,6 +189,33 @@ export default function ContentPlayer({navigation, route}: Props) {
         }
     };
 
+
+    const onPlay = () => {
+        setIsMoviePlaying(true);
+        // Hide the status bar when the movie starts playing
+        StatusBar.setHidden(true);
+
+        const userId = user?.id; // Replace with actual user ID
+        const movieId = routeParams.params?.id;
+
+        if (userId && movieId) {
+            // Start watching the movie
+            const startWatching = async () => {
+                const startedSuccessfully = await startUserWatching(userId, movieId);
+                if (startedSuccessfully) {
+                    setHasStartedWatching(true);
+                    console.log('User started watching movie:', movieId);
+                    // Log this as a new watch session
+                    logUserMovieWatchHistory(userId, movieId); // Corrected function name
+                } else {
+                    console.log('Failed to start watching movie:', movieId);
+                }
+            };
+            startWatching();
+        }
+    };
+
+
     const onPause = () => {
         setIsMoviePlaying(0);
         StatusBar.setHidden(false);
@@ -144,6 +226,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         startTimer();
     };
 
+
     const handlePlaybackRateChange = rate => {
         // Update isMoviePlaying based on the new playback rate
         if (rate === 1) {
@@ -152,6 +235,38 @@ export default function ContentPlayer({navigation, route}: Props) {
             setIsMoviePlaying(0);
         }
         // Perform any additional actions needed when the playback rate changes
+
+    const fetchUserCurrentWatching = async () => {
+        const userId = user?.id; // Replace with actual user ID
+        console.log('Fetching current watching for user:', userId); // Log the userId being used for the request
+
+        if (userId) {
+            try {
+                const currentWatching = await getUserCurrentWatching(userId);
+                console.log('Response from getUserCurrentWatching:', currentWatching); // Check the entire response
+
+                if (currentWatching && currentWatching.length > 0) {
+                    console.log('User is currently watching:', currentWatching);
+                    // Process the current watching data as needed
+                } else {
+                    console.log('No current watching data found for user:', userId);
+                }
+            } catch (error) {
+                console.error('Error fetching user current watching:', error);
+            }
+        }
+    };
+    // Fetch user's current watching only if the movie has started
+    useEffect(() => {
+        if (hasStartedWatching && user?.id) {
+            fetchUserCurrentWatching();
+        }
+    }, [hasStartedWatching, user?.id]); // Depend on user ID as well to refetch when user changes
+
+    const videoContainerStyle = {
+        
+        zIndex: 100,
+
     };
 
     return (
@@ -165,6 +280,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                                 source={{
                                     uri: movieURL,
                                 }}
+
                                 resizeMode="cover"
                                 controls={true}
                                 onLoad={onLoad}
@@ -179,6 +295,18 @@ export default function ContentPlayer({navigation, route}: Props) {
                                     bottom: 0,
                                     right: 0,
                                 }}
+
+<!--                                 tapAnywhereToPause={false}
+                                preventsDisplaySleepDuringVideoPlayback={true}
+                                toggleResizeModeOnFullscreen={false}
+                                // poster={landscapeURL}
+                                containerStyle={videoContainerStyle}
+                                onBack={() => navigation.pop()}
+                                paused={!isMoviePlaying}
+                                onPlay={onPlay}
+                                onPause={onPause}
+                                onSeek={onSeek} -->
+
                             />
                         </>
                     ) : (

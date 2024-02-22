@@ -15,7 +15,7 @@ const SmallButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 3, height: 40}}
+        style={{width: SIZES.ScreenWidth / 3, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -33,7 +33,7 @@ const SmallButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -48,7 +48,7 @@ const MedButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 2.2, height: 40}}
+        style={{width: SIZES.ScreenWidth / 2.2, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -66,7 +66,7 @@ const MedButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -81,7 +81,7 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth / 1.5, height: 40}}
+        style={{width: SIZES.ScreenWidth * .85, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View
@@ -99,7 +99,7 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
               left: 0,
               right: 0,
               top: 0,
-              height: 40,
+              height: 45,
               borderRadius: 5,
             }}
           />
@@ -114,7 +114,7 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
             <TouchableOpacity
-                style={{width: SIZES.ScreenWidth * 0.8, height: 40}}
+                style={{width: SIZES.ScreenWidth * 0.8, height: 45}}
                 onPress={onPress}
                 disabled={disabled}>
                 <View
@@ -132,7 +132,7 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 40,
+                            height: 45,
                             borderRadius: 5,
                         }}
                     />
@@ -143,13 +143,13 @@ const XlLrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
     );
 };
 
-const XSmallButton = ({btnname, onPress, disabled}: Props) => {
+const XSmallButton = ({btnname, onPress, disabled, color}: Props) => {
   return (
     <View>
       <TouchableOpacity onPress={onPress} disabled={disabled}>
         <View
           style={{
-            backgroundColor: COLORS.AKCRUBLUE,
+            backgroundColor: color,
             height: 35,
             justifyContent: 'center',
             width: 90,
@@ -175,12 +175,46 @@ const XSmallButton = ({btnname, onPress, disabled}: Props) => {
   );
 };
 
+const FollowButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
+    return (
+        <View>
+            <TouchableOpacity
+                style={{width: SIZES.ScreenWidth / 2.2, height: SIZES.ScreenHeight * 0.05}}
+                onPress={onPress}
+                disabled={disabled}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: color,
+                        justifyContent: 'center',
+                        borderRadius: 5,
+                    }}>
+                    <LinearGradient
+                        // Background Linear Gradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: SIZES.ScreenHeight * 0.05,
+                            borderRadius: 5,
+                        }}
+                    />
+                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>{btnname}</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const AkcruButtons = {
     SmallButton,
     MedButton,
     LrgButton,
     XSmallButton,
     XlLrgButton,
+    FollowButton,
 };
 
 export default AkcruButtons;

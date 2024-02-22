@@ -29,11 +29,26 @@ const Header = () => {
         try {
             const notifications = await getMyNotifications();
             if (notifications && notifications.length > 0) {
-                const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined'];
+                const specificTypes = [
+                    'MITAccepted',
+                    'MITDeclined',
+                    'CruInviteAccepted',
+                    'CruInviteDeclined',
+                    'UserFollowed',
+                    'UserCommentedOnPost',
+                    'UserLikedComment',
+                    'UserTaggedOnPost',
+                    'UserTaggedOnComment',
+                    'UserLikedPost',
+                    'CruInviteReceived',
+                    'CruViewScheduled',
+                    'CruViewStarted',
+                ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
                 setUnreadCount(unreadNotifications.length.toString());
+                console.log('Unread Notifications:', unreadNotifications);
             }
         } catch (error) {
             console.error(error);
@@ -68,7 +83,7 @@ const Header = () => {
                 }}>
                 <View>
                     <Pressable onPress={() => navigation.navigate('ClientTabNavigator')}>
-                        <Image source={imageindex.AkcruLogo} style={{width: 100, height: 70}} resizeMode="contain" />
+                        <Image source={imageindex.AkcruLogo} style={{width: 90, height: 60}} resizeMode="contain" />
                     </Pressable>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>

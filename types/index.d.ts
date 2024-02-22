@@ -32,6 +32,18 @@ interface IUserProfile {
     following?: string[]; // Same as above
     wallet?: IWallet; // This assumes you have an IWallet interface defined
     watchlist?: IWatchlist[]; // Array of watchlist items
+    watching?: IUserWatching; // Array of movies being watched
+    posts?: IPost[]; // Array of posts created by the user
+}
+
+interface IUserWatching {
+    id: string;
+    user: IUserProfile;
+    userId: string;
+    movieId: string;
+    movie: IMovie;
+    startedAt: string;
+    finishedAt: string;
 }
 
 export interface IMovie {
@@ -137,12 +149,20 @@ export type INotification = {
         | 'CruInviteDeclined'
         | 'CruViewScheduled'
         | 'CruViewStarted'
-        | 'UserFollowed';
+        | 'UserFollowed'
+        | 'UserCommentedOnPost'
+        | 'UserLikedComment'
+        | 'UserLikedPost'
+        | 'UserTaggedOnPost'
+        | 'UserTaggedOnComment';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
     createdAt: string;
     updatedAt?: string;
+    message?: string;
+    postId: number;
+    senderId: string;
 };
 export interface IUserProfile {
     message: string?;
@@ -323,20 +343,21 @@ export type INotification = {
 
 export interface IPost {
     id: string;
-    content: string;
+    type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
+    content: string[]; // Array of content, could be text, image URLs, video URLs etc.
     createdAt: string;
     updatedAt: string;
-    likes?: number;
     author: IUserProfile;
     authorId: string;
-    _count: {
+    likes?: ILike[];
+    comments?: IComment[];
+    _count?: {
         likes: number;
         comments: number;
     };
-    isLikedByCurrentUser: boolean;
-    comments?: IComment[];
-    // Other properties related to a post
+    isLikedByCurrentUser?: boolean;
 }
+
 
 export interface ICreatePostData {
     id: string;
@@ -348,6 +369,9 @@ export interface ICreatePostData {
     numberOfComments?: number;
     numberOfReposts?: number;
     numberOfLikes?: number;
+    type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
+    content: string[]; // Array of strings representing content
+    authorId: string; // ID of the author creating the post
 }
 
 export interface IComment {
@@ -366,6 +390,14 @@ export interface IComment {
     // Other properties related to a post
 }
 
+export interface ICommentLike {
+    id: string;
+    userId: string;
+    commentId: string;
+    user: IUserProfile;
+    comment: IComment;
+}
+
 export interface ICreateCommentData {
     id: string;
     user?: IUserProfile;
@@ -376,6 +408,9 @@ export interface ICreateCommentData {
     numberOfComments?: number;
     numberOfReposts?: number;
     numberOfLikes?: number;
+    text: string;
+    postId: string;
+    authorId: string;
 }
 
 export type SkinnyType = {
@@ -389,3 +424,62 @@ export type SkinnyType = {
     numberOfLikes?: number;
 };
 
+
+
+
+export type IChatType = {
+    id: string;
+    content: string;
+    senderId: string;
+    receiverId: string;
+    createdAt: string;
+    updatedAt: string;
+    chatRoomId: string;
+    
+};
+
+export type IChatUser = {
+    id:string,
+    movieId:string,
+    status:string,
+    creatorId:string,
+    creator:IUserProfile,
+    invitee:IUserProfile,
+    inviteeId:string,
+    startDate:string,
+    timezone:string,
+    createdAt:string,
+    updatedAt:string,
+    lastMessage:string,
+    lastMessageAt:string,
+    movie: IChatMovie
+
+}
+
+export type IChatMovie ={
+    id:string,
+    title:string,
+    description:string,
+    duration:number,
+    year: number,
+    movieURL?:string,
+    trailerURL?:string,
+    landscapeURL?:string,
+    image?:string,
+    price?:string,
+    portraitURL?:string
+    rating:string
+}
+
+export type ITicket = {
+    id: string;
+    createdAt: string;
+    email: string;
+    imageURL: string;
+    description: string;
+    type: 'BUG' | 'SUGGESTION' | 'QUESTION' | 'REPORT';
+    reportedByUserId: string;
+    reportedBy: string;
+    reportedUserId:  string;
+    reported: string;
+}

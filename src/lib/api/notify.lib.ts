@@ -36,3 +36,40 @@ export const markNotificationRead = async (params: {id: string}): Promise<INotif
         console.error(error);
     }
 };
+
+export const sendTagNotification = async (tagUserId: any, notificationType: any, contentId: any, postId: any): Promise<boolean> => {
+    try {
+        const {data} = await API.post('/v1/notify/sentTagNotification', {
+            tagUserId,
+            notificationType,
+            contentId,
+            postId
+            
+        });
+
+        return data.success;
+    } catch (error) {
+        console.error('Error sending tag notification:', error);
+        return false;
+    }
+};
+
+export const batchMarkNotificationsRead = async (
+    notificationIds: string[],
+): Promise<{success: boolean; message?: string}> => {
+    try {
+        // PUT /v1/notify/batch-read - Batch mark notifications as read
+        const response = await API.put('/v1/notify/batchMarkRead', {notificationIds});
+        if (response.data.success) {
+            console.log('Batch mark notifications read response:', response.data);
+            return {success: true, message: 'Notifications marked as read successfully.'};
+        } else {
+            console.error('Failed to batch mark notifications as read:', response.data.message);
+            return {success: false, message: response.data.message};
+        }
+    } catch (error) {
+        console.error('Error in batch marking notifications as read:', error);
+        return {success: false, message: 'An error occurred while marking notifications as read.'};
+    }
+};
+

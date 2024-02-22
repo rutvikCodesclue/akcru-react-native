@@ -8,14 +8,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import { AuthStackParams } from '../../navigation/AuthNavigation';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
 import useAuthStore from '../../stores/auth.store';
 import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
-
-
-// interface Props {
-//   userpoints: number;
-// }
 
 const Header2 = () => {
     const {user} = useAuthStore();
@@ -31,7 +25,7 @@ const Header2 = () => {
         try {
             const notifications = await getMyNotifications();
             if (notifications && notifications.length > 0) {
-                const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined'];
+                const specificTypes = ['MITAccepted', 'MITDeclined', 'CruInviteAccepted', 'CruInviteDeclined', 'UserFollowed'];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
@@ -70,7 +64,7 @@ const Header2 = () => {
                 }}>
                 <View>
                     <Pressable onPress={() => navigation.navigate('ClientTabNavigator')}>
-                        <Image source={imageindex.AkcruLogo} style={{width: 100, height: 70}} resizeMode="contain" />
+                        <Image source={imageindex.AkcruLogo} style={{width: 90, height: 60}} resizeMode="contain" />
                     </Pressable>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>

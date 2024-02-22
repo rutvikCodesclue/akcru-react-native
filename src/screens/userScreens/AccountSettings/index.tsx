@@ -198,10 +198,10 @@ const AccountSettings = () => {
     const [showUpdatePhoneConfirmation, setShowUpdatePhoneConfirmation] = useState(false);
 
     const handleChangePhone = () => {
-        // Check if the phone number has at least 10 digits
-        if (phone.length < 10) {
+        // Check if the phone number has at least 11 digits
+        if (phone.length < 11) {
             // Show an alert to inform the user
-            Alert.alert('Invalid Phone Number', 'Phone number must have at least 10 digits.');
+            Alert.alert('Invalid Phone Number', 'Phone number must have at least 11 digits.');
         } else {
             // If the phone number is valid, show the confirmation modal
             setShowUpdatePhoneConfirmation(true);
@@ -612,7 +612,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                         <View style={styles.input}>
                             <Pressable onPress={handlePhoneModalOpen}>
                                 <MaskedTextInput
-                                    mask="999-999-9999"
+                                    mask="1-999-999-9999"
                                     placeholder={user?.phoneNumber}
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
@@ -659,7 +659,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                         const numericText = text.replace(/[^0-9]/g, '');
 
                                         // Limit the input to 10 characters
-                                        const limitedText = numericText.substring(0, 10);
+                                        const limitedText = numericText.substring(0, 11);
 
                                         // Update the state with the limited and formatted text
                                         setPhone(limitedText);

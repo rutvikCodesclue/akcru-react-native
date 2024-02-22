@@ -18,7 +18,7 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
 
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
 
-    console.log('Akcru Button opened:', opened); // Check if this log is showing in the console
+    // console.log('Akcru Button opened:', opened); // Check if this log is showing in the console
 
     const handlePressShop = () => {
         navigation.navigate('PurchaseMITScreen');

@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert, Pressable} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -12,6 +12,8 @@ import {supabase} from '../../../../lib/supabase';
 import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
+import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 const ForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -26,7 +28,7 @@ const ForgotPassword = () => {
         return emailRegex.test(email);
     };
 
-    const handleEmailChange = text => {
+    const handleEmailChange = (text: string) => {
         setEmail(text);
         setEmailError(!isEmailValid(text));
     };
@@ -60,7 +62,7 @@ const ForgotPassword = () => {
     });
 
     // Reset Password Function with Email Existence Check
-    const SendResetPassword = async () => {
+    const SendOTP = async () => {
         if (!isEmailValid(email)) {
             setEmailError(true);
             return;
@@ -68,16 +70,9 @@ const ForgotPassword = () => {
 
         setLoading(true);
         try {
-            const {data, error} = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo:'akcruapp://reset-password',
-            });
-            // const {error} = await supabase.auth.signInWithOtp({
-            //     email: email,
-            //     options: {
-            //         emailRedirectTo: 'akcruapp://otp-verification',
-            //     },
-            // });
-                console.log(email);
+            // Replace the following line with your API call to send OTP
+            const {data, error} = await API.post('/v1/user/sendOTP', {email});
+
             if (error) {
                 setResetResultType({
                     messageheader: 'Error',
@@ -90,23 +85,23 @@ const ForgotPassword = () => {
                 setResetResultType({
                     messageheader: 'Success',
                     messageheadercolor: COLORS.CATGREENDRK,
-                    message: 'Password reset instructions have been sent to your email.',
+                    message: 'OTP has been sent to your email.',
                     iconname: 'send',
                     iconcolor: COLORS.CATGREENLGT,
                 });
+
+                // Navigate to otpVerification screen after showing the success message
+                setTimeout(() => {
+                    navigation.navigate('OTPVerification', {email});
+                }, 3000); // 5 seconds delay
             }
 
             setShowPasswordResetModal(true);
-
-            // Set a timer to navigate after 5 seconds
-            setTimeout(() => {
-                navigation.navigate('Signin');
-            }, 5000);
         } catch (error) {
             setResetResultType({
                 messageheader: 'Error',
                 messageheadercolor: COLORS.CATREDDRK,
-                message: 'An error occurred while resetting the password.',
+                message: 'An error occurred while sending the OTP.',
                 iconname: 'alert-circle',
                 iconcolor: COLORS.CATREDLGT,
             });
@@ -116,28 +111,20 @@ const ForgotPassword = () => {
         }
     };
 
-
-    // async function resetPassword() {
-    //     setLoading(true);
-    //     // FIXME: get rid of this console.log
-    //     console.log('Attempting to Reset Password w/ Email:', email);
-    //     setShowPasswordResetModal(true);
-    //     const {error} = await supabase.auth.resetPasswordForEmail(email, {
-    //         redirectTo: 'https://ackru.com/update-password',
-    //     });
-
-    //     if (error) console.error(error.message);
-    //     if (!error) {
-    //         alert(' Successful, password reset instructions have been sent to your email.');
-    //         setLoading(false);
-    //         // FIXME: push to check email page / trigger set email state
-    //         navigation.navigate('Signin');
-    //     }
-    // }
-
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
                         <View
@@ -183,10 +170,15 @@ const ForgotPassword = () => {
 
                         <AkcruButtons.LrgButton
                             color={isFormComplete ? COLORS.MIDORANGE : COLORS.DARKGREY}
-                            btnname={'Reset Password'}
-                            onPress={() => SendResetPassword()}
-                            disabled={!isFormComplete}
+                            btnname={'Send OTP'}
+                            onPress={SendOTP}
+                            disabled={!isFormComplete || loading}
                         />
+                        <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
+                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, marginTop: '5%'}}>
+                                Enter your phone number
+                            </Text>
+                        </Pressable>
                     </View>
                     <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
                         <ResetPasswordResultModal

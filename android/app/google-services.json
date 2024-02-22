@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "356765995078",
+    "project_id": "akcru-app",
+    "storage_bucket": "akcru-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:356765995078:android:f0c084afb7fdc3997dba47",
+        "android_client_info": {
+          "package_name": "com.akcruapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "356765995078-abk0s2djq4sgkcalke0slt3f4s6r64rv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDZIxvUsf4XndPrY8TjH2nV85XmMoHbBw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "356765995078-abk0s2djq4sgkcalke0slt3f4s6r64rv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "356765995078-tsgt6mo86jevfonsm8qkl9vgdvi0epq8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.akcruapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

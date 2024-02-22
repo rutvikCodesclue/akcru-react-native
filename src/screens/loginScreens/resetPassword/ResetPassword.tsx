@@ -1,20 +1,25 @@
 import {View, Text, ImageBackground, Modal, TouchableOpacity, Alert, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import Svg, {Path} from 'react-native-svg';
 import Inputs from '../../../components/input';
-import {supabase} from '../../../../lib/supabase';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
+import useAuthStore from '../../../stores/auth.store';
+import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
+
 
 const ResetPassword = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+    const route = useRoute<RouteProp<AuthStackParams, 'ResetPassword'>>();
+    const user = useAuthStore(state => state.user);
 
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
 
@@ -33,9 +38,11 @@ const ResetPassword = () => {
         iconcolor: '',
     });
 
-    // Extract route parameters
-    const route = useRoute();
-    const accessToken = route.params?.accessToken; // Retrieve the access token
+    // Retrieve both email and phoneNumber from route.params
+    const email = route.params?.email;
+    const phoneNumber = route.params?.phoneNumber;
+
+    
 
     const handlePasswordChange = (text: string) => {
         setPassword(text);
@@ -73,56 +80,67 @@ const ResetPassword = () => {
             return;
         }
 
-        if (!accessToken) {
-            console.log('Token', accessToken);
-            setResetResultType({
-                messageheader: 'Error',
-                messageheadercolor: COLORS.CATREDDRK,
-                message: 'Error, Invalid or missing token for password reset.',
-                iconname: 'alert-circle',
-                iconcolor: COLORS.CATREDLGT,
-            });
-            Alert.alert('Error', 'Invalid or missing token for password reset.');
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Passwords do not match.');
+            return;
+        }
+
+        if (password.length < 8) {
+            Alert.alert('Error', 'Password should be at least 8 characters long.');
             return;
         }
 
         setLoading(true);
-        try {
-            // Use the Supabase function designed for password resets
-            const {error} = await supabase.auth.updateUser({password: password});
 
-            if (error) {
-                console.log('Token', accessToken);
-                setResetResultType({
-                    messageheader: 'Error',
-                    messageheadercolor: COLORS.CATREDDRK,
-                    message: 'Failed to update password: ' + error.message,
-                    iconname: 'alert-circle',
-                    iconcolor: COLORS.CATREDLGT,
-                });
-                // Alert.alert('Error', 'Failed to update password: ' + error.message);
-            } else {
+        try {
+            // Construct the payload based on what is available
+            const payload = email ? {email} : {phoneNumber};
+
+            const response = await API.post('/v1/user/resetPassword', {
+                ...payload,
+                password,
+                confirmPassword,
+            });
+
+            const data = response.data;
+
+            if (data.success) {
+                // Handle success
                 setResetResultType({
                     messageheader: 'Success',
                     messageheadercolor: COLORS.CATGREENDRK,
-                    message: 'Password updated successfully.',
+                    message: 'Password reset successfully.',
                     iconname: 'happy',
                     iconcolor: COLORS.CATGREENLGT,
                 });
-                Alert.alert('Success', 'Password updated successfully.');
-                navigation.navigate('Signin'); // Redirect to signin page
+                setShowConfirmNewPasswordModal(true);
+                // Optionally set a timeout to navigate after showing the modal
+                setTimeout(() => {
+                    navigation.navigate('Signin');
+                }, 3000);
+            } else {
+                // Handle failure
+                setResetResultType({
+                    messageheader: 'Failed',
+                    messageheadercolor: COLORS.CATREDDRK,
+                    message: data.message || 'Failed to reset password.',
+                    iconname: 'alert-circle',
+                    iconcolor: COLORS.CATREDLGT,
+                });
+                console.error('Error resetting password', data.message);
+                setShowConfirmNewPasswordModal(true);
             }
-            console.log(error);
         } catch (error) {
+            console.error('Error resetting password:', error);
             setResetResultType({
                 messageheader: 'Error',
                 messageheadercolor: COLORS.CATREDDRK,
-                message: 'An error occurred while updating your password.',
+                message: error.response.data.message || 'An error occurred while resetting the password.',
                 iconname: 'alert-circle',
                 iconcolor: COLORS.CATREDLGT,
             });
-            Alert.alert('Error', 'An error occurred while updating your password.');
-            console.log(error);
+            console.error('Error resetting password', error.response.data.message);
+            setShowConfirmNewPasswordModal(true);
         } finally {
             setLoading(false);
         }
@@ -131,6 +149,17 @@ const ResetPassword = () => {
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
                         <View
@@ -152,7 +181,7 @@ const ResetPassword = () => {
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
-                                name="key"
+                                name="lock-open"
                                 type="ionicon"
                                 size={80}
                                 color={COLORS.MIDORANGE}
@@ -160,7 +189,7 @@ const ResetPassword = () => {
                             />
                         </View>
                         <Text style={{...FONTS.Title2, marginBottom: '5%'}}>Let's reset your password below</Text>
-                        <View style={{marginBottom: 10}}>
+                        <View style={{marginBottom: 10, alignItems: 'center'}}>
                             <Inputs
                                 placeholdername={'Choose New Password'}
                                 iconname={'lock-closed'}

@@ -7,20 +7,21 @@ import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
-import {timeSince} from '../../util/util';
+import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 
 type FooterIconsProps = {
     iconname: string;
     onPress: () => void;
+    color: string;
 };
 
-const FooterIcons = ({iconname, onPress}: FooterIconsProps) => {
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={COLORS.AKCRUBLUE} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
             </TouchableOpacity>
         </View>
     );
@@ -99,6 +100,7 @@ type PostProps = {
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
+    isLikedByCurrentUser?: boolean; // Assuming this property exists
 };
 
 const PostCard = ({
@@ -127,15 +129,18 @@ const PostCard = ({
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
+    // Determine the color for the "happy" icon based on whether the post is liked by the current user
+    const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
+
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-         const handleDeletePost = () => {
-             onDeletePost(+post.id);
-         };
+    const handleDeletePost = () => {
+        onDeletePost(+post.id);
+    };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -269,6 +274,8 @@ const PostCard = ({
             onFollow();
         }
     };
+
+    const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 
     return (
         <View style={styles.cardcontainer}>
@@ -404,28 +411,33 @@ const PostCard = ({
                     </Pressable>
                 </Modal>
             </View>
-            <View style={{marginTop: 10}}>
-                <Text style={styles.post}>{post.content}</Text>
-            </View>
+            {/* Render text if available */}
+            {textContent && (
+                <View style={{marginTop: 10}}>
+                    <Text style={styles.post}>{textContent}</Text>
+                </View>
+            )}
 
             <View>
-                {post.image && (
-                    <TouchableOpacity onPress={() => openModal(post.image)}>
-                        <Image src={post.image} style={styles.postimage} />
+                {/* Render images */}
+                {imageUrls.map((url, index) => (
+                    <TouchableOpacity key={index} onPress={() => openModal(url)}>
+                        <Image source={{uri: url}} style={styles.postimage} />
                     </TouchableOpacity>
-                )}
+                ))}
             </View>
             <View>
-                {post.video && (
-                    <TouchableOpacity onPress={() => openVideoModal(post.video)}>
+                {/* Render video if available */}
+                {videoUrl && (
+                    <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
                         <View style={styles.postvideo}>
                             <Video
                                 ref={topVideoRef}
                                 style={{width: '100%', height: '100%', borderRadius: 10}}
-                                source={{uri: post.video}}
+                                source={{uri: videoUrl}}
                                 resizeMode="cover"
                                 onEnd={handleVideoEnd}
-                                repeat={false}
+                                repeat={true}
                                 onError={handleVideoError}
                                 onLoad={handleVideoLoad}
                                 muted={true}
@@ -482,13 +494,14 @@ const PostCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} />
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} />
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
+                    color={COLORS.AKCRUBLUE}
                 />
                 {/* <FooterIcons
                     iconname={'stats-chart'}

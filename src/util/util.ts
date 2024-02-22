@@ -3,11 +3,28 @@ import {AKCRUBADGES, COLORS} from '../../assets/constants';
 import {min} from 'lodash';
 import {DateTime, IANAZone} from 'luxon';
 
+import React, {useState, useEffect} from 'react';
+
+
 export function timeSince(dateCreated: string): string {
     const now = new Date();
     const postDate = new Date(dateCreated);
     return formatDistance(postDate, now) + ' ago';
 }
+
+// export function capitalizeFirstLetterOfString(str: string) {
+//     if (typeof str !== 'string') {
+//         console.error('Input is not a string:', str);
+//         return str; // or return a default value or throw an error, depending on your use case
+//     }
+
+//     if (str.length === 0) {
+//         return str; // Return the original string if it's empty
+//     }
+
+//     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+// }
+
 
 export function capitalizeFirstLetterOfString(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -128,4 +145,41 @@ export function formatTimestampToAMPM(timestamp: string | number | Date) {
 
     return `${formattedHours}:${minutes} ${ampm}`;
 }
+
+export function classifyPostContent (contentArray: string[]) {
+    let textContentParts: string[] = [];
+    let imageUrls: string[] = [];
+    let videoUrl = '';
+
+    contentArray.forEach(item => {
+        if (/^https?:\/\/.+\.(jpeg|jpg|png)$/.test(item) && item.includes('user-pictures')) {
+            // Item is an image URL
+            imageUrls.push(item);
+        } else if (/^https?:\/\/.+\.(mov|mp4)$/.test(item) && item.includes('user-videos')) {
+            // Item is a video URL
+            videoUrl = item;
+        } else {
+            // Item is considered as part of the text content
+            textContentParts.push(item);
+        }
+    });
+
+    let textContent = textContentParts.join(' '); // Concatenate all text parts
+    return {textContent, imageUrls, videoUrl};
+};
+
+export function extractUsernamesFromText  (text: string) {
+    const usernamePattern = /@(\w+)/g; // Matches '@' followed by any word character (alphanumeric and underscore)
+    let match;
+    const usernames = [];
+
+    while ((match = usernamePattern.exec(text)) !== null) {
+        // match[1] contains the captured group, which is the username without the '@'
+        usernames.push(match[1]);
+    }
+
+    return usernames;
+};
+
+
 

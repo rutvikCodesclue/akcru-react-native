@@ -19,7 +19,7 @@ import { IComment, IPost } from '../../types';
 export type CrummunityStackParams = {
     CrummunityScreen: any;
     UserSearchResultScreen: any;
-    ViewUserScreen: any;
+    // ViewUserScreen: any;
     ViewUserDetailScreen: any;
     PurchaseMITScreen: any;
     //   AcceptMITScreen: any;
@@ -31,15 +31,16 @@ export type CrummunityStackParams = {
     SendMITSchedule: any;
     CruChewScreen: any;
     CruChewOrder: any;
-    PostScreen: {
-        post: IPost;
-        comment: IComment
-        // other params if there are any
-    };
-    NewPost: any;
+    // PostScreen: {
+    //     post: IPost;
+    //     comment: IComment
+    //     postId: number | string;
+    //     // other params if there are any
+    // };
+    // NewPost: any;
     AkcruNetworkScreen: any;
     FlickFlirtScreen: any;
-    NewComment: any;
+    // NewComment: any;
 };
 
 const Crummunity = createStackNavigator<CrummunityStackParams>();
@@ -59,27 +60,27 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="PostScreen"
               component={PostScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
-          <Crummunity.Screen
+          /> */}
+          {/* <Crummunity.Screen
               name="NewPost"
               component={NewPost}
               options={() => ({
                   headerShown: false,
               })}
-          />
-          <Crummunity.Screen
+          /> */}
+          {/* <Crummunity.Screen
               name="NewComment"
               component={NewComment}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <Crummunity.Screen
               name="UserSearchResultScreen"
               component={UserSearchResultScreen}
@@ -87,13 +88,13 @@ export function CrummunityStack() {
                   headerShown: false,
               })}
           />
-          <Crummunity.Screen
+          {/* <Crummunity.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <Crummunity.Screen
               name="ViewUserDetailScreen"
               component={ViewUserDetailScreen}

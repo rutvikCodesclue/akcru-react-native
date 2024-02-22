@@ -1,6 +1,6 @@
 import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, TextInput} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -15,14 +15,20 @@ import CodeInput from '../../../components/CodeInput/CodeInput';
 import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import { supabase } from '../../../../lib/supabase';
+import { API } from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 
-const OTPVerification = () => {
+const OTPVerification = ({route}) => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
 
-    const route = useRoute();
+    // const route = useRoute();
+
+    // Retrieve both email and phoneNumber from route.params
+    const email = route.params?.email;
+    const phoneNumber = route.params?.phoneNumber;
 
     const [otp, setOTP] = useState<string>('');
 
@@ -101,26 +107,34 @@ const OTPVerification = () => {
         try {
             setVerify(true);
 
-            // Assuming the email is stored or passed to this component. If not, you need to provide it.
-            const email = "user's email";
+            // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
+            // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
+            const payload = email ? {email} : {phoneNumber};
 
-            // Call verifyOtp() with the user's email and the OTP code
-            const {data, error} = await supabase.auth.verifyOtp({
-                email,
-                token: code,
-                type: 'email',
+            // Call verifyOTP() with the user's email or phone number and the OTP code
+            const response = await API.post('/v1/user/verifyOTP', {
+                ...payload,
+                otp: code,
+                // emailOrPhoneNumber: emailOrPhoneNumber,
             });
 
-            if (error) {
-                throw error;
+            const data = response.data;
+
+            if (data.success) {
+                console.log('Verification successful', data);
+                setVerify(false);
+                handleShowOTPModal('success');
+
+                // Navigate to ResetPassword screen
+                // Pass any necessary data as parameters
+                navigation.navigate('ResetPassword', {
+                    email: email,
+                    phoneNumber: phoneNumber,
+                });
+            } else {
+                // Handle the case where data.success is false
+                throw new Error(data.message || 'Verification failed');
             }
-
-            console.log('Verification successful', data);
-            setVerify(false);
-            handleShowOTPModal('success');
-
-            // You may want to navigate the user or perform other actions upon successful verification
-            // navigation.navigate('SomeScreen');
         } catch (error) {
             console.error('Verification failed', error);
             setVerify(false);
@@ -131,61 +145,84 @@ const OTPVerification = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
                 <View style={styles.container}>
-                    <View>
-                        <Svg
-                            height={150}
-                            width={150}
-                            viewBox={`0 0 270 234`}
-                            style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
-                            <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
-                        </Svg>
-                        <Icon
-                            name="lock-open"
-                            type="ionicon"
-                            size={80}
-                            color={COLORS.MIDORANGE}
-                            style={{marginBottom: '8%'}}
-                        />
-                    </View>
-                    <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
-                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>
-                            Enter the 6-digit code sent to your email
-                        </Text>
-                    </View>
-                    <View style={{marginVertical: '15%'}}>
-                        <CodeInput
-                            maxLength={MAX_CODE_LENGTH}
-                            code={code}
-                            setCode={setCode}
-                            setPinReady={setPinReady}
-                        />
-                    </View>
-                    <View>
-                        {!verify && pinReady && (
-                            <AkcruButtons.LrgButton
-                                color={COLORS.MIDORANGE}
-                                btnname={'Verify'}
-                                onPress={handleOTPVerification}
-                                disabled={false}
-                            />
-                        )}
-                        {!verify && !pinReady && (
-                            <AkcruButtons.LrgButton
-                                color={COLORS.DARKGREY}
-                                btnname={'Verify'}
-                                onPress={() => ''}
-                                disabled={true}
-                            />
-                        )}
+                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
-                            <ResendTimer
-                                setActiveResend={setActiveResend}
-                                activeResend={activeResend}
-                                resendStatus={resendStatus}
-                                resendingEmail={resendingEmail}
-                                resendEmail={resendEmail}
+                            <Svg
+                                height={150}
+                                width={150}
+                                viewBox={`0 0 270 234`}
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                                <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
+                            </Svg>
+                            <Icon
+                                name="lock-open"
+                                type="ionicon"
+                                size={80}
+                                color={COLORS.MIDORANGE}
+                                style={{marginBottom: '8%'}}
                             />
+                        </View>
+                        <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
+                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                                Enter the 6-digit code sent to your email
+                            </Text>
+                        </View>
+                        <View style={{marginVertical: '15%'}}>
+                            <CodeInput
+                                maxLength={MAX_CODE_LENGTH}
+                                code={code}
+                                setCode={setCode}
+                                setPinReady={setPinReady}
+                            />
+                        </View>
+                        <View>
+                            {!verify && pinReady && (
+                                <AkcruButtons.LrgButton
+                                    color={COLORS.MIDORANGE}
+                                    btnname={'Verify'}
+                                    onPress={handleOTPVerification}
+                                    disabled={false}
+                                />
+                            )}
+                            {!verify && !pinReady && (
+                                <AkcruButtons.LrgButton
+                                    color={COLORS.DARKGREY}
+                                    btnname={'Verify'}
+                                    onPress={() => ''}
+                                    disabled={true}
+                                />
+                            )}
+                            <View>
+                                <ResendTimer
+                                    setActiveResend={setActiveResend}
+                                    activeResend={activeResend}
+                                    resendStatus={resendStatus}
+                                    resendingEmail={resendingEmail}
+                                    resendEmail={resendEmail}
+                                />
+                            </View>
                         </View>
                     </View>
                     <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>

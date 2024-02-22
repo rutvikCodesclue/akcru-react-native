@@ -135,49 +135,6 @@ const OnBoard3 = () => {
         }
     };
 
-
-    // const handleFinishButton = () => {
-    //     const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-
-    //     console.log('Selected Genres:', selectedGenres);
-
-    //     if (selectedGenres.length === 2) {
-    //         const genreNames = selectedGenres.map(genreId => {
-    //             const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
-    //             return genreObject ? genreObject.genre : '';
-    //         });
-
-    //         const newArchetypeKey = genreNames.sort().join(', ');
-
-    //         console.log('Archetype Key:', newArchetypeKey);
-
-    //         setArchetypeKey(newArchetypeKey);
-
-    //         const selectedArchetype = archetypeMapping[newArchetypeKey];
-
-    //         if (selectedArchetype) {
-    //             setArchetypeModal(true);
-    //             const newArchetypeName = selectedArchetype.name;
-    //             const newArchetypeImage = selectedArchetype.image; // Set the image here
-    //             const newArchetypeDescription = selectedArchetype.description; // Set the description here
-    //             console.log('Selected Archetype:', newArchetypeName);
-    //             setArchetypeName(newArchetypeName);
-    //             setArchetypeImage(newArchetypeImage);
-    //             setArchetypeDescription(newArchetypeDescription);
-
-    //             setTimeout(() => {
-    //                 setArchetypeModal(false); // Hide the archetype modal after 8 seconds
-    //                 setTrinityModal(true);
-    //                 // navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-    //             }, 4000); // 4 seconds (8000 milliseconds)
-    //         } else {
-    //             console.log('No matching archetype found for the selected genres.');
-    //         }
-    //     } else {
-    //         console.log('Please select exactly 2 genres.');
-    //     }
-    // };
-
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
 
     const [trinityModal, setTrinityModal] = useState(false);
