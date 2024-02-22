@@ -1,75 +1,71 @@
-import _ from "lodash";
+import _ from 'lodash';
 import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  TouchableWithoutFeedback,
-  TextInput,
-  ScrollView,
-  Pressable,
-  Dimensions,
-  FlatList,
-  ActivityIndicator,
-  Modal,
-  StatusBar
-} from "react-native";
-import React from "react";
-import AkcruButtons from "../../../components/akcruButtons";
-import Header from "../../../components/header";
-import MITChatCard from "../../../components/MITChatCard/MITChatCard";
-import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
-import LinearGradient from "react-native-linear-gradient";
-import { Icon } from "@rneui/base";
-import { RouteProp, useNavigation, useFocusEffect, useIsFocused } from "@react-navigation/native";
-import { useState, useRef, useEffect, useCallback } from "react";
-import BottomSheet, {
-  BottomSheetHandleProps,
-  BottomSheetView,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import { StackNavigationProp } from "@react-navigation/stack";
-import VideoPlayer from "react-native-media-console";
-import { findMovieById } from "../../../lib/api/movies.lib";
-import { IMovie } from "../../../../types";
-import { capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor } from "../../../util/util";
-import { supabaseRealtime } from "../../../../lib/supabase";
-import { RealtimeChannel } from "@supabase/supabase-js";
-import { 
-  HMSConfig, 
-  HMSException, 
-  HMSPeer, 
-  HMSPeerUpdate, 
-  HMSLocalPeer,
-  HMSRoom, 
-  HMSRoomUpdate, 
-  HMSSDK, 
-  HMSTrack, 
-  HMSTrackSource, 
-  HMSTrackType, 
-  HMSTrackUpdate, 
-  HMSUpdateListenerActions, 
-  HMSVideoViewMode, 
-  HMSSpeaker,
-  HMSMessage,
-  HMSRole,
-  HMSRemotePeer,
-  HMSTrackSettings,
-  HMSAudioTrackSettings,
-  HMSVideoTrackSettings,
-  HMSTrackSettingsInitState,
-} from "@100mslive/react-native-hms";
-import useAuthStore from "../../../stores/auth.store";
-import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
+    StyleSheet,
+    Text,
+    View,
+    SafeAreaView,
+    TouchableOpacity,
+    Image,
+    TouchableWithoutFeedback,
+    TextInput,
+    ScrollView,
+    Pressable,
+    Dimensions,
+    FlatList,
+    ActivityIndicator,
+    Modal,
+    StatusBar,
+} from 'react-native';
+import React from 'react';
+import AkcruButtons from '../../../components/akcruButtons';
+import Header from '../../../components/header';
+import MITChatCard from '../../../components/MITChatCard/MITChatCard';
+import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
+import LinearGradient from 'react-native-linear-gradient';
+import {Icon} from '@rneui/base';
+import {RouteProp, useNavigation, useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {useState, useRef, useEffect, useCallback} from 'react';
+import BottomSheet, {BottomSheetHandleProps, BottomSheetView, BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {StackNavigationProp} from '@react-navigation/stack';
+import VideoPlayer from 'react-native-media-console';
+import {findMovieById} from '../../../lib/api/movies.lib';
+import {IMovie} from '../../../../types';
+import {capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
+import {supabaseRealtime} from '../../../../lib/supabase';
+import {RealtimeChannel} from '@supabase/supabase-js';
+import {
+    HMSConfig,
+    HMSException,
+    HMSPeer,
+    HMSPeerUpdate,
+    HMSLocalPeer,
+    HMSRoom,
+    HMSRoomUpdate,
+    HMSSDK,
+    HMSTrack,
+    HMSTrackSource,
+    HMSTrackType,
+    HMSTrackUpdate,
+    HMSUpdateListenerActions,
+    HMSVideoViewMode,
+    HMSSpeaker,
+    HMSMessage,
+    HMSRole,
+    HMSRemotePeer,
+    HMSTrackSettings,
+    HMSAudioTrackSettings,
+    HMSVideoTrackSettings,
+    HMSTrackSettingsInitState,
+} from '@100mslive/react-native-hms';
+import useAuthStore from '../../../stores/auth.store';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
-import Video, { LoadError, OnBufferData, OnProgressData, OnSeekData } from "react-native-video";
-import { IUserProfile } from "../../../../types";
-import SmlMemberCard from "../../../components/SmlMemberCard";
-import { findAUser } from "../../../lib/api/user.lib";
-import useWatchTimeStore from "../../../stores/watchTime.store";
+import Video, {LoadError, OnBufferData, OnProgressData, OnSeekData} from 'react-native-video';
+import {IUserProfile} from '../../../../types';
+import SmlMemberCard from '../../../components/SmlMemberCard';
+import {findAUser} from '../../../lib/api/user.lib';
+import useWatchTimeStore from '../../../stores/watchTime.store';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -99,9 +95,9 @@ type MemberInfo = {
     name: string | undefined;
     isLocal: boolean | undefined;
     user: IUserProfile;
-}
+};
 
-const StartWatchPartyView = ({ navigation, route }: Props) => {
+const StartWatchPartyView = ({navigation, route}: Props) => {
     // PARAMS
     const isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
@@ -109,10 +105,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const roomAuthToken = route.params?.roomAuthToken;
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
-    // USESTATES  
+    // USESTATES
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
-    
+
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
@@ -135,7 +131,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const isSyncedWithHost = useRef<boolean | null>(null);
     /* EXTRAS */
     const isFocused = useIsFocused();
-    const {  startTimer, pauseTimer, resetTimer } = useWatchTimeStore();
+    const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
     const {user} = useAuthStore();
     const snapPoints = ['1', '40'];
 
@@ -143,10 +139,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     /* 
         USE EFFECTS
     */
-    useEffect(() => {
-        console.log(`isMoviePlaying changed... [${isMoviePlaying}]`);
-        
-    }, [isMoviePlaying]);
+
     // INITIAL LOAD
     useEffect(() => {
         // join the 100ms room
@@ -192,16 +185,16 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             return () => {
                 if (isFocused) {
                     // pause the timer
-                    console.log("pausing timer...");
+                    console.log('pausing timer...');
                     pauseTimer();
                 } else {
-                    console.log("resetting timer...");
+                    console.log('resetting timer...');
                     // reset the timer
                     resetTimer();
                 }
             };
-        }, 
-    [isMoviePlaying]));
+        }, [isMoviePlaying]),
+    );
 
     useEffect(() => {
         console.log('peerTrackNodes changed...');
@@ -209,14 +202,14 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             'Current track ids:',
             peerTrackNodes.map(node => node.track?.trackId),
         );
-        
+
         const updateMembersList = async () => {
             // update members list
-            console.log("updating members lists")
+            console.log('updating members lists');
             const membersWithInfo = await getAvailableMembers();
             // set the members list, add new members if they don't exist, keep existing members if they still exist
             setMembers(membersWithInfo);
-        }
+        };
 
         updateMembersList();
     }, [peerTrackNodes]);
@@ -231,10 +224,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // toggle the mic
         if (localPeer) {
             if (isMicOn) {
-                console.log("muting personal audio track...")
+                console.log('muting personal audio track...');
                 localPeer?.localAudioTrack()?.setMute(true);
             } else {
-                console.log("unmuting personal audio track...")
+                console.log('unmuting personal audio track...');
                 localPeer?.localAudioTrack()?.setMute(false);
             }
         }
@@ -248,11 +241,11 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         // toggle the mic
         if (localPeer) {
             if (isUserVideoOn) {
-                console.log("muting personal video track...")
+                console.log('muting personal video track...');
                 localPeer?.localVideoTrack()?.setMute(true);
                 setIsUserVideoOn(true);
             } else {
-                console.log("unmuting personal video track...")
+                console.log('unmuting personal video track...');
                 localPeer?.localVideoTrack()?.setMute(false);
                 setIsUserVideoOn(false);
             }
@@ -389,9 +382,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
 
     const _handleStartMovie = async () => {
-        console.log("Starting the movie...");
-        
-        
+        console.log('Starting the movie...');
+
         if (isHost && videoPlayerRef.current) {
             // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
@@ -413,40 +405,39 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             currentTime: number;
             timestamp: string;
             isMoviePlaying: boolean;
-        }
+        };
 
         // SYNC CHANNEL EVENTS - subscribe to the sync channel if not host, and not synced (just joined)
         if (syncChannelRef.current) {
             syncChannelRef.current
-                .on(
-                'presence',
-                { event: 'sync' },
-                () => {
+                .on('presence', {event: 'sync'}, () => {
                     try {
                         if (syncChannelRef.current) {
                             let newSyncState = syncChannelRef.current.presenceState();
-                            let syncObject: any = Object.values(newSyncState)[0]
+                            let syncObject: any = Object.values(newSyncState)[0];
                             if (syncObject) {
                                 syncObject = syncObject as [ISyncObject];
-                                const currentTime = syncObject[0].currentTime // there should only be one object in the array (from host)
+                                const currentTime = syncObject[0].currentTime; // there should only be one object in the array (from host)
                                 const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
                                 if (!isHost && !isSyncedWithHost.current) {
                                     // if not host, and not synced, get the current video timestamp sync the video player
                                     if (videoPlayerRef.current) {
-                                        console.log(`SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`);
+                                        console.log(
+                                            `SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`,
+                                        );
                                         videoPlayerRef.current.seek(currentTime);
                                         setCurrentTime(currentTime);
                                         setIsMoviePlaying(isMoviePlayingFromHost);
                                         isSyncedWithHost.current = true; // set synced to true
                                     }
-                                } 
+                                }
                             }
                         }
                     } catch (error) {
-                        console.error("error syncing:", error);
+                        console.error('error syncing:', error);
                     }
                 })
-                .subscribe()
+                .subscribe();
         }
         // ROOM CHANNEL EVENTS - once synced, subscribe to the room channel
         if (roomChannelRef.current) {
@@ -562,10 +553,10 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
 
     const _findNodeByPeerId = (peerID: string) => {
         // pretty print all peerTrackNodes ( expand to see all the properties )
-        console.log("peerTrackNodes:", peerTrackNodes);
+        console.log('peerTrackNodes:', peerTrackNodes);
 
         return peerTrackNodes.find(node => node.peer.peerID === peerID);
-    }
+    };
 
     const _updateNodeWithPeer = (data: {nodes: PeerTrackNode[]; peer: HMSPeer; createNew?: boolean}) => {
         const {nodes, peer, createNew = false} = data;
@@ -595,8 +586,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     */
     const __onErrorListener = (data: HMSException) => {
         // FIXME: handle errors (if host leaves, or if user leaves)
-        console.log("=== 100ms Error ===:", data);
-        
+        console.log('=== 100ms Error ===:', data);
+
         // console.log("onJoin [local peer / video]", localPeer.localVideoTrack);
         // console.log("onJoin [local peer / audio]", localPeer.localAudioTrack);
     };
@@ -650,20 +641,15 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         }
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
-
             // check if any remaining peer track nodes have host role
             const remainingPeerTrackNodes = peerTrackNodes.filter(node => node.peer.peerID !== peer.peerID);
-            const remainingHosts = remainingPeerTrackNodes.filter(node => node.peer._role.name === "host").length;
-
+            const remainingHosts = remainingPeerTrackNodes.filter(node => node.peer._role.name === 'host').length;
 
             if (remainingHosts === 0 && !isHost) {
                 // no more hosts, trigger the room leave handler
-                console.log("No more hosts, leaving room...");
+                console.log('No more hosts, leaving room...');
                 await _handleRoomLeave();
             }
-            
-
-
 
             // Remove all Tiles which has peer same as the peer which just left the room.
             // `removeNodeWithPeerId` function removes peerTrackNodes which has given peerID and returns updated list.
@@ -679,7 +665,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
         ) {
             // FIXME: update nodes on these events
             console.log('Peer Role, Metadata, Name or Network Quality changed for peer:', peer.name);
-            
+
             return;
         }
 
@@ -692,8 +678,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             );
             return;
         }
-
-        
     };
     const __onTrackListener = ({track, peer, type}: {track: HMSTrack; peer: HMSPeer; type: HMSTrackUpdate}) => {
         // We will only consider Video tracks events to render videos
@@ -746,7 +730,6 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         }),
                     );
                 }
-
             }
 
             // TODO: If Audio track is removed, remove node which is using this `trackId`
@@ -756,27 +739,20 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             }
 
             // if video track is muted or unmuted, update the UI
-            if (
-                type === HMSTrackUpdate.TRACK_MUTED 
-            ) {
+            if (type === HMSTrackUpdate.TRACK_MUTED) {
                 console.log(`Update UI to show Audio Muted updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
             }
-            if (
-                type === HMSTrackUpdate.TRACK_UNMUTED 
-            ) {
+            if (type === HMSTrackUpdate.TRACK_UNMUTED) {
                 console.log(`Update UI to show Audio Unmuted updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
             }
             // if video track is muted or unmuted, update the UI
-            if (
-                type === HMSTrackUpdate.TRACK_RESTORED ||
-                type === HMSTrackUpdate.TRACK_DEGRADED
-            ) {
+            if (type === HMSTrackUpdate.TRACK_RESTORED || type === HMSTrackUpdate.TRACK_DEGRADED) {
                 console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             }
         }
@@ -801,9 +777,8 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
             // Close the Mvie
             await _handleCloseMovie();
             // Leave the Room
-            await _handleRoomLeave()
+            await _handleRoomLeave();
         }
-        
     };
     const __onMessageListener = (data: HMSMessage) => {
         // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
@@ -882,22 +857,17 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 isMoviePlaying: true,
                 currentTime: data.currentTime,
                 timestamp: new Date().toISOString(),
-            })
+            });
             // update the currentTime state
             setCurrentTime(data.currentTime);
         }
-        
-    }
+    };
     const ___onEnterFullscreen = () => {
         // enter fullscreen
         setIsFullscreen(true);
         // Hide the status bar when the movie starts playing
         StatusBar.setHidden(true);
         Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-        // seeek to the current time
-        if (videoPlayerRef.current && currentTime) {
-            videoPlayerRef.current.seek(currentTime);
-        }
         // automatically play the video if it paused (if it was already playing)
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
@@ -910,16 +880,26 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                 }
             }
         }
+        // Delay the seek operation to allow the video player to stabilize
+        setTimeout(() => {
+            if (videoPlayerRef.current && currentTime) {
+                console.log(' you clicked enter FS... seeking to:', currentTime);
+                videoPlayerRef.current.seek(currentTime);
+            }
+        }, 2000); // Delay of 2 seconds
     };
     const ___onExitFullScreen = () => {
         // exit fullscreen
         setIsFullscreen(false);
         StatusBar.setHidden(false);
         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-        // seeek to the current time
-        if (videoPlayerRef.current && currentTime) {
-            videoPlayerRef.current.seek(currentTime);
-        }
+        // Delay the seek operation to allow the video player to stabilize
+        setTimeout(() => {
+            if (videoPlayerRef.current && currentTime) {
+                console.log(' you clicked exit FS... seeking to:', currentTime);
+                videoPlayerRef.current.seek(currentTime);
+            }
+        }, 2000); // Delay of 2 seconds
         // automatically play the video if it paused (if it was already playing)
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
@@ -976,22 +956,22 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     const getAvailableMembers = async () => {
         // Get the userIDs of existing CRU members
         let membersWithInfo: MemberInfo[] = [];
-        const memberUserNames: { name: string, peer: HMSPeer }[] = [];
+        const memberUserNames: {name: string; peer: HMSPeer}[] = [];
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
                 // only count video track types (avoid double counting of audio tracks)
 
                 // find all unique peer.names and place in array
-                if (!memberUserNames.includes({ name: peer.name, peer })) {
-                    memberUserNames.push({ name: peer.name, peer });
+                if (!memberUserNames.includes({name: peer.name, peer})) {
+                    memberUserNames.push({name: peer.name, peer});
                 }
-            })
-        )
+            }),
+        );
 
         await Promise.all(
             memberUserNames.map(async ({name, peer}) => {
-                const userInfoFromDB = await findAUser({ username: name })
-                
+                const userInfoFromDB = await findAUser({username: name});
+
                 if (userInfoFromDB) {
                     membersWithInfo.push({
                         peerID: peer.peerID,
@@ -999,16 +979,16 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                         name: peer.name,
                         isLocal: peer.isLocal,
                         user: userInfoFromDB,
-                    })
+                    });
                 }
-            })
-        )
+            }),
+        );
 
         return membersWithInfo;
     };
 
     const handleCancelTransfer = () => {
-    setShowTransferConfirmation(false)
+        setShowTransferConfirmation(false);
     };
 
     const handleTransfer = () => {
@@ -1016,22 +996,21 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     };
 
     const handleCancelRoomTermination = () => {
-        setTerminateRoom(false)
+        setTerminateRoom(false);
     };
     const handleRoomTermination = async () => {
-        
         if (hmsInstanceRef.current) {
-            console.log("CLOSE ROOM AS HOST");
+            console.log('CLOSE ROOM AS HOST');
             confirmOptions();
             // Stop the Movie
             setTerminateRoom(true);
             setIsMoviePlaying(false);
 
             // end the room for every one
-            await hmsInstanceRef?.current.endRoom("Host Terminated Watchparty Session", false);
+            await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
             console.log('End Room Success');
             // Leave the Room
-            await _handleRoomLeave()
+            await _handleRoomLeave();
         }
     };
 
@@ -1196,6 +1175,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
                                                     showHours={true}
                                                     paused={!isMoviePlaying}
                                                     poster={movie?.landscapeURL}
+                                                    resizeMode="contain"
                                                     posterResizeMode="cover"
                                                     showOnStart={true}
                                                     tapAnywhereToPause={false}
@@ -1706,9 +1686,7 @@ const StartWatchPartyView = ({ navigation, route }: Props) => {
     return isFullscreen ? (
         <View>{watchPartyView()}</View>
     ) : (
-        <SafeAreaView>
-            {isLoading ? null : watchPartyView()}
-        </SafeAreaView>
+        <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
     );
 };
 
@@ -1769,7 +1747,7 @@ const styles = StyleSheet.create({
     },
     fullscreenmovie: {
         width: SIZES.ScreenHeight,
-        height: SIZES.ScreenWidth
+        height: SIZES.ScreenWidth,
     },
     videoplayer: {
         alignSelf: 'center',
@@ -1779,7 +1757,5 @@ const styles = StyleSheet.create({
     bottombtn: {
         paddingTop: 10,
         position: 'relative',
-
-        
     },
 });
