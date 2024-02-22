@@ -8,7 +8,7 @@ const AkcruBadgeGuardian = () => {
       <View
         style={{
           backgroundColor: AKCRUBADGES.Guardian.background,
-          width: 95,
+          width: 80,
           height: 18,
           justifyContent: 'center',
           alignItems: 'center',
@@ -35,7 +35,7 @@ const AkcruBadgeSuperHero = () => {
       <View
         style={{
           backgroundColor: AKCRUBADGES.SuperHero.background,
-          width: 95,
+          width: 80,
           height: 18,
           justifyContent: 'center',
           alignItems: 'center',
@@ -62,7 +62,7 @@ const AkcruBadgeHero = () => {
       <View
         style={{
           backgroundColor: AKCRUBADGES.Hero.background,
-          width: 95,
+          width: 80,
           height: 18,
           justifyContent: 'center',
           alignItems: 'center',
@@ -89,7 +89,7 @@ const AkcruBadgeAkcruit = () => {
       <View
         style={{
           backgroundColor: AKCRUBADGES.Akcruit.background,
-          width: 95,
+          width: 80,
           height: 18,
           justifyContent: 'center',
           alignItems: 'center',

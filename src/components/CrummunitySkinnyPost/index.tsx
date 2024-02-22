@@ -102,6 +102,7 @@ type PostProps = {
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
+    isSuggestedUser: boolean;
 };
 
 const SkinnyPostCard = ({
@@ -115,6 +116,7 @@ const SkinnyPostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
+    isSuggestedUser
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -500,7 +502,7 @@ const SkinnyPostCard = ({
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor}/>
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
                 <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
@@ -517,11 +519,12 @@ const SkinnyPostCard = ({
                 /> */}
                 {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
-            <View>
+            <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
+                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested</Text>)}
             </View>
         </View>
     );

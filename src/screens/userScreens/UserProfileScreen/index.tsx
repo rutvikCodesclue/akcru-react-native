@@ -421,7 +421,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     style={{
                                         borderLeftWidth: 2,
                                         borderRightWidth: 2,
-                                        borderColor: COLORS.DARKGREY,
+                                        borderColor: COLORS.TRANSPURPLE,
                                         width: 100,
                                         height: 60,
                                         justifyContent: 'center',

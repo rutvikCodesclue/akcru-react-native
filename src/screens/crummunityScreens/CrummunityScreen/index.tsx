@@ -138,7 +138,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const selectedPost = posts.find(post => +post.id === postId);
 
         if (selectedPost) {
-            navigation.navigate('PostScreen', {post: selectedPost});
+            navigation2.navigate('PostScreen', {post: selectedPost});
         } else {
             // Handle the case when the post is not found
             console.error('Error: Post not found');

@@ -175,12 +175,46 @@ const XSmallButton = ({btnname, onPress, disabled, color}: Props) => {
   );
 };
 
+const FollowButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
+    return (
+        <View>
+            <TouchableOpacity
+                style={{width: SIZES.ScreenWidth / 2.2, height: SIZES.ScreenHeight * 0.05}}
+                onPress={onPress}
+                disabled={disabled}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: color,
+                        justifyContent: 'center',
+                        borderRadius: 5,
+                    }}>
+                    <LinearGradient
+                        // Background Linear Gradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: SIZES.ScreenHeight * 0.05,
+                            borderRadius: 5,
+                        }}
+                    />
+                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>{btnname}</Text>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const AkcruButtons = {
     SmallButton,
     MedButton,
     LrgButton,
     XSmallButton,
     XlLrgButton,
+    FollowButton,
 };
 
 export default AkcruButtons;
