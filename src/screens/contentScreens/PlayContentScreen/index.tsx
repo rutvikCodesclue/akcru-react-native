@@ -9,15 +9,15 @@ import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 
-<!-- import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import styles from './styles'
-import VideoPlayer from 'react-native-media-console';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { IMovie } from '../../../../types';
-import { findMovieById } from '../../../lib/api/movies.lib'; -->
+// import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
+// import React, { useEffect, useRef, useState } from 'react'
+// import styles from './styles'
+// import VideoPlayer from 'react-native-media-console';
+// import { StackNavigationProp } from '@react-navigation/stack';
+// import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
+// import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+// import { IMovie } from '../../../../types';
+// import { findMovieById } from '../../../lib/api/movies.lib';
 
 import {useRoute} from '@react-navigation/native';
 import {COLORS, SIZES} from '../../../../assets/constants';
@@ -48,8 +48,8 @@ export default function ContentPlayer({navigation, route}: Props) {
     const videoRef = useRef<Video>(null);
     const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
 
-<!--     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
-    const isFocused = useIsFocused(); -->
+// <!--     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
+//     const isFocused = useIsFocused(); -->
     const {user, hydrateUser} = useAuthStore();
     const [hasStartedWatching, setHasStartedWatching] = useState(false);
 
@@ -235,7 +235,7 @@ export default function ContentPlayer({navigation, route}: Props) {
             setIsMoviePlaying(0);
         }
         // Perform any additional actions needed when the playback rate changes
-
+    }
     const fetchUserCurrentWatching = async () => {
         const userId = user?.id; // Replace with actual user ID
         console.log('Fetching current watching for user:', userId); // Log the userId being used for the request
@@ -296,16 +296,16 @@ export default function ContentPlayer({navigation, route}: Props) {
                                     right: 0,
                                 }}
 
-<!--                                 tapAnywhereToPause={false}
-                                preventsDisplaySleepDuringVideoPlayback={true}
-                                toggleResizeModeOnFullscreen={false}
-                                // poster={landscapeURL}
-                                containerStyle={videoContainerStyle}
-                                onBack={() => navigation.pop()}
-                                paused={!isMoviePlaying}
-                                onPlay={onPlay}
-                                onPause={onPause}
-                                onSeek={onSeek} -->
+// <!--                                 tapAnywhereToPause={false}
+//                                 preventsDisplaySleepDuringVideoPlayback={true}
+//                                 toggleResizeModeOnFullscreen={false}
+//                                 // poster={landscapeURL}
+//                                 containerStyle={videoContainerStyle}
+//                                 onBack={() => navigation.pop()}
+//                                 paused={!isMoviePlaying}
+//                                 onPlay={onPlay}
+//                                 onPause={onPause}
+//                                 onSeek={onSeek} -->
 
                             />
                         </>
