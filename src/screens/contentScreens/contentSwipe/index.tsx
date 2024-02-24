@@ -386,7 +386,7 @@ export default function ContentSwipe({navigation, route}: Props) {
 
                     <Image
                         source={imageindex.AkcruHexLogo}
-                        style={{width: 26, height: 26, alignSelf: 'center', marginBottom: 10}}
+                        style={{width: 30, height: 26, alignSelf: 'center', marginBottom: 10}}
                     />
                 </View>
                 <Circle scrollX={_scrollX} movies={movies} />

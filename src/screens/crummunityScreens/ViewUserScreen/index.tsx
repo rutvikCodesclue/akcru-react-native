@@ -332,7 +332,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
-                    <View style={{marginBottom: '20%'}}>
+                    <View style={{marginBottom: '5%'}}>
                         <ImageBackground
                             //   source={{uri: digitalpass ?? undefined}}
                             source={{uri: undefined}}
@@ -763,7 +763,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 })}
                                         </View>
                                     </View>
-                                    <View style={styles.seperator} />
                                     {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
                                         <View style={styles.watchlistcontainer}>
                                             <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
