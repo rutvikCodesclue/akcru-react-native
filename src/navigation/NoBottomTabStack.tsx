@@ -30,10 +30,12 @@ import AccountSettings from '../screens/userScreens/AccountSettings';
 import Suggestions from '../screens/userScreens/Suggestions';
 import Questions from '../screens/userScreens/Questions';
 import ReportUser from '../screens/userScreens/ReportUser';
+import UserNotification from '../screens/userScreens/UserNotifications/UserNotification';
 
 
 
 export type NoBottomTabStackParams = {
+    UserNotification: any;
     ReportUser: any;
     Questions: any;
     Suggestions: any;
@@ -65,6 +67,7 @@ export type NoBottomTabStackParams = {
     NewPost: any;
     NewComment: any;
     ViewUserScreen: {userId: string; profilePicture: string; username: string};
+
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -248,6 +251,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ReportUser"
               component={ReportUser}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="UserNotification"
+              component={UserNotification}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

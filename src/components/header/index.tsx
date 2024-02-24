@@ -9,6 +9,7 @@ import { AuthStackParams } from '../../navigation/AuthNavigation';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import useAuthStore from '../../stores/auth.store';
 import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
+import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 
 // interface Props {
@@ -19,6 +20,7 @@ const Header = () => {
     const {user} = useAuthStore();
 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [unreadCount, setUnreadCount] = useState(''); // State to store unread notification count
 
@@ -98,13 +100,13 @@ const Header = () => {
                             />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('UserNotifications')}>
+                    <TouchableOpacity onPress={() => navigation2.navigate('UserNotification')}>
                         <NotificationBadgeIcon
                             name="notifications-outline"
                             type="ionicon"
                             color={COLORS.LIGHTGREY}
                             size={SIZES.SmallIcon}
-                            onPress={() => navigation.navigate('UserNotifications')}
+                            onPress={() => navigation2.navigate('UserNotification')}
                         />
                     </TouchableOpacity>
                     <View>
