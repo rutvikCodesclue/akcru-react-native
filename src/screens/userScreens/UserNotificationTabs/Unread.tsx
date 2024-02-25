@@ -1,4 +1,6 @@
+
 import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView, Pressable} from 'react-native';
+
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {Icon} from '@rneui/base';
@@ -249,6 +251,7 @@ const Unread = () => {
                 </ScrollView>
             )}
         </SafeAreaView>
+
     );
 };
 

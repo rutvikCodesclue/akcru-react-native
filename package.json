@@ -14,7 +14,7 @@
     "install:ios": "npm install && npm run postinstall:ios"
   },
   "dependencies": {
-    "@100mslive/react-native-hms": "^1.7.0",
+    "@100mslive/react-native-hms": "^1.9.11",
     "@gorhom/bottom-sheet": "^4.6.0",
     "@notifee/react-native": "^7.8.2",
     "@react-native-async-storage/async-storage": "^1.19.0",
@@ -47,7 +47,7 @@
     "react-native-image-picker": "^5.6.0",
     "react-native-linear-gradient": "^2.7.3",
     "react-native-mask-text": "^0.14.2",
-    "react-native-media-console": "^2.0.7",
+    "react-native-media-console": "^2.2.0",
     "react-native-mmkv": "^2.10.1",
     "react-native-orientation-locker": "^1.5.0",
     "react-native-pager-view": "^6.2.0",
