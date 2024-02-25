@@ -439,7 +439,7 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
 
 interface ReportData {
     email: string;
-    imageURL?: string; // Make imageURL optional since it may not always be provided
+    imageURL?: string[]; // Make imageURL optional since it may not always be provided
     description: string;
     type: string;
     name: string;
@@ -455,7 +455,7 @@ export const sendReportToBackend = async ({
     try {
         const response = await API.post('/v1/user/raise-a-query', {
             email,
-            imageURL,
+            imageURL: imageURL ?? undefined,
             description,
             type,
             name,
@@ -476,25 +476,78 @@ export const sendReportToBackend = async ({
     }
 };
 
-export const uploadImage = async (uri?: string): Promise<string | undefined> => {
-    console.log('Attempting to upload image:', uri);
-    if (!uri) {
+// export const uploadImage = async (uri?: string): Promise<string | undefined> => {
+//     console.log('Attempting to upload image:', uri);
+//     if (!uri) {
+//         console.log('No URI provided for upload');
+//         return undefined;
+//     }
+
+//     const fileExtension = uri.split('.').pop().toLowerCase();
+//     let mimeType = 'image/jpeg';
+//     if (fileExtension === 'png') {
+//         mimeType = 'image/png';
+//     }
+
+//     const formData = new FormData();
+//     formData.append('images', {
+//         // Ensure this matches the backend expectation
+//         uri: uri,
+//         type: mimeType,
+//         name: `upload.${fileExtension}`,
+//     });
+
+//     try {
+//         const response = await API.post('/v1/user/uploadPictures', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+
+//         console.log('Upload response:', response.data);
+
+//         // Inside your uploadImage function
+//         if (response.data && response.data.success) {
+//             return response.data; // Adjust this to match the structure of your actual response
+//         } else {
+//             console.error('Failed to upload image:', response.data.message);
+//             return undefined;
+//         }
+//     } catch (error) {
+//         console.error('Error uploading image:', error);
+//         return undefined;
+//     }
+// };
+
+
+export const uploadImages = async (uris: string[]): Promise<string[] | undefined> => {
+    console.log('Attempting to upload image:', uris);
+    if (!uris.length) {
         console.log('No URI provided for upload');
         return undefined;
     }
 
-    const fileExtension = uri.split('.').pop().toLowerCase();
-    let mimeType = 'image/jpeg';
-    if (fileExtension === 'png') {
-        mimeType = 'image/png';
-    }
+
+    // const fileExtension = uri.split('.').pop().toLowerCase();
+    // let mimeType = 'image/jpeg';
+    // if (fileExtension === 'png') {
+    //     mimeType = 'image/png';
+    // }
 
     const formData = new FormData();
-    formData.append('images', {
-        // Ensure this matches the backend expectation
-        uri: uri,
-        type: mimeType,
-        name: `upload.${fileExtension}`,
+
+    uris.forEach((uri, index) => {
+        const fileExtension = uri.split('.').pop()?.toLowerCase() ?? 'jpg';
+        let mimeType = 'image/jpeg';
+        if (fileExtension === 'png') {
+            mimeType = 'image/png';
+        }
+
+        formData.append('images', {
+            uri: uri,
+            type: mimeType,
+            name: `upload_${index}.${fileExtension}`,
+        });
     });
 
     try {
@@ -507,10 +560,8 @@ export const uploadImage = async (uri?: string): Promise<string | undefined> => 
         console.log('Upload response:', response.data);
 
         // Inside your uploadImage function
-if (response.data && response.data.success) {
-    return response.data; // Adjust this to match the structure of your actual response
-
-
+        if (response.data && response.data.success) {
+            return response.data; // Adjust this to match the structure of your actual response
         } else {
             console.error('Failed to upload image:', response.data.message);
             return undefined;
@@ -521,10 +572,10 @@ if (response.data && response.data.success) {
     }
 };
 
-interface ReportData {
+interface AbuseReportData {
     description: string;
     email: string;
-    imageURL?: string; // Make imageURL optional since it may not always be provided
+    imageURL?: string[]; // Corrected to be an array of strings or undefined
     type: string;
     reportedByUserId: string;
     userId: string;
@@ -537,12 +588,12 @@ export const sendAbuseReportToBackend = async ({
     type,
     reportedByUserId,
     userId,
-}: ReportData): Promise<{success: boolean; message: string}> => {
+}: AbuseReportData): Promise<{success: boolean; message: string}> => {
     try {
         const response = await API.post('/v1/user/report-user', {
             description,
             email,
-            imageURL,
+            imageURL: imageURL ?? undefined,
             type,
             reportedByUserId,
             userId,

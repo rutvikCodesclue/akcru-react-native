@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, FlatList, Image, Modal, Alert} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, FlatList, Image, Modal, Alert, Pressable} from 'react-native';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -11,8 +11,10 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {MediaType} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
-import { findAUser, sendAbuseReportToBackend, sendReportToBackend, uploadImage } from '../../../lib/api/user.lib';
+import { findAUser, sendAbuseReportToBackend, sendReportToBackend, uploadImages } from '../../../lib/api/user.lib';
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
+import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 
 const ReportUser = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -22,11 +24,13 @@ const ReportUser = ({route}) => {
     const [reportedUser, setReportedUser] = useState(); // State to store the reported user's details
 
     const [description, setDescription] = useState('');
-    const [selectedImage, setSelectedImage] = useState('');
+    const [selectedImages, setSelectedImages] = useState([]);
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState('');
+
+    const [showImageCountErrorModal, setShowImageCountErrorModal] = useState(false);
 
     // Fetch reported user's details
     useEffect(() => {
@@ -45,31 +49,34 @@ const ReportUser = ({route}) => {
             storageOptions: {
                 path: 'images',
             },
-            selectionLimit: 1, // Ensure only one image can be selected
+            selectionLimit: 3, // 0 for no limit or set to a specific number greater than 1
         };
 
         launchImageLibrary(options, response => {
             console.log('Response from Image Picker:', response);
 
-            if (response && !response.didCancel && response.assets && response.assets[0]) {
-                const uri = response.assets[0].uri; // Get the URI of the selected image
-                if (uri) setSelectedImage(uri); // Update the state with the single URI
+            if (response && !response.didCancel && response.assets) {
+                // Map through the assets to extract URIs
+                const uris = response.assets.map(asset => asset.uri);
+                setSelectedImages(prevImages => [...prevImages, ...uris]); // Append new images to the existing array
             }
         });
     };
 
+
     const handleSubmitReport = async () => {
-        let uploadedImageUrl;
-        if (selectedImage) {
+        let uploadedImageUrls: string[] = [];
+        if (selectedImages.length > 0) {
             // Attempt to upload the selected image and log the attempt
-            console.log('Attempting to upload image:', selectedImage);
-            const uploadResponse = await uploadImage(selectedImage);
-            console.log('Upload response:', uploadResponse);
+            console.log('Attempting to upload image:', selectedImages);
+            const uploadResponses = await uploadImages(selectedImages);
+            console.log('Upload response:', uploadResponses);
 
             // Check if the upload was successful and a URL was returned
-            if (uploadResponse && uploadResponse.content && uploadResponse.content[0]) {
-                uploadedImageUrl = uploadResponse.content[0];
-                console.log('Uploaded Image URL:', uploadedImageUrl);
+            if (uploadResponses && uploadResponses.success) {
+                // Assuming uploadResponses is an array of URLs
+                uploadedImageUrls = uploadResponses.content;
+                console.log('Uploaded Image URLs:', uploadedImageUrls);
             } else {
                 console.log('No image URL returned from upload');
             }
@@ -78,12 +85,13 @@ const ReportUser = ({route}) => {
         const reportData = {
             description: description,
             email: user?.email,
-            ...(uploadedImageUrl && {imageURL: uploadedImageUrl}), // Add imageURL only if it's defined
+            imageURL: uploadedImageUrls, // Now sending an array of image URLs
+            // ...(uploadedImageUrl && {imageURL: uploadedImageUrl}), // Add imageURL only if it's defined
             type: 'REPORT',
             reportedByUserId: user?.id,
             userId: userID,
         };
-
+        console.log('Submitting report data:', reportData);
         try {
             const {success, message} = await sendAbuseReportToBackend(reportData);
             if (success) {
@@ -107,8 +115,40 @@ const ReportUser = ({route}) => {
 
         // Reset fields
         setDescription('');
-        setSelectedImage('');
+        setSelectedImages([]);
         setModalVisible(false);
+    };
+
+    const removeFromGallery = async (image: string) => {
+        console.log('removeFromGallery called with image:', image);
+        try {
+            const updatedUser = await deleteUserGalleryImage(image);
+            if (updatedUser) {
+                // Update local state to reflect changes
+                setSelectedImages(updatedUser.gallery);
+            } else {
+                console.log('Failed to delete image from gallery');
+                // Handle failure (e.g., show a notification to the user)
+            }
+        } catch (error) {
+            console.error('Error removing image from gallery:', error);
+            // Handle error (e.g., show a notification to the user)
+        }
+    };
+
+    const [selectedImage, setSelectedImage] = useState(null); // State for the selected image
+
+    // Function to handle image press
+    const handleImageEnlarge = imageUri => {
+        setSelectedImage(imageUri); // Set the selected image
+        setEnlargeModalVisible(true); // Open the modal
+    };
+
+    const [enlargeModalVisible, setEnlargeModalVisible] = useState(false); // State to control modal visibility
+
+    // Function to toggle the modal's visibility
+    const toggleEnlargeModal = () => {
+        setEnlargeModalVisible(!enlargeModalVisible);
     };
 
     return (
@@ -148,19 +188,34 @@ const ReportUser = ({route}) => {
                         </View>
                         <Text style={styles.instructionText}>Add a screenshot of the abuse you've encountered.</Text>
                         <View style={{alignItems: 'center', paddingBottom: 10}}>
-                            {selectedImage ? (
-                                <View>
-                                    <Image
-                                        source={{uri: selectedImage}}
-                                        style={{
-                                            width: SIZES.ScreenWidth / 3.55,
-                                            height: SIZES.ScreenWidth / 2.35,
-                                            margin: 5,
-                                            borderRadius: 5,
-                                        }}
+                            {selectedImages ? (
+                                <View style={styles.gallerycontainer}>
+                                    <FlatList
+                                        data={selectedImages}
+                                        numColumns={3}
+                                        showsHorizontalScrollIndicator={false}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        renderItem={({item}) => (
+                                            <View>
+                                                <Pressable onPress={() => handleImageEnlarge(item)}>
+                                                    <Image source={{uri: item}} style={styles.galleryImage} />
+                                                </Pressable>
+                                            </View>
+                                        )}
                                     />
                                 </View>
-                            ) : null}
+                            ) : // <View>
+                            //     <Image
+                            //         source={{uri: selectedImages}}
+                            //         style={{
+                            //             width: SIZES.ScreenWidth / 3.55,
+                            //             height: SIZES.ScreenWidth / 2.35,
+                            //             margin: 5,
+                            //             borderRadius: 5,
+                            //         }}
+                            //     />
+                            // </View>
+                            null}
                         </View>
 
                         <TouchableOpacity onPress={selectPostImage} style={styles.imagePickerButton}>
@@ -186,6 +241,21 @@ const ReportUser = ({route}) => {
                     }}>
                     <ReportResultModal closeModal={closeModal} type={modalType} />
                 </Modal>
+                <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
+                    <ErrorModal
+                        closeModal={() => setShowImageCountErrorModal(false)}
+                        message={'You cannot upload more than 6 images.'}
+                        iconcolor={COLORS.CATREDLGT}
+                        iconname={'alert-circle'}
+                    />
+                </Modal>
+                <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
+                    <EnlargeGalleryModal
+                        closeModal={toggleEnlargeModal}
+                        image={selectedImage}
+                        deleteImage={removeFromGallery}
+                    />
+                </Modal>
             </View>
         </TabContainer>
     );
@@ -199,7 +269,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 10,
         paddingBottom: 10,
-        
     },
     input: {
         borderWidth: 1,
@@ -221,6 +290,17 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingBottom: 20,
         width: '100%',
+    },
+    gallerycontainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+        width: '100%',
+    },
+    galleryImage: {
+        width: SIZES.ScreenWidth / 3.55,
+        height: SIZES.ScreenWidth / 2.35,
+        margin: 5,
+        borderRadius: 5,
     },
 });
 

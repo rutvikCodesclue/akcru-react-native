@@ -4,7 +4,7 @@ import styles from '../PurchaseMIT/styles';
 
 export default StyleSheet.create({
     input: {
-        width: "95%",
+        width: '95%',
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderColor: COLORS.LIGHTGREY,
@@ -51,5 +51,10 @@ export default StyleSheet.create({
     },
     iospickerbutton: {
         paddingHorizontal: 20,
+    },
+    gallerycontainer: {
+        marginBottom: 20,
+        alignItems: 'center',
+        width: '100%',
     },
 });
