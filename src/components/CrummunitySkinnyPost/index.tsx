@@ -10,6 +10,7 @@ import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
+import { IUserProfile } from '../../../types';
 
 type FooterIconsProps = {
     iconname: string;
@@ -68,6 +69,8 @@ type User = {
     influencer?: string;
     profilePicture?: string;
     firstName: string;
+    lastName: string;
+    email: string;
 };
 
 type PostStats = {
@@ -79,7 +82,7 @@ type PostStats = {
 type PostType = {
     id: string;
     content: string;
-    author: User;
+    author: IUserProfile;
     createdAt: string;
     numberOfComments?: number;
     numberOfReposts?: number;
@@ -94,6 +97,7 @@ type PostProps = {
     openProfile: () => void;
     onFollow: () => void;
     onUnfollow: () => void;
+    reportUser: () => void;
     isFollowing: boolean; // Add this to track follow status
     onDeletePost: (postId: number) => void;
     currentUserID?: string;
@@ -110,6 +114,7 @@ const SkinnyPostCard = ({
     openProfile,
     onFollow,
     onUnfollow,
+    reportUser,
     isFollowing,
     onDeletePost,
     currentUserID,
@@ -249,9 +254,14 @@ const SkinnyPostCard = ({
     const renderReportSkinny = () => {
         if (!isCurrentUserAuthor) {
             return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        reportUser(); // Call the report user function
+                        closePostOptions(); // Close the modal
+                    }}>
                     <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report Skinny</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
                 </Pressable>
             );
         }
@@ -350,7 +360,7 @@ const SkinnyPostCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {renderNotInterested()}
+                            {/* {renderNotInterested()} */}
                             {/* <Pressable
                                 style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                                 onPress={handleFollowPress}>
@@ -524,7 +534,7 @@ const SkinnyPostCard = ({
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
-                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested</Text>)}
+                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested User</Text>)}
             </View>
         </View>
     );

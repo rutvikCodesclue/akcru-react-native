@@ -31,10 +31,12 @@ import Suggestions from '../screens/userScreens/Suggestions';
 import Questions from '../screens/userScreens/Questions';
 import ReportUser from '../screens/userScreens/ReportUser';
 import UserNotification from '../screens/userScreens/UserNotifications/UserNotification';
+import BlockedUsers from '../screens/userScreens/BlockedUsers';
 
 
 
 export type NoBottomTabStackParams = {
+    BlockedUsers: any;
     UserNotification: any;
     ReportUser: any;
     Questions: any;
@@ -259,6 +261,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="UserNotification"
               component={UserNotification}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="BlockedUsers"
+              component={BlockedUsers}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

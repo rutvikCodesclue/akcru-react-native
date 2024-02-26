@@ -613,3 +613,58 @@ export const sendAbuseReportToBackend = async ({
         };
     }
 };
+
+// API client instance is assumed to be configured to include authorization headers
+
+export const blockUser = async (blockedId: string): Promise<{ success: boolean; message: string }> => {
+    try {
+        const response = await API.post('/v1/user/block-user', { blockedId });
+        if (response.data && response.data.success) {
+            console.log('User successfully blocked:', response.data);
+            return { success: true, message: 'User successfully blocked.' };
+        } else {
+            console.error('Failed to block user:', response.data.message);
+            return { success: false, message: response.data.message || 'Failed to block user.' };
+        }
+    } catch (error) {
+        console.error('Error blocking user:', error);
+        return { success: false, message: error.response?.data?.message || 'An error occurred while blocking the user.' };
+    }
+};
+
+export const getBlockedUsers = async (): Promise<{ success: boolean; message: string; blockedUsers?: IUserProfile[] }> => {
+    try {
+        const response = await API.get('/v1/user/blocked-users');
+        if (response.data && response.data.success) {
+            console.log('Retrieved blocked users successfully:', response.data.blockedUsers);
+            return { success: true, message: 'Blocked users retrieved successfully.', blockedUsers: response.data.blockedUsers };
+        } else {
+            console.error('Failed to retrieve blocked users:', response.data.message);
+            return { success: false, message: response.data.message || 'Failed to retrieve blocked users.' };
+        }
+    } catch (error) {
+        console.error('Error retrieving blocked users:', error);
+        return { success: false, message: error.response?.data?.message || 'An error occurred while retrieving blocked users.' };
+    }
+};
+
+// Function to unblock a user
+export const unblockUser = async (userIdToUnblock: string): Promise<{success: boolean; message?: string}> => {
+    try {
+        // Replace `/v1/user/unblock` with your actual endpoint path if different
+        const {data} = await API.post(`/v1/user/unblock`, {userIdToUnblock});
+
+        // Assuming your backend sends back a 'success' boolean and an optional 'message' in the response
+        if (data.success) {
+            console.log('User unblocked successfully:', data.message);
+            return {success: true, message: data.message};
+        } else {
+            console.error('Failed to unblock user:', data.message);
+            return {success: false, message: data.message};
+        }
+    } catch (error) {
+        console.error('Error unblocking user:', error);
+        return {success: false, message: 'An error occurred while trying to unblock the user.'};
+    }
+};
+

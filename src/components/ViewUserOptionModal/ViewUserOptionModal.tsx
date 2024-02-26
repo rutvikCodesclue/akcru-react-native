@@ -14,9 +14,12 @@ type ViewUserOptionModalProps = {
     followToggleText: string;
     followToggleIcon: string;
     followIconType: string;
+    unblockUser: () => void; // Add this
+    isBlocked: boolean; // Add this
+    blockToggleText: string; 
 };
 
-const ViewUserOptionModal = ({followIconType,followToggleIcon,followToggleText,closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
+const ViewUserOptionModal = ({blockToggleText, unblockUser, followIconType, followToggleIcon, followToggleText,closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
   return (
       <Pressable style={styles.postoptioncontainer} onPress={closeModal}>
           <View style={styles.postoptionsmodal}>
@@ -24,9 +27,13 @@ const ViewUserOptionModal = ({followIconType,followToggleIcon,followToggleText,c
                   <Icon name="eye" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                   <Text style={{...FONTS.Title2, paddingLeft: 12}}>{username} is watching </Text>
               </Pressable> */}
-              <Pressable onPress={blockUser} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+              <Pressable
+                  onPress={blockUser}
+                  style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                   <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                  <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {username}</Text>
+                  <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                     {blockToggleText} {username}
+                  </Text>
               </Pressable>
               <Pressable onPress={reportUser} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                   <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
@@ -34,7 +41,13 @@ const ViewUserOptionModal = ({followIconType,followToggleIcon,followToggleText,c
               </Pressable>
               <Pressable onPress={followUser}>
                   <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                      <Icon name="person" type={followIconType} color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                      <Icon
+                          name="person"
+                          type={followIconType}
+                          color={COLORS.MIDORANGE}
+                          size={20}
+                          style={{marginLeft: 5}}
+                      />
                       <Text style={{...FONTS.Title2, paddingLeft: 12}}>
                           {followToggleText} {username}
                       </Text>

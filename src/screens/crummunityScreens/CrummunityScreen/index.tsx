@@ -236,6 +236,19 @@ const handleDeletePost = async (postId: number) => {
         }
     };
 
+    const handleReportUser = (author: IUserProfile) => {
+        // Navigate to the report screen, passing the authorId
+        navigation2.navigate('ReportUser', {
+            authorId: author.id,
+            authorUsername: author.username,
+            authorFirstName: author.firstName,
+            authorProfilePicture: author.profilePicture,
+            authorBadge: author.badge,
+        });
+        console.log('Report user screen opened:', author);
+    };
+
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -320,6 +333,7 @@ const handleDeletePost = async (postId: number) => {
                                                 // onUnlike={onUnlike}
                                                 // onFollow={() => handleFollow(item.author.id)}
                                                 // onUnfollow={() => handleUnfollow(item.author.id)}
+                                                reportUser={() => handleReportUser(item.author)}
                                                 onDeletePost={handleDeletePost}
                                                 currentUserID={currentUserID || ''}
                                                 akcruBadge={item.author?.badge}

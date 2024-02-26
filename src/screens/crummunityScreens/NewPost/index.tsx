@@ -446,6 +446,7 @@ const NewPost = () => {
                                     </View>
                                 )}
                             />
+                            {selectedVideo && (
                             <View style={styles.postvideo}>
                                 <Video
                                     ref={videoRef}
@@ -458,7 +459,7 @@ const NewPost = () => {
                                     // onLoad={handleVideoLoad}
                                     muted={true}
                                 />
-                            </View>
+                            </View>)}
                         </View>
                     )}
                     {/* Picture Size Error Modal*/}

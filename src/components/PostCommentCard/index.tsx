@@ -10,6 +10,7 @@ import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
+import { IUserProfile } from '../../../types';
 
 type FooterIconsProps = {
     iconname: string;
@@ -79,7 +80,7 @@ type PostStats = {
 type PostType = {
     id: string;
     content: string;
-    author: User;
+    author: IUserProfile;
     createdAt: string;
     numberOfComments?: number;
     numberOfReposts?: number;
@@ -91,7 +92,7 @@ type PostType = {
 type CommentType = {
     id: string;
     content: string;
-    author: User;
+    author: IUserProfile;
     createdAt: string;
     numberOfComments?: number;
     numberOfReposts?: number;

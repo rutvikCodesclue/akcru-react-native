@@ -104,21 +104,12 @@ const BugReport = () => {
 
     };
 
-    const removeFromGallery = async (image: string) => {
-        console.log('removeFromGallery called with image:', image);
-        try {
-            const updatedUser = await deleteUserGalleryImage(image);
-            if (updatedUser) {
-                // Update local state to reflect changes
-                setSelectedImages(updatedUser.gallery);
-            } else {
-                console.log('Failed to delete image from gallery');
-                // Handle failure (e.g., show a notification to the user)
-            }
-        } catch (error) {
-            console.error('Error removing image from gallery:', error);
-            // Handle error (e.g., show a notification to the user)
-        }
+    const removeFromUpload = async imageUri => {
+        console.log('Attempting to remove image:', imageUri);
+        // Logic to remove image from your selectedImages state
+        const updatedImages = selectedImages.filter(img => img !== imageUri);
+        setSelectedImages(updatedImages);
+        // Any additional logic you might need after deletion
     };
 
     const [selectedImage, setSelectedImage] = useState(null); // State for the selected image
@@ -187,17 +178,7 @@ const BugReport = () => {
                                         )}
                                     />
                                 </View>
-                            ) : // <View>
-                            //     <Image
-                            //         source={{uri: selectedImages}}
-                            //         style={{
-                            //             width: SIZES.ScreenWidth / 3.55,
-                            //             height: SIZES.ScreenWidth / 2.35,
-                            //             margin: 5,
-                            //             borderRadius: 5,
-                            //         }}
-                            //     />
-                            // </View>
+                            ) : 
                             null}
                         </View>
 
@@ -236,7 +217,7 @@ const BugReport = () => {
                     <EnlargeGalleryModal
                         closeModal={toggleEnlargeModal}
                         image={selectedImage}
-                        deleteImage={removeFromGallery}
+                        deleteImage={removeFromUpload}
                     />
                 </Modal>
             </View>

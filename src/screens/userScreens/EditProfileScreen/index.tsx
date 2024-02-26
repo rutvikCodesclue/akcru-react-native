@@ -813,6 +813,19 @@ export default function EditProfile({session}: {session: Session}) {
                                     </View>
                                 </View>
                             </TouchableOpacity>
+                            <TouchableOpacity onPress={() => navigation2.navigate('BlockedUsers')}>
+                                <View style={{flexDirection: 'row', marginTop: 5}}>
+                                    <Text style={styles.settingslabel}>Blocked Users</Text>
+                                    <View style={{marginLeft: 5}}>
+                                        <Icon
+                                            name="account-cancel"
+                                            type="material-community"
+                                            color={COLORS.MIDORANGE}
+                                            size={20}
+                                        />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
                                     handleLogout();
