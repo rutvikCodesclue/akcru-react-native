@@ -14,12 +14,12 @@ type ViewUserOptionModalProps = {
     followToggleText: string;
     followToggleIcon: string;
     followIconType: string;
-    unblockUser: () => void; // Add this
-    isBlocked: boolean; // Add this
+
+  
     blockToggleText: string; 
 };
 
-const ViewUserOptionModal = ({blockToggleText, unblockUser, followIconType, followToggleIcon, followToggleText,closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
+const ViewUserOptionModal = ({blockToggleText, followIconType, followToggleIcon, followToggleText,closeModal, username, blockUser, reportUser, followUser, cruInviteUser}: ViewUserOptionModalProps) => {
   return (
       <Pressable style={styles.postoptioncontainer} onPress={closeModal}>
           <View style={styles.postoptionsmodal}>

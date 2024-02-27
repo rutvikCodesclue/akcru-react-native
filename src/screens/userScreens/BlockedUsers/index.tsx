@@ -34,7 +34,7 @@ const BlockedUsers = () => {
         const userIdToUnblock = userId;
         const {success, message} = await unblockUser(userIdToUnblock);
         if (success) {
-            Alert.alert('Success', 'User successfully unblocked');
+            // Alert.alert('Success', 'User successfully unblocked');
             fetchBlockedUsers(); // Refresh the list of blocked users
         } else {
             Alert.alert('Error', `Failed to unblock user: ${message}`);

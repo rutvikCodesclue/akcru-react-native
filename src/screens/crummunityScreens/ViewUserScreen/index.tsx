@@ -41,6 +41,8 @@ import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../components/akcruButtons';
+import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
+import { set } from 'lodash';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
@@ -371,6 +373,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
     
         const isUserBlocked = blockedUsers.some(blockedUser => blockedUser.id === userID);
 
+        const [blockUserModal, setBlockUserModal] = useState(false);
+        const [modalType, setModalType] = useState('');
+        const [blockUserMessage, setBlockUserMessage] = useState('');
+        const [iconName, setIconName] = useState('');
+
+        const closeModal = () => {
+            setBlockUserModal(false);
+        };
+
+
         const handleBlockUserPress = async () => {
             console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
 
@@ -378,35 +390,58 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 try {
                     const {success, message} = await unblockUser(userID); // Assuming userID is the ID of the user to unblock
                     if (success) {
-                        Alert.alert('User successfully unblocked');
+                        // Alert.alert('User successfully unblocked');
+                        setModalType('success');
+                        setBlockUserMessage('User successfully unblocked');
+                        setBlockUserModal(true);
+                        setIconName('account-check');
                         // setIsUserBlocked(false); // Update state to reflect the change
                         fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
                         setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
                     } else {
-                        Alert.alert('Error', `Failed to unblock user: ${message}`);
+                        // Alert.alert('Error', `Failed to unblock user: ${message}`);
+                        setModalType('failed');
+                        setBlockUserMessage('Failed to unblock user');
+                        setIconName('alert-circle');
+                        setBlockUserModal(true);
                     }
                 } catch (error) {
                     console.error('Error on unblock:', error);
-                    Alert.alert('Error', 'An error occurred while trying to unblock the user.');
+                    // Alert.alert('Error', 'An error occurred while trying to unblock the user.');
+                    setModalType('error');
+                    setBlockUserMessage('An error occurred while trying to unblock the user.');
+                    setBlockUserModal(true);
+                    setIconName('alert-circle');
                 }
             } else {
                 try {
                     const {success, message} = await blockUser(userID); // Assuming userID is the ID of the user to block
                     if (success) {
-                        Alert.alert('User successfully blocked');
+                        // Alert.alert('User successfully blocked');
+                        setModalType('success');
+                        setBlockUserMessage('User successfully blocked');
+                        setBlockUserModal(true);
+                        setIconName('hand-back-left');
                         // setIsUserBlocked(true); // Update state to reflect the change
                         fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
                         setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
                     } else {
-                        Alert.alert('Error', `Failed to block user: ${message}`);
+                        // Alert.alert('Error', `Failed to block user: ${message}`);
+                        setModalType('failed');
+                        setBlockUserMessage('Failed to block user');
+                        setIconName('alert-circle');
+                        setBlockUserModal(true);
                     }
                 } catch (error) {
                     console.error('Error on block:', error);
-                    Alert.alert('Error', 'An error occurred while trying to block the user.');
+                    // Alert.alert('Error', 'An error occurred while trying to block the user.');
+                    setModalType('error');
+                    setBlockUserMessage('An error occurred while trying to block the user.');
+                    setBlockUserModal(true);
+                    setIconName('alert-circle');
                 }
             }
         };
-
 
     return (
         <TabContainer>
@@ -682,7 +717,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </View>
                                 </Modal>
 
-                                <Modal visible={userOptionModal} transparent={true} animationType='fade'>
+                                <Modal visible={userOptionModal} transparent={true} animationType="fade">
                                     <ViewUserOptionModal
                                         username={user?.username}
                                         closeModal={() => setUserOptionModal(false)}
@@ -690,7 +725,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             handleBlockUserPress();
                                             setUserOptionModal(false);
                                         }}
-
                                         reportUser={handleReportUser}
                                         followUser={() => {
                                             handleFollowPress();
@@ -913,6 +947,15 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         />
                     </TouchableOpacity>
                 )}
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={blockUserModal}
+                    onRequestClose={() => {
+                        setBlockUserModal(!blockUserModal);
+                    }}>
+                    <BlockUserResultModal closeModal={closeModal} type={modalType} resultMessage={blockUserMessage} iconName={iconName} />
+                </Modal>
             </SafeAreaView>
         </TabContainer>
     );

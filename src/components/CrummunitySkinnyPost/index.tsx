@@ -107,6 +107,7 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
+    
 };
 
 const SkinnyPostCard = ({
@@ -121,7 +122,8 @@ const SkinnyPostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
-    isSuggestedUser
+    isSuggestedUser,
+    
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -279,12 +281,23 @@ const SkinnyPostCard = ({
         return null;
     };
 
-    const handleFollowPress = () => {
-        if (isFollowing) {
-            onUnfollow();
-        } else {
-            onFollow();
+    const renderFollowUser = () => {
+        if (!isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        onFollow(); // Call the report user function
+                        closePostOptions(); // Close the modal
+                    }}>
+                    <Icon name="person" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                        {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
+                    </Text>
+                </Pressable>
+            );
         }
+        return null;
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
@@ -375,6 +388,7 @@ const SkinnyPostCard = ({
                                     {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
                                 </Text>
                             </Pressable> */}
+                            {renderFollowUser()}
                             {renderMuteUser()}
                             {renderBlockUser()}
                             {renderDeleteSkinny()}
