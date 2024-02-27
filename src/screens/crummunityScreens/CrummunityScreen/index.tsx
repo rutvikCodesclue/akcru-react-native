@@ -23,7 +23,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {followUser, unfollowUser} from '../../../lib/api/user.lib';
+import {followUser, getUserFollowing, unfollowUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
@@ -204,37 +204,68 @@ const handleDeletePost = async (postId: number) => {
     }
 };
 
-    // Function to handle follow action
-    const handleFollow = async (userId: string) => {
-        try {
-            const success = await followUser({userId});
-            if (success) {
-                setPosts(prevPosts =>
-                    prevPosts.map(post =>
-                        post.author.id === userId ? {...post, author: {...post.author, isFollowed: true}} : post,
-                    ),
-                );
-            }
-        } catch (error) {
-            console.error('Error following user:', error);
+const handleFollow = async (user: {
+    id: string;
+    badge?: string;
+    description?: string;
+    firstName?: string;
+    lastName?: string;
+    profilePicture?: string;
+    username?: string;
+    isFollowed?: boolean; // Assuming this property is available to determine if the user is followed
+}) => {
+    console.log('handleFollow', user);
+    try {
+        let success = false;
+
+        // Toggle the follow/unfollow based on the current state
+        if (user.isFollowed) {
+            // If the user is currently followed, unfollow them
+            success = await unfollowUser({userId: user.id});
+        } else {
+            // If the user is currently not followed, follow them
+            success = await followUser({userId: user.id});
         }
+
+        if (success) {
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.author.id === user.id
+                        ? {...post, author: {...post.author, isFollowed: !post.author.isFollowed}}
+                        : post,
+                ),
+            );
+        }
+    } catch (error) {
+        console.error('Error toggling follow state:', error);
+    }
+};
+
+
+    const handleReportUser = (author: IUserProfile) => {
+        // Navigate to the report screen, passing the authorId
+        navigation2.navigate('ReportUser', {
+            authorId: author.id,
+            authorUsername: author.username,
+            authorFirstName: author.firstName,
+            authorProfilePicture: author.profilePicture,
+            authorBadge: author.badge,
+        });
+        console.log('Report user screen opened:', author);
     };
 
-    // Function to handle unfollow action
-    const handleUnfollow = async (userId: string) => {
-        try {
-            const success = await unfollowUser({userId});
-            if (success) {
-                setPosts(prevPosts =>
-                    prevPosts.map(post =>
-                        post.author.id === userId ? {...post, author: {...post.author, isFollowed: false}} : post,
-                    ),
-                );
+    const [followingList, setFollowingList] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await getUserFollowing(currentUserID);
+            if (result && result.following && Array.isArray(result.following)) {
+                setFollowingList(result.following); // Set the 'following' array as your data
             }
-        } catch (error) {
-            console.error('Error unfollowing user:', error);
-        }
-    };
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <TabContainer>
@@ -312,23 +343,25 @@ const handleDeletePost = async (postId: number) => {
                                     renderItem={({item}) => (
                                         <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
+                                            
                                                 post={item}
                                                 openProfile={() =>
                                                     navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
-                                                // onLike={onLike}
-                                                // onUnlike={onUnlike}
-                                                // onFollow={() => handleFollow(item.author.id)}
-                                                // onUnfollow={() => handleUnfollow(item.author.id)}
+                                                onFollow={() => handleFollow(item.author)}
+                                                reportUser={() => handleReportUser(item.author)}
                                                 onDeletePost={handleDeletePost}
                                                 currentUserID={currentUserID || ''}
                                                 akcruBadge={item.author?.badge}
                                                 isPostLiked={item.isLikedByCurrentUser}
                                                 onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
                                                 CommentOnPostButton={() =>
-                                                    navigation.navigate('NewComment', {postId: item.id})
+                                                    navigation2.navigate('NewComment', {postId: item.id})
                                                 }
+                                                isFollowing={followingList.includes(item.author.id)}
+                                                
                                             />
+                                            
                                         </Pressable>
                                     )}
                                     ListFooterComponent={() =>
@@ -350,6 +383,7 @@ const handleDeletePost = async (postId: number) => {
                                             </TouchableOpacity>
                                         ) : null
                                     }
+                                    
                                 />
                             )}
                         </View>

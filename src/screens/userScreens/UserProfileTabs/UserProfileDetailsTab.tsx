@@ -375,7 +375,7 @@ const UserProfileDetailsTab = () => {
                             marginBottom: 10,
                         }}
                     />
-                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                    <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
                     <AkcruButtons.LrgButton btnname={"Add to Gallery"} onPress={selectGalleryImage} color={COLORS.PURPLE} disabled={false}/>
                     </View>
                     {/* <TouchableOpacity
