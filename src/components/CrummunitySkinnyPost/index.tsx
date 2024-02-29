@@ -107,7 +107,7 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
-    
+    onBlockUser: () => void;
 };
 
 const SkinnyPostCard = ({
@@ -123,6 +123,7 @@ const SkinnyPostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     isSuggestedUser,
+    onBlockUser
     
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -245,7 +246,11 @@ const SkinnyPostCard = ({
     const renderBlockUser = () => {
         if (!isCurrentUserAuthor) {
             return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}} 
+                onPress={() => {
+                        onBlockUser();
+                        closePostOptions(); // Close the modal
+                    }}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                 </Pressable>
@@ -389,7 +394,7 @@ const SkinnyPostCard = ({
                                 </Text>
                             </Pressable> */}
                             {renderFollowUser()}
-                            {renderMuteUser()}
+                            {/* {renderMuteUser()} */}
                             {renderBlockUser()}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}

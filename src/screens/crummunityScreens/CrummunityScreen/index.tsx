@@ -9,6 +9,7 @@ import {
   SafeAreaView,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
@@ -16,18 +17,20 @@ import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
 import { IPost, IUserProfile } from '../../../../types';
 import { StackNavigationProp } from '@react-navigation/stack';
-import {followUser, getUserFollowing, unfollowUser} from '../../../lib/api/user.lib';
+import {blockUser, findAUser, followUser, getBlockedUsers, getUserFollowing, unblockUser, unfollowUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import HexShape from '../../../components/HexShape';
+import { toggleFollow } from '../../../lib/api/user.lib';
+import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -58,7 +61,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    
+    const [blockedUsers, setBlockedUsers] = useState([]);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -69,70 +72,185 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     }, [navigation]);
 
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            setLoading(true);
-            try {
-                const fetchedPosts = await getPosts(1); // Fetch the first page
+    // useEffect(() => {
+    //     const fetchPosts = async () => {
+    //         setLoading(true);
+    //         try {
+    //             const fetchedPosts = await getPosts(1); // Fetch the first page
     
-                if (fetchedPosts && fetchedPosts.length > 0) {
-                    setPosts(fetchedPosts);
-                    setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page
-                    setPage(1);
-                    const newLikedPosts = new Set();
-                    fetchedPosts.forEach(post => {
-                        if (post.isLikedCurrentUser) {
-                            newLikedPosts.add(post.id);
-                        }
-                    });
-                    setLikedPosts(newLikedPosts);
-                } else {
-                    console.log('No posts fetched');
-                    setHasMore(false);
-                }
-            } catch (error) {
-                console.error('Failed to fetch posts:', error);
-                setError(error.message || 'Failed to fetch posts');
-            } finally {
-                setLoading(false);
-                setLoadingPosts(false);
-            }
-        };
+    //             if (fetchedPosts && fetchedPosts.length > 0) {
+    //                 setPosts(fetchedPosts);
+    //                 setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page
+    //                 setPage(1);
+    //                 const newLikedPosts = new Set();
+    //                 fetchedPosts.forEach(post => {
+    //                     if (post.isLikedCurrentUser) {
+    //                         newLikedPosts.add(post.id);
+    //                     }
+    //                 });
+    //                 setLikedPosts(newLikedPosts);
+    //             } else {
+    //                 console.log('No posts fetched');
+    //                 setHasMore(false);
+    //             }
+    //         } catch (error) {
+    //             console.error('Failed to fetch posts:', error);
+    //             setError(error.message || 'Failed to fetch posts');
+    //         } finally {
+    //             setLoading(false);
+    //             setLoadingPosts(false);
+    //         }
+    //     };
 
+    //     const handleFocus = () => {
+    //         console.log('Screen gained focus');
+    //         fetchPosts(); // Call fetchPosts when screen gains focus
+    //     };
+
+    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
+
+    //     fetchPosts(); // Initial fetch
+
+    //     return () => {
+    //         unsubscribeFocus();
+    //         console.log('Screen lost focus');
+    //     };
+    // }, [navigation, currentUserID]);
+
+
+    // const loadMorePosts = async () => {
+    //     if (!hasMore) return; // Do nothing if there are no more posts to load
+
+    //     setIsLoadingMore(true);
+    //     try {
+    //         const additionalPosts = await getPosts(page + 1);
+    //         if (additionalPosts.length > 0) {
+    //             setPosts(prevPosts => [...prevPosts, ...additionalPosts]);
+    //             setPage(page + 1); // Increment the page number
+    //         } else {
+    //             setHasMore(false); // No more posts to load
+    //         }
+    //     } catch (error) {
+    //         console.error('Failed to load more posts:', error);
+    //     } finally {
+    //         setIsLoadingMore(false);
+    //     }
+    // };
+
+    // const fetchPostsAndFollowStatus = async pageNumber => {
+    //     setLoading(true);
+    //     try {
+    //         // Fetch posts
+    //         const fetchedPosts = await getPosts(pageNumber);
+
+    //         // Fetch following status if the user is logged in
+    //         let followingIds = new Set();
+    //         if (currentUserID) {
+    //             const followingResponse = await getUserFollowing(currentUserID);
+    //             followingIds = new Set(followingResponse.following.map(user => user.id));
+    //         }
+
+    //         // Update posts with isFollowed status
+    //         const updatedPosts = fetchedPosts.map(post => ({
+    //             ...post,
+    //             author: {
+    //                 ...post.author,
+    //                 isFollowed: followingIds.has(post.author.id),
+    //             },
+    //         }));
+
+    //         if (pageNumber === 1) {
+    //             setPosts(updatedPosts);
+    //         } else {
+    //             setPosts(prevPosts => [...prevPosts, ...updatedPosts]);
+    //         }
+
+    //         setHasMore(fetchedPosts.length === 10);
+    //         setPage(pageNumber);
+    //     } catch (error) {
+    //         console.error('Failed to fetch posts or follow status:', error);
+    //         setError(error.message || 'Failed to fetch data');
+    //     } finally {
+    //         setLoading(false);
+    //         setLoadingPosts(false);
+    //     }
+    // };
+
+    const fetchPostsAndFollowStatus = async pageNumber => {
+        setLoading(true);
+        try {
+            // Fetch posts
+            const fetchedPosts = await getPosts(pageNumber);
+
+            // Initialize sets for following and blocked user IDs
+            let followingIds = new Set();
+            let blockedUserIds = new Set();
+
+            if (currentUserID) {
+                // Fetch following status
+                const followingResponse = await getUserFollowing(currentUserID);
+                followingIds = new Set(followingResponse?.following.map(user => user.id));
+
+                // Fetch blocked users status
+                const blockedResponse = await getBlockedUsers(); // Assuming this function exists and returns a list of blocked user IDs
+                blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+            }
+
+            // Update posts with isFollowed and isBlocked status
+            const updatedPosts = fetchedPosts.map(post => ({
+                ...post,
+                author: {
+                    ...post.author,
+                    isFollowed: followingIds.has(post.author.id),
+                    isBlocked: blockedUserIds.has(post.author.id), // Add blocked status
+                },
+            }));
+
+            if (pageNumber === 1) {
+                setPosts(updatedPosts);
+            } else {
+                setPosts(prevPosts => [...prevPosts, ...updatedPosts]);
+            }
+
+            setHasMore(fetchedPosts.length === 10);
+            setPage(pageNumber);
+        } catch (error) {
+            console.error('Failed to fetch posts or follow/block status:', error);
+            setError(error.message || 'Failed to fetch data');
+        } finally {
+            setLoading(false);
+            setLoadingPosts(false);
+        }
+    };
+
+
+    useEffect(() => {
         const handleFocus = () => {
             console.log('Screen gained focus');
-            fetchPosts(); // Call fetchPosts when screen gains focus
+            fetchPostsAndFollowStatus(1); // Fetch the first page of posts along with follow status
         };
 
         const unsubscribeFocus = navigation.addListener('focus', handleFocus);
 
-        fetchPosts(); // Initial fetch
+        // Initial fetch
+        fetchPostsAndFollowStatus(1);
 
         return () => {
             unsubscribeFocus();
             console.log('Screen lost focus');
         };
-    }, [navigation, currentUserID]);
-
+    }, [navigation, currentUserID]); // Depend on currentUserID to refetch if it changes
 
     const loadMorePosts = async () => {
         if (!hasMore) return; // Do nothing if there are no more posts to load
 
         setIsLoadingMore(true);
-        try {
-            const additionalPosts = await getPosts(page + 1);
-            if (additionalPosts.length > 0) {
-                setPosts(prevPosts => [...prevPosts, ...additionalPosts]);
-                setPage(page + 1); // Increment the page number
-            } else {
-                setHasMore(false); // No more posts to load
-            }
-        } catch (error) {
-            console.error('Failed to load more posts:', error);
-        } finally {
-            setIsLoadingMore(false);
-        }
+        // Use the modified function to fetch more posts along with follow status
+        await fetchPostsAndFollowStatus(page + 1);
+        setIsLoadingMore(false);
     };
+
+
 
     const handlePostPress = (postId: number) => {
         const selectedPost = posts.find(post => +post.id === postId);
@@ -143,9 +261,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             // Handle the case when the post is not found
             console.error('Error: Post not found');
         }
-    };
-
-    
+    };   
 
 const onLikeOrUnlike = async (postId: number) => {
     try {
@@ -204,40 +320,21 @@ const handleDeletePost = async (postId: number) => {
     }
 };
 
-const handleFollow = async (user: {
-    id: string;
-    badge?: string;
-    description?: string;
-    firstName?: string;
-    lastName?: string;
-    profilePicture?: string;
-    username?: string;
-    isFollowed?: boolean; // Assuming this property is available to determine if the user is followed
-}) => {
-    console.log('handleFollow', user);
-    try {
-        let success = false;
-
-        // Toggle the follow/unfollow based on the current state
-        if (user.isFollowed) {
-            // If the user is currently followed, unfollow them
-            success = await unfollowUser({userId: user.id});
-        } else {
-            // If the user is currently not followed, follow them
-            success = await followUser({userId: user.id});
-        }
-
-        if (success) {
-            setPosts(prevPosts =>
-                prevPosts.map(post =>
-                    post.author.id === user.id
-                        ? {...post, author: {...post.author, isFollowed: !post.author.isFollowed}}
-                        : post,
-                ),
-            );
-        }
-    } catch (error) {
-        console.error('Error toggling follow state:', error);
+const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
+    console.log('handleFollow', authorId);
+    const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+    if (updatedStatus !== undefined) {
+        setPosts(prevPosts =>
+            prevPosts.map(post => {
+                if (post.author.id === authorId) {
+                    // Update the follow status
+                    return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
+                }
+                return post;
+            }),
+        );
+    } else {
+        console.error('Failed to update follow status');
     }
 };
 
@@ -254,18 +351,41 @@ const handleFollow = async (user: {
         console.log('Report user screen opened:', author);
     };
 
-    const [followingList, setFollowingList] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            const result = await getUserFollowing(currentUserID);
-            if (result && result.following && Array.isArray(result.following)) {
-                setFollowingList(result.following); // Set the 'following' array as your data
-            }
-        };
+const [blockUserModal, setBlockUserModal] = useState(false);
+const [modalType, setModalType] = useState('');
+const [blockUserMessage, setBlockUserMessage] = useState('');
+const [iconName, setIconName] = useState('');
 
-        fetchData();
-    }, []);
+const closeModal = () => {
+    setBlockUserModal(false);
+};
+
+
+const handleToggleBlockUser = async authorId => {
+    // Since you won't need to check for unblocking on this screen,
+    // we directly proceed with the blocking logic
+    let response = await blockUser(authorId);
+
+    if (response.success) {
+        // Update the blockedUsers state by adding the newly blocked user
+        // Note: You might need to adjust this part depending on the structure of your `response`
+        setBlockedUsers(prev => [...prev, {id: authorId}]);
+
+        // Optionally, remove the blocked user's posts from the view
+        setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
+
+        // Alert.alert('Success', 'User blocked successfully.');
+        setModalType('success');
+        setBlockUserMessage('User successfully blocked');
+        setBlockUserModal(true);
+        setIconName('hand-back-left');
+    } else {
+        // Handle the error case
+        Alert.alert('Error', 'Failed to block user.');
+    }
+};
+
 
     return (
         <TabContainer>
@@ -343,12 +463,11 @@ const handleFollow = async (user: {
                                     renderItem={({item}) => (
                                         <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
-                                            
                                                 post={item}
                                                 openProfile={() =>
                                                     navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
-                                                onFollow={() => handleFollow(item.author)}
+                                                // onFollow={() => handleFollow(item.author)}
                                                 reportUser={() => handleReportUser(item.author)}
                                                 onDeletePost={handleDeletePost}
                                                 currentUserID={currentUserID || ''}
@@ -358,10 +477,15 @@ const handleFollow = async (user: {
                                                 CommentOnPostButton={() =>
                                                     navigation2.navigate('NewComment', {postId: item.id})
                                                 }
-                                                isFollowing={followingList.includes(item.author.id)}
-                                                
+                                                isFollowing={item.author.isFollowed}
+                                                onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
+                                                onBlockUser={() =>
+                                                    handleToggleBlockUser(
+                                                        item.author.id,
+                                                        item.author.isCurrentlyBlocked,
+                                                    )
+                                                }
                                             />
-                                            
                                         </Pressable>
                                     )}
                                     ListFooterComponent={() =>
@@ -383,7 +507,6 @@ const handleFollow = async (user: {
                                             </TouchableOpacity>
                                         ) : null
                                     }
-                                    
                                 />
                             )}
                         </View>
@@ -397,6 +520,15 @@ const handleFollow = async (user: {
                         </View>
                     </Pressable>
                 </View>
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={blockUserModal}
+                    onRequestClose={() => {
+                        setBlockUserModal(!blockUserModal);
+                    }}>
+                    <BlockUserResultModal closeModal={closeModal} type={modalType} resultMessage={blockUserMessage} iconName={iconName} />
+                </Modal>
             </SafeAreaView>
         </TabContainer>
     );

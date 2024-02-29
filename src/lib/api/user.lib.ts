@@ -243,6 +243,44 @@ export const updateUserWatchTime = async (params: {
     TODO: test these
 */
 
+// export const toggleFollow = async (
+//     targetUserId: string,
+// ): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
+//     try {
+//         const response = await API.post('/v1/user/toggle-follow', {
+//             targetUserId: targetUserId,
+//         });
+
+//         // Make sure to return the actual data from the API response
+//         return response.data;
+//     } catch (error) {
+//         console.error('Error in toggleFollow:', error);
+//         // Return a default error response
+//         return {
+//             success: false,
+//             isFollowing: false,
+//             message: 'An error occurred while attempting to toggle follow status.',
+//         };
+//     }
+// };
+
+export const toggleFollow = async (targetUserId: string): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
+    try {
+        const response = await API.post('/v1/user/toggle-follow', {
+            targetUserId: targetUserId,
+        });
+
+        // Make sure to return the actual data from the API response
+        return response.data;
+    } catch (error) {
+        console.error('Error in toggleFollow:', error);
+        // Return a default error response
+        return { success: false, isFollowing: false, message: 'An error occurred while attempting to toggle follow status.' };
+    }
+};
+
+
+
 export const followUser = async (params: {userId?: string}): Promise<boolean | undefined> => {
     try {
         const {userId} = params;
