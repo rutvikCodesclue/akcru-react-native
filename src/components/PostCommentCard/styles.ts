@@ -10,12 +10,11 @@ export default StyleSheet.create({
     },
     post: {
         ...FONTS.paragraph1,
-        fontSize: 12,
+      
         lineHeight: 18,
     },
     footStats: {
-        ...FONTS.paragraph1,
-        fontSize: 12,
+        ...FONTS.paragraph1,   
         lineHeight: 18,
         color: COLORS.AKCRUBLUE,
         opacity: 0.5,

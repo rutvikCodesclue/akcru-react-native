@@ -331,7 +331,7 @@ const PostCommentCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{userName}</Text>
+                        <Text style={{...FONTS.Username}}>{userName}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -342,7 +342,7 @@ const PostCommentCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
+                    <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -366,7 +366,7 @@ const PostCommentCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>

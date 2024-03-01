@@ -216,7 +216,8 @@ const MovieDetailCard = ({
                             position: 'absolute',
                             left: 0,
                             right: 0,
-                            top: -250,
+                            // top: -250,
+                            top: SIZES.ScreenHeight * -0.32,
                             marginHorizontal: 15,
                         }}>
                         <View
@@ -289,7 +290,7 @@ const MovieDetailCard = ({
                         marginBottom: 10,
                     }}>
                     <View style={{width: '100%'}}>
-                        <Text style={{...FONTS.Title3, fontSize: 18}}>{title}</Text>
+                        <Text style={{...FONTS.ContentTitle}}>{title}</Text>
                     </View>
                 </View>
                 <View

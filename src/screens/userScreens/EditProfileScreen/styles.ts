@@ -65,7 +65,7 @@ export default StyleSheet.create({
         alignSelf: 'flex-start',
     },
     settingslabel: {
-        ...FONTS.Title2White,
+        ...FONTS.paragraph2,
         marginLeft: 5,
         color: COLORS.MIDORANGE,
     },

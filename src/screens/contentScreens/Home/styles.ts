@@ -18,7 +18,7 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight / 2,
         width: SIZES.ScreenWidth,
         zindex: 1,
-        marginTop: -125,
+        marginTop: SIZES.ScreenHeight * -0.09,
     },
     buttons: {
         flexDirection: 'row',
@@ -36,14 +36,12 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     bigTitle: {
-        ...FONTS.Title3,
-        fontSize: 25,
-        width: 250,
+        ...FONTS.HeroTitle,
+        width: '75%',
     },
     desc: {
-        ...FONTS.Title2,
+        ...FONTS.Username,
         marginBottom: 10,
-        fontSize: 12
     },
     activitycontainer: {
         height: SIZES.ScreenHeight,

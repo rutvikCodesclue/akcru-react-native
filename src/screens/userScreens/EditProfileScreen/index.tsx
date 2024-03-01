@@ -391,7 +391,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     }}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title2AkcruBlue,
+                                            ...FONTS.paragraph2,
                                             marginTop: 10,
                                             color: COLORS.MIDORANGE,
                                         }}>
@@ -682,7 +682,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </View>
 
-                        <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
+                        <Text style={{...FONTS.paragraph2, textAlign: 'center'}}>
                             At Akcru, your movie-watching preferences shape your unique archetype. This personalized
                             "Archetype" guides us in curating the finest movie recommendations for you, as well as
                             connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
@@ -756,7 +756,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </Pressable>
 
                             {archetype && (
-                                <Text style={{...FONTS.paragraph1, textAlign: 'center', marginVertical: 10}}>
+                                <Text style={{...FONTS.paragraph2, textAlign: 'center', marginVertical: 10}}>
                                     {archetype ? archetype.description : 'No Archetype Selected'}
                                 </Text>
                             )}

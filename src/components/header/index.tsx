@@ -95,7 +95,7 @@ const Header = () => {
                                 name="magnify"
                                 type="material-community"
                                 color={COLORS.LIGHTGREY}
-                                size={28}
+                                size={25}
                                 onPress={() => navigation.navigate('SearchMovieScreen')}
                             />
                         </TouchableOpacity>

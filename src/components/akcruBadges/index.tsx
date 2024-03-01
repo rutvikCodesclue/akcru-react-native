@@ -18,8 +18,7 @@ const AkcruBadgeGuardian = () => {
         }}>
         <Text
           style={{
-            ...FONTS.Title1,
-            fontSize: 12,
+            ...FONTS.Akcrubadges,
             color: AKCRUBADGES.Guardian.color,
           }}>
           {AKCRUBADGES.Guardian.label}
@@ -45,8 +44,7 @@ const AkcruBadgeSuperHero = () => {
         }}>
         <Text
           style={{
-            ...FONTS.Title1,
-            fontSize: 12,
+            ...FONTS.Akcrubadges,
             color: AKCRUBADGES.SuperHero.color,
           }}>
           {AKCRUBADGES.SuperHero.label}
@@ -72,8 +70,7 @@ const AkcruBadgeHero = () => {
         }}>
         <Text
           style={{
-            ...FONTS.Title1,
-            fontSize: 12,
+            ...FONTS.Akcrubadges,
             color: AKCRUBADGES.Hero.color,
           }}>
           {AKCRUBADGES.Hero.label}
@@ -99,8 +96,7 @@ const AkcruBadgeAkcruit = () => {
         }}>
         <Text
           style={{
-            ...FONTS.Title1,
-            fontSize: 12,
+            ...FONTS.Akcrubadges,
             color: AKCRUBADGES.Akcruit.color,
           }}>
           {AKCRUBADGES.Akcruit.label}

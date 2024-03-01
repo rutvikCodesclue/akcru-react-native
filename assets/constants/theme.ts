@@ -12,7 +12,7 @@ export const SIZES = {
   marginhorizontal: 15,
   marginvertical: 10,
   //element size
-  SmallIcon: 25,
+  SmallIcon: 23,
   MedIcon: 28,
   CatBtnSize: {
     width: 80,
@@ -58,6 +58,11 @@ export const COLORS = {
 };
 
 export const FONTS = {
+    Akcrubadges: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: getFontSize(12),
+        color: COLORS.LIGHTGREY,
+    },
     Title1: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: getFontSize(16),
@@ -78,9 +83,19 @@ export const FONTS = {
         fontSize: getFontSize(12),
         color: COLORS.LIGHTGREY,
     },
+    paragraph2: {
+        fontFamily: 'Montserrat-Regular',
+        fontSize: getFontSize(14),
+        color: COLORS.LIGHTGREY,
+    },
     chart: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 10,
+        fontSize: getFontSize(10),
+        color: COLORS.LIGHTGREY,
+    },
+    ContentTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: getFontSize(18),
         color: COLORS.LIGHTGREY,
     },
     Title3: {
@@ -88,19 +103,24 @@ export const FONTS = {
         fontSize: getFontSize(14),
         color: COLORS.LIGHTGREY,
     },
+    HeroTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: getFontSize(25),
+        color: COLORS.LIGHTGREY,
+    },
     Title2Orange: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 12,
+        fontSize: getFontSize(12),
         color: COLORS.DARKORANGE,
     },
     Title2White: {
         fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
+        fontSize: getFontSize(12),
         color: COLORS.LIGHTGREY,
     },
     Title2AkcruBlue: {
         fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
+        fontSize: getFontSize(12),
         color: COLORS.AKCRUBLUE,
     },
 };

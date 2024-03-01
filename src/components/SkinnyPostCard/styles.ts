@@ -9,13 +9,11 @@ export default StyleSheet.create({
         marginHorizontal: 15,
     },
     post: {
-        ...FONTS.paragraph1,
-        fontSize: 14,
+        ...FONTS.paragraph2,
         lineHeight: 18,
     },
     footStats: {
         ...FONTS.paragraph1,
-        fontSize: 12,
         lineHeight: 18,
         color: COLORS.AKCRUBLUE,
         opacity: 0.5,

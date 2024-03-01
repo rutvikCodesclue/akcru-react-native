@@ -320,8 +320,8 @@ const handleToggleBlockUser = async authorId => {
                                                 name="magnify"
                                                 type="material-community"
                                                 color={COLORS.AKCRUBLUE}
-                                                size={28}
-                                                style={{marginRight: 10}}
+                                                size={25}
+                                                style={{marginRight: '2%'}}
                                             />
                                             <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Search users</Text>
                                         </View>
@@ -335,7 +335,7 @@ const handleToggleBlockUser = async authorId => {
                                         name="account-group"
                                         type="material-community"
                                         color={COLORS.AKCRUBLUE}
-                                        size={25}
+                                        size={23}
                                     />
                                 </View>
                             </View>

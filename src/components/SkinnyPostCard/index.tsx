@@ -314,7 +314,7 @@ const PostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -325,7 +325,7 @@ const PostCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
+                    <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -349,7 +349,7 @@ const PostCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
