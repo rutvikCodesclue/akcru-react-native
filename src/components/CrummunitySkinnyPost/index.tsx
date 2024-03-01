@@ -553,7 +553,7 @@ const SkinnyPostCard = ({
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
-                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested User</Text>)}
+                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE}}>Suggested User</Text>)}
             </View>
         </View>
     );

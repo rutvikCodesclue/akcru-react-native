@@ -1,6 +1,9 @@
-import {Dimensions} from 'react-native';
+import {Dimensions, PixelRatio} from 'react-native';
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
+
+const fontScale = PixelRatio.getFontScale();
+const getFontSize = (size: number) => size / fontScale;
 
 export const SIZES = {
   //screen size
@@ -57,17 +60,22 @@ export const COLORS = {
 export const FONTS = {
     Title1: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 16,
+        fontSize: getFontSize(16),
         color: COLORS.LIGHTGREY,
     },
     Title2: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 14,
+        fontSize: getFontSize(14),
+        color: COLORS.LIGHTGREY,
+    },
+    Username: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: getFontSize(12),
         color: COLORS.LIGHTGREY,
     },
     paragraph1: {
         fontFamily: 'Montserrat-Regular',
-        fontSize: 14,
+        fontSize: getFontSize(12),
         color: COLORS.LIGHTGREY,
     },
     chart: {
@@ -77,7 +85,7 @@ export const FONTS = {
     },
     Title3: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 14,
+        fontSize: getFontSize(14),
         color: COLORS.LIGHTGREY,
     },
     Title2Orange: {
