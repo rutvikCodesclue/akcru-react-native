@@ -266,7 +266,7 @@ const PostCommentCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report Skinny</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
                 </Pressable>
             );
         }
@@ -284,12 +284,23 @@ const PostCommentCard = ({
         return null;
     };
 
-    const handleFollowPress = () => {
-        if (isFollowing) {
-            onUnfollow();
-        } else {
-            onFollow();
+    const renderFollowUser = () => {
+        if (!isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        onFollow(); // Call the report user function
+                        closePostOptions(); // Close the modal
+                    }}>
+                    <Icon name="person" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                        {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
+                    </Text>
+                </Pressable>
+            );
         }
+        return null;
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
@@ -362,10 +373,10 @@ const PostCommentCard = ({
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
                 </View>
-                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType='fade'>
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {renderNotInterested()}
+                            {/* {renderNotInterested()} */}
                             {/* <Pressable
                                 style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                                 onPress={handleFollowPress}>
@@ -380,8 +391,9 @@ const PostCommentCard = ({
                                     {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
                                 </Text>
                             </Pressable> */}
-                            {renderMuteUser()}
-                            {renderBlockUser()}
+                            {renderFollowUser()}
+                            {/* {renderMuteUser()}
+                            {renderBlockUser()} */}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
                         </View>

@@ -53,7 +53,7 @@ export default StyleSheet.create({
         height: 55,
         borderRadius: 25,
         position: 'relative',
-        bottom: '23%',
+        bottom: '20%',
         left: '80%',
         alignItems: 'center',
         justifyContent: 'center',

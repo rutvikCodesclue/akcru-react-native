@@ -71,112 +71,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         return unsubscribe;
     }, [navigation]);
 
-
-    // useEffect(() => {
-    //     const fetchPosts = async () => {
-    //         setLoading(true);
-    //         try {
-    //             const fetchedPosts = await getPosts(1); // Fetch the first page
-    
-    //             if (fetchedPosts && fetchedPosts.length > 0) {
-    //                 setPosts(fetchedPosts);
-    //                 setHasMore(fetchedPosts.length === 10); // Assuming 10 posts per page
-    //                 setPage(1);
-    //                 const newLikedPosts = new Set();
-    //                 fetchedPosts.forEach(post => {
-    //                     if (post.isLikedCurrentUser) {
-    //                         newLikedPosts.add(post.id);
-    //                     }
-    //                 });
-    //                 setLikedPosts(newLikedPosts);
-    //             } else {
-    //                 console.log('No posts fetched');
-    //                 setHasMore(false);
-    //             }
-    //         } catch (error) {
-    //             console.error('Failed to fetch posts:', error);
-    //             setError(error.message || 'Failed to fetch posts');
-    //         } finally {
-    //             setLoading(false);
-    //             setLoadingPosts(false);
-    //         }
-    //     };
-
-    //     const handleFocus = () => {
-    //         console.log('Screen gained focus');
-    //         fetchPosts(); // Call fetchPosts when screen gains focus
-    //     };
-
-    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-    //     fetchPosts(); // Initial fetch
-
-    //     return () => {
-    //         unsubscribeFocus();
-    //         console.log('Screen lost focus');
-    //     };
-    // }, [navigation, currentUserID]);
-
-
-    // const loadMorePosts = async () => {
-    //     if (!hasMore) return; // Do nothing if there are no more posts to load
-
-    //     setIsLoadingMore(true);
-    //     try {
-    //         const additionalPosts = await getPosts(page + 1);
-    //         if (additionalPosts.length > 0) {
-    //             setPosts(prevPosts => [...prevPosts, ...additionalPosts]);
-    //             setPage(page + 1); // Increment the page number
-    //         } else {
-    //             setHasMore(false); // No more posts to load
-    //         }
-    //     } catch (error) {
-    //         console.error('Failed to load more posts:', error);
-    //     } finally {
-    //         setIsLoadingMore(false);
-    //     }
-    // };
-
-    // const fetchPostsAndFollowStatus = async pageNumber => {
-    //     setLoading(true);
-    //     try {
-    //         // Fetch posts
-    //         const fetchedPosts = await getPosts(pageNumber);
-
-    //         // Fetch following status if the user is logged in
-    //         let followingIds = new Set();
-    //         if (currentUserID) {
-    //             const followingResponse = await getUserFollowing(currentUserID);
-    //             followingIds = new Set(followingResponse.following.map(user => user.id));
-    //         }
-
-    //         // Update posts with isFollowed status
-    //         const updatedPosts = fetchedPosts.map(post => ({
-    //             ...post,
-    //             author: {
-    //                 ...post.author,
-    //                 isFollowed: followingIds.has(post.author.id),
-    //             },
-    //         }));
-
-    //         if (pageNumber === 1) {
-    //             setPosts(updatedPosts);
-    //         } else {
-    //             setPosts(prevPosts => [...prevPosts, ...updatedPosts]);
-    //         }
-
-    //         setHasMore(fetchedPosts.length === 10);
-    //         setPage(pageNumber);
-    //     } catch (error) {
-    //         console.error('Failed to fetch posts or follow status:', error);
-    //         setError(error.message || 'Failed to fetch data');
-    //     } finally {
-    //         setLoading(false);
-    //         setLoadingPosts(false);
-    //     }
-    // };
-
-    const fetchPostsAndFollowStatus = async pageNumber => {
+    const fetchPostsAndFollowStatus = async (pageNumber: number) => {
         setLoading(true);
         try {
             // Fetch posts
@@ -189,7 +84,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             if (currentUserID) {
                 // Fetch following status
                 const followingResponse = await getUserFollowing(currentUserID);
-                followingIds = new Set(followingResponse?.following.map(user => user.id));
+                followingIds = new Set(followingResponse?.following.map((user: { id: any; }) => user.id));
 
                 // Fetch blocked users status
                 const blockedResponse = await getBlockedUsers(); // Assuming this function exists and returns a list of blocked user IDs
@@ -197,7 +92,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             }
 
             // Update posts with isFollowed and isBlocked status
-            const updatedPosts = fetchedPosts.map(post => ({
+            const updatedPosts = fetchedPosts.map((post: { author: { id: unknown; }; }) => ({
                 ...post,
                 author: {
                     ...post.author,
