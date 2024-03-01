@@ -29,15 +29,8 @@ export default function ContentPlayer({navigation, route}: Props) {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    const {
-        resumeVideo,
-        startTimer,
-        pauseTimer,
-        resetTimer,
-        setLastPlaybackPosition,
-        getLastPlaybackPosition,
-        syncWatchTime,
-    } = useWatchTimeStore();
+    const {startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition, syncWatchTime} =
+        useWatchTimeStore();
     const isFocused = useIsFocused();
     const videoRef = useRef<Video>(null);
     const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
@@ -81,12 +74,6 @@ export default function ContentPlayer({navigation, route}: Props) {
         };
     }, []);
 
-    useEffect(() => {
-        if (movieId) {
-            resumeVideo(videoRef, movieId);
-        }
-    }, [movieId]);
-
     useFocusEffect(
         React.useCallback(() => {
             if (isMoviePlaying) {
@@ -107,10 +94,11 @@ export default function ContentPlayer({navigation, route}: Props) {
         setIsMoviePlaying(true);
         StatusBar.setHidden(true);
         if (movieId) {
-            const lastPlaybackPosition = getLastPlaybackPosition(movieId);
-            if (videoRef.current && lastPlaybackPosition > 0) {
-                videoRef.current.seek(lastPlaybackPosition);
-            }
+            getLastPlaybackPosition(movieId).then(lastPlaybackPosition => {
+                if (videoRef.current && lastPlaybackPosition > 0) {
+                    videoRef.current.seek(lastPlaybackPosition);
+                }
+            });
         }
     };
 
@@ -121,6 +109,9 @@ export default function ContentPlayer({navigation, route}: Props) {
             setHasLoggedRecently(true);
         } else if (currentTime % 10 !== 0) {
             setHasLoggedRecently(false);
+        }
+        if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
+            syncWatchTime();
         }
     };
 
