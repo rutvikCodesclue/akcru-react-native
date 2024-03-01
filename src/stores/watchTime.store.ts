@@ -3,13 +3,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { updateUserWatchTime } from "../lib/api/user.lib";
 import useAuthStore from "./auth.store";
-import { updateWatchTime as syncWatchTimeWithBackend } from "../lib/api/watchtime.lib"; // Adjust path as necessary
+import { fetchWatchTime, updateWatchTime as syncWatchTimeWithBackend } from "../lib/api/watchtime.lib";
 
 interface IWatchTimeState {
     watchTime: number;
     timer: NodeJS.Timer | null;
     lastPlaybackPositions: { [movieId: string]: number };
-    resumeVideo: (videoRef: React.RefObject<any>, movieId: string) => void;
     startTimer: () => void;
     pauseTimer: () => void;
     resetTimer: () => void;
@@ -24,12 +23,6 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
         watchTime: 0,
         timer: null,
         lastPlaybackPositions: {},
-        resumeVideo: (videoRef: React.RefObject<any>, movieId: string) => {
-            const lastPlaybackPosition = get().getLastPlaybackPosition(movieId);
-            if (videoRef.current && lastPlaybackPosition > 0) {
-                videoRef.current.seek(lastPlaybackPosition);
-            }
-        },
         setLastPlaybackPosition: (movieId: string, position: number) => {
             set(state => ({
                 lastPlaybackPositions: { ...state.lastPlaybackPositions, [movieId]: position }
@@ -37,8 +30,23 @@ const useWatchTimeStore = create<IWatchTimeState>()(persist(
             // Immediately save to AsyncStorage to ensure data is not lost on app crash
             AsyncStorage.setItem(`watchTime_${movieId}`, JSON.stringify(position));
         },
-        getLastPlaybackPosition: (movieId: string) => {
-            return get().lastPlaybackPositions[movieId] || 0;
+        getLastPlaybackPosition: async (movieId: string) => {
+            // Attempt to fetch the playback position from AsyncStorage
+            const asyncStoragePosition = await AsyncStorage.getItem(`watchTime_${movieId}`);
+            let lastPlaybackPosition = asyncStoragePosition ? JSON.parse(asyncStoragePosition) : 0;
+            // If the playback position is 0, try fetching from the backend
+            if (lastPlaybackPosition === 0) {
+                lastPlaybackPosition = await fetchWatchTime(movieId);
+                console.log(`getLastPlaybackPosition - log from store - Fetched position from backend: ${lastPlaybackPosition}`);
+                if (lastPlaybackPosition > 0) {
+                    set(state => ({
+                        lastPlaybackPositions: { ...state.lastPlaybackPositions, [movieId]: lastPlaybackPosition }
+                    }));
+                    // Update AsyncStorage with the fetched value
+                    AsyncStorage.setItem(`watchTime_${movieId}`, JSON.stringify(lastPlaybackPosition));
+                }
+            }
+            return lastPlaybackPosition;
         },
         startTimer: () => {
             const interval = setInterval(async () => {
