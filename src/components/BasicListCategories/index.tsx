@@ -22,7 +22,7 @@ const BasicListCategories = (props: BasicListCategoriesProps) => {
 
   return (
       <>
-          <Text style={{...FONTS.Title2, marginTop: 10}}>{Akcru_Content.title}</Text>
+          <Text style={{...FONTS.Title2, marginTop: 10, marginLeft: '2%'}}>{Akcru_Content.title}</Text>
           <FlatList
               data={Akcru_Content.movies}
               horizontal={true}

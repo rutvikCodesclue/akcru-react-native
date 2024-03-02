@@ -332,7 +332,7 @@ const HomeScreen = () => {
                                 />
                                 <View
                                     style={{
-                                        marginHorizontal: 15,
+                                        marginHorizontal: '2%',
                                         marginBottom: 20,
                                         position: 'absolute',
                                         bottom: 0,
@@ -357,7 +357,7 @@ const HomeScreen = () => {
                                 </View>
                             </View>
                         </Pressable>
-                        <View style={{marginHorizontal: 15, marginTop: 75, marginBottom: 75}}>
+                        <View style={{marginTop: 75, marginBottom: 75}}>
                             {/* TODO: remove this.  */}
                             <View>
                                 <FlatList

@@ -79,7 +79,7 @@ export default StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 10,
         marginVertical: 10,
-        alignItems: 'center',
+        alignSelf: 'center',
         height: 40,
     },
     drawfonttag: {
