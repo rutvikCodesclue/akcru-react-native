@@ -20,9 +20,12 @@ import { Icon } from "@rneui/base";
 import AkcruButtons from "../../../components/akcruButtons";
 import useAuthStore from "../../../stores/auth.store";
 import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-import { getTotalSupplyOfAD } from "../../../lib/api/wallet.lib";
+import { getTotalSupplyOfAD, sendAD } from "../../../lib/api/wallet.lib";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
+import ComfirmationModal from "../../../components/ConfirmationModal";
+import { set } from "lodash";
+import BlockUserResultModal from "../../../components/BlockUserResultModal/BlockUserResultModal";
 
 
 
@@ -36,29 +39,19 @@ const UserProfileWalletTab = () => {
 
     const [amountToSend, setAmountToSend] = useState(''); // State to store the amount entered
 
-    // Function to handle the AD transfer
-    const handleSendAD = () => {
-        const numericAmountToSend = parseFloat(amountToSend);
-
-        if (!isNaN(numericAmountToSend) && typeof user?.adAmount === 'number') {
-            if (numericAmountToSend > 0 && numericAmountToSend <= user?.adAmount) {
-                // Call the function to send AD to the selected user
-                // You'll need to implement this function or API call
-                sendAD(selectedUser, numericAmountToSend);
-            } else {
-                Alert.alert('Insufficient Balance', 'You do not have enough AD to complete this transaction.', [
-                    {text: 'OK', onPress: () => console.log('OK Pressed')},
-                ]);
-            }
-        } else {
-            console.log('Invalid AD amount entered.');
-        }
-    };
-
     // console.log('Selected User:', selectedUser);
     const toText = selectedUser ? selectedUser.username : '';
     const {user} = useAuthStore();
     const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
+    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+    const [walletResultModal, setWalletResultModal] = useState(false);
+    const [modalType, setModalType] = useState('');
+    const [walletResultMessage, setwalletResultMessage] = useState('');
+    const [iconName, setIconName] = useState('');
+
+    const closeModal = () => {
+        setWalletResultModal(false);
+    };
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
@@ -74,6 +67,35 @@ const UserProfileWalletTab = () => {
             };
         }, []),
     );
+
+    // Function to handle the AD transfer
+    const handleSendAD = async () => {
+        const adAmountNumber = parseFloat(amountToSend);
+
+        if (!isNaN(adAmountNumber) && adAmountNumber > 0) {
+            if (user && selectedUser && adAmountNumber <= user.adAmount) {
+                const response = await sendAD({
+                    recipientId: selectedUser.id, // Assuming selectedUser has an 'id' field
+                    adAmount: adAmountNumber,
+                });
+                console.log('Response:', response);
+                if (response.success) {
+                    Alert.alert('Success', response.message || 'AD sent successfully');
+                    // Optionally, update any relevant state or navigate as needed
+                    setAmountToSend('');
+
+                } else {
+                    Alert.alert('Error', response.message || 'Failed to send AD');
+
+                    setAmountToSend('');
+                }
+            } else {
+                Alert.alert('Error', 'Invalid amount or insufficient balance');
+            }
+        } else {
+            Alert.alert('Error', 'Please enter a valid amount');
+        }
+    };
 
     return (
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -130,8 +152,10 @@ const UserProfileWalletTab = () => {
                 <View style={{alignItems: 'center', marginTop: 30, marginBottom: 20}}>
                     <AkcruButtons.MedButton
                         btnname={'Send'}
-                        onPress={()=>{''}}
-                        color={COLORS.AKCRUBLUE}
+                        onPress={() => {
+                            setConfirmationModalVisible(true);
+                        }}
+                        color={COLORS.PURPLE}
                         disabled={false}
                     />
                 </View>
@@ -154,6 +178,34 @@ const UserProfileWalletTab = () => {
                     <Image source={imageindex.GRAPHwallet2} style={{width: SIZES.ScreenWidth / 1.1, height: 170}} />
                 </View>
             </ScrollView>
+            <Modal transparent={true} visible={confirmationModalVisible} animationType="fade">
+                <ComfirmationModal
+                    confirmationText={`Are you sure you want to send ${toText} "${amountToSend}" AD?`}
+                    onPressYes={() => {
+                        handleSendAD();
+                        setConfirmationModalVisible(false);
+                        
+                        
+                        
+                        
+                    }}
+                    onPressNo={() => setConfirmationModalVisible(false)}
+                />
+            </Modal>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={walletResultModal}
+                onRequestClose={() => {
+                    setWalletResultModal(!walletResultModal);
+                }}>
+                <BlockUserResultModal
+                    closeModal={closeModal}
+                    type={modalType}
+                    resultMessage={walletResultMessage}
+                    iconName={iconName}
+                />
+            </Modal>
         </View>
     );
 };

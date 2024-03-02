@@ -31,6 +31,7 @@ import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import HexShape from '../../../components/HexShape';
 import { toggleFollow } from '../../../lib/api/user.lib';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -281,7 +282,6 @@ const handleToggleBlockUser = async authorId => {
     }
 };
 
-
     return (
         <TabContainer>
             <SafeAreaView>
@@ -331,11 +331,11 @@ const handleToggleBlockUser = async authorId => {
                                     <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                                         Crummunity Feed
                                     </Text>
-                                    <Icon
+                                    <CustomIcon
                                         name="account-group"
                                         type="material-community"
                                         color={COLORS.AKCRUBLUE}
-                                        size={23}
+                                        baseSize={15}
                                     />
                                 </View>
                             </View>

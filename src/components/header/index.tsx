@@ -45,6 +45,7 @@ const Header = () => {
                     'CruInviteReceived',
                     'CruViewScheduled',
                     'CruViewStarted',
+                    'ADReceived',
                 ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),

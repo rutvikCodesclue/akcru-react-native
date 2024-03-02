@@ -108,7 +108,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
   ) => (
       <TabBar
           {...props}
-          indicatorStyle={{backgroundColor: COLORS.DARKORANGE}}
+          indicatorStyle={{backgroundColor: COLORS.PURPLE}}
           scrollEnabled={false}
           tabStyle={{width: SIZES.ScreenWidth / 2}}
           labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
@@ -121,7 +121,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
               alignContent: 'center',
               justifyContent: 'center',
           }}
-          activeColor={COLORS.MIDORANGE}
+          activeColor={COLORS.PURPLE}
       />
   );
 
@@ -202,7 +202,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                   name="magnify"
                                   type="material-community"
                                   color={COLORS.AKCRUBLUE}
-                                  size={28}
+                                  size={25}
                                   style={{marginRight: 10}}
                               />
                               <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Find Users to Invite</Text>

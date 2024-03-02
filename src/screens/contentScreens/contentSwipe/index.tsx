@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
         marginTop: -170,
     },
     heading: {
-        ...FONTS.Title2Orange,
+        ...FONTS.Username,
         color: COLORS.BLACK,
         backgroundColor: COLORS.STARGOLD,
         paddingHorizontal: 8,
@@ -525,6 +525,7 @@ const styles = StyleSheet.create({
     pagination: {
         flexDirection: 'row',
         height: DOT_SIZE,
+       
     },
     paginationDot: {
         width: DOT_SIZE * 0.3,

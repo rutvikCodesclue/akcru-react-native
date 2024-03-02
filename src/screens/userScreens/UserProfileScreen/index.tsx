@@ -261,7 +261,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     ) => (
         <TabBar
             {...props}
-            indicatorStyle={{backgroundColor: COLORS.CATPURPDRK}}
+            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
             scrollEnabled={false}
             tabStyle={{width: SIZES.ScreenWidth / 4}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}

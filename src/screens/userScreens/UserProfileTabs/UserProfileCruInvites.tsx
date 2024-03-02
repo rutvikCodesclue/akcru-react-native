@@ -5,7 +5,7 @@ import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import { acceptACRUInvite, declineACRUInvite, getCRUInvites } from '../../../lib/api/cru.lib';
 import { ICruInvite, IMITInvite } from '../../../../types';
-import { FONTS } from '../../../../assets/constants';
+import { COLORS, FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
 import MITInviteCard from '../../../components/MITInviteCard';
 import imageindex from '../../../../assets/images/imageindex';
@@ -158,7 +158,7 @@ const UserProfileCruInvites = () => {
                     )}
                     ListEmptyComponent={
                         // Render this when the list is empty
-                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>
+                        <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>No Invites</Text>
                     }
                 />
             )}

@@ -14,7 +14,7 @@ export default StyleSheet.create({
     height: 35,
   },
   screenTitle: {
-    ...FONTS.Title3,
+    ...FONTS.Title2,
     marginTop: 10,
     marginBottom: 10,
     marginRight: 10,

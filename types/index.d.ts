@@ -154,7 +154,8 @@ export type INotification = {
         | 'UserLikedComment'
         | 'UserLikedPost'
         | 'UserTaggedOnPost'
-        | 'UserTaggedOnComment';
+        | 'UserTaggedOnComment'
+        | 'ADReceived';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
@@ -332,7 +333,8 @@ export type INotification = {
         | 'CruInviteDeclined'
         | 'CruViewScheduled'
         | 'CruViewStarted'
-        | 'UserFollowed';
+        | 'UserFollowed'
+        | 'ADReceived';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;

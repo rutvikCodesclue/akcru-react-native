@@ -6,7 +6,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {getMyMITInvites, getMyMITs} from '../../../lib/api/mit.lib';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {MITInviteHubCard} from '../../../components/MITHubComps';
-import {FONTS} from '../../../../assets/constants/theme';
+import {COLORS, FONTS} from '../../../../assets/constants/theme';
 
 const MITReceived = () => {
     const [currentMITS, setCurrentMITS] = useState<IMITInvite[] | []>([]);
@@ -165,7 +165,7 @@ const MITReceived = () => {
                             })
                         ) : (
                             // FIXME: implement no invites empty state
-                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>
+                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>No Invites</Text>
                         )}
                     </View>
                 )}
