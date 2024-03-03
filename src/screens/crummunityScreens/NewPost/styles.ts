@@ -7,7 +7,7 @@ export default StyleSheet.create({
         borderColor: COLORS.LIGHTGREY,
         marginTop: 10,
         alignSelf: 'center',
-        height: 100,
+        height: SIZES.ScreenHeight * 0.17,
     },
     textinput: {
         color: COLORS.LIGHTGREY,

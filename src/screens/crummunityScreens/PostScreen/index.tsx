@@ -18,6 +18,7 @@ import { getPostComments } from '../../../lib/api/post.lib'
 import HexShape from '../../../components/HexShape'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack'
+import { getBlockedUsers, getUserFollowing, toggleFollow } from '../../../lib/api/user.lib'
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
@@ -70,37 +71,85 @@ const PostScreen = ({navigation, route}: Props) => {
     }, [navigation]);
 
     // useEffect(() => {
-    //     const fetchPost = async () => {
-    //         if (route.params?.postId) {
-    //             const numericPostId = parseInt(route.params.postId, 10);
+    //     const fetchComments = async () => {
+    //         console.log('fetchComments function called');
+    //         if (post && post.id !== undefined) {
+    //             console.log('Post:', post);
     //             try {
-    //                 const fetchedPost = await getPost(numericPostId);
-    //                 // Assuming setPost is your state setter for storing fetched post data
-    //                 setPost(fetchedPost);
+    //                 const fetchedComments = await getPostComments(+post.id);
+    //                 console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
+    //                 if (fetchedComments && fetchedComments.success) {
+    //                     setComments(fetchedComments.comments); // Set only the comments array
+    //                 }
+    //                 setLoadingComments(false);
     //             } catch (error) {
-    //                 console.error('Error fetching post:', error);
+    //                 console.error('Failed to fetch comments:', error);
+    //                 setError(error.message || 'Failed to fetch comments');
+    //                 setLoadingComments(false);
     //             }
+    //         } else {
+    //             console.log('Post or post.id is not defined');
     //         }
     //     };
 
-    //     fetchPost();
-    // }, [route.params?.postId]);
+    //     const handleFocus = () => {
+    //         if (post && post.id !== undefined) {
+    //             fetchComments();
+    //         }
+    //     };
 
+    //     // Add a listener for the focus event
+    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
+
+    //     // Fetch data when the component mounts or when the post object changes
+    //     fetchComments();
+
+    //     // Cleanup the listener when the component unmounts
+    //     return () => {
+    //         unsubscribeFocus();
+    //     };
+    // }, [post, navigation]); // Include navigation in the dependency array
 
     useEffect(() => {
-        const fetchComments = async () => {
-            console.log('fetchComments function called');
-            if (post && post.id !== undefined) {
-                console.log('Post:', post);
+        const fetchCommentsAndStatuses = async () => {
+            console.log('Fetching comments and statuses');
+            if (post && post.id) {
+                setLoadingComments(true);
                 try {
+                    // Fetch comments
                     const fetchedComments = await getPostComments(+post.id);
                     console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
+
+                    // Initialize sets for following and blocked user IDs
+                    let followingIds = new Set();
+                    let blockedUserIds = new Set();
+
+                    if (currentUserID) {
+                        // Fetch following status
+                        const followingResponse = await getUserFollowing(currentUserID);
+                        followingIds = new Set(followingResponse?.following.map(user => user.id));
+
+                        // Fetch blocked users status
+                        const blockedResponse = await getBlockedUsers(); // Adjust as needed
+                        blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+                    }
+
+                    // Update comments with follow and block statuses
+                    const updatedComments = fetchedComments?.comments.map(comment => ({
+                        ...comment,
+                        author: {
+                            ...comment.author,
+                            isFollowed: followingIds.has(comment.author.id),
+                            isBlocked: blockedUserIds.has(comment.author.id),
+                        },
+                    }));
+
                     if (fetchedComments && fetchedComments.success) {
-                        setComments(fetchedComments.comments); // Set only the comments array
+                        setComments(updatedComments); // Set updated comments with follow/block statuses
                     }
                     setLoadingComments(false);
                 } catch (error) {
-                    console.error('Failed to fetch comments:', error);
+                    console.error('Failed to fetch comments or statuses:', error);
                     setError(error.message || 'Failed to fetch comments');
                     setLoadingComments(false);
                 }
@@ -110,8 +159,8 @@ const PostScreen = ({navigation, route}: Props) => {
         };
 
         const handleFocus = () => {
-            if (post && post.id !== undefined) {
-                fetchComments();
+            if (post && post.id) {
+                fetchCommentsAndStatuses();
             }
         };
 
@@ -119,13 +168,11 @@ const PostScreen = ({navigation, route}: Props) => {
         const unsubscribeFocus = navigation.addListener('focus', handleFocus);
 
         // Fetch data when the component mounts or when the post object changes
-        fetchComments();
+        fetchCommentsAndStatuses();
 
         // Cleanup the listener when the component unmounts
-        return () => {
-            unsubscribeFocus();
-        };
-    }, [post, navigation]); // Include navigation in the dependency array
+        return () => unsubscribeFocus;
+    }, [post, navigation, currentUserID]); // Include currentUserID in the dependency array
 
     const handleDeletePost = async (postId: number) => {
         try {
@@ -165,6 +212,24 @@ const PostScreen = ({navigation, route}: Props) => {
         } catch (error) {
             console.error('Error in deleting comment:', error);
             // Handle error (e.g., show a message to the user)
+        }
+    };
+
+    const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
+        console.log('handleFollow', authorId);
+        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+        if (updatedStatus !== undefined) {
+            setPosts(prevPosts =>
+                prevPosts.map(post => {
+                    if (post.author.id === authorId) {
+                        // Update the follow status
+                        return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
+                    }
+                    return post;
+                }),
+            );
+        } else {
+            console.error('Failed to update follow status');
         }
     };
 
@@ -224,6 +289,10 @@ const PostScreen = ({navigation, route}: Props) => {
         }
     };
 
+    function handleToggleBlockUser(id: any, isCurrentlyBlocked: any) {
+        throw new Error('Function not implemented.')
+    }
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -278,6 +347,8 @@ const PostScreen = ({navigation, route}: Props) => {
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
                             akcruBadge={post.author?.badge}
                             CommentOnPostButton={() => navigation2.navigate('NewComment', {postId: post.id})}
+                            onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
+                            isFollowing={post.author.isFollowed}
                         />
                     </View>
                     <View style={{marginBottom: '30%'}}>
@@ -312,6 +383,11 @@ const PostScreen = ({navigation, route}: Props) => {
                                             akcruBadge={item.author?.badge}
                                             onLikeOrUnlike={() => onLikeOrUnlikeComment(+item.id)}
                                             likeCount={item.likeCount || 0}
+                                            onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
+                                            isFollowing={item.author.isFollowed}
+                                            onBlockUser={() =>
+                                                handleToggleBlockUser(item.author.id, item.author.isCurrentlyBlocked)
+                                            }
                                         />
                                     </View>
                                 )}

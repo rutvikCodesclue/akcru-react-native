@@ -59,13 +59,13 @@ export default StyleSheet.create({
         width: '100%',
     },
     inputlabel: {
-        ...FONTS.Title2White,
+        ...FONTS.paragraph1,
         marginLeft: 5,
         color: COLORS.LIGHTGREY,
         alignSelf: 'flex-start',
     },
     settingslabel: {
-        ...FONTS.Title2White,
+        ...FONTS.paragraph2,
         marginLeft: 5,
         color: COLORS.MIDORANGE,
     },

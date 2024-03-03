@@ -48,6 +48,7 @@ const UserNotifications = () => {
               case 'UserTaggedOnPost':
               case 'UserCommentedOnPost':
               case 'UserTaggedOnComment':
+              case 'ADReceived':
                   // Fetch the post data before navigating
                   const postId = notification.postId;
                   if (postId) {
@@ -98,6 +99,7 @@ const UserNotifications = () => {
             CruViewScheduled: 'A Cru View was scheduled',
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
+            ADReceived: 'You just received AD',
             // Add more mappings as needed
         };
 
@@ -120,7 +122,8 @@ const UserNotifications = () => {
                 notification.type === 'UserLikedPost' ||
                 notification.type === 'CruViewScheduled' ||
                 notification.type === 'CruViewStarted' ||
-                notification.type === 'CruInviteReceived'),
+                notification.type === 'CruInviteReceived' ||
+                notification.type === 'ADReceived'),
     );
     const sortedNotifications: INotification[] = filteredNotifications.sort(
         

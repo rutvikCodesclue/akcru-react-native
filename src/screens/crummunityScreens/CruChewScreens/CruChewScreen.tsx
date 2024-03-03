@@ -56,7 +56,7 @@ const CruChewScreen = () => {
                       />
                       <Text
                           style={{
-                              ...FONTS.Title2White,
+                              ...FONTS.Title2,
                               textAlign: 'center',
                               marginHorizontal: 25,
                           }}>
@@ -67,13 +67,13 @@ const CruChewScreen = () => {
                           <Image
                               source={imageindex.CruChew3}
                               style={{
-                                  width: 200,
-                                  height: 200,
+                                  width: SIZES.ScreenWidth * 0.5,
+                                  height: SIZES.ScreenWidth * 0.5,
                               }}
                               resizeMode="contain"
                           />
                       </TouchableOpacity>
-                      <Text style={{...FONTS.Title2White, color: COLORS.PURPLE}}>ORDER NOW!!!</Text>
+                      <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>ORDER NOW!!!</Text>
                   </View>
               </View>
           </ScrollView>

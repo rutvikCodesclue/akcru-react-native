@@ -107,7 +107,7 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
-    
+    onBlockUser: () => void;
 };
 
 const SkinnyPostCard = ({
@@ -123,6 +123,7 @@ const SkinnyPostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     isSuggestedUser,
+    onBlockUser
     
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -245,7 +246,11 @@ const SkinnyPostCard = ({
     const renderBlockUser = () => {
         if (!isCurrentUserAuthor) {
             return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}} 
+                onPress={() => {
+                        onBlockUser();
+                        closePostOptions(); // Close the modal
+                    }}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                 </Pressable>
@@ -328,7 +333,7 @@ const SkinnyPostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -339,7 +344,7 @@ const SkinnyPostCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
+                    <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -363,7 +368,7 @@ const SkinnyPostCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
@@ -389,7 +394,7 @@ const SkinnyPostCard = ({
                                 </Text>
                             </Pressable> */}
                             {renderFollowUser()}
-                            {renderMuteUser()}
+                            {/* {renderMuteUser()} */}
                             {renderBlockUser()}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
@@ -548,7 +553,7 @@ const SkinnyPostCard = ({
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
-                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE, fontSize: 12}}>Suggested User</Text>)}
+                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE}}>Suggested User</Text>)}
             </View>
         </View>
     );

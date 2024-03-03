@@ -275,7 +275,7 @@ const UserProfileDetailsTab = () => {
                                 marginTop: 10,
                                 marginBottom: 20,
                                 textAlign: 'center',
-                                fontSize: 14,
+                            
                                 textDecorationLine: 'underline',
                             }}>
                             PROFILE DETAILS
@@ -315,9 +315,9 @@ const UserProfileDetailsTab = () => {
                                     />
                                     <Text
                                         style={{
-                                            ...FONTS.Title2,
+                                            ...FONTS.Username,
                                             color: COLORS.MIDORANGE,
-                                            fontSize: 12,
+                                        
                                         }}>
                                         Edit your CRU
                                     </Text>
@@ -326,8 +326,8 @@ const UserProfileDetailsTab = () => {
                             <View>
                                 <Text
                                     style={{
-                                        ...FONTS.Title2,
-                                        fontSize: 12,
+                                        ...FONTS.paragraph1,
+                                        
                                         color: COLORS.LIGHTGREY,
                                     }}>
                                     Schedule a CRU View through the CRU VIEW scheduler

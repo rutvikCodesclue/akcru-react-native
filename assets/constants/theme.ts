@@ -1,6 +1,9 @@
-import {Dimensions} from 'react-native';
+import {Dimensions, PixelRatio} from 'react-native';
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
+
+const fontScale = PixelRatio.getFontScale();
+const getFontSize = (size: number) => size / fontScale;
 
 export const SIZES = {
   //screen size
@@ -9,7 +12,7 @@ export const SIZES = {
   marginhorizontal: 15,
   marginvertical: 10,
   //element size
-  SmallIcon: 25,
+  SmallIcon: 23,
   MedIcon: 28,
   CatBtnSize: {
     width: 80,
@@ -34,8 +37,10 @@ export const COLORS = {
     TRANSDARKGREY: '#525252A6',
     GREEN: '#09FF00',
     AKCRUBACKGROUND: '#0D182A',
-    PURPLE: '#FE50E5',
-    TRANSPURPLE: '#FE50E580',
+    // PURPLE: '#FE50E5',
+    PURPLE: '#6530FB',
+    TRANSPURPLE: '#6530FB80',
+    // TRANSPURPLE: '#FE50E580',
     BLACK: '#000000',
     FADEDBLACK: '#00000070',
     PUREGOLD: '#DB9D00',
@@ -47,6 +52,7 @@ export const COLORS = {
     CATGREENLGT: '#07ADA7',
     CATPURPDRK: '#3A0046',
     CATPURPLGT: '#9007AD',
+    // TRANSPURPLGT: '#9007AD70',
     TRANSPURPLGT: '#9007AD70',
     CATREDDRK: '#460000',
     CATREDLGT: '#AD0707',
@@ -55,44 +61,69 @@ export const COLORS = {
 };
 
 export const FONTS = {
+    Akcrubadges: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: getFontSize(12),
+        color: COLORS.LIGHTGREY,
+    },
     Title1: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 16,
+        fontSize: getFontSize(16),
         color: COLORS.LIGHTGREY,
     },
     Title2: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 14,
+        fontSize: getFontSize(14),
+        color: COLORS.LIGHTGREY,
+    },
+    Username: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: getFontSize(12),
         color: COLORS.LIGHTGREY,
     },
     paragraph1: {
         fontFamily: 'Montserrat-Regular',
-        fontSize: 14,
+        fontSize: getFontSize(12),
+        color: COLORS.LIGHTGREY,
+    },
+    paragraph2: {
+        fontFamily: 'Montserrat-Regular',
+        fontSize: getFontSize(14),
         color: COLORS.LIGHTGREY,
     },
     chart: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 10,
+        fontSize: getFontSize(10),
+        color: COLORS.LIGHTGREY,
+    },
+    ContentTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: getFontSize(18),
         color: COLORS.LIGHTGREY,
     },
     Title3: {
         fontFamily: 'Montserrat-Bold',
-        fontSize: 14,
+        fontSize: getFontSize(14),
+        color: COLORS.LIGHTGREY,
+    },
+    HeroTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: getFontSize(25),
         color: COLORS.LIGHTGREY,
     },
     Title2Orange: {
         fontFamily: 'Montserrat-SemiBold',
-        fontSize: 12,
+        fontSize: getFontSize(14),
         color: COLORS.DARKORANGE,
     },
     Title2White: {
         fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
+        fontSize: getFontSize(14),
         color: COLORS.LIGHTGREY,
     },
     Title2AkcruBlue: {
         fontFamily: 'Montserrat-Medium',
-        fontSize: 14,
+        fontSize: getFontSize(12),
         color: COLORS.AKCRUBLUE,
     },
 };

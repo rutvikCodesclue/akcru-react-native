@@ -249,7 +249,7 @@ const PostCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report Skinny</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
                 </Pressable>
             );
         }
@@ -267,12 +267,23 @@ const PostCard = ({
         return null;
     };
 
-    const handleFollowPress = () => {
-        if (isFollowing) {
-            onUnfollow();
-        } else {
-            onFollow();
+    const renderFollowUser = () => {
+        if (!isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        onFollow(); // Call the report user function
+                        closePostOptions(); // Close the modal
+                    }}>
+                    <Icon name="person" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                        {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
+                    </Text>
+                </Pressable>
+            );
         }
+        return null;
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
@@ -303,7 +314,7 @@ const PostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Title2, fontSize: 12}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
                         {post.author?.influencer && (
                             <Icon
                                 name="ribbon"
@@ -314,7 +325,7 @@ const PostCard = ({
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{post.author?.firstName}</Text>
+                    <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
@@ -338,7 +349,7 @@ const PostCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
-                    <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
                     </Text>
                     <Pressable onPress={openPostOptions}>
@@ -348,7 +359,7 @@ const PostCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {renderNotInterested()}
+                            {/* {renderNotInterested()} */}
                             {/* <Pressable
                                 style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                                 onPress={handleFollowPress}>
@@ -363,8 +374,9 @@ const PostCard = ({
                                     {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
                                 </Text>
                             </Pressable> */}
-                            {renderMuteUser()}
-                            {renderBlockUser()}
+                            {/* {renderMuteUser()} */}
+                            {renderFollowUser()}
+                            {/* {renderBlockUser()} */}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
                         </View>

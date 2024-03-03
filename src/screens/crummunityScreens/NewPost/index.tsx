@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -254,132 +254,125 @@ const NewPost = () => {
     return (
         <TabContainer>
             <SafeAreaView>
-                <View style={{zIndex: 100}}>
-                    <Header />
-                </View>
-                <View
-                    style={{
-                        height: SIZES.ScreenHeight * 0.15,
-                        marginTop: -68,
-                        backgroundColor: COLORS.AKCRUBACKGROUND,
-                    }}>
-                    <LinearGradient
-                        // Background Linear Gradient
-                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                <ScrollView stickyHeaderIndices={[0]}>
+                    <View style={{zIndex: 100}}>
+                        <Header />
+                    </View>
+                    <View
                         style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: 0,
                             height: SIZES.ScreenHeight * 0.15,
+                            marginTop: -68,
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
-                        <View
+                        <LinearGradient
+                            // Background Linear Gradient
+                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginTop: '20%',
-                                marginHorizontal: 15,
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                height: SIZES.ScreenHeight * 0.15,
                             }}>
-                            <TouchableOpacity onPress={() => navigation.pop()}>
-                                <View>
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
-                                <View>
-                                    <Text style={styles.postButton}>Post</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </LinearGradient>
-                </View>
-                <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{marginRight: 8}}>
-                            <TouchableOpacity>
-                                <HexAvatar
-                                    source={
-                                        user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder
-                                    }
-                                    size={45}
-                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View>
-                            <Text style={{...FONTS.Title2, fontSize: 12}}>{user ? user?.username : 'Guest'}</Text>
-                            {user?.badge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {user?.badge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {user?.badge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {user?.badge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
-                        </View>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    marginTop: '20%',
+                                    marginHorizontal: 15,
+                                }}>
+                                <TouchableOpacity onPress={() => navigation.pop()}>
+                                    <View>
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
+                                    </View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
+                                    <View>
+                                        <Text style={styles.postButton}>Post</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </LinearGradient>
                     </View>
-                    <View style={styles.input}>
-                        <TextInput
-                            placeholder={'Tell us the "skinny" in 200 characters or less'}
-                            placeholderTextColor={COLORS.DARKGREY}
-                            style={styles.textinput}
-                            secureTextEntry={false}
-                            onChangeText={text => {
-                                // Start or continue tagging
-                                const parts = text.split(' ');
-                                const lastPart = parts[parts.length - 1];
-                                if (lastPart.startsWith('@')) {
-                                    setIsTagging(true);
-                                    setCurrentTag(lastPart.slice(1)); // Extract current tag without '@'
-                                } else {
-                                    setIsTagging(false);
-                                    setCurrentTag('');
-                                }
-
-                                // Update post text ensuring it doesn't exceed 200 characters
-                                if (text.length <= 200) {
-                                    setPostText(text);
-                                }
-                            }}
-                            value={postText}
-                            multiline={true}
-                            maxLength={200} // Enforce the character limit
-                            editable={true}
-                        />
-                    </View>
-                    {isTagging && suggestions.length > 0 && (
-                        <FlatList
-                            data={suggestions}
-                            horizontal={false}
-                            showsHorizontalScrollIndicator={false}
-                            scrollEnabled={true}
-                            keyExtractor={item => item.id}
-                            renderItem={({item, index}) => (
-                                <Pressable
-                                    style={{marginVertical: 5}}
-                                    onPress={() => {
-                                        // Handle the selection of a suggested user
-                                        const newText =
-                                            postText.substring(0, postText.lastIndexOf('@')) + `@${item.username} `;
-                                        setPostText(newText);
+                    <View style={{marginTop: '5%', marginHorizontal: 15}}>
+                        <View style={{flexDirection: 'row'}}>
+                            <View style={{marginRight: 8}}>
+                                <TouchableOpacity>
+                                    <HexAvatar
+                                        source={
+                                            user?.profilePicture
+                                                ? {uri: user.profilePicture}
+                                                : imageindex.Akcruplaceholder
+                                        }
+                                        size={45}
+                                        bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View>
+                                <Text style={{...FONTS.Title2, fontSize: 12}}>{user ? user?.username : 'Guest'}</Text>
+                                {user?.badge === 'AKCRUIT' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeAkcruit />
+                                    </View>
+                                )}
+                                {user?.badge === 'GUARDIAN' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeGuardian />
+                                    </View>
+                                )}
+                                {user?.badge === 'HERO' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeHero />
+                                    </View>
+                                )}
+                                {user?.badge === 'SUPERHERO' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeSuperHero />
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                        <View style={styles.input}>
+                            <TextInput
+                                placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                placeholderTextColor={COLORS.DARKGREY}
+                                style={styles.textinput}
+                                secureTextEntry={false}
+                                onChangeText={text => {
+                                    // Start or continue tagging
+                                    const parts = text.split(' ');
+                                    const lastPart = parts[parts.length - 1];
+                                    if (lastPart.startsWith('@')) {
+                                        setIsTagging(true);
+                                        setCurrentTag(lastPart.slice(1)); // Extract current tag without '@'
+                                    } else {
                                         setIsTagging(false);
                                         setCurrentTag('');
-                                    }}>
-                                    <UserTaggedCard
-                                        userPicture={item.profilePicture}
-                                        userName={item.username}
+                                    }
+
+                                    // Update post text ensuring it doesn't exceed 200 characters
+                                    if (text.length <= 200) {
+                                        setPostText(text);
+                                    }
+                                }}
+                                value={postText}
+                                multiline={true}
+                                maxLength={200} // Enforce the character limit
+                                editable={true}
+                            />
+                        </View>
+                        {isTagging && suggestions.length > 0 && (
+                            <FlatList
+                                data={suggestions}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                scrollEnabled={true}
+                                contentContainerStyle={{flexGrow: 1}}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <Pressable
+                                        style={{marginVertical: 5}}
                                         onPress={() => {
                                             // Handle the selection of a suggested user
                                             const newText =
@@ -387,23 +380,35 @@ const NewPost = () => {
                                             setPostText(newText);
                                             setIsTagging(false);
                                             setCurrentTag('');
-                                        }}
-                                        // influencer={item.influencer} // TODO: handle this
-                                        userID={item.id}
-                                        akcruBadge={item.badge}
-                                        firstName={item.firstName}
-                                    />
-                                </Pressable>
-                            )}
-                        />
-                    )}
-                    {!isTagging && (
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                            </TouchableOpacity>
+                                        }}>
+                                        <UserTaggedCard
+                                            userPicture={item.profilePicture}
+                                            userName={item.username}
+                                            onPress={() => {
+                                                // Handle the selection of a suggested user
+                                                const newText =
+                                                    postText.substring(0, postText.lastIndexOf('@')) +
+                                                    `@${item.username} `;
+                                                setPostText(newText);
+                                                setIsTagging(false);
+                                                setCurrentTag('');
+                                            }}
+                                            // influencer={item.influencer} // TODO: handle this
+                                            userID={item.id}
+                                            akcruBadge={item.badge}
+                                            firstName={item.firstName}
+                                        />
+                                    </Pressable>
+                                )}
+                            />
+                        )}
+                        {!isTagging && (
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
+                                    <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                </TouchableOpacity>
 
-                            {/* <TouchableOpacity onPress={selectAGIF}>
+                                {/* <TouchableOpacity onPress={selectAGIF}>
                                 <Icon
                                     name="file-gif-box"
                                     type="material-community"
@@ -411,101 +416,102 @@ const NewPost = () => {
                                     size={26}
                                 />
                             </TouchableOpacity> */}
-                            <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
-                                <Icon
-                                    name="video-account"
-                                    type="material-community"
-                                    color={COLORS.MIDORANGE}
-                                    size={30}
+                                <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
+                                    <Icon
+                                        name="video-account"
+                                        type="material-community"
+                                        color={COLORS.MIDORANGE}
+                                        size={30}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        {/* Conditional rendering of CalculateVideoDuration */}
+                        {selectedVideo && (
+                            <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
+                        )}
+                        {!isTagging && (
+                            <View style={{marginTop: 10}}>
+                                <FlatList
+                                    data={selectedImages}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={({item}) => (
+                                        <View>
+                                            <Image
+                                                source={{uri: item}}
+                                                style={{
+                                                    width: SIZES.ScreenWidth / 3.55,
+                                                    height: SIZES.ScreenWidth / 2.35,
+                                                    margin: 5,
+                                                    borderRadius: 5,
+                                                }}
+                                            />
+                                        </View>
+                                    )}
                                 />
-                            </TouchableOpacity>
-                        </View>
-                    )}
-                    {/* Conditional rendering of CalculateVideoDuration */}
-                    {selectedVideo && (
-                        <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
-                    )}
-                    {!isTagging && (
-                        <View style={{marginTop: 10}}>
-                            <FlatList
-                                data={selectedImages}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={(item, index) => index.toString()}
-                                renderItem={({item}) => (
-                                    <View>
-                                        <Image
-                                            source={{uri: item}}
-                                            style={{
-                                                width: SIZES.ScreenWidth / 3.55,
-                                                height: SIZES.ScreenWidth / 2.35,
-                                                margin: 5,
-                                                borderRadius: 5,
-                                            }}
+                                {selectedVideo && (
+                                    <View style={styles.postvideo}>
+                                        <Video
+                                            ref={videoRef}
+                                            style={{width: '100%', height: '100%', borderRadius: 10}}
+                                            source={{uri: selectedVideo}}
+                                            resizeMode="cover"
+                                            // onEnd={handleVideoEnd}
+                                            repeat={true}
+                                            // onError={handleVideoError}
+                                            // onLoad={handleVideoLoad}
+                                            muted={true}
                                         />
                                     </View>
                                 )}
-                            />
-                            {selectedVideo && (
-                            <View style={styles.postvideo}>
-                                <Video
-                                    ref={videoRef}
-                                    style={{width: '100%', height: '100%', borderRadius: 10}}
-                                    source={{uri: selectedVideo}}
-                                    resizeMode="cover"
-                                    // onEnd={handleVideoEnd}
-                                    repeat={true}
-                                    // onError={handleVideoError}
-                                    // onLoad={handleVideoLoad}
-                                    muted={true}
-                                />
-                            </View>)}
-                        </View>
-                    )}
-                    {/* Picture Size Error Modal*/}
-                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                        <View
-                            style={{
-                                flex: 1,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
+                            </View>
+                        )}
+                        {/* Picture Size Error Modal*/}
+                        <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
                                     alignItems: 'center',
-                                    marginHorizontal: 15,
                                 }}>
-                                <Text
+                                <View
                                     style={{
-                                        ...FONTS.Title3,
-                                        marginBottom: 10,
-                                        textAlign: 'center',
-                                    }}>
-                                    {`Image is too large. Please select an image under 2MB.`}
-                                </Text>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setShowSizeErrorModal(false);
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
                                     }}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title2,
+                                            ...FONTS.Title3,
                                             marginBottom: 10,
                                             textAlign: 'center',
-                                            color: COLORS.MIDORANGE,
                                         }}>
-                                        {`Close`}
+                                        {`Image is too large. Please select an image under 2MB.`}
                                     </Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setShowSizeErrorModal(false);
+                                        }}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginBottom: 10,
+                                                textAlign: 'center',
+                                                color: COLORS.MIDORANGE,
+                                            }}>
+                                            {`Close`}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
-                    </Modal>
-                </View>
-                <View></View>
+                        </Modal>
+                    </View>
+                </ScrollView>
             </SafeAreaView>
         </TabContainer>
     );

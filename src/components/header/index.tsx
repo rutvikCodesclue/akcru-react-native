@@ -45,6 +45,7 @@ const Header = () => {
                     'CruInviteReceived',
                     'CruViewScheduled',
                     'CruViewStarted',
+                    'ADReceived',
                 ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
@@ -95,7 +96,7 @@ const Header = () => {
                                 name="magnify"
                                 type="material-community"
                                 color={COLORS.LIGHTGREY}
-                                size={28}
+                                size={25}
                                 onPress={() => navigation.navigate('SearchMovieScreen')}
                             />
                         </TouchableOpacity>

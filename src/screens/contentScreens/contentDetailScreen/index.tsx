@@ -212,7 +212,7 @@ useEffect(() => {
                     </View>
 
                     {isMovieDataLoaded ? (
-                        <View style={{marginBottom: 75}}>
+                        <View style={{marginBottom: '20%'}}>
                             <View style={{marginTop: -65, marginBottom: 10}}>
                                 <MovieDetailCard
                                     reactions={reactions} // Pass the reactions here

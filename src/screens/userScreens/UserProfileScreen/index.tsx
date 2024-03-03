@@ -261,7 +261,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     ) => (
         <TabBar
             {...props}
-            indicatorStyle={{backgroundColor: COLORS.CATPURPDRK}}
+            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
             scrollEnabled={false}
             tabStyle={{width: SIZES.ScreenWidth / 4}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
@@ -372,7 +372,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Text style={{...FONTS.Title2, fontSize: 12}}>
+                                        <Text style={{...FONTS.Username}}>
                                             {user ? user?.username : 'Guest'}
                                         </Text>
                                         {user?.badge === 'AKCRUIT' && (
@@ -406,9 +406,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 />
                                                 <Text
                                                     style={{
-                                                        ...FONTS.Title2,
+                                                        ...FONTS.Username,
                                                         color: COLORS.LIGHTGREY,
-                                                        fontSize: 12,
+                                                 
                                                     }}>
                                                     Edit Profile
                                                 </Text>
@@ -433,8 +433,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>
+                                        <Text style={{...FONTS.Title3}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>
                                             Followers
                                         </Text>
                                     </TouchableOpacity>
@@ -470,7 +470,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 </View>
                             </View>
                             <View style={{marginTop: 20, marginHorizontal: 15}}>
-                                <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, fontSize: 12}}>
+                                <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                                     {user?.description ??
                                         (user
                                             ? 'Click Edit Profile to add a description'
