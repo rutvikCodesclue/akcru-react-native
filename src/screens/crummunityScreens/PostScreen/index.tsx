@@ -30,7 +30,7 @@ type Props = {
 
 const PostScreen = ({navigation, route}: Props) => {
     const postId = route.params?.postId;
-    console.log('PostScreen postId:', postId);
+    //console.log('PostScreen postId:', postId);
     const {user, hydrateUser} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
@@ -44,7 +44,7 @@ const PostScreen = ({navigation, route}: Props) => {
     const author: IUserProfile | null = route.params?.author ?? null;
     // const {post} = route.params;
     const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
-    console.log('PostScreen post:', post);
+    //console.log('PostScreen post:', post);
     const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -112,13 +112,13 @@ const PostScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const fetchCommentsAndStatuses = async () => {
-            console.log('Fetching comments and statuses');
+            //console.log('Fetching comments and statuses');
             if (post && post.id) {
                 setLoadingComments(true);
                 try {
                     // Fetch comments
                     const fetchedComments = await getPostComments(+post.id);
-                    console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
+                    //console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
 
                     // Initialize sets for following and blocked user IDs
                     let followingIds = new Set();
@@ -154,7 +154,7 @@ const PostScreen = ({navigation, route}: Props) => {
                     setLoadingComments(false);
                 }
             } else {
-                console.log('Post or post.id is not defined');
+                //console.log('Post or post.id is not defined');
             }
         };
 
@@ -216,7 +216,7 @@ const PostScreen = ({navigation, route}: Props) => {
     };
 
     const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        console.log('handleFollow', authorId);
+        //console.log('handleFollow', authorId);
         const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
         if (updatedStatus !== undefined) {
             setPosts(prevPosts =>

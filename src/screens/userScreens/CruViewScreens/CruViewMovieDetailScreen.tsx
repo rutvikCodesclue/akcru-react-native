@@ -141,7 +141,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
             if (formattedSelectedDateTimeInISO) {
-                console.log('formattedSelectedDateTime', formattedSelectedDateTimeInISO);
+                //console.log('formattedSelectedDateTime', formattedSelectedDateTimeInISO);
 
                 // Send formatted date along with time and timezone to the API
                 const createdCruView = await createACRUView({

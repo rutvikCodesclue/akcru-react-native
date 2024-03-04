@@ -50,7 +50,7 @@ const EditCru = () => {
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getMyCRU().then(res => {
-                console.log('Data from getMyCRU:', res); // Log the data
+                //console.log('Data from getMyCRU:', res); // Log the data
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
@@ -60,7 +60,7 @@ const EditCru = () => {
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Screen unfocused [EditCruScreen]');
+                //console.log('Screen unfocused [EditCruScreen]');
 
                 // cleanup (if app crashes or user leaves the screen unexpectedly)
             };
@@ -89,7 +89,7 @@ const EditCru = () => {
                     // Update the CRU object in your state
                     setCRU(updatedCRU);
                     // Log the modified CRU name
-                    console.log('Modified CRU Name:', updatedCRU.name);
+                    //console.log('Modified CRU Name:', updatedCRU.name);
                 }
             } else {
                 console.error('Invalid CRU name');
@@ -139,7 +139,7 @@ const EditCru = () => {
                     setMembers(prevMembers => prevMembers.filter(member => member.id !== memberToDelete.id));
                     // Hide the confirmation modal
                     setShowConfirmationModal(false);
-                    console.log('User removed from CRU:', memberToDelete.id);
+                    //console.log('User removed from CRU:', memberToDelete.id);
                 }
             } catch (error) {
                 console.error('Error removing user from CRU:', error);

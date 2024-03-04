@@ -33,7 +33,7 @@ const Welcome = () => {
                 if (audioResult !== RESULTS.GRANTED) {
                     const audioRequestResult = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
                     if (audioRequestResult === RESULTS.GRANTED) {
-                        console.log('Microphone permission granted');
+                        //console.log('Microphone permission granted');
                     }
                 }
 
@@ -42,7 +42,7 @@ const Welcome = () => {
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.ANDROID.CAMERA);
                     if (cameraRequestResult === RESULTS.GRANTED) {
-                        console.log('Camera permission granted');
+                        //console.log('Camera permission granted');
                     }
                 }
 
@@ -51,7 +51,7 @@ const Welcome = () => {
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                     if (audioMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_AUDIO permission granted');
+                        //console.log('READ_MEDIA_AUDIO permission granted');
                     }
                 }
 
@@ -60,7 +60,7 @@ const Welcome = () => {
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                     if (imagesMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_IMAGES permission granted');
+                        //console.log('READ_MEDIA_IMAGES permission granted');
                     }
                 }
 
@@ -69,7 +69,7 @@ const Welcome = () => {
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                     if (videoMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_VIDEO permission granted');
+                        //console.log('READ_MEDIA_VIDEO permission granted');
                     }
                 }
             }
@@ -81,7 +81,7 @@ const Welcome = () => {
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.IOS.CAMERA);
                     if (cameraRequestResult === RESULTS.GRANTED) {
-                        console.log('Camera permission granted');
+                        //console.log('Camera permission granted');
                     }
                 }
 
@@ -90,7 +90,7 @@ const Welcome = () => {
                 if (micResult !== RESULTS.GRANTED) {
                     const micRequestResult = await request(PERMISSIONS.IOS.MICROPHONE);
                     if (micRequestResult === RESULTS.GRANTED) {
-                        console.log('Microphone permission granted');
+                        //console.log('Microphone permission granted');
                     }
                 }
 
@@ -99,7 +99,7 @@ const Welcome = () => {
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
                     if (audioMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_AUDIO permission granted');
+                        //console.log('READ_MEDIA_AUDIO permission granted');
                     }
                 }
 
@@ -108,7 +108,7 @@ const Welcome = () => {
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
                     if (imagesMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_IMAGES permission granted');
+                        //console.log('READ_MEDIA_IMAGES permission granted');
                     }
                 }
 
@@ -117,7 +117,7 @@ const Welcome = () => {
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
                     if (videoMediaRequestResult === RESULTS.GRANTED) {
-                        console.log('READ_MEDIA_VIDEO permission granted');
+                        //console.log('READ_MEDIA_VIDEO permission granted');
                     }
                 }
             }

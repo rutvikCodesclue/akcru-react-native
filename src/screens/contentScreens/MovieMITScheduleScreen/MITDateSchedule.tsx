@@ -101,8 +101,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
     };
 
-    console.log('Movie title:', movie?.title); // Log movie URL for debugging
-    console.log('Movie title:', movie?.year); // Log movie URL for debugging
+    //console.log('Movie title:', movie?.title); // Log movie URL for debugging
+    //console.log('Movie title:', movie?.year); // Log movie URL for debugging
 
     const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
@@ -116,8 +116,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedUser, setSelectedUser] = useState(false);
 
     const handlePress = (username, badge, profilePicture) => {
-        console.log('Item with username', username, badge, 'pressed!');
-        console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
+        //console.log('Item with username', username, badge, 'pressed!');
+        //console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
         setScheduleIsShown(true);
         setSelectedUserName(username);
         setSelectedAkcruBadgeAkcruit(badge);
@@ -197,14 +197,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-            console.log('sending MIT');
-            console.log('selectedDate:', selectedDate);
-            console.log('selectedTime:', selectedTime);
-            console.log('selectedMovie:', movie?.title);
-            console.log('selectedTimeZone:', selectedTimeZone);
-            console.log('selectedUser:', user);
+            //console.log('sending MIT');
+            //console.log('selectedDate:', selectedDate);
+            //console.log('selectedTime:', selectedTime);
+            //console.log('selectedMovie:', movie?.title);
+            //console.log('selectedTimeZone:', selectedTimeZone);
+            //console.log('selectedUser:', user);
 
-            console.log('DATE SENT TO API:', selectedDate.toISOString());
+            //console.log('DATE SENT TO API:', selectedDate.toISOString());
 
             if (formattedSelectedDateTimeInISO) {
                 // Call API to send MIT Invite
@@ -214,7 +214,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     startDate: formattedSelectedDateTimeInISO,
                     timezone: selectedTimeZone,
                 });
-                console.log('response:', response);
+                //console.log('response:', response);
 
                 if (response) {
                     setIsDateTimeSelected(true);

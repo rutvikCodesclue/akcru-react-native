@@ -28,11 +28,11 @@ const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
     const {user} = useAuthStore();
     const [postText, setPostText] = useState('');
-    console.log('Post Text:', postText);
+    //console.log('Post Text:', postText);
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
-    console.log('Selected Images:', selectedImages);
+    //console.log('Selected Images:', selectedImages);
     const [selectedVideo, setSelectedVideo] = useState('');
-    console.log('Selected Video:', selectedVideo);
+    //console.log('Selected Video:', selectedVideo);
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
 
     const [isTagging, setIsTagging] = useState(false);
@@ -53,7 +53,7 @@ const NewPost = () => {
             selectionLimit: 3, // Limit to 3 images for a post
         };
 
-        console.log('Selecting post image');
+        //console.log('Selecting post image');
 
         let callbackExecuted = false;
 
@@ -64,7 +64,7 @@ const NewPost = () => {
                 }
 
                 callbackExecuted = true;
-                console.log('Number of images selected:', response.assets.length);
+                //console.log('Number of images selected:', response.assets.length);
 
                 const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
                 let imagesForPost = [];
@@ -104,7 +104,7 @@ const NewPost = () => {
             selectionLimit: 1, // Only allows 1 video
         };
 
-        console.log('Selecting post video');
+        //console.log('Selecting post video');
 
         let callbackExecuted = false;
 
@@ -115,16 +115,16 @@ const NewPost = () => {
                 }
 
                 callbackExecuted = true;
-                console.log('User cancelled video picker');
+                //console.log('User cancelled video picker');
             } else if (response.errorCode) {
-                console.log('VideoPicker Error: ', response.errorMessage);
+                //console.log('VideoPicker Error: ', response.errorMessage);
             } else if (response.assets) {
                 const video = response.assets[0];
 
                 // Check if the video file size is within limits
                 const maxSizeInBytes = 15 * 1024 * 1024; // Example: 15 MB limit
                 if (video.fileSize > maxSizeInBytes) {
-                    console.log('Video file is too large.');
+                    //console.log('Video file is too large.');
                     // Handle the error (e.g., show an error message)
                     return;
                 }
@@ -180,14 +180,14 @@ const NewPost = () => {
                 content = content.concat(mediaUrls);
             }
 
-            console.log('Post type:', postType);
-            console.log('Content:', content);
+            //console.log('Post type:', postType);
+            //console.log('Content:', content);
 
             // Call the createPost API function
             const result = await createPost(postType, content);
             if (result && result.id) {
-                console.log('Result.postId:', result.id);
-                console.log('Post created successfully', result);
+                //console.log('Result.postId:', result.id);
+                //console.log('Post created successfully', result);
                 const newPostId = result.id;
 
                 // Extract tagged usernames from postText
@@ -205,7 +205,7 @@ const NewPost = () => {
                                 const notificationType = 'UserTaggedOnPost'; // Adjust as needed
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
-                                    console.log(`Notification sent to ${username}`);
+                                    //console.log(`Notification sent to ${username}`);
                                 } else {
                                     console.error(`Failed to send notification to ${username}`);
                                 }
@@ -219,7 +219,7 @@ const NewPost = () => {
                 );
                 navigation.goBack();
             } else {
-                console.log('Failed to create the post');
+                //console.log('Failed to create the post');
             }
         } catch (error) {
             console.error('Error creating the post:', error);

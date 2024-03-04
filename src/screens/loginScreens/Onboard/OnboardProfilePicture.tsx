@@ -54,7 +54,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
               },
           };
 
-          console.log('select picture button');
+          //console.log('select picture button');
 
           // Add a flag to prevent multiple invocations
           let callbackExecuted = false;
@@ -68,8 +68,8 @@ const [isFormComplete, setIsFormComplete] = useState(false);
 
                   // Set the flag to true to indicate the callback has been executed
                   callbackExecuted = true;
-                  console.log('uri:', response.assets[0].uri);
-                  console.log('filesize:', response.assets[0].fileSize);
+                  //console.log('uri:', response.assets[0].uri);
+                  //console.log('filesize:', response.assets[0].fileSize);
                   const selectedImage = response.assets[0].uri;
 
                   // Get the type and name for the selected image
@@ -96,11 +96,11 @@ const [isFormComplete, setIsFormComplete] = useState(false);
 
                       if (updatedUserProfilePicture) {
                           // Set the new profile picture immediately
-                          console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                          //console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
                           setSelectImage(updatedUserProfilePicture.profilePicture || '');
                       } else {
                           // Handle failure or display an error message
-                          console.log('Failed to update profile picture');
+                          //console.log('Failed to update profile picture');
                       }
                   }}
               }

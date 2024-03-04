@@ -3,14 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
-  Dimensions,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Pressable,
-  Modal,
-  TextInput,
   SafeAreaView,
 } from "react-native";
 import styles from "./styles";

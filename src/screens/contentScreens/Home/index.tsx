@@ -76,7 +76,7 @@ const HomeScreen = () => {
     const handleVideoLoad = () => {
         // Logic for when the video is loaded
         setIsVideoLoaded(true);
-        console.log(topBox.length);
+        // console.log(topBox.length);
         setElapsedTime(0); // Reset elapsed time when a new video is loaded
     };
 
@@ -242,12 +242,12 @@ const HomeScreen = () => {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Home Screen focused [HomeScreen]');
+            // console.log('Home Screen focused [HomeScreen]');
             setTopBoxShouldAutoplay(true);
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Home Screen unfocused [HomeScreen]');
+                // console.log('Home Screen unfocused [HomeScreen]');
                 setTopBoxShouldAutoplay(false);
             };
         }, []),

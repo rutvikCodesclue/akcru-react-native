@@ -58,9 +58,9 @@ export default function ContentPlayer({navigation, route}: Props) {
             if (hasStartedWatching && user?.id && movieId) {
                 finishUserWatching(user.id, movieId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        console.log(`User finished watching movie: ${movieId}`);
+                        //console.log(`User finished watching movie: ${movieId}`);
                     } else {
-                        console.log(`Failed to mark movie as finished: ${movieId}`);
+                        //console.log(`Failed to mark movie as finished: ${movieId}`);
                     }
                 });
             }
@@ -131,7 +131,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         setIsMoviePlaying(false);
         if (movieId) {
             const pausedCurrentTime = currentTime;
-            console.log('Paused at:', pausedCurrentTime);
+            //console.log('Paused at:', pausedCurrentTime);
             setLastPlaybackPosition(movieId, pausedCurrentTime);
         }
     };

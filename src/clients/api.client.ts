@@ -3,8 +3,8 @@ export const isProduction = process.env.NODE_ENV === 'production';
 import {DEV_API_URL} from '@env';
 import authStore from '../stores/auth.store';
 
-console.log('Current ENV for API:', process.env.NODE_ENV);
-console.log('Current ENV for API:', DEV_API_URL);
+// console.log('Current ENV for API:', process.env.NODE_ENV);
+// console.log('Current ENV for API:', DEV_API_URL);
 
 // console.log('DEV_API_URL:', DEV_API_URL);
 // console.log('NODE_ENV:', process.env.NODE_ENV);

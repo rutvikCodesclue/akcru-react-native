@@ -69,19 +69,19 @@ const userId = useAuthStore(state => state.user?.id);
  useEffect(() => {
      // Subscribe to foreground message handling
      const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-         console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+         //console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
          onDisplayNotification(remoteMessage);
      });
 
      // Handle background messages
      messaging().setBackgroundMessageHandler(async remoteMessage => {
-         console.log('Message handled in the background!', remoteMessage);
+         //console.log('Message handled in the background!', remoteMessage);
          
      });
 
      // Handle notification clicks
      messaging().onNotificationOpenedApp(remoteMessage => {
-         console.log('Notification caused app to open from background state:', remoteMessage.data);
+         //console.log('Notification caused app to open from background state:', remoteMessage.data);
      });
 
      // Handle the initial notification when the app is opened from a quit state
@@ -89,7 +89,7 @@ const userId = useAuthStore(state => state.user?.id);
          .getInitialNotification()
          .then(remoteMessage => {
              if (remoteMessage) {
-                 console.log('Notification caused app to open from quit state:', remoteMessage.data);
+                 //console.log('Notification caused app to open from quit state:', remoteMessage.data);
              }
          });
 

@@ -26,9 +26,9 @@ const OTPVerificationSignup = ({route}) => {
 
     // Retrieve both email and phoneNumber from route.params
     const email = route.params?.email;
-    console.log('Email passed:', email);
+    //console.log('Email passed:', email);
     const phoneNumber = route.params?.phoneNumber;
-    console.log('Phone number passed:', phoneNumber);
+    //console.log('Phone number passed:', phoneNumber);
 
     const [otp, setOTP] = useState<string>('');
 
@@ -98,7 +98,7 @@ const OTPVerificationSignup = ({route}) => {
              const data = response.data;
 
              if (data.success) {
-                 console.log('Verification successful', data);
+                 //console.log('Verification successful', data);
                  setVerify(false);
                  handleShowOTPModal('success');
 

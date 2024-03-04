@@ -55,7 +55,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
     }
 
     if (movies.length === 0) {
-      console.log('No movies found...');
+      //console.log('No movies found...');
       
       setFilteredMovies([]);
       return;

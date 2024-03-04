@@ -96,7 +96,7 @@ const [resetResultType, setResetResultType] = useState({
           });
 
           if (updatedUser) {
-              console.log('Name updated successfully:', updatedUser);
+              //console.log('Name updated successfully:', updatedUser);
               useAuthStore.setState({user: updatedUser});
               navigation.navigate('OnboardProfilePicture');
           } else {

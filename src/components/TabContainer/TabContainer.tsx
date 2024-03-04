@@ -11,7 +11,7 @@ const TabContainer = ({children}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
 
     React.useEffect(() => {
-        console.log('Tab Container');
+        
         Animated.timing(animation, {
             toValue: opened ? 1 : 0,
             duration: 300,

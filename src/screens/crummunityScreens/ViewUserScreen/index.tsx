@@ -82,12 +82,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('ViewUserScreen focused [ViewUserScreen]');
+            //console.log('ViewUserScreen focused [ViewUserScreen]');
             hydrateUser();
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
+                //console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
             };
         }, []),
     );
@@ -98,7 +98,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
         const fetchCruInviteStatus = async () => {
             const status = await getCruInviteStatus(userID); // Assuming userID is the ID of the profile being viewed
             setCruInviteStatus(status);
-            console.log('Cru Invite Status', status);
+            //console.log('Cru Invite Status', status);
             // Update component state with the fetched status
             // This state will then be used to determine the label and action of the CRU Invite button
         };
@@ -116,7 +116,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     // Directly call `checkUserMembership` with `userID` (the ID of the user being viewed)
                     const membershipStatus = await checkUserMembership(userID);
                     setIsMember(membershipStatus);
-                    console.log('Membership Status:', membershipStatus);
+                    //console.log('Membership Status:', membershipStatus);
                 } catch (error) {
                     console.error('Failed to fetch membership status:', error);
                 }
@@ -215,7 +215,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }
     };
 
-    console.log('ViewUserScreen render', {follow});
+    //console.log('ViewUserScreen render', {follow});
 
     const [blockedUsers, setBlockedUsers] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -242,7 +242,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     };
 
     const handleFollowPress = async () => {
-        console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
+        //console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
 
         if (follow) {
             try {
@@ -358,7 +358,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     const userId = user?.id; // Get the current user's ID
                     if (userId) {
                         const currentWatchingData = await getUserCurrentWatching(userId); // Replace with your actual API call
-                        console.log('currentWatchingData', currentWatchingData);
+                        //console.log('currentWatchingData', currentWatchingData);
                         setCurrentlyWatching(currentWatchingData);
                     }
                 } catch (error) {
@@ -384,7 +384,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
 
         const handleBlockUserPress = async () => {
-            console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
+            //console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
 
             if (isUserBlocked) {
                 try {

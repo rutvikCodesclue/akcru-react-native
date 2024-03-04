@@ -62,7 +62,7 @@ const ReportUser = ({route}) => {
         };
 
         launchImageLibrary(options, response => {
-            console.log('Response from Image Picker:', response);
+            //console.log('Response from Image Picker:', response);
 
             if (response && !response.didCancel && response.assets) {
                 // Map through the assets to extract URIs
@@ -77,17 +77,17 @@ const ReportUser = ({route}) => {
         let uploadedImageUrls: string[] = [];
         if (selectedImages.length > 0) {
             // Attempt to upload the selected image and log the attempt
-            console.log('Attempting to upload image:', selectedImages);
+            //console.log('Attempting to upload image:', selectedImages);
             const uploadResponses = await uploadImages(selectedImages);
-            console.log('Upload response:', uploadResponses);
+            //console.log('Upload response:', uploadResponses);
 
             // Check if the upload was successful and a URL was returned
             if (uploadResponses && uploadResponses.success) {
                 // Assuming uploadResponses is an array of URLs
                 uploadedImageUrls = uploadResponses.content;
-                console.log('Uploaded Image URLs:', uploadedImageUrls);
+                //console.log('Uploaded Image URLs:', uploadedImageUrls);
             } else {
-                console.log('No image URL returned from upload');
+                //console.log('No image URL returned from upload');
             }
         }
         // Proceed to use `uploadedImageUrl` as before...
@@ -100,7 +100,7 @@ const ReportUser = ({route}) => {
             reportedByUserId: user?.id,
             userId: userID || authorId,
         };
-        console.log('Submitting report data:', reportData);
+        //console.log('Submitting report data:', reportData);
         try {
             const {success, message} = await sendAbuseReportToBackend(reportData);
             if (success) {
@@ -129,7 +129,7 @@ const ReportUser = ({route}) => {
     };
 
     const removeFromUpload = async imageUri => {
-        console.log('Attempting to remove image:', imageUri);
+        //console.log('Attempting to remove image:', imageUri);
         // Logic to remove image from your selectedImages state
         const updatedImages = selectedImages.filter(img => img !== imageUri);
         setSelectedImages(updatedImages);

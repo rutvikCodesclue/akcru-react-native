@@ -122,7 +122,7 @@ const ViewUserFollowList = ({route}: Props) => {
     useEffect(() => {
         const fetchData = async () => {
             const result = await getUserFollowing(userID);
-            console.log('Data received on FollowList Screen:', result);
+            //console.log('Data received on FollowList Screen:', result);
             if (result && result.following && Array.isArray(result.following)) {
                 setFollowingData(result.following); // Set the 'following' array as your data
             }

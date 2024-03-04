@@ -40,12 +40,12 @@ export default function TrailerPlayer({navigation, route}: Props) {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Trailer Screen focused [Trailer Screen]');
+            //console.log('Trailer Screen focused [Trailer Screen]');
             setShouldAutoplay(true);
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Trailer Screen unfocused [Trailer Screen]');
+                //console.log('Trailer Screen unfocused [Trailer Screen]');
                 setShouldAutoplay(false);
             };
         }, []),

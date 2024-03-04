@@ -59,12 +59,12 @@ const onChange = ({type}: {type: string}, selectedDate: Date) => {
         const currentDate = new Date(selectedDate);
         currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
         setDate(currentDate);
-        console.log('DOB setDate:', currentDate);
+        //console.log('DOB setDate:', currentDate);
 
         if (Platform.OS === 'android') {
             toggleDatePicker();
             setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
-            console.log('DOB setDate to string:', currentDate);
+            //console.log('DOB setDate to string:', currentDate);
         }
     } else {
         toggleDatePicker();
@@ -134,7 +134,7 @@ const DOBSet = async () => {
         setIsLoading(true);
         const updatedUser = await updateUser({dob: dob});
         if (updatedUser) {
-            console.log('DOB updated successfully:', updatedUser);
+            //console.log('DOB updated successfully:', updatedUser);
             useAuthStore.setState({user: updatedUser});
             navigation.navigate('OnboardName'); // Replace with your next screen
         } else {
@@ -205,7 +205,7 @@ const DOBSet = async () => {
                                       iconcolor={COLORS.LIGHTGREY}
                                       secureTextEntry={false}
                                       onChangeText={(text: string) => {
-                                          console.log('Input Changed:', text); // Log input changes
+                                          //console.log('Input Changed:', text); // Log input changes
                                           setDob(text); // Call handleDobChange
                                       }}
                                       value={dob ? formatDateToDayMonthYear(new Date(dob)) : 'Select date'}
