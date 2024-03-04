@@ -67,3 +67,6 @@ yarn-error.log
 
 # .env
 .env
+
+#Android
+/android

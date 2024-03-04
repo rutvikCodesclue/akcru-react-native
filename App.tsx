@@ -23,7 +23,9 @@ import notifee from '@notifee/react-native';
 import {AndroidColor} from '@notifee/react-native';
 import {getPushToken, requestUserPermission} from './lib/pushNotifications'
 import useAuthStore from './src/stores/auth.store';
-
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
+LogBox.ignoreAllLogs();//Ignore all log notifications
 
 function App(): JSX.Element {
     // Deep link handling function
