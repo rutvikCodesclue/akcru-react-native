@@ -32,7 +32,7 @@ const OnboardUsername = ({route}) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const phoneNumber = route.params?.phoneNumber;
-    console.log('Phone number passed to username:', phoneNumber);
+    //console.log('Phone number passed to username:', phoneNumber);
 const [userName, setUserName] = useState<string>('');
 const [loading, setLoading] = useState<boolean>(false);
 const [userNameError, setUserNameError] = useState(false);
@@ -104,7 +104,7 @@ const [resetResultType, setResetResultType] = useState({
                   });
 
                   if (updatedUser) {
-                      console.log('Profile updated successfully:', updatedUser);
+                      //console.log('Profile updated successfully:', updatedUser);
                       const currentUser = useAuthStore.getState().user;
 
                       if (currentUser) {

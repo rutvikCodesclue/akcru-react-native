@@ -58,17 +58,17 @@ const AccountSettings = () => {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('AccountSettings Screen focused [AccountSettings]');
+            //console.log('AccountSettings Screen focused [AccountSettings]');
             hydrateUser();
-            console.log(user?.username)
-            console.log(user?.password)
-            console.log(user?.dateOfBirth)
-            console.log(user?.firstName)
-            console.log(user?.email)
+            //console.log(user?.username)
+            //console.log(user?.password)
+            //console.log(user?.dateOfBirth)
+            //console.log(user?.firstName)
+            //console.log(user?.email)
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('AccountSettings Screen unfocused [AccountSettings]');
+                //console.log('AccountSettings Screen unfocused [AccountSettings]');
             };
         }, []),
     );
@@ -130,7 +130,7 @@ const AccountSettings = () => {
 
             if (updatedUser) {
                 // Update was successful on both client and backend
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
@@ -172,7 +172,7 @@ const AccountSettings = () => {
 
             if (updatedUser) {
                 // Update was successful on both client and backend
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
@@ -218,7 +218,7 @@ const AccountSettings = () => {
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 console.error('Failed to update profile.');
             }
@@ -265,12 +265,12 @@ const AccountSettings = () => {
         const currentDate = new Date(selectedDate);
         currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
         setDate(currentDate);
-        console.log('DOB setDate:', currentDate);
+        //console.log('DOB setDate:', currentDate);
 
         if (Platform.OS === 'android') {
             toggleDatePicker();
             setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
-            console.log('DOB setDate to string:', currentDate);
+            //console.log('DOB setDate to string:', currentDate);
         }
     } else {
         toggleDatePicker();
@@ -297,7 +297,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
 
             if (updatedUser) {
                 // Update was successful on both client and backend
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
@@ -354,7 +354,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
 
             if (updatedUser) {
                 // Update was successful on both client and backend
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
@@ -799,7 +799,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={(text: string) => {
-                                                console.log('Input Changed:', text); // Log input changes
+                                                //console.log('Input Changed:', text); // Log input changes
                                                 setDob(text); // Call handleDobChange
                                             }}
                                             value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''} // Use the dob state

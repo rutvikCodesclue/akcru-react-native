@@ -221,7 +221,7 @@ const onMessageListener = useCallback((data: HMSMessage) => {
   }
 
   const onError = (e :any ) =>{
-    console.log('FAILLL'+JSON.stringify(e));
+    //console.log('FAILLL'+JSON.stringify(e));
   }
  
 
@@ -247,10 +247,10 @@ const onMessageListener = useCallback((data: HMSMessage) => {
 
     const handleDecline = () => {
         setIsLoading(true);
-        console.log('decline invite');
+        //console.log('decline invite');
         declineAMITInvite({inviteId: MITID})
             .then(res => {
-                console.log('declined res:', res);
+                //console.log('declined res:', res);
                 setIsLoading(false);
                 // Add any additional logic you need after declining the invite
                 // For example, navigate to another screen or update the UI.
@@ -264,10 +264,10 @@ const onMessageListener = useCallback((data: HMSMessage) => {
 
     const handleAccept = () => {
         setIsLoading(true);
-        console.log('accept invite');
+        //console.log('accept invite');
         acceptAMITInvite({inviteId: MITID})
             .then(res => {
-                console.log('accepted res:', res);
+                //console.log('accepted res:', res);
                 setIsLoading(false);
                 // Add any additional logic you need after accepting the invite
                 // For example, navigate to another screen or update the UI.

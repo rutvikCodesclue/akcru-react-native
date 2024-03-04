@@ -76,7 +76,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
           userID: user?.id,
           userName: user?.username,
       });
-      console.log('Item with userID', userID, user?.username, 'pressed!');
+      //console.log('Item with userID', userID, user?.username, 'pressed!');
   };
 
   useEffect(() => {

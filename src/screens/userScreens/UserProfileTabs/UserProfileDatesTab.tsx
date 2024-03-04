@@ -31,12 +31,12 @@ const UserProfileDatesTab = () => {
                 .then(audioResult => {
                     if (audioResult === RESULTS.GRANTED) {
                         // Microphone permission granted
-                        console.log('Microphone permission granted');
+                        //console.log('Microphone permission granted');
                     }
                 })
                 .catch(audioError => {
                     // Handle microphone permission request error
-                    console.log('Microphone permission request error:', audioError);
+                    //console.log('Microphone permission request error:', audioError);
                 });
 
             // Request camera permission
@@ -44,12 +44,12 @@ const UserProfileDatesTab = () => {
                 .then(cameraResult => {
                     if (cameraResult === RESULTS.GRANTED) {
                         // Camera permission granted
-                        console.log('Camera permission granted');
+                        //console.log('Camera permission granted');
                     }
                 })
                 .catch(cameraError => {
                     // Handle camera permission request error
-                    console.log('Camera permission request error:', cameraError);
+                    //console.log('Camera permission request error:', cameraError);
                 });
         }
         // check permissions for camera and microphone on iOS
@@ -58,27 +58,27 @@ const UserProfileDatesTab = () => {
                 .then(result => {
                     switch (result) {
                         case RESULTS.UNAVAILABLE:
-                            console.log('The camera is not available (on this device / in this context)');
+                            //console.log('The camera is not available (on this device / in this context)');
                             break;
                         case RESULTS.DENIED:
-                            console.log('The camera permission has not been requested / is denied but requestable');
+                            //console.log('The camera permission has not been requested / is denied but requestable');
                             request(PERMISSIONS.IOS.CAMERA).then(result => {
                                 // …
-                                console.log('Requested camera permission', result);
+                                //console.log('Requested camera permission', result);
                                 if (result === RESULTS.GRANTED) {
                                     setCameraPermission(true);
                                 }
                             });
                             break;
                         case RESULTS.LIMITED:
-                            console.log('The camera permission is limited: some actions are possible');
+                            //console.log('The camera permission is limited: some actions are possible');
                             break;
                         case RESULTS.GRANTED:
-                            console.log('The camera permission is granted', result);
+                            //console.log('The camera permission is granted', result);
                             setCameraPermission(true);
                             break;
                         case RESULTS.BLOCKED:
-                            console.log('The camera permission is denied and not requestable anymore');
+                            //console.log('The camera permission is denied and not requestable anymore');
                             break;
                     }
                 })
@@ -90,27 +90,27 @@ const UserProfileDatesTab = () => {
                 .then(result => {
                     switch (result) {
                         case RESULTS.UNAVAILABLE:
-                            console.log('The microphone is not available (on this device / in this context)');
+                            //console.log('The microphone is not available (on this device / in this context)');
                             break;
                         case RESULTS.DENIED:
-                            console.log('The microphone permission has not been requested / is denied but requestable');
+                            //console.log('The microphone permission has not been requested / is denied but requestable');
                             request(PERMISSIONS.IOS.MICROPHONE).then(result => {
                                 // …
-                                console.log('Requested microphone permission');
+                                //console.log('Requested microphone permission');
                                 if (result === RESULTS.GRANTED) {
                                     setMicPermission(true);
                                 }
                             });
                             break;
                         case RESULTS.LIMITED:
-                            console.log('The microphone permission is limited: some actions are possible');
+                            //console.log('The microphone permission is limited: some actions are possible');
                             break;
                         case RESULTS.GRANTED:
-                            console.log('The microphone permission is granted');
+                            //console.log('The microphone permission is granted');
                             setMicPermission(true);
                             break;
                         case RESULTS.BLOCKED:
-                            console.log('The microphone permission is denied and not requestable anymore');
+                            //console.log('The microphone permission is denied and not requestable anymore');
                             break;
                     }
                 })

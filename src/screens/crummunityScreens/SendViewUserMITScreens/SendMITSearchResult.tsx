@@ -80,7 +80,7 @@ const userID: string | undefined = route.params?.userID ?? null;
        }
 
        if (movies.length === 0) {
-           console.log('No movies found...');
+           //console.log('No movies found...');
 
            setFilteredMovies([]);
            return;
@@ -182,7 +182,7 @@ const userID: string | undefined = route.params?.userID ?? null;
                                               userID: user?.id,
                                               userName: user?.username,
                                           });
-                                          console.log('Item with userID', userID, user?.username, 'pressed!');
+                                          //console.log('Item with userID', userID, user?.username, 'pressed!');
                                       }}
                                   />
                               </View>

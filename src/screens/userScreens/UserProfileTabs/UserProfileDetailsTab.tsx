@@ -82,7 +82,7 @@ const UserProfileDetailsTab = () => {
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Screen unfocused [EditCruScreen]');
+                //console.log('Screen unfocused [EditCruScreen]');
 
                 // cleanup (if app crashes or user leaves the screen unexpectedly)
             };
@@ -157,7 +157,7 @@ const UserProfileDetailsTab = () => {
          selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
      };
 
-     console.log('select picture button');
+     //console.log('select picture button');
 
      // Add a flag to prevent multiple invocations
      let callbackExecuted = false;
@@ -171,7 +171,7 @@ const UserProfileDetailsTab = () => {
 
              // Set the flag to true to indicate the callback has been executed
              callbackExecuted = true;
-             console.log('Number of images selected:', response.assets.length);
+             //console.log('Number of images selected:', response.assets.length);
 
              // Array to hold URIs of successfully uploaded images
              let uploadedImages = [];
@@ -179,8 +179,8 @@ const UserProfileDetailsTab = () => {
              const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
 
              for (const asset of response.assets) {
-                 console.log('uri:', asset.uri);
-                 console.log('filesize:', asset.fileSize);
+                 //console.log('uri:', asset.uri);
+                 //console.log('filesize:', asset.fileSize);
                  const selectedImage = asset.uri;
                  const imageType = asset.type;
                  const imageName = asset.fileName;
@@ -202,11 +202,11 @@ const UserProfileDetailsTab = () => {
                              });
 
                              if (updatedUser) {
-                                 console.log('updatedUserProfileGallery:', updatedUser);
-                                         console.log('Addedtogallery called with image:', selectedImage);
+                                 //console.log('updatedUserProfileGallery:', updatedUser);
+                                         //console.log('Addedtogallery called with image:', selectedImage);
                                  uploadedImages.push(selectedImage); // Add the new image URI to the array
                              } else {
-                                 console.log('Failed to update profile Gallery');
+                                 //console.log('Failed to update profile Gallery');
                              }
                          } catch (error) {
                              console.error('Error updating gallery:', error);
@@ -232,14 +232,14 @@ const UserProfileDetailsTab = () => {
 
 
     const removeFromGallery = async (image: string) => {
-        console.log('removeFromGallery called with image:', image);
+        //console.log('removeFromGallery called with image:', image);
         try {
             const updatedUser = await deleteUserGalleryImage(image);
             if (updatedUser) {
                 // Update local state to reflect changes
                 setUserPics(updatedUser.gallery);
             } else {
-                console.log('Failed to delete image from gallery');
+                //console.log('Failed to delete image from gallery');
                 // Handle failure (e.g., show a notification to the user)
             }
         } catch (error) {

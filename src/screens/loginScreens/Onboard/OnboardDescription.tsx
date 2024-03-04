@@ -52,7 +52,7 @@ const OnboardDescription = () => {
             });
 
             if (updatedUser) {
-                console.log('Description updated successfully:', updatedUser);
+                //console.log('Description updated successfully:', updatedUser);
                 // Assuming useAuthStore is for state management
                 const currentUser = useAuthStore.getState().user;
                 if (currentUser) {

@@ -122,7 +122,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const handleFocus = () => {
-            console.log('Screen gained focus');
+            //console.log('Screen gained focus');
             fetchPostsAndFollowStatus(1); // Fetch the first page of posts along with follow status
         };
 
@@ -133,7 +133,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
         return () => {
             unsubscribeFocus();
-            console.log('Screen lost focus');
+            //console.log('Screen lost focus');
         };
     }, [navigation, currentUserID]); // Depend on currentUserID to refetch if it changes
 
@@ -217,7 +217,7 @@ const handleDeletePost = async (postId: number) => {
 };
 
 const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-    console.log('handleFollow', authorId);
+    //console.log('handleFollow', authorId);
     const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
     if (updatedStatus !== undefined) {
         setPosts(prevPosts =>
@@ -244,7 +244,7 @@ const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: 
             authorProfilePicture: author.profilePicture,
             authorBadge: author.badge,
         });
-        console.log('Report user screen opened:', author);
+        //console.log('Report user screen opened:', author);
     };
 
 

@@ -404,8 +404,8 @@ export default function ContentSwipe({navigation, route}: Props) {
                             index={index}
                             scrollX={_scrollX}
                             onPress={() => {
-                                console.log('id:', item.id);
-                                console.log('movie:', item.title);
+                                // console.log('id:', item.id);
+                                // console.log('movie:', item.title);
                                 navigation.navigate('ContentDetailScreen', {
                                     id: item.id,
                                     movie: item.id,

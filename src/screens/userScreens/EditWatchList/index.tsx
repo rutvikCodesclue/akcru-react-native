@@ -145,8 +145,8 @@ useEffect(() => {
                                         <View style={{paddingRight: 5}}>
                                             <TouchableOpacity
                                                 onPress={() => {
-                                                    console.log('id:', item.id);
-                                                    console.log('movie:', item.title);
+                                                    //console.log('id:', item.id);
+                                                    //console.log('movie:', item.title);
                                                     navigation.navigate('ContentDetailScreen', {
                                                         id: item.id,
                                                         movie: item.title,

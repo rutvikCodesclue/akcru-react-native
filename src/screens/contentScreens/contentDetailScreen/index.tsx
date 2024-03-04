@@ -187,13 +187,13 @@ export default function ContentDetailScreen({navigation, route}: Props) {
         }
         setShowResultModal(false);
     };
-        console.log('Movie Title:',title, year )
+        // console.log('Movie Title:',title, year )
         
 const [reactions, setReactions] = useState<string[]>([]); // Initialize as an empty array of strings
 
 useEffect(() => {
     getUserReactions().then(fetchedReactions => {
-        console.log('Fetched Reactions:', fetchedReactions); // Log for debugging
+        // console.log('Fetched Reactions:', fetchedReactions); // Log for debugging
         if (Array.isArray(fetchedReactions)) {
             setReactions(fetchedReactions);
         }
@@ -252,7 +252,7 @@ useEffect(() => {
                                             portraitURL: portraitURL,
                                             year: year,
                                         });
-                                        console.log('Movie Title:', id, description);
+                                        // console.log('Movie Title:', id, description);
                                     }}
                                     watchlistButton={() => {
                                         setShowAddToWatchListConfirmationModal(true);

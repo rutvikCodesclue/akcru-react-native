@@ -90,9 +90,9 @@ const UserProfileCruInvites = () => {
 
     const _acceptCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        console.log('accept CruInvite');
+        //console.log('accept CruInvite');
         acceptACRUInvite({inviteId: item.id}).then(res => {
-            console.log('accepted res:', res);
+            //console.log('accepted res:', res);
             setIsLoading(false);
             // Navigate to CruInviteAccept screen with necessary parameters for CruInvite
             navigation.navigate('CruInviteAccept', {
@@ -107,9 +107,9 @@ const UserProfileCruInvites = () => {
 
     const _declineCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        console.log('decline CruInvite');
+        //console.log('decline CruInvite');
         declineACRUInvite({inviteId: item.id}).then(res => {
-            console.log('declined res:', res);
+            //console.log('declined res:', res);
             setIsLoading(false);
             // Navigate to CruInviteDecline screen with necessary parameters for CruInvite
             navigation.navigate('CruInviteDecline', {

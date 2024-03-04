@@ -27,7 +27,7 @@ const UserNotifications = () => {
         async function fetchNotifications() {
             try {
                 const fetchedNotifications = await getMyNotifications();
-                console.log('Fetched Notifications:', fetchedNotifications);
+                //console.log('Fetched Notifications:', fetchedNotifications);
                 setNotifications(fetchedNotifications || []);
             } catch (error) {
                 console.error(error);
@@ -71,7 +71,7 @@ const UserNotifications = () => {
               case 'CruInviteDeclined':
                   // Assuming the notification includes the user ID of the follower
                   const userId = notification.senderId; // Adjust this to match your notification structure
-                  console.log('Notification Data:', notification)
+                  //console.log('Notification Data:', notification)
                   if (userId) {
                       navigation.navigate('ViewUserScreen', {userID: userId});
                   } else {
@@ -137,7 +137,7 @@ const UserNotifications = () => {
             // Call the API to mark the notification as read
             const updatedNotification = await markNotificationRead({id: notificationId});
 
-            console.log('API Response:', updatedNotification);
+            //console.log('API Response:', updatedNotification);
 
             if (updatedNotification) {
                 // Update the local state to mark the notification as read
@@ -162,7 +162,7 @@ const UserNotifications = () => {
                 const response = await batchMarkNotificationsRead(unreadNotificationIds); // Implement this function
                 if (response.success) {
                     setNotifications(notifications.map(notif => ({...notif, isRead: true})));
-                    console.log('All notifications marked as read');
+                    //console.log('All notifications marked as read');
                 } else {
                     console.error('Failed to mark all notifications as read');
                 }
@@ -242,9 +242,9 @@ const UserNotifications = () => {
                             {sortedNotifications.map((notification, index) => {
                                 const {id, type, message, isRead, createdAt, user} = notification;
 
-                                // Console.log the isRead property
-                                console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                                console.log('User Data Notification:', notification);
+                                // //console.log the isRead property
+                                //console.log(`Notification ID: ${id}, isRead: ${isRead}`);
+                                //console.log('User Data Notification:', notification);
 
                                 // Use the mapping function to get the display name
                                 const displayName = getNotificationDisplayName(type);

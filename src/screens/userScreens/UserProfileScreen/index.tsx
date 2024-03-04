@@ -327,7 +327,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     const followersCount = followersData.length;
 
-    console.log('User Id:', user?.id);
+    //console.log('User Id:', user?.id);
 
     return (
         <TabContainer>

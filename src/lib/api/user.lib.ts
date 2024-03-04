@@ -89,7 +89,7 @@ export const updateUser = async (params: {
         };
 
         // Log the updateUserObj to verify its contents
-        console.log('Update User Object:', updateUserObj);
+        //console.log('Update User Object:', updateUserObj);
 
         const {data} = await API.put(`/v1/user`, updateUserObj);
 
@@ -166,7 +166,7 @@ export const updateUserGallery = async (params: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log('data', data);
+        //console.log('data', data);
         if (data.success === false) {
             return undefined;
         }
@@ -174,7 +174,7 @@ export const updateUserGallery = async (params: {
         return data.updatedUser;
     } catch (error) {
         console.error(error);
-        console.log('Update add to gallery', error);
+        //console.log('Update add to gallery', error);
         return undefined;
     }
 };
@@ -184,7 +184,7 @@ export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserPro
         // Send a DELETE request to the backend with imageUrl as a query parameter
         const {data} = await API.delete(`/v1/user/profileGallery/delete?imageUrl=${encodeURIComponent(imageUrl)}`);
 
-        console.log('data', data);
+        //console.log('data', data);
 
         if (data.success === false) {
             return undefined;
@@ -380,9 +380,9 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
 };
 
 export const startUserWatching = async (userId: string, movieId: string) => {
-    console.log('startUserWatching function called');
-    console.log(`Received userId: ${userId}, movieId: ${movieId}`);
-    console.log(`Type of userId: ${typeof userId}, Type of movieId: ${typeof movieId}`);
+    //console.log('startUserWatching function called');
+    //console.log(`Received userId: ${userId}, movieId: ${movieId}`);
+    //console.log(`Type of userId: ${typeof userId}, Type of movieId: ${typeof movieId}`);
 
     // Check if userId and movieId are strings (or whatever type you expect)
     if (typeof userId !== 'string' || typeof movieId !== 'string') {
@@ -397,7 +397,7 @@ export const startUserWatching = async (userId: string, movieId: string) => {
         });
 
         if (response.data && response.data.success) {
-            console.log('User started watching movie successfully:', response.data.userWatching);
+            //console.log('User started watching movie successfully:', response.data.userWatching);
             return true;
         } else {
             console.error('Failed to start watching movie:', response.data.message);
@@ -410,8 +410,8 @@ export const startUserWatching = async (userId: string, movieId: string) => {
 };
 
 export const finishUserWatching = async (userId: string, movieId: string) => {
-    console.log('finishUserWatching function called');
-    console.log(`Received userId: ${userId}, movieId: ${movieId}`);
+    //console.log('finishUserWatching function called');
+    //console.log(`Received userId: ${userId}, movieId: ${movieId}`);
 
     // Check if userId and movieId are strings (or whatever type you expect)
     if (typeof userId !== 'string' || typeof movieId !== 'string') {
@@ -425,7 +425,7 @@ export const finishUserWatching = async (userId: string, movieId: string) => {
         });
 
         if (response.data && response.data.success) {
-            console.log('User finished watching movie successfully:', response.data.userWatching);
+            //console.log('User finished watching movie successfully:', response.data.userWatching);
             return true;
         } else {
             console.error('Failed to finish watching movie:', response.data.message);
@@ -463,7 +463,7 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
         });
 
         if (response.data && response.data.success) {
-            console.log('Watch history logged successfully:', response.data.watchHistory);
+            //console.log('Watch history logged successfully:', response.data.watchHistory);
             return true;
         } else {
             console.error('Failed to log watch history:', response.data.message);
@@ -499,7 +499,7 @@ export const sendReportToBackend = async ({
             name,
         });
         if (response.data && response.data.success) {
-            console.log('Report successfully submitted:', response.data);
+            //console.log('Report successfully submitted:', response.data);
             return {success: true, message: 'Report successfully submitted.'};
         } else {
             console.error('Failed to submit report:', response.data);
@@ -515,7 +515,7 @@ export const sendReportToBackend = async ({
 };
 
 // export const uploadImage = async (uri?: string): Promise<string | undefined> => {
-//     console.log('Attempting to upload image:', uri);
+//     //console.log('Attempting to upload image:', uri);
 //     if (!uri) {
 //         console.log('No URI provided for upload');
 //         return undefined;
@@ -559,9 +559,9 @@ export const sendReportToBackend = async ({
 
 
 export const uploadImages = async (uris: string[]): Promise<string[] | undefined> => {
-    console.log('Attempting to upload image:', uris);
+    //console.log('Attempting to upload image:', uris);
     if (!uris.length) {
-        console.log('No URI provided for upload');
+        //console.log('No URI provided for upload');
         return undefined;
     }
 
@@ -595,7 +595,7 @@ export const uploadImages = async (uris: string[]): Promise<string[] | undefined
             },
         });
 
-        console.log('Upload response:', response.data);
+        //console.log('Upload response:', response.data);
 
         // Inside your uploadImage function
         if (response.data && response.data.success) {
@@ -637,7 +637,7 @@ export const sendAbuseReportToBackend = async ({
             userId,
         });
         if (response.data && response.data.success) {
-            console.log('Report successfully submitted:', response.data);
+            //console.log('Report successfully submitted:', response.data);
             return {success: true, message: 'Report successfully submitted.'};
         } else {
             console.error('Failed to submit report:', response.data);
@@ -658,7 +658,7 @@ export const blockUser = async (blockedId: string): Promise<{ success: boolean; 
     try {
         const response = await API.post('/v1/user/block-user', { blockedId });
         if (response.data && response.data.success) {
-            console.log('User successfully blocked:', response.data);
+            //console.log('User successfully blocked:', response.data);
             return { success: true, message: 'User successfully blocked.' };
         } else {
             console.error('Failed to block user:', response.data.message);
@@ -674,7 +674,7 @@ export const getBlockedUsers = async (): Promise<{ success: boolean; message: st
     try {
         const response = await API.get('/v1/user/blocked-users');
         if (response.data && response.data.success) {
-            console.log('Retrieved blocked users successfully:', response.data.blockedUsers);
+            //console.log('Retrieved blocked users successfully:', response.data.blockedUsers);
             return { success: true, message: 'Blocked users retrieved successfully.', blockedUsers: response.data.blockedUsers };
         } else {
             console.error('Failed to retrieve blocked users:', response.data.message);
@@ -694,7 +694,7 @@ export const unblockUser = async (userIdToUnblock: string): Promise<{success: bo
 
         // Assuming your backend sends back a 'success' boolean and an optional 'message' in the response
         if (data.success) {
-            console.log('User unblocked successfully:', data.message);
+            //console.log('User unblocked successfully:', data.message);
             return {success: true, message: data.message};
         } else {
             console.error('Failed to unblock user:', data.message);

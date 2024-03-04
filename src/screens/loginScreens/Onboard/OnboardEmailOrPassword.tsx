@@ -35,9 +35,9 @@ const OnboardEmailOrPassword = ({route}) => {
 
     // Retrieve both email and phoneNumber from route.params
     const email = route.params?.email;
-    console.log('Email passed to PW:', email);
+    //console.log('Email passed to PW:', email);
     const phoneNumber = route.params?.phoneNumber;
-    console.log('Phone number passed to PW:', phoneNumber);
+    //console.log('Phone number passed to PW:', phoneNumber);
 
     const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);

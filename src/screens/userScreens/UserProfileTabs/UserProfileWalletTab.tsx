@@ -85,7 +85,7 @@ const UserProfileWalletTab = () => {
                     recipientId: selectedUser.id, // Assuming selectedUser has an 'id' field
                     adAmount: adAmountNumber,
                 });
-                console.log('Response:', response);
+                //console.log('Response:', response);
                 if (response.success) {
                     // Alert.alert('Success', response.message || 'AD sent successfully');
                     // Optionally, update any relevant state or navigate as needed

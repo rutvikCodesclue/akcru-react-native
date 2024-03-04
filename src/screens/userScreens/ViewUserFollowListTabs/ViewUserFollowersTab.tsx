@@ -39,12 +39,12 @@ const ViewUserFollowersTab = ({userID}) => {
                             userPicture={item.profilePicture}
                             userName={item.username}
                             onPress={() => {
-                                console.log(
-                                    'Navigating to ViewUserScreen with userID:',
-                                    item.username,
-                                    item.id,
-                                    item.firstName,
-                                );
+                                // console.log(
+                                //     'Navigating to ViewUserScreen with userID:',
+                                //     item.username,
+                                //     item.id,
+                                //     item.firstName,
+                                // );
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
                                 });

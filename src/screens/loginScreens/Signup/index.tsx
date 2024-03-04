@@ -130,7 +130,7 @@ const Signup = () => {
            setIsLoading(true);
 
            setLoading(true);
-           console.log('Attempting to Signup w/ Email/Password:', email, password);
+           //console.log('Attempting to Signup w/ Email/Password:', email, password);
 
            // Create an email signup
            const {user, error: signupError} = await useAuthStore.getState().signUpWithEmail(email, password);
@@ -138,7 +138,7 @@ const Signup = () => {
                throw new Error(signupError.message || 'Error during signup');
            }
 
-           console.log('Signup Successful!', user);
+           //console.log('Signup Successful!', user);
 
            // Login through the API
            const {
@@ -150,10 +150,10 @@ const Signup = () => {
                throw new Error(loginError.message || 'Error logging in after signup');
            }
 
-           console.log('Login AFTER SIGNUP Successful!', session);
+           //console.log('Login AFTER SIGNUP Successful!', session);
            await useAuthStore.getState().hydrateAuth();
            await useAuthStore.getState().hydrateUser();
-           console.log('Hydrated auth and user after successful login and signup', session);
+           //console.log('Hydrated auth and user after successful login and signup', session);
 
            // Navigate to the next screen on successful signup and login
            navigation.navigate('OnBoard1');

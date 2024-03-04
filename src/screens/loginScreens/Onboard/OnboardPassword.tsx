@@ -24,9 +24,9 @@ const OnboardPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     // Retrieve both email and phoneNumber from route.params
     const email = route.params?.email;
-    console.log('Email passed to pw screen:', email);
+    //console.log('Email passed to pw screen:', email);
     const phoneNumber = route.params?.phoneNumber;
-    console.log('Phone number passed pw screen:', phoneNumber);
+    //console.log('Phone number passed pw screen:', phoneNumber);
   
     const user = useAuthStore(state => state.user);
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -84,7 +84,7 @@ const OnboardPassword = ({route}) => {
             setIsLoading(true);
 
             setLoading(true);
-            console.log('Attempting to Signup w/ Email/Password:', email, password);
+            //console.log('Attempting to Signup w/ Email/Password:', email, password);
 
             // Create an email signup
             const {user, error: signupError} = await useAuthStore.getState().signUpWithEmail(email, password);
@@ -92,7 +92,7 @@ const OnboardPassword = ({route}) => {
                 throw new Error(signupError.message || 'Error during signup');
             }
 
-            console.log('Signup Successful!', user);
+            //console.log('Signup Successful!', user);
 
             // Login through the API
             const {
@@ -104,10 +104,10 @@ const OnboardPassword = ({route}) => {
                 throw new Error(loginError.message || 'Error logging in after signup');
             }
 
-            console.log('Login AFTER SIGNUP Successful!', session);
+            //console.log('Login AFTER SIGNUP Successful!', session);
             await useAuthStore.getState().hydrateAuth();
             await useAuthStore.getState().hydrateUser();
-            console.log('Hydrated auth and user after successful login and signup', session);
+            //console.log('Hydrated auth and user after successful login and signup', session);
             getPushToken(email);
             // Navigate to the next screen on successful signup and login
             navigation.navigate('OnboardUsername', {phoneNumber: phoneNumber});

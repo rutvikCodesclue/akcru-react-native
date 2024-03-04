@@ -59,7 +59,7 @@ const OnboardArchetype = () => {
              }));
          } else {
              // If limit is reached, show a message or perform an action
-             console.log('You can only select up to two genres.');
+             //console.log('You can only select up to two genres.');
          }
      }
  };
@@ -71,7 +71,7 @@ const OnboardArchetype = () => {
 
  const handleFinishButton = async () => {
      const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-     console.log('Selected Genres:', selectedGenres);
+     //console.log('Selected Genres:', selectedGenres);
 
      if (selectedGenres.length === 2) {
          const genreNames = selectedGenres.map(genreId => {
@@ -80,7 +80,7 @@ const OnboardArchetype = () => {
          });
 
          const newArchetypeKey = genreNames.sort().join(', ');
-         console.log('Archetype Key:', newArchetypeKey);
+         //console.log('Archetype Key:', newArchetypeKey);
 
          const selectedArchetype = archetypeMapping[newArchetypeKey];
 
@@ -90,7 +90,7 @@ const OnboardArchetype = () => {
              const newArchetypeName = selectedArchetype.name;
              const newArchetypeImage = selectedArchetype.image; // Set the image here
              const newArchetypeDescription = selectedArchetype.description; // Set the description here
-             console.log('Selected Archetype:', newArchetypeName);
+             //console.log('Selected Archetype:', newArchetypeName);
              setArchetypeName(newArchetypeName);
              setArchetypeImage(newArchetypeImage);
              setArchetypeDescription(newArchetypeDescription);
@@ -107,7 +107,7 @@ const OnboardArchetype = () => {
                  // Update the user's archetype in the backend
                  const updatedUser = await updateUser({archetype: archetypeData});
                  if (updatedUser) {
-                     console.log('Archetype updated successfully:', updatedUser);
+                     //console.log('Archetype updated successfully:', updatedUser);
 
                      // Update the global state/context with the new user data
                      useAuthStore.setState({user: updatedUser});
@@ -125,10 +125,10 @@ const OnboardArchetype = () => {
                  console.error('Error updating archetype:', error);
              }
          } else {
-             console.log('No matching archetype found for the selected genres.');
+             //console.log('No matching archetype found for the selected genres.');
          }
      } else {
-         console.log('Please select exactly 2 genres.');
+         //console.log('Please select exactly 2 genres.');
      }
  };
 
@@ -161,7 +161,7 @@ const OnboardArchetype = () => {
      if (!videoError) {
          navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
      } else {
-         console.log('Error occurred during video playback.');
+         //console.log('Error occurred during video playback.');
          // You can handle the error in other ways, e.g., show an error message to the user.
      }
  };

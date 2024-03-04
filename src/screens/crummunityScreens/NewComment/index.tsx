@@ -69,7 +69,7 @@ const NewComment = ({navigation, route}: Props) => {
             selectionLimit: 3, // Limit to 3 images for a post
         };
 
-        console.log('Selecting post image');
+        //console.log('Selecting post image');
 
         let callbackExecuted = false;
 
@@ -80,7 +80,7 @@ const NewComment = ({navigation, route}: Props) => {
                 }
 
                 callbackExecuted = true;
-                console.log('Number of images selected:', response.assets.length);
+                //console.log('Number of images selected:', response.assets.length);
 
                 const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
                 let imagesForPost = [];
@@ -115,7 +115,7 @@ const NewComment = ({navigation, route}: Props) => {
             selectionLimit: 1, // Only allows 1 video
         };
 
-        console.log('Selecting post video');
+        //console.log('Selecting post video');
 
         let callbackExecuted = false;
 
@@ -126,16 +126,16 @@ const NewComment = ({navigation, route}: Props) => {
                 }
 
                 callbackExecuted = true;
-                console.log('User cancelled video picker');
+                //console.log('User cancelled video picker');
             } else if (response.errorCode) {
-                console.log('VideoPicker Error: ', response.errorMessage);
+                //console.log('VideoPicker Error: ', response.errorMessage);
             } else if (response.assets) {
                 const video = response.assets[0];
 
                 // Check if the video file size is within limits
                 const maxSizeInBytes = 15 * 1024 * 1024; // Example: 15 MB limit
                 if (video.fileSize > maxSizeInBytes) {
-                    console.log('Video file is too large.');
+                    //console.log('Video file is too large.');
                     // Handle the error (e.g., show an error message)
                     return;
                 }
@@ -196,8 +196,8 @@ const NewComment = ({navigation, route}: Props) => {
             // Call the createPost API function
             const result = await commentOnPost(postId, postType, content);
             if (result && result.id) {
-                console.log('Result.postId:', result.id);
-                console.log('Post created successfully', result);
+                //console.log('Result.postId:', result.id);
+                //console.log('Post created successfully', result);
                 const newPostId = result.id;
 
                 // Extract tagged usernames from postText
@@ -215,7 +215,7 @@ const NewComment = ({navigation, route}: Props) => {
                                 const notificationType = 'UserTaggedOnComment'; // Adjust as needed
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
-                                    console.log(`Notification sent to ${username}`);
+                                    //console.log(`Notification sent to ${username}`);
                                 } else {
                                     console.error(`Failed to send notification to ${username}`);
                                 }
@@ -229,7 +229,7 @@ const NewComment = ({navigation, route}: Props) => {
                 );
                 navigation.goBack();
             } else {
-                console.log('Failed to create the comment');
+                //console.log('Failed to create the comment');
             }
         } catch (error) {
             console.error('Error creating the comment:', error);

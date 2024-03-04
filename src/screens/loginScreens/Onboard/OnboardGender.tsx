@@ -88,7 +88,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                     setLoading(true);
                     const updatedUser = await updateUser({gender: selectedGender});
                     if (updatedUser) {
-                        console.log('Gender updated successfully:', updatedUser);
+                        //console.log('Gender updated successfully:', updatedUser);
                         useAuthStore.setState({user: updatedUser});
                         navigation.navigate('OnboardDescription', {userName});
                     } else {

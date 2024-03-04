@@ -86,7 +86,7 @@ const Read = () => {
                 case 'CruInviteDeclined':
                     // Assuming the notification includes the user ID of the follower
                     const userId = notification.senderId; // Adjust this to match your notification structure
-                    console.log('Notification Data:', notification);
+                    //console.log('Notification Data:', notification);
                     if (userId) {
                         navigation.navigate('ViewUserScreen', {userID: userId});
                     } else {
@@ -157,8 +157,8 @@ const Read = () => {
                             const {id, type, message, isRead, createdAt, user} = notification;
 
                             // Console.log the isRead property
-                            console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                            console.log('User Data Notification:', notification);
+                            //console.log(`Notification ID: ${id}, isRead: ${isRead}`);
+                            //console.log('User Data Notification:', notification);
 
                             // Use the mapping function to get the display name
                             const displayName = getNotificationDisplayName(type);

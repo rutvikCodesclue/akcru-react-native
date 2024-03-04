@@ -92,12 +92,12 @@ export default function EditProfile({session}: {session: Session}) {
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            console.log('Edit Profile Screen focused [EditProfileScreen]');
+            //console.log('Edit Profile Screen focused [EditProfileScreen]');
             hydrateUser();
 
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                console.log('Edit Profile Screen unfocused [EditProfileScreen]');
+                //console.log('Edit Profile Screen unfocused [EditProfileScreen]');
             };
         }, []),
     );
@@ -120,7 +120,7 @@ export default function EditProfile({session}: {session: Session}) {
 
             // Update the local user data with the new description
             if (updatedUser) {
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
                 const currentUser = useAuthStore.getState().user;
 
                 if (currentUser) {
@@ -166,7 +166,7 @@ export default function EditProfile({session}: {session: Session}) {
 
             // Update the local user data only if the current user's username is not the same as the updated username
             if (updatedUser && userName !== user?.username) {
-                console.log('Profile updated successfully:', updatedUser);
+                //console.log('Profile updated successfully:', updatedUser);
                 const currentUser = useAuthStore.getState().user;
             }
             // Navigate to the next screen or perform other actions
@@ -216,7 +216,7 @@ export default function EditProfile({session}: {session: Session}) {
             },
         };
 
-        console.log('select picture button');
+        //console.log('select picture button');
 
         // Add a flag to prevent multiple invocations
         let callbackExecuted = false;
@@ -230,8 +230,8 @@ export default function EditProfile({session}: {session: Session}) {
 
                 // Set the flag to true to indicate the callback has been executed
                 callbackExecuted = true;
-                console.log('uri:', response.assets[0].uri);
-                console.log('filesize:', response.assets[0].fileSize);
+                //console.log('uri:', response.assets[0].uri);
+                //console.log('filesize:', response.assets[0].fileSize);
                 const selectedImage = response.assets[0].uri;
 
                 // Get the type and name for the selected image
@@ -255,11 +255,11 @@ export default function EditProfile({session}: {session: Session}) {
 
                     if (updatedUserProfilePicture) {
                         // Set the new profile picture immediately
-                        console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
+                        //console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
                         setSelectImage(updatedUserProfilePicture.profilePicture || '');
                     } else {
                         // Handle failure or display an error message
-                        console.log('Failed to update profile picture');
+                        //console.log('Failed to update profile picture');
                     }
                 }
             }
@@ -305,14 +305,14 @@ export default function EditProfile({session}: {session: Session}) {
                 }));
             } else {
                 // If limit is reached, show a message or perform an action
-                console.log('You can only select up to two genres.');
+                //console.log('You can only select up to two genres.');
             }
         }
     };
 
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-        console.log('Selected Genres:', selectedGenres);
+        //console.log('Selected Genres:', selectedGenres);
 
         if (selectedGenres.length === 2) {
             const genreNames = selectedGenres.map(genreId => {
@@ -321,7 +321,7 @@ export default function EditProfile({session}: {session: Session}) {
             });
 
             const newArchetypeKey = genreNames.sort().join(', ');
-            console.log('Archetype Key:', newArchetypeKey);
+            //console.log('Archetype Key:', newArchetypeKey);
 
             const selectedArchetype = archetypeMapping[newArchetypeKey];
 
@@ -338,7 +338,7 @@ export default function EditProfile({session}: {session: Session}) {
                     // Update the user's archetype in the backend
                     const updatedUser = await updateUser({archetype: archetypeData});
                     if (updatedUser) {
-                        console.log('Archetype updated successfully:', updatedUser);
+                        //console.log('Archetype updated successfully:', updatedUser);
 
                         // Update the global state/context with the new user data
                         useAuthStore.setState({user: updatedUser});
@@ -349,10 +349,10 @@ export default function EditProfile({session}: {session: Session}) {
                     console.error('Error updating archetype:', error);
                 }
             } else {
-                console.log('No matching archetype found for the selected genres.');
+                //console.log('No matching archetype found for the selected genres.');
             }
         } else {
-            console.log('Please select exactly 2 genres.');
+            //console.log('Please select exactly 2 genres.');
         }
     };
 

@@ -121,7 +121,7 @@ const OTPVerification = ({route}) => {
             const data = response.data;
 
             if (data.success) {
-                console.log('Verification successful', data);
+                //console.log('Verification successful', data);
                 setVerify(false);
                 handleShowOTPModal('success');
 
