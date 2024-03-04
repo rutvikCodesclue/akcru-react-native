@@ -275,7 +275,7 @@ const UserProfileDetailsTab = () => {
                                 marginTop: 10,
                                 marginBottom: 20,
                                 textAlign: 'center',
-                            
+
                                 textDecorationLine: 'underline',
                             }}>
                             PROFILE DETAILS
@@ -317,7 +317,6 @@ const UserProfileDetailsTab = () => {
                                         style={{
                                             ...FONTS.Username,
                                             color: COLORS.MIDORANGE,
-                                        
                                         }}>
                                         Edit your CRU
                                     </Text>
@@ -327,7 +326,7 @@ const UserProfileDetailsTab = () => {
                                 <Text
                                     style={{
                                         ...FONTS.paragraph1,
-                                        
+
                                         color: COLORS.LIGHTGREY,
                                     }}>
                                     Schedule a CRU View through the CRU VIEW scheduler
@@ -366,6 +365,19 @@ const UserProfileDetailsTab = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    <View>
+                        <Text
+                            style={{
+                                ...FONTS.Title2,
+                                marginTop: 10,
+                                marginBottom: 20,
+                                textAlign: 'center',
+
+                                textDecorationLine: 'underline',
+                            }}>
+                            CRU AFFILIATIONS
+                        </Text>
+                    </View>
 
                     <View
                         style={{
@@ -376,7 +388,12 @@ const UserProfileDetailsTab = () => {
                         }}
                     />
                     <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
-                    <AkcruButtons.LrgButton btnname={"Add to Gallery"} onPress={selectGalleryImage} color={COLORS.PURPLE} disabled={false}/>
+                        <AkcruButtons.LrgButton
+                            btnname={'Add to Gallery'}
+                            onPress={selectGalleryImage}
+                            color={COLORS.PURPLE}
+                            disabled={false}
+                        />
                     </View>
                     {/* <TouchableOpacity
                         onPress={selectGalleryImage}
