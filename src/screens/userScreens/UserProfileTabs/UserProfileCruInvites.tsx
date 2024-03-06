@@ -1,23 +1,26 @@
-import { View, Text, ScrollView, FlatList } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, ScrollView, FlatList, Alert } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import { acceptACRUInvite, declineACRUInvite, getCRUInvites } from '../../../lib/api/cru.lib';
-import { ICruInvite, IMITInvite } from '../../../../types';
+import { acceptACRUInvite, declineACRUInvite, getCRUInvites, listCrusForUser } from '../../../lib/api/cru.lib';
+import { ICru, ICruInvite, IMITInvite } from '../../../../types';
 import { COLORS, FONTS } from '../../../../assets/constants';
 import { getMyMITInvites } from '../../../lib/api/mit.lib';
 import MITInviteCard from '../../../components/MITInviteCard';
 import imageindex from '../../../../assets/images/imageindex';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ClientStackParams } from '../../../navigation/ClientStack';
+import useAuthStore from '../../../stores/auth.store';
+import { UseTabMenu } from '../../../context/TabContext';
 
 const UserProfileCruInvites = () => {
     const [cruInvites, setCRUInvites] = useState<ICruInvite[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-    
+    const user = useAuthStore(state => state.user);
+    const {setRefetchCrus} = UseTabMenu();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -27,12 +30,11 @@ const UserProfileCruInvites = () => {
                 if (cruInvites) {
                     // Filter the cruInvites to keep only the pending ones
                     const pendingCRUInvites = cruInvites.filter(
-                        (invite: { status: string; }) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
+                        (invite: {status: string}) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
                     );
 
                     // Set the filtered pending CRU invites to your state
                     setCRUInvites(pendingCRUInvites);
-                    
 
                     // Set any other state or perform additional actions if necessary
                     setIsLoaded(true);
@@ -95,12 +97,13 @@ const UserProfileCruInvites = () => {
             //console.log('accepted res:', res);
             setIsLoading(false);
             // Navigate to CruInviteAccept screen with necessary parameters for CruInvite
+            setRefetchCrus(true); // This will update the state in your context
             navigation.navigate('CruInviteAccept', {
                 id: item.cruId,
                 inviteeName: item.cru.creator.firstName,
                 creator: item.cru.creator,
                 inviteDate: item.createdAt,
-                profilePicture: item.cru.creator.profilePicture
+                profilePicture: item.cru.creator.profilePicture,
             });
         });
     };
@@ -122,11 +125,10 @@ const UserProfileCruInvites = () => {
         });
     };
 
-     const handleCruInviteCardPress = (creatorId: string) => {
-         // Navigate to the ViewUserScreen with the user's ID
-         navigation.navigate('ViewUserScreen', {userID: creatorId});
-     };
-
+    const handleCruInviteCardPress = (creatorId: string) => {
+        // Navigate to the ViewUserScreen with the user's ID
+        navigation.navigate('ViewUserScreen', {userID: creatorId});
+    };
 
     return (
         <View>

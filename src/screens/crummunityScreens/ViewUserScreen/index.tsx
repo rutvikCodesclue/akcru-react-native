@@ -271,30 +271,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }
     };
 
-    // const handleBlockUser = async () => {
-    //     if (userID) {
-    //         const blockedId = userID;
-    //         const {success, message} = await blockUser(blockedId);
-    //         if (success) {
-    //             Alert.alert('User successfully blocked');
-    //             // Optionally refresh the user's data or navigate away
-    //         } else {
-    //             Alert.alert(`Failed to block user: ${message}`);
-    //         }
-    //     }
-    // };
-
-    // const handleUnblockUser = async userId => {
-    //     const userIdToUnblock = userId;
-    //     const {success, message} = await unblockUser(userIdToUnblock);
-    //     if (success) {
-    //         Alert.alert('Success', 'User successfully unblocked');
-    //         fetchBlockedUsers(); // Refresh the list of blocked users
-    //     } else {
-    //         Alert.alert('Error', `Failed to unblock user: ${message}`);
-    //     }
-    // };
-
     const isValidImageUrl = (url: string) => {
         return url && url.trim() !== '';
     };

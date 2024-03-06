@@ -32,6 +32,7 @@ import HexShape from '../../../components/HexShape';
 import { toggleFollow } from '../../../lib/api/user.lib';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -374,6 +375,7 @@ const handleToggleBlockUser = async authorId => {
                                                 }
                                                 isFollowing={item.author.isFollowed}
                                                 onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
+                                                akcruBadgeColor={selectAvatarBorderColor(item.author.badge ?? 'AKCRUIT')}
                                                 onBlockUser={() =>
                                                     handleToggleBlockUser(
                                                         item.author.id,
@@ -422,7 +424,12 @@ const handleToggleBlockUser = async authorId => {
                     onRequestClose={() => {
                         setBlockUserModal(!blockUserModal);
                     }}>
-                    <BlockUserResultModal closeModal={closeModal} type={modalType} resultMessage={blockUserMessage} iconName={iconName} />
+                    <BlockUserResultModal
+                        closeModal={closeModal}
+                        type={modalType}
+                        resultMessage={blockUserMessage}
+                        iconName={iconName}
+                    />
                 </Modal>
             </SafeAreaView>
         </TabContainer>

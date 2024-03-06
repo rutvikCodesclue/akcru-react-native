@@ -4,105 +4,105 @@ import { FONTS, COLORS, SIZES, AKCRUBADGES } from '../../../assets/constants';
 
 const AkcruBadgeGuardian = () => {
   return (
-    <View>
-      <View
-        style={{
-          backgroundColor: AKCRUBADGES.Guardian.background,
-          width: 80,
-          height: 18,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 5,
-          marginBottom: 10,
-          marginTop: 5,
-        }}>
-        <Text
-          style={{
-            ...FONTS.Akcrubadges,
-            color: AKCRUBADGES.Guardian.color,
-          }}>
-          {AKCRUBADGES.Guardian.label}
-        </Text>
+      <View>
+          <View
+              style={{
+                  backgroundColor: AKCRUBADGES.Guardian.background,
+                  paddingHorizontal: 10,
+                  height: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                  marginBottom: 5,
+                  marginTop: 5,
+              }}>
+              <Text
+                  style={{
+                      ...FONTS.Akcrubadges,
+                      color: AKCRUBADGES.Guardian.color,
+                  }}>
+                  {AKCRUBADGES.Guardian.label}
+              </Text>
+          </View>
       </View>
-    </View>
   );
 };
 
 const AkcruBadgeSuperHero = () => {
   return (
-    <View>
-      <View
-        style={{
-          backgroundColor: AKCRUBADGES.SuperHero.background,
-          width: 80,
-          height: 18,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 5,
-          marginBottom: 10,
-          marginTop: 5,
-        }}>
-        <Text
-          style={{
-            ...FONTS.Akcrubadges,
-            color: AKCRUBADGES.SuperHero.color,
-          }}>
-          {AKCRUBADGES.SuperHero.label}
-        </Text>
+      <View>
+          <View
+              style={{
+                  backgroundColor: AKCRUBADGES.SuperHero.background,
+                  paddingHorizontal: 10,
+                  height: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                  marginBottom: 5,
+                  marginTop: 5,
+              }}>
+              <Text
+                  style={{
+                      ...FONTS.Akcrubadges,
+                      color: AKCRUBADGES.SuperHero.color,
+                  }}>
+                  {AKCRUBADGES.SuperHero.label}
+              </Text>
+          </View>
       </View>
-    </View>
   );
 };
 
 const AkcruBadgeHero = () => {
   return (
-    <View>
-      <View
-        style={{
-          backgroundColor: AKCRUBADGES.Hero.background,
-          width: 80,
-          height: 18,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 5,
-          marginBottom: 10,
-          marginTop: 5,
-        }}>
-        <Text
-          style={{
-            ...FONTS.Akcrubadges,
-            color: AKCRUBADGES.Hero.color,
-          }}>
-          {AKCRUBADGES.Hero.label}
-        </Text>
+      <View>
+          <View
+              style={{
+                  backgroundColor: AKCRUBADGES.Hero.background,
+                  paddingHorizontal: 10,
+                  height: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                  marginBottom: 5,
+                  marginTop: 5,
+              }}>
+              <Text
+                  style={{
+                      ...FONTS.Akcrubadges,
+                      color: AKCRUBADGES.Hero.color,
+                  }}>
+                  {AKCRUBADGES.Hero.label}
+              </Text>
+          </View>
       </View>
-    </View>
   );
 };
 
 const AkcruBadgeAkcruit = () => {
   return (
-    <View>
-      <View
-        style={{
-          backgroundColor: AKCRUBADGES.Akcruit.background,
-          width: 80,
-          height: 18,
-          justifyContent: 'center',
-          alignItems: 'center',
-          borderRadius: 5,
-          marginBottom: 10,
-          marginTop: 5,
-        }}>
-        <Text
-          style={{
-            ...FONTS.Akcrubadges,
-            color: AKCRUBADGES.Akcruit.color,
-          }}>
-          {AKCRUBADGES.Akcruit.label}
-        </Text>
+      <View>
+          <View
+              style={{
+                  backgroundColor: AKCRUBADGES.Akcruit.background,
+                  paddingHorizontal: 10,
+                  height: 18,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  borderRadius: 5,
+                  marginBottom: 5,
+                  marginTop: 5,
+              }}>
+              <Text
+                  style={{
+                      ...FONTS.Akcrubadges,
+                      color: AKCRUBADGES.Akcruit.color,
+                  }}>
+                  {AKCRUBADGES.Akcruit.label}
+              </Text>
+          </View>
       </View>
-    </View>
   );
 };
 

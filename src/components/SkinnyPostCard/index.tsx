@@ -101,6 +101,7 @@ type PostProps = {
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
+    akcruBadgeColor: string
 };
 
 const PostCard = ({
@@ -114,6 +115,7 @@ const PostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
+    akcruBadgeColor
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -308,7 +310,7 @@ const PostCard = ({
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
                             size={70}
-                            bordercolor={COLORS.AKCRUBLUE}
+                            bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
                 </View>
@@ -334,17 +336,17 @@ const PostCard = ({
                     )}
                     {akcruBadge === 'HERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeGuardian />
+                            <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
                     {akcruBadge === 'SUPERHERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeHero />
+                            <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                     {akcruBadge === 'GUARDIAN' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeSuperHero />
+                            <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
                 </View>

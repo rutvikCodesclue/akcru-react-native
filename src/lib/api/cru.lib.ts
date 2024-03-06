@@ -27,15 +27,37 @@ export const updateCRUInfo = async (params: {name: string}): Promise<ICru | unde
     }
 };
 
-export const removeAUserFromCRU = async (userId: string): Promise<ICru | undefined> => {
+// export const removeAUserFromCRU = async (userId: string): Promise<ICru | undefined> => {
+//     try {
+//         // DELETE /v1/cru/me/remove
+//         const {data} = await API.delete(`/v1/cru/me/remove`, {data: {userId}});
+//         return data.CRU;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
+export const removeAUserFromCRU = async (userId: string, cruId: string): Promise<ICru | undefined> => {
     try {
-        // DELETE /v1/cru/me/remove
-        const {data} = await API.delete(`/v1/cru/me/remove`, {data: {userId}});
-        return data.CRU;
+        const response = await API.delete(`/v1/cru/${userId}/remove`, {
+            data: {cruId},
+        });
+
+        if (response.data.success) {
+            console.log('API Response for removeAUserFromCRU:', response.data);
+            return response.data.CRU;
+        } else {
+            console.error('Failed to remove user from CRU:', response.data.message);
+            return undefined;
+        }
     } catch (error) {
-        console.error(error);
+        console.error('Error removing user from CRU:', error);
+        return undefined;
     }
 };
+
+
+
 
 export const addPotentialMemberToCRU = async (userId: string): Promise<ICru | undefined> => {
     try {
@@ -166,4 +188,38 @@ export const checkUserMembership = async (viewedUserId: string) => {
     }
 };
 
+export const listCrusForUser = async (userId: string): Promise<ICru[] | undefined> => {
+    try {
+        // Replace `/v1/cru/user/:userId/crus` with the correct endpoint as per your API structure
+        const {data} = await API.get(`/v1/cru/user/${userId}/crus`);
+
+        if (data && Array.isArray(data)) {
+            return data; // Assuming the backend returns an array of Crüs
+        } else {
+            console.error('Unexpected response format from the listCrusForUser endpoint');
+            return undefined;
+        }
+    } catch (error) {
+        console.error('Error listing Crüs for user:', error);
+        return undefined;
+    }
+};
+
+export const leaveCRU = async (cruId: string): Promise<void> => {
+    try {
+        // Make a DELETE request to the endpoint with the CRU ID
+        // Note: No need to send userId in the body, assuming the backend can determine this from the session or token
+        const response = await API.delete(`/v1/cru/${cruId}/leave`);
+
+        // Check if the response is successful
+        if (response.data.success) {
+            console.log('Successfully left CRU:', response.data.CRU);
+            // Optionally, refresh CRU data or navigate as needed
+        } else {
+            console.error('Failed to leave CRU:', response.data.message);
+        }
+    } catch (error) {
+        console.error('Error leaving CRU:', error);
+    }
+};
 

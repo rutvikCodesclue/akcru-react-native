@@ -122,7 +122,7 @@ const NewPost = () => {
                 const video = response.assets[0];
 
                 // Check if the video file size is within limits
-                const maxSizeInBytes = 15 * 1024 * 1024; // Example: 15 MB limit
+                const maxSizeInBytes = 100 * 1024 * 1024; // Example: 100 MB limit
                 if (video.fileSize > maxSizeInBytes) {
                     //console.log('Video file is too large.');
                     // Handle the error (e.g., show an error message)

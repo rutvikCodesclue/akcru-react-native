@@ -151,9 +151,8 @@ const styles = StyleSheet.create({
     tabBar: {
         position: 'absolute',
         padding: 0,
-        left: 16,
-        right: 16,
-        bottom: 18,
+
+        bottom: 10,
         height: 60,
         borderRadius: 16,
         backgroundColor: COLORS.TRANSDARKGREY,
@@ -166,14 +165,15 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 3,
-        
+        marginHorizontal: '3%',
+        alignSelf: 'center'
     },
     tabIconContainer: {
         position: 'absolute',
         top: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        width: '100%',
+        width: '95%',
         
     },
 });

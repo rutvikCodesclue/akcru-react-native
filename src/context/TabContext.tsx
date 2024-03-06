@@ -5,7 +5,9 @@ interface TabContextType {
     opened: boolean;
     toggleOpened: () => void;
     getAdjustedIconSize: (baseSize: number) => number; // Function to calculate adjusted icon size
-  
+
+    refetchCrus: boolean; // Add this line
+    setRefetchCrus: (value: boolean) => void; // And this one
 }
 
 const TabContext = React.createContext<TabContextType>({
@@ -13,6 +15,8 @@ const TabContext = React.createContext<TabContextType>({
     toggleOpened: () => {},
     getAdjustedIconSize: (baseSize: number) => baseSize, // Default implementation
 
+    refetchCrus: false, // Default value for refetchCrus
+    setRefetchCrus: () => {}, // Default implementation (noop function) for setRefetchCrus
 });
 
 // const TabContext = React.createContext({opened: false, toggleOpened: () => {}});
@@ -20,9 +24,11 @@ const TabContext = React.createContext<TabContextType>({
 export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [opened, setOpened] = React.useState(false);
 
+    const [refetchCrus, setRefetchCrus] = React.useState(false); // Add this line
+
     const toggleOpened = () => {
         setOpened(!opened);
-        console.log('Toggling opened state');
+        // console.log('Toggling opened state');
     };
 
     // Function to dynamically calculate icon size
@@ -35,7 +41,11 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
         return Math.min(adjustedSize, baseSize * 1.5); // Example cap to 1.5 times the base size
     };
 
-    return <TabContext.Provider value={{opened, toggleOpened, getAdjustedIconSize}}>{children}</TabContext.Provider>;
+    return (
+        <TabContext.Provider value={{opened, toggleOpened, getAdjustedIconSize, refetchCrus, setRefetchCrus}}>
+            {children}
+        </TabContext.Provider>
+    );
 };
 
 export const UseTabMenu = () => React.useContext(TabContext);

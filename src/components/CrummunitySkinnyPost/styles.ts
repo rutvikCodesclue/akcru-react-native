@@ -10,7 +10,7 @@ export default StyleSheet.create({
     },
     post: {
         ...FONTS.paragraph1,
-        
+
         lineHeight: 18,
     },
     footStats: {
@@ -46,16 +46,18 @@ export default StyleSheet.create({
         fontSize: 14,
     },
     postimage: {
-        width: '100%',
-        aspectRatio: 16 / 9,
+        width: '75%',
+        aspectRatio: 9 / 16,
         borderRadius: 10,
         marginTop: 10,
+        alignSelf: 'center',
     },
     postvideo: {
-        width: '100%',
-        aspectRatio: 16 / 9,
+        width: '75%',
+        aspectRatio: 9 / 16,
         borderRadius: 10,
         marginTop: 10,
+        alignSelf: 'center',
     },
     postfooter: {
         marginTop: 10,
