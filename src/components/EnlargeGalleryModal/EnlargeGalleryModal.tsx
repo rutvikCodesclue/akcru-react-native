@@ -41,12 +41,12 @@ const EnlargeGalleryModal = ({closeModal, image, deleteImage}: EnlargeGalleryPro
               <Image
                   source={{uri: image}}
                   style={{
-                      width: '100%',
-                      height: height * 0.4, // for example, set the height to 40% of screen height
 
                       borderRadius: 5,
+                      width: '90%',
+                      height: '75%' 
                   }}
-                  resizeMode="cover"
+                  resizeMode='cover'
               />
           </TouchableWithoutFeedback>
 

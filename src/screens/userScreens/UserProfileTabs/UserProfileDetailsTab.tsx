@@ -27,7 +27,7 @@ import {ICru, IMovie, IUserProfile} from '../../../../types';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {getWatchlist} from '../../../lib/api/movies.lib'; 
 import CruMemberPic from '../../../components/CruMemberPic';
-import {getMyCRU} from '../../../lib/api/cru.lib';
+import {getMyCRU, leaveCRU, removeAUserFromCRU} from '../../../lib/api/cru.lib';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import {supabase} from '../../../../lib/supabase';
 import {deleteUserGalleryImage, fetchUserGallery, updateUserGallery} from '../../../lib/api/user.lib';
@@ -36,6 +36,14 @@ import { set } from 'lodash';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import WatchListCategory from '../../../components/WatchlistCategory';
 import AkcruButtons from '../../../components/akcruButtons';
+import {listCrusForUser} from '../../../lib/api/cru.lib';
+import { UseTabMenu } from '../../../context/TabContext';
+import ConfirmationModal from '../../../components/ConfirmationModal';
+import CruResultModal from '../../../components/CruResultModal/CruResultModal';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import LinearGradient from 'react-native-linear-gradient';
+import HexAvatar from '../../../components/HexAvatar';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -47,7 +55,7 @@ const UserProfileDetailsTab = () => {
 
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
 
-    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const user = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
 
@@ -83,7 +91,6 @@ const UserProfileDetailsTab = () => {
             return () => {
                 // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 //console.log('Screen unfocused [EditCruScreen]');
-
                 // cleanup (if app crashes or user leaves the screen unexpectedly)
             };
         }, []),
@@ -127,9 +134,9 @@ const UserProfileDetailsTab = () => {
         }, []),
     );
 
-     const updateWatchlist = (updatedWatchlist: IMovie[]) => {
-         setWatchlist(updatedWatchlist);
-     };
+    const updateWatchlist = (updatedWatchlist: IMovie[]) => {
+        setWatchlist(updatedWatchlist);
+    };
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
     const [showImageCountErrorModal, setShowImageCountErrorModal] = useState(false);
@@ -142,94 +149,92 @@ const UserProfileDetailsTab = () => {
         }
     }, [user]);
 
- const selectGalleryImage = async () => {
-     // Check if the user already has 6 images
-     if (userPics.length >= 6) {
-         setShowImageCountErrorModal(true);
-         return; // Exit the function
-     }
+    const selectGalleryImage = async () => {
+        // Check if the user already has 6 images
+        if (userPics.length >= 6) {
+            setShowImageCountErrorModal(true);
+            return; // Exit the function
+        }
 
-     let options = {
-         mediaType: 'photo' as MediaType,
-         storageOptions: {
-             path: 'images',
-         },
-         selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
-     };
+        let options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'images',
+            },
+            selectionLimit: 6 - userPics.length, // Adjust the limit based on existing images
+        };
 
-     //console.log('select picture button');
+        //console.log('select picture button');
 
-     // Add a flag to prevent multiple invocations
-     let callbackExecuted = false;
+        // Add a flag to prevent multiple invocations
+        let callbackExecuted = false;
 
-     launchImageLibrary(options, async response => {
-         if (response && !response.didCancel && response.assets) {
-             // Check if the response is defined, not canceled, and has assets
-             if (callbackExecuted) {
-                 return;
-             }
+        launchImageLibrary(options, async response => {
+            if (response && !response.didCancel && response.assets) {
+                // Check if the response is defined, not canceled, and has assets
+                if (callbackExecuted) {
+                    return;
+                }
 
-             // Set the flag to true to indicate the callback has been executed
-             callbackExecuted = true;
-             //console.log('Number of images selected:', response.assets.length);
+                // Set the flag to true to indicate the callback has been executed
+                callbackExecuted = true;
+                //console.log('Number of images selected:', response.assets.length);
 
-             // Array to hold URIs of successfully uploaded images
-             let uploadedImages = [];
+                // Array to hold URIs of successfully uploaded images
+                let uploadedImages = [];
 
-             const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
 
-             for (const asset of response.assets) {
-                 //console.log('uri:', asset.uri);
-                 //console.log('filesize:', asset.fileSize);
-                 const selectedImage = asset.uri;
-                 const imageType = asset.type;
-                 const imageName = asset.fileName;
+                for (const asset of response.assets) {
+                    //console.log('uri:', asset.uri);
+                    //console.log('filesize:', asset.fileSize);
+                    const selectedImage = asset.uri;
+                    const imageType = asset.type;
+                    const imageName = asset.fileName;
 
-                 // Check the size of each selected image
-                 if (asset.fileSize > maxSizeInBytes) {
-                     // Show size error modal
-                     setShowSizeErrorModal(true);
-                     return; // Exit the function if any image is too large
-                 } else {
-                     if (selectedImage) {
-                         // Ensure selectedImage is not undefined before attempting to upload
-                         // Call the API function to update the user's gallery
-                         try {
-                             const updatedUser = await updateUserGallery({
-                                 uri: selectedImage,
-                                 type: imageType,
-                                 name: imageName,
-                             });
+                    // Check the size of each selected image
+                    if (asset.fileSize > maxSizeInBytes) {
+                        // Show size error modal
+                        setShowSizeErrorModal(true);
+                        return; // Exit the function if any image is too large
+                    } else {
+                        if (selectedImage) {
+                            // Ensure selectedImage is not undefined before attempting to upload
+                            // Call the API function to update the user's gallery
+                            try {
+                                const updatedUser = await updateUserGallery({
+                                    uri: selectedImage,
+                                    type: imageType,
+                                    name: imageName,
+                                });
 
-                             if (updatedUser) {
-                                 //console.log('updatedUserProfileGallery:', updatedUser);
-                                         //console.log('Addedtogallery called with image:', selectedImage);
-                                 uploadedImages.push(selectedImage); // Add the new image URI to the array
-                             } else {
-                                 //console.log('Failed to update profile Gallery');
-                             }
-                         } catch (error) {
-                             console.error('Error updating gallery:', error);
-                             // Handle errors here
-                         }
-                     }
-                 }
-             }
+                                if (updatedUser) {
+                                    //console.log('updatedUserProfileGallery:', updatedUser);
+                                    //console.log('Addedtogallery called with image:', selectedImage);
+                                    uploadedImages.push(selectedImage); // Add the new image URI to the array
+                                } else {
+                                    //console.log('Failed to update profile Gallery');
+                                }
+                            } catch (error) {
+                                console.error('Error updating gallery:', error);
+                                // Handle errors here
+                            }
+                        }
+                    }
+                }
 
-             // Filter out undefined values from uploadedImages just to be extra sure
-             const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
+                // Filter out undefined values from uploadedImages just to be extra sure
+                const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
 
-             // Update the state to reflect the newly uploaded images
-             if (filteredUploadedImages.length > 0) {
-                 // Combine new and existing images, but limit the total to 6
-                 const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 6);
-                 setUserPics(newGallery);
-             }
-         }
-     });
- };
-
-
+                // Update the state to reflect the newly uploaded images
+                if (filteredUploadedImages.length > 0) {
+                    // Combine new and existing images, but limit the total to 6
+                    const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 6);
+                    setUserPics(newGallery);
+                }
+            }
+        });
+    };
 
     const removeFromGallery = async (image: string) => {
         //console.log('removeFromGallery called with image:', image);
@@ -245,7 +250,6 @@ const UserProfileDetailsTab = () => {
         } catch (error) {
             console.error('Error removing image from gallery:', error);
             // Handle error (e.g., show a notification to the user)
-
         }
     };
 
@@ -262,6 +266,121 @@ const UserProfileDetailsTab = () => {
     // Function to toggle the modal's visibility
     const toggleEnlargeModal = () => {
         setEnlargeModalVisible(!enlargeModalVisible);
+    };
+
+    const {refetchCrus, setRefetchCrus} = UseTabMenu();
+
+    const [crus, setCrus] = useState<ICru[]>([]);
+    useEffect(() => {
+        const fetchCrus = async () => {
+            if (user?.id) {
+                try {
+                    const fetchedCrus = await listCrusForUser(user.id);
+                    if (fetchedCrus) {
+                        setCrus(fetchedCrus);
+                    } else {
+                        Alert.alert('Error', "Could not fetch the user's Cru details.");
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+
+        fetchCrus();
+        // Reset refetch trigger
+        if (refetchCrus) {
+            setRefetchCrus(false);
+        }
+    }, [user?.id, refetchCrus, setRefetchCrus]);
+
+    const [confirmationModal, setConfirmationModal] = useState(false);
+    const [isLeaving, setIsLeaving] = useState(false);
+    const [cruResultModal, setCruResultModal] = useState(false);
+
+    // const handleLeaveCRU = async (cruId: string) => {
+    //     const userId = user?.id; // or however you obtain the user ID
+
+    //     if (!userId) {
+    //         Alert.alert('Error', 'User ID not found');
+    //         return;
+    //     }
+    //     Alert.alert('Leave CRU', 'Are you sure you want to leave this CRU?', [
+    //         {text: 'Cancel', style: 'cancel'},
+    //         {
+    //             text: 'Yes',
+    //             onPress: async () => {
+    //                 setIsLeaving(true);
+    //                 try {
+    //                     const response = await removeAUserFromCRU(userId, cruId);
+    //                     if (response) {
+    //                         setCrus(prevCrus => prevCrus.filter(cru => cru.id !== cruId));
+    //                         Alert.alert('Success', 'You have left the CRU.');
+    //                         setIsLeaving(false);
+    //                     } else {
+    //                         Alert.alert('Error', 'Unable to leave CRU. Please try again later.');
+    //                         setIsLeaving(false);
+    //                     }
+    //                 } catch (error) {
+    //                     console.error('Error leaving CRU:', error);
+    //                     Alert.alert('Error', 'An error occurred while trying to leave the CRU.');
+    //                 }
+    //             },
+    //         },
+    //     ]);
+    // };
+
+    // State to control visibility of the confirmation and result modals
+    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+    const [cruResultModalVisible, setCruResultModalVisible] = useState(false);
+
+    // State to store the CRU ID for which the leave operation is initiated
+    const [currentCruId, setCurrentCruId] = useState(null);
+
+    // State to store result message and type for CruResultModal
+    const [cruResultMessage, setCruResultMessage] = useState('');
+    const [cruResultType, setCruResultType] = useState(''); // 'success' or 'error'
+    const [cruIconName, setCruIconName] = useState('');
+    const [cruIconColor, setCruIconColor] = useState('');
+
+    // Adjusted handleLeaveCRU function
+    const handleLeaveCRU = (cruId: string) => {
+        setCurrentCruId(cruId);
+        setConfirmationModal(true);
+    };
+
+    // Function to call when confirmation is received
+    const confirmLeaveCRU = async () => {
+        setConfirmationModal(false); // Close the confirmation modal
+        setIsLeaving(true); // Assuming you have a loading state
+        try {
+            const response = await removeAUserFromCRU(user?.id, currentCruId);
+            if (response) {
+                setCrus(prevCrus => prevCrus.filter(cru => cru.id !== currentCruId));
+                setCruResultModal(true);
+                setCruResultMessage('Successfully left the CRU.');
+                setCruResultType('Success');
+                setCruIconName('md-checkmark-circle'); // Adjust as needed
+                setCruIconColor('green'); // Adjust as needed
+            } else {
+                setCruResultModal(true);
+                setCruResultMessage('Unable to leave CRU. Please try again later.');
+                setCruResultType('Fail');
+                setCruIconName('md-alert-circle'); // Adjust as needed
+                setCruIconColor('red'); // Adjust as needed
+            }
+        } catch (error) {
+            console.error('Error leaving CRU:', error);
+            setCruResultModal(true);
+            setCruResultMessage('An error occurred while trying to leave the CRU.');
+            setCruResultType('Error');
+            setCruIconName('md-error'); // Adjust as needed
+            setCruIconColor('red'); // Adjust as needed
+        } finally {
+            setCruResultModal(true);
+            setIsLeaving(false); // Stop loading state
+            setCruResultModalVisible(true); // Show the result modal
+        }
     };
 
     return (
@@ -296,9 +415,15 @@ const UserProfileDetailsTab = () => {
                                     scrollEnabled={false}
                                     keyExtractor={item => item.id}
                                     renderItem={({item, index}) => (
-                                        <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
-                                            <CruMemberPic userPicture={item.profilePicture} akcruBadge={item.badge} />
-                                        </View>
+                                        <TouchableOpacity
+                                            onPress={() => navigation.navigate('ViewUserScreen', {userID: item.id})}>
+                                            <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
+                                                <CruMemberPic
+                                                    userPicture={item.profilePicture}
+                                                    akcruBadge={item.badge}
+                                                />
+                                            </View>
+                                        </TouchableOpacity>
                                     )}
                                 />
                             </View>
@@ -365,12 +490,12 @@ const UserProfileDetailsTab = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View>
+                    <View style={{marginTop: 10}}>
                         <Text
                             style={{
                                 ...FONTS.Title2,
                                 marginTop: 10,
-                                marginBottom: 20,
+                                marginBottom: 15,
                                 textAlign: 'center',
 
                                 textDecorationLine: 'underline',
@@ -378,7 +503,89 @@ const UserProfileDetailsTab = () => {
                             CRU AFFILIATIONS
                         </Text>
                     </View>
+                    <View>
+                        <FlatList
+                            data={crus}
+                            keyExtractor={item => item.id}
+                            renderItem={({item}) => {
+                                // Check if the current user is a member of this CRU
+                                const isCurrentUserAMember =
+                                    item.members?.some(member => member.id === user?.id) ||
+                                    item.creator.id === user?.id;
 
+                                return (
+                                    <View
+                                        style={{
+                                            backgroundColor: '#1C202A',
+                                            borderRadius: 5,
+                                            alignItems: 'center',
+                                            padding: 15,
+                                            marginBottom: 15,
+                                        }}>
+                                        <LinearGradient
+                                            // Background Linear Gradient
+                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                bottom: 0,
+                                                borderRadius: 5,
+                                            }}
+                                        />
+                                        <Text style={{...FONTS.Title2, paddingBottom: 10}}>{item.name}</Text>
+                                        {/* Optionally render the creator separately here */}
+                                        <TouchableOpacity
+                                            style={{alignItems: 'center', paddingBottom: 10}}
+                                            onPress={() =>
+                                                navigation.navigate('ViewUserScreen', {userID: item.creator.id})
+                                            }>
+                                            <HexAvatar
+                                                source={{uri: item.creator.profilePicture}}
+                                                size={70}
+                                                bordercolor={selectAvatarBorderColor(item.creator.badge ?? 'AKCRUIT')}
+                                            />
+                                            <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>Cru Leader</Text>
+                                        </TouchableOpacity>
+                                        <FlatList
+                                            data={item.members}
+                                            horizontal
+                                            renderItem={({item: member}) => (
+                                                <TouchableOpacity
+                                                    onPress={() =>
+                                                        navigation.navigate('ViewUserScreen', {userID: member.id})
+                                                    }
+                                                    key={member.id}>
+                                                    <CruMemberPic
+                                                        userPicture={member.profilePicture}
+                                                        akcruBadge={member.badge}
+                                                    />
+                                                </TouchableOpacity>
+                                            )}
+                                            keyExtractor={member => member.id}
+                                        />
+                                        <Text style={{...FONTS.paragraph1, textAlign: 'center', paddingBottom: 15}}>
+                                            {'Member(s)'}
+                                        </Text>
+                                        {isCurrentUserAMember && (
+                                            <AkcruButtons.LrgButton
+                                                btnname="Leave CRU"
+                                                onPress={() => handleLeaveCRU(item.id)}
+                                                disabled={false}
+                                                color={COLORS.PURPLE}
+                                            />
+                                            // <TouchableOpacity
+                                            //     onPress={() => handleLeaveCRU(item.id)}
+                                            //     style={{marginTop: 10}}>
+                                            //     <Text style={{color: 'red'}}>Leave CRU</Text>
+                                            // </TouchableOpacity>
+                                        )}
+                                    </View>
+                                );
+                            }}
+                        />
+                    </View>
                     <View
                         style={{
                             borderBottomWidth: 1.5,
@@ -478,6 +685,22 @@ const UserProfileDetailsTab = () => {
                             closeModal={toggleEnlargeModal}
                             image={selectedImage}
                             deleteImage={removeFromGallery}
+                        />
+                    </Modal>
+                    <Modal animationType="fade" transparent={true} visible={!!confirmationModal}>
+                        <ConfirmationModal
+                            confirmationText={'Are you sure you want to leave this CRU?'}
+                            onPressYes={() => confirmLeaveCRU()}
+                            onPressNo={() => setConfirmationModal(false)}
+                        />
+                    </Modal>
+                    <Modal animationType="fade" transparent={true} visible={!!cruResultModal}>
+                        <CruResultModal
+                            closeModal={() => setCruResultModal(false)}
+                            type={cruResultType}
+                            message={cruResultMessage}
+                            iconname={cruIconName}
+                            iconcolor={cruIconColor}
                         />
                     </Modal>
                 </ScrollView>

@@ -118,6 +118,7 @@ type PostProps = {
     likeCount: number
     userName: string
     firstName: string
+    akcruBadgeColor: string
 };
 
 const PostCommentCard = ({
@@ -134,7 +135,8 @@ const PostCommentCard = ({
     CommentOnPostButton,
     likeCount,
     userName,
-    firstName
+    firstName,
+    akcruBadgeColor
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -325,7 +327,7 @@ const PostCommentCard = ({
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
                             size={58}
-                            bordercolor={COLORS.AKCRUBLUE}
+                            bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
                 </View>
@@ -351,17 +353,17 @@ const PostCommentCard = ({
                     )}
                     {akcruBadge === 'HERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeGuardian />
+                            <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
                     {akcruBadge === 'SUPERHERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeHero />
+                            <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                     {akcruBadge === 'GUARDIAN' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeSuperHero />
+                            <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
                 </View>

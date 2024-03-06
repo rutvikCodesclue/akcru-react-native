@@ -146,27 +146,47 @@ export function formatTimestampToAMPM(timestamp: string | number | Date) {
     return `${formattedHours}:${minutes} ${ampm}`;
 }
 
-export function classifyPostContent (contentArray: string[]) {
-    let textContentParts: string[] = [];
-    let imageUrls: string[] = [];
+export function classifyPostContent(contentArray: string[]) {
+    const imageUrls: string[] = [];
     let videoUrl = '';
+    const textContentParts: string[] = [];
 
     contentArray.forEach(item => {
-        if (/^https?:\/\/.+\.(jpeg|jpg|png)$/.test(item) && item.includes('user-pictures')) {
-            // Item is an image URL
+        if (/^https?:\/\/.+\.(jpeg|jpg|png)$/i.test(item) && item.includes('user-pictures')) {
             imageUrls.push(item);
-        } else if (/^https?:\/\/.+\.(mov|mp4)$/.test(item) && item.includes('user-videos')) {
-            // Item is a video URL
+        } else if (/^https?:\/\/.+\.(mov|mp4)$/i.test(item) && item.includes('user-videos')) {
             videoUrl = item;
         } else {
-            // Item is considered as part of the text content
             textContentParts.push(item);
         }
     });
 
-    let textContent = textContentParts.join(' '); // Concatenate all text parts
+    const textContent = textContentParts.join(' '); // Concatenate all text parts into a single string
     return {textContent, imageUrls, videoUrl};
-};
+}
+
+
+// export function classifyPostContent (contentArray: string[]) {
+//     let textContentParts: string[] = [];
+//     let imageUrls: string[] = [];
+//     let videoUrl = '';
+
+//     contentArray.forEach(item => {
+//         if (/^https?:\/\/.+\.(jpeg|jpg|png)$/.test(item) && item.includes('user-pictures')) {
+//             // Item is an image URL
+//             imageUrls.push(item);
+//         } else if (/^https?:\/\/.+\.(mov|mp4)$/.test(item) && item.includes('user-videos')) {
+//             // Item is a video URL
+//             videoUrl = item;
+//         } else {
+//             // Item is considered as part of the text content
+//             textContentParts.push(item);
+//         }
+//     });
+
+//     let textContent = textContentParts.join(' '); // Concatenate all text parts
+//     return {textContent, imageUrls, videoUrl};
+// };
 
 export function extractUsernamesFromText  (text: string) {
     const usernamePattern = /@(\w+)/g; // Matches '@' followed by any word character (alphanumeric and underscore)

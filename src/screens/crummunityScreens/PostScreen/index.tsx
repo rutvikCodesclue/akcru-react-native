@@ -19,6 +19,7 @@ import HexShape from '../../../components/HexShape'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack'
 import { getBlockedUsers, getUserFollowing, toggleFollow } from '../../../lib/api/user.lib'
+import { selectAvatarBorderColor } from '../../../util/util'
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
@@ -349,6 +350,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             CommentOnPostButton={() => navigation2.navigate('NewComment', {postId: post.id})}
                             onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
                             isFollowing={post.author.isFollowed}
+                            akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
                         />
                     </View>
                     <View style={{marginBottom: '30%'}}>
@@ -388,6 +390,7 @@ const PostScreen = ({navigation, route}: Props) => {
                                             onBlockUser={() =>
                                                 handleToggleBlockUser(item.author.id, item.author.isCurrentlyBlocked)
                                             }
+                                            akcruBadgeColor={selectAvatarBorderColor(item.author.badge ?? 'AKCRUIT')}
                                         />
                                     </View>
                                 )}

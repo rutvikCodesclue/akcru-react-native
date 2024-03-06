@@ -127,10 +127,13 @@ const EditCru = () => {
 
 
     const handleConfirmDelete = async () => {
-        if (memberToDelete) {
+        if (memberToDelete && CRU?.id) {
             try {
                 // Make an API call to remove the user from the CRU
-                const updatedCRU = await removeAUserFromCRU(memberToDelete.id);
+                const updatedCRU = await removeAUserFromCRU(memberToDelete.id, CRU?.id);
+                // console.log('User removed from CRU:', memberToDelete.id);
+                // console.log('CRU Id:', CRU.id);
+                // console.log("updatedCRU:", updatedCRU)
 
                 if (updatedCRU) {
                     // Update the local state with the updated CRU

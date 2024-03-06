@@ -108,6 +108,7 @@ type PostProps = {
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
     onBlockUser: () => void;
+    akcruBadgeColor: string;
 };
 
 const SkinnyPostCard = ({
@@ -123,7 +124,8 @@ const SkinnyPostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     isSuggestedUser,
-    onBlockUser
+    onBlockUser,
+    akcruBadgeColor
     
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -327,7 +329,7 @@ const SkinnyPostCard = ({
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
                             size={58}
-                            bordercolor={COLORS.AKCRUBLUE}
+                            bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
                 </View>
@@ -353,17 +355,17 @@ const SkinnyPostCard = ({
                     )}
                     {akcruBadge === 'HERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeGuardian />
+                            <AkcruLevels.AkcruBadgeHero />
                         </View>
                     )}
                     {akcruBadge === 'SUPERHERO' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeHero />
+                            <AkcruLevels.AkcruBadgeSuperHero />
                         </View>
                     )}
                     {akcruBadge === 'GUARDIAN' && (
                         <View>
-                            <AkcruLevels.AkcruBadgeSuperHero />
+                            <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
                 </View>
@@ -548,12 +550,14 @@ const SkinnyPostCard = ({
                 /> */}
                 {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
-            <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
                     {post.numberOfReposts || 0} Repost
                 </Text>
-                {post.isSuggestedUser && (<Text style={{...FONTS.paragraph1, color: COLORS.PURPLE}}>Suggested User</Text>)}
+                {post.isSuggestedUser && (
+                    <Text style={{...FONTS.paragraph1, color: COLORS.PURPLE}}>Suggested User</Text>
+                )}
             </View>
         </View>
     );
