@@ -466,8 +466,12 @@ const UserProfileDetailsTab = () => {
                                     resizeMode="cover"
                                 />
                             </View>
+                            <View style ={{marginTop: 15}}>
+                               <AkcruButtons.SmallButton disabled={false} color={COLORS.MIDORANGE} btnname='CRU View' onPress={() => navigation.navigate('UserCruChatScreen')} /> 
+                            </View>
+                            
 
-                            <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
                                 <View
                                     style={{
                                         padding: 8,
@@ -487,7 +491,7 @@ const UserProfileDetailsTab = () => {
                                         style={{marginRight: 5}}
                                     />
                                 </View>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                     </View>
                     <View style={{marginTop: 10}}>
@@ -569,11 +573,11 @@ const UserProfileDetailsTab = () => {
                                             {'Member(s)'}
                                         </Text>
                                         {isCurrentUserAMember && (
-                                            <AkcruButtons.LrgButton
+                                            <AkcruButtons.SmallButton
                                                 btnname="Leave CRU"
                                                 onPress={() => handleLeaveCRU(item.id)}
                                                 disabled={false}
-                                                color={COLORS.PURPLE}
+                                                color={COLORS.CATREDLGT}
                                             />
                                             // <TouchableOpacity
                                             //     onPress={() => handleLeaveCRU(item.id)}

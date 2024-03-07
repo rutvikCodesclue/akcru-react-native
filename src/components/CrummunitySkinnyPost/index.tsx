@@ -336,13 +336,31 @@ const SkinnyPostCard = ({
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
-                        {post.author?.influencer && (
+                        {post?.author.ownerStatus && (
+                            <Icon
+                                name="ribbon"
+                                type="ionicon"
+                                color={COLORS.STARGOLD}
+                                size={18}
+                                style={{marginRight: 5}}
+                            />
+                        )}
+                        {post?.author.companyStatus && (
+                            <Icon
+                                name="ribbon"
+                                type="ionicon"
+                                color={COLORS.WHITE}
+                                size={18}
+                                style={{marginRight: 5}}
+                            />
+                        )}
+                        {post?.author.influencerStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                size={15}
-                                style={{marginLeft: 5}}
+                                size={18}
+                                style={{marginRight: 5}}
                             />
                         )}
                     </View>

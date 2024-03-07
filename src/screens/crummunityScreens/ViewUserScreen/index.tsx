@@ -518,18 +518,33 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     <View style={{width: SIZES.ScreenWidth * 0.25}}>
                                         <View style={{flexDirection: 'row'}}>
                                             <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
-
-                                            {/* {
-                                  true && (
-                                //   influencer && (
-                                      <Icon
-                                          name="ribbon"
-                                          type="ionicon"
-                                          color={COLORS.AKCRUBLUE}
-                                          size={20}
-                                          style={{marginLeft: 5}}
-                                      />
-                                  )} */}
+                                            {user?.ownerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.companyStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.influencerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
                                         </View>
                                         {user?.firstName && (
                                             <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
@@ -559,7 +574,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </View>
                                     <View
                                         style={{
-                                            borderLeftWidth: 2,
+                                            // borderLeftWidth: 2,
                                             borderRightWidth: 2,
                                             borderColor: COLORS.TRANSPURPLE,
                                             width: 100,
@@ -930,7 +945,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     onRequestClose={() => {
                         setBlockUserModal(!blockUserModal);
                     }}>
-                    <BlockUserResultModal closeModal={closeModal} type={modalType} resultMessage={blockUserMessage} iconName={iconName} />
+                    <BlockUserResultModal
+                        closeModal={closeModal}
+                        type={modalType}
+                        resultMessage={blockUserMessage}
+                        iconName={iconName}
+                    />
                 </Modal>
             </SafeAreaView>
         </TabContainer>

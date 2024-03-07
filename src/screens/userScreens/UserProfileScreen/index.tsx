@@ -372,9 +372,37 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Text style={{...FONTS.Username}}>
-                                            {user ? user?.username : 'Guest'}
-                                        </Text>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
+                                            {user?.ownerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.companyStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.influencerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    size={18}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                        </View>
+
                                         {user?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -408,7 +436,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     style={{
                                                         ...FONTS.Username,
                                                         color: COLORS.LIGHTGREY,
-                                                 
                                                     }}>
                                                     Edit Profile
                                                 </Text>
@@ -434,9 +461,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             alignItems: 'center',
                                         }}>
                                         <Text style={{...FONTS.Title3}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>
-                                            Followers
-                                        </Text>
+                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
