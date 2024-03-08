@@ -7,19 +7,21 @@ const AkcruBadgeGuardian = () => {
       <View>
           <View
               style={{
-                  backgroundColor: AKCRUBADGES.Guardian.background,
-                  paddingHorizontal: 10,
-                  height: 18,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 5,
-                  marginBottom: 5,
-                  marginTop: 5,
+                  //   backgroundColor: AKCRUBADGES.Guardian.background,
+                  //   paddingHorizontal: 10,
+                //   height: 18,
+                //   justifyContent: 'center',
+                  alignItems: 'flex-start',
+                  marginVertical: 5,
               }}>
               <Text
                   style={{
                       ...FONTS.Akcrubadges,
                       color: AKCRUBADGES.Guardian.color,
+                      backgroundColor: AKCRUBADGES.Guardian.background,
+                      paddingHorizontal: 10,
+                      borderRadius: 5,
+                      paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.Guardian.label}
               </Text>
@@ -33,19 +35,17 @@ const AkcruBadgeSuperHero = () => {
       <View>
           <View
               style={{
-                  backgroundColor: AKCRUBADGES.SuperHero.background,
-                  paddingHorizontal: 10,
-                  height: 18,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 5,
-                  marginBottom: 5,
-                  marginTop: 5,
+                  alignItems: 'flex-start',
+                  marginVertical: 5,
               }}>
               <Text
                   style={{
                       ...FONTS.Akcrubadges,
                       color: AKCRUBADGES.SuperHero.color,
+                      backgroundColor: AKCRUBADGES.SuperHero.background,
+                      paddingHorizontal: 10,
+                      borderRadius: 5,
+                      paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.SuperHero.label}
               </Text>
@@ -59,19 +59,17 @@ const AkcruBadgeHero = () => {
       <View>
           <View
               style={{
-                  backgroundColor: AKCRUBADGES.Hero.background,
-                  paddingHorizontal: 10,
-                  height: 18,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 5,
-                  marginBottom: 5,
-                  marginTop: 5,
+                  alignItems: 'flex-start',
+                  marginVertical: 5,
               }}>
               <Text
                   style={{
                       ...FONTS.Akcrubadges,
                       color: AKCRUBADGES.Hero.color,
+                      backgroundColor: AKCRUBADGES.Hero.background,
+                      paddingHorizontal: 10,
+                      borderRadius: 5,
+                      paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.Hero.label}
               </Text>
@@ -85,19 +83,17 @@ const AkcruBadgeAkcruit = () => {
       <View>
           <View
               style={{
-                  backgroundColor: AKCRUBADGES.Akcruit.background,
-                  paddingHorizontal: 10,
-                  height: 18,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 5,
-                  marginBottom: 5,
-                  marginTop: 5,
+                  alignItems: 'flex-start',
+                  marginVertical: 5,
               }}>
               <Text
                   style={{
                       ...FONTS.Akcrubadges,
                       color: AKCRUBADGES.Akcruit.color,
+                      backgroundColor: AKCRUBADGES.Akcruit.background,
+                      paddingHorizontal: 10,
+                      borderRadius: 5,
+                      paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.Akcruit.label}
               </Text>

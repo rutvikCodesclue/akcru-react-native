@@ -14,15 +14,16 @@ import {ClientStackParams} from '../../../navigation/ClientStack';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import {isAfter, isBefore} from 'date-fns';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import { UseTabMenu } from '../../../context/TabContext';
 
 const UserProfileDatesTab = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
     const user = useAuthStore.getState().user;
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
-
+    const {refetchDates, setRefetchDates} = UseTabMenu();
     const [cameraPermission, setCameraPermission] = useState<boolean>(false);
     const [micPermission, setMicPermission] = useState<boolean>(false);
-
+    
     const _checkPermissions = async () => {
         //check permissions for camera and microphone on android
         if (Platform.OS === 'android') {
@@ -151,7 +152,10 @@ const UserProfileDatesTab = () => {
                 }
             };
             fetchMyEvents();
-        }, []),
+            if (refetchDates) {
+                setRefetchDates(false);
+            }
+        }, [refetchDates, setRefetchDates]),
     );
 
     const handleInviterPress = (creatorId: string) => {

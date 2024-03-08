@@ -42,6 +42,7 @@ import {isAfter, isBefore} from 'date-fns';
 import TabContainer from "../../../components/TabContainer/TabContainer";
 import HexAvatar from "../../../components/HexAvatar";
 import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
+import CustomIcon from "../../../components/CustomIcon/CustomIcon";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -372,9 +373,37 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Text style={{...FONTS.Username}}>
-                                            {user ? user?.username : 'Guest'}
-                                        </Text>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
+                                            {user?.ownerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.companyStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.influencerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                        </View>
+
                                         {user?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -408,7 +437,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     style={{
                                                         ...FONTS.Username,
                                                         color: COLORS.LIGHTGREY,
-                                                 
                                                     }}>
                                                     Edit Profile
                                                 </Text>
@@ -434,9 +462,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             alignItems: 'center',
                                         }}>
                                         <Text style={{...FONTS.Title3}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>
-                                            Followers
-                                        </Text>
+                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View

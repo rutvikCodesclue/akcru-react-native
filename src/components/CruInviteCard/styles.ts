@@ -11,23 +11,22 @@ export default StyleSheet.create({
     textDecorationLine: 'underline',
   },
   paragraphText: {
-    ...FONTS.Title2,
+    ...FONTS.Username,
     color: COLORS.LIGHTGREY,
-    fontSize: 12,
     marginHorizontal: 5,
   },
   paragraphText2: {
-    ...FONTS.Title2,
+    ...FONTS.Username,
     color: COLORS.AKCRUBLUE,
-    fontSize: 12,
+   
   },
   paragraphText3: {
-    ...FONTS.Title2,
+    ...FONTS.Username,
     color: COLORS.MIDORANGE,
-    fontSize: 12,
+    
   },
   declineButton: {
-    ...FONTS.Title2,
+    ...FONTS.Username,
     color: COLORS.AKCRUBLUE,
   },
 });

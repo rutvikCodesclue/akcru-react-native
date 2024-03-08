@@ -8,6 +8,9 @@ interface TabContextType {
 
     refetchCrus: boolean; // Add this line
     setRefetchCrus: (value: boolean) => void; // And this one
+
+    refetchDates: boolean;
+    setRefetchDates: (value: boolean) => void; 
 }
 
 const TabContext = React.createContext<TabContextType>({
@@ -17,6 +20,9 @@ const TabContext = React.createContext<TabContextType>({
 
     refetchCrus: false, // Default value for refetchCrus
     setRefetchCrus: () => {}, // Default implementation (noop function) for setRefetchCrus
+
+    refetchDates: false, // Default value for refetchCrus
+    setRefetchDates: () => {}, // Default implementation (noop function) for setRefetchCrus
 });
 
 // const TabContext = React.createContext({opened: false, toggleOpened: () => {}});
@@ -25,6 +31,8 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [opened, setOpened] = React.useState(false);
 
     const [refetchCrus, setRefetchCrus] = React.useState(false); // Add this line
+
+    const [refetchDates, setRefetchDates] = React.useState(false); // Add this line
 
     const toggleOpened = () => {
         setOpened(!opened);
@@ -42,7 +50,16 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     };
 
     return (
-        <TabContext.Provider value={{opened, toggleOpened, getAdjustedIconSize, refetchCrus, setRefetchCrus}}>
+        <TabContext.Provider
+            value={{
+                opened,
+                toggleOpened,
+                getAdjustedIconSize,
+                refetchCrus,
+                setRefetchCrus,
+                refetchDates,
+                setRefetchDates,
+            }}>
             {children}
         </TabContext.Provider>
     );

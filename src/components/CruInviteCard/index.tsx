@@ -13,6 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import { ClientStackParams } from '../../navigation/ClientStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import HexAvatar from '../HexAvatar';
+import AkcruButtons from '../akcruButtons';
 
 type CruInviteCardProp = {
     cruInviteID: any;
@@ -42,28 +43,6 @@ const CruInviteCard = ({
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-//   const _acceptInvite = () => {
-//     setIsLoading(true);
-//     console.log("accept invite"); 
-//     acceptACRUInvite({inviteId: cruInviteID}).then((res) => {
-//         console.log('accepted res:', res);
-//         setIsLoading(false);
-//         // Navigate to CruInviteDecline screen with necessary parameters
-//         navigation.navigate('CruInviteAccept');
-//     });
-//   };
-  
-//   const _declineInvite = () => {
-//     setIsLoading(true);
-//     console.log("decline invite");
-//     declineACRUInvite({inviteId: cruInviteID}).then((res) => {
-//         console.log('declined res:', res);
-//         setIsLoading(false);
-//         // Navigate to CruInviteDecline screen with necessary parameters
-//         navigation.navigate('CruInviteDecline');
-//     });
-//   };
-
   return (
       <View
           style={{
@@ -82,75 +61,51 @@ const CruInviteCard = ({
                   borderRadius: 5,
               }}
           />
-          <View style={{flexDirection: 'row', alignItems: 'center', margin: 10}}>
-              <View style={{marginRight: 10}}>
-                  <TouchableOpacity onPress={onPress}>
-                      {/* <Avatar
-                          source={invitee.profilePicture ? {uri: invitee.profilePicture} : imageindex.Akcruplaceholder}
-                          size={50}
-                          rounded
-                          avatarStyle={{
-                              borderWidth: 2,
-                              borderColor: selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT'),
-                          }}
-                      /> */}
-                      <HexAvatar
-                          source={{uri: invitee.profilePicture}}
-                          size={55}
-                          bordercolor={selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT')}
-                      />
-                  </TouchableOpacity>
+          <View style={{padding: 15}}>
+              <View style={{flexDirection: 'row', alignItems: 'center', marginBottom: 10}}>
+                  <View style={{marginRight: 10}}>
+                      <TouchableOpacity onPress={onPress}>
+                          <HexAvatar
+                              source={{uri: invitee.profilePicture}}
+                              size={55}
+                              bordercolor={selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT')}
+                          />
+                      </TouchableOpacity>
+                  </View>
+                  <View>
+                      <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>
+                          <View>
+                              <Text style={styles.paragraphText2}>{inviteeName}</Text>
+                          </View>
+
+                          <Text style={styles.paragraphText}>has sent you a CRU Invite on</Text>
+                          <View>
+                              {/* display inviteDate datetimestring as month/day/year */}
+                              <Text style={styles.paragraphText3}>
+                                  {new Date(inviteDate).toLocaleDateString('en-US', {
+                                      year: 'numeric',
+                                      month: 'numeric',
+                                      day: 'numeric',
+                                  })}
+                              </Text>
+                          </View>
+                      </View>
+                  </View>
               </View>
-              <View>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>
-                      <View>
-                          <Text style={styles.paragraphText2}>{inviteeName}</Text>
-                      </View>
 
-                      <Text style={styles.paragraphText}>has sent you a CRU Invite on</Text>
-                      <View>
-                          {/* display inviteDate datetimestring as month/day/year */}
-                          <Text style={styles.paragraphText3}>
-                              {new Date(inviteDate).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'numeric',
-                                  day: 'numeric',
-                              })}
-                          </Text>
-                      </View>
-                  </View>
-
-                  <View style={{flexDirection: 'row', marginTop: 10}}>
-                      {/* ACCEPT BUTTON */}
-                      <TouchableOpacity onPress={accept} disabled={isLoading}>
-                          <View
-                              style={{
-                                  width: 125,
-                                  height: 30,
-                                  backgroundColor: COLORS.AKCRUBLUE,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  borderRadius: 3,
-                                  marginRight: 10,
-                              }}>
-                              <Text style={{...FONTS.Title2}}>ACCEPT</Text>
-                          </View>
-                      </TouchableOpacity>
-                      {/* DECLINE BUTTON */}
-                      <TouchableOpacity onPress={decline} disabled={isLoading}>
-                          <View
-                              style={{
-                                  width: 125,
-                                  height: 30,
-                                  backgroundColor: COLORS.CATPURPDRK,
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  borderRadius: 3,
-                              }}>
-                              <Text style={styles.declineButton}>DECLINE</Text>
-                          </View>
-                      </TouchableOpacity>
-                  </View>
+              <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+                  <AkcruButtons.SmallButton
+                      btnname="ACCEPT"
+                      color={COLORS.AKCRUBLUE}
+                      disabled={isLoading}
+                      onPress={accept}
+                  />
+                  <AkcruButtons.SmallButton
+                      btnname="DECLINE"
+                      color={COLORS.PURPLE}
+                      disabled={isLoading}
+                      onPress={decline}
+                  />
               </View>
           </View>
       </View>

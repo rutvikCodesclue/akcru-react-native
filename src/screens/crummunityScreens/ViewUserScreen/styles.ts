@@ -31,7 +31,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         marginTop: 10,
         marginBottom: -20,
-        fontSize: 14,
+        
     },
     watchlistcontainer: {
         
@@ -51,7 +51,7 @@ export default StyleSheet.create({
         marginTop: 25,
         marginBottom: 20,
         textAlign: 'center',
-        fontSize: 14,
+        
         textDecorationLine: 'underline',
     },
     drawfonttag: {

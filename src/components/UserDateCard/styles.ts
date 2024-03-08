@@ -18,29 +18,29 @@ export default StyleSheet.create({
         borderRadius: 4,
     },
     paragraphText: {
-        ...FONTS.Title2,
+        ...FONTS.Username,
         color: COLORS.LIGHTGREY,
-        fontSize: 12,
+       
     },
     paragraphText2: {
-        ...FONTS.Title2,
+        ...FONTS.Username,
         color: COLORS.AKCRUBLUE,
-        fontSize: 12,
+        
     },
     paragraphText3: {
-        ...FONTS.Title2,
+        ...FONTS.Username,
         color: COLORS.MIDORANGE,
-        fontSize: 12,
+        
     },
     paragraphText2label: {
         ...FONTS.Title3,
         color: COLORS.AKCRUBLUE,
-        fontSize: 15,
+        
         marginBottom:10
     },
     paragraphText3label: {
         ...FONTS.Title3,
         color: COLORS.MIDORANGE,
-        fontSize: 15,
+        
     },
 });
