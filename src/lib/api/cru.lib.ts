@@ -115,6 +115,19 @@ export const createACRUView = async (params: {movieId: string; startTime: string
     }
 };
 
+export const cancelCRUView = async (cruViewId: string): Promise<{success: boolean; message?: string}> => {
+    try {
+        // Replace with the correct endpoint as per your backend setup
+        const response = await API.post(`/v1/cru/cancel-cru-view`, {cruViewId});
+        console.log('CRU View cancelled:', response.data);
+        return response.data; // Assuming the API returns an object with a success flag and possibly a message
+    } catch (error) {
+        console.error('Error cancelling CRU View:', error);
+        throw error; // Re-throw the error so you can handle it in the calling component
+    }
+};
+
+
 export const createACRUInvite = async (params: {username: string; senderId: string}): Promise<ICruInvite | undefined> => {
     // POST /v1/cru/invite/create
     try {

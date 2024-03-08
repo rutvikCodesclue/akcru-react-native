@@ -43,6 +43,7 @@ import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import { set } from 'lodash';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
@@ -517,37 +518,37 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth * 0.25}}>
                                         <View style={{flexDirection: 'row'}}>
-                                            <Text style={{...FONTS.Title2, fontSize: 12}}>{user?.username}</Text>
+                                            <Text style={{...FONTS.Username}}>{user?.username}</Text>
                                             {user?.ownerStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.STARGOLD}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
                                             {user?.companyStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.WHITE}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
                                             {user?.influencerStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.AKCRUBLUE}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
                                         </View>
                                         {user?.firstName && (
-                                            <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.LIGHTGREY}}>
+                                            <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                                                 {user?.firstName ? user.firstName : ''}
                                             </Text>
                                         )}
@@ -575,7 +576,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     <View
                                         style={{
                                             // borderLeftWidth: 2,
-                                            borderRightWidth: 2,
+                                            // borderRightWidth: 2,
                                             borderColor: COLORS.TRANSPURPLE,
                                             width: 100,
                                             height: 60,
@@ -592,8 +593,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             style={{
                                                 alignItems: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, fontSize: 12}}>
+                                            <Text style={{...FONTS.Title3}}>{followersCount}</Text>
+                                            <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>
                                                 Followers
                                             </Text>
                                         </TouchableOpacity>
@@ -617,7 +618,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 });
                                             }}>
                                             <Image source={imageindex.MITticket} style={{height: 40}} />
-                                            <Text style={{color: 'white', fontSize: 10}}>Send User a MIT</Text>
+                                            <Text style={{color: 'white', ...FONTS .chart}}>Send User a MIT</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
@@ -627,7 +628,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     <Text
                                         style={{
                                             ...FONTS.paragraph1,
-                                            fontSize: 12,
+                                            
                                             color: COLORS.PURPLE,
                                             textAlign: 'center',
                                         }}>
@@ -749,9 +750,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 <View style={{marginHorizontal: 15, paddingTop: 20}}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title2,
+                                            ...FONTS.Username,
                                             color: COLORS.LIGHTGREY,
-                                            fontSize: 12,
+                                            
                                         }}>
                                         {user?.description}
                                     </Text>

@@ -11,6 +11,7 @@ import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 import { IUserProfile } from '../../../types';
+import CustomIcon from '../CustomIcon/CustomIcon';
 
 type FooterIconsProps = {
     iconname: string;
@@ -337,29 +338,29 @@ const SkinnyPostCard = ({
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
                         {post?.author.ownerStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                size={18}
+                                baseSize={12}
                                 style={{marginRight: 5}}
                             />
                         )}
                         {post?.author.companyStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                size={18}
+                                baseSize={12}
                                 style={{marginRight: 5}}
                             />
                         )}
                         {post?.author.influencerStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                size={18}
+                                baseSize={12}
                                 style={{marginRight: 5}}
                             />
                         )}

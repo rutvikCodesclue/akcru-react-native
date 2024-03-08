@@ -52,106 +52,103 @@ const UserSearchResultScreen = () => {
   };
 
   return (
-    <TabContainer>
-      <SafeAreaView>
-      <ScrollView stickyHeaderIndices={[0]}>
-        <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
-          <Header />
-          <TouchableOpacity
-            style={{marginHorizontal: 15, marginBottom: 10}}
-            onPress={() => navigation.pop()}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Icon
-                name="chevron-back"
-                type="ionicon"
-                size={20}
-                color={COLORS.LIGHTGREY}
-              />
-              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-            </View>
-          </TouchableOpacity>
-          <View style={{alignItems: 'center'}}>
-            <View style={styles.searchinput}>
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                   <Icon
-                name="magnify"
-                type="material-community"
-                color={COLORS.AKCRUBLUE}
-                size={28}
-                style={{marginRight: 10}}
-              />
-              <TextInput
-                placeholder="Search for user"
-                placeholderTextColor={COLORS.DARKGREY}
-                autoCorrect={false}
-                autoFocus={false}
-                ref={textInputRef}
-                onFocus={() => {
-                  setTextInputFocused(true);
-                }}
-                onBlur={() => {
-                  setTextInputFocused(false);
-                }}
-                onChangeText={handleSearch}
-                style={{color: COLORS.LIGHTGREY, width: '100%'}}
-              /> 
-                </View>
-              
-              <TouchableWithoutFeedback onPress={() => {}}>
-                <Icon
-                  name="close-circle"
-                  type="material-community"
-                  size={25}
-                  color={COLORS.DARKGREY}
-                  style={{}}
-                  onPress={() => {
-                    textInputRef.current.clear();
-                    handleSearch(textInputRef);
-                    setTextInputFocused(true);
-                  }}
-                />
-              </TouchableWithoutFeedback>
-            </View>
-          </View>
-        </View>
+      <TabContainer>
+          <SafeAreaView>
+              <ScrollView stickyHeaderIndices={[0]}>
+                  <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                      <Header />
+                      <TouchableOpacity
+                          style={{marginHorizontal: 15, marginBottom: 10}}
+                          onPress={() => navigation.pop()}>
+                          <View
+                              style={{
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                              }}>
+                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                          </View>
+                      </TouchableOpacity>
+                      <View style={{alignItems: 'center'}}>
+                          <View style={styles.searchinput}>
+                              <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                  <Icon
+                                      name="magnify"
+                                      type="material-community"
+                                      color={COLORS.AKCRUBLUE}
+                                      size={28}
+                                      style={{marginRight: 10}}
+                                  />
+                                  <TextInput
+                                      placeholder="Search for user"
+                                      placeholderTextColor={COLORS.DARKGREY}
+                                      autoCorrect={false}
+                                      autoFocus={false}
+                                      ref={textInputRef}
+                                      onFocus={() => {
+                                          setTextInputFocused(true);
+                                      }}
+                                      onBlur={() => {
+                                          setTextInputFocused(false);
+                                      }}
+                                      onChangeText={handleSearch}
+                                      style={{color: COLORS.LIGHTGREY, width: '100%'}}
+                                  />
+                              </View>
 
-        <View style={{marginHorizontal: 15, marginBottom: '20%'}}>
-          <FlatList
-            data={data}
-            horizontal={false}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-            keyExtractor={item => item.id}
-            renderItem={({item, index}) => (
-              <View style={{marginVertical: 5}}>
-                <UserSearchCard
-                  userPicture={item.profilePicture}
-                  userName={item.username}
-                  onPress={() => {
-                    //console.log('Navigating to ViewUserScreen with userID:', item.username, item.id);
-                    navigation.navigate('ViewUserScreen', {
-                        userID: item.id,
-                    });
-                    setTextInputFocused(true);
-                  }}
-                  // influencer={item.influencer} // TODO: handle this
-                  userID={item.id}
-                  akcruBadge={item.badge}
-                  userDesc={item.description}
-                  firstName={item.firstName}
-                />
-              </View>
-            )}
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-    </TabContainer>
-    
+                              <TouchableWithoutFeedback onPress={() => {}}>
+                                  <Icon
+                                      name="close-circle"
+                                      type="material-community"
+                                      size={25}
+                                      color={COLORS.DARKGREY}
+                                      style={{}}
+                                      onPress={() => {
+                                          textInputRef.current.clear();
+                                          handleSearch(textInputRef);
+                                          setTextInputFocused(true);
+                                      }}
+                                  />
+                              </TouchableWithoutFeedback>
+                          </View>
+                      </View>
+                  </View>
+
+                  <View style={{marginHorizontal: 15, marginBottom: '20%'}}>
+                      <FlatList
+                          data={data}
+                          horizontal={false}
+                          showsHorizontalScrollIndicator={false}
+                          scrollEnabled={false}
+                          keyExtractor={item => item.id}
+                          renderItem={({item, index}) => (
+                              <View style={{marginVertical: 5}}>
+                                  <UserSearchCard
+                                      userPicture={item.profilePicture}
+                                      userName={item.username}
+                                      onPress={() => {
+                                          //console.log('Navigating to ViewUserScreen with userID:', item.username, item.id);
+                                          navigation.navigate('ViewUserScreen', {
+                                              userID: item.id,
+                                          });
+                                          setTextInputFocused(true);
+                                      }}
+                                      // influencer={item.influencer} // TODO: handle this
+                                      userID={item.id}
+                                      akcruBadge={item.badge}
+                                      userDesc={item.description}
+                                      firstName={item.firstName}
+                                      ownerStatus={item.ownerStatus} // Dynamically passed
+                                      companyStatus={item.companyStatus} // Dynamically passed
+                                      influencerStatus={item.influencerStatus} // Dynamically passed
+                                  />
+                              </View>
+                          )}
+                      />
+                  </View>
+              </ScrollView>
+          </SafeAreaView>
+      </TabContainer>
   );
 };
 

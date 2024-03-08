@@ -84,6 +84,7 @@ const Read = () => {
                 case 'CruInviteReceived':
                 case 'CruInviteAccepted':
                 case 'CruInviteDeclined':
+                case 'CruViewScheduled':
                     // Assuming the notification includes the user ID of the follower
                     const userId = notification.senderId; // Adjust this to match your notification structure
                     //console.log('Notification Data:', notification);

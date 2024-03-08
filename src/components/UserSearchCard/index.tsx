@@ -9,18 +9,22 @@ import { selectAvatarBorderColor } from '../../util/util';
 import { IUserProfile } from '../../../types';
 import imageindex from '../../../assets/images/imageindex';
 import HexAvatar from '../HexAvatar';
+import CustomIcon from '../CustomIcon/CustomIcon';
 
 const MAX_USERDESC_LENGTH = 50; // Maximum number of characters for the userDesc
 
 type UserSearchCardProps = {
-  userPicture?: string;
-  userName: string;
-  influencer?: boolean;
-  akcruBadge: any;
-  onPress: () => void;
-  userID: any;
-  userDesc?: string;
-  firstName?: string
+    userPicture?: string;
+    userName: string;
+    influencer?: boolean;
+    akcruBadge: any;
+    onPress: () => void;
+    userID: any;
+    userDesc?: string;
+    firstName?: string;
+    ownerStatus?: boolean; // New prop
+    companyStatus?: boolean; // New prop
+    influencerStatus?: boolean; // New prop
 };
 
 const UserSearchCard = ({
@@ -32,6 +36,9 @@ const UserSearchCard = ({
   userID,
   userDesc,
   firstName,
+  ownerStatus,
+  companyStatus,
+  influencerStatus
 }: UserSearchCardProps) => {
   const truncateduserDesc =
     userDesc && userDesc.length > MAX_USERDESC_LENGTH
@@ -47,7 +54,6 @@ const UserSearchCard = ({
               borderRadius: 5,
               backgroundColor: COLORS.TAGCOLOR,
               width: SIZES.ScreenWidth,
-             
           }}>
           <LinearGradient
               // Background Linear Gradient
@@ -75,18 +81,36 @@ const UserSearchCard = ({
                   </View>
                   <View>
                       <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                          <Text style={{...FONTS.Title3, fontSize: 12}}>{userName}</Text>
-                          {influencer && (
-                              <Icon
+                          <Text style={{...FONTS.Username}}>{userName}</Text>
+                          {ownerStatus && (
+                              <CustomIcon
+                                  name="ribbon"
+                                  type="ionicon"
+                                  color={COLORS.STARGOLD}
+                                  baseSize={12}
+                                  style={{marginRight: 5}}
+                              />
+                          )}
+                          {companyStatus && (
+                              <CustomIcon
+                                  name="ribbon"
+                                  type="ionicon"
+                                  color={COLORS.WHITE}
+                                  baseSize={12}
+                                  style={{marginRight: 5}}
+                              />
+                          )}
+                          {influencerStatus && (
+                              <CustomIcon
                                   name="ribbon"
                                   type="ionicon"
                                   color={COLORS.AKCRUBLUE}
-                                  size={18}
-                                  style={{marginLeft: 5}}
+                                  baseSize={12}
+                                  style={{marginRight: 5}}
                               />
                           )}
                       </View>
-                      <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
+                      <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
                       {akcruBadge === 'AKCRUIT' && (
                           <View>
                               <AkcruLevels.AkcruBadgeAkcruit />
@@ -110,7 +134,7 @@ const UserSearchCard = ({
                   </View>
               </View>
               <View>
-                  <Text style={{...FONTS.paragraph1, fontSize: 12}}>{truncateduserDesc}</Text>
+                  <Text style={{...FONTS.paragraph1}}>{truncateduserDesc}</Text>
               </View>
           </View>
       </View>

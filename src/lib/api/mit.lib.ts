@@ -94,6 +94,16 @@ export const createAMITInvite = async (params: {
     }
 };
 
+export const cancelMIT = async (mitInviteId: string): Promise<any> => {
+    try {
+        const {data} = await API.post(`/v1/mit/cancel-mit`, {mitInviteId});
+        return data;
+    } catch (error) {
+        console.error('Error cancelling MIT:', error);
+        throw error;
+    }
+};
+
 export const acceptAMITInvite = async (params: {inviteId: string}): Promise<IMITInvite | undefined> => {
     // POST /v1/mit/invite/accept
     try {

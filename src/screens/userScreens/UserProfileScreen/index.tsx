@@ -42,6 +42,7 @@ import {isAfter, isBefore} from 'date-fns';
 import TabContainer from "../../../components/TabContainer/TabContainer";
 import HexAvatar from "../../../components/HexAvatar";
 import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
+import CustomIcon from "../../../components/CustomIcon/CustomIcon";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -375,29 +376,29 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
                                             {user?.ownerStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.STARGOLD}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
                                             {user?.companyStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.WHITE}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
                                             {user?.influencerStatus && (
-                                                <Icon
+                                                <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.AKCRUBLUE}
-                                                    size={18}
+                                                    baseSize={12}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
