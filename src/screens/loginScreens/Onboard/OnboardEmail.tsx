@@ -116,7 +116,7 @@ const [resetResultType, setResetResultType] = useState({
           setResetResultType({
               messageheader: 'Error',
               messageheadercolor: COLORS.CATREDDRK,
-              message: 'An error occurred while sending the OTP.',
+              message: error.response.data.message || 'Error while sending OTP' ,
               iconname: 'alert-circle',
               iconcolor: COLORS.CATREDLGT,
           });
