@@ -81,7 +81,7 @@ const LrgButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
   return (
     <View>
       <TouchableOpacity
-        style={{width: SIZES.ScreenWidth * .85, height: 45}}
+        style={{width: SIZES.ScreenWidth * .90, height: 45}}
         onPress={onPress}
         disabled={disabled}>
         <View

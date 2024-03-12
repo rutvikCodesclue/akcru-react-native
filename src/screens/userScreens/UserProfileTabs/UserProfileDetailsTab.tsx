@@ -507,10 +507,11 @@ const UserProfileDetailsTab = () => {
                             CRU AFFILIATIONS
                         </Text>
                     </View>
-                    <View>
+                    <View style={{flex: 1}}>
                         <FlatList
                             data={crus}
                             keyExtractor={item => item.id}
+                            horizontal
                             renderItem={({item}) => {
                                 // Check if the current user is a member of this CRU
                                 const isCurrentUserAMember =
@@ -520,11 +521,13 @@ const UserProfileDetailsTab = () => {
                                 return (
                                     <View
                                         style={{
-                                            backgroundColor: '#1C202A',
+                                            backgroundColor: COLORS.CATPURPDRK,
                                             borderRadius: 5,
                                             alignItems: 'center',
                                             padding: 15,
                                             marginBottom: 15,
+                                            marginHorizontal: 10,
+                                            width: SIZES.ScreenWidth * 0.75
                                         }}>
                                         <LinearGradient
                                             // Background Linear Gradient
@@ -552,23 +555,57 @@ const UserProfileDetailsTab = () => {
                                             />
                                             <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>Cru Leader</Text>
                                         </TouchableOpacity>
-                                        <FlatList
-                                            data={item.members}
-                                            horizontal
-                                            renderItem={({item: member}) => (
-                                                <TouchableOpacity
-                                                    onPress={() =>
-                                                        navigation.navigate('ViewUserScreen', {userID: member.id})
-                                                    }
-                                                    key={member.id}>
-                                                    <CruMemberPic
-                                                        userPicture={member.profilePicture}
-                                                        akcruBadge={member.badge}
-                                                    />
-                                                </TouchableOpacity>
-                                            )}
-                                            keyExtractor={member => member.id}
-                                        />
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                width: '100%', // Make sure this takes the full width
+                                            }}>
+                                            <ScrollView
+                                                horizontal={true}
+                                                showsHorizontalScrollIndicator={false}
+                                                contentContainerStyle={{
+                                                flexGrow: 1,
+                                                justifyContent: 'center', // This ensures content is centered within the scroll view if content is smaller than the screen
+                                                alignItems: 'center',
+                                                }}>
+                                                {item.members?.map(member => (
+                                                    <TouchableOpacity
+                                                        onPress={() =>
+                                                            navigation.navigate('ViewUserScreen', {userID: member.id})
+                                                        }
+                                                        key={member.id}
+                                                        >
+                                                        {/* Adjust spacing as needed */}
+                                                        <CruMemberPic
+                                                            userPicture={member.profilePicture}
+                                                            akcruBadge={member.badge}
+                                                        />
+                                                    </TouchableOpacity>
+                                                ))}
+                                            </ScrollView>
+                                        </View>
+                                        {/* <View style={{backgroundColor: 'red', width: '100%', flex: 1}}>
+                                            <FlatList
+                                                data={item.members}
+                                                horizontal={true}
+                                                showsHorizontalScrollIndicator={false}
+                                                renderItem={({item: member}) => (
+                                                    <TouchableOpacity
+                                                        onPress={() =>
+                                                            navigation.navigate('ViewUserScreen', {userID: member.id})
+                                                        }
+                                                        key={member.id}>
+                                                        <CruMemberPic
+                                                            userPicture={member.profilePicture}
+                                                            akcruBadge={member.badge}
+                                                        />
+                                                    </TouchableOpacity>
+                                                )}
+                                                keyExtractor={member => member.id}
+                                            />
+                                        </View> */}
                                         <Text style={{...FONTS.paragraph1, textAlign: 'center', paddingBottom: 15}}>
                                             {'Member(s)'}
                                         </Text>
@@ -579,11 +616,6 @@ const UserProfileDetailsTab = () => {
                                                 disabled={false}
                                                 color={COLORS.CATREDLGT}
                                             />
-                                            // <TouchableOpacity
-                                            //     onPress={() => handleLeaveCRU(item.id)}
-                                            //     style={{marginTop: 10}}>
-                                            //     <Text style={{color: 'red'}}>Leave CRU</Text>
-                                            // </TouchableOpacity>
                                         )}
                                     </View>
                                 );
@@ -606,29 +638,6 @@ const UserProfileDetailsTab = () => {
                             disabled={false}
                         />
                     </View>
-                    {/* <TouchableOpacity
-                        onPress={selectGalleryImage}
-                        style={{
-                            width: '95%',
-                            height: 40,
-                            alignSelf: 'center',
-                            borderRadius: 5,
-                            borderWidth: 1,
-                            borderColor: COLORS.CATPURPLGT,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginBottom: 10,
-                            marginTop: 10,
-                        }}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2,
-                                color: COLORS.LIGHTGREY,
-                                fontSize: 14,
-                            }}>
-                            Add to Gallery
-                        </Text>
-                    </TouchableOpacity> */}
                     <View style={styles.gallerycontainer}>
                         <FlatList
                             data={userPics}

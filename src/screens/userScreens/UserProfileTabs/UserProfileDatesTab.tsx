@@ -1,7 +1,7 @@
 import {View, Text, ScrollView, Platform} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
-import {SIZES} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import UserDatesCard from '../../../components/UserDateCard';
 import {getMyCRUViews} from '../../../lib/api/cru.lib';
 import {ICruView, IMITInvite} from '../../../../types';
@@ -165,6 +165,16 @@ const UserProfileDatesTab = () => {
 
     // render CRUViews and MITs (when MITs are implemented)
     const _renderMyEvents = () => {
+        if (myEvents.length === 0) {
+            // If there are no events, display the "No dates scheduled" message
+            return (
+                <View style={{alignItems: 'center'}}>
+                    <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>
+                        No dates scheduled
+                    </Text>
+                </View>
+            );
+        } else 
         return myEvents.map(item => {
             if (item instanceof Object && 'cru' in item) {
                 // item is a CRUView
