@@ -52,7 +52,7 @@ API.interceptors.request.use(
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
 
-        if (config.method?.toLowerCase() === 'post') {
+        if (config.method?.toLowerCase() === 'post' || config.method?.toLowerCase() === 'put') {
             // Adjust this part according to your actual data structure
             const castle_request_token = await addRequestTokenHeader()
             config.data = {
