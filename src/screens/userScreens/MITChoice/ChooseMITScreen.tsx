@@ -1,77 +1,45 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Pressable,
-  Modal,
-  TextInput,
-  Alert,
-  FlatList,
-} from "react-native";
-import styles from "./styles";
-import { COLORS, FONTS, SIZES } from "../../../../assets/constants";
+import React, {useCallback, useEffect, useState} from 'react';
+import {Alert, Image, Modal, ScrollView, Text, TouchableOpacity, View} from 'react-native';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import styles from './styles';
 
-import { Icon, Avatar, color } from "@rneui/base";
-import MITSwipe from "../../../components/MITSwipe";
-import Header from "../../../components/header";
-import AkcruLevels from "../../../components/akcruBadges";
-import MITMessages from "../../../components/MITMessages";
-import AkcruButtons from "../../../components/akcruButtons";
-import LinearGradient from "react-native-linear-gradient";
-import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
-import imageindex from "../../../../assets/images/imageindex";
-import { JENNY_INVITES } from "../../../../assets/constants/Mockusers";
-import BottomSheet, {
-  BottomSheetHandleProps,
-  BottomSheetView,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { StackNavigationProp } from "@react-navigation/stack";
-import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
+import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {Icon} from '@rneui/base';
+import moment from 'moment';
+import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
+import LinearGradient from 'react-native-linear-gradient';
+import {TouchableRipple} from 'react-native-paper';
+import imageindex from '../../../../assets/images/imageindex';
 import {IMovie, IUserProfile} from '../../../../types';
-import { getCRUInvites } from "../../../lib/api/cru.lib";
-import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone, selectAvatarBorderColor } from "../../../util/util";
-import YoutubePlayer from 'react-native-youtube-iframe';
-import moment from "moment";
-import { MediaType, launchImageLibrary } from "react-native-image-picker";
-import MITMessage from "../../../../assets/constants/MITmessages";
-import TabContainer from "../../../components/TabContainer/TabContainer";
-import { Bubble, GiftedChat, IMessage } from "react-native-gifted-chat";
-import { HMSAudioTrackSettings, HMSCameraFacing, HMSConfig, HMSMessage, HMSPeer, HMSSDK, HMSTrack, HMSTrackSettings, HMSTrackSettingsInitState, HMSTrackUpdate, HMSUpdateListenerActions, HMSVideoTrackSettings } from "@100mslive/react-native-hms";
-import { createChatRoom, getTextMessages, saveTextMessage } from "../../../lib/api/rooms.lib";
-import useAuthStore from "../../../stores/auth.store";
-import { TouchableRipple } from "react-native-paper";
-import HexAvatar from "../../../components/HexAvatar";
+import HexAvatar from '../../../components/HexAvatar';
+import MITSwipe from '../../../components/MITSwipe';
+import TabContainer from '../../../components/TabContainer/TabContainer';
+import AkcruLevels from '../../../components/akcruBadges';
+import Header from '../../../components/header';
+import {acceptAMITInvite, declineAMITInvite} from '../../../lib/api/mit.lib';
+import {getTextMessages, saveTextMessage} from '../../../lib/api/rooms.lib';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import useAuthStore from '../../../stores/auth.store';
+import {
+    capitalizeFirstLetterOfString,
+    formatMovieDuration,
+    getShortenedTimezone,
+    selectAvatarBorderColor,
+} from '../../../util/util';
 
-type ChooseMITScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  "ChooseMITScreen"
->;
+type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
-type ChooseMITScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  "ChooseMITScreen"
->;
+type ChooseMITScreenRouteProp = RouteProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
 type Props = {
-  navigation: ChooseMITScreenNavigationProp;
-  route: ChooseMITScreenRouteProp;
-
+    navigation: ChooseMITScreenNavigationProp;
+    route: ChooseMITScreenRouteProp;
 };
 
-const ChooseMITScreen = ({ navigation, route }: Props) => {
+const ChooseMITScreen = ({navigation, route}: Props) => {
     const MITID: number | undefined = route.params?.MITID ?? null;
     const {user} = useAuthStore();
-
-    const inviteeName: string | undefined = route.params?.inviteeName ?? null;
 
     // Access other passed parameters
     const movie: IMovie | null = route.params?.movie ?? null;
@@ -83,167 +51,38 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const [showTrailer, setShowTrailer] = useState(false);
+    const [messages, setMessages] = useState<IMessage[]>([]);
 
+    var roomId = '';
 
+    useEffect(() => {
+        getTextMessage(MITID!.toString());
+        // TODO: add supbase channel subscription here
+        return () => {};
+    }, []);
 
-  const [messages, setMessages] = useState<IMessage []>([])
-
-  var roomId =""
-  
-  const hmsInstanceRef = useRef<HMSSDK | null>(null);
-  useEffect(()=>{
-    intializeChat();
-    return () =>  {
-      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.removeAllListeners();
-      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.leave();
-    }
-  },[])
-
-
-
-const getTrackSettings = () => {
-let audioSettings = new HMSAudioTrackSettings({
-  initialState:HMSTrackSettingsInitState.MUTED
-});
-
-let videoSettings = new HMSVideoTrackSettings({
-  initialState: HMSTrackSettingsInitState.MUTED,
-  cameraFacing: HMSCameraFacing.FRONT,
-  forceSoftwareDecoder: true,
-});
-return new HMSTrackSettings({
-    video: videoSettings,
-    audio: audioSettings,
-  });
-};
-
-const getTextMessage =  async(roomId:string)=>{
-  const response  =   await  getTextMessages(roomId)
-//   console.log(JSON.stringify(response));
-  setMessages(response!);
-}
-
-  const intializeChat = async()=>{
-    const trackSettings = getTrackSettings();
-    const hmsInstance = await HMSSDK.build({trackSettings});
-    const fetchRoomInfo =  await  createChatRoom(creator?.id!,MITID!.toString());
-    const chatId = fetchRoomInfo.room.roomId;
-    roomId =chatId;
-       const token =  fetchRoomInfo.roomAuthToken.token // await hmsInstance.getAuthTokenByRoomCode(fetchRoomInfo.room.roomId);
-        const hmsConfig = new HMSConfig({
-          authToken: token,
-          username: user?.username!,
-        });
-        hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, onJoinSuccess);
-        hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, onError);
-        
-        //  const localPeer = await hmsInstance.getLocalPeer();
-        //  localPeer.audioTrack!.mute  =false;
-        //  To Mute Video of local peer - other peers will stop seeing video
-        hmsInstance.join(hmsConfig);
-        hmsInstance.onMessageListener = onMessageListener
-        hmsInstanceRef.current = hmsInstance;
-        getTextMessage(MITID!.toString())
-    /**
-     * Create `HMSConfig` with the above auth token and username
-     */
-  }
-
-  const onTrackListener = ({
-    track,
-    peer,
-    type
-}: {
-    track: HMSTrack,
-    peer: HMSPeer,
-    type: HMSTrackUpdate
-}) => {
-    // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
-    // use these objects to update your local and remote peers.
-};
-
-
- 
-
-
-// const onMessageListener = (data: HMSMessage) => {
- 
-//     var messsages: IMessage [] = []
-//     const iMessage : IMessage = {
-//              _id: creator?.id!,
-//              text: data.message,
-//              user: { _id: creator?.id!,},
-//              createdAt: data.time,
-//          };
-//          messsages.push(iMessage);
-//    setMessages(previousMessages =>
-//    GiftedChat.append(previousMessages, messsages),
-//  )
-// };
-
-const onMessageListener = useCallback((data: HMSMessage) => {
-    const incomingMessage: IMessage = {
-        _id: data.sender?.peerID,
-        text: data.message,
-        createdAt: new Date(data.time),
-        user: {
-            _id: data.sender?.peerID,
-            avatar: data.sender?.profilePicture, // Ensure this is correctly set
-        },
+    const getTextMessage = async (roomId: string) => {
+        const response = await getTextMessages(roomId);
+        //   console.log(JSON.stringify(response));
+        setMessages(response!);
     };
-    setMessages(previousMessages => GiftedChat.append(previousMessages, [incomingMessage]));
-}, []);
 
+    // const onReceiverMessage = (data: HMSMessage) => {
+    //     var messsages: IMessage[] = [];
+    //     const iMessage: IMessage = {
+    //         _id: creator?.id!,
+    //         text: data.message,
+    //         user: {_id: creator?.id!},
+    //         createdAt: data.time,
+    //     };
+    //     messsages.push(iMessage);
+    //     setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
+    // };
 
-  const onReceiverMessage = (data: HMSMessage)=>
-  {
-    var messsages: IMessage [] = []
-    const iMessage : IMessage = {
-             _id: creator?.id!,
-             text: data.message,
-             user: { _id: creator?.id!,},
-             createdAt: data.time,
-         };
-         messsages.push(iMessage);
-   setMessages(previousMessages =>
-   GiftedChat.append(previousMessages, messsages),
- )
-
-  }
-
-
-  const onJoinSuccess = async(a :any)=>
-  {
-
-    hmsInstanceRef.current!.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, onReceiverMessage);
-    hmsInstanceRef.current!.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, onTrackListener);
-  }
-
-  const onError = (e :any ) =>{
-    //console.log('FAILLL'+JSON.stringify(e));
-  }
- 
-
-  /*
-  const allMessages = useHMSStore(selectHMSMessages); // get all messages
-  const broadcastMessages = useHMSStore(selectBroadcastMessages); // get all broadcasted messages
-  const groupMessagesByRole = useHMSStore(selectMessagesByRole('host')); // get conversation with the host role
-  const directMessages = useHMSStore(selectMessagesByPeerID('')); // get private conversation with peer
-  */
-
-
-
-
-  const onSend = useCallback( async (messages : IMessage[] = []) => {
-    hmsInstanceRef.current!.sendBroadcastMessage(messages[0]!.text!,'chat');
-    setMessages(previousMessages =>
-        GiftedChat.append(previousMessages, messages),
-      )
-      saveTextMessage(MITID!.toString(),messages[0]!.text!, creator?.id!,);
-    }, [])
-
-
+    const onSend = useCallback(async (messages: IMessage[] = []) => {
+        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
+        saveTextMessage(MITID!.toString(), messages[0]!.text!, creator?.id!);
+    }, []);
 
     const handleDecline = () => {
         setIsLoading(true);
@@ -324,7 +163,6 @@ const onMessageListener = useCallback((data: HMSMessage) => {
     //Chat Room functions
 
     const [showChat, setShowChat] = useState(false);
-    
 
     const handleAvatarPress = (user: any) => {
         // Navigate to the user's profile screen
@@ -413,7 +251,6 @@ const onMessageListener = useCallback((data: HMSMessage) => {
                                                 size={58}
                                                 bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                                             />
-                                
                                         </TouchableOpacity>
                                         <View />
 
