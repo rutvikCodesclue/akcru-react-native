@@ -96,6 +96,7 @@ export interface ICruView {
         creator: {
             firstName: string;
             lastName: string;
+            username: string;
         };
     };
     movieId: string;
