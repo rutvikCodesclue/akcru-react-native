@@ -380,6 +380,38 @@ const UserDatesCard = ({
                     </View>
                 </View>
             </Modal>
+            <Modal visible={confirmCancelModal} transparent={true} animationType="fade">
+                <ComfirmationModal
+                    confirmationText="Are you sure you want to cancel this Cru View?"
+                    onPressNo={() => setConfirmCancelModal(false)}
+                    onPressYes={handleCancelCruView}
+                />
+            </Modal>
+            <Modal visible={confirmCancelMITModal} transparent={true} animationType="fade">
+                <ComfirmationModal
+                    confirmationText="Are you sure you want to cancel this MIT date?"
+                    onPressNo={() => setConfirmCancelMITModal(false)}
+                    onPressYes={() => handleCancelMIT(id)}
+                />
+            </Modal>
+            <Modal visible={dateResultModal} transparent={true} animationType="fade">
+                <DateResultModal
+                    iconname={dateIcon}
+                    iconcolor={dateIconColor}
+                    type={dateType}
+                    message={dateMessage}
+                    closeModal={() => setDateResultModal(false)}
+                />
+            </Modal>
+            <Modal visible={dateMITResultModal} transparent={true} animationType="fade">
+                <DateResultModal
+                    iconname={dateMITIcon}
+                    iconcolor={dateMITIconColor}
+                    type={dateMITType}
+                    message={dateMITMessage}
+                    closeModal={() => setDateMITResultModal(false)}
+                />
+            </Modal>
         </View>
     );
 };
