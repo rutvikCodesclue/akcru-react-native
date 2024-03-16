@@ -1,37 +1,23 @@
-import {
-    HMSAudioTrackSettings,
-    HMSCameraFacing,
-    HMSConfig,
-    HMSMessage,
-    HMSPeer,
-    HMSSDK,
-    HMSTrack,
-    HMSTrackSettings,
-    HMSTrackSettingsInitState,
-    HMSTrackUpdate,
-    HMSUpdateListenerActions,
-    HMSVideoTrackSettings,
-} from '@100mslive/react-native-hms';
-``;
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView, View} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS, FONTS} from '../../../assets/constants';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RealtimeChannel} from '@supabase/supabase-js';
+import _ from 'lodash';
 import {Text, TouchableRipple} from 'react-native-paper';
+import {supabase} from '../../../lib/supabase';
 import HexAvatar from '../../components/HexAvatar';
 import Header from '../../components/header';
-import {createChatRoom, getTextMessages, saveTextMessage} from '../../lib/api/rooms.lib';
+import {getTextMessages, saveTextMessage} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../util/util';
-import _, {uniqueId} from 'lodash';
-import {supabase} from '../../../lib/supabase';
-import {RealtimeChannel} from '@supabase/supabase-js';
 import CruChatComponent from './CruChatComponent';
+
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
 
 type Props = {

@@ -51,8 +51,20 @@ API.interceptors.request.use(
         if (session) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
+        const endpoints = [
+            '/v1/user',
+            '/v1/auth/signup',
+            '/v1/auth/login',
+            '/v1/wallet/purchase/mit',
+            '/v1/wallet/send-ad',
+            '/v1/user/resetPassword' // Remove extra whitespace here
+        ];
 
-        if (config.method?.toLowerCase() === 'post' || config.method?.toLowerCase() === 'put') {
+
+        if ((config.method?.toLowerCase() === 'post' || config.method?.toLowerCase() === 'put')
+        &&
+        endpoints.includes(config.url)
+        ) {
             // Adjust this part according to your actual data structure
             const castle_request_token = await addRequestTokenHeader()
             config.data = {
