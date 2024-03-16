@@ -60,6 +60,9 @@ const UserDatesCard = ({
     onPressin,
     timezone,
     onPress,
+    creator,
+    invitee
+
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -152,25 +155,36 @@ const UserDatesCard = ({
                 `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
             );
             if (res.data.success === false) {
-                if ((type = 'MITInvite')) {
-                    navigation.navigate('WatchPartyPreview', {
-                        id,
-                        type,
-                        userId,
-                        movieId,
-                        isHost,
-                    });
-                } else if ((type = 'CRUView')) {
-                    navigation.navigate('WatchPartyPreview', {
-                        id,
-                        type,
-                        movieId,
-                        isHost,
-                        cruId,
-                    });
+
+                if (res.data) {
+                    if ((type = 'MITInvite')) {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            userId,
+                            movieId,
+                            isHost,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            invitee
+                        });
+                    } else if ((type = 'CRUView')) {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            movieId,
+                            isHost,
+                            cruId,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            invitee
+                        });
+                    }
                 }
             } else {
-                // Alert.alert(res.message);
+
                 setshowMITEntryErr(true);
             }
         } catch (error) {
@@ -300,10 +314,9 @@ const UserDatesCard = ({
                     }}>
                     {type === 'MITInvite' && (
                         <AkcruButtons.SmallButton
-                            onPress={() =>
-                                // TODO: navigate to WatchPartyPreviewScreen
-                                checkTimeGate(type, scheduleTime, timezone, scheduleDate)
-                            }
+
+  
+                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start MIT Date"
                             color={COLORS.AKCRUBLUE}
                             disabled={false}
@@ -312,8 +325,7 @@ const UserDatesCard = ({
 
                     {type === 'CRUView' && (
                         <AkcruButtons.SmallButton
-                            onPress={() =>
-                                // TODO: navigate to WatchPartyPreviewScreen
+                  onPress={() =>
                                 checkTimeGate(type, scheduleTime, timezone, scheduleDate)
                             }
                             btnname="Start Cru View"
@@ -379,6 +391,7 @@ const UserDatesCard = ({
                         </TouchableOpacity>
                     </View>
                 </View>
+
             </Modal>
             <Modal visible={confirmCancelModal} transparent={true} animationType="fade">
                 <ComfirmationModal
@@ -411,6 +424,7 @@ const UserDatesCard = ({
                     message={dateMITMessage}
                     closeModal={() => setDateMITResultModal(false)}
                 />
+
             </Modal>
         </View>
     );

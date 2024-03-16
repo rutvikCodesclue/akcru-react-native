@@ -32,6 +32,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -205,7 +206,7 @@ export default function SendMITSchedule({route}: Props) {
                 navigation.navigate('UserProfileStack', {
                     screen: 'UserMITHubScreen',
                 });
-            }, 7000);
+            }, ROOM_VALIDATION_CHECK_TIME);
         }
 
         return () => clearTimeout(timer);

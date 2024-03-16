@@ -1,32 +1,66 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, Image, Modal, ScrollView, Text, TouchableOpacity, View} from 'react-native';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import styles from './styles';
 
-import {RouteProp} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {Icon} from '@rneui/base';
-import moment from 'moment';
-import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
-import LinearGradient from 'react-native-linear-gradient';
-import {TouchableRipple} from 'react-native-paper';
-import imageindex from '../../../../assets/images/imageindex';
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
+  Pressable,
+  Modal,
+  TextInput,
+  Alert,
+  FlatList,
+  ActivityIndicator
+} from "react-native";
+import styles from "./styles";
+import { COLORS, FONTS, SIZES } from "../../../../assets/constants";
+
+import { Icon, Avatar, color } from "@rneui/base";
+import MITSwipe from "../../../components/MITSwipe";
+import Header from "../../../components/header";
+import AkcruLevels from "../../../components/akcruBadges";
+import MITMessages from "../../../components/MITMessages";
+import AkcruButtons from "../../../components/akcruButtons";
+import LinearGradient from "react-native-linear-gradient";
+import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
+import imageindex from "../../../../assets/images/imageindex";
+import { JENNY_INVITES } from "../../../../assets/constants/Mockusers";
+import BottomSheet, {
+  BottomSheetHandleProps,
+  BottomSheetView,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
+import { RouteProp, useFocusEffect } from "@react-navigation/native";
+import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
+import { StackNavigationProp } from "@react-navigation/stack";
+import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
-import HexAvatar from '../../../components/HexAvatar';
-import MITSwipe from '../../../components/MITSwipe';
-import TabContainer from '../../../components/TabContainer/TabContainer';
-import AkcruLevels from '../../../components/akcruBadges';
-import Header from '../../../components/header';
-import {acceptAMITInvite, declineAMITInvite} from '../../../lib/api/mit.lib';
-import {getTextMessages, saveTextMessage} from '../../../lib/api/rooms.lib';
-import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import useAuthStore from '../../../stores/auth.store';
+import { getCRUInvites } from "../../../lib/api/cru.lib";
+import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone, selectAvatarBorderColor } from "../../../util/util";
+import YoutubePlayer from 'react-native-youtube-iframe';
+import moment from "moment";
+import { MediaType, launchImageLibrary } from "react-native-image-picker";
+import MITMessage from "../../../../assets/constants/MITmessages";
+import TabContainer from "../../../components/TabContainer/TabContainer";
+import { Bubble, GiftedChat, IMessage } from "react-native-gifted-chat";
+import { HMSAudioTrackSettings, HMSCameraFacing, HMSConfig, HMSMessage, HMSPeer, HMSSDK, HMSTrack, HMSTrackSettings, HMSTrackSettingsInitState, HMSTrackUpdate, HMSUpdateListenerActions, HMSVideoTrackSettings } from "@100mslive/react-native-hms";
+import { createChatRoom, getTextMessages, saveTextMessage, getUsers } from "../../../lib/api/rooms.lib";
+import useAuthStore from "../../../stores/auth.store";
+import { TouchableRipple } from "react-native-paper";
+import HexAvatar from "../../../components/HexAvatar";
+import UserCruChatCard from "../../../components/UserCruChatCard";
+import { IChatUser } from "../../../../types";
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
+
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -37,13 +71,18 @@ type Props = {
     route: ChooseMITScreenRouteProp;
 };
 
-const ChooseMITScreen = ({navigation, route}: Props) => {
+
+const ChooseMITScreen = ({ navigation, route }: Props) => {
+
     const MITID: number | undefined = route.params?.MITID ?? null;
     const {user} = useAuthStore();
 
     // Access other passed parameters
     const movie: IMovie | null = route.params?.movie ?? null;
     const creator: IUserProfile | null = route.params?.creator ?? null;
+    const invitee: IUserProfile | null = route.params?.invitee ?? null;
+    const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
+    const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
     const inviteDate: string | undefined = route.params?.inviteDate ?? null;
     const akcruBadge: any = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
@@ -53,36 +92,31 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     const [messages, setMessages] = useState<IMessage[]>([]);
 
-    var roomId = '';
 
-    useEffect(() => {
-        getTextMessage(MITID!.toString());
-        // TODO: add supbase channel subscription here
-        return () => {};
-    }, []);
 
-    const getTextMessage = async (roomId: string) => {
-        const response = await getTextMessages(roomId);
-        //   console.log(JSON.stringify(response));
-        setMessages(response!);
-    };
 
-    // const onReceiverMessage = (data: HMSMessage) => {
-    //     var messsages: IMessage[] = [];
-    //     const iMessage: IMessage = {
-    //         _id: creator?.id!,
-    //         text: data.message,
-    //         user: {_id: creator?.id!},
-    //         createdAt: data.time,
-    //     };
-    //     messsages.push(iMessage);
-    //     setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
-    // };
+  var roomId =""
+  
+  const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
-    const onSend = useCallback(async (messages: IMessage[] = []) => {
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-        saveTextMessage(MITID!.toString(), messages[0]!.text!, creator?.id!);
-    }, []);
+
+  useEffect(()=>{
+
+    return () =>  {
+      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.removeAllListeners();
+      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.leave();
+    }
+  },[])
+
+
+const getTextMessage =  async(roomId:string)=>{
+  const response  =   await  getTextMessages(roomId)
+//   console.log(JSON.stringify(response));
+  setMessages(response!);
+}
+
+
+ 
 
     const handleDecline = () => {
         setIsLoading(true);
@@ -169,6 +203,22 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         navigation.navigate('ViewUserScreen', {userID: user._id});
     };
 
+    const sayhi = () => {
+        const isCurrentUserCreator = user?.id ===creatorID;
+        const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
+        const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
+        const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+        navigation.navigate('ViewChat', {
+            mItInviteId: MITID,
+            userId: receiverUserId,
+            profilePicture: receiverProfilePicture,
+            username: receiverUsername, // Pass the receiver's username
+        });
+   
+    };
+  
+      
+
     return (
         <TabContainer>
             <View style={{flex: 1}}>
@@ -220,7 +270,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
                                             <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                         </View>
-                                        <TouchableOpacity onPress={() => setShowChat(true)}>
+                                        <TouchableOpacity onPress={() => sayhi()}>
                                             <Icon
                                                 name="chatbox-ellipses"
                                                 type="ionicon"
@@ -265,31 +315,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             }}
                                         />
 
-                                        {/* {!privateaccount ? (
-                                      online ? (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'green',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      ) : (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'red',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      )
-                                  ) : null} */}
+                                        
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                         <Text style={{...FONTS.Title2, fontSize: 12}}>{creator?.username}</Text>
@@ -434,95 +460,10 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                             </View>
                         </View>
                     </ScrollView>
-                    {/* <View style={styles.opensheet}>
-                    
-                    </View> */}
-                    {/* {Chat Room} */}
-
-                    <Modal animationType="fade" transparent={true} visible={showChat}>
-                        <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                            <View style={{zIndex: 20}}>
-                                <Header />
-                            </View>
-                            <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                                <TouchableRipple onPress={() => setShowChat(false)}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableRipple>
-                            </View>
-                            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                                <GiftedChat
-                                    messages={messages}
-                                    onSend={messages => onSend(messages)}
-                                    user={{
-                                        _id: user?.id!,
-                                        name: user?.username,
-                                    }}
-                                    textInputProps={{
-                                        style: {
-                                            color: COLORS.BLACK, // Set the color of the text inside the input area
-                                            width: '85%', // Adjust the width based on typing status
-                                            // You can add more custom styles here if needed
-                                        },
-                                    }}
-                                    renderUsernameOnMessage={true}
-                                    showUserAvatar={true}
-                                    renderAvatar={props => (
-                                        <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                                            <HexAvatar
-                                                size={45}
-                                                bordercolor={selectAvatarBorderColor(
-                                                    props.currentMessage?.user?._id === user?.id
-                                                        ? user?.badge ?? 'AKCRUIT'
-                                                        : 'OTHER_USER_BADGE',
-                                                )}
-                                                source={{
-                                                    uri:
-                                                        props.currentMessage?.user?._id === user?.id
-                                                            ? user?.profilePicture
-                                                            : creator?.profilePicture,
-                                                }}
-                                                {...props}
-                                            />
-                                        </TouchableRipple>
-                                    )}
-                                    renderBubble={props => (
-                                        <Bubble
-                                            {...props}
-                                            wrapperStyle={{
-                                                right: {
-                                                    // Change the background color for messages sent by the current user
-                                                    backgroundColor: COLORS.AKCRUBLUE,
-                                                },
-                                                left: {
-                                                    // Change the background color for messages sent by other users
-                                                    backgroundColor: COLORS.CATPURPDRK,
-                                                },
-                                            }}
-                                            textStyle={{
-                                                right: {
-                                                    // Text color for messages sent by the current user
-                                                    color: COLORS.WHITE,
-                                                },
-                                                left: {
-                                                    // Text color for messages sent by other users
-                                                    color: COLORS.WHITE,
-                                                },
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </View>
-                        </View>
-                    </Modal>
+                  
                 </View>
             </View>
+            
         </TabContainer>
     );
 };

@@ -56,18 +56,10 @@ const ChatList = ( {route}: Props) => {
       const receiverUserId = isCurrentUserCreator ? item.inviteeId : item.creatorId;
       const receiverProfilePicture = isCurrentUserCreator ? item.invitee?.profilePicture : item.creator?.profilePicture;
       const receiverUsername = isCurrentUserCreator ? item.invitee?.username : item.creator?.username;
-// console.log(`Navigating to chat with Username: ${receiverUsername}, Profile Picture: ${receiverProfilePicture}`);
 
       return (
           <TouchableOpacity
-              //   onPress={() => {
-              //       navigation.navigate('ViewChat', {
-              //           mItInviteId: item.id,
-              //           userId: receiverUserId,
-              //           inviteeProfilePicture: item.invitee?.profilePicture,
-              //           creatorProfilePicture: item.creator?.profilePicture
-              //       });
-              //   }}
+             
 
               onPress={() => {
                   navigation.navigate('ViewChat', {
@@ -94,45 +86,6 @@ const ChatList = ( {route}: Props) => {
   };
 
 
-  // const renderItem = ({item, index}: {item: IChatUser; index: number}) => {
-  //   console.log('item creator',item.creator.username)
-  //   console.log('item invitee',item.invitee.username)
-  //   return (
-
-  //     // userId': string ,'mItInviteId':string
-  //     <TouchableOpacity
-  //       onPress={ ()=>{
-
-
-  //           var receiverUserId = "";
-  //           if(user?.id == item.creatorId){
-  //              receiverUserId = item.inviteeId
-  //           }else{
-  //             receiverUserId = item.creatorId
-  //           }
-  //           console.log('ReceiverUserId:',receiverUserId)
-  //           navigation.navigate('ViewChat', {
-  //               'mItInviteId': item.id,
-  //               'userId': receiverUserId,
-  //               'creatorProfilePicture': item.creator?.profilePicture,
-  //               'inviteeProfilePicture': item.invitee?.profilePicture,
-  //           } as NavigationParams);
-  //       }}
-  //     style={{marginHorizontal: 10,marginBottom:10}}>
-  //           <UserCruChatCard
-  //               userID={item.id}
-  //               userName= {item.creator?.username}
-  //               movie={item.movie.title}
-  //               moviePoster={item.movie.landscapeURL}
-  //               CruChatDate ={ new Date( item.lastMessageAt).toLocaleDateString()}
-  //               CruChatTime ={ new Date( item.lastMessageAt).toLocaleTimeString() }
-  //               CRUChat={item.lastMessage}
-  //               avatarbordercolor={""}
-  //               userPicture={item.creator?.profilePicture}
-  //           />
-  //           </TouchableOpacity>
-  //   );
-  // };
     return (
         <SafeAreaView style={{flex: 1}}>
             {isListLoaded ? (

@@ -249,6 +249,8 @@ const UserProfileDatesTab = () => {
                                     _checkPermissions,
                                 })
                             }
+                            creator = {item.creator}
+                            invitee = {item.invitee}
                             onPress={() => handleInviterPress(item.creatorId)}
                         />
                     </View>
