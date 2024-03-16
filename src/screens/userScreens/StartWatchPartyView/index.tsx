@@ -62,10 +62,16 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video, {LoadError, OnBufferData, OnProgressData, OnSeekData} from 'react-native-video';
-import {IUserProfile} from '../../../../types';
+import {IUserProfile, IChatUser} from '../../../../types';
 import SmlMemberCard from '../../../components/SmlMemberCard';
 import {findAUser} from '../../../lib/api/user.lib';
 import useWatchTimeStore from '../../../stores/watchTime.store';
+import { getUsers } from "../../../lib/api/rooms.lib";
+import CruChatComponent from '../../ChatScreens/CruChatComponent';
+import {checkRoomTime} from '../../../util/checkRoomTime';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
+
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -81,6 +87,11 @@ type Props = {
     micInitialState: boolean;
     cameraInitialState: boolean;
     isHost: boolean;
+    inviteId: any,
+    creator: any,
+    invitee: any
+    Timezone: string;
+    Movietime: string;
 };
 
 type PeerTrackNode = {
@@ -99,12 +110,21 @@ type MemberInfo = {
 
 const StartWatchPartyView = ({navigation, route}: Props) => {
     // PARAMS
+    const creator: IUserProfile | null = route.params?.creator ?? null;
+    const invitee: IUserProfile | null = route.params?.invitee ?? null;
+    const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
+    const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
+    const mitId: IUserProfile | null = route.params?.inviteId ?? null;
+
+
     let isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
     const roomAuthToken = route.params?.roomAuthToken;
     const micInitialState = route.params?.micInitialState;
     const cameraInitialState = route.params?.cameraInitialState;
+    const timezone = route.params?.Timezone;
+    const movieTime = route.params?.Movietime;
     // USESTATES
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
@@ -124,6 +144,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
     const [IsStreamHost, setIsStreamHost] = useState(isHost);
+    const [Timezone] = useState<string>(timezone);
+    const [Movietime] = useState<string>(movieTime);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
@@ -136,14 +158,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
     const {user} = useAuthStore();
     const snapPoints = ['1', '40'];
+    const isCurrentUserCreator = user?.id ===creatorID;
+    const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
+    const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
+    const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
 
-    // FIXME: find a way to join & sync a room in progress
-    /* 
-        USE EFFECTS
-    */
-
-    // INITIAL LOAD
+    route.params = {
+        ...route.params, 
+        additionalParam: 'Additional Value',
+        mItInviteId: movieId,
+        userId: receiverUserId,
+        profilePicture: receiverProfilePicture,
+        username: receiverUsername
+      }    
+   
+    
+    
     useEffect(() => {
+        RestrictPartyRoom();
         // join the 100ms room
         _join100msRoom().then(() => {
             // setup the realtime channels for the room, once room is joined (needs roomId)
@@ -157,25 +189,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         });
 
-        console.log('room details [roomId]:', roomId);
-        // console.log('room details [movieId]:', movieId);
-        // console.log('room details [roomAuthToken]:', roomAuthToken);
-        // console.log('room details [micInitialState]:', micInitialState);
-        // console.log('room details [cameraInitialState]:', cameraInitialState);
-
-        // FIXME: close and destroy the hmsInstance when the component unmounts
-        // return () => {
-        //     if (hmsInstanceRef.current) {
-        //         // leave the room
-        //         console.log("Leaving the watchparty room [StartWatchPartyView]...");
-        //         hmsInstanceRef.current.leave();
-
-        //         console.log("Destroying hmsInstance [StartWatchPartyView]...");
-        //         hmsInstanceRef.current.destroy();
-        //     }
-        // }
+      
     }, []);
-    // ON FOCUS/UNFOCUS
     useFocusEffect(
         React.useCallback(() => {
             // Start the timer when the component mounts and the movie is playing
@@ -219,6 +234,18 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     /* 
         ROOM HANDLERS
     */
+
+    const RestrictPartyRoom = () => {
+        const room_time_limit = checkRoomTime(Timezone, Movietime);
+        if (room_time_limit) {
+            AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
+            navigation.navigate('UserProfileScreen');
+        } else {
+            setTimeout(() => {
+                RestrictPartyRoom();
+            }, Number(ROOM_VALIDATION_CHECK_TIME));
+        }
+    };
 
     const handleMic = async (peer: HMSPeer) => {
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
@@ -1129,9 +1156,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
+    const sayhi = () => {
+        // Determine receiver user details based on the current user's role in the chat
+        const isCurrentUserCreator = user?.id ===creatorID;
+        const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
+        const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
+        const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+        navigation.navigate('ViewChat', {
+            mItInviteId: mitId,
+            userId: receiverUserId,
+            profilePicture: receiverProfilePicture,
+            username: receiverUsername, // Pass the receiver's username
+        });
+   
+    };
     const handleSnapPress = useCallback((index: number) => {
+        console.log('heelo')
         sheetRef.current?.snapToIndex(index);
-        setIsChatOpen(true);
+        // setIsChatOpen(true);
     }, []);
 
     const watchPartyView = () => {
@@ -1520,7 +1562,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
                             )}
                         </Pressable>
-                        <Pressable onPress={() => handleSnapPress(1)}>
+                        <Pressable onPress={() => sayhi()}>
                             <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
                         </Pressable>
                         <Pressable onPress={toggleMic}>
@@ -1542,19 +1584,18 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                         ) : null}
                     </View>
                 </View>
-                <BottomSheet //Chat Modal
+                {/* <BottomSheet //Chat Modal
                     ref={sheetRef}
                     snapPoints={snapPoints}
                     enablePanDownToClose={true}
                     backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
                     onClose={() => setIsChatOpen(true)}>
                     <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                        <MITChatCard />
-                        <MITChatCard />
-                        <MITChatCard />
-                        <MITChatCard />
-                    </BottomSheetScrollView>
-                    <View style={{marginHorizontal: 15}}>
+                        {/* <CruChatComponent route = {route} /> */}
+                        {/* {console.log('here')}
+                        
+                    </BottomSheetScrollView> */}
+                    {/* <View style={{marginHorizontal: 15}}>
                         <View style={styles.input}>
                             <TextInput
                                 placeholder={'placeholder'}
@@ -1569,8 +1610,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 disabled={false}
                             />
                         </View>
-                    </View>
-                </BottomSheet>
+                    </View> */}
+                {/* </BottomSheet> */} 
                 {/* Option Modal (for Host Only) */}
                 <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
                     <SafeAreaView

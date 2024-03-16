@@ -1,0 +1,1 @@
+export const ROOM_VALIDATION_CHECK_TIME = 7000;

@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import { StackNavigationProp } from "@react-navigation/stack";
 import { findMovieById } from "../../../lib/api/movies.lib";
-import { IMovie } from "../../../../types";
+import { IMovie, IUserProfile } from "../../../../types";
 import { formatMovieDuration } from "../../../util/util";
 import { joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom } from "../../../lib/api/rooms.lib";
 import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
@@ -27,6 +27,9 @@ import useAuthStore from "../../../stores/auth.store";
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import AkcruButtons from "../../../components/akcruButtons";
 import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
+import { checkRoomTime } from "../../../util/checkRoomTime";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ROOM_VALIDATION_CHECK_TIME } from "../../../util/config";
 
 
 type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
@@ -45,16 +48,24 @@ type Props = {
     cruId?: string;
     userId?: string;
     id?: string;
+    movieTime?: any;
+    timezone?: any;
     type: 'MITInvite' | 'CRUView';
+    creator: any,
+    invitee: any
 };
 
 const WatchPartyPreview = ({ navigation, route }: Props) => {
   const inviteId = route.params?.id;
+  const creator: IUserProfile | null = route.params?.creator ?? null;
+  const invitee: IUserProfile | null = route.params?.invitee ?? null;
   const cruId = route.params?.cruId;
   const userId = route.params?.userId;
   const isHost = route.params?.isHost;
   const type = route.params?.type;
   const movieId = route.params?.movieId;
+  const movieTime = route.params?.scheduleTime;
+  const timezone = route.params?.timezone;
   const [movie, setMovie] = useState<IMovie | null>(null);
   const [cameraPermission, setCameraPermission] = useState<boolean>(false);
   const [micPermission, setMicPermission] = useState<boolean>(false);
@@ -64,10 +75,14 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
   const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
   const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
   const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
+  const [Timezone,] = useState<string>(timezone);
+  const [Movietime] = useState<string>(movieTime);
   const { user } = useAuthStore()
   const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
   useEffect(() => {
+
+    RestrictPartyRoom();
     // load the movie
     findMovieById(movieId).then((res) => {
       if (res) {
@@ -75,6 +90,19 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
       } 
     })
   }, []);
+
+  const RestrictPartyRoom = () => {
+    const room_time_limit = checkRoomTime(Timezone, Movietime)
+    if (room_time_limit) {
+      AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
+      navigation.navigate('UserProfileScreen');
+
+  } else {
+      setTimeout(() => {
+        RestrictPartyRoom();
+      }, Number(ROOM_VALIDATION_CHECK_TIME));
+  }
+  }
 
   useFocusEffect(
     React.useCallback(() => {
@@ -277,7 +305,6 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
       
     } else {
       // TODO: handle permissions not granted
-      // TODO: handle no hmsInstance
       console.error("=== Permissions not granted or no hmsInstance ===");
       
     }
@@ -298,7 +325,12 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
           roomAuthToken,
           micInitialState: isMicOn,
           cameraInitialState: isUserVideoOn,
-          isHost
+          isHost,
+          inviteId,
+          creator,
+          invitee,
+          Timezone,
+          Movietime
         })
       }
 

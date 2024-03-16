@@ -1,5 +1,5 @@
 import {View, Text, TouchableOpacity, Image, Alert, Modal} from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
@@ -9,13 +9,14 @@ import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import imageindex from '../../../assets/images/imageindex';
 import moment from 'moment-timezone';
 import {getShortenedTimezone} from '../../util/util';
-import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
+import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import AkcruButtons from '../akcruButtons';
-import { cancelCRUView } from '../../lib/api/cru.lib';
+import {cancelCRUView} from '../../lib/api/cru.lib';
 import ComfirmationModal from '../ConfirmationModal';
 import DateResultModal from '../MasterResultModal/MasterResultModal';
-import { UseTabMenu } from '../../context/TabContext';
-import { cancelMIT } from '../../lib/api/mit.lib';
+import {UseTabMenu} from '../../context/TabContext';
+import {cancelMIT} from '../../lib/api/mit.lib';
+import {API} from '../../clients/api.client';
 
 type UserDatesCardProps = {
     id: string;
@@ -58,16 +59,20 @@ const UserDatesCard = ({
     type,
     onPressin,
     timezone,
-    onPress
+    onPress,
+    creator,
+    invitee
+
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
+    const [showMITEntryErr, setshowMITEntryErr] = useState(false);
     const [confirmCancelModal, setConfirmCancelModal] = useState(false);
-    const [dateMessage, setDateMessage] = useState('')
-    const [dateIcon, setDateIcon] = useState('')
+    const [dateMessage, setDateMessage] = useState('');
+    const [dateIcon, setDateIcon] = useState('');
     const [dateIconColor, setDateIconColor] = useState('');
-    const [dateType, setDateType] = useState('')
-    const [dateResultModal, setDateResultModal] = useState(false)    
+    const [dateType, setDateType] = useState('');
+    const [dateResultModal, setDateResultModal] = useState(false);
     const {setRefetchDates} = UseTabMenu();
 
     const [dateMITResultModal, setDateMITResultModal] = useState(false);
@@ -75,19 +80,19 @@ const UserDatesCard = ({
     const [dateMITMessage, setDateMITMessage] = useState('');
     const [dateMITIcon, setDateMITIcon] = useState('');
     const [dateMITIconColor, setDateMITIconColor] = useState('');
-    const [dateMITType, setDateMITType] = useState(''); 
+    const [dateMITType, setDateMITType] = useState('');
 
     const handleCancelCruView = async () => {
         try {
             const response = await cancelCRUView(id); // Use the CRU View ID
             if (response.success) {
-                setRefetchDates(true)
+                setRefetchDates(true);
                 setConfirmCancelModal(false);
-                setDateType('Success')
-                setDateResultModal(true)
+                setDateType('Success');
+                setDateResultModal(true);
                 setDateMessage('CRU View cancelled successfully');
                 setDateIcon('md-checkmark-circle');
-                setDateIconColor('green')
+                setDateIconColor('green');
             } else {
                 setRefetchDates(true);
                 setConfirmCancelModal(false);
@@ -98,13 +103,13 @@ const UserDatesCard = ({
                 setDateIconColor('red');
             }
         } catch (error) {
-             setRefetchDates(true);
-             setConfirmCancelModal(false);
-             setDateType('Error');
-             setDateResultModal(true);
-             setDateMessage('An error occurred while cancelling the CRU View');
-             setDateIcon('md-alert-circle');
-             setDateIconColor('red');
+            setRefetchDates(true);
+            setConfirmCancelModal(false);
+            setDateType('Error');
+            setDateResultModal(true);
+            setDateMessage('An error occurred while cancelling the CRU View');
+            setDateIcon('md-alert-circle');
+            setDateIconColor('red');
             console.error('Error cancelling CRU View:', error);
         }
     };
@@ -138,6 +143,47 @@ const UserDatesCard = ({
             setDateMITIcon('md-alert-circle');
             setDateMITIconColor('red');
             console.error('Error cancelling MIT:', error);
+        }
+    };
+
+    const checkTimeGate = async (type: string, scheduleTime: string, timezone: string, scheduleDate: string) => {
+        try {
+            const movieTime =
+                moment(scheduleTime, 'h:mm A').tz(timezone).format('h:mm A') + getShortenedTimezone(timezone);
+            const res: any = await API.get(
+                `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
+            );
+            if (res.data.success === false) {
+                if (res.data) {
+                    if ((type = 'MITInvite')) {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            userId,
+                            movieId,
+                            isHost,
+                            scheduleTime,
+                            timezone,
+                        });
+                    } else if ((type = 'CRUView')) {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            movieId,
+                            isHost,
+                            cruId,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            invitee
+                        });
+                    }
+                }
+            } else {
+                setshowMITEntryErr(true);
+            }
+        } catch (error) {
+            setshowMITEntryErr(true);
         }
     };
 
@@ -263,6 +309,7 @@ const UserDatesCard = ({
                     }}>
                     {type === 'MITInvite' && (
                         <AkcruButtons.SmallButton
+
                             onPress={() =>
                                 // TODO: navigate to WatchPartyPreviewScreen
                                 navigation.navigate('WatchPartyPreview', {
@@ -271,8 +318,11 @@ const UserDatesCard = ({
                                     userId,
                                     movieId,
                                     isHost,
+                                    creator,
+                                    invitee
                                 })
                             }
+                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start MIT Date"
                             color={COLORS.AKCRUBLUE}
                             disabled={false}
@@ -281,16 +331,7 @@ const UserDatesCard = ({
 
                     {type === 'CRUView' && (
                         <AkcruButtons.SmallButton
-                            onPress={() =>
-                                // TODO: navigate to WatchPartyPreviewScreen
-                                navigation.navigate('WatchPartyPreview', {
-                                    id,
-                                    type,
-                                    movieId,
-                                    isHost,
-                                    cruId,
-                                })
-                            }
+                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start Cru View"
                             color={COLORS.MIDORANGE}
                             disabled={false}
@@ -314,37 +355,46 @@ const UserDatesCard = ({
                     )}
                 </View>
             </View>
-            <Modal visible={confirmCancelModal} transparent={true} animationType="fade">
-                <ComfirmationModal
-                    confirmationText="Are you sure you want to cancel this Cru View?"
-                    onPressNo={() => setConfirmCancelModal(false)}
-                    onPressYes={handleCancelCruView}
-                />
-            </Modal>
-            <Modal visible={confirmCancelMITModal} transparent={true} animationType="fade">
-                <ComfirmationModal
-                    confirmationText="Are you sure you want to cancel this MIT date?"
-                    onPressNo={() => setConfirmCancelMITModal(false)}
-                    onPressYes={() => handleCancelMIT(id)}
-                />
-            </Modal>
-            <Modal visible={dateResultModal} transparent={true} animationType="fade">
-                <DateResultModal
-                    iconname={dateIcon}
-                    iconcolor={dateIconColor}
-                    type={dateType}
-                    message={dateMessage}
-                    closeModal={() => setDateResultModal(false)}
-                />
-            </Modal>
-            <Modal visible={dateMITResultModal} transparent={true} animationType="fade">
-                <DateResultModal
-                    iconname={dateMITIcon}
-                    iconcolor={dateMITIconColor}
-                    type={dateMITType}
-                    message={dateMITMessage}
-                    closeModal={() => setDateMITResultModal(false)}
-                />
+            <Modal animationType="fade" transparent={true} visible={showMITEntryErr}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text
+                            style={{
+                                ...FONTS.Title3,
+                                marginBottom: 10,
+                                textAlign: 'center',
+                            }}>
+                            {`Movie hasn't started yet! Please join at scheduled time`}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setshowMITEntryErr(false);
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                    color: COLORS.MIDORANGE,
+                                }}>
+                                {`Close`}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </Modal>
         </View>
     );

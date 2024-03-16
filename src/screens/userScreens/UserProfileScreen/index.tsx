@@ -6,7 +6,8 @@ import {
   ImageBackground,
   TouchableOpacity,
   Image,
-  SafeAreaView
+  SafeAreaView,
+  Modal
 } from "react-native";
 import { TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps } from "react-native-tab-view";
 import {
@@ -86,6 +87,7 @@ const renderScene = SceneMap({
 
 export default function UserProfileScreen({navigation, route}: Props) {
     const {user, hydrateUser} = useAuthStore();
+    const [showMITEntryErr, setshowMITEntryErr] = useState(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     // Add a state to keep track of the invite count
@@ -94,6 +96,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
+            getRoomLimitRouteParam()
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             hydrateUser();
             return () => {
@@ -102,6 +105,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
             };
         }, []),
     );
+
+    const getRoomLimitRouteParam = async () => {
+        const isRoomTimeLimitCompleted = await AsyncStorage.getItem('isRoomTimeLimitCompleted')
+        if(isRoomTimeLimitCompleted === 'true') {
+            setshowMITEntryErr(true)
+            AsyncStorage.removeItem('isRoomTimeLimitCompleted')
+        }
+    }
 
     useFocusEffect(
         React.useCallback(() => {
@@ -515,6 +526,48 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         renderTabBar={renderTabBar}
                     />
                 </SafeAreaView>
+                
+                <Modal animationType="fade" transparent={true} visible={showMITEntryErr}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    alignItems: 'center',
+                                    marginHorizontal: 15,
+                                }}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    {`Your party room time limit is over, I hope you enjoy your movie.`}
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setshowMITEntryErr(false);
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
+                                        {`Close`}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
             </View>
         </TabContainer>
     );

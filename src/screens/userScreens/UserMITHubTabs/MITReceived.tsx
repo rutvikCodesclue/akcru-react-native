@@ -155,7 +155,8 @@ const MITReceived = () => {
                                                         inviteDate: item.createdAt,
                                                         akcruBadge: item.invitee.badge,
                                                         schedule: item.startDate,
-                                                        timezone: item.timezone
+                                                        timezone: item.timezone,
+                                                        invitee: item.invitee
                                                     })
                                                 }
                                             />
