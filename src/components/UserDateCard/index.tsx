@@ -150,12 +150,14 @@ const UserDatesCard = ({
         try {
             const movieTime =
                 moment(scheduleTime, 'h:mm A').tz(timezone).format('h:mm A') + getShortenedTimezone(timezone);
+
             const res: any = await API.get(
                 `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
             );
             console.log(res.data.success)
             res.data.success === false // to enter hard code bypass the timegate
             if (res.data.success === false) {
+
                 if (res.data) {
                     if ((type = 'MITInvite')) {
                         navigation.navigate('WatchPartyPreview', {
@@ -167,6 +169,7 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
+
                     invitee
                         });
                     } else if ((type = 'CRUView')) {
@@ -184,6 +187,7 @@ const UserDatesCard = ({
                     }
                 }
             } else {
+
                 setshowMITEntryErr(true);
             }
         } catch (error) {
@@ -340,18 +344,7 @@ const UserDatesCard = ({
                     {type === 'MITInvite' && (
                         <AkcruButtons.SmallButton
 
-                            onPress={() =>
-                                // TODO: navigate to WatchPartyPreviewScreen
-                                navigation.navigate('WatchPartyPreview', {
-                                    id,
-                                    type,
-                                    userId,
-                                    movieId,
-                                    isHost,
-                                    creator,
-                                    invitee
-                                })
-                            }
+  
                             onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start MIT Date"
                             color={COLORS.AKCRUBLUE}
@@ -361,7 +354,9 @@ const UserDatesCard = ({
 
                     {type === 'CRUView' && (
                         <AkcruButtons.SmallButton
-                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
+                  onPress={() =>
+                                checkTimeGate(type, scheduleTime, timezone, scheduleDate)
+                            }
                             btnname="Start Cru View"
                             color={COLORS.MIDORANGE}
                             disabled={false}
@@ -425,6 +420,40 @@ const UserDatesCard = ({
                         </TouchableOpacity>
                     </View>
                 </View>
+
+            </Modal>
+            <Modal visible={confirmCancelModal} transparent={true} animationType="fade">
+                <ComfirmationModal
+                    confirmationText="Are you sure you want to cancel this Cru View?"
+                    onPressNo={() => setConfirmCancelModal(false)}
+                    onPressYes={handleCancelCruView}
+                />
+            </Modal>
+            <Modal visible={confirmCancelMITModal} transparent={true} animationType="fade">
+                <ComfirmationModal
+                    confirmationText="Are you sure you want to cancel this MIT date?"
+                    onPressNo={() => setConfirmCancelMITModal(false)}
+                    onPressYes={() => handleCancelMIT(id)}
+                />
+            </Modal>
+            <Modal visible={dateResultModal} transparent={true} animationType="fade">
+                <DateResultModal
+                    iconname={dateIcon}
+                    iconcolor={dateIconColor}
+                    type={dateType}
+                    message={dateMessage}
+                    closeModal={() => setDateResultModal(false)}
+                />
+            </Modal>
+            <Modal visible={dateMITResultModal} transparent={true} animationType="fade">
+                <DateResultModal
+                    iconname={dateMITIcon}
+                    iconcolor={dateMITIconColor}
+                    type={dateMITType}
+                    message={dateMITMessage}
+                    closeModal={() => setDateMITResultModal(false)}
+                />
+
             </Modal>
         </View>
     );

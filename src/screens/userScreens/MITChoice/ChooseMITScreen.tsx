@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import {
   View,
@@ -53,30 +54,28 @@ import { TouchableRipple } from "react-native-paper";
 import HexAvatar from "../../../components/HexAvatar";
 import UserCruChatCard from "../../../components/UserCruChatCard";
 import { IChatUser } from "../../../../types";
+import {
+    capitalizeFirstLetterOfString,
+    formatMovieDuration,
+    getShortenedTimezone,
+    selectAvatarBorderColor,
+} from '../../../util/util';
 
 
-type ChooseMITScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  "ChooseMITScreen"
->;
+type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
-type ChooseMITScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  "ChooseMITScreen"
->;
+type ChooseMITScreenRouteProp = RouteProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
 type Props = {
-  navigation: ChooseMITScreenNavigationProp;
-  route: ChooseMITScreenRouteProp;
-
+    navigation: ChooseMITScreenNavigationProp;
+    route: ChooseMITScreenRouteProp;
 };
+
 
 const ChooseMITScreen = ({ navigation, route }: Props) => {
 
     const MITID: number | undefined = route.params?.MITID ?? null;
     const {user} = useAuthStore();
-
-    const inviteeName: string | undefined = route.params?.inviteeName ?? null;
 
     // Access other passed parameters
     const movie: IMovie | null = route.params?.movie ?? null;
@@ -91,11 +90,8 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
-    const [showTrailer, setShowTrailer] = useState(false);
+    const [messages, setMessages] = useState<IMessage[]>([]);
 
-
-
-  const [messages, setMessages] = useState<IMessage []>([])
 
 
 
@@ -201,7 +197,6 @@ const getTextMessage =  async(roomId:string)=>{
     //Chat Room functions
 
     const [showChat, setShowChat] = useState(false);
-    
 
     const handleAvatarPress = (user: any) => {
         // Navigate to the user's profile screen
@@ -209,7 +204,6 @@ const getTextMessage =  async(roomId:string)=>{
     };
 
     const sayhi = () => {
-        // Determine receiver user details based on the current user's role in the chat
         const isCurrentUserCreator = user?.id ===creatorID;
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
         const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
@@ -308,7 +302,6 @@ const getTextMessage =  async(roomId:string)=>{
                                                 size={58}
                                                 bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                                             />
-                                
                                         </TouchableOpacity>
                                         <View />
 
@@ -323,31 +316,7 @@ const getTextMessage =  async(roomId:string)=>{
                                             }}
                                         />
 
-                                        {/* {!privateaccount ? (
-                                      online ? (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'green',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      ) : (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'red',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      )
-                                  ) : null} */}
+                                        
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                         <Text style={{...FONTS.Title2, fontSize: 12}}>{creator?.username}</Text>
@@ -492,93 +461,7 @@ const getTextMessage =  async(roomId:string)=>{
                             </View>
                         </View>
                     </ScrollView>
-                    {/* <View style={styles.opensheet}>
-                    
-                    </View> */}
-                    {/* {Chat Room} */}
-{/* 
-                    <Modal animationType="fade" transparent={true} visible={showChat}>
-                        <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                            <View style={{zIndex: 20}}>
-                                <Header />
-                            </View>
-                            <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                                <TouchableRipple onPress={() => setShowChat(false)}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableRipple>
-                            </View>
-                            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                                <GiftedChat
-                                    messages={messages}
-                                    onSend={messages => onSend(messages)}
-                                    user={{
-                                        _id: user?.id!,
-                                        name: user?.username,
-                                    }}
-                                    textInputProps={{
-                                        style: {
-                                            color: COLORS.BLACK, // Set the color of the text inside the input area
-                                            width: '85%', // Adjust the width based on typing status
-                                            // You can add more custom styles here if needed
-                                        },
-                                    }}
-                                    renderUsernameOnMessage={true}
-                                    showUserAvatar={true}
-                                    renderAvatar={props => (
-                                        <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                                            <HexAvatar
-                                                size={45}
-                                                bordercolor={selectAvatarBorderColor(
-                                                    props.currentMessage?.user?._id === user?.id
-                                                        ? user?.badge ?? 'AKCRUIT'
-                                                        : 'OTHER_USER_BADGE',
-                                                )}
-                                                source={{
-                                                    uri:
-                                                        props.currentMessage?.user?._id === user?.id
-                                                            ? user?.profilePicture
-                                                            : creator?.profilePicture,
-                                                }}
-                                                {...props}
-                                            />
-                                        </TouchableRipple>
-                                    )}
-                                    renderBubble={props => (
-                                        <Bubble
-                                            {...props}
-                                            wrapperStyle={{
-                                                right: {
-                                                    // Change the background color for messages sent by the current user
-                                                    backgroundColor: COLORS.AKCRUBLUE,
-                                                },
-                                                left: {
-                                                    // Change the background color for messages sent by other users
-                                                    backgroundColor: COLORS.CATPURPDRK,
-                                                },
-                                            }}
-                                            textStyle={{
-                                                right: {
-                                                    // Text color for messages sent by the current user
-                                                    color: COLORS.WHITE,
-                                                },
-                                                left: {
-                                                    // Text color for messages sent by other users
-                                                    color: COLORS.WHITE,
-                                                },
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </View>
-                        </View>
-                    </Modal> */}
+                  
                 </View>
             </View>
             
