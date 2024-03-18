@@ -154,6 +154,8 @@ const UserDatesCard = ({
             const res: any = await API.get(
                 `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
             );
+            console.log(res.data.success)
+            res.data.success === false // to enter hard code bypass the timegate
             if (res.data.success === false) {
 
                 if (res.data) {
@@ -167,7 +169,8 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
-                            invitee
+
+                    invitee
                         });
                     } else if ((type = 'CRUView')) {
                         navigation.navigate('WatchPartyPreview', {
@@ -188,7 +191,33 @@ const UserDatesCard = ({
                 setshowMITEntryErr(true);
             }
         } catch (error) {
-            setshowMITEntryErr(true);
+            if ((type = 'MITInvite')) {
+                navigation.navigate('WatchPartyPreview', {
+                    id,
+                    type,
+                    userId,
+                    movieId,
+                    isHost,
+                    scheduleTime,
+                    timezone,
+                    creator,
+                    invitee
+                });
+            } else if ((type = 'CRUView')) {
+                navigation.navigate('WatchPartyPreview', {
+                    id,
+                    type,
+                    movieId,
+                    isHost,
+                    cruId,
+                    scheduleTime,
+                    timezone,
+                    creator,
+                    invitee
+                });
+            }
+
+            // setshowMITEntryErr(true);
         }
     };
 
