@@ -40,7 +40,6 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
 import { getCRUInvites } from "../../../lib/api/cru.lib";
-import { capitalizeFirstLetterOfString, formatMovieDuration, getShortenedTimezone, selectAvatarBorderColor } from "../../../util/util";
 import YoutubePlayer from 'react-native-youtube-iframe';
 import moment from "moment";
 import { MediaType, launchImageLibrary } from "react-native-image-picker";
