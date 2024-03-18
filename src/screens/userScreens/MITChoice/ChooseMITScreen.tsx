@@ -214,6 +214,7 @@ const getTextMessage =  async(roomId:string)=>{
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
         const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+       
         navigation.navigate('ViewChat', {
             mItInviteId: MITID,
             userId: receiverUserId,

@@ -109,6 +109,7 @@ type MemberInfo = {
 };
 
 const StartWatchPartyView = ({navigation, route}: Props) => {
+    console.log('route', route)
     // PARAMS
     const creator: IUserProfile | null = route.params?.creator ?? null;
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
@@ -1162,6 +1163,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
         const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+        console.log('Watch Party',{
+            mItInviteId: mitId,
+            userId: receiverUserId,
+            profilePicture: receiverProfilePicture,
+            username: receiverUsername, // Pass the receiver's username
+        }
+    )
         navigation.navigate('ViewChat', {
             mItInviteId: mitId,
             userId: receiverUserId,

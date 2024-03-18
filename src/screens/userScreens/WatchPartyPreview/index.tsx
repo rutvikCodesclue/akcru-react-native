@@ -318,6 +318,7 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
 
       if (leaveRoomSuccessful) {
         // navigate to the room
+        
         navigation.navigate("StartWatchPartyView", {
           type,
           movieId,
