@@ -169,8 +169,7 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
-
-                    invitee
+                            invitee
                         });
                     } else if ((type = 'CRUView')) {
                         navigation.navigate('WatchPartyPreview', {
@@ -187,8 +186,33 @@ const UserDatesCard = ({
                     }
                 }
             } else {
+                if ((type = 'MITInvite')) {
+                    navigation.navigate('WatchPartyPreview', {
+                        id,
+                        type,
+                        userId,
+                        movieId,
+                        isHost,
+                        scheduleTime,
+                        timezone,
+                        creator,
+                        invitee
+                    });
+                } else if ((type = 'CRUView')) {
+                    navigation.navigate('WatchPartyPreview', {
+                        id,
+                        type,
+                        movieId,
+                        isHost,
+                        cruId,
+                        scheduleTime,
+                        timezone,
+                        creator,
+                        invitee
+                    });
+                }
 
-                setshowMITEntryErr(true);
+                // setshowMITEntryErr(true);
             }
         } catch (error) {
             if ((type = 'MITInvite')) {
