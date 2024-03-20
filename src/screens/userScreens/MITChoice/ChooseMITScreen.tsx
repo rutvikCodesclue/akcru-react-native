@@ -205,7 +205,7 @@ const getTextMessage =  async(roomId:string)=>{
     const sayhi = () => {
         const isCurrentUserCreator = user?.id ===creatorID;
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-        const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
+        const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
        
         navigation.navigate('ViewChat', {
