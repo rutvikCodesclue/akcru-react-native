@@ -44,6 +44,7 @@ import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import LinearGradient from 'react-native-linear-gradient';
 import HexAvatar from '../../../components/HexAvatar';
 import { selectAvatarBorderColor } from '../../../util/util';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -386,92 +387,116 @@ const UserProfileDetailsTab = () => {
     return (
         <View>
             <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    <View>
-                        <Text
-                            style={{
-                                ...FONTS.Title2,
-                                marginTop: 10,
-                                marginBottom: 20,
-                                textAlign: 'center',
+                    <View style={styles.gallerycontainer}>
+                        <FlatList
+                            data={userPics}
+                            numColumns={3}
+                            showsHorizontalScrollIndicator={false}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({item}) => (
+                                <View>
+                                    <Pressable onPress={() => handleImageEnlarge(item)}>
+                                        <Image source={{uri: item}} style={styles.galleryImage} />
+                                    </Pressable>
+                                </View>
+                            )}
+                            ListHeaderComponent={
+                                <View>
+                                    <View>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginTop: 10,
+                                                marginBottom: 20,
+                                                textAlign: 'center',
 
-                                textDecorationLine: 'underline',
-                            }}>
-                            PROFILE DETAILS
-                        </Text>
-                    </View>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-around',
-                            alignItems: 'center',
-                        }}>
-                        <View style={{width: SIZES.ScreenWidth / 2}}>
-                            <View>
-                                <FlatList
-                                    data={cruMembers()}
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                    scrollEnabled={false}
-                                    keyExtractor={item => item.id}
-                                    renderItem={({item, index}) => (
-                                        <TouchableOpacity
-                                            onPress={() => navigation.navigate('ViewUserScreen', {userID: item.id})}>
-                                            <View style={{marginRight: index < cruMembers().length - 1 ? -16 : 0}}>
-                                                <CruMemberPic
-                                                    userPicture={item.profilePicture}
-                                                    akcruBadge={item.badge}
+                                                textDecorationLine: 'underline',
+                                            }}>
+                                            PROFILE DETAILS
+                                        </Text>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-around',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View style={{width: SIZES.ScreenWidth / 2}}>
+                                            <View>
+                                                <FlatList
+                                                    data={cruMembers()}
+                                                    horizontal={true}
+                                                    showsHorizontalScrollIndicator={false}
+                                                    scrollEnabled={false}
+                                                    keyExtractor={item => item.id}
+                                                    renderItem={({item, index}) => (
+                                                        <TouchableOpacity
+                                                            onPress={() =>
+                                                                navigation.navigate('ViewUserScreen', {userID: item.id})
+                                                            }>
+                                                            <View
+                                                                style={{
+                                                                    marginRight:
+                                                                        index < cruMembers().length - 1 ? -16 : 0,
+                                                                }}>
+                                                                <CruMemberPic
+                                                                    userPicture={item.profilePicture}
+                                                                    akcruBadge={item.badge}
+                                                                />
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    )}
                                                 />
                                             </View>
-                                        </TouchableOpacity>
-                                    )}
-                                />
-                            </View>
-                            <TouchableOpacity
-                                onPress={() => navigation.navigate('EditCru')}
-                                style={{marginVertical: 20}}>
-                                <View style={{flexDirection: 'row'}}>
-                                    <Icon
-                                        name="square-edit-outline"
-                                        type="material-community"
-                                        color={COLORS.MIDORANGE}
-                                        size={15}
-                                        style={{marginRight: 5}}
-                                    />
-                                    <Text
-                                        style={{
-                                            ...FONTS.Username,
-                                            color: COLORS.MIDORANGE,
-                                        }}>
-                                        Edit your CRU
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                            <View>
-                                <Text
-                                    style={{
-                                        ...FONTS.paragraph1,
+                                            <TouchableOpacity
+                                                onPress={() => navigation.navigate('EditCru')}
+                                                style={{marginVertical: 20}}>
+                                                <View style={{flexDirection: 'row'}}>
+                                                    <Icon
+                                                        name="square-edit-outline"
+                                                        type="material-community"
+                                                        color={COLORS.MIDORANGE}
+                                                        size={15}
+                                                        style={{marginRight: 5}}
+                                                    />
+                                                    <Text
+                                                        style={{
+                                                            ...FONTS.Username,
+                                                            color: COLORS.MIDORANGE,
+                                                        }}>
+                                                        Edit your CRU
+                                                    </Text>
+                                                </View>
+                                            </TouchableOpacity>
+                                            <View>
+                                                <Text
+                                                    style={{
+                                                        ...FONTS.paragraph1,
 
-                                        color: COLORS.LIGHTGREY,
-                                    }}>
-                                    Schedule a CRU View through the CRU VIEW scheduler
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={{alignItems: 'center'}}>
-                            <View>
-                                <Image
-                                    source={imageindex.NewCru}
-                                    style={{width: 120, height: 120}}
-                                    resizeMode="cover"
-                                />
-                            </View>
-                            <View style ={{marginTop: 15}}>
-                               <AkcruButtons.SmallButton disabled={false} color={COLORS.MIDORANGE} btnname='CRU View' onPress={() => navigation.navigate('UserCruChatScreen')} /> 
-                            </View>
-                            
+                                                        color: COLORS.LIGHTGREY,
+                                                    }}>
+                                                    Schedule a CRU View through the CRU VIEW scheduler
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <View style={{alignItems: 'center'}}>
+                                            <View>
+                                                <Image
+                                                    source={imageindex.NewCru}
+                                                    style={{width: 120, height: 120}}
+                                                    resizeMode="cover"
+                                                />
+                                            </View>
+                                            <View style={{marginTop: 15}}>
+                                                <AkcruButtons.SmallButton
+                                                    disabled={false}
+                                                    color={COLORS.MIDORANGE}
+                                                    btnname="CRU View"
+                                                    onPress={() => navigation.navigate('UserCruChatScreen')}
+                                                />
+                                            </View>
 
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
+                                            {/* <TouchableOpacity onPress={() => navigation.navigate('UserCruChatScreen')}>
                                 <View
                                     style={{
                                         padding: 8,
@@ -492,101 +517,138 @@ const UserProfileDetailsTab = () => {
                                     />
                                 </View>
                             </TouchableOpacity> */}
-                        </View>
-                    </View>
-                    <View style={{marginTop: 10}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2,
-                                marginTop: 10,
-                                marginBottom: 15,
-                                textAlign: 'center',
-
-                                textDecorationLine: 'underline',
-                            }}>
-                            CRU AFFILIATIONS
-                        </Text>
-                    </View>
-                    <View style={{flex: 1}}>
-                        <FlatList
-                            data={crus}
-                            keyExtractor={item => item.id}
-                            horizontal
-                            renderItem={({item}) => {
-                                // Check if the current user is a member of this CRU
-                                const isCurrentUserAMember =
-                                    item.members?.some(member => member.id === user?.id) ||
-                                    item.creator.id === user?.id;
-
-                                return (
-                                    <View
-                                        style={{
-                                            backgroundColor: COLORS.CATPURPDRK,
-                                            borderRadius: 5,
-                                            alignItems: 'center',
-                                            padding: 15,
-                                            marginBottom: 15,
-                                            marginHorizontal: 10,
-                                            width: SIZES.ScreenWidth * 0.75
-                                        }}>
-                                        <LinearGradient
-                                            // Background Linear Gradient
-                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                bottom: 0,
-                                                borderRadius: 5,
-                                            }}
-                                        />
-                                        <Text style={{...FONTS.Title2, paddingBottom: 10}}>{item.name}</Text>
-                                        {/* Optionally render the creator separately here */}
-                                        <TouchableOpacity
-                                            style={{alignItems: 'center', paddingBottom: 10}}
-                                            onPress={() =>
-                                                navigation.navigate('ViewUserScreen', {userID: item.creator.id})
-                                            }>
-                                            <HexAvatar
-                                                source={{uri: item.creator.profilePicture}}
-                                                size={70}
-                                                bordercolor={selectAvatarBorderColor(item.creator.badge ?? 'AKCRUIT')}
-                                            />
-                                            <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>Cru Leader</Text>
-                                        </TouchableOpacity>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                width: '100%', // Make sure this takes the full width
-                                            }}>
-                                            <ScrollView
-                                                horizontal={true}
-                                                showsHorizontalScrollIndicator={false}
-                                                contentContainerStyle={{
-                                                flexGrow: 1,
-                                                justifyContent: 'center', // This ensures content is centered within the scroll view if content is smaller than the screen
-                                                alignItems: 'center',
-                                                }}>
-                                                {item.members?.map(member => (
-                                                    <TouchableOpacity
-                                                        onPress={() =>
-                                                            navigation.navigate('ViewUserScreen', {userID: member.id})
-                                                        }
-                                                        key={member.id}
-                                                        >
-                                                        {/* Adjust spacing as needed */}
-                                                        <CruMemberPic
-                                                            userPicture={member.profilePicture}
-                                                            akcruBadge={member.badge}
-                                                        />
-                                                    </TouchableOpacity>
-                                                ))}
-                                            </ScrollView>
                                         </View>
-                                        {/* <View style={{backgroundColor: 'red', width: '100%', flex: 1}}>
+                                    </View>
+                                    <View style={{marginTop: 10}}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginTop: 10,
+                                                marginBottom: 15,
+                                                textAlign: 'center',
+
+                                                textDecorationLine: 'underline',
+                                            }}>
+                                            CRU AFFILIATIONS
+                                        </Text>
+                                    </View>
+                                    <View style={{flex: 1}}>
+                                        <FlatList
+                                            data={crus}
+                                            keyExtractor={item => item.id}
+                                            horizontal
+                                            renderItem={({item}) => {
+                                                // Check if the current user is a member of this CRU
+                                                const isCurrentUserAMember =
+                                                    item.members?.some(member => member.id === user?.id) ||
+                                                    item.creator.id === user?.id;
+
+                                                return (
+                                                    <View
+                                                        style={{
+                                                            backgroundColor: COLORS.CATPURPDRK,
+                                                            borderRadius: 5,
+                                                            alignItems: 'center',
+                                                            padding: 15,
+                                                            marginBottom: 15,
+                                                            marginHorizontal: 10,
+                                                            width: SIZES.ScreenWidth * 0.75,
+                                                        }}>
+                                                        <LinearGradient
+                                                            // Background Linear Gradient
+                                                            colors={[
+                                                                COLORS.FADEDBLACK,
+                                                                'transparent',
+                                                                COLORS.FADEDBLACK,
+                                                            ]}
+                                                            style={{
+                                                                position: 'absolute',
+                                                                left: 0,
+                                                                right: 0,
+                                                                top: 0,
+                                                                bottom: 0,
+                                                                borderRadius: 5,
+                                                            }}
+                                                        />
+                                                        <TouchableOpacity
+                                                            style={{position: 'absolute', left: '8%', top: '5%'}}
+                                                            onPress={() => {
+                                                                ('');
+                                                            }}>
+                                                            <View
+                                                                style={{
+                                                                    width: 10,
+                                                                    height: 10,
+                                                                    borderRadius: 5,
+                                                                    backgroundColor: COLORS.MIDORANGE,
+                                                                    position: 'absolute',
+                                                                    zIndex: 100,
+                                                                    right: 0,
+                                                                }}
+                                                            />
+                                                            <CustomIcon
+                                                                name="chatbox-ellipses"
+                                                                type="ionicon"
+                                                                color={COLORS.PURPLE}
+                                                                baseSize={22}
+                                                                style={{margin: 0}}
+                                                            />
+                                                        </TouchableOpacity>
+                                                        <Text style={{...FONTS.Title2, paddingBottom: 10}}>
+                                                            {item.name}
+                                                        </Text>
+                                                        {/* Optionally render the creator separately here */}
+                                                        <TouchableOpacity
+                                                            style={{alignItems: 'center', paddingBottom: 10}}
+                                                            onPress={() =>
+                                                                navigation.navigate('ViewUserScreen', {
+                                                                    userID: item.creator.id,
+                                                                })
+                                                            }>
+                                                            <HexAvatar
+                                                                source={{uri: item.creator.profilePicture}}
+                                                                size={70}
+                                                                bordercolor={selectAvatarBorderColor(
+                                                                    item.creator.badge ?? 'AKCRUIT',
+                                                                )}
+                                                            />
+                                                            <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
+                                                                Cru Leader
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                        <View
+                                                            style={{
+                                                                flexDirection: 'row',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                width: '100%', // Make sure this takes the full width
+                                                            }}>
+                                                            <ScrollView
+                                                                horizontal={true}
+                                                                showsHorizontalScrollIndicator={false}
+                                                                contentContainerStyle={{
+                                                                    flexGrow: 1,
+                                                                    justifyContent: 'center', // This ensures content is centered within the scroll view if content is smaller than the screen
+                                                                    alignItems: 'center',
+                                                                }}>
+                                                                {item.members?.map(member => (
+                                                                    <TouchableOpacity
+                                                                        onPress={() =>
+                                                                            navigation.navigate('ViewUserScreen', {
+                                                                                userID: member.id,
+                                                                            })
+                                                                        }
+                                                                        key={member.id}>
+                                                                        {/* Adjust spacing as needed */}
+                                                                        <CruMemberPic
+                                                                            userPicture={member.profilePicture}
+                                                                            akcruBadge={member.badge}
+                                                                        />
+                                                                    </TouchableOpacity>
+                                                                ))}
+                                                            </ScrollView>
+                                                        </View>
+                                                        {/* <View style={{backgroundColor: 'red', width: '100%', flex: 1}}>
                                             <FlatList
                                                 data={item.members}
                                                 horizontal={true}
@@ -606,64 +668,58 @@ const UserProfileDetailsTab = () => {
                                                 keyExtractor={member => member.id}
                                             />
                                         </View> */}
-                                        <Text style={{...FONTS.paragraph1, textAlign: 'center', paddingBottom: 15}}>
-                                            {'Member(s)'}
-                                        </Text>
-                                        {isCurrentUserAMember && (
-                                            <AkcruButtons.SmallButton
-                                                btnname="Leave CRU"
-                                                onPress={() => handleLeaveCRU(item.id)}
-                                                disabled={false}
-                                                color={COLORS.CATREDLGT}
-                                            />
-                                        )}
+                                                        <Text
+                                                            style={{
+                                                                ...FONTS.paragraph1,
+                                                                textAlign: 'center',
+                                                                paddingBottom: 15,
+                                                            }}>
+                                                            {'Member(s)'}
+                                                        </Text>
+                                                        {isCurrentUserAMember && (
+                                                            <AkcruButtons.SmallButton
+                                                                btnname="Leave CRU"
+                                                                onPress={() => handleLeaveCRU(item.id)}
+                                                                disabled={false}
+                                                                color={COLORS.CATREDLGT}
+                                                            />
+                                                        )}
+                                                    </View>
+                                                );
+                                            }}
+                                        />
                                     </View>
-                                );
-                            }}
-                        />
-                    </View>
-                    <View
-                        style={{
-                            borderBottomWidth: 1.5,
-                            borderColor: COLORS.DARKERGREY,
-                            marginTop: 20,
-                            marginBottom: 10,
-                        }}
-                    />
-                    <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
-                        <AkcruButtons.LrgButton
-                            btnname={'Add to Gallery'}
-                            onPress={selectGalleryImage}
-                            color={COLORS.PURPLE}
-                            disabled={false}
-                        />
-                    </View>
-                    <View style={styles.gallerycontainer}>
-                        <FlatList
-                            data={userPics}
-                            numColumns={3}
-                            showsHorizontalScrollIndicator={false}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({item}) => (
-                                <View>
-                                    <Pressable onPress={() => handleImageEnlarge(item)}>
-                                        <Image source={{uri: item}} style={styles.galleryImage} />
-                                    </Pressable>
+                                    <View
+                                        style={{
+                                            borderBottomWidth: 1.5,
+                                            borderColor: COLORS.DARKERGREY,
+                                            marginTop: 20,
+                                            marginBottom: 10,
+                                        }}
+                                    />
+                                    <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
+                                        <AkcruButtons.LrgButton
+                                            btnname={'Add to Gallery'}
+                                            onPress={selectGalleryImage}
+                                            color={COLORS.PURPLE}
+                                            disabled={false}
+                                        />
+                                    </View>
                                 </View>
-                            )}
-                        />
-                    </View>
-                    <View
-                        style={{
-                            borderBottomWidth: 1.5,
-                            borderColor: COLORS.DARKERGREY,
+                            }
+                            ListFooterComponent={
+                                <View>
+                                    <View
+                                        style={{
+                                            borderBottomWidth: 1.5,
+                                            borderColor: COLORS.DARKERGREY,
 
-                            marginBottom: 10,
-                        }}
-                    />
+                                            marginBottom: 10,
+                                        }}
+                                    />
 
-                    <View style={{marginBottom: 75}}>
-                        {/* <View style={{marginBottom: 10}}>
+                                    <View style={{marginBottom: 75}}>
+                                        {/* <View style={{marginBottom: 10}}>
                             <BasicListCategories
                                 Akcru_Content={{
                                     id: 'recommendedForYou',
@@ -672,51 +728,54 @@ const UserProfileDetailsTab = () => {
                                 }}
                             />
                         </View> */}
-                        {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
-                            <View>
-                                <WatchListCategory
-                                    Akcru_Content={{
-                                        id: 'YourFavourite',
-                                        title: 'Your Watchlist',
-                                        movies: watchlist,
-                                    }}
-                                    updateWatchlist={updateWatchlist}
-                                />
-                            </View>
-                        )}
+                                        {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
+                                            <View>
+                                                <WatchListCategory
+                                                    Akcru_Content={{
+                                                        id: 'YourFavourite',
+                                                        title: 'Your Watchlist',
+                                                        movies: watchlist,
+                                                    }}
+                                                    updateWatchlist={updateWatchlist}
+                                                />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
+                                        <ErrorModal
+                                            closeModal={() => setShowImageCountErrorModal(false)}
+                                            message={'You cannot upload more than 6 images.'}
+                                            iconcolor={COLORS.CATREDLGT}
+                                            iconname={'alert-circle'}
+                                        />
+                                    </Modal>
+                                    <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
+                                        <EnlargeGalleryModal
+                                            closeModal={toggleEnlargeModal}
+                                            image={selectedImage}
+                                            deleteImage={removeFromGallery}
+                                        />
+                                    </Modal>
+                                    <Modal animationType="fade" transparent={true} visible={!!confirmationModal}>
+                                        <ConfirmationModal
+                                            confirmationText={'Are you sure you want to leave this CRU?'}
+                                            onPressYes={() => confirmLeaveCRU()}
+                                            onPressNo={() => setConfirmationModal(false)}
+                                        />
+                                    </Modal>
+                                    <Modal animationType="fade" transparent={true} visible={!!cruResultModal}>
+                                        <CruResultModal
+                                            closeModal={() => setCruResultModal(false)}
+                                            type={cruResultType}
+                                            message={cruResultMessage}
+                                            iconname={cruIconName}
+                                            iconcolor={cruIconColor}
+                                        />
+                                    </Modal>
+                                </View>
+                            }
+                        />
                     </View>
-                    <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
-                        <ErrorModal
-                            closeModal={() => setShowImageCountErrorModal(false)}
-                            message={'You cannot upload more than 6 images.'}
-                            iconcolor={COLORS.CATREDLGT}
-                            iconname={'alert-circle'}
-                        />
-                    </Modal>
-                    <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
-                        <EnlargeGalleryModal
-                            closeModal={toggleEnlargeModal}
-                            image={selectedImage}
-                            deleteImage={removeFromGallery}
-                        />
-                    </Modal>
-                    <Modal animationType="fade" transparent={true} visible={!!confirmationModal}>
-                        <ConfirmationModal
-                            confirmationText={'Are you sure you want to leave this CRU?'}
-                            onPressYes={() => confirmLeaveCRU()}
-                            onPressNo={() => setConfirmationModal(false)}
-                        />
-                    </Modal>
-                    <Modal animationType="fade" transparent={true} visible={!!cruResultModal}>
-                        <CruResultModal
-                            closeModal={() => setCruResultModal(false)}
-                            type={cruResultType}
-                            message={cruResultMessage}
-                            iconname={cruIconName}
-                            iconcolor={cruIconColor}
-                        />
-                    </Modal>
-                </ScrollView>
             </View>
         </View>
     );
