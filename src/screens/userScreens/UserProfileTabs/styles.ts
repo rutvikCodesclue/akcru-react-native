@@ -7,13 +7,13 @@ export default StyleSheet.create({
         marginTop: 10,
         marginBottom: 20,
         textAlign: 'center',
-        fontSize: 14,
+        
         textDecorationLine: 'underline',
     },
     paragraphText: {
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
-        fontSize: 12,
+        
     },
     gallerycontainer: {
         marginBottom: 20,
@@ -40,19 +40,19 @@ export default StyleSheet.create({
     titleText2: {
         ...FONTS.Title2,
         color: COLORS.MIDORANGE,
-        fontSize: 12,
+        
         marginVertical: 5,
     },
     titleText2White: {
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
-        fontSize: 12,
+        
         marginVertical: 5,
     },
     titleText3: {
         ...FONTS.Title2,
         color: COLORS.DARKGREY,
-        fontSize: 12,
+        
     },
     lineSeperator: {
         borderBottomWidth: 1.5,
