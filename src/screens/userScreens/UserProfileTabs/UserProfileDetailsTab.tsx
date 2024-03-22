@@ -475,7 +475,9 @@ const UserProfileDetailsTab = () => {
                                                 disabled={false}
                                                 color={COLORS.MIDORANGE}
                                                 btnname="CRU Chat"
-                                                onPress={() => navigation.navigate('UserCruChatScreen')}
+                                                onPress={() => navigation.navigate('ViewGroupChat', {
+                                                    'isMyCruChat': true
+                                                })}
                                             />
                                         </View>
                                     </View>
@@ -569,7 +571,12 @@ const UserProfileDetailsTab = () => {
                                                     <TouchableOpacity
                                                         style={{position: 'absolute', left: '8%', top: '5%'}}
                                                         onPress={() => {
-                                                            ('');
+                                                            
+                                                            console.log('hi, I am chat', item)
+                                                            navigation.navigate('ViewGroupChat', {
+                                                                'isMyCruChat': false,
+                                                                'cru': item
+                                                            })
                                                         }}>
                                                         <View
                                                             style={{

@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 
 
+
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';
 import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
@@ -30,9 +31,6 @@ import { LogBox } from 'react-native';
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
 Castle.configureWithPublishableKey(CASTLE_API_PK);
-
-console.log(DEV_API_URL)
-
 
 
 function App(): JSX.Element {

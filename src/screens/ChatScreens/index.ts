@@ -1,3 +1,3 @@
 import CruChat from "./CruChat";
-
-export {CruChat};
+import CruGroupChat from "./CruGroupChat"
+export {CruChat,CruGroupChat};
