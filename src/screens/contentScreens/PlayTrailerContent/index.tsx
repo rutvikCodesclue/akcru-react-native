@@ -11,6 +11,9 @@ import {useRoute} from '@react-navigation/native';
 import { COLORS, SIZES } from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
 import AkcruButtons from '../../../components/akcruButtons';
+import { finishUserWatching } from '../../../lib/api/user.lib';
+import useAuthStore from '../../../stores/auth.store';
+import Video from 'react-native-video';
 
 
 
@@ -32,10 +35,12 @@ type Props = {
 
 export default function TrailerPlayer({navigation, route}: Props) {
     // const id: number | undefined = route.params?.id ?? null;
-    const [movie, setMovie] = useState<IMovie[]>([]);
+    const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true); // start the movie playing
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'TrailerPlayer'>>();
     const [shouldAutoplay, setShouldAutoplay] = useState(true);
+    const {user} = useAuthStore();
+    const videoRef = useRef<Video>(null);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -54,58 +59,88 @@ export default function TrailerPlayer({navigation, route}: Props) {
 
     
 
+    // useEffect(() => {
+    //     // Fetch movie data based on the route parameter ID
+    //     const fetchMovie = async () => {
+    //         try {
+    //             const id: string | undefined = routeParams.params?.id;
+    //             if (id) {
+    //                 const fetchedMovie: IMovie | null = await findMovieById(id);
+    //                 if (fetchedMovie) {
+    //                     setMovie([fetchedMovie]);
+    //                 } else {
+    //                     setMovie([]);
+    //                 }
+    //             }
+    //         } catch (error) {
+    //             console.error('Error fetching movie:', error);
+    //         }
+    //     };
+
+    //     // Fetch movie data
+    //     fetchMovie();
+
+    //     // Lock landscape orientation when entering this screen
+    //     Orientation.lockToLandscape();
+
+    //     // Allow landscape orientation when entering this screen
+    //     // Orientation.unlockAllOrientations();
+
+    //     // Lock the orientation back to portrait when leaving this screen
+    //     return () => {
+    //         Orientation.lockToPortrait();
+
+    //         StatusBar.setHidden(false);
+    //     };
+    // }, [routeParams.params?.id]);
+
+    const movieId = routeParams.params?.id;
+    const [hasStartedWatching, setHasStartedWatching] = useState(false);
+
     useEffect(() => {
-        // Fetch movie data based on the route parameter ID
         const fetchMovie = async () => {
-            try {
-                const id: string | undefined = routeParams.params?.id;
-                if (id) {
-                    const fetchedMovie: IMovie | null = await findMovieById(id);
-                    if (fetchedMovie) {
-                        setMovie([fetchedMovie]);
-                    } else {
-                        setMovie([]);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching movie:', error);
+            if (movieId) {
+                const fetchedMovie = await findMovieById(movieId);
+                setMovie(fetchedMovie);
             }
         };
 
-        // Fetch movie data
         fetchMovie();
-
-        // Lock landscape orientation when entering this screen
         Orientation.lockToLandscape();
+        StatusBar.setHidden(true);
 
-        // Allow landscape orientation when entering this screen
-        // Orientation.unlockAllOrientations();
-
-        // Lock the orientation back to portrait when leaving this screen
         return () => {
             Orientation.lockToPortrait();
-
             StatusBar.setHidden(false);
+            if (hasStartedWatching && user?.id && movieId) {
+                finishUserWatching(user.id, movieId).then(finishedSuccessfully => {
+                    if (finishedSuccessfully) {
+                        //console.log(`User finished watching movie: ${movieId}`);
+                    } else {
+                        //console.log(`Failed to mark movie as finished: ${movieId}`);
+                    }
+                });
+            }
         };
-    }, [routeParams.params?.id]);
+    }, [movieId, user?.id, hasStartedWatching]);
 
 
 
-    const {
-        title,
-        year,
-        length,
-        rated,
-        rating,
-        description,
-        actors,
-        director,
-        portraitURL,
-        trailerURL,
-        landscapeURL,
-        movieURL,
-        genres,
-    } = movie[0] || {};
+    // const {
+    //     title,
+    //     year,
+    //     length,
+    //     rated,
+    //     rating,
+    //     description,
+    //     actors,
+    //     director,
+    //     portraitURL,
+    //     trailerURL,
+    //     landscapeURL,
+    //     movieURL,
+    //     genres,
+    // } = movieId[0] || {};
 
 
     const onPlay = () => {
@@ -122,16 +157,19 @@ export default function TrailerPlayer({navigation, route}: Props) {
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-                {movieURL ? (
+                {movie && movie?.trailerURL ? (
                     <>
                         <VideoPlayer
+                            videoRef={videoRef}
                             source={{
-                                uri: trailerURL,
+                                uri: movie.trailerURL,
                             }}
+                            resizeMode="cover"
+                            posterResizeMode="cover"
                             tapAnywhereToPause={false}
                             preventsDisplaySleepDuringVideoPlayback={true}
                             toggleResizeModeOnFullscreen={false}
-                            poster={landscapeURL}
+                            poster={movie.landscapeURL}
                             containerStyle={{zIndex: 100}}
                             onBack={() => navigation.pop()}
                             paused={!isMoviePlaying}

@@ -8,7 +8,7 @@ import {RouteProp} from '@react-navigation/native';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
-import {COLORS} from '../../../../assets/constants';
+import {COLORS, SIZES} from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
@@ -102,7 +102,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         }
     };
 
-    const onProgress = data => {
+    const onProgress = (data: { currentTime: number; }) => {
         currentTime = Math.floor(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(movieId, currentTime);
@@ -138,7 +138,7 @@ export default function ContentPlayer({navigation, route}: Props) {
 
     // Placeholder for your video container style
     const videoContainerStyle = {
-        zIndex: 100,
+        zIndex: 100
     };
 
     return (
@@ -170,11 +170,17 @@ export default function ContentPlayer({navigation, route}: Props) {
                     )
                 ) : (
                     <View style={styles.activitycontainer}>
+                        <Video source={require('../../../../assets/sounds/akcrusound1.mp3')} repeat={false} />
                         <LottieView
                             source={require('../../../../assets/lottie/Akcruopener1.json')}
                             autoPlay
                             loop={false}
-                            onAnimationFinish={() => setHasLottieFirstLoopCompleted(true)}
+                            style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
+                            onAnimationFinish={() => {
+                                if (!hasLottieFirstLoopCompleted) {
+                                    setHasLottieFirstLoopCompleted(true);
+                                }
+                            }}
                         />
                     </View>
                 )}
