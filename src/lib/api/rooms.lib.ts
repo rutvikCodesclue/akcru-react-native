@@ -33,10 +33,10 @@ export const createRoom = async () => {
     }
 }
 
-export const saveTextMessage = async (roomId:string,content:string, receiverId: string): Promise< undefined> => {
+export const saveTextMessage = async (roomId:string,content:string, receiverId: string, isCru: boolean = false): Promise< undefined> => {
     try {
         // POST /v1/cru/me/add-user
-        const param = {roomId,content, receiverId};
+        const param = {roomId,content, receiverId, isCru};
 
 
         const {data} = await API.post(`/v1/realtime/create-room-message`,param);
@@ -72,6 +72,18 @@ export const getTextMessages  = async (roomId:String): Promise<  IMessage[]| und
             chatMessage.push(iMessage);
         })
         return chatMessage;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export const getTextMessagesGroup  = async (roomId:String): Promise<  IMessage[]| undefined> => {
+    try {
+        // POST /v1/cru/me/add-user
+        const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
+        const messages: IChatType[] = data.messages;
+        
+        return messages;
     } catch (error) {
         console.error(error);
     }

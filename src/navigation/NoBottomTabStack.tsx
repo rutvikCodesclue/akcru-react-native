@@ -18,7 +18,7 @@ import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import TrailerPlayer from '../screens/contentScreens/PlayTrailerContent';
 import PostScreen from '../screens/crummunityScreens/PostScreen';
-import {CruChat} from '../screens/ChatScreens';
+import {CruChat, CruGroupChat} from '../screens/ChatScreens';
 import NewPost from '../screens/crummunityScreens/NewPost';
 import NewComment from '../screens/crummunityScreens/NewComment';
 import { IComment, IPost } from '../../types';
@@ -66,6 +66,7 @@ export type NoBottomTabStackParams = {
         // other params if there are any
     };
     ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
+    ViewGroupChat: any;
     NewPost: any;
     NewComment: any;
     ViewUserScreen: {userId: string; profilePicture: string; username: string};
@@ -173,6 +174,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ViewChat"
               component={CruChat}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ViewGroupChat"
+              component={CruGroupChat}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
