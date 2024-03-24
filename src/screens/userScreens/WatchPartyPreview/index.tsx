@@ -324,7 +324,7 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
           movieId,
           roomId: roomIdFrom100ms,
           roomAuthToken,
-          micInitialState: isMicOn,
+          micInitialState: false,
           cameraInitialState: isUserVideoOn,
           isHost,
           inviteId,
@@ -514,13 +514,13 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
                             <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
                         )}
                     </Pressable>
-                    <Pressable onPress={toggleMic}>
+                    {/* <Pressable onPress={toggleMic}>
                         {isMicOn ? (
                             <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
                         ) : (
                             <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
                         )}
-                    </Pressable>
+                    </Pressable> */}
                 </View>
             </View>
         </View>

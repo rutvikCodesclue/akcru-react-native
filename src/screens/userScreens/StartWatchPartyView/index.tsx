@@ -71,6 +71,9 @@ import CruChatComponent from '../../ChatScreens/CruChatComponent';
 import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
+import {supabase} from '../../../../lib/supabase';
+import UnmutePermissionPopup from './unmutepermpopup';
+import ErrorModal from './ErrorModal';
 
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -109,8 +112,10 @@ type MemberInfo = {
 };
 
 const StartWatchPartyView = ({navigation, route}: Props) => {
-    console.log('route', route)
+    // console.log('route', route)
     // PARAMS
+    const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
+
     const creator: IUserProfile | null = route.params?.creator ?? null;
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
     const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
@@ -145,6 +150,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
     const [IsStreamHost, setIsStreamHost] = useState(isHost);
+    const [isAllMuteOff, setIsAllMuteOff] = useState(true);
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
     /* REFS */
@@ -163,18 +169,93 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
     const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
     const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+    const [unmutePermPopup, setUnmutePermissionPopup] = useState(false);
+    const [userRequest, setUserRequest] = useState(null);
+    const [popupErr, setPopupErr] = useState(false);
+    const [popupErrMsg, setPopupErrMsg] = useState('');
+    const myuserid = user.id
 
     route.params = {
-        ...route.params, 
+        ...route.params,
         additionalParam: 'Additional Value',
         mItInviteId: movieId,
         userId: receiverUserId,
         profilePicture: receiverProfilePicture,
         username: receiverUsername
-      }    
-   
-    
-    
+      }
+
+
+      useEffect(() => {
+
+
+        const channelA = supabase.channel(roomId);
+        channelA
+            .on('broadcast', {event: 'movie_room'}, payload => askForPermission(payload))
+            .subscribe(status => {
+                if (status === 'SUBSCRIBED') {
+                    // // console.log('setting channel');
+                    setChannel(channelA);
+                }
+            });
+
+        return () => {
+            channelA.unsubscribe();
+            setChannel(null);
+        };
+    }, []);
+
+    // Simple function to log any messages we receive
+   async function askForPermission(payload: any) {
+        if(isHost == true && payload.payload.permtype! == 'request' ){
+            console.log('userReq',payload.payload.userReq!)
+            setUserRequest(payload.payload.userReq!)
+            setUnmutePermissionPopup(true)
+
+        }
+        if(isHost != true && payload.payload.permtype! == 'reqans' && payload.payload.userReq.id! == user.id){
+            const perm = payload.payload.micunmuteperm
+            if(perm == true){
+            const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+            if (localPeer) {
+                localPeer?.localAudioTrack()?.setMute(!perm);
+                setIsMicOn(perm)
+            }
+        }
+        }
+        // console.log(payload, user.id)
+        // setUnmutePermissionPopup(false)
+
+        // if(payload.payload.senderId === user.id){
+        //     console.log(user?.username, 'is here')
+        //     const perm = payload.payload.micunmuteperm
+        //     setIsMicOn(perm)
+        //     // setUnmutePermissionPopup(false)
+        // }
+
+    }
+
+    const onSend = (permGrant, userid, permtype, userReq) => {
+        console.log('User id on send', userid)
+        if (channelll === null) {
+            console.log('Channel not found');
+            return
+        }
+
+        if(permtype == 'request' && isHost == true) return
+        channelll.send({
+            type: 'broadcast',
+            event: 'movie_room',
+            payload: {micunmuteperm:permGrant, senderId: user.id, permtype: permtype, userReq: userReq},
+        });
+        if(permtype == 'reqans' && isHost == true){
+            setUnmutePermissionPopup(false)
+
+        }
+
+    };
+
+
+
     useEffect(() => {
         RestrictPartyRoom();
         // join the 100ms room
@@ -190,7 +271,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         });
 
-      
+
     }, []);
     useFocusEffect(
         React.useCallback(() => {
@@ -232,7 +313,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         updateMembersList();
     }, [peerTrackNodes]);
 
-    /* 
+    /*
         ROOM HANDLERS
     */
 
@@ -249,6 +330,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const handleMic = async (peer: HMSPeer) => {
+        console.log('Handling the mic now');
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
         if (localPeer && isHost) {
             const audioTrack = peer.audioTrack;
@@ -273,7 +355,44 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const muteAllPeers = async () => {
+        // const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+        // const localPeerPermissions: HMSPermissions = localPeer.role?.permissions;
+        // const canMute: boolean = localPeerPermissions?.mute; // Check if Local Peer has Mute Permission
+        // console.log('about to enter the if in mute all func')
+        // if (isHost) {
+        //     if (!isAllMuteOn){ //check if everyone is already muted
+        //     console.log('Went into mute all before try')
+        //     try {
+        //         console.log('Went into mute all before try')
+        //         await hmsInstanceRef.current?.remoteMuteAllAudio();
+        //         setIsAllMuteOn(true);
+        //         console.log('Broadcasted mute-all event');
+        //     } catch (error) {
+        //         console.error('Failed to mute all peers or broadcast: ', error);
+        //     }
+        //     }
+        //     else{
+        //         try {
+        //             if (members) {
+        //                 // Loop through participants
+        //                 members.forEach(async member => {
+        //                     // Check if the participant is muted
+        //                     if (hmsInstanceRef.current?.getPeerFromPeerId(member.peerID)?.audioTrack()?.isMute()) {
+        //                         // Unmute the participant
+        //                         await hmsInstanceRef.current?.getPeerFromPeerId(member.peerID)?.audioTrack.;
+        //                     }
+        //                 });
+        //             }
+
+        //             console.log("All participants unmuted successfully.");
+        //         } catch (error) {
+        //             console.error("Error while unmuting participants:", error);
+        //         }
+        //     }
+        // }
+        console.log('about to enter the if');
         if (isHost) {
+            console.log('Went into mute all before try')
             try {
                 await hmsInstanceRef.current?.remoteMuteAllAudio();
                 console.log('Broadcasted mute-all event');
@@ -330,20 +449,45 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             console.log('Current user is not the host.');
         }
     };
+    function isHostAvailable() {
+        for (let i = 0; i < peerTrackNodes.length; i++) {
+            const peer = peerTrackNodes[i].peer;
+            const isRoomHost = peer.role?.name === 'host';
+            if (isRoomHost) {
+                return true;
+            } 
+        }
+        return false
 
+    }
     const toggleMic = async () => {
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
         if (localPeer) {
             if (isMicOn) {
                 console.log('muting personal audio track...');
                 localPeer?.localAudioTrack()?.setMute(true);
+                setIsMicOn((prevState: boolean) => !prevState);
+
             } else {
-                console.log('unmuting personal audio track...');
-                localPeer?.localAudioTrack()?.setMute(false);
+                if(isHost){
+                    console.log('unmuting personal audio track...');
+                    localPeer?.localAudioTrack()?.setMute(false);
+                    setIsMicOn((prevState: boolean) => !prevState);
+
+                }else{
+                   const isHostAva = isHostAvailable()
+                   if(isHostAva){
+                    onSend(null, null, 'request', user)
+
+                   }else{
+                    setPopupErr(true)
+                    setPopupErrMsg('Host not available. Please wait for the host to join!')
+                   }
+                }
+
             }
         }
-        // toggle the state (for the icon)
-        setIsMicOn((prevState: boolean) => !prevState);
+
     };
 
     const toggleVideo = async () => {
@@ -399,6 +543,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const _join100msRoom = async () => {
         let hmsInstance: HMSSDK | null = null;
+        console.log('mic Initail State:', micInitialState)
 
         if (hmsInstanceRef.current == null) {
             // set track settings
@@ -886,11 +1031,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         // use these objects to update your local and remote peers.
         if (type === HMSTrackUpdate.TRACK_MUTED || type === HMSTrackUpdate.TRACK_UNMUTED) {
             const isMuted = track.isMute();
+            console.log('isMuted:', isMuted)
             if (isMuted !== undefined) {
                 setPeersMuteStatus(prevStatus => ({
                     ...prevStatus,
                     [peer.peerID]: isMuted,
                 }));
+            }
+             if(peer.isLocal){
+                setIsMicOn(!isMuted);
             }
         }
     };
@@ -1176,13 +1325,20 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             profilePicture: receiverProfilePicture,
             username: receiverUsername, // Pass the receiver's username
         });
-   
+
     };
     const handleSnapPress = useCallback((index: number) => {
         console.log('heelo')
         sheetRef.current?.snapToIndex(index);
         // setIsChatOpen(true);
     }, []);
+
+    const handleCloseError = () => {
+        setPopupErrMsg('');
+        setPopupErr(false);
+    };
+
+
 
     const watchPartyView = () => {
         return (
@@ -1526,19 +1682,21 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                         : item.peer.name}
                                                 </Text>
                                                 <Pressable
-                                                    onPress={() => {
-                                                        handleMic(item.peer);
-                                                    }}>
+                                                    // onPress={() => {
+                                                    //     handleMic(item.peer);
+                                                    // }}
+                                                    >
+
                                                     <Icon
                                                         name={
-                                                            peersMuteStatus[item.peer.peerID]
+                                                            peersMuteStatus[item.peer.peerID] === undefined || peersMuteStatus[item.peer.peerID] == true
                                                                 ? 'mic-off-circle'
                                                                 : 'mic-circle'
                                                         }
                                                         type="ionicon"
                                                         size={25}
                                                         color={
-                                                            peersMuteStatus[item.peer.peerID]
+                                                            peersMuteStatus[item.peer.peerID] === undefined || peersMuteStatus[item.peer.peerID] == true
                                                                 ? COLORS.CATREDLGT
                                                                 : COLORS.GREEN
                                                         }
@@ -1575,52 +1733,19 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                         </Pressable>
                         <Pressable onPress={toggleMic}>
                             {isMicOn ? (
-                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />
                             ) : (
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
+                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
                             )}
                         </Pressable>
                         {isHost ? (
-                            <Pressable onPress={muteAllPeers}>
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                                {/* {isMicOn ? (
-                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.AKCRUBLUE} />
-                            ) : (
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                            )} */}
-                            </Pressable>
+                           <Pressable onPress={muteAllPeers} style={styles.button}>
+                           <Text style={styles.buttonText}>Mute All</Text>
+                       </Pressable>
                         ) : null}
                     </View>
                 </View>
-                {/* <BottomSheet //Chat Modal
-                    ref={sheetRef}
-                    snapPoints={snapPoints}
-                    enablePanDownToClose={true}
-                    backgroundStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-                    onClose={() => setIsChatOpen(true)}>
-                    <BottomSheetScrollView style={{marginHorizontal: 15}}>
-                        {/* <CruChatComponent route = {route} /> */}
-                        {/* {console.log('here')}
-                        
-                    </BottomSheetScrollView> */}
-                    {/* <View style={{marginHorizontal: 15}}>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'placeholder'}
-                                placeholderTextColor={'transparent'}
-                                style={styles.textinput}
-                            />
 
-                            <AkcruButtons.XSmallButton
-                                btnname={'REPLY'}
-                                onPress={function (): void {}}
-                                color=""
-                                disabled={false}
-                            />
-                        </View>
-                    </View> */}
-                {/* </BottomSheet> */} 
-                {/* Option Modal (for Host Only) */}
                 <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
                     <SafeAreaView
                         style={{
@@ -1847,7 +1972,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                         </View>
                     </View>
                 </Modal>
+               {unmutePermPopup ? <UnmutePermissionPopup
+            handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
+            handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}
+            userdata = {userRequest}
+            channelroom = {channelll}
+        />: null}
+        { popupErr?             <ErrorModal errorMessage={popupErrMsg} onClose={handleCloseError}/>: null}
             </View>
+
         );
     };
 
@@ -1861,6 +1994,18 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 export default StartWatchPartyView;
 
 const styles = StyleSheet.create({
+    button: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.CATREDLGT,
+        width: 80, // Adjust width as needed
+        height: 40, // Adjust height as needed
+        borderRadius: 5, // Adjust border radius as needed
+      },
+      buttonText: {
+        color: 'white',
+        fontSize: 12,
+      },
     topcontainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
