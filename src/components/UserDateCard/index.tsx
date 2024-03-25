@@ -159,7 +159,7 @@ const UserDatesCard = ({
             if (res.data.success === false) {
 
                 if (res.data) {
-                    if ((type = 'MITInvite')) {
+                    if ((type == 'MITInvite')) {
                         navigation.navigate('WatchPartyPreview', {
                             id,
                             type,
@@ -171,7 +171,7 @@ const UserDatesCard = ({
                             creator,
                             invitee
                         });
-                    } else if ((type = 'CRUView')) {
+                    } else if ((type == 'CRUView')) {
                         navigation.navigate('WatchPartyPreview', {
                             id,
                             type,
@@ -186,7 +186,7 @@ const UserDatesCard = ({
                     }
                 }
             } else {
-                if ((type = 'MITInvite')) {
+                if ((type == 'MITInvite')) {
                     navigation.navigate('WatchPartyPreview', {
                         id,
                         type,
@@ -198,7 +198,7 @@ const UserDatesCard = ({
                         creator,
                         invitee
                     });
-                } else if ((type = 'CRUView')) {
+                } else if ((type == 'CRUView')) {
                     navigation.navigate('WatchPartyPreview', {
                         id,
                         type,
@@ -215,7 +215,7 @@ const UserDatesCard = ({
                 // setshowMITEntryErr(true);
             }
         } catch (error) {
-            if ((type = 'MITInvite')) {
+            if ((type == 'MITInvite')) {
                 navigation.navigate('WatchPartyPreview', {
                     id,
                     type,
@@ -227,7 +227,7 @@ const UserDatesCard = ({
                     creator,
                     invitee
                 });
-            } else if ((type = 'CRUView')) {
+            } else if ((type == 'CRUView')) {
                 navigation.navigate('WatchPartyPreview', {
                     id,
                     type,
