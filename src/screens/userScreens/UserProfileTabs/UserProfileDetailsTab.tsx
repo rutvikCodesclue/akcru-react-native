@@ -572,7 +572,6 @@ const UserProfileDetailsTab = () => {
                                                         style={{position: 'absolute', left: '8%', top: '5%'}}
                                                         onPress={() => {
                                                             
-                                                            console.log('hi, I am chat', item)
                                                             navigation.navigate('ViewGroupChat', {
                                                                 'isMyCruChat': false,
                                                                 'cru': item

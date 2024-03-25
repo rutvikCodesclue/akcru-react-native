@@ -52,7 +52,8 @@ type Props = {
     timezone?: any;
     type: 'MITInvite' | 'CRUView';
     creator: any,
-    invitee: any
+    invitee: any,
+    cru: any
 };
 
 const WatchPartyPreview = ({ navigation, route }: Props) => {
@@ -60,6 +61,8 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
   const creator: IUserProfile | null = route.params?.creator ?? null;
   const invitee: IUserProfile | null = route.params?.invitee ?? null;
   const cruId = route.params?.cruId;
+  const cru = route.params?.cru;
+  
   const userId = route.params?.userId;
   const isHost = route.params?.isHost;
   const type = route.params?.type;
@@ -318,7 +321,6 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
 
       if (leaveRoomSuccessful) {
         // navigate to the room
-        
         navigation.navigate("StartWatchPartyView", {
           type,
           movieId,
@@ -331,7 +333,8 @@ const WatchPartyPreview = ({ navigation, route }: Props) => {
           creator,
           invitee,
           Timezone,
-          Movietime
+          Movietime,
+          cru
         })
       }
 

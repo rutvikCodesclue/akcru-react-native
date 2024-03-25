@@ -38,11 +38,13 @@ type UserDatesCardProps = {
     onPressin: () => void;
     timezone: string;
     onPress: () => void;
+    cru: any;
 };
 
 const UserDatesCard = ({
     id,
     cruId,
+    cru,
     userId,
     isHost,
     movieId,
@@ -181,7 +183,8 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
-                            invitee
+                            invitee, 
+                            cru
                         });
                     }
                 }
@@ -208,7 +211,8 @@ const UserDatesCard = ({
                         scheduleTime,
                         timezone,
                         creator,
-                        invitee
+                        invitee,
+                        cru
                     });
                 }
 
@@ -237,7 +241,8 @@ const UserDatesCard = ({
                     scheduleTime,
                     timezone,
                     creator,
-                    invitee
+                    invitee,
+                    cru
                 });
             }
 

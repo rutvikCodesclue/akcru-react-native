@@ -51,7 +51,7 @@ const CruGroupChat = ({route}: Props) => {
         });
     }else{
         setCRU(cruData);
-
+        console.log('cruData', cruData)
 
             if (cruData?.members) {
                 setMembers(cruData.members);

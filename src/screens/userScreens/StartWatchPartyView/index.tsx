@@ -95,6 +95,8 @@ type Props = {
     invitee: any
     Timezone: string;
     Movietime: string;
+    cru: any;
+    type: any;
 };
 
 type PeerTrackNode = {
@@ -131,6 +133,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const cameraInitialState = route.params?.cameraInitialState;
     const timezone = route.params?.Timezone;
     const movieTime = route.params?.Movietime;
+    const cru = route.params?.cru;
+    const viewtype = route.params?.type;
     // USESTATES
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
@@ -1307,24 +1311,34 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const sayhi = () => {
-        // Determine receiver user details based on the current user's role in the chat
-        const isCurrentUserCreator = user?.id ===creatorID;
-        const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-        const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
-        const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
-        console.log('Watch Party',{
-            mItInviteId: mitId,
-            userId: receiverUserId,
-            profilePicture: receiverProfilePicture,
-            username: receiverUsername, // Pass the receiver's username
+        console.log(viewtype, cru)
+        if(viewtype == 'CRUView'){
+            navigation.navigate('ViewGroupChat', {
+                'isMyCruChat': false,
+                'cru': cru
+            })
+        }else{
+                // Determine receiver user details based on the current user's role in the chat
+                const isCurrentUserCreator = user?.id ===creatorID;
+                const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
+                const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
+                const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+                console.log('Watch Party',{
+                    mItInviteId: mitId,
+                    userId: receiverUserId,
+                    profilePicture: receiverProfilePicture,
+                    username: receiverUsername, // Pass the receiver's username
+                }
+                )
+                navigation.navigate('ViewChat', {
+                    mItInviteId: mitId,
+                    userId: receiverUserId,
+                    profilePicture: receiverProfilePicture,
+                    username: receiverUsername, // Pass the receiver's username
+                });
         }
-    )
-        navigation.navigate('ViewChat', {
-            mItInviteId: mitId,
-            userId: receiverUserId,
-            profilePicture: receiverProfilePicture,
-            username: receiverUsername, // Pass the receiver's username
-        });
+        
+        
 
     };
     const handleSnapPress = useCallback((index: number) => {

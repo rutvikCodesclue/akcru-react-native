@@ -98,6 +98,7 @@ export interface ICruView {
             lastName: string;
             username: string;
         };
+        members?: IUserProfile[];
     };
     movieId: string;
     movie: IMovie;

@@ -128,7 +128,7 @@ const UserProfileDatesTab = () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true});
                     const myMITs = await getMyMITInvites({accepted: true, me: true}); // get accepted MITs & accepted created MITs (def upcoming)
-
+                    console.log('myCRUViews', myCRUViews)
                     if (myCRUViews && myMITs) {
                         let events = [...myCRUViews, ...myMITs];
                         // sort invites by date (newest to oldest) and set state
@@ -180,11 +180,12 @@ const UserProfileDatesTab = () => {
                 // item is a CRUView
                 // scheduleWith  is either the CRU creator or yourself
                 const scheduleWith =
-                    item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator.username}'s CRU`;
+                    item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator?.username}'s CRU`;
                 return (
                     <View key={item.id} style={{marginBottom: 10}}>
                         <UserDatesCard
                             id={item.id}
+                            cru = {item.cru}
                             cruId={item.cru.id}
                             isHost={item.cru.creatorId === user?.id}
                             movieId={item.movie.id}
