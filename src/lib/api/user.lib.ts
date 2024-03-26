@@ -60,6 +60,23 @@ export const searchForUsers = async (search: string): Promise<IUserProfile[] | [
     }
 };
 
+export const fetchRandomUsers = async (): Promise<IUserProfile[] | []> => {
+    try {
+        // Assume your endpoint for fetching random users is /v1/user/random
+        const {data} = await API.get(`/v1/user/random`);
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return data.users;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+
 export const updateUser = async (params: {
     username?: string;
     firstName?: string;
