@@ -27,11 +27,12 @@ import { useEffect, useState } from 'react';
 import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
 import useAuthStore from '../../../stores/auth.store';
 import Header2 from '../../../components/header/header2';
+import { MULTISIZES } from '../../../../assets/constants/theme';
 // const data = Akcru_Content[7].movies;
 
 
 const {width, height} = Dimensions.get('window');
-const TICKER_HEIGHT = 15;
+const TICKER_HEIGHT = MULTISIZES.medium14;
 const LOGO_WIDTH = 220;
 const LOGO_HEIGHT = 40;
 const CIRCLE_SIZE = width * 0.6;
@@ -283,7 +284,7 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                 })}
             </View>
             <TouchableOpacity onPress={onPress2}>
-                <Text style={{...FONTS.Title2Orange, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PURPLE}}>Skip to Homepage</Text>
+                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PURPLE}}>Skip to Homepage</Text>
             </TouchableOpacity>
         </View>
     );
@@ -374,7 +375,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
                         <Text
                             style={{
-                                ...FONTS.Title2,
+                                ...FONTS.paragraph1,
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
@@ -465,17 +466,17 @@ const styles = StyleSheet.create({
         ...FONTS.Username,
         color: COLORS.BLACK,
         backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
-        marginBottom: 10,
+        // marginBottom: 10,
     },
     titlestyle: {
         ...FONTS.paragraph1, 
         marginLeft: 10, 
-        fontSize: 12
+        // fontSize: 12
        
     },
     description: {

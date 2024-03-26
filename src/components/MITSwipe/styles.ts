@@ -4,7 +4,7 @@ import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 export default StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: "5%",
     flexDirection: 'row',
     borderWidth: 0.8,
     borderColor: COLORS.AKCRUBLUE,

@@ -33,7 +33,7 @@ const CategoriesBtn = ({category, color, onPress}: Props) => {
                           borderRadius: 5,
                       }}
                   />
-                  <Text style={{...FONTS.Akcrubadges, fontSize: 12, textAlign: 'center'}}>{category}</Text>
+                  <Text style={{...FONTS.Akcrubadges, textAlign: 'center'}}>{category}</Text>
               </View>
           </TouchableOpacity>
       </View>

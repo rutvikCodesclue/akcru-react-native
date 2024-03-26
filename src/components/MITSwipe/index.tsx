@@ -14,6 +14,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { UserProfileStackParams } from "../../navigation/UserProfileStack";
 import { Icon } from "@rneui/base";
 import { AkcruControlBtn } from "../../../assets/svg";
+import { MULTISIZES } from "../../../assets/constants/theme";
 
 const { width } = Dimensions.get("window");
 
@@ -73,8 +74,8 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
             <View style={styles.container}>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Text style={styles.decline}>DECLINE </Text>
-                    <Icon name="chevron-back" type="ionicon" size={30} color={COLORS.DARKERGREY} />
-                    <Icon name="chevron-back" type="ionicon" size={30} color={COLORS.DARKERGREY} />
+                    <Icon name="chevron-back" type="ionicon" size={MULTISIZES.Xlarge28} color={COLORS.DARKERGREY} />
+                    <Icon name="chevron-back" type="ionicon" size={MULTISIZES.Xlarge28} color={COLORS.DARKERGREY} />
                 </View>
 
                 <Animated.View style={[styles.buttonContainer, animatedStyle]} {...panResponder.panHandlers}>
@@ -82,8 +83,8 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
                 </Animated.View>
 
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Icon name="chevron-forward" type="ionicon" size={30} color={COLORS.DARKERGREY} />
-                    <Icon name="chevron-forward" type="ionicon" size={30} color={COLORS.DARKERGREY} />
+                    <Icon name="chevron-forward" type="ionicon" size={MULTISIZES.Xlarge28} color={COLORS.DARKERGREY} />
+                    <Icon name="chevron-forward" type="ionicon" size={MULTISIZES.Xlarge28} color={COLORS.DARKERGREY} />
                     <Text style={styles.accept}>ACCEPT</Text>
                 </View>
             </View>

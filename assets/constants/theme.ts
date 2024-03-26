@@ -5,6 +5,23 @@ const ScreenHeight = Dimensions.get('window').height;
 const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
+// Get the device's screen dimensions
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+// Based on the design's scale - Adjust these based on your design's base dimensions
+const BASE_WIDTH = 375; // Example base width of your design
+const BASE_HEIGHT = 667; // Example base height of your design
+
+const scaleWidth = SCREEN_WIDTH / BASE_WIDTH;
+const scaleHeight = SCREEN_HEIGHT / BASE_HEIGHT;
+const scale = Math.min(scaleWidth, scaleHeight);
+
+// Function to scale dimensions based on the screen size
+const getAdaptiveSize = (size: number) => Math.ceil(size * scale);
+
+// Example usage
+const adaptiveHeight = getAdaptiveSize(15);
+
 export const SIZES = {
   //screen size
   ScreenWidth,
@@ -58,6 +75,16 @@ export const COLORS = {
     CATREDLGT: '#AD0707',
     CATBLUEDRK: '#000946',
     CATBLUELGT: '#1207AD',
+};
+
+export const MULTISIZES = {
+    small11: getAdaptiveSize(11),
+    medium14: getAdaptiveSize(14),
+    large15: getAdaptiveSize(15),
+    Xlarge28: getAdaptiveSize(28),
+    Xlarge40: getAdaptiveSize(40),
+    Xlarge43: getAdaptiveSize(43),
+    Xlarge80: getAdaptiveSize(80),
 };
 
 export const FONTS = {

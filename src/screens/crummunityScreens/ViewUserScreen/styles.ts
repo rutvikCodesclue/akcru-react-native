@@ -48,7 +48,7 @@ export default StyleSheet.create({
     },
     desctext: {
         ...FONTS.Title2,
-        marginTop: 25,
+        marginTop: "5%",
         marginBottom: 20,
         textAlign: 'center',
         
@@ -58,8 +58,8 @@ export default StyleSheet.create({
         ...FONTS.Title2Orange,
         color: COLORS.BLACK,
         backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',

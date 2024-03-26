@@ -44,6 +44,7 @@ import TabContainer from "../../../components/TabContainer/TabContainer";
 import HexAvatar from "../../../components/HexAvatar";
 import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
 import CustomIcon from "../../../components/CustomIcon/CustomIcon";
+import { MULTISIZES } from "../../../../assets/constants/theme";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -349,7 +350,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         <View
                             // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                             // resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 3.7}}>
+                            style={{height: SIZES.ScreenHeight / 3}}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
@@ -361,31 +362,31 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     left: 0,
                                     right: 0,
                                     top: 0,
-                                    height: SIZES.ScreenHeight / 3.7,
+                                    height: SIZES.ScreenHeight / 3,
                                 }}
                             />
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
-                                    alignItems: 'center',
+                                    alignItems: 'flex-start',
 
                                     marginHorizontal: 15,
                                 }}>
-                                <View style={{flexDirection: 'row'}}>
+                                <View>
                                     <View style={{marginRight: 8}}>
                                         <TouchableOpacity
                                             onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
                                             <HexAvatar
                                                 source={{uri: user?.profilePicture}}
-                                                size={70}
+                                                size={MULTISIZES.Xlarge80}
                                                 bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                             />
                                         </TouchableOpacity>
                                     </View>
                                     <View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
+                                            <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
                                             {user?.ownerStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
@@ -458,10 +459,10 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
                                 <View
                                     style={{
-                                        borderLeftWidth: 2,
-                                        borderRightWidth: 2,
-                                        borderColor: COLORS.TRANSPURPLE,
-                                        width: 100,
+                                        // borderLeftWidth: 2,
+                                        // borderRightWidth: 2,
+                                        // borderColor: COLORS.TRANSPURPLE,
+                                        
                                         height: 60,
                                         justifyContent: 'center',
 
@@ -484,6 +485,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     }}>
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
+                                        style={{marginRight: "5%"}}
                                     >
                                         <View>
                                             <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />

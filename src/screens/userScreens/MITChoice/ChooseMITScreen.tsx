@@ -318,8 +318,8 @@ const getTextMessage =  async(roomId:string)=>{
                                         
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth / 2.5}}>
-                                        <Text style={{...FONTS.Title2, fontSize: 12}}>{creator?.username}</Text>
-                                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>{creator?.firstName}</Text>
+                                        <Text style={{...FONTS.Username}}>{creator?.username}</Text>
+                                        <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
                                         {akcruBadge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -357,7 +357,7 @@ const getTextMessage =  async(roomId:string)=>{
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title3, fontSize: 14}}>
+                                            <Text style={{...FONTS.Title1}}>
                                                 {creator?.followerCount}
                                             </Text>
                                             <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
@@ -374,20 +374,20 @@ const getTextMessage =  async(roomId:string)=>{
                                                     <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
                                                 </View>
                                                 <View style={{}}>
-                                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.title}</Text>
+                                                    <Text style={{...FONTS.Username}}>{movie?.title}</Text>
                                                     <View
                                                         style={{
                                                             flexDirection: 'row',
                                                             marginBottom: 5,
                                                             alignItems: 'center',
                                                         }}>
-                                                        <Text style={{...FONTS.paragraph1, fontSize: 12}}>
+                                                        <Text style={{...FONTS.paragraph1}}>
                                                             {movie?.year}
                                                         </Text>
                                                         <Text
                                                             style={{
                                                                 ...FONTS.paragraph1,
-                                                                fontSize: 12,
+                                                                
                                                                 marginHorizontal: 10,
                                                             }}>
                                                             {formatMovieDuration(movie?.duration)}
@@ -430,8 +430,8 @@ const getTextMessage =  async(roomId:string)=>{
 
                                     <Text
                                         style={{
-                                            ...FONTS.Title2,
-                                            fontSize: 12,
+                                            ...FONTS.Title2AkcruBlue,
+                                            
                                             textAlign: 'center',
                                             color: COLORS.PURPLE,
                                         }}>

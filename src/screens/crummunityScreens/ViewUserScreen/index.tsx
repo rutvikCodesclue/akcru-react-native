@@ -44,6 +44,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import { set } from 'lodash';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import { MULTISIZES } from '../../../../assets/constants/theme';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
@@ -432,7 +433,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             //   source={{uri: digitalpass ?? undefined}}
                             source={{uri: undefined}}
                             resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 3.7, marginTop: -60}}>
+                            style={{height: SIZES.ScreenHeight / 2.3, marginTop: -60}}>
                             <LinearGradient
                                 // Digitalpass Linear Gradient overlay
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -441,7 +442,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     left: 0,
                                     right: 0,
                                     top: 0,
-                                    height: SIZES.ScreenHeight / 3.7,
+                                    height: SIZES.ScreenHeight / 2.3,
                                 }}
                             />
                             <View
@@ -489,7 +490,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         <Pressable onPress={toggleAvatarModal}>
                                             <HexAvatar
                                                 source={{uri: user?.profilePicture}}
-                                                size={60}
+                                                size={MULTISIZES.Xlarge80}
                                                 bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                             />
                                         </Pressable>
@@ -516,7 +517,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </Pressable>
                                         </Modal>
                                     </View>
-                                    <View style={{width: SIZES.ScreenWidth * 0.25}}>
+                                    {/* <View style={{width: SIZES.ScreenWidth * 0.25}}>
                                         <View style={{flexDirection: 'row'}}>
                                             <Text style={{...FONTS.Username}}>{user?.username}</Text>
                                             {user?.ownerStatus && (
@@ -524,7 +525,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.STARGOLD}
-                                                    baseSize={12}
+                                                    baseSize={MULTISIZES.small11}
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
@@ -572,33 +573,31 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 <AkcruLevels.AkcruBadgeSuperHero />
                                             </View>
                                         )}
-                                    </View>
-                                    <View
-                                        style={{
-                                            // borderLeftWidth: 2,
-                                            // borderRightWidth: 2,
-                                            borderColor: COLORS.TRANSPURPLE,
-                                            width: 100,
-                                            height: 60,
-                                            justifyContent: 'center',
+                                    </View> */}
+                                </View>
+                                <View
+                                    style={{
+                                        // borderLeftWidth: 2,
+                                        // borderRightWidth: 2,
+                                        borderColor: COLORS.TRANSPURPLE,
+                                        width: 100,
+                                        height: 60,
+                                        justifyContent: 'center',
 
+                                        alignItems: 'center',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            navigation.navigate('ViewUserFollowList', {
+                                                userID: userID,
+                                            })
+                                        }
+                                        style={{
                                             alignItems: 'center',
                                         }}>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                navigation.navigate('ViewUserFollowList', {
-                                                    userID: userID,
-                                                })
-                                            }
-                                            style={{
-                                                alignItems: 'center',
-                                            }}>
-                                            <Text style={{...FONTS.Title3}}>{followersCount}</Text>
-                                            <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>
-                                                Followers
-                                            </Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                        <Text style={{...FONTS.Title1}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>Followers</Text>
+                                    </TouchableOpacity>
                                 </View>
                                 <View
                                     style={{
@@ -618,24 +617,77 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 });
                                             }}>
                                             <Image source={imageindex.MITticket} style={{height: 40}} />
-                                            <Text style={{color: 'white', ...FONTS .chart}}>Send User a MIT</Text>
+                                            <Text style={{color: 'white', ...FONTS.chart}}>Send User a MIT</Text>
                                         </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
-                            {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
-                                <View style={{marginHorizontal: 15}}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.paragraph1,
-                                            
-                                            color: COLORS.PURPLE,
-                                            textAlign: 'center',
-                                        }}>
-                                        {user?.username} is watching "{currentlyWatching[0].movie.title}"
-                                    </Text>
+                            <View style={{width: SIZES.ScreenWidth, marginHorizontal: 15}}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                                    {user?.ownerStatus && (
+                                        <CustomIcon
+                                            name="ribbon"
+                                            type="ionicon"
+                                            color={COLORS.STARGOLD}
+                                            baseSize={MULTISIZES.small11}
+                                            style={{marginRight: 5}}
+                                        />
+                                    )}
+                                    {user?.companyStatus && (
+                                        <CustomIcon
+                                            name="ribbon"
+                                            type="ionicon"
+                                            color={COLORS.WHITE}
+                                            baseSize={12}
+                                            style={{marginRight: 5}}
+                                        />
+                                    )}
+                                    {user?.influencerStatus && (
+                                        <CustomIcon
+                                            name="ribbon"
+                                            type="ionicon"
+                                            color={COLORS.AKCRUBLUE}
+                                            baseSize={12}
+                                            style={{marginRight: 5}}
+                                        />
+                                    )}
                                 </View>
-                            )}
+                                {user?.firstName && (
+                                    <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
+                                        {user?.firstName ? user.firstName : ''}
+                                    </Text>
+                                )}
+                                {user?.badge === 'AKCRUIT' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeAkcruit />
+                                    </View>
+                                )}
+                                {user?.badge === 'GUARDIAN' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeGuardian />
+                                    </View>
+                                )}
+                                {user?.badge === 'HERO' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeHero />
+                                    </View>
+                                )}
+                                {user?.badge === 'SUPERHERO' && (
+                                    <View>
+                                        <AkcruLevels.AkcruBadgeSuperHero />
+                                    </View>
+                                )}
+                            </View>
+                            <View style={{marginHorizontal: 15, paddingTop: '2%'}}>
+                                <Text
+                                    style={{
+                                        ...FONTS.paragraph1,
+                                        color: COLORS.LIGHTGREY,
+                                    }}>
+                                    {user?.description}
+                                </Text>
+                            </View>
                         </ImageBackground>
                         <View
                             style={{
@@ -747,16 +799,19 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                         ) : (
                             <View>
-                                <View style={{marginHorizontal: 15, paddingTop: 20}}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Username,
-                                            color: COLORS.LIGHTGREY,
-                                            
-                                        }}>
-                                        {user?.description}
-                                    </Text>
-                                </View>
+                                {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
+                                    <View style={{marginHorizontal: 15, marginTop: "5%"}}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.paragraph1,
+
+                                                color: COLORS.LIGHTGREY,
+                                                textAlign: 'center',
+                                            }}>
+                                            {user?.username} is watching "{currentlyWatching[0].movie.title}"
+                                        </Text>
+                                    </View>
+                                )}
                                 <View>
                                     <Text style={styles.desctext}>ARCHETYPE</Text>
 
@@ -808,7 +863,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                         )}
                                                     </Text>
                                                 </View>
-                                                <Text style={{...FONTS.Title2, fontSize: 12, textAlign: 'center'}}>
+                                                <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
                                                     {archetype ? archetype.description : ''}
                                                 </Text>
                                             </View>
