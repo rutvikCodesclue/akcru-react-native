@@ -43,4 +43,8 @@ export default StyleSheet.create({
         color: COLORS.WHITE,
         width: '100%',
     },
+    textinputprefix: {
+        color: COLORS.WHITE,
+        marginBottom:2
+    },
 });

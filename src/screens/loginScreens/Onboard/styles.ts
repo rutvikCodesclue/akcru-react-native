@@ -129,6 +129,10 @@ export default StyleSheet.create({
         color: COLORS.WHITE,
         width: '100%',
     },
+    textinputprefix: {
+        color: COLORS.WHITE,
+        marginBottom:2
+    },
     input: {
         width: SIZES.ScreenWidth * 0.85,
         borderWidth:1,

@@ -199,9 +199,9 @@ const AccountSettings = () => {
 
     const handleChangePhone = () => {
         // Check if the phone number has at least 11 digits
-        if (phone.length < 11) {
+        if (phone.length < 10) {
             // Show an alert to inform the user
-            Alert.alert('Invalid Phone Number', 'Phone number must have at least 11 digits.');
+            Alert.alert('Invalid Phone Number', 'Phone number must have at least 10 digits.');
         } else {
             // If the phone number is valid, show the confirmation modal
             setShowUpdatePhoneConfirmation(true);
@@ -607,7 +607,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                         </View>
                     </Modal>
                     {/* phone*/}
-                    <View>
+                    {/* <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
                             <Pressable onPress={handlePhoneModalOpen}>
@@ -623,7 +623,31 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                 />
                             </Pressable>
                         </View>
+                    </View> */}
+                    <View>
+                        <Text style={styles.inputlabel}>Phone number</Text>
+                        <View style={styles.input}>
+                            <Pressable onPress={handlePhoneModalOpen}>
+                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                    <Text style={{...styles.textinput, color: COLORS.DARKGREY}}>+1</Text>
+                                    <TextInput
+                                        placeholder="Enter 10-digit number"
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={{...styles.textinput, flex: 1}}
+                                        keyboardType="number-pad"
+                                        maxLength={10}  // Limit input to 10 digits
+                                        onChangeText={text => {
+                                            const numericText = text.replace(/[^0-9]/g, '');
+                                            setPhoneModified(numericText);
+                                        }}
+                                        value={phone || ''}
+                                        editable={true}
+                                    />
+                                </View>
+                            </Pressable>
+                        </View>
                     </View>
+
                     {/* phone Modal */}
                     <Modal animationType="fade" transparent={false} visible={phoneModalVisible}>
                         <SafeAreaView

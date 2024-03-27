@@ -7,7 +7,8 @@ interface Props {
   btnname: string;
   onPress: () => void;
   color: string;
-  disabled: boolean;
+  disabled?: boolean;
+  width:number
 }
 
 
@@ -175,6 +176,38 @@ const XSmallButton = ({btnname, onPress, disabled, color}: Props) => {
   );
 };
 
+const AutoButton = ({btnname, onPress, color, width}: Props) => {
+  return (
+    <View>
+      <TouchableOpacity onPress={onPress}>
+        <View
+          style={{
+            backgroundColor: color,
+            height: 35,
+            justifyContent: 'center',
+            width: width,
+            borderRadius: 5,
+            alignItems: 'center',
+          }}>
+          <LinearGradient
+            // Background Linear Gradient
+            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 35,
+              borderRadius: 5,
+            }}
+          />
+          <Text style={{...FONTS.Title2}}>{btnname}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const FollowButton: React.FC<Props> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
@@ -215,6 +248,7 @@ const AkcruButtons = {
     XSmallButton,
     XlLrgButton,
     FollowButton,
+    AutoButton
 };
 
 export default AkcruButtons;

@@ -48,7 +48,7 @@ const OnboardEmailOrPassword = ({route}) => {
     // Phone Number Validation
     const isPhoneValid = (phone: string) => {
         // Add your phone number validation logic here
-        return /^\d{11}$/.test(phone);
+        return /^\d{10}$/.test(phone);
     };
 
     const handlePhoneNumberChange = (text: string) => {
@@ -126,7 +126,8 @@ const OnboardEmailOrPassword = ({route}) => {
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />
-                                    <TextInput
+                                    <Text style={styles.textinputprefix}>+1</Text>
+                                    {/* <TextInput
                                         // mask="+1-999-999-9999"
                                         placeholder="1-123-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -136,6 +137,17 @@ const OnboardEmailOrPassword = ({route}) => {
                                         value={phone}
                                         keyboardType="phone-pad"
                                         editable={true}
+                                    /> */}
+                                    <TextInput
+                                    placeholder="234-456-7890" // Updated placeholder
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={handlePhoneNumberChange}
+                                    value={phone}
+                                    keyboardType="number-pad"
+                                    maxLength={10} // Ensure only 10 digits can be entered
+                                    editable={true}
                                     />
                                 </View>
                                 {phoneError && <Text style={styles.warningText}>Invalid mobile number</Text>}
@@ -163,8 +175,14 @@ const OnboardEmailOrPassword = ({route}) => {
                                     <AkcruButtons.LrgButton
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your mobile number'}
-                                        onPress={() =>
+                                  
+                                        onPress={() =>{
+
+                                        
+                                            console.log("phone =>", "1"+phone)
                                             navigation.navigate('OnboardPassword', {email: email, phoneNumber: phone})
+                                        }
+
                                         }
                                         disabled={phoneError || !phone}
                                     />

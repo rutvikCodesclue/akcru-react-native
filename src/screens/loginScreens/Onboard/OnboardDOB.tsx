@@ -136,7 +136,7 @@ const DOBSet = async () => {
         if (updatedUser) {
             //console.log('DOB updated successfully:', updatedUser);
             useAuthStore.setState({user: updatedUser});
-            navigation.navigate('OnboardName'); // Replace with your next screen
+            navigation.navigate('OnboardContactList'); // Replace with your next screen
         } else {
             Alert.alert('Update Failed', 'Failed to update date of birth.');
         }

@@ -97,15 +97,22 @@ const OnBoard1 = () => {
          toggleDatePicker();
      };
 
+    // const handlePhoneNumberChange = (text: string) => {
+    //     // Remove non-numeric characters from the input
+    //     const numericText = text.replace(/[^0-9]/g, '');
+
+    //     // Limit the input to 10 characters
+    //     const limitedText = numericText.substring(0, 10);
+
+    //     // Update the state with the limited and formatted text
+    //     setPhone(limitedText);
+    // };
+
     const handlePhoneNumberChange = (text: string) => {
-        // Remove non-numeric characters from the input
-        const numericText = text.replace(/[^0-9]/g, '');
-
-        // Limit the input to 10 characters
-        const limitedText = numericText.substring(0, 10);
-
-        // Update the state with the limited and formatted text
-        setPhone(limitedText);
+        // Only allow numeric input and limit to 10 characters
+        const formattedText = text.replace(/[^0-9]/g, '').substring(0, 10);
+        setPhone(formattedText);
+        // Additional validation or formatting can be added here
     };
 
     const handleFirstNameChange = (text: string) => {
@@ -153,7 +160,7 @@ const OnBoard1 = () => {
             const updatedUser = await updateUser({
                 firstName: firstName,
                 lastName: lastName,
-                phone: phone,
+                phone: "1"+phone,
                 dob: dob
                 // location: location,
                 
@@ -182,7 +189,7 @@ const OnBoard1 = () => {
             if (currentUser) {
                 currentUser.firstName = firstName;
                 currentUser.lastName = lastName;
-                currentUser.phoneNumber = phone;
+                currentUser.phoneNumber = "1"+phone;
                 currentUser.dateOfBirth = dob;
                 // currentUser.location = location
                 useAuthStore.setState({user: currentUser}); // Use setState to update the user
@@ -295,7 +302,8 @@ const OnBoard1 = () => {
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />
-                                    <TextInput
+                                    <Text style={styles.textinputprefix}>+1</Text>
+                                    {/* <TextInput
                                         // mask="+1-999-999-9999"
                                         placeholder="123-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -305,7 +313,19 @@ const OnBoard1 = () => {
                                         value={phone}
                                         keyboardType="phone-pad"
                                         editable={true}
-                                    />
+                                    /> */}
+                                    <Text style={{marginRight: 5, color: COLORS.LIGHTGREY}}>+1</Text>
+                                        <TextInput
+                                            placeholder="123-456-7890"
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.phonenuminput}
+                                            secureTextEntry={false}
+                                            onChangeText={handlePhoneNumberChange}
+                                            value={phone}
+                                            keyboardType="phone-pad"
+                                            maxLength={10}
+                                            editable={true}
+                                        />
                                 </View>
                             </View>
                         </View>

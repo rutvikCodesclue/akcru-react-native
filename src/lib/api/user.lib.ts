@@ -116,7 +116,7 @@ export const updateUser = async (params: {
 
         return data.updatedUser;
     } catch (error) {
-        console.error(error);
+        console.error(error, error.message);
         return undefined;
     }
 };

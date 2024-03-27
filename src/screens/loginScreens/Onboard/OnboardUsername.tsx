@@ -115,7 +115,7 @@ const [resetResultType, setResetResultType] = useState({
                       }
                       navigation.navigate('OnboardGender');
                   } else {
-                      console.error('Failed to update profile.');
+                      console.error('Failed to update profile.', updatedUser);
                   }
               }
           } catch (error) {

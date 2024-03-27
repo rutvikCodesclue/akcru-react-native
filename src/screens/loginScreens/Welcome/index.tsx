@@ -21,7 +21,8 @@ import { appVersion } from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
-
+import { PermissionsAndroid } from 'react-native';
+import Contacts from 'react-native-contacts';
 
 const Welcome = () => {
     useEffect(() => {
@@ -36,6 +37,32 @@ const Welcome = () => {
                         //console.log('Microphone permission granted');
                     }
                 }
+
+                // Request Contact permission
+                // const contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
+                // if (contactResult !== RESULTS.GRANTED) {
+                //     const contactResult = await request(PERMISSIONS.ANDROID.READ_CONTACTS);
+                //     if (contactResult === RESULTS.GRANTED) {
+                //         console.log('Microphone permission granted');
+                //         console.log('contactResult =>', contactResult);
+                //     }
+                // }
+
+                PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_CONTACTS)
+                    .then((res) => {
+                        console.log('Permission: ', res);
+                        Contacts.getAll()
+                            .then((contacts) => {
+                                // work with contacts
+                                //console.log(contacts);
+                            })
+                            .catch((e) => {
+                                console.log(e);
+                            });
+                    })
+                    .catch((error) => {
+                        console.error('Permission error: ', error);
+                    });
 
                 // Request camera permission
                 const cameraResult = await check(PERMISSIONS.ANDROID.CAMERA);

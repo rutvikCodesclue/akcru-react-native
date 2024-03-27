@@ -128,7 +128,6 @@ const UserProfileDatesTab = () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true});
                     const myMITs = await getMyMITInvites({accepted: true, me: true}); // get accepted MITs & accepted created MITs (def upcoming)
-                    console.log('myCRUViews', myCRUViews)
                     if (myCRUViews && myMITs) {
                         let events = [...myCRUViews, ...myMITs];
                         // sort invites by date (newest to oldest) and set state

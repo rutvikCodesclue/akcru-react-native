@@ -150,6 +150,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
     const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
+    const [leaveRoom, setLeaveRoom] = useState(false);
     const [members, setMembers] = useState<MemberInfo[] | []>([]); // Initial member list
     const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
@@ -605,6 +606,18 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
     };
+
+    const _handleTerminateRoom = async () => {
+        console.log('In the terminate room function');
+        if (hmsInstanceRef.current) {
+            console.log('IN THE IF CONDITION');
+            // end the room for every one
+            await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
+            console.log('End Room Success');
+            // Leave the Room
+            await _handleRoomLeave();
+        }
+    }
 
     const _handleRoomLeave = async () => {
         // console.log(members[0]);
@@ -1239,6 +1252,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const confirmOptions = () => {
         setOptionModalVisible(false);
+        setLeaveRoom(false);
     };
 
     const getAvailableMembers = async () => {
@@ -1301,13 +1315,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             // Stop the Movie
             setTerminateRoom(true);
             setIsMoviePlaying(false);
-
-            // end the room for every one
-            await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
-            console.log('End Room Success');
-            // Leave the Room
-            await _handleRoomLeave();
         }
+    };
+
+    const handleCancelLeaveRoom = () => {
+        setLeaveRoom(false);
+    };
+
+    const handleLeaveRoom = () => {
+        setLeaveRoom(true);
     };
 
     const sayhi = () => {
@@ -1319,7 +1335,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             })
         }else{
                 // Determine receiver user details based on the current user's role in the chat
-                const isCurrentUserCreator = user?.id ===creatorID;
+                const isCurrentUserCreator = user?.id === creatorID;
                 const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
                 const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
                 const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
@@ -1366,7 +1382,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 {/* Leave Room / Close Movie Buttons */}
                 {!isFullscreen && (
                     <View style={styles.topcontainer}>
-                        <TouchableOpacity onPress={_handleRoomLeave}>
+                        <TouchableOpacity onPress={handleLeaveRoom}>
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -1965,6 +1981,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     justifyContent: 'space-between',
                                 }}>
                                 <TouchableOpacity
+                                    onPress={_handleTerminateRoom}
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                     onPress={handleCancelRoomTermination}
                                     style={{
                                         backgroundColor: 'red',
@@ -1973,19 +1998,119 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     }}>
                                     <Text style={{...FONTS.Title3}}>Cancel</Text>
                                 </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+                {isHost ? (
+                    <Modal animationType="fade" transparent={true} visible={leaveRoom}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                            }}>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
+                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    Please assign a new host or terminate the Watch Party session to leave
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}>
                                 <TouchableOpacity
-                                    onPress={handleRoomTermination}
+                                    onPress={handleOptionModal}
                                     style={{
                                         backgroundColor: 'green',
                                         padding: 10,
                                         borderRadius: 5,
                                     }}>
+                                    <Text style={{...FONTS.Title3}}>Assign Host</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleRoomTermination}
+                                    style={{
+                                        backgroundColor: 'blue',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
                                     <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleCancelLeaveRoom}
+                                    style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
                     </View>
                 </Modal>
+                ) : (
+                    <Modal animationType="fade" transparent={true} visible={leaveRoom}> 
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                            }}>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
+                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    Are you sure you want to leave this Watch Party session?
+                                </Text>
+                            </View>
+
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                }}>
+                                <TouchableOpacity
+                                    onPress={_handleRoomLeave}
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Leave Room</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={handleCancelLeaveRoom}
+                                    style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>                    
+                )}
+                                
                {unmutePermPopup ? <UnmutePermissionPopup
             handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
             handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}

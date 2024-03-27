@@ -120,4 +120,8 @@ export default StyleSheet.create({
     iospickerbutton: {
         paddingHorizontal: 20,
     },
+    textinputprefix: {
+        color: COLORS.WHITE,
+        marginBottom:2
+    },
 });

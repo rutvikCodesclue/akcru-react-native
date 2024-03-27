@@ -26,6 +26,7 @@ import OnboardArchetype from '../screens/loginScreens/Onboard/OnboardArchetype';
 import OnboardProfilePicture from '../screens/loginScreens/Onboard/OnboardProfilePicture';
 import OnboardEmailOrPassword from '../screens/loginScreens/Onboard/OnboardEmailOrPassword';
 import OnboardDescription from '../screens/loginScreens/Onboard/OnboardDescription';
+import OnboardContactList from '../screens/loginScreens/Onboard/OnboardContactList';
 
 export type AuthStackParams = {
     Welcome: any;
@@ -56,6 +57,7 @@ export type AuthStackParams = {
     OnboardUsername: any;
     OnboardName: any;
     OnboardDOB: any;
+    OnboardContactList: any;
     OnboardGender: any;
     OnboardArchetype: any;
     OnboardProfilePicture: any;
@@ -164,6 +166,14 @@ export default function AuthStack() {
           <Auth.Screen
               name="OnboardDOB"
               component={OnboardDOB}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <Auth.Screen
+              name="OnboardContactList"
+              component={OnboardContactList}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

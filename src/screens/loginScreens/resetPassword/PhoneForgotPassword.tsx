@@ -22,7 +22,7 @@ const PhoneForgotPassword = () => {
 
     // Phone Number Validation
     const isPhoneValid = (phone: string) => {
-        return /^\d{11}$/.test(phone);
+        return /^\d{10}$/.test(phone);
     };
 
     const handlePhoneNumberChange = (text: string) => {
@@ -57,7 +57,7 @@ const PhoneForgotPassword = () => {
         setLoading(true);
         try {
             // Replace the following line with your API call to send OTP
-            const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: phone});
+            const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: "1"+phone});
 
             if (error) {
                 setResetResultType({
@@ -149,7 +149,8 @@ const PhoneForgotPassword = () => {
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />
-                                <TextInput
+                                    <Text style={styles.textinputprefix}>+1</Text>
+                                {/* <TextInput
                                     // mask="+1-999-999-9999"
                                     placeholder="1-234-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
@@ -158,6 +159,17 @@ const PhoneForgotPassword = () => {
                                     onChangeText={handlePhoneNumberChange}
                                     value={phone}
                                     keyboardType="phone-pad"
+                                    editable={true}
+                                /> */}
+                                <TextInput
+                                    placeholder="234-456-7890" // Updated placeholder
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={handlePhoneNumberChange}
+                                    value={phone}
+                                    keyboardType="number-pad"
+                                    maxLength={10} // Ensure only 10 digits can be entered
                                     editable={true}
                                 />
                             </View>

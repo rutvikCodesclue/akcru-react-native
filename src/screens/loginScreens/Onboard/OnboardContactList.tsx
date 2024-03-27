@@ -1,0 +1,629 @@
+import {View, Text, TouchableOpacity, ImageBackground, ActivityIndicator, Platform, StyleSheet, Modal} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {useNavigation} from '@react-navigation/native';
+import imageindex from '../../../../assets/images/imageindex';
+import {AuthStackParams} from '../../../navigation/AuthNavigation';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import styles from './styles';
+import AkcruButtons from '../../../components/akcruButtons';
+import useAuthStore from '../../../stores/auth.store';
+import {API} from '../../../clients/api.client';
+import {selectAvatarBorderColor} from '../../../util/util';
+import LinearGradient from 'react-native-linear-gradient';
+import Contacts from 'react-native-contacts';
+
+import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {ScrollView} from 'react-native-gesture-handler';
+import HexAvatar from '../../../components/HexAvatar';
+
+const OnboardContactList = () => {
+    const [contactsData, setContacts] = useState<any>([]);
+    const [isLoading, setLoading] = useState<boolean>(false);
+    const [openModal, setOpenModal] = useState<boolean>(false);
+    const [OpenInvitedModal, setOpenInvitedModal] = useState<boolean>(false);
+    const [isBtnLoading, setBtnLoading] = useState<boolean>(false);
+    const [knowContacts, setKnowContacts] = useState<any>([]);
+    const [isContactPermission, setIsContactPermission] = useState<boolean>(false);
+    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+    const user = useAuthStore(state => state.user);
+
+    const getContactList = async () => {
+        setLoading(true);
+
+        const contacts = await Contacts.getAll()
+        console.log('length',contacts.length)
+        setIsContactPermission(true);
+        let allPhoneNumbers: any = [];
+        // Iterate over each contact object
+        contacts.forEach(contact => {
+            // Extract phone numbers from the current contact object
+            const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
+            // Add extracted phone numbers to the allPhoneNumbers array
+            allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
+        });
+        // Now allPhoneNumbers array contains all the phone numbers from all contacts
+        const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
+        setContacts(cleanedPhoneNumbers);
+        getKnownUsers(cleanedPhoneNumbers);
+        // setLoading(false);
+    };
+
+    async function cleanPhoneNumbersAsync(phoneNumbers) {
+        const cleanedNumbers = [];
+    
+        for (const phoneNumber of phoneNumbers) {
+            let cleanedNumber = '';
+            
+            for (let i = 0; i < phoneNumber.length; i++) {
+                const char = phoneNumber.charAt(i);
+                if (!isNaN(char) && char !== ' ') { // Check if the character is a digit and not a space
+                    cleanedNumber += char;
+                }
+            }
+    
+            // Extract the last 11 digits
+            const finalNumber = cleanedNumber.slice(-11);
+            if (finalNumber.length === 11) { // Check if the cleaned number has 11 digits
+                cleanedNumbers.push(finalNumber);
+            }
+        }
+    
+        return cleanedNumbers;
+    }
+
+    const getKnownUsers = async (allPhoneNumbers) => {
+        try {
+
+
+            const user_known_contacts: any = await API.post('/v1/user/find-known-users', {
+                phoneNumbers: allPhoneNumbers
+            }); // after testing replace ['11111111111'] with contacts
+            if (user_known_contacts.data.success) {
+                const clonedArray = user_known_contacts.data.users.map(obj => ({
+                    ...obj, // Spread the original object
+                    isFollowed: false, // Add new key isFollowed with value false
+                    isSendInvite: false, // Add new key isFollowed with value false
+                }));
+                setKnowContacts(clonedArray);
+
+            }
+        } catch (error) {
+            console.log('error =>', error);
+            setLoading(false);
+        }
+    };
+
+    const sections = React.useMemo(() => {
+        // Group contacts by the first letter of their names
+        const sectionsMap = knowContacts.reduce((acc, contact) => {
+            if (contact.username !== null) {
+                const firstLetter = contact.username?.trim().charAt(0).toUpperCase();
+                return {
+                    ...acc,
+                    [firstLetter]: [...(acc[firstLetter] || []), contact],
+                };
+             } else if (contact.firstName !== null) {
+                const firstLetter = contact.firstName?.trim().charAt(0).toUpperCase();
+                return {
+                    ...acc,
+                    [firstLetter]: [...(acc[firstLetter] || []), contact],
+                };
+            } else {
+                const firstLetter = 'U';
+                return {
+                    ...acc,
+                    [firstLetter]: [...(acc[firstLetter] || []), contact],
+                };
+            }
+        }, {});
+
+        // Sort sections alphabetically
+        const sortedSections = Object.entries(sectionsMap)
+            .sort(([letterA], [letterB]) => letterA.localeCompare(letterB))
+            .map(([letter, items]) => ({letter, items}));
+        return sortedSections;
+    }, [knowContacts]);
+
+    const checkContactPermission = async () => {
+        if (Platform.OS === 'android') {
+            // let contactResult;
+            let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
+            if (contactResult === RESULTS.GRANTED) {
+                setIsContactPermission(true);
+                getContactList();
+            } else if (contactResult === RESULTS.DENIED) {
+                setIsContactPermission(false);
+            }
+        }
+    };
+
+    const FollowContact = async (contact_id: string) => {
+        try {
+            setBtnLoading(true);
+            const isContactAlreadyFollowed: any = checkAlreadyFollow(contact_id)
+            if (!isContactAlreadyFollowed._j) {
+                const follow_contact = await API.post('v1/user/toggle-follow', {user, targetUserId: contact_id});
+                if (follow_contact.data.success) {
+                    setBtnLoading(false);
+                    handleFollow(contact_id);
+                }
+            } else {
+                setOpenModal(true)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const checkAlreadyFollow = async (contact_id : string) => {
+        const selectedObject = knowContacts.find(obj => obj.id === contact_id);
+        if(selectedObject.isFollowed){
+            return true;
+        } else {
+            return false
+        }
+    }
+
+    const handleFollow = (contact_id: string) => {
+        // Filter the array based on objectId
+        const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isFollowed: true} : obj));
+        // Update the state with the modified array
+        setKnowContacts(updatedArray);
+    };
+
+    const sendCRUInvite = async (sender_id: string, sender_username: string) => {
+        try {
+            setBtnLoading(true);
+            const isContactAlreadyInvited: any = checkAlreadySendInvite(sender_id)
+            if (!isContactAlreadyInvited._j) {
+                const follow_contact = await API.post('v1/cru/invite/create', {user, username: sender_username, senderId: sender_id});
+                if (follow_contact.data.success) {
+                    setBtnLoading(false);
+                    handleInvite(sender_id);
+                }
+            } else {
+                setOpenInvitedModal(true)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleInvite = (contact_id: string) => {
+        // Filter the array based on objectId
+        const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isSendInvite: true} : obj));
+        // Update the state with the modified array
+        setKnowContacts(updatedArray);
+    };
+
+    const checkAlreadySendInvite = async (contact_id : string) => {
+        const selectedObject = knowContacts.find(obj => obj.id === contact_id);
+        if(selectedObject.isSendInvite){
+            return true;
+        } else {
+            return false
+        }
+    }
+
+    useEffect(() => {
+        checkContactPermission();
+    }, []);
+
+    return (
+        <SafeAreaView>
+            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    // Background Linear Gradient
+                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
+                />
+
+                {isContactPermission === true ? (
+                    <>
+                        <View
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                            }}>
+                            <View style={style.header}>
+                                <Text style={style.title}>Contacts</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => navigation.navigate('OnboardName')}>
+                                <Text style={style.skipTopBtn}> Next </Text>
+                            </TouchableOpacity>
+                        </View>
+                        <>
+                            {isLoading === true  && sections.length == 0 ? (
+                                <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '45%'}}>
+                                    <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                                </View>
+                            ) : (
+                                <>
+                                    {sections.length >= 1 && isLoading === true ? (
+                                        <ScrollView contentContainerStyle={style.container}>
+                                            {sections.map(({letter, items}) => (
+                                                <View style={style.section} key={letter}>
+                                                    <Text style={style.sectionTitle}>{letter}</Text>
+                                                    <View style={style.sectionItems}>
+                                                        {items.map(
+                                                            (
+                                                                {
+                                                                    firstName,
+                                                                    username,
+                                                                    profilePicture,
+                                                                    badge,
+                                                                    description,
+                                                                    isFollowed,
+                                                                    id,
+                                                                    isSendInvite
+                                                                },
+                                                                index,
+                                                            ) => {
+                                                                return (
+                                                                    <View key={index} style={style.cardWrapper}>
+                                                                        <View>
+                                                                            <View style={style.card}>
+                                                                                {profilePicture ? (
+                                                                                    <HexAvatar
+                                                                                        source={{uri: profilePicture}}
+                                                                                        size={40}
+                                                                                        bordercolor={selectAvatarBorderColor(
+                                                                                            badge ?? 'AKCRUIT',
+                                                                                        )}
+                                                                                    />
+                                                                                ) : (
+                                                                                    <View
+                                                                                        style={[
+                                                                                            style.cardImg,
+                                                                                            style.cardAvatar,
+                                                                                        ]}>
+                                                                                        <Text
+                                                                                            style={
+                                                                                                style.cardAvatarText
+                                                                                            }>
+                                                                                            {username !== null ? (
+                                                                                                username[0]
+                                                                                            ) : (
+                                                                                                <>
+                                                                                                    {firstName !== null
+                                                                                                        ? firstName[0].toUpperCase()
+                                                                                                        : 'U'}
+                                                                                                </>
+                                                                                            )}
+                                                                                        </Text>
+                                                                                    </View>
+                                                                                )}
+
+                                                                                <View style={style.cardBody}>
+                                                                                    <Text style={style.cardTitle}>
+                                                                                        <Text
+                                                                                            style={
+                                                                                                style.cardAvatarText
+                                                                                            }>
+                                                                                            {username !== null ? (
+                                                                                                username
+                                                                                            ) : (
+                                                                                                <>
+                                                                                                    {firstName !== null
+                                                                                                        ? firstName
+                                                                                                        : 'U'}
+                                                                                                </>
+                                                                                            )}
+                                                                                        </Text>
+                                                                                    </Text>
+
+                                                                                    <Text style={style.cardPhone, { maxWidth: 170 }} >
+                                                                                        {description}
+                                                                                    </Text>
+                                                                                </View>
+
+                                                                                <View style={style.cardAction}>
+                                                                                    <AkcruButtons.AutoButton
+                                                                                        color={
+                                                                                            isFollowed
+                                                                                                ? COLORS.MIDORANGE
+                                                                                                : COLORS.AKCRUBLUE
+                                                                                        }
+                                                                                        disabled={isBtnLoading}
+                                                                                        btnname={
+                                                                                            isFollowed
+                                                                                                ? 'Followed'
+                                                                                                : 'Follow'
+                                                                                        }
+                                                                                        onPress={() =>
+                                                                                            FollowContact(id)
+                                                                                        }
+                                                                                        width={
+                                                                                            90
+                                                                                        }></AkcruButtons.AutoButton>
+
+                                                                                        {/* CRU Invite Button */}
+                                                                                        <View style={{marginTop:10}}></View>
+                                                                                    <AkcruButtons.AutoButton
+                                                                                        color={
+                                                                                            isSendInvite
+                                                                                                ? COLORS.MIDORANGE
+                                                                                                : COLORS.AKCRUBLUE
+                                                                                        }
+                                                                                        disabled={isBtnLoading}
+                                                                                        btnname={
+                                                                                            isSendInvite
+                                                                                                ? 'Invited'
+                                                                                                : 'CRU Invite'
+                                                                                        }
+                                                                                        onPress={() =>
+                                                                                            sendCRUInvite(id, username)
+                                                                                        }
+                                                                                        width={
+                                                                                            90
+                                                                                        }></AkcruButtons.AutoButton>
+                                                                                </View>
+                                                                            </View>
+                                                                        </View>
+                                                                    </View>
+                                                                );
+                                                            },
+                                                        )}
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </ScrollView>
+                                    ) : (
+                                        <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '23%'}}>
+                                            <Text style={style.noContactHeading}>No Records Found</Text>
+                                        </View>
+                                    )}
+                                </>
+                            )}
+                        </>
+                    </>
+                ) : (
+                    <View style={style.noContactContainer}>
+                        <View style={style.noContactDetailContainer}>
+                            {/* <Text> <MaterialSymbol icon="person_off" size={24} fill grade={-25} color="red" /> </Text> */}
+                            <Text style={style.noContactHeading}>Need Contact Access</Text>
+                            <Text style={style.noContactPara}>
+                                Uh Oh! seems like you didn't given the access of your contacts{' '}
+                            </Text>
+                        </View>
+                        <View style={style.skipBtnContainer}>
+                            <TouchableOpacity onPress={() => navigation.navigate('OnboardName')}>
+                                <Text style={style.skipBtn}> Skip </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                )}
+            </ImageBackground>
+
+            <Modal animationType="fade" transparent={true} visible={openModal}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text
+                            style={{
+                                ...FONTS.Title3,
+                                marginBottom: 10,
+                                textAlign: 'center',
+                            }}>
+                            {`You already followed this person.`}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setOpenModal(false);
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                    color: COLORS.MIDORANGE,
+                                }}>
+                                {`Close`}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+            </Modal>
+
+            <Modal animationType="fade" transparent={true} visible={OpenInvitedModal}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text
+                            style={{
+                                ...FONTS.Title3,
+                                marginBottom: 10,
+                                textAlign: 'center',
+                            }}>
+                            {`You already send the CRU invitation to this person.`}
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setOpenInvitedModal(false);
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                    color: COLORS.MIDORANGE,
+                                }}>
+                                {`Close`}
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+
+            </Modal>
+        </SafeAreaView>
+    );
+};
+
+const style = StyleSheet.create({
+    container: {
+        paddingTop: 10,
+        paddingBottom: 60,
+        paddingHorizontal: 0,
+    },
+    header: {
+        paddingHorizontal: 24,
+    },
+    title: {
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#fff',
+        marginBottom: 12,
+        marginTop: 10,
+    },
+    /** Section */
+    section: {
+        marginTop: 12,
+        paddingLeft: 24,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        color: '#fff',
+        marginTop: 20,
+    },
+    sectionItems: {
+        marginTop: 8,
+    },
+    /** Card */
+    card: {
+        paddingVertical: 22,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
+    cardWrapper: {
+        borderBottomWidth: 1,
+        borderColor: '#d6d6d6',
+        marginRight: 18,
+    },
+    cardImg: {
+        width: 42,
+        height: 42,
+        borderRadius: 12,
+    },
+    cardAvatar: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#9ca1ac',
+    },
+    cardAvatarText: {
+        fontSize: 19,
+        fontWeight: 'bold',
+        color: '#fff',
+    },
+    cardBody: {
+        marginRight: 'auto',
+        marginLeft: 15,
+    },
+    cardTitle: {
+        fontSize: 16,
+        fontWeight: '700',
+        color: '#fff',
+    },
+    cardPhone: {
+        fontSize: 15,
+        lineHeight: 20,
+        fontWeight: '500',
+        color: '#fff',
+        marginTop: 3,
+        width: '20%',
+    },
+    cardAction: {
+        paddingRight: 5,
+    },
+    noContactContainer: {
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    noContactDetailContainer: {
+        height: '83%',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    skipBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 14,
+        color: COLORS.DARKORANGE,
+    },
+    skipTopBtn: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 17,
+        color: COLORS.AKCRUBLUE,
+        marginTop: 15,
+        marginRight: 10,
+    },
+    noContactHeading: {
+        fontSize: 30,
+        fontWeight: '700',
+        color: '#fff',
+        paddingTop: 40,
+    },
+    noContactPara: {
+        fontSize: 15,
+        fontWeight: '400',
+        color: '#fff',
+        width: '90%',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    skipBtnContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: 'auto',
+        width: '100%',
+    },
+});
+
+export default OnboardContactList;

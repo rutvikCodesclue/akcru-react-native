@@ -44,7 +44,7 @@ const OnboardPhone = () => {
     const isPhoneValid = (phone: string) => {
         // Add your phone number validation logic here
         // Example: return true if phone number length is 10 digits
-        return /^\d{11}$/.test(phone);
+        return /^\d{10}$/.test(phone);
     };
 
     const handlePhoneNumberChange = (text: string) => {
@@ -77,7 +77,7 @@ const OnboardPhone = () => {
        setLoading(true);
        try {
            // Replace the following line with your API call to send OTP
-           const {data, error} = await API.post('/v1/auth/sentOTP', {phoneNumber: phone});
+           const {data, error} = await API.post('/v1/auth/sentOTP', {phoneNumber: "1"+phone});
 
            if (error) {
                setResetResultType({
@@ -158,15 +158,17 @@ const OnboardPhone = () => {
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />
+                                <Text style={styles.textinputprefix}>+1</Text>
                                 <TextInput
                                     // mask="+1-999-999-9999"
-                                    placeholder="1-123-456-7890"
+                                    placeholder="123-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.phonenuminput}
                                     secureTextEntry={false}
                                     onChangeText={handlePhoneNumberChange}
                                     value={phone}
                                     keyboardType="phone-pad"
+                                    maxLength={10}
                                     editable={true}
                                 />
                             </View>
