@@ -397,9 +397,6 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
 };
 
 export const startUserWatching = async (userId: string, movieId: string) => {
-    //console.log('startUserWatching function called');
-    //console.log(`Received userId: ${userId}, movieId: ${movieId}`);
-    //console.log(`Type of userId: ${typeof userId}, Type of movieId: ${typeof movieId}`);
 
     // Check if userId and movieId are strings (or whatever type you expect)
     if (typeof userId !== 'string' || typeof movieId !== 'string') {
@@ -421,28 +418,66 @@ export const startUserWatching = async (userId: string, movieId: string) => {
             return false;
         }
     } catch (error) {
-        console.error('Error starting watching movie:', error);
+        console.error('Error starting user watching movie:', error);
         return false;
     }
 };
 
-export const finishUserWatching = async (userId: string, movieId: string) => {
-    //console.log('finishUserWatching function called');
-    //console.log(`Received userId: ${userId}, movieId: ${movieId}`);
+// export const finishUserWatching = async (userId: string, movieId: string) => {
 
-    // Check if userId and movieId are strings (or whatever type you expect)
-    if (typeof userId !== 'string' || typeof movieId !== 'string') {
-        console.error('userId or movieId is not of type string.');
-        return false;
-    }
+//     // Check if userId and movieId are strings (or whatever type you expect)
+//     if (typeof userId !== 'string' || typeof movieId !== 'string') {
+//         console.error('userId or movieId is not of type string.');
+//         return false;
+//     }
 
+//     try {
+//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`, {
+//             userId, // If needed, though userId might be inferred from the session on the backend
+//         });
+
+//         if (response.data && response.data.success) {
+//             //console.log('User finished watching movie successfully:', response.data.userWatching);
+//             return true;
+//         } else {
+//             console.error('Failed to finish watching movie:', response.data.message);
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error('Error finishing watching movie:', error);
+//         return false;
+//     }
+// };
+
+// export const finishUserWatching = async (movieId: string) => {
+//     // Check if movieId is a string (or whatever type you expect)
+//     if (typeof movieId !== 'string') {
+//         console.error('movieId is not of type string.');
+//         return false;
+//     }
+
+//     try {
+//         // Note: No need to send userId in the body, as the backend uses session-based user identification
+//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
+
+//         if (response.data && response.data.success) {
+//             console.log('User finished watching movie successfully:', response.data.userWatching);
+//             return true;
+//         } else {
+//             console.error('Failed to finish watching movie:', response.data.message);
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error('Error finishing watching movie:', error);
+//         return false;
+//     }
+// };
+
+export const finishUserWatching = async (movieId: string) => {
     try {
-        const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`, {
-            userId, // If needed, though userId might be inferred from the session on the backend
-        });
-
+        const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
         if (response.data && response.data.success) {
-            //console.log('User finished watching movie successfully:', response.data.userWatching);
+            console.log('User finished watching movie successfully:', response.data.userWatching);
             return true;
         } else {
             console.error('Failed to finish watching movie:', response.data.message);
@@ -453,6 +488,8 @@ export const finishUserWatching = async (userId: string, movieId: string) => {
         return false;
     }
 };
+
+
 
 export const getUserCurrentWatching = async (userId: string): Promise<any | undefined> => {
     try {

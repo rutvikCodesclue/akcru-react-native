@@ -48,7 +48,26 @@ export const getWatchlist = async (userId: string): Promise<IMovie[] | []> => {
     await useAuthStore.getState().hydrateAuth();
     try {
         // GET /v1/movies/watchlist/:userId
+        console.log(`/v1/movies/watchlist/${userId}`);
         const {data} = await API.get(`/v1/movies/watchlist/${userId}`);
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return data.watchlist;
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+};
+
+export const getViewedUserWatchlist = async (userId: string): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        // GET /v1/movies/viewed-user-watchlist/:userId
+        console.log(`/v1/movies/viewed-user-watchlist/${userId}`);
+        const {data} = await API.get(`/v1/movies/viewed-user-watchlist/${userId}`);
 
         if (data.success === false) {
             return [];

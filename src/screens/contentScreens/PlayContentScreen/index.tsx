@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar} from 'react-native';
+import {ActivityIndicator, View, StatusBar, AppState} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -56,7 +56,7 @@ export default function ContentPlayer({navigation, route}: Props) {
             Orientation.lockToPortrait();
             StatusBar.setHidden(false);
             if (hasStartedWatching && user?.id && movieId) {
-                finishUserWatching(user.id, movieId).then(finishedSuccessfully => {
+                finishUserWatching(movieId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
                         //console.log(`User finished watching movie: ${movieId}`);
                     } else {
@@ -66,6 +66,54 @@ export default function ContentPlayer({navigation, route}: Props) {
             }
         };
     }, [movieId, user?.id, hasStartedWatching]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // Logic to execute when the screen comes into focus could go here
+
+            return () => {
+                // This cleanup function runs when the screen loses focus
+                // Perform the "finished watching" logic here
+                if (user?.id && movieId && hasStartedWatching) {
+                    finishUserWatching(movieId).then(finishedSuccessfully => {
+                        if (finishedSuccessfully) {
+                            console.log(`User finished watching movie: ${movieId}`);
+                        } else {
+                            console.log(`Failed to mark movie as finished: ${movieId}`);
+                        }
+                    });
+                }
+            };
+        }, [user?.id, movieId, hasStartedWatching]),
+    );
+
+    const [appState, setAppState] = useState(AppState.currentState);
+
+    useEffect(() => {
+        const subscription = AppState.addEventListener('change', nextAppState => {
+            if (appState.match(/inactive|background/) && nextAppState === 'active') {
+                console.log('App has come to the foreground!');
+                // App has come to the foreground, maybe refresh some data
+            } else if (nextAppState.match(/inactive|background/)) {
+                console.log('App has gone to the background');
+                // App has gone to the background, consider pausing or finishing video playback
+                if (user?.id && movieId && hasStartedWatching) {
+                    finishUserWatching(movieId).then(finishedSuccessfully => {
+                        if (finishedSuccessfully) {
+                            console.log(`User finished watching movie: ${movieId}`);
+                        } else {
+                            console.log(`Failed to mark movie as finished: ${movieId}`);
+                        }
+                    });
+                }
+            }
+            setAppState(nextAppState);
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, [user?.id, movieId, hasStartedWatching, appState]);
 
     // Sync watch time on unmount and when app goes into background
     useEffect(() => {

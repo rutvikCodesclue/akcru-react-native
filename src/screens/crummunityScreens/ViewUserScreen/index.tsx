@@ -35,7 +35,7 @@ import HexAvatar from '../../../components/HexAvatar';
 import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import useAuthStore from '../../../stores/auth.store';
-import { getWatchlist } from '../../../lib/api/movies.lib';
+import { getViewedUserWatchlist, getWatchlist } from '../../../lib/api/movies.lib';
 import WatchListCategory from '../../../components/WatchlistCategory';
 import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -45,6 +45,7 @@ import BlockUserResultModal from '../../../components/BlockUserResultModal/Block
 import { set } from 'lodash';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import { MULTISIZES } from '../../../../assets/constants/theme';
+
 
 type ViewUserScreenNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
@@ -95,6 +96,27 @@ export default function ViewUserScreen({route, navigation}: Props) {
     );
 
     const [cruInviteStatus, setCruInviteStatus] = useState('');
+
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+
+    // Fetch the watchlist when the component is focused or when the user ID changes
+    useFocusEffect(
+        React.useCallback(() => {
+            const fetchWatchlist = async () => {
+                if (userID) {
+                    // Make sure this userID is the ID of the viewed user
+                    try {
+                        const watchlistMovies = await getViewedUserWatchlist(userID); // Use the viewed user's ID
+                        setWatchlist(watchlistMovies);
+                    } catch (error) {
+                        console.error('Error fetching watchlist:', error);
+                    }
+                }
+            };
+
+            fetchWatchlist();
+        }, [userID]), // Re-run the effect if the user's ID changes
+    );
 
     useEffect(() => {
         const fetchCruInviteStatus = async () => {
@@ -303,29 +325,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const toggleAvatarModal = () => {
         setAvatarModalVisible(!isAvatarModalVisible);
     };
-
-    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
-
-    // Fetch the watchlist when the component is focused or when the user ID changes
-    useFocusEffect(
-        React.useCallback(() => {
-            // ... (other code)
-
-            const fetchWatchlist = async () => {
-                try {
-                    const userId = user?.id; // Get the current user's ID
-                    if (userId) {
-                        const watchlistMovies = await getWatchlist(userId);
-                        setWatchlist(watchlistMovies);
-                    }
-                } catch (error) {
-                    console.error('Error fetching watchlist:', error);
-                }
-            };
-
-            fetchWatchlist();
-        }, [user?.id]), // Re-run the effect if the user's ID changes
-    );
 
     const [currentlyWatching, setCurrentlyWatching] = useState([]); // Adjust the initial state based on your data structure
 

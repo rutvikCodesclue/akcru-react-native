@@ -27,32 +27,26 @@ const ViewUserWatchListCategory = ({Akcru_Content, updateWatchlist}: ViewUserWat
     const [showConfirmationModal, setShowConfirmationModal] = useState(false); // State for showing confirmation modal
     const [selectedMovie, setSelectedMovie] = useState<IMovie | null>(null); // State to keep track of the selected movie object
 
-    // Handler to show the confirmation modal
-    const handleShowConfirmationModal = (movie: IMovie) => {
-        setSelectedMovie(movie); // Store the selected movie object
-        setShowConfirmationModal(true); // Show the confirmation modal
-    };
-
-    const handleConfirmRemoveFromWatchList = async () => {
-        setShowConfirmationModal(false); // Hide the confirmation modal
-        if (selectedMovie && selectedMovie.id) {
-            const success = await removeFromWatchlist(selectedMovie.id);
-            if (success) {
-                const updatedMovies = Akcru_Content.movies.filter(movie => movie.id !== selectedMovie.id);
-                updateWatchlist(updatedMovies);
-                // Success message if needed
-                handleShowRemovalModal('success');
-            } else {
-                // Error message if needed
-                handleShowRemovalModal('failed');
-            }
-        }
-    };
+    // const handleConfirmRemoveFromWatchList = async () => {
+    //     setShowConfirmationModal(false); // Hide the confirmation modal
+    //     if (selectedMovie && selectedMovie.id) {
+    //         const success = await removeFromWatchlist(selectedMovie.id);
+    //         if (success) {
+    //             const updatedMovies = Akcru_Content.movies.filter(movie => movie.id !== selectedMovie.id);
+    //             updateWatchlist(updatedMovies);
+    //             // Success message if needed
+    //             handleShowRemovalModal('success');
+    //         } else {
+    //             // Error message if needed
+    //             handleShowRemovalModal('failed');
+    //         }
+    //     }
+    // };
 
     // Handler for cancel removal in the ConfirmationModal
-    const handleCancelRemoveFromWatchList = () => {
-        setShowConfirmationModal(false); // Hide the confirmation modal
-    };
+    // const handleCancelRemoveFromWatchList = () => {
+    //     setShowConfirmationModal(false); // Hide the confirmation modal
+    // };
 
     // const handleRemoveFromWatchlist = async (movieId: string) => {
     //     Alert.alert('Remove Movie', 'Are you sure you want to remove this movie from your watchlist?', [
@@ -83,17 +77,17 @@ const ViewUserWatchListCategory = ({Akcru_Content, updateWatchlist}: ViewUserWat
     const [typeRemovalModal, setTypeRemovalModal] = useState('');
     const [showRemovalModal, setShowRemovalModal] = useState(false);
 
-    const handleShowRemovalModal = (typeRemovalModal: React.SetStateAction<string>) => {
-        setTypeRemovalModal(typeRemovalModal);
-        setShowRemovalModal(true);
-    };
+    // const handleShowRemovalModal = (typeRemovalModal: React.SetStateAction<string>) => {
+    //     setTypeRemovalModal(typeRemovalModal);
+    //     setShowRemovalModal(true);
+    // };
 
-    const handleCloseRemovalModal = () => {
-        if (typeRemovalModal === 'success') {
-            //do something
-        }
-        setShowRemovalModal(false);
-    };
+    // const handleCloseRemovalModal = () => {
+    //     if (typeRemovalModal === 'success') {
+    //         //do something
+    //     }
+    //     setShowRemovalModal(false);
+    // };
 
     return (
         <>
@@ -119,7 +113,7 @@ const ViewUserWatchListCategory = ({Akcru_Content, updateWatchlist}: ViewUserWat
                     </View>
                 )}
             />
-            <Modal animationType="fade" transparent={true} visible={showRemovalModal}>
+            {/* <Modal animationType="fade" transparent={true} visible={showRemovalModal}>
                 <RemovalModal closeModal={handleCloseRemovalModal} type={typeRemovalModal} />
             </Modal>
             <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
@@ -128,7 +122,7 @@ const ViewUserWatchListCategory = ({Akcru_Content, updateWatchlist}: ViewUserWat
                     onPressNo={handleCancelRemoveFromWatchList}
                     confirmationText={`Are you sure you want to remove "${selectedMovie?.title}" from your watchlist?`}
                 />
-            </Modal>
+            </Modal> */}
         </>
     );
 };
