@@ -57,6 +57,16 @@ const Signin = () => {
                     }
                 }
 
+                //Request Contact permission
+                const contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
+                if (contactResult !== RESULTS.GRANTED) {
+                    const contactResult = await request(PERMISSIONS.ANDROID.READ_CONTACTS);
+                    if (contactResult === RESULTS.GRANTED) {
+                        console.log('contact permission granted');
+                        console.log('contactResult =>', contactResult);
+                    }
+                }
+
                 // Request READ_MEDIA_IMAGES permission
                 const imagesMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (imagesMediaResult !== RESULTS.GRANTED) {
