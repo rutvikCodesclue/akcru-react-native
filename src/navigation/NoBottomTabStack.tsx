@@ -32,6 +32,7 @@ import Questions from '../screens/userScreens/Questions';
 import ReportUser from '../screens/userScreens/ReportUser';
 import UserNotification from '../screens/userScreens/UserNotifications/UserNotification';
 import BlockedUsers from '../screens/userScreens/BlockedUsers';
+import ContactList from '../screens/userScreens/ContactList/ContactList';
 
 
 
@@ -70,6 +71,7 @@ export type NoBottomTabStackParams = {
     NewPost: any;
     NewComment: any;
     ViewUserScreen: {userId: string; profilePicture: string; username: string};
+    ContactList: any;
 
 };
 
@@ -190,6 +192,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="NewPost"
               component={NewPost}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="ContactList"
+              component={ContactList}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

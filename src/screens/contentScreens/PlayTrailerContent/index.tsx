@@ -162,7 +162,7 @@ export default function TrailerPlayer({navigation, route}: Props) {
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{
-                                uri: movie.trailerURL,
+                                uri: movie.trailerURL
                             }}
                             resizeMode="cover"
                             posterResizeMode="cover"

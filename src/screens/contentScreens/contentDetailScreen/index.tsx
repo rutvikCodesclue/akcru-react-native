@@ -32,12 +32,12 @@ import useAuthStore from '../../../stores/auth.store';
 
 
 type ContentDetailScreenNavigationProp = StackNavigationProp<
-  ClientStackParams,
+  NoBottomTabStackParams,
   'ContentDetailScreen'
 >;
 
 type ContentDetailScreenRouteProp = RouteProp<
-  ClientStackParams,
+  NoBottomTabStackParams,
   'ContentDetailScreen'
 >;
 
@@ -50,7 +50,7 @@ export default function ContentDetailScreen({navigation, route}: Props) {
     const movieId: string | undefined = route.params?.movieId ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
-    const routeParams = useRoute<RouteProp<ClientStackParams, 'ContentDetailScreen'>>();
+    const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentDetailScreen'>>();
     const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
     const user = useAuthStore(state => state.user);

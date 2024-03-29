@@ -45,6 +45,7 @@ import HexAvatar from "../../../components/HexAvatar";
 import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
 import CustomIcon from "../../../components/CustomIcon/CustomIcon";
 import { MULTISIZES } from "../../../../assets/constants/theme";
+import AkcruButtons from "../../../components/akcruButtons";
 
 
 type UserProfileScreenNavigationProp = StackNavigationProp<
@@ -462,8 +463,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         // borderLeftWidth: 2,
                                         // borderRightWidth: 2,
                                         // borderColor: COLORS.TRANSPURPLE,
-                                        
-                                        height: 60,
+
+                                        marginTop: '2%',
                                         justifyContent: 'center',
 
                                         alignItems: 'center',
@@ -473,20 +474,19 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title3}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        <Text style={{...FONTS.Title2}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
                                     style={{
-                                        height: 50,
-                                        justifyContent: 'center',
+                                        marginTop: '2%',
+                                        justifyContent: 'flex-end',
                                         alignItems: 'flex-end',
                                     }}>
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
-                                        style={{marginRight: "5%"}}
-                                    >
+                                        style={{marginRight: '5%'}}>
                                         <View>
                                             <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                         </View>
@@ -506,6 +506,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             </View>
                                         </View>
                                     </TouchableOpacity>
+                                    {/* <View style={{marginTop: '30%'}}>
+                                        <AkcruButtons.XSmallButton
+                                            btnname="Contacts"
+                                            onPress={() => navigation.navigate('ContactList')}
+                                            color={COLORS.PURPLE}
+                                            disabled={false}                   
+                                        />
+                                    </View> */}
                                 </View>
                             </View>
                             <View style={{marginTop: 20, marginHorizontal: 15}}>
@@ -528,48 +536,48 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         renderTabBar={renderTabBar}
                     />
                 </SafeAreaView>
-                
+
                 <Modal animationType="fade" transparent={true} visible={showMITEntryErr}>
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
                         <View
                             style={{
-                                flex: 1,
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                justifyContent: 'center',
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
                                 alignItems: 'center',
+                                marginHorizontal: 15,
                             }}>
-                            <View
+                            <Text
                                 style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                    alignItems: 'center',
-                                    marginHorizontal: 15,
+                                    ...FONTS.Title3,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                }}>
+                                {`Your party room time limit is over, I hope you enjoy your movie.`}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setshowMITEntryErr(false);
                                 }}>
                                 <Text
                                     style={{
-                                        ...FONTS.Title3,
+                                        ...FONTS.Title2,
                                         marginBottom: 10,
                                         textAlign: 'center',
+                                        color: COLORS.MIDORANGE,
                                     }}>
-                                    {`Your party room time limit is over, I hope you enjoy your movie.`}
+                                    {`Close`}
                                 </Text>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setshowMITEntryErr(false);
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
-                                            color: COLORS.MIDORANGE,
-                                        }}>
-                                        {`Close`}
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
+                            </TouchableOpacity>
                         </View>
-                    </Modal>
+                    </View>
+                </Modal>
             </View>
         </TabContainer>
     );

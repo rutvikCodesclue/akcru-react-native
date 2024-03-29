@@ -6,6 +6,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import React from 'react';
 import { IMovie } from '../../../types';
+import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 interface BasicListCategoriesProps {
     Akcru_Content: {
@@ -17,7 +18,7 @@ interface BasicListCategoriesProps {
 
 const BasicListCategories = (props: BasicListCategoriesProps) => {
   const navigation =
-    useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+    useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
   const {Akcru_Content} = props;
 
   return (

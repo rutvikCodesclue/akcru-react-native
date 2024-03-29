@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar, AppState} from 'react-native';
+import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -8,7 +8,7 @@ import {RouteProp} from '@react-navigation/native';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
-import {COLORS, SIZES} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
@@ -40,11 +40,22 @@ export default function ContentPlayer({navigation, route}: Props) {
     const movieId = routeParams.params?.id;
     let currentTime = 0;
 
+    const [loadingError, setLoadingError] = useState<string>('');
+
     useEffect(() => {
         const fetchMovie = async () => {
             if (movieId) {
-                const fetchedMovie = await findMovieById(movieId);
-                setMovie(fetchedMovie);
+                try {
+                    const fetchedMovie = await findMovieById(movieId);
+                    if (fetchedMovie) {
+                        setMovie(fetchedMovie);
+                    } else {
+                        setLoadingError('Failed to load the movie. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error fetching the movie:', error);
+                    setLoadingError('Failed to load the movie. Please try again.');
+                }
             }
         };
 
@@ -55,7 +66,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         return () => {
             Orientation.lockToPortrait();
             StatusBar.setHidden(false);
-            if (hasStartedWatching && user?.id && movieId) {
+            if (hasStartedWatching && movieId) {
                 finishUserWatching(movieId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
                         //console.log(`User finished watching movie: ${movieId}`);
@@ -65,7 +76,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                 });
             }
         };
-    }, [movieId, user?.id, hasStartedWatching]);
+    }, [movieId, hasStartedWatching]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -100,9 +111,9 @@ export default function ContentPlayer({navigation, route}: Props) {
                 if (user?.id && movieId && hasStartedWatching) {
                     finishUserWatching(movieId).then(finishedSuccessfully => {
                         if (finishedSuccessfully) {
-                            console.log(`User finished watching movie: ${movieId}`);
+                            console.log(`App state, User finished watching movie: ${movieId}`);
                         } else {
-                            console.log(`Failed to mark movie as finished: ${movieId}`);
+                            console.log(` App state,Failed to mark movie as finished: ${movieId}`);
                         }
                     });
                 }
@@ -193,28 +204,37 @@ export default function ContentPlayer({navigation, route}: Props) {
         <View style={{flex: 1}}>
             <View style={styles.container}>
                 {hasLottieFirstLoopCompleted ? (
-                    movie && movie.movieURL ? (
-                        <>
-                            <VideoPlayer
-                                videoRef={videoRef}
-                                source={{
-                                    uri: movie.movieURL,
-                                }}
-                                resizeMode="cover"
-                                tapAnywhereToPause={false}
-                                preventsDisplaySleepDuringVideoPlayback={true}
-                                toggleResizeModeOnFullscreen={false}
-                                containerStyle={videoContainerStyle}
-                                onBack={() => navigation.pop()}
-                                paused={!isMoviePlaying}
-                                onLoad={onLoad}
-                                onProgress={onProgress}
-                                onPlay={onPlay}
-                                onPause={onPause}
-                            />
-                        </>
+                    !loadingError ? (
+                        movie && movie.movieURL ? (
+                            <>
+                                <VideoPlayer
+                                    videoRef={videoRef}
+                                    source={{
+                                        uri: movie.movieURL,
+                                    }}
+                                    resizeMode="cover"
+                                    tapAnywhereToPause={false}
+                                    preventsDisplaySleepDuringVideoPlayback={true}
+                                    toggleResizeModeOnFullscreen={false}
+                                    containerStyle={videoContainerStyle}
+                                    onBack={() => navigation.pop()}
+                                    paused={!isMoviePlaying}
+                                    onLoad={onLoad}
+                                    onProgress={onProgress}
+                                    onPlay={onPlay}
+                                    onPause={onPause}
+                                />
+                            </>
+                        ) : (
+                            <ActivityIndicator size="large" color={COLORS.BLACK} />
+                        )
                     ) : (
-                        <ActivityIndicator size="large" color={COLORS.BLACK} />
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                            <Text style={{color: 'red', fontSize: 16}}>{loadingError}</Text>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 20}}>
+                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>Go Back</Text>
+                            </TouchableOpacity>
+                        </View>
                     )
                 ) : (
                     <View style={styles.activitycontainer}>

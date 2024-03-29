@@ -24,6 +24,7 @@ import { capitalizeFirstLetterOfString } from '../../util/util';
 import ConfirmationModal from '../ConfirmationModal';
 import { getUserReactions } from '../../lib/api/movies.lib';
 import { API } from '../../clients/api.client';
+import { MULTISIZES } from '../../../assets/constants/theme';
 
 type ReactionStat = {
     type: string;
@@ -245,7 +246,7 @@ const MovieDetailCard = ({
                                 Add to watchlist
                             </Text>
                             <TouchableOpacity onPress={watchlistButton}>
-                                <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={45} />
+                                <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={MULTISIZES.Xlarge40} />
                             </TouchableOpacity>
                         </View>
                     </View>

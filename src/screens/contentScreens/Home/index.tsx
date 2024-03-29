@@ -33,6 +33,7 @@ import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { Icon } from '@rneui/base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -113,7 +114,7 @@ const HomeScreen = () => {
         handlePreviousVideo();
     };
 
-    const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     useEffect(() => {
         const fetchNewOnAkcru = async () => {

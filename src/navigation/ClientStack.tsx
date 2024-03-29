@@ -5,7 +5,7 @@ import ClientTabNavigator from './ClientTabNavigator';
 import HomeScreen from '../screens/contentScreens/Home';
 import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResultScreen';
 import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
-import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
+// import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MITDateSchedule';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
@@ -25,7 +25,7 @@ export type ClientStackParams = {
     ContentSwipe: any;
     SearchMovieResultScreen: any;
     SearchMovieScreen: any;
-    ContentDetailScreen: any;
+    // ContentDetailScreen: any;
     MITDateSchedule: any;
     ViewUserScreen: any;
     ViewUserDetailScreen: any;
@@ -74,13 +74,13 @@ export function ClientStack() {
                   headerShown: false,
               })}
           />
-          <ClientSearch.Screen
+          {/* <ClientSearch.Screen
               name="ContentDetailScreen"
               component={ContentDetailScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <ClientSearch.Screen
               name="MITDateSchedule"
               component={MITDateSchedule}
