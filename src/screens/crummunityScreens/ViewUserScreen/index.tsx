@@ -898,6 +898,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </TouchableWithoutFeedback>
                                         </Pressable>
                                     </Modal>
+                                    {user?.gallery && user.gallery.length > 0 && (
+                                        <>
                                     <View style={styles.seperator} />
                                     <View
                                         style={{
@@ -932,6 +934,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 })}
                                         </View>
                                     </View>
+                                    </>
+                                    )}
                                     {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
                                         <View style={styles.watchlistcontainer}>
                                             <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
