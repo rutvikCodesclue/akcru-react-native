@@ -226,7 +226,7 @@ useEffect(() => {
                                     actors={actors && actors.map(actor => actor.name).join(', ')}
                                     directors={director && director.map(director => director.name).join(', ')}
                                     id={id}
-                                    // trailerURL={trailerURL}
+                                    trailerURL={trailerURL}
                                     landscapeURL={landscapeURL}
                                     movieURL={movieURL}
                                     genre1={genres[0]}
@@ -238,6 +238,7 @@ useEffect(() => {
                                             landscapeURL: landscapeURL,
                                         });
                                     }}
+
                                     PlayTrailer={() => {
                                         navigation2.navigate('TrailerPlayer', {
                                             id: id,

@@ -48,6 +48,7 @@ type MovieDetailCardProps = {
     directors: string;
     id: string;
     portraitURL: string;
+    trailerURL: string;
     landscapeURL: string;
     movieURL: string;
     genre1: string;
@@ -74,6 +75,7 @@ const MovieDetailCard = ({
     actors,
     directors,
     portraitURL,
+    trailerURL,
     landscapeURL,
     movieURL,
     genre1,
@@ -275,7 +277,18 @@ const MovieDetailCard = ({
 
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
-                            onPress={PlayTrailer}
+                            onPress={()=>{
+                                console.log({
+                                    id: movieId,
+                                    trailerURL: trailerURL,
+                                    landscapeURL: landscapeURL,
+                                })
+                                navigation.navigate('TrailerPlayer', {
+                                    id: movieId,
+                                    trailerURL: trailerURL,
+                                    landscapeURL: landscapeURL,
+                                });
+                            }}
                             color={COLORS.CATPURPDRK}
                             disabled={false}
                         />

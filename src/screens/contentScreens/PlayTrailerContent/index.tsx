@@ -44,13 +44,9 @@ export default function TrailerPlayer({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            //console.log('Trailer Screen focused [Trailer Screen]');
             setShouldAutoplay(true);
 
             return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                //console.log('Trailer Screen unfocused [Trailer Screen]');
                 setShouldAutoplay(false);
             };
         }, []),
@@ -58,46 +54,30 @@ export default function TrailerPlayer({navigation, route}: Props) {
     
 
     
-
-    // useEffect(() => {
-    //     // Fetch movie data based on the route parameter ID
-    //     const fetchMovie = async () => {
-    //         try {
-    //             const id: string | undefined = routeParams.params?.id;
-    //             if (id) {
-    //                 const fetchedMovie: IMovie | null = await findMovieById(id);
-    //                 if (fetchedMovie) {
-    //                     setMovie([fetchedMovie]);
-    //                 } else {
-    //                     setMovie([]);
-    //                 }
-    //             }
-    //         } catch (error) {
-    //             console.error('Error fetching movie:', error);
-    //         }
-    //     };
-
-    //     // Fetch movie data
-    //     fetchMovie();
-
-    //     // Lock landscape orientation when entering this screen
-    //     Orientation.lockToLandscape();
-
-    //     // Allow landscape orientation when entering this screen
-    //     // Orientation.unlockAllOrientations();
-
-    //     // Lock the orientation back to portrait when leaving this screen
-    //     return () => {
-    //         Orientation.lockToPortrait();
-
-    //         StatusBar.setHidden(false);
-    //     };
-    // }, [routeParams.params?.id]);
-
     const movieId = routeParams.params?.id;
     const [hasStartedWatching, setHasStartedWatching] = useState(false);
+        const movieTrailer = ()=>{
+            if(videoRef.current){
+            console.log('trailer check')
+            fetch(movie?.trailerURL)
+  .then(response => {
+    // Check CloudFront-Cache-Status header to determine if it's a hit or miss
 
+    const cacheStatus = response.headers.get('x-cache');
+    console.log(response)
+    if (cacheStatus === 'Hit from cloudfront') {
+      console.log('Response is served from CloudFront cache'), cacheStatus;
+    } else {
+      console.log('Response is fetched from origin server', cacheStatus);
+    } 
+  })
+  .catch(error => {
+    console.error('Error occurred:', error);
+  });
+             } }
     useEffect(() => {
+        
+
         const fetchMovie = async () => {
             if (movieId) {
                 const fetchedMovie = await findMovieById(movieId);
@@ -126,31 +106,14 @@ export default function TrailerPlayer({navigation, route}: Props) {
 
 
 
-    // const {
-    //     title,
-    //     year,
-    //     length,
-    //     rated,
-    //     rating,
-    //     description,
-    //     actors,
-    //     director,
-    //     portraitURL,
-    //     trailerURL,
-    //     landscapeURL,
-    //     movieURL,
-    //     genres,
-    // } = movieId[0] || {};
 
 
     const onPlay = () => {
         setIsMoviePlaying(true);
-        // Hide the status bar when the movie starts playing
         StatusBar.setHidden(true);
     };
     const onPause = () => {
         setIsMoviePlaying(false);
-        // Show the status bar when the movie is paused
         StatusBar.setHidden(false);
     };
 
@@ -159,11 +122,14 @@ export default function TrailerPlayer({navigation, route}: Props) {
             <View style={styles.container}>
                 {movie && movie?.trailerURL ? (
                     <>
+
+                    {/* {movieTrailer()} */}
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{
                                 uri: movie.trailerURL
                             }}
+                            
                             resizeMode="cover"
                             posterResizeMode="cover"
                             tapAnywhereToPause={false}
@@ -176,10 +142,34 @@ export default function TrailerPlayer({navigation, route}: Props) {
                             onPlay={onPlay}
                             onPause={onPause}
                             onEnd={() => navigation.pop()}
+                            onError={(error) => console.log('Video error:', error)}
+
                         />
+                        
+                        {/* <Video
+                            source={{ uri: movie.trailerURL }}
+                            style={{ flex: 1 }}
+                            resizeMode="cover"
+                            posterResizeMode="cover"
+                            tapAnywhereToPause={false}
+                            preventsDisplaySleepDuringVideoPlayback={true}
+                            toggleResizeModeOnFullscreen={false}
+                            poster={movie.landscapeURL}
+                            containerStyle={{zIndex: 100}}
+                            onBack={() => navigation.pop()}
+                            paused={!isMoviePlaying}
+                            onPlay={onPlay}
+                            onPause={onPause}
+                            onEnd={() => navigation.pop()}
+                        
+                            onError={(error) => console.log('Video error:', error)}
+                        /> */}
                     </>
                 ) : (
+                    <>
+                    {console.log("Movie indicator")}
                     <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
+                    </>
                 )}
             </View>
         </View>

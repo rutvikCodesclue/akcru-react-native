@@ -43,6 +43,10 @@ export default function ContentPlayer({navigation, route}: Props) {
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
+        console.log("useEffect123")
+
+        
+
         const fetchMovie = async () => {
             if (movieId) {
                 try {
@@ -78,76 +82,81 @@ export default function ContentPlayer({navigation, route}: Props) {
         };
     }, [movieId, hasStartedWatching]);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            // Logic to execute when the screen comes into focus could go here
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         // Logic to execute when the screen comes into focus could go here
 
-            return () => {
-                // This cleanup function runs when the screen loses focus
-                // Perform the "finished watching" logic here
-                if (user?.id && movieId && hasStartedWatching) {
-                    finishUserWatching(movieId).then(finishedSuccessfully => {
-                        if (finishedSuccessfully) {
-                            console.log(`User finished watching movie: ${movieId}`);
-                        } else {
-                            console.log(`Failed to mark movie as finished: ${movieId}`);
-                        }
-                    });
-                }
-            };
-        }, [user?.id, movieId, hasStartedWatching]),
-    );
+    //         return () => {
+    //     console.log("useFOcus2")
+
+    //             // This cleanup function runs when the screen loses focus
+    //             // Perform the "finished watching" logic here
+    //             if (user?.id && movieId && hasStartedWatching) {
+    //                 finishUserWatching(movieId).then(finishedSuccessfully => {
+    //                     if (finishedSuccessfully) {
+    //                         console.log(`User finished watching movie: ${movieId}`);
+    //                     } else {
+    //                         console.log(`Failed to mark movie as finished: ${movieId}`);
+    //                     }
+    //                 });
+    //             }
+    //         };
+    //     }, [user?.id, movieId, hasStartedWatching]),
+    // );
 
     const [appState, setAppState] = useState(AppState.currentState);
 
-    useEffect(() => {
-        const subscription = AppState.addEventListener('change', nextAppState => {
-            if (appState.match(/inactive|background/) && nextAppState === 'active') {
-                console.log('App has come to the foreground!');
-                // App has come to the foreground, maybe refresh some data
-            } else if (nextAppState.match(/inactive|background/)) {
-                console.log('App has gone to the background');
-                // App has gone to the background, consider pausing or finishing video playback
-                if (user?.id && movieId && hasStartedWatching) {
-                    finishUserWatching(movieId).then(finishedSuccessfully => {
-                        if (finishedSuccessfully) {
-                            console.log(`App state, User finished watching movie: ${movieId}`);
-                        } else {
-                            console.log(` App state,Failed to mark movie as finished: ${movieId}`);
-                        }
-                    });
-                }
-            }
-            setAppState(nextAppState);
-        });
+    // useEffect(() => {
+    //     console.log("useEffect")
+    //     const subscription = AppState.addEventListener('change', nextAppState => {
+            
+    //         if (appState.match(/inactive|background/) && nextAppState === 'active') {
+    //             console.log('App has come to the foreground!');
+    //             // App has come to the foreground, maybe refresh some data
+    //         } else if (nextAppState.match(/inactive|background/)) {
+    //             console.log('App has gone to the background');
+    //             // App has gone to the background, consider pausing or finishing video playback
+    //             if (user?.id && movieId && hasStartedWatching) {
+    //                 finishUserWatching(movieId).then(finishedSuccessfully => {
+    //                     if (finishedSuccessfully) {
+    //                         console.log(`App state, User finished watching movie: ${movieId}`);
+    //                     } else {
+    //                         console.log(` App state,Failed to mark movie as finished: ${movieId}`);
+    //                     }
+    //                 });
+    //             }
+    //         }
+    //         setAppState(nextAppState);
+    //     });
 
-        return () => {
-            subscription.remove();
-        };
-    }, [user?.id, movieId, hasStartedWatching, appState]);
+    //     return () => {
+    //         subscription.remove();
+    //     };
+    // }, [user?.id, movieId, hasStartedWatching, appState]);
 
     // Sync watch time on unmount and when app goes into background
-    useEffect(() => {
-        return () => {
-            syncWatchTime();
-        };
-    }, []);
+    // useEffect(() => {
+    //     return () => {
+    //         syncWatchTime();
+    //     };
+    // }, []);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            if (isMoviePlaying) {
-                startTimer();
-                syncWatchTime(); // Sync when navigating away from the screen
-            }
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         console.log("focus")
+    //         if (isMoviePlaying) {
+    //             startTimer();
+    //             syncWatchTime(); // Sync when navigating away from the screen
+    //         }
 
-            return () => {
-                pauseTimer();
-                if (!isFocused) {
-                    resetTimer();
-                }
-            };
-        }, [isMoviePlaying, isFocused]),
-    );
+    //         return () => {
+    //             pauseTimer();
+    //             if (!isFocused) {
+    //                 resetTimer();
+    //             }
+    //         };
+    //     }, [isMoviePlaying, isFocused]),
+    // );
 
     const onLoad = () => {
         setIsMoviePlaying(true);
@@ -162,6 +171,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     };
 
     const onProgress = (data: { currentTime: number; }) => {
+
         currentTime = Math.floor(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(movieId, currentTime);
@@ -175,7 +185,9 @@ export default function ContentPlayer({navigation, route}: Props) {
     };
 
     const onPlay = () => {
+        console.log("onPlay")
         setIsMoviePlaying(true);
+        console.log(user?.id && movieId && hasStartedWatching)
         if (user?.id && movieId && !hasStartedWatching) {
             startUserWatching(user.id, movieId).then(startedSuccessfully => {
                 if (startedSuccessfully) {
@@ -210,23 +222,30 @@ export default function ContentPlayer({navigation, route}: Props) {
                                 <VideoPlayer
                                     videoRef={videoRef}
                                     source={{
-                                        uri: movie.movieURL,
+                                        uri: movie.movieURL
                                     }}
                                     resizeMode="cover"
+                                    posterResizeMode="cover"
                                     tapAnywhereToPause={false}
                                     preventsDisplaySleepDuringVideoPlayback={true}
                                     toggleResizeModeOnFullscreen={false}
-                                    containerStyle={videoContainerStyle}
+                                    poster={movie.landscapeURL}
+                                    containerStyle={{zIndex: 100}}
                                     onBack={() => navigation.pop()}
                                     paused={!isMoviePlaying}
-                                    onLoad={onLoad}
-                                    onProgress={onProgress}
                                     onPlay={onPlay}
                                     onPause={onPause}
+                                    onEnd={() => navigation.pop()}
+                                    onError={(error) => console.log('Video error:', error)}
+                                    
+
                                 />
                             </>
                         ) : (
+                            <>
+                            {console.log("error")}
                             <ActivityIndicator size="large" color={COLORS.BLACK} />
+                            </>
                         )
                     ) : (
                         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -246,6 +265,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                             style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
                             onAnimationFinish={() => {
                                 if (!hasLottieFirstLoopCompleted) {
+                                    console.log("here")
                                     setHasLottieFirstLoopCompleted(true);
                                 }
                             }}
