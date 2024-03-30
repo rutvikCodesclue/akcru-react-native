@@ -68,11 +68,15 @@ export default function ContentPlayer({navigation, route}: Props) {
         StatusBar.setHidden(true);
 
         return () => {
-            Orientation.lockToPortrait();
-            StatusBar.setHidden(false);
+            
+            
             if (hasStartedWatching && movieId) {
                 finishUserWatching(movieId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
+                        resetTimer();
+                        pauseTimer();
+                        Orientation.lockToPortrait();
+                        StatusBar.setHidden(false);
                         //console.log(`User finished watching movie: ${movieId}`);
                     } else {
                         //console.log(`Failed to mark movie as finished: ${movieId}`);
@@ -141,22 +145,26 @@ export default function ContentPlayer({navigation, route}: Props) {
     //     };
     // }, []);
 
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         console.log("focus")
-    //         if (isMoviePlaying) {
-    //             startTimer();
-    //             syncWatchTime(); // Sync when navigating away from the screen
-    //         }
+    useFocusEffect(
+        React.useCallback(() => {         
+            if (isMoviePlaying) {
+                // startTimer();
+                // syncWatchTime(); // Sync when navigating away from the screen
+                console.log("focus")
+            }
 
-    //         return () => {
-    //             pauseTimer();
-    //             if (!isFocused) {
-    //                 resetTimer();
-    //             }
-    //         };
-    //     }, [isMoviePlaying, isFocused]),
-    // );
+            return () => {
+                pauseTimer();
+                
+                if (!isFocused) {
+                    resetTimer();
+                    pauseTimer();
+
+                    
+                }
+            };
+        }, [isMoviePlaying, isFocused]),
+    );
 
     const onLoad = () => {
         setIsMoviePlaying(true);
@@ -187,6 +195,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     const onPlay = () => {
         console.log("onPlay")
         setIsMoviePlaying(true);
+        startTimer();
         console.log(user?.id && movieId && hasStartedWatching)
         if (user?.id && movieId && !hasStartedWatching) {
             startUserWatching(user.id, movieId).then(startedSuccessfully => {
@@ -200,6 +209,7 @@ export default function ContentPlayer({navigation, route}: Props) {
 
     const onPause = () => {
         setIsMoviePlaying(false);
+        pauseTimer();
         if (movieId) {
             const pausedCurrentTime = currentTime;
             //console.log('Paused at:', pausedCurrentTime);
@@ -207,10 +217,29 @@ export default function ContentPlayer({navigation, route}: Props) {
         }
     };
 
-    // Placeholder for your video container style
-    const videoContainerStyle = {
-        zIndex: 100
+    const onEnd = () => {
+        setIsMoviePlaying(false);
+        pauseTimer();
+        resetTimer();
+        
+        if (movieId) {
+            const pausedCurrentTime = currentTime;
+            //console.log('Ended at:', endedCurrentTime);
+            setLastPlaybackPosition(movieId, pausedCurrentTime);
+            setHasStartedWatching(false);
+            Orientation.lockToPortrait();
+            StatusBar.setHidden(false);
+            navigation.pop();
+        }
     };
+
+    const onBack = () => {
+        // Navigate back to the previous screen
+        navigation.pop();
+        // Lock orientation to portrait
+    };
+
+
 
     return (
         <View style={{flex: 1}}>
@@ -222,7 +251,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                                 <VideoPlayer
                                     videoRef={videoRef}
                                     source={{
-                                        uri: movie.movieURL
+                                        uri: movie.movieURL,
                                     }}
                                     resizeMode="cover"
                                     posterResizeMode="cover"
@@ -231,20 +260,20 @@ export default function ContentPlayer({navigation, route}: Props) {
                                     toggleResizeModeOnFullscreen={false}
                                     poster={movie.landscapeURL}
                                     containerStyle={{zIndex: 100}}
-                                    onBack={() => navigation.pop()}
+                                    onBack={onBack}
                                     paused={!isMoviePlaying}
                                     onPlay={onPlay}
                                     onPause={onPause}
-                                    onEnd={() => navigation.pop()}
-                                    onError={(error) => console.log('Video error:', error)}
-                                    
-
+                                    onEnd={onEnd}
+                                    onLoad={onLoad}
+                                    onProgress={onProgress}
+                                    onError={error => console.log('Video error:', error)}
                                 />
                             </>
                         ) : (
                             <>
-                            {console.log("error")}
-                            <ActivityIndicator size="large" color={COLORS.BLACK} />
+                                {console.log('error')}
+                                <ActivityIndicator size="large" color={COLORS.BLACK} />
                             </>
                         )
                     ) : (
@@ -265,7 +294,7 @@ export default function ContentPlayer({navigation, route}: Props) {
                             style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
                             onAnimationFinish={() => {
                                 if (!hasLottieFirstLoopCompleted) {
-                                    console.log("here")
+                                    console.log('here');
                                     setHasLottieFirstLoopCompleted(true);
                                 }
                             }}
