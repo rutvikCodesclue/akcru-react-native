@@ -224,7 +224,7 @@ const Welcome = () => {
                             }`}</Text>
 
                             <AkcruButtons.LrgButton
-                                color={COLORS.AKCRUBLUE}
+                                color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
                                 onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
                                 disabled={!loading}
@@ -250,6 +250,7 @@ const Welcome = () => {
                                         <Text
                                             style={{
                                                 ...FONTS.Title2Orange,
+                                                color: COLORS.PINK
                                             }}>
                                             Sign in here
                                         </Text>

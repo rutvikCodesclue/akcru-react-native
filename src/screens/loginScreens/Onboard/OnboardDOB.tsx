@@ -167,7 +167,7 @@ const DOBSet = async () => {
                   <View style={styles.container}>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>Enter your date of birth.</Text>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>Enter your date of birth.</Text>
                       </View>
                       <View style={{alignItems: 'center', marginTop: 10}}>
                           {showPicker && (
@@ -214,14 +214,14 @@ const DOBSet = async () => {
                                   />
                               </Pressable>
                           )}
-                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PURPLE}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
                               You must be atleast 17 years old to use this app.
                           </Text>
                       </View>
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                                  color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                   btnname={'Next'}
                                   onPress={() => DOBSet()}
                                   disabled={!isFormComplete}

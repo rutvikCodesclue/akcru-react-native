@@ -105,14 +105,14 @@ const OnboardEmailOrPassword = ({route}) => {
                             <AkcruLogo width={200} height={60} />
                             {email && !phoneNumber && (
                                 <View>
-                                    <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                         Enter your mobile number below.
                                     </Text>
                                 </View>
                             )}
                             {!email && phoneNumber && (
                                 <View>
-                                    <Text style={{...FONTS.Title1, textAlign: 'center'}}>Enter your email below.</Text>
+                                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>Enter your email below.</Text>
                                 </View>
                             )}
                         </View>

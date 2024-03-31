@@ -322,13 +322,13 @@ const MovieDetailCard = ({
                         }}>
                         <Text
                             style={{
-                                ...FONTS.Title2,
+                                ...FONTS.paragraph1,
                                 color: COLORS.LIGHTGREY,
                                 marginRight: 10,
                             }}>
                             {year}
                         </Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>{formatMovieDuration(duration)}</Text>
+                        <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>{formatMovieDuration(duration)}</Text>
                     </View>
                     <View
                         style={{

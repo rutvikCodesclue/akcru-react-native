@@ -155,6 +155,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
     const [IsStreamHost, setIsStreamHost] = useState(isHost);
+    const [selectedMemeberForHost, setSelectedMemeberForHost] = useState<any>();
     const [isAllMuteOff, setIsAllMuteOff] = useState(true);
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
@@ -1043,22 +1044,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             if (type === HMSTrackUpdate.TRACK_RESTORED || type === HMSTrackUpdate.TRACK_DEGRADED) {
                 console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             }
+
+            if (type === HMSTrackUpdate.TRACK_MUTED || type === HMSTrackUpdate.TRACK_UNMUTED) {
+                const isMuted = track.isMute();
+                console.log('isMuted:', isMuted);
+                if (isMuted !== undefined) {
+                    setPeersMuteStatus(prevStatus => ({
+                        ...prevStatus,
+                        [peer.peerID]: isMuted,
+                    }));
+                }
+                if (peer.isLocal) {
+                    setIsMicOn(!isMuted);
+                }
+            }
         }
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
         // use these objects to update your local and remote peers.
-        if (type === HMSTrackUpdate.TRACK_MUTED || type === HMSTrackUpdate.TRACK_UNMUTED) {
-            const isMuted = track.isMute();
-            console.log('isMuted:', isMuted)
-            if (isMuted !== undefined) {
-                setPeersMuteStatus(prevStatus => ({
-                    ...prevStatus,
-                    [peer.peerID]: isMuted,
-                }));
-            }
-             if(peer.isLocal){
-                setIsMicOn(!isMuted);
-            }
-        }
+        
     };
     const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {
         // gets triggered when room is muted or unmuted.
@@ -1712,21 +1715,22 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                         : item.peer.name}
                                                 </Text>
                                                 <Pressable
-                                                    // onPress={() => {
-                                                    //     handleMic(item.peer);
-                                                    // }}
-                                                    >
-
+                                                // onPress={() => {
+                                                //     handleMic(item.peer);
+                                                // }}
+                                                >
                                                     <Icon
                                                         name={
-                                                            peersMuteStatus[item.peer.peerID] === undefined || peersMuteStatus[item.peer.peerID] == true
+                                                            peersMuteStatus[item.peer.peerID] === undefined ||
+                                                            peersMuteStatus[item.peer.peerID] == true
                                                                 ? 'mic-off-circle'
                                                                 : 'mic-circle'
                                                         }
                                                         type="ionicon"
                                                         size={25}
                                                         color={
-                                                            peersMuteStatus[item.peer.peerID] === undefined || peersMuteStatus[item.peer.peerID] == true
+                                                            peersMuteStatus[item.peer.peerID] === undefined ||
+                                                            peersMuteStatus[item.peer.peerID] == true
                                                                 ? COLORS.CATREDLGT
                                                                 : COLORS.GREEN
                                                         }
@@ -1769,9 +1773,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             )}
                         </Pressable>
                         {isHost ? (
-                           <Pressable onPress={muteAllPeers} style={styles.button}>
-                           <Text style={styles.buttonText}>Mute All</Text>
-                       </Pressable>
+                            <Pressable onPress={muteAllPeers} style={styles.button}>
+                                <Text style={styles.buttonText}>Mute All</Text>
+                            </Pressable>
                         ) : null}
                     </View>
                 </View>
@@ -1826,7 +1830,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             </Text>
                             <View>
                                 <FlatList
-                                    data={members}
+                                    // data={members}
+                                    data={members.filter(member => member.role !== 'host')}
                                     horizontal={false}
                                     showsHorizontalScrollIndicator={false}
                                     numColumns={2}
@@ -1923,7 +1928,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             <View style={{alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Host Transfer</Text>
                                 <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                    {`Are you sure you want to transfer hosting privileges to "${members}"`}
+                                    {/* {`Are you sure you want to transfer hosting privileges to "${members}"`} */}
+                                    {`Are you sure you want to transfer hosting privileges to "${selectedMemeberForHost?.user.username}"`}
                                 </Text>
                             </View>
 
@@ -2004,122 +2010,123 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 </Modal>
                 {isHost ? (
                     <Modal animationType="fade" transparent={true} visible={leaveRoom}>
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        }}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                             }}>
-                            <View style={{alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                    Please assign a new host or terminate the Watch Party session to leave
-                                </Text>
-                            </View>
-
                             <View
                                 style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
                                 }}>
-                                <TouchableOpacity
-                                    onPress={handleOptionModal}
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Please assign a new host or terminate the Watch Party session to leave
+                                    </Text>
+                                </View>
+
+                                <View
                                     style={{
-                                        backgroundColor: 'green',
-                                        padding: 10,
-                                        borderRadius: 5,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
                                     }}>
-                                    <Text style={{...FONTS.Title3}}>Assign Host</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleRoomTermination}
-                                    style={{
-                                        backgroundColor: 'blue',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleCancelLeaveRoom}
-                                    style={{
-                                        backgroundColor: 'red',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleOptionModal}
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Assign Host</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleRoomTermination}
+                                        style={{
+                                            backgroundColor: 'blue',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleCancelLeaveRoom}
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </Modal>
+                    </Modal>
                 ) : (
-                    <Modal animationType="fade" transparent={true} visible={leaveRoom}> 
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        }}>
+                    <Modal animationType="fade" transparent={true} visible={leaveRoom}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
                             }}>
-                            <View style={{alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                    Are you sure you want to leave this Watch Party session?
-                                </Text>
-                            </View>
-
                             <View
                                 style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
                                 }}>
-                                <TouchableOpacity
-                                    onPress={_handleRoomLeave}
+                                <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                        Are you sure you want to leave this Watch Party session?
+                                    </Text>
+                                </View>
+
+                                <View
                                     style={{
-                                        backgroundColor: 'green',
-                                        padding: 10,
-                                        borderRadius: 5,
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
                                     }}>
-                                    <Text style={{...FONTS.Title3}}>Leave Room</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleCancelLeaveRoom}
-                                    style={{
-                                        backgroundColor: 'red',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={_handleRoomLeave}
+                                        style={{
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Leave Room</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleCancelLeaveRoom}
+                                        style={{
+                                            backgroundColor: 'red',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                </Modal>                    
+                    </Modal>
                 )}
-                                
-               {unmutePermPopup ? <UnmutePermissionPopup
-            handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
-            handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}
-            userdata = {userRequest}
-            channelroom = {channelll}
-        />: null}
-        { popupErr?             <ErrorModal errorMessage={popupErrMsg} onClose={handleCloseError}/>: null}
-            </View>
 
+                {unmutePermPopup ? (
+                    <UnmutePermissionPopup
+                        handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
+                        handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}
+                        userdata={userRequest}
+                        channelroom={channelll}
+                    />
+                ) : null}
+                {popupErr ? <ErrorModal errorMessage={popupErrMsg} onClose={handleCloseError} /> : null}
+            </View>
         );
     };
 

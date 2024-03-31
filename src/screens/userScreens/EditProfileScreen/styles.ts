@@ -17,7 +17,7 @@ export default StyleSheet.create({
         marginTop: 20,
     },
     container: {
-        marginBottom: 75,
+        marginBottom: '5%',
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     verticallySpaced: {
@@ -33,7 +33,7 @@ export default StyleSheet.create({
         marginTop: 10,
         marginBottom: 20,
         textAlign: 'center',
-        fontSize: 14,
+        color: COLORS.AKCRUBLUE,
         textDecorationLine: 'underline',
     },
     input: {
@@ -61,13 +61,13 @@ export default StyleSheet.create({
     inputlabel: {
         ...FONTS.paragraph1,
         marginLeft: 5,
-        color: COLORS.LIGHTGREY,
+        color: COLORS.AKCRUBLUE,
         alignSelf: 'flex-start',
     },
     settingslabel: {
         ...FONTS.paragraph2,
         marginLeft: 5,
-        color: COLORS.MIDORANGE,
+        color: COLORS.PINK,
     },
     descinput: {
         width: SIZES.ScreenWidth * 0.8,
@@ -95,7 +95,7 @@ export default StyleSheet.create({
     checkbox: {
         width: 20,
         height: 20,
-        borderColor: COLORS.LIGHTGREY,
+        borderColor: COLORS.PINK,
         borderWidth: 2,
         alignContent: 'center',
         justifyContent: 'center',

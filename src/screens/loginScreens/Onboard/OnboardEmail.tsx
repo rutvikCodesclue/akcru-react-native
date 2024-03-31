@@ -154,7 +154,7 @@ const [resetResultType, setResetResultType] = useState({
                       </TouchableOpacity>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                               Welcome to Akcru first things first, lets verify you through your email below.
                           </Text>
                       </View>
@@ -169,14 +169,14 @@ const [resetResultType, setResetResultType] = useState({
                               editable={!loading}
                           />
                           {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PURPLE}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
                               You will be sent a one-time-password to this email address.
                           </Text>
                       </View>
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                                  color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                   btnname={'Send OTP'}
                                   onPress={() => SendOTP()}
                                   disabled={!isFormComplete}
@@ -184,7 +184,7 @@ const [resetResultType, setResetResultType] = useState({
                           </View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={COLORS.PURPLE}
+                                  color={COLORS.PINK}
                                   btnname={'Verify with mobile number'}
                                   onPress={() => navigation.navigate('OnboardPhone', {email})}
                                   disabled={false}

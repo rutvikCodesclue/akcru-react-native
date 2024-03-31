@@ -134,11 +134,11 @@ const PhoneForgotPassword = () => {
                                 name="key"
                                 type="ionicon"
                                 size={80}
-                                color={COLORS.MIDORANGE}
+                                color={COLORS.LIGHTGREY}
                                 style={{marginBottom: '8%'}}
                             />
                         </View>
-                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Forgot your password?</Text>
+                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Forgot your password?</Text>
                         <Text style={{...FONTS.Title2, marginBottom: '5%'}}>Enter your phone number below</Text>
                         <View style={{marginTop: 10, marginBottom: 20}}>
                             <View style={styles.input}>
@@ -177,7 +177,7 @@ const PhoneForgotPassword = () => {
                         </View>
 
                         <AkcruButtons.LrgButton
-                            color={isFormComplete ? COLORS.MIDORANGE : COLORS.DARKGREY}
+                            color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                             btnname={'Send OTP'}
                             onPress={SendOTP}
                             disabled={!isFormComplete || loading}

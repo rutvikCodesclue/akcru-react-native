@@ -271,7 +271,7 @@ const Signin = () => {
                             }`}</Text>
 
                             <AkcruButtons.LrgButton
-                                color={COLORS.AKCRUBLUE}
+                                color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
                                 onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
                                 disabled={loading}
@@ -297,6 +297,7 @@ const Signin = () => {
                                         <Text
                                             style={{
                                                 ...FONTS.Title2Orange,
+                                                color: COLORS.PINK,
                                             }}>
                                             Sign in here
                                         </Text>
@@ -336,7 +337,7 @@ const Signin = () => {
                             </View>
                             <View style={{marginVertical: 10}}>
                                 <AkcruButtons.LrgButton
-                                    color={COLORS.AKCRUBLUE}
+                                    color={COLORS.PURPLE}
                                     btnname={'Login'}
                                     onPress={() => attemptLogin()}
                                     disabled={loading}
@@ -368,7 +369,7 @@ const Signin = () => {
                                 <Text
                                     style={{
                                         ...FONTS.Title2Orange,
-                                        fontSize: 14,
+                                        color: COLORS.PINK,
                                         marginTop: 10,
                                     }}>
                                     Forgot your password?
@@ -401,6 +402,7 @@ const Signin = () => {
                                         <Text
                                             style={{
                                                 ...FONTS.Title2Orange,
+                                                color: COLORS.PINK,
                                             }}>
                                             Sign up here
                                         </Text>

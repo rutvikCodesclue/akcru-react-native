@@ -19,14 +19,14 @@ export default StyleSheet.create({
     inputlabel: {
         ...FONTS.paragraph1,
         marginLeft: 5,
-        color: COLORS.LIGHTGREY,
+        color: COLORS.AKCRUBLUE,
     },
     title: {
         ...FONTS.Title2,
         marginTop: 10,
         marginBottom: 10,
         textAlign: 'center',
-        fontSize: 14,
+        color: COLORS.AKCRUBLUE,
         textDecorationLine: 'underline',
     },
     container: {

@@ -57,12 +57,12 @@ const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmai
     return (
         <View style={{alignItems: 'center', marginTop: 10}}>
             <View style={{flexDirection: 'row'}}>
-                <Text style={{...FONTS.Title2Orange}}>Didn't receive an email? </Text>
+                <Text style={{...FONTS.Title2Orange, color: COLORS.PINK}}>Didn't receive an email? </Text>
                 <Pressable
                     onPress={() => resendEmail(triggerTimer)}
                     disabled={!activeResend}
                     style={{opacity: !activeResend ? 0.5 : 1}}>
-                    <Text style={{...FONTS.Title1, fontSize: 12, color: resendText(resendStatus)}}>
+                    <Text style={{...FONTS.Title1, color: resendText(resendStatus)}}>
                         {resendStatus === 'Failed' ? 'Failed' : resendStatus === 'Sent' ? 'Sent' : 'Resend'}
                     </Text>
                 </Pressable>

@@ -75,6 +75,7 @@ export const COLORS = {
     CATREDLGT: '#AD0707',
     CATBLUEDRK: '#000946',
     CATBLUELGT: '#1207AD',
+    PINK: '#FF00FF',
 };
 
 export const MULTISIZES = {

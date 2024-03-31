@@ -122,7 +122,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                   <View style={styles.container}>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>Please select your gender:</Text>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>Please select your gender:</Text>
                       </View>
                       <View style={{marginHorizontal: 15}}>
                           {genders.map(gender => (
@@ -133,7 +133,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                                               name="checkmark-sharp"
                                               type="ionicon"
                                               size={18}
-                                              color={COLORS.MIDORANGE}
+                                              color={COLORS.AKCRUBLUE}
                                           />
                                       )}
                                   </TouchableOpacity>
@@ -144,7 +144,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                                  color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                   btnname={'Next'}
                                   onPress={() => GenderSet()}
                                   disabled={!isFormComplete}

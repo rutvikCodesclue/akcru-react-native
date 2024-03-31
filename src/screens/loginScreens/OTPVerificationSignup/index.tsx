@@ -157,12 +157,12 @@ const OTPVerificationSignup = ({route}) => {
                                 name="lock-open"
                                 type="ionicon"
                                 size={80}
-                                color={COLORS.MIDORANGE}
+                                color={COLORS.LIGHTGREY}
                                 style={{marginBottom: '8%'}}
                             />
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
-                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Enter the 6-digit code sent to your email
                             </Text>
                         </View>
@@ -177,7 +177,7 @@ const OTPVerificationSignup = ({route}) => {
                         <View>
                             {!verify && pinReady && (
                                 <AkcruButtons.LrgButton
-                                    color={COLORS.AKCRUBLUE}
+                                    color={COLORS.PURPLE}
                                     btnname={'Verify'}
                                     onPress={handleOTPVerification}
                                     disabled={false}

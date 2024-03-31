@@ -168,7 +168,7 @@ const [resetResultType, setResetResultType] = useState({
                   <View style={styles.container}>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>Now lets choose a Username.</Text>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>Now lets choose a Username.</Text>
                       </View>
                       <View style={{alignItems: 'center', marginTop: 10}}>
                           <Inputs
@@ -181,14 +181,14 @@ const [resetResultType, setResetResultType] = useState({
                               editable={!loading}
                           />
                           {userNameError && <Text style={styles.warningText}>Invalid Username format</Text>}
-                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PURPLE}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
                               Username must be unique and atleast 3 characters long.
                           </Text>
                       </View>
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                                  color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                   btnname={'Next'}
                                   onPress={() => UserNameSet()}
                                   disabled={!isFormComplete}

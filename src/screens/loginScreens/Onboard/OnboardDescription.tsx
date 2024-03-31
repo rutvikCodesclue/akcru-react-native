@@ -111,7 +111,7 @@ const [resetResultType, setResetResultType] = useState({
                       </TouchableOpacity>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                               Tell the crummunity a little about yourself.
                           </Text>
                       </View>
@@ -147,7 +147,7 @@ const [resetResultType, setResetResultType] = useState({
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={COLORS.AKCRUBLUE}
+                                  color={COLORS.PURPLE}
                                   btnname={'Next'}
                                   onPress={() => updateDescription()}
                                   disabled={false}

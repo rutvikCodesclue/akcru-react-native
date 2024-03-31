@@ -184,7 +184,7 @@ const OnboardPassword = ({route}) => {
                     <View style={{flex: 1, alignItems: 'center'}}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
-                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Now that you've been verified, you can choose a new password. It is imperative that you
                                 do not share this with anyone.
                             </Text>
@@ -214,7 +214,7 @@ const OnboardPassword = ({route}) => {
                             {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
                         </View>
                         <AkcruButtons.LrgButton
-                            color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                            color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                             btnname={'Confirm'}
                             onPress={() => attemptSignup()}
                             disabled={!isFormComplete}

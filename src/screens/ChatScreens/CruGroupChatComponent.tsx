@@ -31,7 +31,7 @@ import {selectAvatarBorderColor} from '../../util/util';
 import _, {uniqueId} from 'lodash';
 import {supabase} from '../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
-
+import playMessageSound from '../../util/playMessageSound';
 
 
 const CruGroupChatComponent = ({cru, members}: any) => {
@@ -100,6 +100,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             user: {_id: payload.payload.senderId!, name:membersdata[payload.payload.senderId!]['username']},
             createdAt: Date.now(),
         };
+        playMessageSound();
         messsages.push(iMessage);
         setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
     }
@@ -133,7 +134,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             event: 'test',
             payload: {message: messages[0]!.text!, senderId: user.id},
         });
-
+        playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         saveTextMessage(cruId, messages[0]!.text!, user.id!,true);
     };

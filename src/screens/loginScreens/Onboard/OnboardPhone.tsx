@@ -145,7 +145,7 @@ const OnboardPhone = () => {
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
-                            <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Welcome to Akcru first things first, lets verify you through your mobile number below.
                             </Text>
                         </View>
@@ -173,14 +173,14 @@ const OnboardPhone = () => {
                                 />
                             </View>
                             {phoneError && <Text style={styles.warningText}>Invalid mobile number</Text>}
-                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PURPLE}}>
+                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
                                 You will be sent a one-time-password to this mobile number.
                             </Text>
                         </View>
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
-                                    color={isFormComplete ? COLORS.AKCRUBLUE : COLORS.DARKGREY}
+                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Send OTP'}
                                     onPress={() => SendOTP()}
                                     disabled={!isFormComplete}
@@ -188,7 +188,7 @@ const OnboardPhone = () => {
                             </View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
-                                    color={COLORS.PURPLE}
+                                    color={COLORS.PINK}
                                     btnname={'Verify with email'}
                                     onPress={() => navigation.navigate('OnboardEmail')}
                                     disabled={false}

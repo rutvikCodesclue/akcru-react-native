@@ -397,7 +397,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.title}>ACCOUNT SETTINGS</Text>
-                    <Text style={{...FONTS.paragraph1, marginBottom: 10, fontSize: 12, color: COLORS.MIDORANGE}}>
+                    <Text style={{...FONTS.paragraph1, marginBottom: 10, color: COLORS.PINK}}>
                         ( This information will not be shared publicly )
                     </Text>
                     {/* firstName */}
@@ -629,11 +629,11 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                         <View style={styles.input}>
                             <Pressable onPress={handlePhoneModalOpen}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...styles.textinput, color: COLORS.DARKGREY}}>+1</Text>
+                                    <Text style={{color: COLORS.DARKGREY}}>+1</Text>
                                     <TextInput
-                                        placeholder="Enter 10-digit number"
+                                        placeholder={user?.phoneNumber}
                                         placeholderTextColor={COLORS.DARKGREY}
-                                        style={{...styles.textinput, flex: 1}}
+                                        style={styles.textinput}
                                         keyboardType="number-pad"
                                         maxLength={10}  // Limit input to 10 digits
                                         onChangeText={text => {
@@ -641,7 +641,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                             setPhoneModified(numericText);
                                         }}
                                         value={phone || ''}
-                                        editable={true}
+                                        editable={false}
                                     />
                                 </View>
                             </Pressable>
@@ -683,7 +683,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                         const numericText = text.replace(/[^0-9]/g, '');
 
                                         // Limit the input to 10 characters
-                                        const limitedText = numericText.substring(0, 11);
+                                        const limitedText = numericText.substring(0, 10);
 
                                         // Update the state with the limited and formatted text
                                         setPhone(limitedText);

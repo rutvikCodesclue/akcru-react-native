@@ -67,6 +67,7 @@ export interface IMovie {
     published: boolean;
     createdAt: string;
     updatedAt: string;
+    sponsored: boolean;
 }
 
 export interface IGenreItem {
@@ -253,6 +254,7 @@ export interface IMovie {
     published: boolean;
     createdAt: string;
     updatedAt: string;
+    sponsored: boolean;
 }
 
 export interface IGenreItem {

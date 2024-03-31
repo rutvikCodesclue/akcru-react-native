@@ -125,7 +125,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                   <View style={styles.container}>
                       <View style={{alignItems: 'center', marginTop: 20}}>
                           <AkcruLogo width={200} height={60} />
-                          <Text style={{...FONTS.Title1, textAlign: 'center'}}>
+                          <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                               Add a profile picture. Obscenity will not be tolerated and will be swiftly removed
                           </Text>
                       </View>
@@ -139,9 +139,9 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                               }}>
                               <Text
                                   style={{
-                                      ...FONTS.Title2AkcruBlue,
+                                      ...FONTS.Title2,
                                       marginTop: 10,
-                                      color: COLORS.AKCRUBLUE,
+                                      color: COLORS.PINK,
                                       textAlign: 'center',
                                   }}>
                                   Pick a profile photo
@@ -193,7 +193,7 @@ const [isFormComplete, setIsFormComplete] = useState(false);
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>
                               <AkcruButtons.LrgButton
-                                  color={COLORS.AKCRUBLUE}
+                                  color={COLORS.PURPLE}
                                   btnname={'Next'}
                                   onPress={() => PictureSet()}
                                   disabled={false}

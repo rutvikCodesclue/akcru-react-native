@@ -46,7 +46,7 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
                     padding: 12,
                     borderBottomWidth: 5,
                     borderRadius: 10,
-                    borderColor: inputFocused && isDigitFocused ? COLORS.MIDORANGE : COLORS.DARKERGREY,
+                    borderColor: inputFocused && isDigitFocused ? COLORS.PINK : COLORS.DARKERGREY,
                 }}
                 key={index}>
                 <Text style={{...FONTS.Title2, fontSize: 18, textAlign: 'center'}}>{digit}</Text>

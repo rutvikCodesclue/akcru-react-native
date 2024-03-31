@@ -393,7 +393,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         style={{
                                             ...FONTS.paragraph2,
                                             marginTop: 10,
-                                            color: COLORS.MIDORANGE,
+                                            color: COLORS.PINK,
                                         }}>
                                         Edit profile photo
                                     </Text>
@@ -689,7 +689,7 @@ export default function EditProfile({session}: {session: Session}) {
                             a simple streaming platform; we are a multifaceted streaming experience that caters to your
                             individuality.
                         </Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center', marginTop: 20}}>
+                        <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center', marginTop: 20}}>
                             Please choose 2 genres to then press "FINISH":
                         </Text>
                         <View style={{flex: 1}}>
@@ -733,7 +733,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         ...FONTS.Title3,
                                         textAlign: 'center',
                                         marginVertical: 10,
-                                        color: COLORS.PURPLE,
+                                        color: COLORS.LIGHTGREY,
                                     }}>
                                     "{archetype ? archetype.name : 'No Archetype Selected'}"
                                 </Text>
@@ -764,7 +764,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <View>
                                 <View style={{alignItems: 'center'}}>
                                     <AkcruButtons.XlLrgButton
-                                        color={COLORS.MIDORANGE}
+                                        color={COLORS.PURPLE}
                                         btnname={'Finish'}
                                         onPress={handleFinishButton}
                                         disabled={false}
@@ -807,7 +807,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <Icon
                                             name="help-rhombus"
                                             type="material-community"
-                                            color={COLORS.MIDORANGE}
+                                            color={COLORS.PINK}
                                             size={20}
                                         />
                                     </View>
@@ -820,7 +820,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <Icon
                                             name="account-cancel"
                                             type="material-community"
-                                            color={COLORS.MIDORANGE}
+                                            color={COLORS.PINK}
                                             size={20}
                                         />
                                     </View>

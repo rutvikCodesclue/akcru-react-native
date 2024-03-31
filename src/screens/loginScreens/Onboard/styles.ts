@@ -62,7 +62,7 @@ export default StyleSheet.create({
     checkbox: {
         width: 20,
         height: 20,
-        borderColor: COLORS.LIGHTGREY,
+        borderColor: COLORS.PINK,
         borderWidth: 2,
         alignContent: 'center',
         justifyContent: 'center',
@@ -82,7 +82,7 @@ export default StyleSheet.create({
     checkbox2: {
         width: 20,
         height: 20,
-        borderColor: COLORS.LIGHTGREY,
+        borderColor: COLORS.PINK,
         borderWidth: 2,
         alignContent: 'center',
         justifyContent: 'center',
@@ -98,7 +98,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     phoneinput: {
-        width: SIZES.ScreenWidth * 0.85,
+        width: SIZES.ScreenWidth * 0.9,
         flexDirection: 'row',
         borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,
@@ -134,7 +134,7 @@ export default StyleSheet.create({
         marginBottom:2
     },
     input: {
-        width: SIZES.ScreenWidth * 0.85,
+        width: SIZES.ScreenWidth * 0.9,
         borderWidth:1,
         borderColor: COLORS.LIGHTGREY,
         borderRadius: 5,

@@ -28,6 +28,7 @@ import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../uti
 import useAuthStore from '../../../stores/auth.store';
 import Header2 from '../../../components/header/header2';
 import { MULTISIZES } from '../../../../assets/constants/theme';
+import { findSponsoredMovies } from '../../../lib/api/movies.lib';
 // const data = Akcru_Content[7].movies;
 
 
@@ -278,13 +279,13 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                 {visibleMovies.map((item, index) => {
                     return (
                         <View key={item.id} style={styles.paginationDotContainer}>
-                            <View style={[styles.paginationDot, {backgroundColor: COLORS.PURPLE}]} />
+                            <View style={[styles.paginationDot, {backgroundColor: COLORS.PINK}]} />
                         </View>
                     );
                 })}
             </View>
             <TouchableOpacity onPress={onPress2}>
-                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PURPLE}}>Skip to Homepage</Text>
+                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PINK}}>Skip to Homepage</Text>
             </TouchableOpacity>
         </View>
     );
@@ -299,42 +300,57 @@ export default function ContentSwipe({navigation, route}: Props) {
     const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
     // create a useFocusEffect hook to fetch movies on focus
+    // useFocusEffect(
+    //     React.useCallback(() => {
+    //         const fetchMovies = async () => {
+    //             try {
+    //                 await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
+                    
+    //                 const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+    //                 setMovies(fetchedMovies);
+    //             } catch (error) {
+    //                 console.error('Error fetching movies:', error);
+    //             }
+    //         };
+    //         fetchRandomMovies();
+    //         fetchMovies();
+    //     }, [])
+    // );
+
+    // const fetchRandomMovies = async () => {
+    //     try {
+    //         const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+
+    //         // Get 5 random movies from the list
+    //         const randomMovies: IMovie[] = [];
+    //         while (randomMovies.length < 5) {
+    //             const randomIndex = Math.floor(Math.random() * allMovies.length);
+    //             const randomMovie = allMovies[randomIndex];
+    //             if (!randomMovies.includes(randomMovie)) {
+    //                 randomMovies.push(randomMovie);
+    //             }
+    //         }
+
+    //         setRandomMovies(randomMovies);
+    //     } catch (error) {
+    //         console.error('Error fetching random movies:', error);
+    //     }
+    // };
+
     useFocusEffect(
         React.useCallback(() => {
-            const fetchMovies = async () => {
+            const fetchSponsoredMovies = async () => {
                 try {
-                    await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-                    
-                    const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-                    setMovies(fetchedMovies);
+                    const sponsoredMovies = await findSponsoredMovies();
+                    setMovies(sponsoredMovies);
                 } catch (error) {
-                    console.error('Error fetching movies:', error);
+                    console.error('Error fetching sponsored movies:', error);
                 }
             };
-            fetchRandomMovies();
-            fetchMovies();
-        }, [])
+
+            fetchSponsoredMovies();
+        }, []),
     );
-
-    const fetchRandomMovies = async () => {
-        try {
-            const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-
-            // Get 5 random movies from the list
-            const randomMovies: IMovie[] = [];
-            while (randomMovies.length < 5) {
-                const randomIndex = Math.floor(Math.random() * allMovies.length);
-                const randomMovie = allMovies[randomIndex];
-                if (!randomMovies.includes(randomMovie)) {
-                    randomMovies.push(randomMovie);
-                }
-            }
-
-            setRandomMovies(randomMovies);
-        } catch (error) {
-            console.error('Error fetching random movies:', error);
-        }
-    };
 
 
 
@@ -398,7 +414,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     horizontal
                     keyExtractor={item => item.id}
                     onScroll={Animated.event([{nativeEvent: {contentOffset: {x: _scrollX}}}], {useNativeDriver: true})}
-                    data={randomMovies.slice(0, 5)}
+                    data={movies.slice(0, 5)}
                     renderItem={({item, index}) => (
                         <Item
                             {...item}

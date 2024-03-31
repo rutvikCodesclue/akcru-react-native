@@ -29,7 +29,7 @@ export default StyleSheet.create({
         marginTop: 10,
     },
     input: {
-        width: SIZES.ScreenWidth * .85,
+        width: SIZES.ScreenWidth * .9,
         flexDirection: 'row',
         borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,

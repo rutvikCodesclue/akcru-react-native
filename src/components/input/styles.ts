@@ -3,7 +3,7 @@ import {COLORS, SIZES, FONTS} from '../../../assets/constants'
 
 export default StyleSheet.create({
   input: {
-    width: SIZES.ScreenWidth * .85,
+    width: SIZES.ScreenWidth * .9,
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: COLORS.LIGHTGREY,

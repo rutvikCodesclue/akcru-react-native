@@ -132,6 +132,28 @@ export const postUserReaction = async (movieId: string, reactionType: any) => {
     }
 };
 
+export const findSponsoredMovies = async (): Promise<IMovie[] | []> => {
+    // Ensure authentication is hydrated and the user is authenticated
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        // GET request to the /v1/movies/sponsored endpoint
+        const response = await API.get('/v1/movies/sponsored');
+
+        if (response.data.success) {
+            // If the request is successful and movies are found, return them
+            return response.data.movies;
+        } else {
+            // If the request is successful but no movies are found, return an empty array
+            console.log(response.data.message); // Optionally log the message
+            return [];
+        }
+    } catch (error) {
+        // Log the error and return an empty array if the request fails
+        console.error('Error fetching sponsored movies:', error);
+        return [];
+    }
+};
+
 
 
 

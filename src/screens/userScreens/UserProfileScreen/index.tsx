@@ -351,7 +351,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         <View
                             // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                             // resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 3}}>
+                            style={{height: SIZES.ScreenHeight / 2.9}}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
@@ -363,7 +363,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     left: 0,
                                     right: 0,
                                     top: 0,
-                                    height: SIZES.ScreenHeight / 3,
+                                    height: SIZES.ScreenHeight / 2.9,
                                 }}
                             />
                             <View
@@ -442,14 +442,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 <Icon
                                                     name="square-edit-outline"
                                                     type="material-community"
-                                                    color={COLORS.DARKGREY}
+                                                    color={COLORS.PINK}
                                                     size={15}
                                                     style={{marginRight: 5}}
                                                 />
                                                 <Text
                                                     style={{
                                                         ...FONTS.Username,
-                                                        color: COLORS.LIGHTGREY,
+                                                        color: COLORS.PINK,
                                                     }}>
                                                     Edit Profile
                                                 </Text>
@@ -516,7 +516,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     </View> */}
                                 </View>
                             </View>
-                            <View style={{marginTop: 20, marginHorizontal: 15}}>
+                            <View style={{marginTop: "3%", marginHorizontal: 15}}>
                                 <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                                     {user?.description ??
                                         (user

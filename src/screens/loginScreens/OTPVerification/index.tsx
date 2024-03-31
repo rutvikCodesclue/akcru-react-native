@@ -180,7 +180,7 @@ const OTPVerification = ({route}) => {
                                 name="lock-open"
                                 type="ionicon"
                                 size={80}
-                                color={COLORS.MIDORANGE}
+                                color={COLORS.LIGHTGREY}
                                 style={{marginBottom: '8%'}}
                             />
                         </View>

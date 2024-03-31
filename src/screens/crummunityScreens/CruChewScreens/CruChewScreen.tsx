@@ -25,7 +25,7 @@ const CruChewScreen = () => {
               <View>
                   <Header />
               </View>
-              <View style={{marginTop: -70}}>
+              <View style={{marginTop: "-12%"}}>
                   <View>
                       <Image
                           source={imageindex.EatingPopcorn}
@@ -73,7 +73,10 @@ const CruChewScreen = () => {
                               resizeMode="contain"
                           />
                       </TouchableOpacity>
-                      <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>ORDER NOW!!!</Text>
+                      <TouchableOpacity onPress={() => navigation.navigate('CruChewOrder')}>
+                        <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>ORDER NOW!!!</Text>
+                      </TouchableOpacity>
+                      
                   </View>
               </View>
           </ScrollView>

@@ -205,14 +205,14 @@ const OnboardArchetype = () => {
                           <AkcruLogo width={200} height={60} />
                       </View>
 
-                      <Text style={{...FONTS.Title1, textAlign: 'center', marginHorizontal: 10}}>
+                      <Text style={{...FONTS.Title2, textAlign: 'center', marginHorizontal: 10}}>
                           At Akcru, your movie-watching preferences shape your unique archetype. This personalized
                           archetype guides us in curating the finest movie recommendations for you, as well as
                           connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being a
                           simple streaming platform; we are a multifaceted streaming experience that caters to your
                           individuality.
                       </Text>
-                      <Text style={{...FONTS.Title2, color: COLORS.PURPLE, textAlign: 'center', marginTop: 20}}>
+                      <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center', marginTop: 20}}>
                           Please choose 2 genres to get you started:
                       </Text>
 
@@ -233,7 +233,7 @@ const OnboardArchetype = () => {
                                                           name="checkmark-sharp"
                                                           type="ionicon"
                                                           size={18}
-                                                          color={COLORS.MIDORANGE}
+                                                          color={COLORS.AKCRUBLUE}
                                                           style={{marginTop: -3}}
                                                       />
                                                   )}
@@ -251,7 +251,7 @@ const OnboardArchetype = () => {
                   <View>
                       <View style={{alignItems: 'center'}}>
                           <AkcruButtons.XlLrgButton
-                              color={COLORS.AKCRUBLUE}
+                              color={COLORS.PURPLE}
                               btnname={'Finish'}
                               onPress={handleFinishButton}
                               disabled={false}
@@ -321,7 +321,7 @@ const OnboardArchetype = () => {
                       {showSkipButton && (
                           <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
                               <AkcruButtons.SmallButton
-                                  color={COLORS.MIDORANGE}
+                                  color={COLORS.PURPLE}
                                   btnname={'Skip'}
                                   onPress={handleSkipVideo}
                                   disabled={false}
