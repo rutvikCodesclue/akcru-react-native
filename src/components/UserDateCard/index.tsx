@@ -284,8 +284,8 @@ const UserDatesCard = ({
                                 marginBottom: 5,
                                 alignItems: 'center',
                             }}>
-                            <Text style={{...FONTS.Title2, fontSize: 12}}>{movieYear}</Text>
-                            <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>{length}</Text>
+                            <Text style={{...FONTS.paragraph1}}>{movieYear}</Text>
+                            <Text style={{...FONTS.paragraph1, marginHorizontal: 10}}>{length}</Text>
                         </View>
                         <View style={{flexDirection: 'row', marginVertical: 5}}>
                             <Text style={styles.drawfonttag}>{movieRated}</Text>
@@ -387,7 +387,7 @@ const UserDatesCard = ({
                                 checkTimeGate(type, scheduleTime, timezone, scheduleDate)
                             }
                             btnname="Start Cru View"
-                            color={COLORS.MIDORANGE}
+                            color={COLORS.PURPLE}
                             disabled={false}
                         />
                     )}

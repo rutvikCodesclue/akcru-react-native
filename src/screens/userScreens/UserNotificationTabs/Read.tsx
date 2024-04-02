@@ -8,7 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
+import {batchMarkNotificationsRead, deleteAllReadNotifications, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
 import {INotification} from '../../../../types';
 import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -97,6 +97,20 @@ const Read = () => {
             }
         } catch (error) {
             console.error('Error navigating to content:', error);
+        }
+    };
+
+    const handleDeleteAllReadNotifications = async () => {
+        setIsLoading(true); // Show loading indicator
+        try {
+            await deleteAllReadNotifications();
+            // Optionally, refresh the notifications list to reflect the changes
+            await getMyNotifications(); // Assuming fetchNotifications is your function to load notifications
+        } catch (error) {
+            console.error('Failed to delete all read notifications:', error);
+            // Handle the error, maybe show an error message to the user
+        } finally {
+            setIsLoading(false); // Hide loading indicator
         }
     };
 
@@ -192,11 +206,11 @@ const Read = () => {
                                         </Text>
                                         {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
                                         <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                        <View>
+                                        <View style={{marginTop: '5%'}}>
                                             <Text
                                                 style={{
                                                     ...FONTS.Title2,
-                                                    color: COLORS.MIDORANGE,
+                                                    color: COLORS.PINK,
                                                     textAlign: 'right',
                                                 }}>
                                                 {isRead ? 'Marked as Read' : 'Mark as Read'}
@@ -207,8 +221,24 @@ const Read = () => {
                             );
                         })}
                     </View>
+                    {hasReadNotifications ? (
+                        <View style={{alignItems: 'center', marginVertical: 10}}>
+                            <AkcruButtons.LrgButton
+                                btnname={'Delete All Read'}
+                                onPress={handleDeleteAllReadNotifications}
+                                color={COLORS.PURPLE}
+                                disabled={false}
+                            />
+                        </View>
+                    ) : (
+                        <View style={{alignItems: 'center', marginVertical: 20}}>
+                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                No notifications marked as read
+                            </Text>
+                        </View>
+                    )}
                     {/* Conditionally render "Load More" button if there are more notifications to load */}
-                        {displayedNotifications.length < notifications.length && (
+                    {displayedNotifications.length < notifications.length && (
                         <View style={{alignItems: 'center', marginVertical: 10}}>
                             <AkcruButtons.LrgButton
                                 btnname={'Load More'}

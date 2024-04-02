@@ -6,8 +6,8 @@ export default StyleSheet.create({
         ...FONTS.Title2Orange,
         color: COLORS.BLACK,
         backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
@@ -29,7 +29,7 @@ export default StyleSheet.create({
     },
     paragraphText3: {
         ...FONTS.Username,
-        color: COLORS.MIDORANGE,
+        color: COLORS.PINK,
         
     },
     paragraphText2label: {

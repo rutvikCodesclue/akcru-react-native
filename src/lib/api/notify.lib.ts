@@ -73,3 +73,22 @@ export const batchMarkNotificationsRead = async (
     }
 };
 
+export const deleteAllReadNotifications = async (): Promise<{success: boolean; message: string}> => {
+    try {
+        // DELETE /v1/notify/read/all
+        const {data} = await API.delete(`/v1/notify/read/all`);
+        console.log('Delete all read notifications response:', data); // Optionally log the response for debugging
+
+        if (data.success) {
+            return {success: true, message: 'All read notifications have been successfully deleted.'};
+        } else {
+            console.error('Failed to delete all read notifications:', data.message);
+            return {success: false, message: data.message || 'Failed to delete read notifications.'};
+        }
+    } catch (error) {
+        console.error('Error deleting all read notifications:', error);
+        return {success: false, message: 'An error occurred while deleting read notifications.'};
+    }
+};
+
+

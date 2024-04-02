@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -38,6 +38,9 @@ const NewPost = () => {
     const [isTagging, setIsTagging] = useState(false);
     const [currentTag, setCurrentTag] = useState('');
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
+
+    const [isPosting, setIsPosting] = useState(false);
+
 
     const [isTagModalVisible, setIsTagModalVisible] = useState(false);
 
@@ -156,6 +159,7 @@ const NewPost = () => {
     };
 
     const OnPostPress = async () => {
+        setIsPosting(true); // Start the upload indicator
         try {
             const postType = determinePostType();
             let content = [];
@@ -217,12 +221,14 @@ const NewPost = () => {
                         }
                     }),
                 );
+                setIsPosting(false); // Stop the upload indicator
                 navigation.goBack();
             } else {
                 //console.log('Failed to create the post');
             }
         } catch (error) {
             console.error('Error creating the post:', error);
+            setIsPosting(false); // Stop the upload indicator
         }
 
         // Reset the state
@@ -405,7 +411,7 @@ const NewPost = () => {
                         {!isTagging && (
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
 
                                 {/* <TouchableOpacity onPress={selectAGIF}>
@@ -420,7 +426,7 @@ const NewPost = () => {
                                     <Icon
                                         name="video-account"
                                         type="material-community"
-                                        color={COLORS.MIDORANGE}
+                                        color={COLORS.AKCRUBLUE}
                                         size={30}
                                     />
                                 </TouchableOpacity>
@@ -511,6 +517,13 @@ const NewPost = () => {
                             </View>
                         </Modal>
                     </View>
+                    {isPosting && (
+                        <Modal transparent={true} visible={isPosting} animationType="fade">
+                            <View style={styles.loadingOverlay}>
+                                <ActivityIndicator size="large" color={COLORS.PINK} />
+                            </View>
+                        </Modal>
+                    )}
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>

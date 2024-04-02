@@ -228,7 +228,7 @@ const PostCommentCard = ({
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={onDeleteComment}>
-                    <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="trash" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
             );
@@ -267,7 +267,7 @@ const PostCommentCard = ({
         if (!isCurrentUserAuthor) {
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
                 </Pressable>
             );
@@ -295,7 +295,7 @@ const PostCommentCard = ({
                         onFollow(); // Call the report user function
                         closePostOptions(); // Close the modal
                     }}>
-                    <Icon name="person" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
                         {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
                     </Text>
@@ -386,9 +386,9 @@ const PostCommentCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
-                    </Text>
+                    </Text> */}
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
@@ -460,6 +460,9 @@ const PostCommentCard = ({
                     </Pressable>
                 </Modal>
             </View>
+            <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
+                {timeSince(post.createdAt)}
+            </Text>
             {/* Render text if available */}
             {textContent && (
                 <View style={{marginTop: 10}}>

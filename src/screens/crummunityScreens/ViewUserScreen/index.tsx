@@ -595,7 +595,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             alignItems: 'center',
                                         }}>
                                         <Text style={{...FONTS.Title1}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Username, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
@@ -870,7 +870,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </View>
                                     {user?.Cru?.name !== 'My Cru' && user?.Cru?.name !== null && (
                                         <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
-                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.PINK}}>CRU Name: </Text>
                                             <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
                                         </View>
                                     )}

@@ -437,7 +437,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 <AkcruLevels.AkcruBadgeSuperHero />
                                             </View>
                                         )}
-                                        <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                                        {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
                                             <View style={{flexDirection: 'row'}}>
                                                 <Icon
                                                     name="square-edit-outline"
@@ -454,7 +454,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     Edit Profile
                                                 </Text>
                                             </View>
-                                        </TouchableOpacity>
+                                        </TouchableOpacity> */}
                                     </View>
                                 </View>
 
@@ -475,7 +475,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             alignItems: 'center',
                                         }}>
                                         <Text style={{...FONTS.Title2}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
@@ -514,9 +514,17 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             disabled={false}                   
                                         />
                                     </View> */}
+                                    <View style={{marginTop: '30%'}}>
+                                        <AkcruButtons.XSmallButton
+                                            btnname="Edit Profile"
+                                            onPress={() => navigation.navigate('EditProfile')}
+                                            color={COLORS.PINK}
+                                            disabled={false}                   
+                                        />
+                                    </View>
                                 </View>
                             </View>
-                            <View style={{marginTop: "3%", marginHorizontal: 15}}>
+                            <View style={{marginTop: '3%', marginHorizontal: 15}}>
                                 <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                                     {user?.description ??
                                         (user

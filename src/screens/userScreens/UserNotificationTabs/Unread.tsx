@@ -218,16 +218,19 @@ const Unread = () => {
                                         </Text>
                                         {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
                                         <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                        <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
+                                        <View style={{marginTop: '5%'}}>
+                                        <TouchableOpacity onPress={() => handleMarkAsRead(id, index)} style={{alignSelf: 'flex-end', width: '30%'}}>
                                             <Text
                                                 style={{
                                                     ...FONTS.Title2,
-                                                    color: COLORS.MIDORANGE,
-                                                    textAlign: 'right',
+                                                    color: COLORS.PINK,                     
+                                                
                                                 }}>
                                                 {isRead ? 'Marked as Read' : 'Mark as Read'}
                                             </Text>
                                         </TouchableOpacity>
+                                        </View>
+                                        
                                     </View>
                                 </Pressable>
                             );
@@ -236,7 +239,7 @@ const Unread = () => {
                     {hasUnreadNotifications ? (
                         <View style={{alignItems: 'center', marginVertical: 10}}>
                             <AkcruButtons.LrgButton
-                                btnname={'Mark All as Read'}
+                                btnname={'Mark All As Read'}
                                 onPress={handleMarkAllAsRead}
                                 color={COLORS.PURPLE}
                                 disabled={false}

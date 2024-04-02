@@ -39,7 +39,7 @@ export default StyleSheet.create({
     },
     titleText2: {
         ...FONTS.Title2,
-        color: COLORS.MIDORANGE,
+        color: COLORS.PINK,
         
         marginVertical: 5,
     },

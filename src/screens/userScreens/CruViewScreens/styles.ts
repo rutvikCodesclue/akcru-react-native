@@ -46,8 +46,8 @@ export default StyleSheet.create({
         ...FONTS.Title2Orange,
         color: COLORS.BLACK,
         backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
@@ -65,7 +65,7 @@ export default StyleSheet.create({
     monthText: {
         ...FONTS.Title3,
         marginHorizontal: 10,
-        color: COLORS.MIDORANGE,
+        color: COLORS.PINK,
     },
     arrowButton: {
         width: 30,
@@ -92,7 +92,7 @@ export default StyleSheet.create({
         marginRight: 5,
     },
     dayButtonSelected: {
-        backgroundColor: COLORS.MIDORANGE,
+        backgroundColor: COLORS.PURPLE,
     },
     dayText: {
         ...FONTS.Title2,
@@ -118,7 +118,7 @@ export default StyleSheet.create({
         marginRight: 5,
     },
     timeButtonSelected: {
-        backgroundColor: COLORS.MIDORANGE,
+        backgroundColor: COLORS.PURPLE,
     },
     timeText: {
         ...FONTS.Title2,
@@ -140,7 +140,7 @@ export default StyleSheet.create({
         marginRight: 5,
     },
     timeZoneButtonSelected: {
-        backgroundColor: COLORS.MIDORANGE,
+        backgroundColor: COLORS.PURPLE,
     },
     timeZoneText: {
         ...FONTS.Title2,

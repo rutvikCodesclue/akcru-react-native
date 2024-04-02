@@ -34,7 +34,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                         width: '95%',
                     }}>
                     <View>
-                        <Icon name="help-rhombus" type="material-community" size={80} color={COLORS.LIGHTORANGE} />
+                        <Icon name="help-rhombus" type="material-community" size={80} color={COLORS.TRANSPINK} />
                     </View>
                     <Text
                         style={{
@@ -42,7 +42,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                             marginBottom: 5,
                             textAlign: 'center',
                             fontSize: 20,
-                            color: COLORS.MIDORANGE,
+                            color: COLORS.PINK,
                         }}>
                         Help
                     </Text>
@@ -55,7 +55,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                         <AkcruButtons.XlLrgButton
                             btnname="FAQ"
                             onPress={faq}
-                            color={COLORS.MIDORANGE}
+                            color={COLORS.PINK}
                             disabled={false}
                         />
                     </View>
@@ -66,7 +66,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                         <AkcruButtons.XlLrgButton
                             btnname="Bug Report"
                             onPress={bugReport}
-                            color={COLORS.MIDORANGE}
+                            color={COLORS.PINK}
                             disabled={false}
                         />
                     </View>
@@ -79,7 +79,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                         <AkcruButtons.XlLrgButton
                             btnname="Suggestions"
                             onPress={suggestion}
-                            color={COLORS.MIDORANGE}
+                            color={COLORS.PINK}
                             disabled={false}
                         />
                     </View>
@@ -92,7 +92,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                         <AkcruButtons.XlLrgButton
                             btnname="Questions"
                             onPress={question}
-                            color={COLORS.MIDORANGE}
+                            color={COLORS.PINK}
                             disabled={false}
                         />
                     </View>

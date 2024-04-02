@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -47,6 +47,8 @@ const NewComment = ({navigation, route}: Props) => {
     const [isTagging, setIsTagging] = useState(false);
     const [currentTag, setCurrentTag] = useState('');
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
+
+    const [isCommenting, setIsCommenting] = useState(false);
 
     const videoRef = useRef(null);
     // const {user, hydrateUser} = useAuthStore();
@@ -167,13 +169,14 @@ const NewComment = ({navigation, route}: Props) => {
     };
 
     const OnCommentPress = async () => {
+        setIsCommenting(true); // Start the upload indicator
         try {
             const postType = determinePostType();
             let content = [];
 
             if (postType === 'TEXT') {
                 content = [comment];
-            } else if (postType === 'IMAGE') {     
+            } else if (postType === 'IMAGE') {
                 // If images are selected, upload them and get URLs
                 content = await uploadPictures(selectedImages);
                 content = content.join(', '); // Convert array of URLs to a comma-separated string
@@ -191,7 +194,6 @@ const NewComment = ({navigation, route}: Props) => {
                 content = content.concat(mediaUrls);
             }
 
-            
             const postId = route.params.postId;
             // Call the createPost API function
             const result = await commentOnPost(postId, postType, content);
@@ -227,12 +229,14 @@ const NewComment = ({navigation, route}: Props) => {
                         }
                     }),
                 );
+                setIsCommenting(false); // Start the upload indicator
                 navigation.goBack();
             } else {
                 //console.log('Failed to create the comment');
             }
         } catch (error) {
             console.error('Error creating the comment:', error);
+            setIsCommenting(false); // Start the upload indicator
         }
 
         // Reset the state
@@ -428,7 +432,7 @@ const NewComment = ({navigation, route}: Props) => {
                         {!isTagging && (
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={20} />
+                                    <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
                                 {/* <TouchableOpacity onPress={selectAGIF}>
                             <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
@@ -437,7 +441,7 @@ const NewComment = ({navigation, route}: Props) => {
                                     <Icon
                                         name="video-account"
                                         type="material-community"
-                                        color={COLORS.MIDORANGE}
+                                        color={COLORS.AKCRUBLUE}
                                         size={30}
                                     />
                                 </TouchableOpacity>
@@ -529,6 +533,13 @@ const NewComment = ({navigation, route}: Props) => {
                             </View>
                         </Modal>
                     </View>
+                    {isCommenting && (
+                        <Modal transparent={true} visible={isCommenting} animationType="fade">
+                            <View style={styles.loadingOverlay}>
+                                <ActivityIndicator size="large" color={COLORS.PINK} />
+                            </View>
+                        </Modal>
+                    )}
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>

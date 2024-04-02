@@ -45,6 +45,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import HexAvatar from '../../../components/HexAvatar';
 import { selectAvatarBorderColor } from '../../../util/util';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import { MULTISIZES } from '../../../../assets/constants/theme';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
@@ -456,14 +457,14 @@ const UserProfileDetailsTab = () => {
                                                 <Icon
                                                     name="square-edit-outline"
                                                     type="material-community"
-                                                    color={COLORS.MIDORANGE}
-                                                    size={15}
+                                                    color={COLORS.PINK}
+                                                    size={20}
                                                     style={{marginRight: 5}}
                                                 />
                                                 <Text
                                                     style={{
-                                                        ...FONTS.Username,
-                                                        color: COLORS.MIDORANGE,
+                                                        ...FONTS.Title2,
+                                                        color: COLORS.PINK,
                                                     }}>
                                                     Edit your CRU
                                                 </Text>
@@ -473,7 +474,7 @@ const UserProfileDetailsTab = () => {
                                         <View>
                                             <AkcruButtons.SmallButton
                                                 disabled={false}
-                                                color={COLORS.MIDORANGE}
+                                                color={COLORS.PURPLE}
                                                 btnname="CRU Chat"
                                                 onPress={() => navigation.navigate('ViewGroupChat', {
                                                     'isMyCruChat': true
@@ -499,7 +500,7 @@ const UserProfileDetailsTab = () => {
                                                 <Icon
                                                     name="calendar-sharp"
                                                     type="ionicon"
-                                                    color={COLORS.MIDORANGE}
+                                                    color={COLORS.PURPLE}
                                                     size={75}
                                                 />
                                             </TouchableOpacity>
@@ -703,7 +704,7 @@ const UserProfileDetailsTab = () => {
                                     <AkcruButtons.LrgButton
                                         btnname={'Add to Gallery'}
                                         onPress={selectGalleryImage}
-                                        color={COLORS.PURPLE}
+                                        color={COLORS.AKCRUBLUE}
                                         disabled={false}
                                     />
                                 </View>

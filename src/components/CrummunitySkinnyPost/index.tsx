@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 import { IUserProfile } from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
+import { MULTISIZES } from '../../../assets/constants/theme';
 
 type FooterIconsProps = {
     iconname: string;
@@ -222,7 +223,7 @@ const SkinnyPostCard = ({
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={handleDeletePost}>
-                    <Icon name="trash" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="trash" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
                 </Pressable>
             );
@@ -233,13 +234,7 @@ const SkinnyPostCard = ({
         if (!isCurrentUserAuthor) {
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon
-                        name="volume-mute"
-                        type="ionicon"
-                        color={COLORS.MIDORANGE}
-                        size={20}
-                        style={{marginLeft: 5}}
-                    />
+                    <Icon name="volume-mute" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author.username}</Text>
                 </Pressable>
             );
@@ -249,12 +244,13 @@ const SkinnyPostCard = ({
     const renderBlockUser = () => {
         if (!isCurrentUserAuthor) {
             return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}} 
-                onPress={() => {
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
                         onBlockUser();
                         closePostOptions(); // Close the modal
                     }}>
-                    <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="hand-left" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
                 </Pressable>
             );
@@ -270,7 +266,7 @@ const SkinnyPostCard = ({
                         reportUser(); // Call the report user function
                         closePostOptions(); // Close the modal
                     }}>
-                    <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
                 </Pressable>
             );
@@ -298,7 +294,7 @@ const SkinnyPostCard = ({
                         onFollow(); // Call the report user function
                         closePostOptions(); // Close the modal
                     }}>
-                    <Icon name="person" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                    <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
                         {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
                     </Text>
@@ -329,7 +325,7 @@ const SkinnyPostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={58}
+                            size={MULTISIZES.Xlarge60}
                             bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
@@ -389,9 +385,9 @@ const SkinnyPostCard = ({
                     )}
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
                         {timeSince(post.createdAt)}
-                    </Text>
+                    </Text> */}
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
@@ -463,6 +459,9 @@ const SkinnyPostCard = ({
                     </Pressable>
                 </Modal>
             </View>
+            <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
+                {timeSince(post.createdAt)}
+            </Text>
             {/* Render text if available */}
             {textContent && (
                 <View style={{marginTop: 10}}>
@@ -540,7 +539,7 @@ const SkinnyPostCard = ({
                     {showSkipButton && (
                         <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
                             <AkcruButtons.SmallButton
-                                color={COLORS.MIDORANGE}
+                                color={COLORS.PINK}
                                 btnname={'Skip'}
                                 onPress={handleSkipVideo}
                                 disabled={false}
@@ -575,7 +574,7 @@ const SkinnyPostCard = ({
                     {post.numberOfReposts || 0} Repost
                 </Text>
                 {post.isSuggestedUser && (
-                    <Text style={{...FONTS.paragraph1, color: COLORS.PURPLE}}>Suggested User</Text>
+                    <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>
                 )}
             </View>
         </View>

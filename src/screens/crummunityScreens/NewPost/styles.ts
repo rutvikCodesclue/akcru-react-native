@@ -47,10 +47,10 @@ export default StyleSheet.create({
     postButton: {
         ...FONTS.Title3,
         marginLeft: 5,
-        backgroundColor: COLORS.MIDORANGE,
+        backgroundColor: COLORS.AKCRUBLUE,
         paddingHorizontal: 15,
         paddingVertical: 10,
-        color: COLORS.AKCRUBLUE,
+        color: COLORS.PINK,
         borderRadius: 5,
     },
     postgallerycontainer: {
@@ -63,5 +63,11 @@ export default StyleSheet.create({
         aspectRatio: 16 / 9,
         borderRadius: 10,
         marginTop: 10,
+    },
+    loadingOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dim the background
     },
 });

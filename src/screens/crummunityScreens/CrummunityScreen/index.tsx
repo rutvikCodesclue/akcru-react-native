@@ -344,7 +344,7 @@ const handleToggleBlockUser = async authorId => {
                         <View style={{marginBottom: '30%'}}>
                             {loadingPosts ? (
                                 <View style={{marginTop: '25%'}}>
-                                    <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                                    <ActivityIndicator size="large" color={COLORS.PINK} />
                                 </View>
                             ) : // You can customize the size and color
                             posts.length === 0 ? (
@@ -389,14 +389,14 @@ const handleToggleBlockUser = async authorId => {
                                         hasMore ? (
                                             <TouchableOpacity onPress={loadMorePosts}>
                                                 {isLoadingMore ? (
-                                                    <ActivityIndicator color={COLORS.MIDORANGE} />
+                                                    <ActivityIndicator color={COLORS.PINK} />
                                                 ) : (
                                                     <Text
                                                         style={{
                                                             textAlign: 'center',
                                                             margin: 10,
                                                             ...FONTS.Title2,
-                                                            color: COLORS.MIDORANGE,
+                                                            color: COLORS.PINK,
                                                         }}>
                                                         Load More
                                                     </Text>

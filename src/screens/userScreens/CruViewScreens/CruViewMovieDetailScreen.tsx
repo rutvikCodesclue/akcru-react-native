@@ -14,7 +14,7 @@ import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import {API} from '../../../clients/api.client';
 import {createACRUView} from '../../../lib/api/cru.lib';
-import {combineDateAndTime, formatMovieDuration} from '../../../util/util';
+import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
 import moment from 'moment-timezone';
 import {set} from 'date-fns';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -167,380 +167,390 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
             timer = setTimeout(() => {
                 setShowSendCRUView(false);
                 setIsSelectionDisabled(true);
+                navigation.navigate('HomeScreen');
             }, 4000);
         }
 
         return () => clearTimeout(timer);
-    }, [showSendCRUView]);
+    }, [showSendCRUView, navigation]);
 
     return (
         <TabContainer>
             <SafeAreaView>
-            {showSendCRUView ? (
-                <View style={{flex: 1}}>
-                    <ImageBackground
-                        source={{
-                            uri: 'https://akcru.com/wp-content/uploads/2023/05/creepymit.png',
-                        }}
-                        resizeMode="cover"
-                        style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
-                            <Text
+                {showSendCRUView ? (
+                    <View style={{flex: 1}}>
+                        <ImageBackground
+                            source={{
+                                uri: 'https://akcru.com/wp-content/uploads/2023/05/creepymit.png',
+                            }}
+                            resizeMode="cover"
+                            style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                            <View
                                 style={{
-                                    ...FONTS.Title3,
-                                    width: 200,
-                                    textAlign: 'center',
-                                    paddingBottom: 20,
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
                                 }}>
-                                Your CRU View is set
-                            </Text>
-                            <Image
-                                source={imageindex.NewCru}
-                                style={{
-                                    width: 175,
-                                    height: 175,
-                                }}
-                            />
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    width: 200,
-                                    textAlign: 'center',
-                                    paddingTop: 20,
-                                }}>
-                                Don't forget to grab a bite while you watch at CRU Chew
-                            </Text>
-                            <Image
-                                source={imageindex.CruChew3}
-                                style={{
-                                    width: 120,
-                                    height: 120,
-                                }}
-                            />
-                        </View>
-                    </ImageBackground>
-                </View>
-            ) : (
-                <View>
-                    <ScrollView stickyHeaderIndices={[0]}>
-                        <View>
-                            <Header />
-                        </View>
-                        <View style={styles.topcontainer}>
-                            <TouchableOpacity onPress={() => navigation.pop()}>
-                                <View
+                                <Text
                                     style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
+                                        ...FONTS.Title3,
+                                        width: 200,
+                                        textAlign: 'center',
+                                        paddingBottom: 20,
                                     }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                            }}>
-                            <Text style={styles.choosedate}>Schedule CRU View</Text>
-                            <Icon name="calendar" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        </View>
-                        <View style={{marginHorizontal: 15, marginTop: 10}}>
-                            <View style={{flexDirection: 'row'}}>
+                                    Your CRU View is set
+                                </Text>
                                 <Image
-                                    source={{uri: movie?.portraitURL}}
+                                    source={imageindex.NewCru}
                                     style={{
-                                        width: SIZES.ScreenWidth / 2.5,
-                                        height: SIZES.ScreenWidth / 1.7,
-                                        borderRadius: 5,
+                                        width: 175,
+                                        height: 175,
                                     }}
                                 />
-                                <View style={{width: SIZES.ScreenWidth / 2, marginLeft: 10}}>
-                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.description}</Text>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.AKCRUBLUE,
-                                            fontSize: 12,
-                                            marginVertical: 10,
-                                        }}>
-                                        Cast: {loaded ? renderActorsList(movie?.actors) : null}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.AKCRUBLUE,
-                                            fontSize: 12,
-                                        }}>
-                                        Directors: {loaded ? renderDirectorsList(movie?.director) : null}
-                                    </Text>
-                                </View>
-                            </View>
-                            <View style={{marginTop: 10}}>
-                                <Text style={{...FONTS.Title3}}>{movie?.title}</Text>
-                                <View
+                                <Text
                                     style={{
-                                        flexDirection: 'row',
-                                        marginVertical: 5,
+                                        ...FONTS.Title3,
+                                        width: 200,
+                                        textAlign: 'center',
+                                        paddingTop: 20,
                                     }}>
+                                    Don't forget to grab a bite while you watch at CRU Chew
+                                </Text>
+                                <Image
+                                    source={imageindex.CruChew3}
+                                    style={{
+                                        width: 120,
+                                        height: 120,
+                                    }}
+                                />
+                            </View>
+                        </ImageBackground>
+                    </View>
+                ) : (
+                    <View>
+                        <ScrollView stickyHeaderIndices={[0]}>
+                            <View>
+                                <Header />
+                            </View>
+                            <View style={styles.topcontainer}>
+                                <TouchableOpacity onPress={() => navigation.pop()}>
                                     <View
                                         style={{
                                             flexDirection: 'row',
-                                            alignSelf: 'center',
-                                            marginRight: 20,
+                                            alignItems: 'center',
                                         }}>
+                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                <Text style={styles.choosedate}>Schedule CRU View</Text>
+                                <Icon name="calendar" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            </View>
+                            <View style={{marginHorizontal: 15, marginTop: 10}}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <Image
+                                        source={{uri: movie?.portraitURL}}
+                                        style={{
+                                            width: SIZES.ScreenWidth / 2.5,
+                                            height: SIZES.ScreenWidth / 1.7,
+                                            borderRadius: 5,
+                                        }}
+                                    />
+                                    <View style={{width: SIZES.ScreenWidth / 2, marginLeft: 10}}>
+                                        <Text style={{...FONTS.paragraph2}}>{movie?.description}</Text>
                                         <Text
                                             style={{
                                                 ...FONTS.Title2,
-                                                color: COLORS.LIGHTGREY,
-                                                marginRight: 10,
+                                                color: COLORS.AKCRUBLUE,
+                                                fontSize: 12,
+                                                marginVertical: 10,
                                             }}>
-                                            {movie?.year}
+                                            Cast: {loaded ? renderActorsList(movie?.actors) : null}
                                         </Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>
-                                            {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                color: COLORS.AKCRUBLUE,
+                                                fontSize: 12,
+                                            }}>
+                                            Directors: {loaded ? renderDirectorsList(movie?.director) : null}
                                         </Text>
                                     </View>
+                                </View>
+                                <View style={{marginTop: 10}}>
+                                    <Text style={{...FONTS.Title3}}>{movie?.title}</Text>
                                     <View
                                         style={{
                                             flexDirection: 'row',
+                                            marginVertical: 5,
                                         }}>
-                                        <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                        <Text style={styles.drawfonttag}>{movie?.genres[0]}</Text>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignSelf: 'center',
+                                                marginRight: 20,
+                                            }}>
+                                            <Text
+                                                style={{
+                                                    ...FONTS.paragraph2,
+                                                    color: COLORS.LIGHTGREY,
+                                                    marginRight: 10,
+                                                }}>
+                                                {movie?.year}
+                                            </Text>
+                                            <Text style={{...FONTS.paragraph2, color: COLORS.LIGHTGREY}}>
+                                                {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                            </Text>
+                                        </View>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                            }}>
+                                            <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                            <Text style={styles.drawfonttag}>
+                                                {loaded ? capitalizeFirstLetterOfString(movie?.genres[0]) : null}
+                                            </Text>
 
-                                        <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                            <Text style={styles.drawfonttag}>
+                                                {movie?.rating}
+                                                /10
+                                            </Text>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                        <View style={{marginTop: 20, marginBottom: 75}}>
-                            <Text style={styles.choosedate}>Choose date</Text>
-                            <View style={styles.container}>
-                                <View style={styles.monthContainer}>
-                                    <TouchableOpacity onPress={handlePreviousMonth} style={styles.arrowButton}>
-                                        <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
-                                    </TouchableOpacity>
-                                    <Text style={styles.monthText}>
-                                        {months[currentMonth]} {currentYear}
-                                    </Text>
-                                    <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
-                                        <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <View style={styles.datePickerContainer}>
-                                        {[...Array(daysInMonth)].map((_, index) => {
-                                            const day = index + 1;
-                                            const isSelected = selectedDate.getDate() === day;
-                                            const currentDate = new Date();
-                                            const currentDay = new Date(currentYear, currentMonth, day);
-                                            const currentDayOfWeek = currentDay.getDay();
-
-                                            // Allow selection for current day and future days
-                                            const isSelectable = currentDay >= currentDate;
-
-                                            return (
-                                                <TouchableOpacity
-                                                    key={day}
-                                                    onPress={() => handleDateChange(day)}
-                                                    style={[
-                                                        styles.dayButton,
-                                                        isSelected && styles.dayButtonSelected,
-                                                        (isSelectionDisabled || !isSelectable) && styles.disabledButton,
-                                                    ]}
-                                                    disabled={isSelectionDisabled || !isSelectable}>
-                                                    <Text style={styles.dayOfWeekText}>
-                                                        {daysOfWeek[currentDayOfWeek]}
-                                                    </Text>
-                                                    <Text
-                                                        style={[styles.dayText, isSelected && styles.dayTextSelected]}>
-                                                        {day}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
+                            <View style={{marginTop: 20, marginBottom: 75}}>
+                                <Text style={styles.choosedate}>Choose date</Text>
+                                <View style={styles.container}>
+                                    <View style={styles.monthContainer}>
+                                        <TouchableOpacity onPress={handlePreviousMonth} style={styles.arrowButton}>
+                                            <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
+                                        </TouchableOpacity>
+                                        <Text style={styles.monthText}>
+                                            {months[currentMonth]} {currentYear}
+                                        </Text>
+                                        <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
+                                            <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
+                                        </TouchableOpacity>
                                     </View>
-                                </ScrollView>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={styles.datePickerContainer}>
+                                            {[...Array(daysInMonth)].map((_, index) => {
+                                                const day = index + 1;
+                                                const isSelected = selectedDate.getDate() === day;
+                                                const currentDate = new Date();
+                                                const currentDay = new Date(currentYear, currentMonth, day);
+                                                const currentDayOfWeek = currentDay.getDay();
 
-                                <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                    <Text style={{...FONTS.Title2}}>Choose Date: </Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>
-                                        {' '}
-                                        {selectedDate.toLocaleDateString()}
-                                    </Text>
-                                </View>
+                                                // Allow selection for current day and future days
+                                                const isSelectable = currentDay >= currentDate;
 
-                                {/* Time picker */}
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <View style={styles.timePickerContainer}>
-                                        {[...Array(24 * 4)].map((_, index) => {
-                                            const hours = Math.floor(index / 4);
-                                            const minutes = (index % 4) * 15;
-                                            const isSelected =
-                                                selectedTime.getHours() === hours &&
-                                                selectedTime.getMinutes() === minutes;
-
-                                            const currentTime = new Date();
-                                            const selectedDateTime = new Date(
-                                                selectedDate.getFullYear(),
-                                                selectedDate.getMonth(),
-                                                selectedDate.getDate(),
-                                                hours,
-                                                minutes,
-                                            );
-
-                                            const isPastTime = selectedDateTime < currentTime;
-
-                                            const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                                            const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
-                                            return (
-                                                <TouchableOpacity
-                                                    key={index}
-                                                    onPress={() => handleTimeChange(hours, minutes)}
-                                                    style={[
-                                                        styles.timeButton,
-                                                        isSelected && styles.timeButtonSelected,
-                                                        (isSelectionDisabled || isPastTime) && styles.disabledButton,
-                                                    ]}
-                                                    disabled={isSelectionDisabled || isPastTime}>
-                                                    <Text
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={day}
+                                                        onPress={() => handleDateChange(day)}
                                                         style={[
-                                                            styles.timeText,
-                                                            isSelected && styles.timeTextSelected,
-                                                        ]}>
-                                                        {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
-                                                        {minutes === 0 ? '00' : minutes} {ampmSuffix}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
-                                    </View>
-                                </ScrollView>
-                                <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                    <Text style={{...FONTS.Title2}}>Choose Time: </Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>
-                                        {' '}
-                                        {selectedTime.toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
-                                    </Text>
-                                </View>
+                                                            styles.dayButton,
+                                                            isSelected && styles.dayButtonSelected,
+                                                            (isSelectionDisabled || !isSelectable) &&
+                                                                styles.disabledButton,
+                                                        ]}
+                                                        disabled={isSelectionDisabled || !isSelectable}>
+                                                        <Text style={styles.dayOfWeekText}>
+                                                            {daysOfWeek[currentDayOfWeek]}
+                                                        </Text>
+                                                        <Text
+                                                            style={[
+                                                                styles.dayText,
+                                                                isSelected && styles.dayTextSelected,
+                                                            ]}>
+                                                            {day}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </ScrollView>
 
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <View style={styles.timeZonePickerContainer}>
-                                        {timeZones.map(timeZone => {
-                                            const isSelected = selectedTimeZone === timeZone;
-                                            return (
-                                                <TouchableOpacity
-                                                    key={timeZone}
-                                                    onPress={() => handleTimeZoneChange(timeZone)}
-                                                    style={[
-                                                        styles.timeZoneButton,
-                                                        isSelected && styles.timeZoneButtonSelected,
-                                                        isSelectionDisabled && styles.disabledButton,
-                                                    ]}
-                                                    disabled={isSelectionDisabled}>
-                                                    <Text
+                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                                        <Text style={{...FONTS.Title2}}>Choose Date: </Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>
+                                            {' '}
+                                            {selectedDate.toLocaleDateString()}
+                                        </Text>
+                                    </View>
+
+                                    {/* Time picker */}
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={styles.timePickerContainer}>
+                                            {[...Array(24 * 4)].map((_, index) => {
+                                                const hours = Math.floor(index / 4);
+                                                const minutes = (index % 4) * 15;
+                                                const isSelected =
+                                                    selectedTime.getHours() === hours &&
+                                                    selectedTime.getMinutes() === minutes;
+
+                                                const currentTime = new Date();
+                                                const selectedDateTime = new Date(
+                                                    selectedDate.getFullYear(),
+                                                    selectedDate.getMonth(),
+                                                    selectedDate.getDate(),
+                                                    hours,
+                                                    minutes,
+                                                );
+
+                                                const isPastTime = selectedDateTime < currentTime;
+
+                                                const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                                                const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={index}
+                                                        onPress={() => handleTimeChange(hours, minutes)}
                                                         style={[
-                                                            styles.timeZoneText,
-                                                            isSelected && styles.timeZoneTextSelected,
-                                                        ]}>
-                                                        {timeZone}
-                                                    </Text>
-                                                </TouchableOpacity>
-                                            );
-                                        })}
+                                                            styles.timeButton,
+                                                            isSelected && styles.timeButtonSelected,
+                                                            (isSelectionDisabled || isPastTime) &&
+                                                                styles.disabledButton,
+                                                        ]}
+                                                        disabled={isSelectionDisabled || isPastTime}>
+                                                        <Text
+                                                            style={[
+                                                                styles.timeText,
+                                                                isSelected && styles.timeTextSelected,
+                                                            ]}>
+                                                            {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
+                                                            {minutes === 0 ? '00' : minutes} {ampmSuffix}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </ScrollView>
+                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                                        <Text style={{...FONTS.Title2}}>Choose Time: </Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>
+                                            {' '}
+                                            {selectedTime.toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })}
+                                        </Text>
                                     </View>
-                                </ScrollView>
 
-                                <View style={{flexDirection: 'row', marginBottom: 30}}>
-                                    <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>{selectedTimeZone}</Text>
-                                </View>
+                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                        <View style={styles.timeZonePickerContainer}>
+                                            {timeZones.map(timeZone => {
+                                                const isSelected = selectedTimeZone === timeZone;
+                                                return (
+                                                    <TouchableOpacity
+                                                        key={timeZone}
+                                                        onPress={() => handleTimeZoneChange(timeZone)}
+                                                        style={[
+                                                            styles.timeZoneButton,
+                                                            isSelected && styles.timeZoneButtonSelected,
+                                                            isSelectionDisabled && styles.disabledButton,
+                                                        ]}
+                                                        disabled={isSelectionDisabled}>
+                                                        <Text
+                                                            style={[
+                                                                styles.timeZoneText,
+                                                                isSelected && styles.timeZoneTextSelected,
+                                                            ]}>
+                                                            {timeZone}
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                );
+                                            })}
+                                        </View>
+                                    </ScrollView>
 
-                                <View>
+                                    <View style={{flexDirection: 'row', marginBottom: 30}}>
+                                        <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>{selectedTimeZone}</Text>
+                                    </View>
+
                                     <View>
-                                        {!isDateTimeSelected ? (
-                                            <View style={{alignItems: 'center'}}>
-                                                <AkcruButtons.SmallButton
-                                                    btnname={'Set Date'}
-                                                    color={COLORS.MIDORANGE}
-                                                    onPress={handleSetDateTime}
-                                                    disabled={!selectedDate || !selectedTime || !selectedTimeZone}
-                                                />
-                                            </View>
-                                        ) : (
-                                            <View>
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.Title2,
-                                                        color: COLORS.MIDORANGE,
-                                                        textAlign: 'center',
-                                                    }}>
-                                                    Your CRU View is all set to watch:
-                                                </Text>
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.Title2,
-                                                        color: COLORS.MIDORANGE,
-                                                        textAlign: 'center',
-                                                    }}>
-                                                    "{movie?.title}"
-                                                </Text>
-                                                <View>
-                                                    <View
-                                                        style={{
-                                                            flexDirection: 'row',
-                                                            justifyContent: 'center',
-                                                        }}>
-                                                        <View style={{margin: 10}}>
-                                                            <Image
-                                                                source={{uri: movie?.portraitURL}}
-                                                                style={{
-                                                                    width: 65,
-                                                                    height: 100,
-                                                                    borderRadius: 5,
-                                                                }}
-                                                            />
-                                                        </View>
-                                                        <View style={styles.selectedDateTimeContainer}>
-                                                            <Text style={styles.selectedDateTimeText}>
-                                                                {selectedDate.toLocaleDateString()}
-                                                            </Text>
-                                                            <Text style={styles.selectedDateTimeText}>
-                                                                {' '}
-                                                                {selectedTime.toLocaleTimeString([], {
-                                                                    hour: '2-digit',
-                                                                    minute: '2-digit',
-                                                                })}
-                                                            </Text>
-                                                            <Text style={styles.selectedDateTimeText}>
-                                                                {selectedTimeZone}
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-
-                                                    <View style={{alignItems: 'center', marginBottom: 20}}></View>
+                                        <View>
+                                            {!isDateTimeSelected ? (
+                                                <View style={{alignItems: 'center'}}>
+                                                    <AkcruButtons.SmallButton
+                                                        btnname={'Set Date'}
+                                                        color={COLORS.PURPLE}
+                                                        onPress={handleSetDateTime}
+                                                        disabled={!selectedDate || !selectedTime || !selectedTimeZone}
+                                                    />
                                                 </View>
-                                            </View>
-                                        )}
+                                            ) : (
+                                                <View>
+                                                    <Text
+                                                        style={{
+                                                            ...FONTS.Title2,
+                                                            color: COLORS.LIGHTGREY,
+                                                            textAlign: 'center',
+                                                        }}>
+                                                        Your CRU View is all set to watch:
+                                                    </Text>
+                                                    <Text
+                                                        style={{
+                                                            ...FONTS.Title2,
+                                                            color: COLORS.PINK,
+                                                            textAlign: 'center',
+                                                        }}>
+                                                        "{movie?.title}"
+                                                    </Text>
+                                                    <View>
+                                                        <View
+                                                            style={{
+                                                                flexDirection: 'row',
+                                                                justifyContent: 'center',
+                                                            }}>
+                                                            <View style={{margin: 10}}>
+                                                                <Image
+                                                                    source={{uri: movie?.portraitURL}}
+                                                                    style={{
+                                                                        width: 65,
+                                                                        height: 100,
+                                                                        borderRadius: 5,
+                                                                    }}
+                                                                />
+                                                            </View>
+                                                            <View style={styles.selectedDateTimeContainer}>
+                                                                <Text style={styles.selectedDateTimeText}>
+                                                                    {selectedDate.toLocaleDateString()}
+                                                                </Text>
+                                                                <Text style={styles.selectedDateTimeText}>
+                                                                    {' '}
+                                                                    {selectedTime.toLocaleTimeString([], {
+                                                                        hour: '2-digit',
+                                                                        minute: '2-digit',
+                                                                    })}
+                                                                </Text>
+                                                                <Text style={styles.selectedDateTimeText}>
+                                                                    {selectedTimeZone}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+
+                                                        <View style={{alignItems: 'center', marginBottom: 20}}></View>
+                                                    </View>
+                                                </View>
+                                            )}
+                                        </View>
                                     </View>
                                 </View>
                             </View>
-                        </View>
-                    </ScrollView>
-                </View>
-            )}
-        </SafeAreaView>
+                        </ScrollView>
+                    </View>
+                )}
+            </SafeAreaView>
         </TabContainer>
-        
     );
 }

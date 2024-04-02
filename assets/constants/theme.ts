@@ -46,7 +46,7 @@ export const COLORS = {
     LIGHTORANGE: '#F88163',
     DARKAKCRUBLUE: '#0A92C2',
     AKCRUBLUE: '#2FBFF1',
-    TRANSAKCRUBLUE: '#2FBFF150',
+    TRANSAKCRUBLUE: '#2FBFF160',
     LIGHTGREY: '#E8E8E8',
     TRANSLIGHTGREY: '#E8E8E8A6',
     DARKGREY: '#A19C9C',
@@ -76,6 +76,8 @@ export const COLORS = {
     CATBLUEDRK: '#000946',
     CATBLUELGT: '#1207AD',
     PINK: '#FF00FF',
+    TRANSPINK: '#FF00FF50',
+    AKCRUPINK: 'DB1DD0',
 };
 
 export const MULTISIZES = {
@@ -85,6 +87,7 @@ export const MULTISIZES = {
     Xlarge28: getAdaptiveSize(28),
     Xlarge40: getAdaptiveSize(40),
     Xlarge43: getAdaptiveSize(43),
+    Xlarge60: getAdaptiveSize(60),
     Xlarge80: getAdaptiveSize(80),
 };
 

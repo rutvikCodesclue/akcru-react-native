@@ -153,8 +153,8 @@ const UserProfileWalletTab = () => {
                         justifyContent: 'center',
                     }}>
                     <Image source={imageindex.AkcruHexLogo} style={{width: 40, height: 33}} />
-                    <Text style={styles.titleText2}>BALANCE</Text>
-                    <Text style={{...FONTS.Title3, fontSize: 18}}>{user?.adAmount} AD</Text>
+                    <Text style={{...FONTS.Title1, color: COLORS.PINK}}>BALANCE</Text>
+                    <Text style={{...FONTS.Title1}}>{user?.adAmount} AD</Text>
                 </View>
 
                 <View style={styles.lineSeperator} />
