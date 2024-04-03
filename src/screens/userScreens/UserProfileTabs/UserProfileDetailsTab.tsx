@@ -393,6 +393,7 @@ const UserProfileDetailsTab = () => {
                         data={userPics}
                         numColumns={3}
                         showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
                         keyExtractor={(item, index) => index.toString()}
                         renderItem={({item}) => (
                             <View>
@@ -540,6 +541,7 @@ const UserProfileDetailsTab = () => {
                                         data={crus}
                                         keyExtractor={item => item.id}
                                         horizontal
+                                        showsHorizontalScrollIndicator={false}
                                         renderItem={({item}) => {
                                             // Check if the current user is a member of this CRU
                                             const isCurrentUserAMember =

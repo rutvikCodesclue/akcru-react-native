@@ -91,4 +91,23 @@ export const deleteAllReadNotifications = async (): Promise<{success: boolean; m
     }
 };
 
+// Function to delete a specific read notification
+export const deleteReadNotification = async (notificationId: string): Promise<{success: boolean; message: string}> => {
+    
+    try {
+        // DELETE /v1/notify/read/:id - Delete a specific read notification
+        const { data } = await API.delete(`/v1/notify/read/${notificationId}`);
+        console.log('Delete read notification response:', data); // Optionally log the response for debugging
+
+        if (data.success) {
+            return { success: true, message: 'Read notification has been successfully deleted.' };
+        } else {
+            console.error('Failed to delete read notification:', data.message);
+            return { success: false, message: data.message || 'Failed to delete read notification.' };
+        }
+    } catch (error) {
+        console.error('Error deleting read notification:', error);
+        return { success: false, message: 'An error occurred while deleting the read notification.' };
+    }
+};
 

@@ -354,7 +354,7 @@ const EditCru = () => {
                             {cruMembers().length < 6 && (
                                 <View style={styles.listfooter}>
                                 <Pressable onPress={() => setShowAddMemberModal(true)}>
-                                    <Icon name="add-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="add-circle" type="ionicon" size={25} color={COLORS.PINK} />
                                     <Text style={{ ...FONTS.Title2 }}>Add a member</Text>
                                 </Pressable>
                                 </View>
@@ -397,7 +397,7 @@ const EditCru = () => {
                                 marginBottom: 20,
                             }}>
                             <Pressable onPress={() => setShowAddMemberModal(false)}>
-                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                             </Pressable>
                             <Text style={{...FONTS.Title1, marginLeft: 5}}>Cancel</Text>
                         </View>
@@ -481,7 +481,7 @@ const EditCru = () => {
                             <View style={{flexDirection: 'row'}}>
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: COLORS.CATREDLGT,
+                                        backgroundColor: COLORS.PURPLE,
                                         paddingHorizontal: 20,
                                         paddingVertical: 10,
                                         marginRight: 10,
@@ -492,7 +492,7 @@ const EditCru = () => {
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: COLORS.GREEN,
+                                        backgroundColor: COLORS.PINK,
                                         paddingHorizontal: 20,
                                         paddingVertical: 10,
                                         borderRadius: 5,

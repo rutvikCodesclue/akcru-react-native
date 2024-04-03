@@ -17,12 +17,14 @@ import AkcruButtons from '../../../components/akcruButtons';
 import LoadingComponent from '../../../components/Loading';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getPost} from '../../../lib/api/post.lib';
+import { UseTabMenu } from '../../../context/TabContext';
 
 const Unread = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
+    const {setRefetchUnreadNotifications, setRefetchReadNotifications} = UseTabMenu();
 
     // Fetch notifications when the component mounts
     useEffect(() => {
@@ -129,15 +131,38 @@ const Unread = () => {
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    const handleMarkAsRead = async (notificationId: string, index: number) => {
+    // const handleMarkAsRead = async (notificationId: string, index: number) => {
+    //     try {
+    //         // Call the API to mark the notification as read
+    //         const updatedNotification = await markNotificationRead({id: notificationId});
+
+    //         //console.log('API Response:', updatedNotification);
+
+            
+    //         if (updatedNotification) {
+    //             // Update the local state to mark the notification as read
+    //             setRefetchUnreadNotifications(true);
+    //             setNotifications(prevNotifications =>
+    //                 prevNotifications.map(notification =>
+    //                     notification.id === notificationId ? {...notification, isRead: true} : notification,
+    //                 ),
+    //             );
+    //         } else {
+    //             console.error(`Failed to mark notification ${notificationId} as read.`);
+    //         }
+    //     } catch (error) {
+    //         console.error(`Error marking notification ${notificationId} as read:`, error);
+    //     }
+    // };
+
+    const handleMarkAsRead = async (notificationId: string) => {
         try {
-            // Call the API to mark the notification as read
             const updatedNotification = await markNotificationRead({id: notificationId});
-
-            //console.log('API Response:', updatedNotification);
-
             if (updatedNotification) {
-                // Update the local state to mark the notification as read
+                // Trigger a refetch in the Read component
+                setRefetchReadNotifications(true);
+                // Optionally, refresh the current list of notifications
+                setRefetchUnreadNotifications(true);
                 setNotifications(prevNotifications =>
                     prevNotifications.map(notification =>
                         notification.id === notificationId ? {...notification, isRead: true} : notification,
@@ -151,20 +176,42 @@ const Unread = () => {
         }
     };
 
-    const handleMarkAllAsRead = async () => {
-        const unreadNotificationIds = notifications.filter(notif => !notif.isRead).map(notif => notif.id);
+    // const handleMarkAllAsRead = async () => {
+    //     const unreadNotificationIds = notifications.filter(notif => !notif.isRead).map(notif => notif.id);
 
+    //     if (unreadNotificationIds.length > 0) {
+    //         try {
+    //             const response = await batchMarkNotificationsRead(unreadNotificationIds); // Implement this function
+    //             if (response.success) {
+    //                 setNotifications(notifications.map(notif => ({...notif, isRead: true})));
+    //                 //console.log('All notifications marked as read');
+    //             } else {
+    //                 console.error('Failed to mark all notifications as read');
+    //             }
+    //         } catch (error) {
+    //             console.error('Error marking all notifications as read:', error);
+    //         }
+    //     }
+    // };
+
+    const handleMarkAllAsRead = async () => {
+        setIsLoading(true); // Show loading indicator to indicate processing
+        const unreadNotificationIds = notifications.filter(notif => !notif.isRead).map(notif => notif.id);
         if (unreadNotificationIds.length > 0) {
             try {
-                const response = await batchMarkNotificationsRead(unreadNotificationIds); // Implement this function
+                const response = await batchMarkNotificationsRead(unreadNotificationIds);
                 if (response.success) {
+                    // Trigger a refetch in both components
+                    setRefetchReadNotifications(prevState => !prevState);
+                    setRefetchUnreadNotifications(prevState => !prevState);
                     setNotifications(notifications.map(notif => ({...notif, isRead: true})));
-                    //console.log('All notifications marked as read');
                 } else {
                     console.error('Failed to mark all notifications as read');
                 }
             } catch (error) {
                 console.error('Error marking all notifications as read:', error);
+            } finally {
+                setIsLoading(false); // Hide loading indicator after processing is complete
             }
         }
     };

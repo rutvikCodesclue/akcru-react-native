@@ -10,6 +10,7 @@ import {useIsFocused, useNavigation} from '@react-navigation/native';
 import useAuthStore from '../../stores/auth.store';
 import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
 import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
+import { UseTabMenu } from '../../context/TabContext';
 
 
 // interface Props {
@@ -18,6 +19,15 @@ import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
 
 const Header = () => {
     const {user} = useAuthStore();
+
+    const {
+        refetchReadNotifications,
+        refetchUnreadNotifications,
+        deletedNotifications,
+        setRefetchReadNotifications,
+        setRefetchUnreadNotifications,
+        setDeletedNotifications,
+    } = UseTabMenu();
 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -51,7 +61,7 @@ const Header = () => {
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
                 setUnreadCount(unreadNotifications.length.toString());
-                // console.log('Unread Notifications:', unreadNotifications);
+                console.log('Unread Notifications:', unreadNotifications);
             }
         } catch (error) {
             console.error(error);
@@ -59,11 +69,23 @@ const Header = () => {
     };
 
     // Use useEffect to fetch notifications when the screen comes into focus
+    // Effect to refetch notifications
     useEffect(() => {
         if (isFocused) {
             fetchNotifications();
         }
     }, [isFocused]);
+
+
+    useEffect(() => {
+        if (refetchReadNotifications || refetchUnreadNotifications || deletedNotifications) {
+            fetchNotifications();
+            // Reset the flags
+            setRefetchReadNotifications(false);
+            setRefetchUnreadNotifications(false);
+            setDeletedNotifications(false);
+        }
+    }, [refetchReadNotifications, refetchUnreadNotifications, deletedNotifications]);
 
     const NotificationBadgeIcon = withBadge(unreadCount)(Icon);
 

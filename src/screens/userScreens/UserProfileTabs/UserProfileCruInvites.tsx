@@ -143,6 +143,7 @@ const UserProfileCruInvites = () => {
                 <FlatList
                     data={cruInvites}
                     horizontal={false}
+                    showsVerticalScrollIndicator={false}
                     keyExtractor={(item, index) => index.toString()} // Use a unique identifier for the key
                     renderItem={({item, index}) => (
                         <View style={{marginHorizontal: 15, marginBottom: 10}}>

@@ -261,7 +261,7 @@ const UserProfileDatesTab = () => {
 
     return (
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-            <ScrollView>
+            <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
                     <Text style={styles.titleText1}>YOUR SCHEDULE</Text>
                 </View>

@@ -206,7 +206,7 @@ useEffect(() => {
     return (
         <TabContainer>
             <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
+                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
                     <View>
                         <Header />
                     </View>
@@ -238,7 +238,6 @@ useEffect(() => {
                                             landscapeURL: landscapeURL,
                                         });
                                     }}
-
                                     PlayTrailer={() => {
                                         navigation2.navigate('TrailerPlayer', {
                                             id: id,

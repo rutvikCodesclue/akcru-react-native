@@ -10,7 +10,16 @@ interface TabContextType {
     setRefetchCrus: (value: boolean) => void; // And this one
 
     refetchDates: boolean;
-    setRefetchDates: (value: boolean) => void; 
+    setRefetchDates: (value: boolean) => void;
+
+    refetchReadNotifications: boolean;
+    setRefetchReadNotifications: (value: boolean) => void;
+
+    refetchUnreadNotifications: boolean;
+    setRefetchUnreadNotifications: (value: boolean) => void;
+
+    deletedNotifications: boolean;
+    setDeletedNotifications: (value: boolean) => void;
 }
 
 const TabContext = React.createContext<TabContextType>({
@@ -23,6 +32,15 @@ const TabContext = React.createContext<TabContextType>({
 
     refetchDates: false, // Default value for refetchCrus
     setRefetchDates: () => {}, // Default implementation (noop function) for setRefetchCrus
+
+    refetchReadNotifications: false,
+    setRefetchReadNotifications: () => {},
+
+    refetchUnreadNotifications: false,
+    setRefetchUnreadNotifications: () => {},
+
+    deletedNotifications: false,
+    setDeletedNotifications: () => {},
 });
 
 // const TabContext = React.createContext({opened: false, toggleOpened: () => {}});
@@ -33,6 +51,12 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [refetchCrus, setRefetchCrus] = React.useState(false); // Add this line
 
     const [refetchDates, setRefetchDates] = React.useState(false); // Add this line
+
+    const [refetchReadNotifications, setRefetchReadNotifications] = React.useState(false);
+
+    const [refetchUnreadNotifications, setRefetchUnreadNotifications] = React.useState(false);
+
+    const [deletedNotifications, setDeletedNotifications] = React.useState(false);
 
     const toggleOpened = () => {
         setOpened(!opened);
@@ -59,6 +83,12 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
                 setRefetchCrus,
                 refetchDates,
                 setRefetchDates,
+                refetchReadNotifications,
+                setRefetchReadNotifications,
+                refetchUnreadNotifications,
+                setRefetchUnreadNotifications,
+                deletedNotifications,
+                setDeletedNotifications,
             }}>
             {children}
         </TabContext.Provider>
