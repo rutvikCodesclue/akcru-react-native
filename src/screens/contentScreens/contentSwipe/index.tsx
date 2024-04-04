@@ -397,7 +397,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                                 alignSelf: 'center',
                                 marginBottom: 10,
                             }}>
-                            Watch any of our top 5 movies today and earn 2x the Akcru Dollars
+                            Here are our top 5 movies recommended for you today
                         </Text>
                     </TouchableOpacity>
 

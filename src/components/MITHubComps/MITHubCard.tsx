@@ -12,13 +12,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
 import HexAvatar from '../HexAvatar';
+import CustomIcon from '../CustomIcon/CustomIcon';
 
 type MITHubCardProps = {
     inviteePicture: string;
     inviteeName: string;
     MITDate: string;
     MITMoviechoice: string;
-    onPress?: () => void;
+    cancel?: () => void;
     onPressIn: () => void;
     akcruBadge: any;
     scheduleDate: string;
@@ -40,7 +41,7 @@ const MITHubCard = ({
     inviteeName,
     MITDate,
     MITMoviechoice,
-    onPress,
+    cancel,
     onPressIn,
     akcruBadge,
     scheduleDate,
@@ -67,21 +68,6 @@ MITHubCardProps) => {
                 <View style={{flexDirection: 'row'}}>
                     <View style={{marginRight: 8}}>
                         <TouchableOpacity onPressIn={onPressIn}>
-                            {/* <Avatar
-                                rounded
-                                size={50}
-                                source={
-                                    inviteePicture
-                                        ? {
-                                              uri: inviteePicture,
-                                          }
-                                        : imageindex.Akcruplaceholder
-                                }
-                                avatarStyle={{
-                                    borderWidth: 2,
-                                    borderColor: selectAvatarBorderColor(akcruBadge),
-                                }}
-                            /> */}
                             <HexAvatar
                                 source={{uri: inviteePicture}}
                                 size={55}
@@ -92,15 +78,34 @@ MITHubCardProps) => {
                     <View>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Text style={{...FONTS.Title2}}>{inviteeName}</Text>
-                            {/* {influencer && (
-                <Icon
-                  name="ribbon"
-                  type="ionicon"
-                  color={COLORS.AKCRUBLUE}
-                  size={20}
-                  style={{ marginLeft: 5 }}
-                />
-              )} */}
+
+                            {/* {post?.author.ownerStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.STARGOLD}
+                                    baseSize={12}
+                                    style={{marginRight: 5}}
+                                />
+                            )}
+                            {post?.author.companyStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.WHITE}
+                                    baseSize={12}
+                                    style={{marginRight: 5}}
+                                />
+                            )}
+                            {post?.author.influencerStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.AKCRUBLUE}
+                                    baseSize={12}
+                                    style={{marginRight: 5}}
+                                />
+                            )} */}
                         </View>
 
                         {akcruBadge === 'AKCRUIT' && (
@@ -127,10 +132,10 @@ MITHubCardProps) => {
                 </View>
 
                 <View>
-                    {/* <Text style={styles.stamps}>{MITDate}</Text> */}
-                    {/* <TouchableOpacity onPress={onPress}>
-                      <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
-                  </TouchableOpacity> */}
+                    {/* <TouchableOpacity onPress={cancel}>
+                        <Text style={{...FONTS.Title2AkcruBlue, color: COLORS.PINK}}>CANCEL</Text>
+                        
+                    </TouchableOpacity> */}
                 </View>
             </View>
             <View style={{marginTop: 5, flexDirection: 'row', flexWrap: 'wrap'}}>

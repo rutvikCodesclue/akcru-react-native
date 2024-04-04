@@ -104,6 +104,20 @@ export const cancelMIT = async (mitInviteId: string): Promise<any> => {
     }
 };
 
+export const cancelSentMIT = async (mitInviteId: string): Promise<{success: boolean; message?: string}> => {
+    try {
+        const {data} = await API.post(`/v1/mit/cancel-sent-mit`, {data: {mitInviteId}});
+        return {
+            success: data.success,
+            message: data.message,
+        };
+    } catch (error) {
+        console.error('Error cancelling sent MIT:', error);
+        throw error;
+    }
+};
+
+
 export const acceptAMITInvite = async (params: {inviteId: string}): Promise<IMITInvite | undefined> => {
     // POST /v1/mit/invite/accept
     try {

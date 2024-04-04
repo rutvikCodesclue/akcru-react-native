@@ -4,7 +4,7 @@ import MITHubCard from '../../../components/MITHubComps/MITHubCard';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {getMyMITInvites, getMyMITs} from '../../../lib/api/mit.lib';
+import {cancelMIT, cancelSentMIT, getMyMITInvites, getMyMITs} from '../../../lib/api/mit.lib';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {MITInviteHubCard} from '../../../components/MITHubComps';
 import {FONTS} from '../../../../assets/constants/theme';
@@ -18,6 +18,38 @@ const MITSent = () => {
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const {user, hydrateUser} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+    const handleCancelMIT = async (mitInviteId: string) => {
+        try {
+            const response = await cancelMIT(mitInviteId); // Use the CRU View ID
+            if (response.success) {
+                // setRefetchDates(true);
+                // setConfirmCancelMITModal(false);
+                // setDateMITType('Success');
+                // setDateMITResultModal(true);
+                // setDateMITMessage('MIT cancelled successfully');
+                // setDateMITIcon('md-checkmark-circle');
+                // setDateMITIconColor('green');
+            } else {
+                // setRefetchDates(true);
+                // setConfirmCancelMITModal(false);
+                // setDateMITType('Fail');
+                // setDateMITResultModal(true);
+                // setDateMITMessage('Failed to cancel MIT');
+                // setDateMITIcon('md-alert-circle');
+                // setDateMITIconColor('red');
+            }
+        } catch (error) {
+            // setRefetchDates(true);
+            // setConfirmCancelMITModal(false);
+            // setDateMITType('Error');
+            // setDateMITResultModal(true);
+            // setDateMITMessage('An error occurred while cancelling the MIT');
+            // setDateMITIcon('md-alert-circle');
+            // setDateMITIconColor('red');
+            console.error('Error cancelling MIT:', error);
+        }
+    };
 
     useFocusEffect(
         React.useCallback(() => {
@@ -103,6 +135,7 @@ const MITSent = () => {
                             }
                             // influencer={item.influencer}
                             akcruBadge={item.invitee.badge}
+                            cancel={() => handleCancelMIT(item.id)}
                         />
                     </View>
                 )}

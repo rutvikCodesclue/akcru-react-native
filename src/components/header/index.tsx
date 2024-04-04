@@ -42,6 +42,7 @@ const Header = () => {
             const notifications = await getMyNotifications();
             if (notifications && notifications.length > 0) {
                 const specificTypes = [
+                    'MITReceived',
                     'MITAccepted',
                     'MITDeclined',
                     'CruInviteAccepted',
@@ -61,7 +62,7 @@ const Header = () => {
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
                 setUnreadCount(unreadNotifications.length.toString());
-                console.log('Unread Notifications:', unreadNotifications);
+                // console.log('Unread Notifications:', unreadNotifications);
             }
         } catch (error) {
             console.error(error);

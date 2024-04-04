@@ -82,6 +82,18 @@ const Read = () => {
     const navigateToContent = async (notification: INotification) => {
         try {
             switch (notification.type) {
+                case 'MITReceived':
+                navigation.navigate('UserMITHubScreen');
+                    break;
+                // Add cases for MITAccepted and MITDeclined
+                case 'MITAccepted':
+                case 'MITDeclined':
+                case 'CruViewStarted':
+                    // Navigate to UserProfileScreen
+                    // Assuming 'UserProfileScreen' is the correct name of the screen you want to navigate to
+                    // You might need to adjust the navigation prop or params based on your navigation setup
+                    navigation.navigate('UserProfileScreen');
+                    break;
                 case 'UserLikedComment':
                 case 'UserLikedPost':
                 case 'UserTaggedOnPost':
@@ -125,6 +137,7 @@ const Read = () => {
 
     const getNotificationDisplayName = (type: string) => {
         const typeDisplayNames: {[key: string]: string} = {
+            MITReceived: 'You have received a MIT',
             MITAccepted: 'Your MIT was Accepted',
             MITDeclined: 'Your MIT was Declined',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
@@ -150,6 +163,7 @@ const Read = () => {
             notification.isRead &&
             (notification.type === 'MITAccepted' ||
                 notification.type === 'MITDeclined' ||
+                notification.type === 'MITReceived' ||
                 notification.type === 'CruInviteAccepted' ||
                 notification.type === 'CruInviteDeclined' ||
                 notification.type === 'UserFollowed' ||
