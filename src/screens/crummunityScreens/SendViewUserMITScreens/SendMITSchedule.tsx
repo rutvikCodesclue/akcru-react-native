@@ -53,6 +53,7 @@ export default function SendMITSchedule({route}: Props) {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
+    const [loading, setLoading] = useState(true);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -161,6 +162,7 @@ export default function SendMITSchedule({route}: Props) {
     };
 
     const handleSetDateTime = async () => {
+        setLoading(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
             // Format selected date in ISO 8601 format
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
@@ -182,6 +184,7 @@ export default function SendMITSchedule({route}: Props) {
                 }
             }
         }
+        setLoading(false);
     };
 
     const timeZones = [
@@ -723,6 +726,7 @@ export default function SendMITSchedule({route}: Props) {
                             )}
                         </View>
                     )}
+                    {!loading && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>

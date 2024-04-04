@@ -704,7 +704,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                             name="checkmark-sharp"
                                                             type="ionicon"
                                                             size={18}
-                                                            color={COLORS.MIDORANGE}
+                                                            color={COLORS.AKCRUBLUE}
                                                             style={{marginTop: -3}}
                                                         />
                                                     )}

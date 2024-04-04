@@ -20,6 +20,9 @@ interface TabContextType {
 
     deletedNotifications: boolean;
     setDeletedNotifications: (value: boolean) => void;
+
+    updateMITs: boolean;
+    setUpdateMITs: (value: boolean) => void;
 }
 
 const TabContext = React.createContext<TabContextType>({
@@ -41,6 +44,9 @@ const TabContext = React.createContext<TabContextType>({
 
     deletedNotifications: false,
     setDeletedNotifications: () => {},
+
+    updateMITs: false,
+    setUpdateMITs: () => {},
 });
 
 // const TabContext = React.createContext({opened: false, toggleOpened: () => {}});
@@ -57,6 +63,8 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [refetchUnreadNotifications, setRefetchUnreadNotifications] = React.useState(false);
 
     const [deletedNotifications, setDeletedNotifications] = React.useState(false);
+
+    const [updateMITs, setUpdateMITs] = React.useState(false);
 
     const toggleOpened = () => {
         setOpened(!opened);
@@ -89,6 +97,8 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
                 setRefetchUnreadNotifications,
                 deletedNotifications,
                 setDeletedNotifications,
+                updateMITs,
+                setUpdateMITs,
             }}>
             {children}
         </TabContext.Provider>

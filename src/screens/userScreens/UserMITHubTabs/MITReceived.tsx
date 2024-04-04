@@ -120,7 +120,9 @@ const MITReceived = () => {
     }, [invites]);
 
     return (
+        
         <View style={{marginTop: 10, marginBottom: 75}}>
+            
             <View>
                 {/* Display the invite count */}
                 <Text style={{...FONTS.Title2, marginHorizontal: 15}}>

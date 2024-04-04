@@ -162,7 +162,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     } else if (isMember) {
         btnName = 'CRU MEMBER';
         btnDisabled = true;
-        btnColor = COLORS.MIDORANGE;
+        btnColor = COLORS.PINK;
     }
 
     useFocusEffect(

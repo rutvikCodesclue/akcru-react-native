@@ -132,10 +132,10 @@ MITHubCardProps) => {
                 </View>
 
                 <View>
-                    {/* <TouchableOpacity onPress={cancel}>
+                    <TouchableOpacity onPress={cancel}>
                         <Text style={{...FONTS.Title2AkcruBlue, color: COLORS.PINK}}>CANCEL</Text>
                         
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={{marginTop: 5, flexDirection: 'row', flexWrap: 'wrap'}}>

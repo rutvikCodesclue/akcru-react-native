@@ -425,8 +425,8 @@ const UserProfileDetailsTab = () => {
                                         alignItems: 'center',
                                         width: '95%',
                                     }}>
-                                    <View style={{alignContent: 'center', width: SIZES.ScreenWidth * .5 }}>
-                                        <View >
+                                    <View style={{alignContent: 'center', width: SIZES.ScreenWidth * 0.5}}>
+                                        <View>
                                             <FlatList
                                                 data={cruMembers()}
                                                 horizontal={true}
@@ -473,13 +473,27 @@ const UserProfileDetailsTab = () => {
                                         </TouchableOpacity>
 
                                         <View>
+                                            <View
+                                                style={{
+                                                    width: 10,
+                                                    height: 10,
+                                                    borderRadius: 5,
+                                                    backgroundColor: COLORS.PINK,
+                                                    position: 'absolute',
+                                                    zIndex: 100,
+                                                    left: '63%',
+                                                    top: -3
+                                                }}
+                                            />
                                             <AkcruButtons.SmallButton
                                                 disabled={false}
                                                 color={COLORS.PURPLE}
                                                 btnname="CRU Chat"
-                                                onPress={() => navigation.navigate('ViewGroupChat', {
-                                                    'isMyCruChat': true
-                                                })}
+                                                onPress={() =>
+                                                    navigation.navigate('ViewGroupChat', {
+                                                        isMyCruChat: true,
+                                                    })
+                                                }
                                             />
                                         </View>
                                     </View>
@@ -574,18 +588,17 @@ const UserProfileDetailsTab = () => {
                                                     <TouchableOpacity
                                                         style={{position: 'absolute', left: '8%', top: '5%'}}
                                                         onPress={() => {
-                                                            
                                                             navigation.navigate('ViewGroupChat', {
-                                                                'isMyCruChat': false,
-                                                                'cru': item
-                                                            })
+                                                                isMyCruChat: false,
+                                                                cru: item,
+                                                            });
                                                         }}>
                                                         <View
                                                             style={{
                                                                 width: 10,
                                                                 height: 10,
                                                                 borderRadius: 5,
-                                                                backgroundColor: COLORS.MIDORANGE,
+                                                                backgroundColor: COLORS.PINK,
                                                                 position: 'absolute',
                                                                 zIndex: 100,
                                                                 right: 0,
@@ -706,7 +719,7 @@ const UserProfileDetailsTab = () => {
                                     <AkcruButtons.LrgButton
                                         btnname={'Add to Gallery'}
                                         onPress={selectGalleryImage}
-                                        color={COLORS.AKCRUBLUE}
+                                        color={COLORS.PINK}
                                         disabled={false}
                                     />
                                 </View>
@@ -714,15 +727,6 @@ const UserProfileDetailsTab = () => {
                         }
                         ListFooterComponent={
                             <View>
-                                <View
-                                    style={{
-                                        borderBottomWidth: 1.5,
-                                        borderColor: COLORS.DARKERGREY,
-
-                                        marginBottom: 10,
-                                    }}
-                                />
-
                                 <View style={{marginBottom: 75}}>
                                     {/* <View style={{marginBottom: 10}}>
                             <BasicListCategories

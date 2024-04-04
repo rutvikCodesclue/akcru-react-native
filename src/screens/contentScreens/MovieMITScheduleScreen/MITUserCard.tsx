@@ -16,30 +16,39 @@ import { IUserProfile } from '../../../../types';
 import { useFocusEffect } from '@react-navigation/native';
 import { findAUser } from '../../../lib/api/user.lib';
 import { selectAvatarBorderColor } from '../../../util/util';
+import HexAvatar from '../../../components/HexAvatar';
+import { MULTISIZES } from '../../../../assets/constants/theme';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 const MAX_USERDESC_LENGTH = 50; // Maximum number of characters for the userDesc
 
 type MITUserSearchCardProps = {
     userPicture?: string;
     userName: string;
-    influencer?: boolean;
+    influencerStatus: boolean;
+    ownerStatus: boolean;
+    companyStatus: boolean;
     akcruBadge: any;
     onPress: () => void;
     userID: any;
     userDesc?: string;
     onPressOut: () => void;
+    firstName?: string;
 };
 
 const MITUserSearchCard = ({
     
     userPicture,
     userName,
-    influencer,
+    influencerStatus,
+    ownerStatus,
+    companyStatus,
     akcruBadge,
     onPress,
     userID,
     userDesc,
     onPressOut,
+    firstName,
 }: MITUserSearchCardProps) => {
     // const truncateduserDesc =
     //     userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
@@ -76,33 +85,57 @@ const MITUserSearchCard = ({
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 8}}>
                             <TouchableOpacity onPress={onPress}>
-                                <Avatar
+                                {/* <Avatar
                                     rounded
                                     size={40}
-                                    source={
-                                        userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder
-                                    }
+                                    source={userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder}
                                     avatarStyle={{
                                         borderWidth: 2,
                                         borderColor: selectAvatarBorderColor(akcruBadge),
                                     }}
+                                /> */}
+
+                                <HexAvatar
+                                    source={userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder}
+                                    size={MULTISIZES.Xlarge60}
+                                    bordercolor={selectAvatarBorderColor(akcruBadge)}
                                 />
                             </TouchableOpacity>
                         </View>
                         <View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title2}}>{userName}</Text>
-                                {influencer && (
-                                    <Icon
+                                <Text style={{...FONTS.Title2, marginRight: 5}}>{userName}</Text>
+                                {ownerStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.STARGOLD}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {companyStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.WHITE}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {influencerStatus && (
+                                    <CustomIcon
                                         name="ribbon"
                                         type="ionicon"
                                         color={COLORS.AKCRUBLUE}
-                                        size={20}
-                                        style={{marginLeft: 5}}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
                                     />
                                 )}
                             </View>
-
+                            <Text style={{...FONTS.paragraph1}}>
+                                {firstName}
+                            </Text>
                             {akcruBadge === 'AKCRUIT' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeAkcruit />

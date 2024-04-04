@@ -447,7 +447,7 @@ const Signin = () => {
                                             ...FONTS.Title2,
                                             marginBottom: 10,
                                             textAlign: 'center',
-                                            color: COLORS.MIDORANGE,
+                                            color: COLORS.PINK,
                                         }}>
                                         {`Close`}
                                     </Text>

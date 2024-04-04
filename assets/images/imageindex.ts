@@ -35,6 +35,7 @@ const Trinity = require('./Trinity.png');
 const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const Akcrunetwork = require('./akcrunetwork.jpg');
+const Akcrunetwork2 = require('./akcru_network_fix.jpg');
 
 
 
@@ -77,5 +78,6 @@ export default {
     Trinity,
     AkcruHexBlank,
     FLickFlirt,
-    Akcrunetwork
+    Akcrunetwork,
+    Akcrunetwork2,
 };

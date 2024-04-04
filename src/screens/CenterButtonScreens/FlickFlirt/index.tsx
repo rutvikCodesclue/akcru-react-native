@@ -40,7 +40,7 @@ const FlickFlirtScreen = () => {
                       <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * .65}}>
                         <View style={styles.textcontainer}>
                           <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Flick Flirt"</Text>
-                          <Text style={[styles.title, {color: COLORS.MIDORANGE, marginBottom: 15}]}>
+                          <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
                               Elevate Your Movie Nights with a Dash of Romance!
                           </Text>
                           <Text style={styles.paragraph}>

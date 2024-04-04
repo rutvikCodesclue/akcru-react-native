@@ -25,11 +25,13 @@ import {IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
+import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
+import HexAvatar from '../../../components/HexAvatar';
+import { MULTISIZES } from '../../../../assets/constants/theme';
 
 type MITDateScheduleNavigationProp = StackNavigationProp<ClientStackParams, 'MITDateSchedule'>;
 
@@ -114,10 +116,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedUserPicture, setSelectedUserPicture] = useState('');
     const [selectedInfluencer, setSelectedInfluencer] = useState('');
     const [selectedUser, setSelectedUser] = useState(false);
+    const [selectedBorderColor, setSelectedBorderColor] = useState('')
+    
 
     const handlePress = (username, badge, profilePicture) => {
         //console.log('Item with username', username, badge, 'pressed!');
         //console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
+        const borderColor = selectAvatarBorderColor(badge);
+
         setScheduleIsShown(true);
         setSelectedUserName(username);
         setSelectedAkcruBadgeAkcruit(badge);
@@ -127,6 +133,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedUserPicture(profilePicture);
         setSelectedUser(true);
         // setSelectedInfluencer(influencer);
+        setSelectedBorderColor(borderColor);
     };
 
     //Scheduling date states
@@ -340,7 +347,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 type="material-community"
                                                 size={25}
                                                 color={COLORS.DARKGREY}
-                                                style={{marginLeft: SIZES.ScreenWidth / 2.5}}
+                                                style={{marginLeft: SIZES.ScreenWidth / 2.3}}
                                                 onPress={() => {
                                                     textInputRef.current.clear();
                                                     handleSearch(textInputRef);
@@ -377,6 +384,10 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 onPressOut={() =>
                                                     handlePress(item.username, item.badge, item.profilePicture)
                                                 }
+                                                influencerStatus={item.influencerStatus}
+                                                companyStatus={item.companyStatus}
+                                                ownerStatus={item.ownerStatus}
+                                                firstName={item.firstName}
                                             />
                                         </View>
                                     )}
@@ -431,7 +442,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         }}
                                     />
                                     <View style={{width: SIZES.ScreenWidth / 2, marginLeft: 10}}>
-                                        <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.description}</Text>
+                                        <Text style={{...FONTS.paragraph1}}>{movie?.description}</Text>
                                         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                                             <Text
                                                 style={{
@@ -473,13 +484,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             }}>
                                             <Text
                                                 style={{
-                                                    ...FONTS.Title2,
+                                                    ...FONTS.paragraph2,
                                                     color: COLORS.LIGHTGREY,
                                                     marginRight: 10,
                                                 }}>
                                                 {movie?.year}
                                             </Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>
+                                            <Text style={{...FONTS.paragraph2, color: COLORS.LIGHTGREY}}>
                                                 {formatMovieDuration(movie?.duration)}
                                             </Text>
                                         </View>
@@ -511,7 +522,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     style={{
                                         borderRadius: 5,
                                         backgroundColor: COLORS.TAGCOLOR,
-                                        width: SIZES.ScreenWidth / 2,
+                                        width: SIZES.ScreenWidth / 1.8,
 
                                         padding: 10,
                                     }}>
@@ -524,24 +535,20 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             right: 0,
                                             top: 0,
                                             bottom: 0,
-                                            width: SIZES.ScreenWidth / 2,
+                                            width: SIZES.ScreenWidth / 1.8,
                                             borderRadius: 5,
                                         }}
                                     />
                                     <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                         <View>
-                                            <Avatar
-                                                rounded
-                                                size={40}
+                                            <HexAvatar
                                                 source={
                                                     selectedUserPicture
                                                         ? {uri: selectedUserPicture}
                                                         : imageindex.Akcruplaceholder
                                                 }
-                                                avatarStyle={{
-                                                    borderWidth: 2,
-                                                    borderColor: COLORS.AKCRUBLUE,
-                                                }}
+                                                size={MULTISIZES.Xlarge43}
+                                                bordercolor={selectedBorderColor}
                                             />
                                         </View>
                                         <View style={{marginLeft: 10}}>

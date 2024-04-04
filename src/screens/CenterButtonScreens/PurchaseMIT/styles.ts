@@ -15,9 +15,9 @@ export default StyleSheet.create({
         height: 100,
     },
     mitprice: {
-        ...FONTS.Title3,
-        fontSize: 20,
-        color: COLORS.AKCRUBLUE,
+        ...FONTS.Title1,
+        
+        color: COLORS.LIGHTGREY,
         marginBottom: 10,
     },
     counticonbox: {

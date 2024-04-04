@@ -131,11 +131,11 @@ const PurchaseMITScreen = () => {
                             <View>
                                 <Text
                                     style={{
-                                        ...FONTS.Title3,
+                                        ...FONTS.paragraph2,
                                         marginHorizontal: 15,
                                         marginVertical: 10,
-                                        color: COLORS.MIDORANGE,
-                                        textAlign: 'center'
+                                        color: COLORS.PINK,
+                                        textAlign: 'center',
                                     }}>
                                     Create a date to watch a movie with someone outside of your CRU using a Movie Invite
                                     Ticket.
@@ -143,11 +143,11 @@ const PurchaseMITScreen = () => {
                                 <View style={styles.pricecontainer}>
                                     <Image source={imageindex.MIT1} style={styles.mitimage} />
                                     <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                        <Text style={{...FONTS.Title3, fontSize: 20}}>Movie Invite Tickets</Text>
+                                        <Text style={{...FONTS.HeroTitle}}>Movie Invite Tickets</Text>
                                     </View>
 
                                     <Text style={styles.mitprice}>
-                                        500 AD /<Text style={{color: COLORS.MIDORANGE}}> pc.</Text>
+                                        500 AD /<Text style={{color: COLORS.PINK}}> pc.</Text>
                                     </Text>
                                     <View style={{marginBottom: 10}}>
                                         <View style={{flexDirection: 'row'}}>
@@ -157,7 +157,7 @@ const PurchaseMITScreen = () => {
                                                         name="minus"
                                                         type="material-community"
                                                         size={24}
-                                                        color={COLORS.MIDORANGE}
+                                                        color={COLORS.PINK}
                                                     />
                                                 </TouchableOpacity>
                                             </View>
@@ -177,7 +177,7 @@ const PurchaseMITScreen = () => {
                                                         name="plus"
                                                         type="material-community"
                                                         size={24}
-                                                        color={COLORS.MIDORANGE}
+                                                        color={COLORS.PINK}
                                                     />
                                                 </TouchableOpacity>
                                             </View>

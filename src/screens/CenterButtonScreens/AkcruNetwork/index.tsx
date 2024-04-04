@@ -15,7 +15,7 @@ const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParam
       <TabContainer>
           <View>
               <ImageBackground
-                  source={imageindex.Akcrunetwork}
+                  source={imageindex.Akcrunetwork2}
                   resizeMode="cover"
                   style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                   <SafeAreaView>
@@ -34,10 +34,10 @@ const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParam
                               <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                           </View>
                       </TouchableOpacity>
-                      <View style={{justifyContent: 'center'}}>
+                      <View style={{justifyContent: 'center', marginTop: "10%"}}>
                           <View style={styles.textcontainer}>
                               <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Akcru Network"</Text>
-                              <Text style={[styles.title, {color: COLORS.MIDORANGE, marginBottom: 15}]}>
+                              <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
                                   Connecting Users to the Pulse of Akcru
                               </Text>
                               <Text style={styles.paragraph}>
