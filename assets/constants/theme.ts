@@ -61,7 +61,7 @@ export const COLORS = {
     BLACK: '#000000',
     FADEDBLACK: '#00000070',
     PUREGOLD: '#DB9D00',
-    STARGOLD: '#FFD700',
+    STARGOLD: '#E99401',
 
     TAGCOLOR: '#222835',
 
@@ -89,6 +89,7 @@ export const MULTISIZES = {
     Xlarge43: getAdaptiveSize(43),
     Xlarge60: getAdaptiveSize(60),
     Xlarge80: getAdaptiveSize(80),
+    Xlarge150: getAdaptiveSize(150),
 };
 
 export const FONTS = {

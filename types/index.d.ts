@@ -489,3 +489,14 @@ export type ITicket = {
     reportedUserId:  string;
     reported: string;
 }
+
+export interface IHelpVideo {
+    id: string;
+    title: string;
+    description: string;
+    videoURL: string;
+    imageURL: string;
+    createdAt: string;
+    updatedAt: string;
+    trinity: boolean;
+}
