@@ -30,13 +30,13 @@ const ViewUserOptionModal = ({blockToggleText, followIconType, followToggleIcon,
               <Pressable
                   onPress={blockUser}
                   style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                  <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                  <Icon name="hand-left" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                   <Text style={{...FONTS.Title2, paddingLeft: 12}}>
                      {blockToggleText} {username}
                   </Text>
               </Pressable>
               <Pressable onPress={reportUser} style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                  <Icon name="flag" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
+                  <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                   <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {username}</Text>
               </Pressable>
               <Pressable onPress={followUser}>
@@ -44,7 +44,7 @@ const ViewUserOptionModal = ({blockToggleText, followIconType, followToggleIcon,
                       <Icon
                           name="person"
                           type={followIconType}
-                          color={COLORS.MIDORANGE}
+                          color={COLORS.PURPLE}
                           size={20}
                           style={{marginLeft: 5}}
                       />
@@ -57,7 +57,7 @@ const ViewUserOptionModal = ({blockToggleText, followIconType, followToggleIcon,
                   <Icon
                       name="people-circle"
                       type="ionicon"
-                      color={COLORS.MIDORANGE}
+                      color={COLORS.PURPLE}
                       size={20}
                       style={{marginLeft: 5}}
                   />

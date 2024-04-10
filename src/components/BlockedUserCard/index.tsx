@@ -112,7 +112,7 @@ const BlockedUserCard = ({
                       </View>
                   </View>
                   <TouchableOpacity onPress={unblock}>
-                      <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.MIDORANGE}}>UNBLOCK</Text>
+                      <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.PINK}}>UNBLOCK</Text>
                   </TouchableOpacity>
               </View>
               <View>

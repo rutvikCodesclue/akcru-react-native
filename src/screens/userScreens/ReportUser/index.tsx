@@ -166,7 +166,7 @@ const ReportUser = ({route}) => {
                     </View>
                     <View>
                         <View style={{alignItems: 'center'}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center'}}>
+                            <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
                                 REPORT A USER
                             </Text>
                             <View style={{width: '90%'}}>
@@ -209,7 +209,7 @@ const ReportUser = ({route}) => {
                         </View>
 
                         <TouchableOpacity onPress={selectPostImage} style={styles.imagePickerButton}>
-                            <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={30} />
+                            <Icon name="images" type="ionicon" color={COLORS.PINK} size={30} />
                         </TouchableOpacity>
                         {/* Render selected images if any */}
                     </View>

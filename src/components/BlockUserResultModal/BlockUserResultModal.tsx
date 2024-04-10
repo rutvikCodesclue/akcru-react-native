@@ -16,19 +16,19 @@ const BlockUserResultModal = ({closeModal, type, resultMessage}: BlockUserResult
                 return {
                     title: 'Success!',
                     message: resultMessage,
-                    color: COLORS.GREEN,
+                    color: COLORS.AKCRUBLUE,
                 };
             case 'failed':
                 return {
                     title: 'Failed',
                     message: resultMessage,
-                    color: COLORS.CATREDLGT,
+                    color: COLORS.PINK,
                 };
             case 'error':
                 return {
                     title: 'Error',
                     message: resultMessage,
-                    color: COLORS.MIDORANGE,
+                    color: COLORS.PINK,
                 };
             default:
                 return {title: '', message: '', color: COLORS.BLACK};
