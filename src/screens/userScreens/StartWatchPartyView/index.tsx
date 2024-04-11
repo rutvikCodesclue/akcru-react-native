@@ -74,6 +74,7 @@ import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
 import {supabase} from '../../../../lib/supabase';
 import UnmutePermissionPopup from './unmutepermpopup';
 import ErrorModal from './ErrorModal';
+import WatchPartyDocker from '../../../components/WatchPartyDocker';
 
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -159,6 +160,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [isAllMuteOff, setIsAllMuteOff] = useState(true);
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
+    const [showDockerToHost, setShowDockerToHost] = useState(false);
     /* REFS */
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
@@ -180,6 +182,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [popupErr, setPopupErr] = useState(false);
     const [popupErrMsg, setPopupErrMsg] = useState('');
     const myuserid = user.id
+    const [isDockerOpen, setIsDockerOpen] = useState(false);
 
     route.params = {
         ...route.params,
@@ -193,7 +196,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
       useEffect(() => {
 
-
+        setShowDockerToHost(isHost);
         const channelA = supabase.channel(roomId);
         channelA
             .on('broadcast', {event: 'movie_room'}, payload => askForPermission(payload))
@@ -2131,7 +2134,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     return isFullscreen ? (
-        <View>{watchPartyView()}</View>
+        <View>
+            {watchPartyView()}
+            {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null}
+        </View>
     ) : (
         <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
     );

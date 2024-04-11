@@ -13,7 +13,7 @@ type SmlMemberCardProps = {
     userName: string;
     influencer?: boolean;
     akcruBadge: any;
-    onPress: () => void;
+    onPress?: () => void;
     userID: any;
     userDesc: string;
     avatarbordercolor: string;
