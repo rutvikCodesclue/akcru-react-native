@@ -14,6 +14,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import { finishUserWatching } from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import Video from 'react-native-video';
+import { hideNavigationBar, showNavigationBar } from 'react-native-navigation-bar-color';
 
 
 
@@ -45,9 +46,11 @@ export default function TrailerPlayer({navigation, route}: Props) {
     useFocusEffect(
         React.useCallback(() => {
             setShouldAutoplay(true);
+            hideNavigationBar();
 
             return () => {
                 setShouldAutoplay(false);
+                showNavigationBar();
             };
         }, []),
     );

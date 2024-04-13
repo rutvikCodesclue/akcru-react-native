@@ -35,7 +35,7 @@ import { API } from "../../../clients/api.client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
 import useAuthStore from "../../../stores/auth.store";
-import { selectAvatarBorderColor } from "../../../util/util";
+import { formatNumber, selectAvatarBorderColor } from "../../../util/util";
 import { ICruInvite, ICruView, IMITInvite, IUserProfile } from "../../../../types";
 import { getMyMITInvites } from "../../../lib/api/mit.lib";
 import { getCRUInvites, getMyCRUViews } from "../../../lib/api/cru.lib";
@@ -291,9 +291,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
             activeColor={COLORS.PURPLE}
             renderBadge={({route}) => {
                 if (route.key === 'second' && datesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
                 } else if (route.key === 'third' && cruInvitesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
                 }
                 return null;
             }}
@@ -339,7 +339,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
         }, [user?.id]), // Only re-run the effect if user.id changes
     );
 
-    const followersCount = followersData.length;
+    // const followersCount = followersData.length;
+    const followersCount = formatNumber(followersData.length);
 
     //console.log('User Id:', user?.id);
 
@@ -474,8 +475,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title2}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
