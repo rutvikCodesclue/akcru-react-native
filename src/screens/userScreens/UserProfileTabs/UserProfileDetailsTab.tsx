@@ -25,7 +25,7 @@ import BasicListCategories from '../../../components/BasicListCategories';
 import useAuthStore from '../../../stores/auth.store';
 import {ICru, IMovie, IUserProfile} from '../../../../types';
 import {findMovies} from '../../../lib/api/movies.lib';
-import {getWatchlist} from '../../../lib/api/movies.lib'; 
+import {getWatchlist} from '../../../lib/api/movies.lib';
 import CruMemberPic from '../../../components/CruMemberPic';
 import {getMyCRU, leaveCRU, removeAUserFromCRU} from '../../../lib/api/cru.lib';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
@@ -46,14 +46,25 @@ import HexAvatar from '../../../components/HexAvatar';
 import { selectAvatarBorderColor } from '../../../util/util';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import { MULTISIZES } from '../../../../assets/constants/theme';
+import {RealtimeChannel} from '@supabase/supabase-js';
+import playMessageSound from '../../../util/playMessageSound';
+import { getUnread, updateMessageStatus } from '../../../lib/api/rooms.lib';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+    const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     // Function to toggle the modal's visibility
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
+
+
+    const [crus, setCrus] = useState<ICru[]>([]);
+    const [membercruIds, setMemberCruIds] = useState([])
+    const [unreadcruIds, setUnreadCruIds] = useState([])
+    
+
 
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
 
@@ -63,10 +74,8 @@ const UserProfileDetailsTab = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             hydrateUser();
             return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 hydrateUser();
             };
         }, []),
@@ -79,24 +88,7 @@ const UserProfileDetailsTab = () => {
         return members;
     };
 
-    useFocusEffect(
-        React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            getMyCRU().then(res => {
-                // console.log('Data from getMyCRU:', res); // Log the data
-                setCRU(res?.CRU);
-                if (res?.CRU.members) {
-                    setMembers(res.CRU.members);
-                }
-            });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                //console.log('Screen unfocused [EditCruScreen]');
-                // cleanup (if app crashes or user leaves the screen unexpectedly)
-            };
-        }, []),
-    );
 
     useEffect(() => {
         const fetchNewerYearMovies = async () => {
@@ -117,6 +109,63 @@ const UserProfileDetailsTab = () => {
         fetchNewerYearMovies();
     }, []);
 
+    useEffect(() => {
+        console.log('Updated unreadcruIds:', unreadcruIds);
+    }, [unreadcruIds]);
+    useEffect(() => {
+        console.log('Updated memberCruIds:', membercruIds);
+        getUnread(membercruIds).then(res=>{
+            console.log(res)
+            if(res?.success && res.unread != null){
+                setUnreadCruIds(res.unread)
+            }
+        })
+    }, [membercruIds]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            const channelA = supabase.channel('parent-cru-chat');
+        channelA
+            .on('broadcast', {event: 'parent-cru-chat'}, payload => messageReceived(payload))
+            .subscribe(status => {
+                if (status === 'SUBSCRIBED') {
+                    setChannel(channelA);
+                }
+            });
+
+        return () => {
+            channelA.unsubscribe();
+            setChannel(null);
+        };
+        
+        }, []),
+    );
+
+   
+
+    function messageReceived(payload: any) {
+        if(user == null) return;
+        if (payload.payload.senderId === user.id) return;
+
+        const cruId = payload.payload.cruId;
+
+        console.log('membercruIds', crus, payload.payload.cruId)
+        const cruids = crus.map(cru => cru.id);
+        if(CRU){cruids.push(CRU.id)}
+        console.log('Cruids',cruids, unreadcruIds)
+
+        setUnreadCruIds(prevUnreadCruIds => {
+            if (!prevUnreadCruIds.includes(cruId)) {
+                const updatedUnreadCruIds = [...prevUnreadCruIds, cruId];
+                console.log('RECEIVED MESSAGE Parent', payload, updatedUnreadCruIds);
+                playMessageSound()
+                return updatedUnreadCruIds;
+            }
+            return prevUnreadCruIds;
+        });
+
+    }
+
     const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
 
     useFocusEffect(
@@ -133,6 +182,8 @@ const UserProfileDetailsTab = () => {
             };
 
             fetchWatchlist();
+
+            
         }, []),
     );
 
@@ -272,29 +323,37 @@ const UserProfileDetailsTab = () => {
 
     const {refetchCrus, setRefetchCrus} = UseTabMenu();
 
-    const [crus, setCrus] = useState<ICru[]>([]);
-    useEffect(() => {
-        const fetchCrus = async () => {
+    useFocusEffect(
+        React.useCallback(() => {
+          const fetchCrus = async () => {
             if (user?.id) {
-                try {
-                    const fetchedCrus = await listCrusForUser(user.id);
-                    if (fetchedCrus) {
-                        setCrus(fetchedCrus);
-                    } else {
-                        Alert.alert('Error', "Could not fetch the user's Cru details.");
-                    }
-                } catch (error) {
-                    console.error(error);
+              try {
+                const fetchedCrus = await listCrusForUser(user.id);
+                if (fetchedCrus) {
+                  setCrus(fetchedCrus);
+                  const ids = fetchedCrus.map(cru => cru.id);
+                  const mycru = await getMyCRU();
+                  setCRU(mycru?.CRU);
+                  ids.push(mycru?.CRU.id);
+                  if (mycru?.CRU.members) {
+                    setMembers(mycru.CRU.members);
+                  }
+                  setMemberCruIds(ids);
+                } else {
+                  Alert.alert('Error', "Could not fetch the user's Cru details.");
                 }
+              } catch (error) {
+                console.error(error);
+              }
             }
-        };
-
-        fetchCrus();
-        // Reset refetch trigger
-        if (refetchCrus) {
+          };
+      
+          fetchCrus();
+          if (refetchCrus) {
             setRefetchCrus(false);
-        }
-    }, [user?.id, refetchCrus, setRefetchCrus]);
+          }
+        }, [user?.id, refetchCrus, setRefetchCrus])
+      );
 
     const [confirmationModal, setConfirmationModal] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
@@ -359,25 +418,27 @@ const UserProfileDetailsTab = () => {
             const response = await removeAUserFromCRU(user?.id, currentCruId);
             if (response) {
                 setCrus(prevCrus => prevCrus.filter(cru => cru.id !== currentCruId));
+                setMemberCruIds(prevCrus => prevCrus.filter(cruId => cruId !== currentCruId))
+                setUnreadCruIds(prevCrus => prevCrus.filter(cruId => cruId !== currentCruId))
                 setCruResultModal(true);
                 setCruResultMessage('Successfully left the CRU.');
                 setCruResultType('Success');
-                setCruIconName('md-checkmark-circle'); // Adjust as needed
-                setCruIconColor('green'); // Adjust as needed
+                setCruIconName('md-checkmark-circle');
+                setCruIconColor('green');
             } else {
                 setCruResultModal(true);
                 setCruResultMessage('Unable to leave CRU. Please try again later.');
                 setCruResultType('Fail');
-                setCruIconName('md-alert-circle'); // Adjust as needed
-                setCruIconColor('red'); // Adjust as needed
+                setCruIconName('md-alert-circle');
+                setCruIconColor('red');
             }
         } catch (error) {
             console.error('Error leaving CRU:', error);
             setCruResultModal(true);
             setCruResultMessage('An error occurred while trying to leave the CRU.');
             setCruResultType('Error');
-            setCruIconName('md-error'); // Adjust as needed
-            setCruIconColor('red'); // Adjust as needed
+            setCruIconName('md-error');
+            setCruIconColor('red');
         } finally {
             setCruResultModal(true);
             setIsLeaving(false); // Stop loading state
@@ -473,26 +534,31 @@ const UserProfileDetailsTab = () => {
                                         </TouchableOpacity>
 
                                         <View>
-                                            <View
-                                                style={{
-                                                    width: 10,
-                                                    height: 10,
-                                                    borderRadius: 5,
-                                                    backgroundColor: COLORS.PINK,
-                                                    position: 'absolute',
-                                                    zIndex: 100,
-                                                    left: '63%',
-                                                    top: -3
-                                                }}
-                                            />
+                                        {CRU&& unreadcruIds && unreadcruIds.includes(CRU.id) && (
+                                                               <View
+                                                               style={{
+                                                                   width: 10,
+                                                                   height: 10,
+                                                                   borderRadius: 5,
+                                                                   backgroundColor: COLORS.CATREDLGT,
+                                                                   position: 'absolute',
+                                                                   zIndex: 100,
+                                                                   left: '63%',
+                                                                   top: -3
+                                                               }}
+                                                           />
+                                                          )}
+                                            
                                             <AkcruButtons.SmallButton
                                                 disabled={false}
                                                 color={COLORS.PURPLE}
                                                 btnname="CRU Chat"
-                                                onPress={() =>
+                                                onPress={() =>{
+                                                    const updatedCruids = unreadcruIds.filter(id => id !== CRU.id);
+                                                    setUnreadCruIds(updatedCruids);
                                                     navigation.navigate('ViewGroupChat', {
                                                         isMyCruChat: true,
-                                                    })
+                                                    })}
                                                 }
                                             />
                                         </View>
@@ -588,22 +654,30 @@ const UserProfileDetailsTab = () => {
                                                     <TouchableOpacity
                                                         style={{position: 'absolute', left: '8%', top: '5%'}}
                                                         onPress={() => {
+                                                            {
+                                                            const updatedCruids = unreadcruIds.filter(id => id !== item.id);
+                                                            setUnreadCruIds(updatedCruids);
                                                             navigation.navigate('ViewGroupChat', {
                                                                 isMyCruChat: false,
                                                                 cru: item,
                                                             });
+                                                        }
                                                         }}>
-                                                        <View
-                                                            style={{
-                                                                width: 10,
-                                                                height: 10,
-                                                                borderRadius: 5,
-                                                                backgroundColor: COLORS.PINK,
-                                                                position: 'absolute',
-                                                                zIndex: 100,
-                                                                right: 0,
-                                                            }}
-                                                        />
+                                                        <View>
+                                                            {unreadcruIds && unreadcruIds.includes(item.id) && (
+                                                                <View
+                                                                    style={{
+                                                                        width: 10,
+                                                                        height: 10,
+                                                                        borderRadius: 5,
+                                                                        backgroundColor: COLORS.CATREDLGT,
+                                                                        position: 'absolute',
+                                                                        zIndex: 100,
+                                                                        right: 0,
+                                                                    }}
+                                                                />
+                                                          )}
+                                                        </View>
                                                         <CustomIcon
                                                             name="chatbox-ellipses"
                                                             type="ionicon"
@@ -618,10 +692,13 @@ const UserProfileDetailsTab = () => {
                                                     {/* Optionally render the creator separately here */}
                                                     <TouchableOpacity
                                                         style={{alignItems: 'center', paddingBottom: 10}}
-                                                        onPress={() =>
+                                                        onPress={() =>{
+                                                        
                                                             navigation.navigate('ViewUserScreen', {
                                                                 userID: item.creator.id,
                                                             })
+                                                        }
+                                                            
                                                         }>
                                                         <HexAvatar
                                                             source={{uri: item.creator.profilePicture}}

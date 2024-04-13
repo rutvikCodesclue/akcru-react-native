@@ -24,7 +24,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Text, TouchableRipple} from 'react-native-paper';
 import HexAvatar from '../../components/HexAvatar';
 import Header from '../../components/header';
-import {createChatRoom, getTextMessages, getTextMessagesGroup, saveTextMessage} from '../../lib/api/rooms.lib';
+import {createChatRoom, getTextMessages, getTextMessagesGroup, saveTextMessage, updateMessageStatus} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../util/util';
@@ -32,7 +32,12 @@ import _, {uniqueId} from 'lodash';
 import {supabase} from '../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../util/playMessageSound';
+import uuid from 'react-native-uuid';
 
+const generateUUID = () => {
+  const uuidval = uuid.v4();
+  return uuidval;
+};
 
 const CruGroupChatComponent = ({cru, members}: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -51,6 +56,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
+    const [channelP, setChannelP] = useState<RealtimeChannel | null>(null);
     membersdata[user.id] = {
         profilePicture: user?.profilePicture,
         username: user?.username
@@ -72,19 +78,29 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     useEffect(() => {
         
         getTextMessage(cruId!);
-
         const channelA = supabase.channel(cruId);
         channelA
-            .on('broadcast', {event: 'test'}, payload => messageReceived(payload))
+            .on('broadcast', {event: 'groupchat'}, payload => messageReceived(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
-                    // // console.log('setting channel');
                     setChannel(channelA);
                 }
             });
 
+        const channelP = supabase.channel('parent-cru-chat');
+        channelP
+            .on('broadcast', {event: 'parent-cru-chat'}, payload => null)
+            .subscribe(status => {
+                if (status === 'SUBSCRIBED') {
+                    setChannelP(channelP);
+                }
+            });
+    
+
         return () => {
             channelA.unsubscribe();
+            channelP.unsubscribe();
+            setChannelP(null);
             setChannel(null);
         };
     }, []);
@@ -94,8 +110,9 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         // console.log('RECEIVED MESSAGE', payload);
         if (payload.payload.senderId === user.id) return;
         var messsages: IMessage[] = [];
+        console.log('msgId', payload.payload.msgId)
         const iMessage: IMessage = {
-            _id: _.uniqueId(),
+            _id: payload.payload.msgId,
             text: payload.payload.message,
             user: {_id: payload.payload.senderId!, name:membersdata[payload.payload.senderId!]['username']},
             createdAt: Date.now(),
@@ -103,6 +120,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         playMessageSound();
         messsages.push(iMessage);
         setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
+        updateMessageStatus([payload.payload.msgId])
+
     }
 
    
@@ -112,6 +131,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         var chatMessage : IMessage[] = []
 
         response!.forEach(  (item) => {
+
             const senderId = item.senderId
             const iMessage : IMessage = {
                 _id: item.id,
@@ -121,6 +141,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             };
             chatMessage.push(iMessage);
         })
+        updateMessageStatus([chatMessage[0]._id])
         setMessages(chatMessage!);
     };
 
@@ -128,15 +149,23 @@ const CruGroupChatComponent = ({cru, members}: any) => {
 
     const onSend = (messages: IMessage[] = []) => {
         if (channelll === null) return; // console.log('Channel not found');
-
+        const msgId = generateUUID();
         channelll.send({
             type: 'broadcast',
-            event: 'test',
-            payload: {message: messages[0]!.text!, senderId: user.id},
+            event: 'groupchat',
+            payload: {message: messages[0]!.text!, senderId: user.id,cruId: cruId, msgId: msgId},
+        });
+        channelP.send({
+            type: 'broadcast',
+            event: 'parent-cru-chat',
+            payload: {message: messages[0]!.text!, senderId: user.id,cruId: cruId, msgId: msgId},
         });
         playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-        saveTextMessage(cruId, messages[0]!.text!, user.id!,true);
+        saveTextMessage(cruId, messages[0]!.text!, user.id!,true, msgId);
+        // updateMessageStatus([messages[0]._id])
+
+
     };
 
     const handleAvatarPress = (user: any) => {
