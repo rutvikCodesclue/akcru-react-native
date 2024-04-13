@@ -33,10 +33,10 @@ export const createRoom = async () => {
     }
 }
 
-export const saveTextMessage = async (roomId:string,content:string, receiverId: string, isCru: boolean = false): Promise< undefined> => {
+export const saveTextMessage = async (roomId:string,content:string, receiverId: string, isCru: boolean = false, msgId: string): Promise< undefined> => {
     try {
         // POST /v1/cru/me/add-user
-        const param = {roomId,content, receiverId, isCru};
+        const param = {roomId,content, receiverId, isCru, msgId};
 
 
         const {data} = await API.post(`/v1/realtime/create-room-message`,param);
@@ -44,6 +44,30 @@ export const saveTextMessage = async (roomId:string,content:string, receiverId: 
     } catch (error) {
     }
 };
+
+export const getUnread = async (cruIds: String[]): Promise< undefined> => {
+    try {
+        // POST /v1/realtime/get-unread
+        const param = {cruIds};
+
+
+        const {data} = await API.post(`/v1/realtime/get-unread`,param);
+        return data;
+    } catch (error) {
+    }
+}
+
+export const updateMessageStatus = async (messageIds: String[]): Promise< undefined> => {
+    try {
+        // POST /v1/realtime/get-unread
+        const param = {messageIds};
+
+
+        const {data} = await API.post(`/v1/realtime/read_message`,param);
+        return data;
+    } catch (error) {
+    }
+}
 
 
 export const getUsers = async(): Promise<IChatUser[]| undefined> =>{
