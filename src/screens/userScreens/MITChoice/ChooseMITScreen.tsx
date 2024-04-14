@@ -56,6 +56,7 @@ import { IChatUser } from "../../../../types";
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
+    formatNumber,
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
@@ -83,7 +84,7 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
     const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
     const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
     const inviteDate: string | undefined = route.params?.inviteDate ?? null;
-    const akcruBadge: any = route.params?.akcruBadge ?? null;
+    const akcruBadge: IUserProfile = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
     const timezone: string | undefined = route.params?.timezone ?? null;
 
@@ -275,7 +276,7 @@ const getTextMessage =  async(roomId:string)=>{
                                                 name="chatbox-ellipses"
                                                 type="ionicon"
                                                 size={30}
-                                                color={COLORS.MIDORANGE}
+                                                color={COLORS.PURPLE}
                                                 style={{marginRight: 20}}
                                             />
                                         </TouchableOpacity>
@@ -304,7 +305,7 @@ const getTextMessage =  async(roomId:string)=>{
                                         </TouchableOpacity>
                                         <View />
 
-                                        <View
+                                        {/* <View
                                             style={{
                                                 backgroundColor: 'green',
                                                 height: 12,
@@ -313,29 +314,27 @@ const getTextMessage =  async(roomId:string)=>{
                                                 position: 'absolute',
                                                 right: 8,
                                             }}
-                                        />
-
-                                        
+                                        /> */}
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                         <Text style={{...FONTS.Username}}>{creator?.username}</Text>
                                         <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
-                                        {akcruBadge === 'AKCRUIT' && (
+                                        {creator?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
                                             </View>
                                         )}
-                                        {akcruBadge === 'GUARDIAN' && (
+                                        {creator?.badge === 'GUARDIAN' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeGuardian />
                                             </View>
                                         )}
-                                        {akcruBadge === 'HERO' && (
+                                        {creator?.badge === 'HERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeHero />
                                             </View>
                                         )}
-                                        {akcruBadge === 'SUPERHERO' && (
+                                        {creator?.badge === 'SUPERHERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeSuperHero />
                                             </View>
@@ -357,10 +356,10 @@ const getTextMessage =  async(roomId:string)=>{
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title1}}>
-                                                {creator?.followerCount}
+                                            <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                                {formatNumber(creator?.followerCount)}
                                             </Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -381,13 +380,11 @@ const getTextMessage =  async(roomId:string)=>{
                                                             marginBottom: 5,
                                                             alignItems: 'center',
                                                         }}>
-                                                        <Text style={{...FONTS.paragraph1}}>
-                                                            {movie?.year}
-                                                        </Text>
+                                                        <Text style={{...FONTS.paragraph1}}>{movie?.year}</Text>
                                                         <Text
                                                             style={{
                                                                 ...FONTS.paragraph1,
-                                                                
+
                                                                 marginHorizontal: 10,
                                                             }}>
                                                             {formatMovieDuration(movie?.duration)}
@@ -401,7 +398,18 @@ const getTextMessage =  async(roomId:string)=>{
 
                                                         <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
                                                     </View>
-                                                    <TouchableOpacity
+                                                    <AkcruButtons.SmallButton
+                                                        btnname="Play Trailer"
+                                                        onPress={() => {
+                                                            navigation.navigate('TrailerPlayer', {
+                                                                id: movie?.id,
+                                                                trailerURL: movie?.trailerURL,
+                                                                landscapeURL: movie?.landscapeURL,
+                                                            });
+                                                        }}
+                                                        color={COLORS.PURPLE}
+                                                    />
+                                                    {/* <TouchableOpacity
                                                         onPressOut={() => {
                                                             navigation.navigate('TrailerPlayer', {
                                                                 id: movie?.id,
@@ -422,7 +430,7 @@ const getTextMessage =  async(roomId:string)=>{
                                                             }}>
                                                             <Text style={styles.playButton}>Play Trailer</Text>
                                                         </View>
-                                                    </TouchableOpacity>
+                                                    </TouchableOpacity> */}
                                                 </View>
                                             </View>
                                         </View>
@@ -431,7 +439,7 @@ const getTextMessage =  async(roomId:string)=>{
                                     <Text
                                         style={{
                                             ...FONTS.Title2AkcruBlue,
-                                            
+
                                             textAlign: 'center',
                                             color: COLORS.PURPLE,
                                         }}>
@@ -460,10 +468,8 @@ const getTextMessage =  async(roomId:string)=>{
                             </View>
                         </View>
                     </ScrollView>
-                  
                 </View>
             </View>
-            
         </TabContainer>
     );
 };

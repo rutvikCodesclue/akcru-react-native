@@ -49,6 +49,8 @@ const ViewUserFollowersTab = ({userID}) => {
                                     userID: item.id,
                                 });
                             }}
+                            companyStatus={item?.companyStatus}
+                            ownerStatus={item?.ownerStatus}
                             influencer={item.influencerStatus}
                             userID={item.authId}
                             akcruBadge={item.badge}

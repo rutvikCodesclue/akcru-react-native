@@ -540,7 +540,7 @@ const UserProfileDetailsTab = () => {
                                                                    width: 10,
                                                                    height: 10,
                                                                    borderRadius: 5,
-                                                                   backgroundColor: COLORS.CATREDLGT,
+                                                                   backgroundColor: COLORS.PINK,
                                                                    position: 'absolute',
                                                                    zIndex: 100,
                                                                    left: '63%',
@@ -581,7 +581,7 @@ const UserProfileDetailsTab = () => {
                                                 <Icon
                                                     name="calendar-sharp"
                                                     type="ionicon"
-                                                    color={COLORS.PURPLE}
+                                                    color={COLORS.AKCRUBLUE}
                                                     size={75}
                                                 />
                                             </TouchableOpacity>
@@ -670,7 +670,7 @@ const UserProfileDetailsTab = () => {
                                                                         width: 10,
                                                                         height: 10,
                                                                         borderRadius: 5,
-                                                                        backgroundColor: COLORS.CATREDLGT,
+                                                                        backgroundColor: COLORS.PINK,
                                                                         position: 'absolute',
                                                                         zIndex: 100,
                                                                         right: 0,
