@@ -109,6 +109,8 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
+    isPromo: boolean;
+    isOwner: boolean;
     onBlockUser: () => void;
     akcruBadgeColor: string;
 };
@@ -126,6 +128,8 @@ const SkinnyPostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     isSuggestedUser,
+    isPromo,
+    isOwner,
     onBlockUser,
     akcruBadgeColor
     
@@ -552,13 +556,13 @@ const SkinnyPostCard = ({
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
-                <FooterIcons
+                {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
                     color={COLORS.AKCRUBLUE}
-                />
+                /> */}
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -570,12 +574,15 @@ const SkinnyPostCard = ({
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
-                    {post.numberOfReposts || 0} Repost
+                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
-                {post.isSuggestedUser && (
+
+                {post.isSuggestedUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>}
+                {post.author.ownerStatus && (
                     <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>
                 )}
+                {post.author.promoUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Promo</Text>}
             </View>
         </View>
     );

@@ -353,7 +353,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
                         />
                     </View>
-                    <View style={{marginBottom: '30%'}}>
+                    <View style={{marginBottom: '5%'}}>
                         {loadingComments ? (
                             <View style={{marginTop: '25%'}}>
                                 <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />

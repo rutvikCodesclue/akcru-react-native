@@ -2005,24 +2005,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     color={COLORS.PURPLE}
                                     btnname="Cancel"
                                 />
-                                {/* <TouchableOpacity
-                                    onPress={_handleTerminateRoom}
-                                    style={{
-                                        backgroundColor: 'green',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleCancelRoomTermination}
-                                    style={{
-                                        backgroundColor: 'red',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity> */}
                             </View>
                         </View>
                     </View>

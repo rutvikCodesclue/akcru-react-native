@@ -21,6 +21,7 @@ import { UseTabMenu } from '../../../context/TabContext';
 
 const Unread = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true

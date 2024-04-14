@@ -33,6 +33,7 @@ import ReportUser from '../screens/userScreens/ReportUser';
 import UserNotification from '../screens/userScreens/UserNotifications/UserNotification';
 import BlockedUsers from '../screens/userScreens/BlockedUsers';
 import ContactList from '../screens/userScreens/ContactList/ContactList';
+import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 
 
 
@@ -72,7 +73,7 @@ export type NoBottomTabStackParams = {
     NewComment: any;
     ViewUserScreen: {userId: string; profilePicture: string; username: string};
     ContactList: any;
-
+    UserMITHubScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -288,6 +289,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="BlockedUsers"
               component={BlockedUsers}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="UserMITHubScreen"
+              component={UserMITHubScreen}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

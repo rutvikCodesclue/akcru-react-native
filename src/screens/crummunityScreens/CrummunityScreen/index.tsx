@@ -65,6 +65,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [blockedUsers, setBlockedUsers] = useState([]);
 
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             // Refresh posts or update state here
@@ -283,6 +285,12 @@ const handleToggleBlockUser = async authorId => {
     }
 };
 
+const handleRefresh =() => {
+    setRefreshing(true);
+    fetchPostsAndFollowStatus(1);
+    setRefreshing(false)
+}
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -341,7 +349,7 @@ const handleToggleBlockUser = async authorId => {
                                 </View>
                             </View>
                         </View>
-                        <View style={{marginBottom: '30%'}}>
+                        <View style={{marginBottom: '20%'}}>
                             {loadingPosts ? (
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />
@@ -356,6 +364,8 @@ const handleToggleBlockUser = async authorId => {
                                     data={posts}
                                     style={styles.postcontainer}
                                     keyExtractor={item => item.id}
+                                    refreshing={refreshing}
+                                    onRefresh={handleRefresh}
                                     renderItem={({item}) => (
                                         <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
@@ -382,6 +392,9 @@ const handleToggleBlockUser = async authorId => {
                                                         item.author.isCurrentlyBlocked,
                                                     )
                                                 }
+                                                isOwner={item.author.ownerStatus}
+                                                isPromo={item.author.promoUser}
+                                                
                                             />
                                         </Pressable>
                                     )}
