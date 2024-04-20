@@ -8,9 +8,10 @@ import {
     TextInput,
     Modal,
     FlatList,
-    TouchableWithoutFeedback,
-    SafeAreaView,
+    TouchableWithoutFeedback
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, {useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';

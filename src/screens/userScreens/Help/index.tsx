@@ -1,4 +1,5 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform, Image, FlatList} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, Alert, Platform, Image, FlatList} from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';

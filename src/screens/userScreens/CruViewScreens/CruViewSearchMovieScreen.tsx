@@ -1,4 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, FlatList, SafeAreaView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, FlatList } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, { useEffect } from "react";
 import CruViewSearchInput from "../../../components/CruViewSearchInput/CruViewSearchInput";
 import GenreCard from "../../../components/GenreCard";

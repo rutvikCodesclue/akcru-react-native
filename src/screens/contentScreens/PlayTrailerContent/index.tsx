@@ -83,7 +83,14 @@ export default function TrailerPlayer({navigation, route}: Props) {
 
         const fetchMovie = async () => {
             if (movieId) {
-                const fetchedMovie = await findMovieById(movieId);
+                let fetchedMovie = await findMovieById(movieId);
+                if (fetchedMovie && fetchedMovie.trailerURL) {
+                    const parts = fetchedMovie.trailerURL.split('/');
+                    const lastPartEncoded = parts[parts.length - 1];
+                    const lastPartEncodedWithSpaces = lastPartEncoded.replace(/\+/g, ' ');
+                    parts[parts.length - 1] = encodeURIComponent(lastPartEncodedWithSpaces);
+                    fetchedMovie.trailerURL = parts.join('/');
+                }
                 setMovie(fetchedMovie);
             }
         };
@@ -127,6 +134,7 @@ export default function TrailerPlayer({navigation, route}: Props) {
                     <>
 
                     {/* {movieTrailer()} */}
+                    {console.log(movie.trailerURL)}
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{

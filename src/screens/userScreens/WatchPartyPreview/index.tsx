@@ -2,12 +2,13 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   Pressable,
   Platform,
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, { useRef } from "react";
 import Header from "../../../components/header";
 import { SIZES, FONTS, COLORS } from "../../../../assets/constants";

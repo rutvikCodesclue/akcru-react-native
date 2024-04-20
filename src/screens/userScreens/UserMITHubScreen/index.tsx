@@ -6,7 +6,6 @@ import {
     TouchableWithoutFeedback,
     TouchableOpacity,
     Image,
-    SafeAreaView,
     StyleProp,
     ViewStyle,
     TextStyle,
@@ -14,6 +13,8 @@ import {
     Pressable,
     useWindowDimensions,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, { useState } from 'react';
 import styles from './styles';
 import { MITHubList } from '../../../components/MITHubComps';

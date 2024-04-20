@@ -3,9 +3,10 @@ import {
   Text,
   ScrollView,
   FlatList,
-  TouchableOpacity,
-  SafeAreaView,
+  TouchableOpacity
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, { useEffect, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import BasicMovieCard from "../../../components/BasicMovieCard";

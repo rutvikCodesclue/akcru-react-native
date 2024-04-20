@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, StyleSheet, Image, ImageBackground} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -6,6 +6,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
 import AkcruButtons from '../../../components/akcruButtons';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import SafeAreaView from 'react-native-safe-area-view';
 
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';

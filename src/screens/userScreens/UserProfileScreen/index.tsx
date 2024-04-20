@@ -6,9 +6,10 @@ import {
   ImageBackground,
   TouchableOpacity,
   Image,
-  SafeAreaView,
   Modal
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import { TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps } from "react-native-tab-view";
 import {
   UserProfileCruInvites,

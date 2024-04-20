@@ -8,11 +8,12 @@ import {
   ScrollView,
   Pressable,
   Modal,
-  SafeAreaView,
   TouchableWithoutFeedback,
   Animated,
   Alert
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';

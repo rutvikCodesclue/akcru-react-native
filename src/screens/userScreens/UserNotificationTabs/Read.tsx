@@ -1,5 +1,5 @@
-import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView, Pressable} from 'react-native';
-
+import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, Pressable} from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {Icon} from '@rneui/base';

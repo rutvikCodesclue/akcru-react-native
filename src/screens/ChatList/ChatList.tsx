@@ -1,5 +1,5 @@
 import React, { useState,  useEffect } from "react";
-import { ActivityIndicator, FlatList, SafeAreaView, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList,  TouchableOpacity, View } from "react-native";
 import { RouteProp, useNavigation } from "@react-navigation/native";
 import { Icon } from "@rneui/base";
 import { Text, TouchableRipple } from "react-native-paper";
@@ -13,7 +13,10 @@ import { UserProfileStackParams } from "../../navigation/UserProfileStack";
 
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import { NoBottomTabStackParams } from "../../navigation/NoBottomTabStack";
+import SafeAreaView from 'react-native-safe-area-view';
+
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ChatList'>;
+
 type Props = {
   route: ViewUserFollowListRouteProp;
 };

@@ -2,7 +2,6 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
   ImageBackground,
   TouchableOpacity,
   Image,
@@ -12,6 +11,8 @@ import {
   Pressable,
   Dimensions
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React from "react";
 import MITUserVideoList from "../../../components/MITUserVideoList/MITUserVideoList";
 import MITChatCard from "../../../components/MITChatCard/MITChatCard";

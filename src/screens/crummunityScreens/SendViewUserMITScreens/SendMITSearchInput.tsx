@@ -7,9 +7,9 @@ import {
   FlatList,
   TouchableOpacity,
   Keyboard,
-  Image,
-  SafeAreaView
+  Image
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
 
 import React, { useEffect, useRef, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';

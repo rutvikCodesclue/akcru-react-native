@@ -6,11 +6,12 @@ import {
   TouchableWithoutFeedback,
   Modal,
   FlatList,
-  SafeAreaView,
   Pressable,
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';

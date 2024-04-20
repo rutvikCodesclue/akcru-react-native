@@ -10,9 +10,10 @@ import {
   TouchableOpacity,
   Pressable,
   Modal,
-  TextInput,
-  SafeAreaView,
+  TextInput
 } from "react-native";
+import SafeAreaView from 'react-native-safe-area-view';
+
 import styles from "./styles";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import { RouteProp, useNavigation } from "@react-navigation/native";

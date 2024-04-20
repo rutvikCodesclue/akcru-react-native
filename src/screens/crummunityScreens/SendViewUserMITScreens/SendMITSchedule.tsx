@@ -4,10 +4,11 @@ import {
     ScrollView,
     TouchableOpacity,
     ImageBackground,
-    SafeAreaView,
     Image,
     ActivityIndicator,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React, {useEffect, useState} from 'react';
 import AkcruLevels from '../../../components/akcruBadges';
 import Header from '../../../components/header';

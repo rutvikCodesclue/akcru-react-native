@@ -4,9 +4,10 @@ import {
   TouchableWithoutFeedback,
   TouchableOpacity,
   TextInput,
-  FlatList,
-  SafeAreaView,
+  FlatList
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';

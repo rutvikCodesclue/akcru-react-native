@@ -3,7 +3,6 @@ import {
     StyleSheet,
     Text,
     View,
-    SafeAreaView,
     TouchableOpacity,
     Image,
     TouchableWithoutFeedback,
@@ -15,6 +14,8 @@ import {
     ActivityIndicator,
     Modal,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import React from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';

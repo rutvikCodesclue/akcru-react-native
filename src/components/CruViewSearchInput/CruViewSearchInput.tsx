@@ -10,8 +10,6 @@ import {
   Image
 } from "react-native";
 
-import { SearchBar } from "react-native-screens";
-
 import React, { useEffect, useRef, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 import { Icon } from "@rneui/base";

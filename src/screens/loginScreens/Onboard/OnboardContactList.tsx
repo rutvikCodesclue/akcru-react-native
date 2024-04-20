@@ -14,7 +14,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Contacts from 'react-native-contacts';
 
 import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import SafeAreaView from 'react-native-safe-area-view';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
 

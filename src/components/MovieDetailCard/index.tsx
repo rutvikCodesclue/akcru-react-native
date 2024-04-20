@@ -283,6 +283,7 @@ const MovieDetailCard = ({
                                     trailerURL: trailerURL,
                                     landscapeURL: landscapeURL,
                                 })
+                                
                                 navigation.navigate('TrailerPlayer', {
                                     id: movieId,
                                     trailerURL: trailerURL,

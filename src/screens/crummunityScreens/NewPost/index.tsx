@@ -1,5 +1,7 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text,TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';

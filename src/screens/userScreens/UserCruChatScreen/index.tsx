@@ -8,7 +8,6 @@ import {
     KeyboardAvoidingView,
     ScrollView,
     FlatList,
-    SafeAreaView,
     StyleProp,
     ViewStyle,
     TextStyle,
@@ -16,6 +15,8 @@ import {
     Pressable,
     useWindowDimensions,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import styles from './styles';
 import React, {useState} from 'react';
 import UserCruChatCard from '../../../components/UserCruChatCard';

@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-    SafeAreaView,
     FlatList,
     StatusBar,
     Text,
@@ -10,6 +9,8 @@ import {
     Alert,
     Platform,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import { Permission, PERMISSIONS, request, requestMultiple, RESULTS } from 'react-native-permissions';
 import {
     HMSSDK,

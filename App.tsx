@@ -7,14 +7,13 @@
 
 import React, { useEffect } from 'react';
 import {
-  Alert,
-  Linking,
   StatusBar,
   StyleSheet,
   View,
 } from 'react-native';
 
 
+import {getPushToken, requestUserPermission} from './lib/pushNotifications'
 
 import RootNavigator from './src/navigation/RootNavigator';
 import { COLORS, FONTS } from './assets/constants';
@@ -22,7 +21,6 @@ import messaging, { FirebaseMessagingTypes } from '@react-native-firebase/messag
 import firebase from '@react-native-firebase/app';
 import notifee from '@notifee/react-native';
 import {AndroidColor} from '@notifee/react-native';
-import {getPushToken, requestUserPermission} from './lib/pushNotifications'
 import useAuthStore from './src/stores/auth.store';
 import Castle from "@castleio/react-native-castle";
 
@@ -41,6 +39,8 @@ const userId = useAuthStore(state => state.user?.id);
 
 
  useEffect(() => {
+
+
      // Subscribe to foreground message handling
      const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
          //console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));

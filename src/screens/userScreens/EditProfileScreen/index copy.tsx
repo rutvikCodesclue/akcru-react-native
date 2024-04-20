@@ -8,13 +8,14 @@ import {
     ScrollView,
     TouchableOpacity,
     Image,
-    SafeAreaView,
     TextInput,
     Button,
     Modal,
     FlatList,
     Pressable,
 } from 'react-native';
+import SafeAreaView from 'react-native-safe-area-view';
+
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';

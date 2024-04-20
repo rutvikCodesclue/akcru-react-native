@@ -1,4 +1,5 @@
-import { ImageBackground, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ImageBackground, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import SafeAreaView from 'react-native-safe-area-view';
 import React from 'react'
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import Header from '../../../components/header';
