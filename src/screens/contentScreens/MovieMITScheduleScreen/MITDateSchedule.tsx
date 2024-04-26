@@ -4,7 +4,7 @@ import {
     ScrollView,
     TouchableOpacity,
     TouchableWithoutFeedback,
-
+    SafeAreaView,
     Image,
     FlatList,
     TextInput,

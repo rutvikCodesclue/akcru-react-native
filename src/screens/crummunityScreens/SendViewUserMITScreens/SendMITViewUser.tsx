@@ -2,12 +2,11 @@ import {
   Text,
   View,
   Image,
+  SafeAreaView,
   FlatList,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import SafeAreaView from 'react-native-safe-area-view';
-
 import React, { useEffect, useState } from "react";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import LinearGradient from "react-native-linear-gradient";

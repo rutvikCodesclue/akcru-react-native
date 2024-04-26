@@ -49,11 +49,9 @@ const ViewUserFollowingTab = ({userID}) => {
                                     userID: item.id,
                                 });
                             }}
-                            companyStatus={item?.companyStatus}
-                            ownerStatus={item?.ownerStatus}
-                            influencer={item.influencerStatus}
-                            userID={item.id}
-                            akcruBadge={item.badge}
+                            influencer={item.influencer}
+                            userID={item.userID}
+                            akcruBadge={item.akcruBadge}
                             userDesc={item.description}
                             firstName={item.firstName}
                         />

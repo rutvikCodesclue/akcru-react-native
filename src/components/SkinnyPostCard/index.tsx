@@ -531,13 +531,13 @@ const PostCard = ({
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
-                {/* <FooterIcons
+                <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
                     color={COLORS.AKCRUBLUE}
-                /> */}
+                />
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -549,8 +549,8 @@ const PostCard = ({
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes 
-                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
+                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
+                    {post.numberOfReposts || 0} Repost
                 </Text>
             </View>
         </View>

@@ -3,6 +3,7 @@ import {
     StyleSheet,
     Text,
     View,
+    SafeAreaView,
     TouchableOpacity,
     Image,
     TouchableWithoutFeedback,
@@ -15,8 +16,6 @@ import {
     Modal,
     StatusBar,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 import React from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
@@ -76,7 +75,6 @@ import {supabase} from '../../../../lib/supabase';
 import UnmutePermissionPopup from './unmutepermpopup';
 import ErrorModal from './ErrorModal';
 import WatchPartyDocker from '../../../components/WatchPartyDocker';
-import { hideNavigationBar, showNavigationBar } from 'react-native-navigation-bar-color';
 
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -286,7 +284,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, []);
     useFocusEffect(
         React.useCallback(() => {
-            
             // Start the timer when the component mounts and the movie is playing
             if (isMoviePlaying) {
                 startTimer();
@@ -294,7 +291,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
             // Clean up the timer when the component unmounts
             return () => {
-                
                 if (isFocused) {
                     // pause the timer
                     console.log('pausing timer...');
@@ -1180,7 +1176,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         StatusBar.setHidden(true);
         Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
         // automatically play the video if it paused (if it was already playing)
-        hideNavigationBar();
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
                 // play on exit fullscreen if host
@@ -1206,7 +1201,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         StatusBar.setHidden(false);
         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
         // Delay the seek operation to allow the video player to stabilize
-        showNavigationBar();
         setTimeout(() => {
             if (videoPlayerRef.current && currentTime) {
                 console.log(' you clicked exit FS... seeking to:', currentTime);
@@ -1615,7 +1609,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             keyExtractor={node => node.id}
                             contentContainerStyle={{flexGrow: 1}}
                             renderItem={({item}) => {
-                                // console.log("item", JSON.stringify(item, null, 2));
+                                // console.log("this is item: ", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
                                 const isExpanded = expandedVideo === item;
 
@@ -1982,11 +1976,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                                 padding: 20,
                                 borderRadius: 10,
-                                marginHorizontal: '5%',
                             }}>
                             <View style={{alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm closing CRU View</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
+                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
                                     Are you sure you want to end this CRU View session?
                                 </Text>
                             </View>
@@ -1994,18 +1987,26 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             <View
                                 style={{
                                     flexDirection: 'row',
-                                    justifyContent: 'space-around',
+                                    justifyContent: 'space-between',
                                 }}>
-                                <AkcruButtons.SmallButton
+                                <TouchableOpacity
                                     onPress={_handleTerminateRoom}
-                                    color={COLORS.PINK}
-                                    btnname="Terminate"
-                                />
-                                <AkcruButtons.SmallButton
+                                    style={{
+                                        backgroundColor: 'green',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
                                     onPress={handleCancelRoomTermination}
-                                    color={COLORS.PURPLE}
-                                    btnname="Cancel"
-                                />
+                                    style={{
+                                        backgroundColor: 'red',
+                                        padding: 10,
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
@@ -2024,57 +2025,38 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                     padding: 20,
                                     borderRadius: 10,
-                                    marginHorizontal: '5%',
                                 }}>
                                 <View style={{alignItems: 'center'}}>
                                     <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
                                         Please assign a new host or terminate the Watch Party session to leave
                                     </Text>
                                 </View>
 
-                                <View>
-                                    <View
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                    }}>
+                                    <TouchableOpacity
+                                        onPress={handleOptionModal}
                                         style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-around',
+                                            backgroundColor: 'green',
+                                            padding: 10,
+                                            borderRadius: 5,
                                         }}>
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleOptionModal}
-                                            color={COLORS.PINK}
-                                            btnname="Assign Host"
-                                        />
-                                        {/* <TouchableOpacity
-                                            onPress={handleOptionModal}
-                                            style={{
-                                                backgroundColor: COLORS.PINK,
-                                                padding: 10,
-                                                borderRadius: 5,
-                                            }}>
-                                            <Text style={{...FONTS.Title3}}>Assign Host</Text>
-                                        </TouchableOpacity> */}
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleRoomTermination}
-                                            color={COLORS.PURPLE}
-                                            btnname="Terminate"
-                                        />
-                                        {/* <TouchableOpacity
-                                            onPress={handleRoomTermination}
-                                            style={{
-                                                backgroundColor: COLORS.PURPLE,
-                                                padding: 10,
-                                                borderRadius: 5,
-                                            }}>
-                                            <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                        </TouchableOpacity> */}
-                                    </View>
-                                    <View style={{alignItems: 'center', paddingTop: 10}}>
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleCancelLeaveRoom}
-                                            color={COLORS.CATREDLGT}
-                                            btnname="Cancel"
-                                        />
-                                        {/* <TouchableOpacity
+                                        <Text style={{...FONTS.Title3}}>Assign Host</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={handleRoomTermination}
+                                        style={{
+                                            backgroundColor: 'blue',
+                                            padding: 10,
+                                            borderRadius: 5,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
                                         onPress={handleCancelLeaveRoom}
                                         style={{
                                             backgroundColor: 'red',
@@ -2082,8 +2064,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             borderRadius: 5,
                                         }}>
                                         <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity> */}
-                                    </View>
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -2105,7 +2086,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 }}>
                                 <View style={{alignItems: 'center'}}>
                                     <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
                                         Are you sure you want to leave this Watch Party session?
                                     </Text>
                                 </View>
@@ -2113,20 +2094,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 <View
                                     style={{
                                         flexDirection: 'row',
-                                        justifyContent: 'space-around',
-                                        marginHorizontal: '5%'
+                                        justifyContent: 'space-between',
                                     }}>
-                                    <AkcruButtons.SmallButton
-                                        onPress={_handleRoomLeave}
-                                        color={COLORS.PINK}
-                                        btnname="Leave Room"
-                                    />
-                                    <AkcruButtons.SmallButton
-                                        onPress={handleCancelLeaveRoom}
-                                        color={COLORS.PURPLE}
-                                        btnname="Cancel"
-                                    />
-                                    {/* <TouchableOpacity
+                                    <TouchableOpacity
                                         onPress={_handleRoomLeave}
                                         style={{
                                             backgroundColor: 'green',
@@ -2143,7 +2113,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             borderRadius: 5,
                                         }}>
                                         <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity> */}
+                                    </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
@@ -2166,7 +2136,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     return isFullscreen ? (
         <View>
             {watchPartyView()}
-            {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null}
+            {/* {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null} */}
+            {showDockerToHost ? <WatchPartyDocker members={peerTrackNodes} hmsInstanceRef={hmsInstanceRef} isExpanded={expandedVideo} HMSVideoViewMode={HMSVideoViewMode} peersMuteStatus={peersMuteStatus}></WatchPartyDocker> : null}
         </View>
     ) : (
         <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>

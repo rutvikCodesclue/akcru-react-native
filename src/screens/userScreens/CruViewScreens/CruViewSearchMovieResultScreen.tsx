@@ -5,11 +5,9 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-
+  SafeAreaView
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import SafeAreaView from 'react-native-safe-area-view';
-
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import CruViewSearchInput from "../../../components/CruViewSearchInput/CruViewSearchInput";
 import { RouteProp } from "@react-navigation/native";

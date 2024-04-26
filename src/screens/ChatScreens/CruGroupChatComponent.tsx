@@ -16,7 +16,7 @@ import {
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import { View} from 'react-native';
+import {SafeAreaView, View} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS, FONTS} from '../../../assets/constants';
 
@@ -193,7 +193,24 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                     renderUsernameOnMessage={true}
                     showUserAvatar={true}
                     renderAvatar={props => (
-                        <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                        <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                            {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
+                            {
+
+                                props.currentMessage?.user?._id === user?.id ?
+                                <HexAvatar
+                                size={45}
+                                bordercolor={selectAvatarBorderColor(
+                                    props.currentMessage?.user?._id === user?.id
+                                        ? user?.badge ?? 'AKCRUIT'
+                                        : 'OTHER_USER_BADGE',
+                                )}
+                                source={{
+                                    uri:
+                                    user?.profilePicture
+                                }}
+                                {...props}
+                            />:
                             <HexAvatar
                                 size={45}
                                 bordercolor={selectAvatarBorderColor(
@@ -203,13 +220,14 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                 )}
                                 source={{
                                     uri:
-                                        props.currentMessage?.user?._id === user?.id
-                                            ? user?.profilePicture
-                                            :membersdata[props.currentMessage?.user?._id]['profilePicture'],
+                                    membersdata[props.currentMessage?.user?._id]['profilePicture'] ? null: membersdata[props.currentMessage?.user?._id]['profilePicture']
                                 }}
                                 {...props}
                             />
-                        </TouchableRipple>
+
+                            }
+                            
+                        </View>
                     )}
                     renderBubble={props => (
                         <Bubble

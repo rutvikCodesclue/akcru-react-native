@@ -5,7 +5,8 @@ import {
   ImageBackground,
   ScrollView,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
+  SafeAreaView
 } from "react-native";
 import React, { useEffect, useRef } from "react";
 import styles from "./styles";
@@ -16,8 +17,8 @@ import imageindex from "../../../../assets/images/imageindex";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CrummunityStackParams } from "../../../navigation/CrummunityStack";
 import { useNavigation } from "@react-navigation/native";
-import SafeAreaView from 'react-native-safe-area-view';
-
+import { Icon } from "@rneui/base";
+import LottieView from "lottie-react-native";
 
 
 const PurchaseMITScreen2 = () => {

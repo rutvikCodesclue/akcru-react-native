@@ -201,27 +201,5 @@ export function extractUsernamesFromText  (text: string) {
     return usernames;
 };
 
-export function formatNumber(num: number) {
-    if (num < 10000) return num.toString(); // Return the number as is if less than 10,000.
-
-    if (num < 1000000) {
-        // For numbers from 10,000 to less than 1,000,000, display in thousands with 'k'
-        const thousands = num / 1000;
-        if (Math.floor(thousands) !== thousands) {
-            return thousands.toFixed(1) + 'k'; // Format with one decimal place if not a whole number
-        }
-        return Math.round(thousands) + 'k'; // Round to nearest thousand if a whole number
-    }
-
-    // For numbers 1,000,000 and above, display in millions with 'm'
-    const millions = num / 1000000;
-    if (Math.floor(millions * 100) / 100 !== millions) {
-        return millions.toFixed(2) + 'm'; // Format with two decimal places if not a whole number
-    }
-    return Math.round(millions) + 'm'; // Round to nearest million if a whole number
-}
-
-
-
 
 

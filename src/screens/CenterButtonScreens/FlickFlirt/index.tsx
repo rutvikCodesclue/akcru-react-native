@@ -1,6 +1,6 @@
-import { ImageBackground,StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
-import SafeAreaView from 'react-native-safe-area-view';
+
 import imageindex from '../../../../assets/images/imageindex';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants/theme';
 import Header from '../../../components/header';

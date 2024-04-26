@@ -1,6 +1,5 @@
 
-import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, Pressable} from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
+import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView, Pressable} from 'react-native';
 
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
@@ -22,7 +21,6 @@ import { UseTabMenu } from '../../../context/TabContext';
 
 const Unread = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-    
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true

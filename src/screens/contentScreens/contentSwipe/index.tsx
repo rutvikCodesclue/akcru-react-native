@@ -7,12 +7,10 @@ import {
     StyleSheet,
     Image,
     StatusBar,
-
+    SafeAreaView,
     TouchableOpacity,
     Pressable,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 // import data from "./data";
 import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';

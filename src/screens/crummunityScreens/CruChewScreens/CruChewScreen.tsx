@@ -6,7 +6,7 @@ import Header from '../../../components/header';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CruChewStackParams } from '../../../navigation/CruChewStack';
 import { useNavigation } from '@react-navigation/native';
-import SafeAreaView from 'react-native-safe-area-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 
 

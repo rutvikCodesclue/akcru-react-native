@@ -10,14 +10,20 @@ const firebaseConfig = {
     projectId: "akcru-app",
     storageBucket: "akcru-app.appspot.com",
     messagingSenderId: FB_MESSAGING_SENDER_ID, // Your project number
-    appId: FB_APP_ID, 
+    appId: FB_APP_ID, // Your mobilesdk_app_id
+    // Optional, if available: measurementId: "<your-measurement-id>"
 };
 // Initialize Firebase
-if (firebase.apps.length === 0) {
-    firebase.initializeApp(firebaseConfig )
-} else {
-    firebase.app()
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
 }
+
+// export async function getPushToken() {
+//     let fcmToken = await messaging().getToken();
+//     if (fcmToken) {
+//         console.log('fcmToken log:', fcmToken);
+//     }
+// }
 
 // This function now expects `userId` to be passed in directly.
 export async function getPushToken(userId: string) {

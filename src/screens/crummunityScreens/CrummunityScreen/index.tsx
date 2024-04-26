@@ -6,12 +6,11 @@ import {
   TouchableWithoutFeedback,
   Modal,
   FlatList,
+  SafeAreaView,
   Pressable,
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
@@ -65,8 +64,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [hasMore, setHasMore] = useState(true);
 
     const [blockedUsers, setBlockedUsers] = useState([]);
-
-    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -286,12 +283,6 @@ const handleToggleBlockUser = async authorId => {
     }
 };
 
-const handleRefresh =() => {
-    setRefreshing(true);
-    fetchPostsAndFollowStatus(1);
-    setRefreshing(false)
-}
-
     return (
         <TabContainer>
             <SafeAreaView>
@@ -350,7 +341,7 @@ const handleRefresh =() => {
                                 </View>
                             </View>
                         </View>
-                        <View style={{marginBottom: '20%'}}>
+                        <View style={{marginBottom: '30%'}}>
                             {loadingPosts ? (
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />
@@ -365,8 +356,6 @@ const handleRefresh =() => {
                                     data={posts}
                                     style={styles.postcontainer}
                                     keyExtractor={item => item.id}
-                                    refreshing={refreshing}
-                                    onRefresh={handleRefresh}
                                     renderItem={({item}) => (
                                         <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
@@ -393,9 +382,6 @@ const handleRefresh =() => {
                                                         item.author.isCurrentlyBlocked,
                                                     )
                                                 }
-                                                isOwner={item.author.ownerStatus}
-                                                isPromo={item.author.promoUser}
-                                                
                                             />
                                         </Pressable>
                                     )}
