@@ -14,7 +14,6 @@ import AkcruButtons from '../../../components/akcruButtons';
 import { finishUserWatching } from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import Video from 'react-native-video';
-import { hideNavigationBar, showNavigationBar } from 'react-native-navigation-bar-color';
 
 
 
@@ -46,11 +45,9 @@ export default function TrailerPlayer({navigation, route}: Props) {
     useFocusEffect(
         React.useCallback(() => {
             setShouldAutoplay(true);
-            hideNavigationBar();
 
             return () => {
                 setShouldAutoplay(false);
-                showNavigationBar();
             };
         }, []),
     );
@@ -83,14 +80,7 @@ export default function TrailerPlayer({navigation, route}: Props) {
 
         const fetchMovie = async () => {
             if (movieId) {
-                let fetchedMovie = await findMovieById(movieId);
-                if (fetchedMovie && fetchedMovie.trailerURL) {
-                    const parts = fetchedMovie.trailerURL.split('/');
-                    const lastPartEncoded = parts[parts.length - 1];
-                    const lastPartEncodedWithSpaces = lastPartEncoded.replace(/\+/g, ' ');
-                    parts[parts.length - 1] = encodeURIComponent(lastPartEncodedWithSpaces);
-                    fetchedMovie.trailerURL = parts.join('/');
-                }
+                const fetchedMovie = await findMovieById(movieId);
                 setMovie(fetchedMovie);
             }
         };
@@ -134,7 +124,6 @@ export default function TrailerPlayer({navigation, route}: Props) {
                     <>
 
                     {/* {movieTrailer()} */}
-                    {console.log(movie.trailerURL)}
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{

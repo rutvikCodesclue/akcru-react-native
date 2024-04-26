@@ -6,10 +6,9 @@ import {
     ScrollView,
     Image,
     TouchableOpacity,
+    SafeAreaView,
     Modal,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
@@ -20,6 +19,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {useNavigation} from '@react-navigation/native';
 import {Button, Icon} from '@rneui/base';
+import LottieView from 'lottie-react-native';
 import useAuthStore from '../../../stores/auth.store';
 import {purchaseMIT} from '../../../lib/api/wallet.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';

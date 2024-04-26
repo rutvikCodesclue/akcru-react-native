@@ -1,4 +1,5 @@
 import {
+  SafeAreaView,
   Text,
   View,
   Image,

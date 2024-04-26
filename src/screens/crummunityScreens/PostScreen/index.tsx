@@ -1,7 +1,5 @@
-import { View, Text, TouchableOpacity, ScrollView, FlatList, Pressable, ActivityIndicator } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, FlatList, Pressable, ActivityIndicator } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import SafeAreaView from 'react-native-safe-area-view';
-
 import styles from './styles'
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants/theme'
 import LinearGradient from 'react-native-linear-gradient'
@@ -355,7 +353,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
                         />
                     </View>
-                    <View style={{marginBottom: '5%'}}>
+                    <View style={{marginBottom: '30%'}}>
                         {loadingComments ? (
                             <View style={{marginTop: '25%'}}>
                                 <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />

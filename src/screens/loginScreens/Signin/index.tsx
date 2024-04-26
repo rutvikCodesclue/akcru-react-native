@@ -142,15 +142,6 @@ const Signin = () => {
                         //console.log('READ_MEDIA_VIDEO permission granted');
                     }
                 }
-                //Request Contact permission
-                const contactResult = await check(PERMISSIONS.IOS.CONTACTS);
-                if (contactResult !== RESULTS.GRANTED) {
-                    const contactResult = await request(PERMISSIONS.IOS.CONTACTS);
-                    if (contactResult === RESULTS.GRANTED) {
-                        console.log('contact permission granted');
-                        console.log('contactResult =>', contactResult);
-                    }
-                }
             }
         };
 
@@ -241,9 +232,9 @@ const Signin = () => {
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
-            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
             await getPushToken(user.id); // or use another unique identifier like email
             setLoading(false);
+            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
             setShowLoginError(true); // Display the error alert
             //console.log('LOGIN Error:', error);

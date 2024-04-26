@@ -8,12 +8,11 @@ import {
   ScrollView,
   Pressable,
   Modal,
+  SafeAreaView,
   TouchableWithoutFeedback,
   Animated,
   Alert
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
@@ -28,7 +27,7 @@ import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native
 import { Akcru_Content } from '../../../../assets/constants/ListData';
 import { blockUser, findAUser, followUser, getBlockedUsers, getFollowers, getUserCurrentWatching, getUserFollowing, unblockUser, unfollowUser } from '../../../lib/api/user.lib';
 import { IMovie, IUserProfile } from '../../../../types';
-import { capitalizeFirstLetterOfString, formatNumber, selectAvatarBorderColor } from '../../../util/util';
+import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
 import { checkUserMembership, createACRUInvite, getCruInviteStatus } from '../../../lib/api/cru.lib';
 import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -517,6 +516,63 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </Pressable>
                                         </Modal>
                                     </View>
+                                    {/* <View style={{width: SIZES.ScreenWidth * 0.25}}>
+                                        <View style={{flexDirection: 'row'}}>
+                                            <Text style={{...FONTS.Username}}>{user?.username}</Text>
+                                            {user?.ownerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    baseSize={MULTISIZES.small11}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.companyStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {user?.influencerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                        </View>
+                                        {user?.firstName && (
+                                            <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
+                                                {user?.firstName ? user.firstName : ''}
+                                            </Text>
+                                        )}
+                                        {user?.badge === 'AKCRUIT' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeAkcruit />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'GUARDIAN' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeGuardian />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'HERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeHero />
+                                            </View>
+                                        )}
+                                        {user?.badge === 'SUPERHERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeSuperHero />
+                                            </View>
+                                        )}
+                                    </View> */}
                                 </View>
                                 <View
                                     style={{
@@ -538,10 +594,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
-                                            {formatNumber(followersCount)}
-                                        </Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
+                                        <Text style={{...FONTS.Title1}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
@@ -745,7 +799,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         ) : (
                             <View>
                                 {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
-                                    <View style={{marginHorizontal: 15, marginTop: '5%'}}>
+                                    <View style={{marginHorizontal: 15, marginTop: "5%"}}>
                                         <Text
                                             style={{
                                                 ...FONTS.paragraph1,
@@ -846,41 +900,41 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </Modal>
                                     {user?.gallery && user.gallery.length > 0 && (
                                         <>
-                                            <View style={styles.seperator} />
-                                            <View
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'center',
-                                                    marginTop: 10,
-                                                }}>
-                                                <Text style={{...FONTS.Title3}}>GALLERY</Text>
-                                                <Icon
-                                                    name="images"
-                                                    type="ionicon"
-                                                    color={COLORS.LIGHTGREY}
-                                                    size={20}
-                                                    style={{marginLeft: 5}}
-                                                />
-                                            </View>
-                                            <View style={styles.gallerycontainer}>
-                                                <View style={styles.galleryImagesContainer}>
-                                                    {user?.gallery &&
-                                                        user.gallery.map((imageUri, index) => {
-                                                            return (
-                                                                <TouchableOpacity
-                                                                    key={index.toString()}
-                                                                    onPress={() => openPhoto(imageUri)}
-                                                                    activeOpacity={0.8}>
-                                                                    <Image
-                                                                        source={{uri: imageUri}}
-                                                                        style={styles.galleryImage}
-                                                                    />
-                                                                </TouchableOpacity>
-                                                            );
-                                                        })}
-                                                </View>
-                                            </View>
-                                        </>
+                                    <View style={styles.seperator} />
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'center',
+                                            marginTop: 10,
+                                        }}>
+                                        <Text style={{...FONTS.Title3}}>GALLERY</Text>
+                                        <Icon
+                                            name="images"
+                                            type="ionicon"
+                                            color={COLORS.LIGHTGREY}
+                                            size={20}
+                                            style={{marginLeft: 5}}
+                                        />
+                                    </View>
+                                    <View style={styles.gallerycontainer}>
+                                        <View style={styles.galleryImagesContainer}>
+                                            {user?.gallery &&
+                                                user.gallery.map((imageUri, index) => {
+                                                    return (
+                                                        <TouchableOpacity
+                                                            key={index.toString()}
+                                                            onPress={() => openPhoto(imageUri)}
+                                                            activeOpacity={0.8}>
+                                                            <Image
+                                                                source={{uri: imageUri}}
+                                                                style={styles.galleryImage}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    );
+                                                })}
+                                        </View>
+                                    </View>
+                                    </>
                                     )}
                                     {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
                                         <View style={styles.watchlistcontainer}>

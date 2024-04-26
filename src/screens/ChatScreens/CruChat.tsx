@@ -1,9 +1,7 @@
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 import React, {useEffect, useState} from 'react';
-import { View} from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
+import {SafeAreaView, View} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS, FONTS} from '../../../assets/constants';
 

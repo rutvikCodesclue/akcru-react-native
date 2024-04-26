@@ -203,7 +203,6 @@ export interface IUserProfile {
     following?: IUserProfile[]; // Same as above
     wallet?: IWallet; // This assumes you have an IWallet interface defined
     watchlist?: IWatchlist[]; // Array of watchlist items
-    promoUser: boolean 
 }
 
 export interface IWatchlist {

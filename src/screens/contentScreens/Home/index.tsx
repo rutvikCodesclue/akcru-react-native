@@ -26,7 +26,7 @@ import { ClientStackParams } from '../../../navigation/ClientStack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
 import VideoPlayer from 'react-native-media-console';
-import SafeAreaView from 'react-native-safe-area-view';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';

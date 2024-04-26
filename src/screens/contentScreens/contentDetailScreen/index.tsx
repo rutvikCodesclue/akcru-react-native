@@ -2,12 +2,11 @@ import {
   View,
   Text,
   ScrollView,
+  SafeAreaView,
   ActivityIndicator,
   Alert,
   Modal,
 } from 'react-native';
-import SafeAreaView from 'react-native-safe-area-view';
-
 import React, { useState, useEffect } from 'react';
 import styles from './styles';
 

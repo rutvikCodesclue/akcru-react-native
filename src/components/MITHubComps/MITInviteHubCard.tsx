@@ -100,23 +100,22 @@ const MITInviteHubCard = ({
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
-
-                            {creator.badge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {creator.badge === 'AKCRUIT' && (
+                            {akcruBadge === 'AKCRUIT' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeAkcruit />
                                 </View>
                             )}
-                            {creator.badge === 'HERO' && (
+                            {akcruBadge === 'GUARDIAN' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeGuardian />
+                                </View>
+                            )}
+                            {akcruBadge === 'HERO' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeHero />
                                 </View>
                             )}
-                            {creator.badge === 'SUPERHERO' && (
+                            {akcruBadge === 'SUPERHERO' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeSuperHero />
                                 </View>
