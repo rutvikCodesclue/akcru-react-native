@@ -24,7 +24,13 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Text, TouchableRipple} from 'react-native-paper';
 import HexAvatar from '../../components/HexAvatar';
 import Header from '../../components/header';
-import {createChatRoom, getTextMessages, getTextMessagesGroup, saveTextMessage, updateMessageStatus} from '../../lib/api/rooms.lib';
+import {
+    createChatRoom,
+    getTextMessages,
+    getTextMessagesGroup,
+    saveTextMessage,
+    updateMessageStatus,
+} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../util/util';
@@ -35,8 +41,8 @@ import playMessageSound from '../../util/playMessageSound';
 import uuid from 'react-native-uuid';
 
 const generateUUID = () => {
-  const uuidval = uuid.v4();
-  return uuidval;
+    const uuidval = uuid.v4();
+    return uuidval;
 };
 
 const CruGroupChatComponent = ({cru, members}: any) => {
@@ -44,13 +50,10 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const cruId = cru.id || null;
     const [membersdata, setMembersData] = useState({});
-   
-
 
     // const userID: string | undefined = route.params?.userId ?? null;
     // const {creatorProfilePicture, inviteeProfilePicture, profilePicture} = route.params;
     const {user} = useAuthStore();
-    
 
     var roomId = '';
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
@@ -59,24 +62,22 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const [channelP, setChannelP] = useState<RealtimeChannel | null>(null);
     membersdata[user.id] = {
         profilePicture: user?.profilePicture,
-        username: user?.username
+        username: user?.username,
     };
-    
+
     membersdata[cru?.creator?.id] = {
         profilePicture: cru?.creator?.profilePicture,
-        username: cru?.creator?.username
+        username: cru?.creator?.username,
     };
-    
+
     members.forEach(member => {
         membersdata[member.id] = {
             profilePicture: member.profilePicture,
-            username: member.username
+            username: member.username,
         };
     });
 
-
     useEffect(() => {
-        
         getTextMessage(cruId!);
         const channelA = supabase.channel(cruId);
         channelA
@@ -95,7 +96,6 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                     setChannelP(channelP);
                 }
             });
-    
 
         return () => {
             channelA.unsubscribe();
@@ -112,38 +112,35 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         const iMessage: IMessage = {
             _id: payload.payload.msgId,
             text: payload.payload.message,
-            user: {_id: payload.payload.senderId!, name:membersdata[payload.payload.senderId!]['username']},
+            user: {_id: payload.payload.senderId!, name: membersdata[payload.payload.senderId!]['username']},
             createdAt: Date.now(),
         };
         playMessageSound();
         messsages.push(iMessage);
         setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
-        updateMessageStatus([payload.payload.msgId])
-
+        updateMessageStatus([payload.payload.msgId]);
     }
 
-   
     const getTextMessage = async (cruId: string) => {
-
         const response = await getTextMessagesGroup(cruId);
-        var chatMessage : IMessage[] = []
+        var chatMessage: IMessage[] = [];
 
-        response!.forEach(  (item) => {
-
-            const senderId = item.senderId
-            const iMessage : IMessage = {
+        response!.forEach(item => {
+            const senderId = item.senderId;
+            const iMessage: IMessage = {
                 _id: item.id,
                 text: item.content,
-                user: { _id: item.senderId, name:membersdata[senderId] ? membersdata[senderId].username : 'Unknown User'},
-                createdAt: new  Date(item.createdAt),
+                user: {
+                    _id: item.senderId,
+                    name: membersdata[senderId] ? membersdata[senderId].username : 'Unknown User',
+                },
+                createdAt: new Date(item.createdAt),
             };
             chatMessage.push(iMessage);
-        })
-        updateMessageStatus([chatMessage[0]._id])
+        });
+        updateMessageStatus([chatMessage[0]._id]);
         setMessages(chatMessage!);
     };
-
- 
 
     const onSend = (messages: IMessage[] = []) => {
         if (channelll === null) return; // console.log('Channel not found');
@@ -151,19 +148,17 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         channelll.send({
             type: 'broadcast',
             event: 'groupchat',
-            payload: {message: messages[0]!.text!, senderId: user.id,cruId: cruId, msgId: msgId},
+            payload: {message: messages[0]!.text!, senderId: user.id, cruId: cruId, msgId: msgId},
         });
         channelP.send({
             type: 'broadcast',
             event: 'parent-cru-chat',
-            payload: {message: messages[0]!.text!, senderId: user.id,cruId: cruId, msgId: msgId},
+            payload: {message: messages[0]!.text!, senderId: user.id, cruId: cruId, msgId: msgId},
         });
         playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-        saveTextMessage(cruId, messages[0]!.text!, user.id!,true, msgId);
+        saveTextMessage(cruId, messages[0]!.text!, user.id!, true, msgId);
         // updateMessageStatus([messages[0]._id])
-
-
     };
 
     const handleAvatarPress = (user: any) => {
@@ -172,32 +167,28 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     return (
-        
-            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                
-                <GiftedChat
-                    messages={messages}
-                    onSend={messages => onSend(messages)}
-                    user={{
-                        _id: user?.id!,
-                        name: user?.username,
-                    }}
-                    textInputProps={{
-                        style: {
-                            color: COLORS.BLACK,
-                            width: '85%',
-                            padding: 10,
-                        },
-                    }}
-                    renderUsernameOnMessage={true}
-                    showUserAvatar={true}
-                    renderAvatar={props => (
-                        <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                            {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
-                            {
-
-                                props.currentMessage?.user?._id === user?.id ?
-                                <HexAvatar
+        <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+            <GiftedChat
+                messages={messages}
+                onSend={messages => onSend(messages)}
+                user={{
+                    _id: user?.id!,
+                    name: user?.username,
+                }}
+                textInputProps={{
+                    style: {
+                        color: COLORS.BLACK,
+                        width: '85%',
+                        padding: 10,
+                    },
+                }}
+                renderUsernameOnMessage={true}
+                showUserAvatar={true}
+                renderAvatar={props => (
+                    <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                        {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
+                        {props.currentMessage?.user?._id === user?.id ? (
+                            <HexAvatar
                                 size={45}
                                 bordercolor={selectAvatarBorderColor(
                                     props.currentMessage?.user?._id === user?.id
@@ -218,10 +209,9 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                         : 'OTHER_USER_BADGE',
                                 )}
                                 source={{
-                                    uri:
-                                        props.currentMessage?.user?._id === user?.id
-                                            ? user?.profilePicture
-                                            : membersdata[props.currentMessage?.user?._id]['profilePicture'],
+                                    uri: membersdata[props.currentMessage?.user?._id]
+                                        ? membersdata[props.currentMessage?.user?._id]['profilePicture']
+                                        : null,
                                 }}
                                 {...props}
                             />
