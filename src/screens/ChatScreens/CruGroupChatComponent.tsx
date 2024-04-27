@@ -174,31 +174,28 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     return (
-        
-            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                <GiftedChat
-                    messages={messages}
-                    onSend={messages => onSend(messages)}
-                    user={{
-                        _id: user?.id!,
-                        name: user?.username,
-                    }}
-                    textInputProps={{
-                        style: {
-                            color: COLORS.BLACK,
-                            width: '85%',
-                            padding: 10,
-                        },
-                    }}
-                    renderUsernameOnMessage={true}
-                    showUserAvatar={true}
-                    renderAvatar={props => (
-                        <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                            {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
-                            {
-
-                                props.currentMessage?.user?._id === user?.id ?
-                                <HexAvatar
+        <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+            <GiftedChat
+                messages={messages}
+                onSend={messages => onSend(messages)}
+                user={{
+                    _id: user?.id!,
+                    name: user?.username,
+                }}
+                textInputProps={{
+                    style: {
+                        color: COLORS.BLACK,
+                        width: '85%',
+                        padding: 10,
+                    },
+                }}
+                renderUsernameOnMessage={true}
+                showUserAvatar={true}
+                renderAvatar={props => (
+                    <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                        {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
+                        {props.currentMessage?.user?._id === user?.id ? (
+                            <HexAvatar
                                 size={45}
                                 bordercolor={selectAvatarBorderColor(
                                     props.currentMessage?.user?._id === user?.id
@@ -206,11 +203,11 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                         : 'OTHER_USER_BADGE',
                                 )}
                                 source={{
-                                    uri:
-                                    user?.profilePicture
+                                    uri: user?.profilePicture,
                                 }}
                                 {...props}
-                            />:
+                            />
+                        ) : (
                             <HexAvatar
                                 size={45}
                                 bordercolor={selectAvatarBorderColor(
@@ -220,42 +217,42 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                 )}
                                 source={{
                                     uri:
-                                    membersdata[props.currentMessage?.user?._id]['profilePicture'] ? null: membersdata[props.currentMessage?.user?._id]['profilePicture']
+                                        props.currentMessage?.user?._id === user?.id
+                                            ? user?.profilePicture
+                                            : membersdata[props.currentMessage?.user?._id]['profilePicture'],
                                 }}
                                 {...props}
                             />
-
-                            }
-                            
-                        </View>
-                    )}
-                    renderBubble={props => (
-                        <Bubble
-                            {...props}
-                            wrapperStyle={{
-                                right: {
-                                    // Change the background color for messages sent by the current user
-                                    backgroundColor: COLORS.AKCRUBLUE,
-                                },
-                                left: {
-                                    // Change the background color for messages sent by other users
-                                    backgroundColor: COLORS.CATPURPDRK,
-                                },
-                            }}
-                            textStyle={{
-                                right: {
-                                    // Text color for messages sent by the current user
-                                    color: COLORS.WHITE,
-                                },
-                                left: {
-                                    // Text color for messages sent by other users
-                                    color: COLORS.WHITE,
-                                },
-                            }}
-                        />
-                    )}
-                />
-            </View>
+                        )}
+                    </View>
+                )}
+                renderBubble={props => (
+                    <Bubble
+                        {...props}
+                        wrapperStyle={{
+                            right: {
+                                // Change the background color for messages sent by the current user
+                                backgroundColor: COLORS.AKCRUBLUE,
+                            },
+                            left: {
+                                // Change the background color for messages sent by other users
+                                backgroundColor: COLORS.CATPURPDRK,
+                            },
+                        }}
+                        textStyle={{
+                            right: {
+                                // Text color for messages sent by the current user
+                                color: COLORS.WHITE,
+                            },
+                            left: {
+                                // Text color for messages sent by other users
+                                color: COLORS.WHITE,
+                            },
+                        }}
+                    />
+                )}
+            />
+        </View>
     );
 };
 
