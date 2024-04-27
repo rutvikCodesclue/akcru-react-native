@@ -107,10 +107,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
 
     // Simple function to log any messages we receive
     function messageReceived(payload: any) {
-        // console.log('RECEIVED MESSAGE', payload);
         if (payload.payload.senderId === user.id) return;
         var messsages: IMessage[] = [];
-        console.log('msgId', payload.payload.msgId)
         const iMessage: IMessage = {
             _id: payload.payload.msgId,
             text: payload.payload.message,
@@ -174,28 +172,32 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     return (
-        <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-            <GiftedChat
-                messages={messages}
-                onSend={messages => onSend(messages)}
-                user={{
-                    _id: user?.id!,
-                    name: user?.username,
-                }}
-                textInputProps={{
-                    style: {
-                        color: COLORS.BLACK,
-                        width: '85%',
-                        padding: 10,
-                    },
-                }}
-                renderUsernameOnMessage={true}
-                showUserAvatar={true}
-                renderAvatar={props => (
-                    <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                        {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
-                        {props.currentMessage?.user?._id === user?.id ? (
-                            <HexAvatar
+        
+            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                
+                <GiftedChat
+                    messages={messages}
+                    onSend={messages => onSend(messages)}
+                    user={{
+                        _id: user?.id!,
+                        name: user?.username,
+                    }}
+                    textInputProps={{
+                        style: {
+                            color: COLORS.BLACK,
+                            width: '85%',
+                            padding: 10,
+                        },
+                    }}
+                    renderUsernameOnMessage={true}
+                    showUserAvatar={true}
+                    renderAvatar={props => (
+                        <View onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                            {console.log('Pic:', membersdata[props.currentMessage?.user?._id])}
+                            {
+
+                                props.currentMessage?.user?._id === user?.id ?
+                                <HexAvatar
                                 size={45}
                                 bordercolor={selectAvatarBorderColor(
                                     props.currentMessage?.user?._id === user?.id
