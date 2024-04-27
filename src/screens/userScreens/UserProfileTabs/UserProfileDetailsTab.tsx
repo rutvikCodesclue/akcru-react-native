@@ -110,10 +110,8 @@ const UserProfileDetailsTab = () => {
     }, []);
 
     useEffect(() => {
-        console.log('Updated unreadcruIds:', unreadcruIds);
     }, [unreadcruIds]);
     useEffect(() => {
-        console.log('Updated memberCruIds:', membercruIds);
         getUnread(membercruIds).then(res=>{
             console.log(res)
             if(res?.success && res.unread != null){

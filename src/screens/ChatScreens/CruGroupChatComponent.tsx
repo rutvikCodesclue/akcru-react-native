@@ -107,10 +107,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
 
     // Simple function to log any messages we receive
     function messageReceived(payload: any) {
-        // console.log('RECEIVED MESSAGE', payload);
         if (payload.payload.senderId === user.id) return;
         var messsages: IMessage[] = [];
-        console.log('msgId', payload.payload.msgId)
         const iMessage: IMessage = {
             _id: payload.payload.msgId,
             text: payload.payload.message,
@@ -176,6 +174,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     return (
         
             <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                
                 <GiftedChat
                     messages={messages}
                     onSend={messages => onSend(messages)}
@@ -220,7 +219,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                 )}
                                 source={{
                                     uri:
-                                    membersdata[props.currentMessage?.user?._id]['profilePicture'] ? null: membersdata[props.currentMessage?.user?._id]['profilePicture']
+                                    membersdata[props.currentMessage?.user?._id]?  membersdata[props.currentMessage?.user?._id]['profilePicture']: null
                                 }}
                                 {...props}
                             />

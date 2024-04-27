@@ -244,10 +244,12 @@ export default function ContentPlayer({navigation, route}: Props) {
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
+         
                 {hasLottieFirstLoopCompleted ? (
                     !loadingError ? (
                         movie && movie.movieURL ? (
                             <>
+                            {console.log('movie url:', movie.movieURL)}
                                 <VideoPlayer
                                     videoRef={videoRef}
                                     source={{
