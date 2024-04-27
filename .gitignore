@@ -68,4 +68,5 @@ yarn-error.log
 # .env
 .env
 
-
+android/
+ios/
