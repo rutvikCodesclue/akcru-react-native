@@ -4,6 +4,7 @@ import {Avatar, Icon} from '@rneui/base';
 import {selectAvatarBorderColor} from '../../util/util';
 import imageindex from '../../../assets/images/imageindex';
 import HexAvatar from '../HexAvatar';
+import { MULTISIZES } from '../../../assets/constants/theme';
 
 
 
@@ -22,7 +23,7 @@ const CruMemberPic = ({userPicture, akcruBadge}: CruMemberPicProps) => {
                       }
                     : imageindex.Akcruplaceholder
             }
-            size={45}
+            size={MULTISIZES.Xlarge40}
             bordercolor={selectAvatarBorderColor(akcruBadge)}
         />
     );

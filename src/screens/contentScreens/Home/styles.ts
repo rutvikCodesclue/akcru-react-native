@@ -57,4 +57,12 @@ export default StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: COLORS.TRANSAKCRUBLUE,
     },
+    muteButton: {
+        width: 30,
+        height: 30,
+        borderRadius: 25,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: COLORS.TRANSPURPLE,
+    },
 });

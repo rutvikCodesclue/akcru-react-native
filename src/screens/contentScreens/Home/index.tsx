@@ -240,6 +240,13 @@ const HomeScreen = () => {
         });
     };
 
+    const [isMuted, setIsMuted] = useState(true);
+
+    // Function to toggle mute
+    const toggleMute = () => {
+        setIsMuted(!isMuted);
+    };
+
     useFocusEffect(
         React.useCallback(() => {
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
@@ -261,6 +268,24 @@ const HomeScreen = () => {
                     <ScrollView stickyHeaderIndices={[0]}>
                         <View>
                             <Header />
+                        </View>
+                        <View
+                            style={{
+                                width: '100%',
+                                zIndex: 3,
+                                position: 'absolute',
+                                top: '5%',
+                                paddingHorizontal: 15,
+                                alignItems: 'flex-end',
+                            }}>
+                            <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
+                                <Icon
+                                    name={isMuted ? 'volume-mute' : 'volume-high'}
+                                    type="ionicon"
+                                    size={20}
+                                    color={COLORS.LIGHTGREY}
+                                />
+                            </TouchableOpacity>
                         </View>
                         <View
                             style={{
@@ -317,6 +342,7 @@ const HomeScreen = () => {
                                     poster={topBox[topBoxIndex]?.portraitURL}
                                     onLoad={handleVideoLoad}
                                     paused={!topBoxShouldAutoplay}
+                                    muted={isMuted}
                                 />
                             </View>
                             <View>

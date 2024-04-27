@@ -422,7 +422,7 @@ const UserProfileDetailsTab = () => {
                 setCruResultMessage('Successfully left the CRU.');
                 setCruResultType('Success');
                 setCruIconName('md-checkmark-circle');
-                setCruIconColor('green');
+                setCruIconColor(COLORS.AKCRUBLUE);
             } else {
                 setCruResultModal(true);
                 setCruResultMessage('Unable to leave CRU. Please try again later.');

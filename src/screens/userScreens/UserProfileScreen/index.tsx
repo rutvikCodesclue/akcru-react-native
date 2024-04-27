@@ -351,7 +351,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         <View
                             // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                             // resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 2.9}}>
+                            style={{height: SIZES.ScreenHeight * .33}}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
