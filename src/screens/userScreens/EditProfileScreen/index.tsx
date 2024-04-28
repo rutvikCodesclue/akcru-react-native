@@ -360,7 +360,7 @@ export default function EditProfile({session}: {session: Session}) {
 
     return (
         <TabContainer>
-            <SafeAreaView>
+            <View>
                 <ScrollView stickyHeaderIndices={[0]}>
                     <View style={{zIndex: 20}}>
                         <Header />
@@ -475,10 +475,10 @@ export default function EditProfile({session}: {session: Session}) {
                                         marginBottom: 20,
                                     }}>
                                     <Pressable onPress={handleChangeUsername}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                     <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                     </Pressable>
                                 </View>
 
@@ -534,7 +534,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <TouchableOpacity
                                             onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
                                             style={{
-                                                backgroundColor: 'red',
+                                                backgroundColor: COLORS.AKCRUBLUE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
@@ -543,7 +543,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <TouchableOpacity
                                             onPress={confirmUsernameUpdate} // Confirm the update
                                             style={{
-                                                backgroundColor: 'green',
+                                                backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
@@ -587,10 +587,10 @@ export default function EditProfile({session}: {session: Session}) {
                                         marginBottom: 20,
                                     }}>
                                     <Pressable onPress={handleChangeDescription}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                     <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                     </Pressable>
                                 </View>
 
@@ -861,7 +861,7 @@ export default function EditProfile({session}: {session: Session}) {
                         </Modal>
                     </View>
                 </ScrollView>
-            </SafeAreaView>
+            </View>
         </TabContainer>
     );
 }

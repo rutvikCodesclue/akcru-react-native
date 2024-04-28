@@ -1,4 +1,4 @@
-import {IUserProfile} from '../../../types';
+import {IMovie, IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
 export const getMe = async (): Promise<IUserProfile | undefined> => {
@@ -757,6 +757,39 @@ export const unblockUser = async (userIdToUnblock: string): Promise<{success: bo
     } catch (error) {
         console.error('Error unblocking user:', error);
         return {success: false, message: 'An error occurred while trying to unblock the user.'};
+    }
+};
+
+export const fetchUnfinishedMovies = async (): Promise<IMovie[]> => {
+    try {
+        const response = await API.get<{success: boolean; unfinishedMovies: IMovie[]}>('/v1/user/unfinished-movies');
+        if (response.data.success) {
+            console.log('Unfinished movies fetched:', response.data.unfinishedMovies);
+            return response.data.unfinishedMovies;
+        } else {
+            console.log('Failed to fetch unfinished movies:', response.data);
+            return []; // Return an empty array if unsuccessful
+        }
+    } catch (error) {
+        console.error('Error fetching unfinished movies:', error);
+        return []; // Return an empty array in case of errors
+    }
+};
+
+export const removeUnfinishedMovie = async (movieId: string): Promise<boolean> => {
+    try {
+        // Replace '/v1/user/unfinished-movies/:movieId' with your actual endpoint
+        const response = await API.delete(`/v1/user/unfinished-movies/${movieId}`);
+        if (response.data.success) {
+            console.log('Movie removed from unfinished list successfully:', movieId);
+            return true;
+        } else {
+            console.log('Failed to remove movie from unfinished list:', response.data.message);
+            return false; // Return false if unsuccessful
+        }
+    } catch (error) {
+        console.error('Error removing movie from unfinished list:', error);
+        return false; // Return false in case of errors
     }
 };
 

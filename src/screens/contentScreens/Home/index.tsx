@@ -34,6 +34,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import { Icon } from '@rneui/base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import { fetchUnfinishedMovies } from '../../../lib/api/user.lib';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -46,6 +47,8 @@ const HomeScreen = () => {
     const [topBoxShouldAutoplay, setTopBoxShouldAutoplay] = useState(true);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+    const [unfinishedMovies, setUnfinishedMovies] = useState<IMovie[]>([]);
 
     const [elapsedTime, setElapsedTime] = useState(0);
 
@@ -127,7 +130,7 @@ const HomeScreen = () => {
                         createdAt: new Date(movie.createdAt).getTime(), // Get timestamp
                     }))
                     .sort((a, b) => b.createdAt - a.createdAt)
-                    .slice(0, 8);
+                    .slice(0, 10);
 
                 setNewOnAkcru(newUploads);
             } catch (error) {
@@ -143,7 +146,7 @@ const HomeScreen = () => {
                 const sortedMovies = allMovies.sort((a, b) => b.rating - a.rating);
 
                 // Get the top 8 highest rated movies
-                const top8RatedMovies = sortedMovies.slice(0, 8);
+                const top8RatedMovies = sortedMovies.slice(0, 10);
 
                 setTopRatedMovies(top8RatedMovies);
             } catch (error) {
@@ -159,7 +162,7 @@ const HomeScreen = () => {
                 const sortedMovies = allMovies.sort((a, b) => a.year - b.year);
 
                 // Get the 5 oldest movies
-                const Oldest5Movies = sortedMovies.slice(0, 5);
+                const Oldest5Movies = sortedMovies.slice(0, 10);
 
                 setOlderYearMovies(Oldest5Movies);
             } catch (error) {
@@ -175,7 +178,7 @@ const HomeScreen = () => {
                 const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
 
                 // Get the 5 oldest movies
-                const Newer5Movies = sortedMovies.slice(0, 5);
+                const Newer5Movies = sortedMovies.slice(0, 10);
 
                 setNewerYearMovies(Newer5Movies);
             } catch (error) {
@@ -260,6 +263,18 @@ const HomeScreen = () => {
             };
         }, []),
     );
+
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadUnfinishedMovies = async () => {
+            const movies = await fetchUnfinishedMovies();
+            setUnfinishedMovies(movies);
+            setIsLoading(false);
+        };
+
+        loadUnfinishedMovies();
+    }, []);
 
     return (
         <TabContainer>
@@ -402,6 +417,13 @@ const HomeScreen = () => {
                                 />
                             </View>
                             <BasicListCategories
+                                Akcru_Content={{
+                                    id: 'unfinshedMovies',
+                                    title: 'Continue Watching',
+                                    movies: unfinishedMovies,
+                                }}
+                            />
+                            <BasicListCategories
                                 Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
                             />
                             <BasicListCategories
@@ -425,7 +447,6 @@ const HomeScreen = () => {
                                     movies: randomMovies,
                                 }}
                             />
-                            {/* <BasicListCategories Akcru_Content={TopOnAkcru} /> */}
 
                             {/* <BasicListCategories Akcru_Content={RecommendedForYou} /> */}
                             {/* <FullPageCategories Akcru_Content={allcategory} /> */}
