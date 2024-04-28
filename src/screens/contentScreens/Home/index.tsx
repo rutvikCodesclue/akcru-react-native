@@ -35,6 +35,7 @@ import { Icon } from '@rneui/base';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import { fetchUnfinishedMovies } from '../../../lib/api/user.lib';
+import ContinueWatchingList from '../../../components/ContinueWatchingList';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -276,6 +277,11 @@ const HomeScreen = () => {
         loadUnfinishedMovies();
     }, []);
 
+    // Function to update the list of unfinished movies
+    const updateUnfinishedMovies = (updatedMovies: React.SetStateAction<IMovie[]>) => {
+        setUnfinishedMovies(updatedMovies);
+    };
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -417,13 +423,6 @@ const HomeScreen = () => {
                                 />
                             </View>
                             <BasicListCategories
-                                Akcru_Content={{
-                                    id: 'unfinshedMovies',
-                                    title: 'Continue Watching',
-                                    movies: unfinishedMovies,
-                                }}
-                            />
-                            <BasicListCategories
                                 Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
                             />
                             <BasicListCategories
@@ -439,6 +438,14 @@ const HomeScreen = () => {
                                     title: 'Oldies but Goodies',
                                     movies: olderYearMovies,
                                 }}
+                            />
+                            <ContinueWatchingList
+                                Akcru_Content={{
+                                    id: 'unfinshedMovies',
+                                    title: 'Continue Watching',
+                                    movies: unfinishedMovies,
+                                }}
+                                updateUnfinishedMovies={updateUnfinishedMovies}
                             />
                             <BasicListCategories
                                 Akcru_Content={{

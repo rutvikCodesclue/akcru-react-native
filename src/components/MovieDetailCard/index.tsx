@@ -54,13 +54,14 @@ type MovieDetailCardProps = {
     genre1: string;
     genre2: string;
     onPress: () => void;
-    onPressin: () => void;
+    playContent: () => void;
     showAddToWatchListConfirmationModal: boolean;
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
     watchlistButton: () => void;
     PlayTrailer: () => void;
     reactions: any;
+    contentButtonName: string;
 };
 
 
@@ -81,13 +82,14 @@ const MovieDetailCard = ({
     genre1,
     genre2,
     onPress,
-    onPressin,
+    playContent,
     watchlistButton,
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
     PlayTrailer,
-    reactions
+    reactions,
+    contentButtonName,
 }: MovieDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
@@ -245,10 +247,15 @@ const MovieDetailCard = ({
                                     textAlign: 'center',
                                     marginRight: 10,
                                 }}>
-                                Add to watchlist
+                                Add to Favorites
                             </Text>
                             <TouchableOpacity onPress={watchlistButton}>
-                                <Icon name="add-circle-outline" type="ionicon" color={COLORS.MIDORANGE} size={MULTISIZES.Xlarge40} />
+                                <Icon
+                                    name="add-circle-outline"
+                                    type="ionicon"
+                                    color={COLORS.MIDORANGE}
+                                    size={MULTISIZES.Xlarge40}
+                                />
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -269,20 +276,20 @@ const MovieDetailCard = ({
                             marginHorizontal: 10,
                         }}>
                         <AkcruButtons.MedButton
-                            btnname={'Play Movie'}
-                            onPress={onPressin}
+                            btnname={contentButtonName}
+                            onPress={playContent}
                             color={COLORS.AKCRUBLUE}
                             disabled={false}
                         />
 
                         <AkcruButtons.MedButton
                             btnname={'Watch Trailer'}
-                            onPress={()=>{
+                            onPress={() => {
                                 console.log({
                                     id: movieId,
                                     trailerURL: trailerURL,
                                     landscapeURL: landscapeURL,
-                                })
+                                });
                                 navigation.navigate('TrailerPlayer', {
                                     id: movieId,
                                     trailerURL: trailerURL,
@@ -328,7 +335,9 @@ const MovieDetailCard = ({
                             }}>
                             {year}
                         </Text>
-                        <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>{formatMovieDuration(duration)}</Text>
+                        <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
+                            {formatMovieDuration(duration)}
+                        </Text>
                     </View>
                     <View
                         style={{

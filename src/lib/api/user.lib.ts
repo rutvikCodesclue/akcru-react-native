@@ -764,7 +764,6 @@ export const fetchUnfinishedMovies = async (): Promise<IMovie[]> => {
     try {
         const response = await API.get<{success: boolean; unfinishedMovies: IMovie[]}>('/v1/user/unfinished-movies');
         if (response.data.success) {
-            console.log('Unfinished movies fetched:', response.data.unfinishedMovies);
             return response.data.unfinishedMovies;
         } else {
             console.log('Failed to fetch unfinished movies:', response.data);
@@ -777,8 +776,8 @@ export const fetchUnfinishedMovies = async (): Promise<IMovie[]> => {
 };
 
 export const removeUnfinishedMovie = async (movieId: string): Promise<boolean> => {
+    console.log('Removing movie from unfinished list:', movieId);
     try {
-        // Replace '/v1/user/unfinished-movies/:movieId' with your actual endpoint
         const response = await API.delete(`/v1/user/unfinished-movies/${movieId}`);
         if (response.data.success) {
             console.log('Movie removed from unfinished list successfully:', movieId);
@@ -788,8 +787,9 @@ export const removeUnfinishedMovie = async (movieId: string): Promise<boolean> =
             return false; // Return false if unsuccessful
         }
     } catch (error) {
-        console.error('Error removing movie from unfinished list:', error);
+        console.error('Error removing movie from unfinished list:', error.response ? error.response.data : error);
         return false; // Return false in case of errors
     }
 };
+
 

@@ -31,22 +31,22 @@ import useAuthStore from '../../../stores/auth.store';
 
 
 
-type ContentDetailScreenNavigationProp = StackNavigationProp<
+type ResumeDetailScreenNavigationProp = StackNavigationProp<
   NoBottomTabStackParams,
-  'ContentDetailScreen'
+  'ResumeDetailScreen'
 >;
 
-type ContentDetailScreenRouteProp = RouteProp<
+type ResumeDetailScreenRouteProp = RouteProp<
   NoBottomTabStackParams,
-  'ContentDetailScreen'
+  'ResumeDetailScreen'
 >;
 
 type Props = {
-  navigation: ContentDetailScreenNavigationProp;
-  route: ContentDetailScreenRouteProp;
+  navigation: ResumeDetailScreenNavigationProp;
+  route: ResumeDetailScreenRouteProp;
 };
 
-export default function ContentDetailScreen({navigation, route}: Props) {
+export default function ResumeDetailScreen({navigation, route}: Props) {
     const movieId: string | undefined = route.params?.movieId ?? null;
     const [movie, setMovie] = useState<IMovie[]>([]);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
@@ -231,7 +231,7 @@ useEffect(() => {
                                     movieURL={movieURL}
                                     genre1={genres[0]}
                                     genre2={genres[1]}
-                                    contentButtonName="Play Movie"
+                                    contentButtonName='Resume Movie'
                                     playContent={() => {
                                         navigation2.navigate('ContentPlayer', {
                                             id: id,
@@ -274,39 +274,6 @@ useEffect(() => {
                                     }}
                                 />
                             </View>
-                            {/* <View style={{marginHorizontal: 15}}>
-                            <Text style={{...FONTS.Title2, marginVertical: 10}}>Akcru Review</Text>
-                            <View style={{marginBottom: 75}}>
-                                <View>
-                                    {FAKE_USER_PROFILES.map(item => (
-                                        <View key={item.userID} style={{marginBottom: 10}}>
-                                            <AkcruReviewCard
-                                                userPicture={item.userPicture}
-                                                userName={item.userName}
-                                                movieReview={item.movieReview}
-                                                movieReviewDate={item.movieReviewDate}
-                                                userID={item.userID}
-                                            />
-                                        </View>
-                                    ))}
-                                </View>
-                                <View style={styles.input}>
-                                    <TextInput
-                                        placeholder={'placeholder'}
-                                        placeholderTextColor={'transparent'}
-                                        style={styles.textinput}
-                                    />
-                                </View>
-                                <View style={{alignItems: 'flex-end'}}>
-                                    <AkcruButtons.XSmallButton
-                                        btnname={'POST'}
-                                        onPress={function (): void {}}
-                                        color=""
-                                        disabled={false}
-                                    />
-                                </View>
-                            </View>
-                        </View> */}
                         </View>
                     ) : (
                         <View style={styles.activitycontainer}>

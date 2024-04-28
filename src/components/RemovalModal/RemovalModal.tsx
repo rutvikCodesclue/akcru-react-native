@@ -51,7 +51,7 @@ const RemovalModal = ({closeModal, type}: RemovalModalProps) => {
                         marginBottom: 10,
                         textAlign: 'center',
                     }}>
-                    {type === 'success' ? 'Movie removed from watchlist successfully' : 'Failed to remove movie from watchlist'}
+                    {type === 'success' ? 'Movie removed successfully' : 'Failed to remove movie'}
                 </Text>
             </View>
         </Pressable>

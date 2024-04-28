@@ -817,7 +817,7 @@ const UserProfileDetailsTab = () => {
                                             <WatchListCategory
                                                 Akcru_Content={{
                                                     id: 'YourFavourite',
-                                                    title: 'Your Watchlist',
+                                                    title: 'Your Favorites',
                                                     movies: watchlist,
                                                 }}
                                                 updateWatchlist={updateWatchlist}
