@@ -23,6 +23,7 @@ import { Akcru_Content } from '../../../assets/constants/ListData';
 import { findMovies } from '../../lib/api/movies.lib';
 import {IMovie} from '../../../types';
 import {findMovieById} from '../../lib/api/movies.lib';
+import { FlashList } from '@shopify/flash-list';
 
 const SearchInput = () => {
   //search input function
@@ -161,9 +162,10 @@ const SearchInput = () => {
                               </TouchableWithoutFeedback>
                           </View>
                       </View>
-                      <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                          <FlatList
+                      <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                          <FlashList
                               data={data}
+                              estimatedItemSize={500}
                               ListFooterComponent={<View style={{marginBottom: 70}} />}
                               renderItem={({item, index}) => (
                                   <TouchableOpacity

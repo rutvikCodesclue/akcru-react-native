@@ -11,6 +11,7 @@ import CustomIcon from '../CustomIcon/CustomIcon';
 import { removeUnfinishedMovie } from '../../lib/api/user.lib';
 import RemovalModal from '../RemovalModal/RemovalModal';
 import ConfirmationModal from '../ConfirmationModal';
+import { FlashList } from '@shopify/flash-list';
 
 interface ContinueWatchingListProps {
     Akcru_Content: {
@@ -79,10 +80,11 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueW
     return (
         <>
             <Text style={{...FONTS.Title2, marginTop: 10, marginLeft: '2%'}}>{Akcru_Content.title}</Text>
-            <FlatList
+            <FlashList
                 data={Akcru_Content.movies}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
+                estimatedItemSize={124}
                 renderItem={({item, index}) => (
                     <View style={{margin: 5}}>
                         <TouchableOpacity

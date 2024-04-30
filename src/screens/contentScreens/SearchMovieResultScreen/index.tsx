@@ -12,6 +12,8 @@ import { Akcru_Content } from '../../../../assets/constants/ListData';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import { FlashList } from '@shopify/flash-list';
+import AkcruButtons from '../../../components/akcruButtons';
 
 // const AllMovies = Akcru_Content[0];
 
@@ -31,148 +33,196 @@ type Props = {
 };
 
 const SearchMovieResultScreen = ({navigation, route}: Props) => {
-  const [selectedGenre, setSelectedGenre] = useState('');
-  const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
+    const [selectedGenre, setSelectedGenre] = useState('');
+    const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
+    const [displayMovies, setDisplayMovies] = useState<IMovie[]>([]);
+    const [pageIndex, setPageIndex] = useState(0);
+    const pageSize = 12; // Number of movies to load per page
 
-  useEffect(() => {
-    if (route.params && route.params.genre) {
-      handleGenrePress(route.params.genre);
-    }
-  }, [route.params]);
+    useEffect(() => {
+        if (route.params && route.params.genre) {
+            handleGenrePress(route.params.genre);
+        }
+    }, [route.params]);
 
-  const handleGenrePress = async (genre: string) => {
-      setSelectedGenre(genre);
+    useEffect(() => {
+        setDisplayMovies(filteredMovies.slice(0, pageSize));
+    }, [filteredMovies]);
 
-      let movies: IMovie[] = [];
-      if (genre === 'All') {
-          movies = await findMovies();
-      } else {
-          movies = await findMovies(genre);
-      }
+    const handleGenrePress = async (genre: string) => {
+        setSelectedGenre(genre);
 
-      if (movies.length === 0) {
-          //console.log('No movies found...');
+        let movies: IMovie[] = [];
+        if (genre === 'All') {
+            movies = await findMovies();
+        } else {
+            movies = await findMovies(genre);
+        }
 
-          setFilteredMovies([]);
-          return;
-      }
+        if (movies.length === 0) {
+            //console.log('No movies found...');
 
-      // Sort movies by createdAt in descending order (newest first)
-      const sortedMovies = movies.sort((a, b) => {
-          const dateA = new Date(a.createdAt);
-          const dateB = new Date(b.createdAt);
-          return dateB.getTime() - dateA.getTime();
-      });
+            setFilteredMovies([]);
+            return;
+        }
 
-      // console.log('Found movies: ', movies);
-      setFilteredMovies(sortedMovies);
-      return;
-  };
+        // Sort movies by createdAt in descending order (newest first)
+        const sortedMovies = movies.sort((a, b) => {
+            const dateA = new Date(a.createdAt);
+            const dateB = new Date(b.createdAt);
+            return dateB.getTime() - dateA.getTime();
+        });
 
-  
+        // console.log('Found movies: ', movies);
+        setFilteredMovies(sortedMovies);
+        return;
+    };
 
-  const renderItem = ({item, index}: {item: any; index: number}) => {
-      const isActive = item.genre === selectedGenre;
-      return (
-          <View style={{marginHorizontal: 10}}>
-              <Text
-                  style={[
-                      {
-                          ...FONTS.Title2,
-                          color: isActive ? COLORS.AKCRUBLUE : COLORS.DARKGREY,
-                      },
-                  ]}
-                  onPress={() => handleGenrePress(item.genre)}>
-                  {item.genre}
-              </Text>
-          </View>
-      );
-  };
+   const renderFooterComponent = () => {
+       // Only display "Load More" button if there are more items to load
+       const moreItemsToLoad = displayMovies.length < filteredMovies.length;
 
-  return (
-    <TabContainer>
-        <SafeAreaView>
-          <View>
-              <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                  <TouchableOpacity
-                      onPress={() => navigation.pop()}
-                      style={{
-                          paddingHorizontal: 15,
-                          paddingVertical: 10,
-                      }}>
-                      <View
-                          style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                          }}>
-                          <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                          <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                      </View>
-                  </TouchableOpacity>
-                  <SearchInput />
-                  <View
-                      style={{
-                          backgroundColor: COLORS.TAGCOLOR,
-                          height: 30,
-                          borderRadius: 5,
-                          marginBottom: 10,
-                          marginHorizontal: 15,
-                          justifyContent: 'center',
-                      }}>
-                      <View>
-                          <FlatList
-                              data={MOVIE_GENRES}
-                              horizontal={true}
-                              showsHorizontalScrollIndicator={false}
-                              keyExtractor={item => item.id}
-                              renderItem={renderItem}
-                              ItemSeparatorComponent={() => <Text style={{color: COLORS.DARKGREY}}> | </Text>}
-                          />
-                      </View>
-                  </View>
-              </View>
+       // Debugging output to console (you can remove this after confirming it works correctly)
+       console.log(
+           `DisplayMovies: ${displayMovies.length}, FilteredMovies: ${filteredMovies.length}, More to load: ${moreItemsToLoad}`,
+       );
 
-              <View>
-                  <View style={{alignItems: 'center'}}>
-                      <FlatList
-                          data={filteredMovies}
-                          horizontal={false}
-                          numColumns={3}
-                          initialNumToRender={filteredMovies.length}
-                          showsHorizontalScrollIndicator={false}
-                          ListFooterComponent={<View style={{marginBottom: 500}}></View>}
-                          renderItem={({item}: {item: IMovie}) => (
-                              <View>
-                                  <TouchableOpacity
-                                      onPress={() => {
-                                          //console.log('id:', item.id);
-                                          //console.log('movie:', item.title);
-                                          navigation.navigate('ContentDetailScreen', {
-                                              id: item.id,
-                                              movie: item.title,
-                                          });
-                                      }}>
-                                      <Image
-                                          source={{uri: item.portraitURL}}
-                                          style={{
-                                              width: SIZES.ScreenWidth / 3.5,
-                                              height: SIZES.ScreenWidth / 2.35,
-                                              borderRadius: 5,
-                                              margin: 5,
-                                              resizeMode: 'cover',
-                                          }}
-                                      />
-                                  </TouchableOpacity>
-                              </View>
-                          )}
-                      />
-                  </View>
-              </View>
-          </View>
-      </SafeAreaView>
-    </TabContainer>
-      
-  );
+       if (moreItemsToLoad) {
+           return (
+               <View style={{marginBottom: SIZES.ScreenHeight * 0.58, alignItems: 'center', marginTop: 10}}>
+                   <AkcruButtons.XlLrgButton btnname="Load More" onPress={loadMoreMovies} color={COLORS.PURPLE} />
+               </View>
+           );
+       } else {
+           // If no more items to load, show only the bottom margin
+           return <View style={{marginBottom: SIZES.ScreenHeight * 0.58}} />;
+       }
+   };
+
+   const loadMoreMovies = () => {
+       const nextSetStartIndex = displayMovies.length;
+       const nextSetEndIndex = nextSetStartIndex + pageSize;
+
+       console.log(`Loading more from ${nextSetStartIndex} to ${nextSetEndIndex}`);
+
+       const nextSet = filteredMovies.slice(nextSetStartIndex, nextSetEndIndex);
+
+       console.log(`Found ${nextSet.length} items to load`);
+
+       if (nextSet.length > 0) {
+           setDisplayMovies([...displayMovies, ...nextSet]);
+           setPageIndex(prevPageIndex => prevPageIndex + 1);
+       } else {
+           console.log('No more movies to load');
+       }
+   };
+
+
+    const renderItem = ({item, index}: {item: any; index: number}) => {
+        const isActive = item.genre === selectedGenre;
+        return (
+            <View style={{marginHorizontal: 10}}>
+                <Text
+                    style={[
+                        {
+                            ...FONTS.Title2,
+                            color: isActive ? COLORS.AKCRUBLUE : COLORS.DARKGREY,
+                        },
+                    ]}
+                    onPress={() => handleGenrePress(item.genre)}>
+                    {item.genre}
+                </Text>
+            </View>
+        );
+    };
+
+    return (
+        <TabContainer>
+            <View>
+                <View>
+                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                        <TouchableOpacity
+                            onPress={() => navigation.pop()}
+                            style={{
+                                paddingHorizontal: 15,
+                                paddingVertical: 10,
+                            }}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <SearchInput />
+                        <View
+                            style={{
+                                backgroundColor: COLORS.TAGCOLOR,
+                                height: 30,
+                                borderRadius: 5,
+                                marginBottom: 10,
+                                marginHorizontal: 15,
+                                justifyContent: 'center',
+                            }}>
+                            <View>
+                                <FlatList
+                                    data={MOVIE_GENRES}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                    keyExtractor={item => item.id}
+                                    renderItem={renderItem}
+                                    ItemSeparatorComponent={() => <Text style={{color: COLORS.DARKGREY}}> | </Text>}
+                                />
+                            </View>
+                        </View>
+                    </View>
+
+                    <View>
+                        <View style={{alignItems: 'center'}}>
+                            <FlatList
+                                data={displayMovies}
+                                // data={filteredMovies}
+                                horizontal={false}
+                                numColumns={3}
+                                initialNumToRender={filteredMovies.length}
+                                showsHorizontalScrollIndicator={false}
+                                renderItem={({item}: {item: IMovie}) => (
+                                    <View>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                //console.log('id:', item.id);
+                                                //console.log('movie:', item.title);
+                                                navigation.navigate('ContentDetailScreen', {
+                                                    id: item.id,
+                                                    movie: item.title,
+                                                });
+                                            }}>
+                                            <Image
+                                                source={{uri: item.portraitURL}}
+                                                style={{
+                                                    width: SIZES.ScreenWidth / 3.5,
+                                                    height: SIZES.ScreenWidth / 2.35,
+                                                    borderRadius: 5,
+                                                    margin: 5,
+                                                    resizeMode: 'cover',
+                                                }}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                                // ListFooterComponent={<View style={{marginBottom: 500}}></View>}
+                                ListFooterComponent={
+                                    renderFooterComponent
+                                }
+                            />
+                        </View>
+                    </View>
+                </View>
+            </View>
+        </TabContainer>
+    );
 };
 
 export default SearchMovieResultScreen;
