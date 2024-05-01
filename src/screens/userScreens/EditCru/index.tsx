@@ -4,13 +4,15 @@ import {
     Image,
     ScrollView,
     Pressable,
-    TouchableOpacity,
+    
     TextInput,
     Modal,
     FlatList,
     TouchableWithoutFeedback,
     SafeAreaView,
+    Platform,
 } from 'react-native';
+import {TouchableOpacity } from 'react-native-gesture-handler';
 import React, {useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -70,6 +72,8 @@ const EditCru = () => {
     const handleChangeCruName = () => {
         // Show the CRU name change confirmation modal
         setShowChangeNameConfirmationModal(true);
+        setCruNameChangeModalVisible(false);
+
     };
 
     const handleCruNameChangeModalOpen = () => {
@@ -188,7 +192,7 @@ const EditCru = () => {
         <TabContainer>
             <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
-                <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                <View style={styles.backbutton}>
                     <Header />
                     <View style={styles.container}>
                         <TouchableOpacity onPress={() => navigation.pop()}>
@@ -231,6 +235,19 @@ const EditCru = () => {
                     <View style={styles.container}>
                         <Text style={styles.inputlabel}>CRU Name</Text>
                         <View style={styles.input}>
+                            {
+                            Platform.OS == 'ios' ?
+                            <TouchableOpacity onPress={handleCruNameChangeModalOpen}>
+                                <TextInput
+                                    placeholder={CRU?.name}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setModifiedCruName(text)}
+                                    value={originalCruName || ''} // Display the original value, not the modified one
+                                    editable={false}
+                                />
+                            </TouchableOpacity>:
                             <Pressable onPress={handleCruNameChangeModalOpen}>
                                 <TextInput
                                     placeholder={CRU?.name}
@@ -242,6 +259,11 @@ const EditCru = () => {
                                     editable={false}
                                 />
                             </Pressable>
+
+
+
+                            }
+                            
                         </View>
                     </View>
                     {/* CRU Name Change Modal */}
@@ -253,6 +275,25 @@ const EditCru = () => {
                                 paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                 paddingTop: 20,
                             }}>
+
+                            {
+                            Platform.OS == 'ios' ?
+                            (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    marginBottom: 20,
+                                }}>
+                                <TouchableOpacity onPress={handleChangeCruName}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setCruNameChangeModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                </TouchableOpacity>
+                            </View>
+                            )
+                            :(
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -265,7 +306,7 @@ const EditCru = () => {
                                 <Pressable onPress={() => setCruNameChangeModalVisible(false)}>
                                     <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
                                 </Pressable>
-                            </View>
+                            </View>)}
 
                             <Text style={styles.inputlabel}>Change your "CRU" Name</Text>
                             <View style={styles.input}>
@@ -295,15 +336,21 @@ const EditCru = () => {
                                 paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                 paddingTop: 20,
                             }}>
-                            <View>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title3,
-                                        marginBottom: 10,
-                                        textAlign: 'center',
-                                    }}>
-                                    Are you sure you want to update your Cru's name?
-                                </Text>
+                            <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                            }}>
+                            <View style={{alignItems: 'center'}}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
+                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    Are you sure you want to update your Cru's name?                                    
+                                    </Text>
+                                </View>
+                                
+                                    
+                            
                                 <View style={{flexDirection: 'row', alignSelf: 'center'}}>
                                     <TouchableOpacity
                                         style={{
@@ -318,7 +365,7 @@ const EditCru = () => {
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         style={{
-                                            backgroundColor: COLORS.GREEN,
+                                            backgroundColor: 'green',
                                             paddingHorizontal: 20,
                                             paddingVertical: 10,
                                             borderRadius: 5,

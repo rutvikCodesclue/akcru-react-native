@@ -56,7 +56,7 @@ const UserWalletSearch = () => {
       <TabContainer>
           <SafeAreaView>
               <ScrollView stickyHeaderIndices={[0]}>
-                  <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                  <View style={styles.backbutton}>
                       <Header />
                       <TouchableOpacity
                           style={{marginHorizontal: 15, marginBottom: 10}}

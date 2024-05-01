@@ -25,7 +25,9 @@ import {findMovies} from '../../../lib/api/movies.lib';
 import { IMovie } from "../../../../types";
 import TabContainer from "../../../components/TabContainer/TabContainer";
 
-const SendMITSearchInput = () => {
+const SendMITSearchInput = (props: any) => {
+    const { userid } = props;
+
   //search input function
   const [data, setData] = useState<IMovie[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -51,6 +53,8 @@ const SendMITSearchInput = () => {
   };
 
   useEffect(() => {
+
+    console.log("Search user id: ", userid);
       // Fetch movies here using the findMovies function from your API
       const fetchMovies = async () => {
           try {
@@ -119,7 +123,7 @@ const SendMITSearchInput = () => {
                                   placeholder="Search Movie"
                                   placeholderTextColor={COLORS.DARKGREY}
                                   style={styles.textinput}
-                                  autoFocus={false}
+                                  autoFocus={true}
                                   ref={textInputRef}
                                   onFocus={() => {
                                       setTextInputFocused(true);
@@ -153,10 +157,13 @@ const SendMITSearchInput = () => {
                               renderItem={({item, index}) => (
                                   <TouchableOpacity
                                       onPress={() => {
+                                      
                                           Keyboard.dismiss;
                                           navigation.navigate('SendMITSchedule', {
                                               id: item.id,
                                               movie: item.id,
+                                              userID: userid,
+                                        
                                           });
                                           setModalVisible(false);
                                           setTextInputFocused(true);

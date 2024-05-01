@@ -232,7 +232,12 @@ const Signin = () => {
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
-            await getPushToken(user.id); // or use another unique identifier like email
+            try{
+                await getPushToken(user.id); // or use another unique identifier like email
+
+            }catch(e){  
+                console.log('Error getting push token:', e);
+            }
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {

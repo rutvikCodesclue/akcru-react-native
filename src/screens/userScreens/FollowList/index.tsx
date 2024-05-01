@@ -27,6 +27,7 @@ import FollowingTab from '../FollowListTabs/FollowingTab';
 import { getFollowers, getUserFollowing } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
+import styles from '../../contentScreens/PlayContentScreen/styles';
 
 type FollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'FollowList'>;
 
@@ -186,7 +187,7 @@ const FollowList = () => {
     return (
         <View style={{flex: 1}}>
             <View>
-                <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                <View style={styles.backbutton}>
                     <Header />
                     <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.pop()}>
                         <View

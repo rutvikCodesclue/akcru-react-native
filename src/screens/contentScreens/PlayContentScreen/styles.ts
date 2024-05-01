@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
@@ -10,4 +10,10 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    backbutton: {
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        marginTop: Platform.OS === 'ios' ? 40 : 0,
+       
+    },
 });
+

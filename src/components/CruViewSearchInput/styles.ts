@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 
 export default StyleSheet.create({
@@ -23,4 +23,8 @@ export default StyleSheet.create({
   textinput: {
     color: COLORS.WHITE,
   },
+  backbutton: {
+    backgroundColor: COLORS.AKCRUBACKGROUND,
+    marginTop: Platform.OS === 'ios' ? 40 : 0,
+  }
 });

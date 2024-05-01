@@ -57,8 +57,10 @@ export default function SendMITSchedule({route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
+            console.log("Userid", userID)
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             findAUser({id: userID}).then(user => {
+
                 setUser(user);
             });
 
@@ -162,6 +164,7 @@ export default function SendMITSchedule({route}: Props) {
     };
 
     const handleSetDateTime = async () => {
+        console.log("Test mit", selectedDate, selectedTime, selectedTimeZone, movie, user)
         setLoading(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
             // Format selected date in ISO 8601 format
@@ -175,7 +178,7 @@ export default function SendMITSchedule({route}: Props) {
                     startDate: formattedSelectedDateTimeInISO,
                     timezone: selectedTimeZone,
                 });
-                //console.log('response:', response);
+                console.log('response:', response);
 
                 if (response) {
                     setIsDateTimeSelected(true);

@@ -6,7 +6,6 @@ import {
     Alert,
     Text,
     ScrollView,
-    TouchableOpacity,
     Image,
     SafeAreaView,
     TextInput,
@@ -14,7 +13,10 @@ import {
     Modal,
     FlatList,
     Pressable,
+    Platform,
+
 } from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
@@ -77,15 +79,19 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const handleChangeUsername = () => {
+        setUsernameModalVisible(false);
         setShowUpdateUsernameConfirmation(true);
     };
 
     const handleDescriptionModalOpen = () => {
+        // console.log("Pressed")
         setModifiedDescription(description);
         setDescriptionModalVisible(true);
     };
 
     const handleChangeDescription = () => {
+        setDescriptionModalVisible(false);
+
         setShowUpdateDescriptionConfirmation(true);
     };
 
@@ -362,7 +368,7 @@ export default function EditProfile({session}: {session: Session}) {
         <TabContainer>
             <View>
                 <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20}}>
+                    <View style={{zIndex: 20, ...styles.backbutton}}>
                         <Header />
                     </View>
                     <View style={styles.container}>
@@ -446,17 +452,34 @@ export default function EditProfile({session}: {session: Session}) {
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <Text style={styles.inputlabel}>Username</Text>
                             <View style={styles.input}>
-                                <Pressable onPress={handleUsernameModalOpen}>
-                                    <TextInput
-                                        placeholder={user?.username}
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.textinput}
-                                        secureTextEntry={false}
-                                        onChangeText={text => setModifiedUserName(text)}
-                                        value={userName || ''} // Display the original value, not the modified one
-                                        editable={false}
-                                    />
-                                </Pressable>
+                                {
+                                    Platform.OS == 'ios' ? (
+                                        <TouchableOpacity onPress={handleUsernameModalOpen}>
+                                        <TextInput
+                                            placeholder={user?.username}
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={text => setModifiedUserName(text)}
+                                            value={userName || ''} // Display the original value, not the modified one
+                                            editable={false}
+                                        />
+                                    </TouchableOpacity>):
+                                    (
+                                        <Pressable onPress={handleUsernameModalOpen}>
+                                            <TextInput
+                                                placeholder={user?.username}
+                                                placeholderTextColor={COLORS.DARKGREY}
+                                                style={styles.textinput}
+                                                secureTextEntry={false}
+                                                onChangeText={text => setModifiedUserName(text)}
+                                                value={userName || ''} // Display the original value, not the modified one
+                                                editable={false}
+                                            />
+                                        </Pressable>
+                                    )
+                                }
+                                
                             </View>
                         </View>
                         {/* Username Modal */}
@@ -468,19 +491,39 @@ export default function EditProfile({session}: {session: Session}) {
                                     paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                     paddingTop: 20,
                                 }}>
-                                <View
+                                    {Platform.OS == 'ios' ? (
+                                        <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            marginBottom: 20,
+                                        }}>
+                                        <TouchableOpacity onPress={handleChangeUsername}>
+                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setUsernameModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                        </TouchableOpacity>
+                                    </View>
+                                    )
+                                        :(
+                                            <View
                                     style={{
                                         flexDirection: 'row',
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
+
                                     <Pressable onPress={handleChangeUsername}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
                                     </Pressable>
                                     <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
                                     </Pressable>
                                 </View>
+                                        )
+                                    }
+                                
 
                                 <Text style={styles.inputlabel}>Change Username (12 character max)</Text>
                                 <View style={styles.input}>
@@ -534,7 +577,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <TouchableOpacity
                                             onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
                                             style={{
-                                                backgroundColor: COLORS.AKCRUBLUE,
+                                                backgroundColor: 'red',
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
@@ -543,7 +586,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         <TouchableOpacity
                                             onPress={confirmUsernameUpdate} // Confirm the update
                                             style={{
-                                                backgroundColor: COLORS.PURPLE,
+                                                backgroundColor: 'green',
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
@@ -558,17 +601,32 @@ export default function EditProfile({session}: {session: Session}) {
                         <View style={{alignItems: 'center'}}>
                             <Text style={styles.inputlabel}>Bio</Text>
                             <View style={styles.input}>
-                                <Pressable onPress={handleDescriptionModalOpen}>
-                                    <TextInput
-                                        placeholder={user?.description}
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.textinput}
-                                        secureTextEntry={false}
-                                        onChangeText={text => setModifiedDescription(text)}
-                                        value={description || ''} // Display the original value, not the modified one
-                                        editable={false}
-                                    />
-                                </Pressable>
+                                {Platform.OS == 'ios' ? (
+                                    <TouchableOpacity onPress={handleDescriptionModalOpen}>
+                                        <TextInput
+                                            placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={text => setModifiedDescription(text)}
+                                            value={description || ''} // Display the original value, not the modified one
+                                            editable={false}
+                                        />
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Pressable onPress={handleDescriptionModalOpen}>
+                                        <TextInput
+                                            placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={text => setModifiedDescription(text)}
+                                            value={description || ''} // Display the original value, not the modified one
+                                            editable={false}
+                                        />
+                                    </Pressable>
+                                )}
+                                
                             </View>
                         </View>
                         {/* Description Modal */}
@@ -580,24 +638,49 @@ export default function EditProfile({session}: {session: Session}) {
                                     paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                     paddingTop: 20,
                                 }}>
-                                <View
+                                  
+
+                                            
+                                    
+                               
+                                    {
+                                        Platform.OS == 'ios' ? (
+                                            <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                marginBottom: 20,
+                                            }}>
+                                            <TouchableOpacity onPress={handleChangeDescription}>
+                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN}  />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity onPress={() => setDescriptionModalVisible(false)}>
+                                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                            </TouchableOpacity>
+                                            </View>):
+                                    (
+                                        <View
                                     style={{
                                         flexDirection: 'row',
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
-                                    <Pressable onPress={handleChangeDescription}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                            <Pressable onPress={handleChangeDescription}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
                                     </Pressable>
                                     <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
                                     </Pressable>
-                                </View>
+                                    </View>
+                                    )
+
+                                    }
+                                    
 
                                 <Text style={styles.inputlabel}>Change Bio (150 characters max)</Text>
                                 <View style={styles.bioinput}>
                                     <TextInput
-                                        placeholder={user?.description}
+                                        placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}
@@ -623,6 +706,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    
                                 }}>
                                 <View
                                     style={{
