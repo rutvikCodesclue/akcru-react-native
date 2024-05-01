@@ -106,6 +106,14 @@ const SearchInput = () => {
                                   paddingHorizontal: 15,
                                   paddingVertical: 10,
                               }}>
+                               <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                  }}>
+                                  <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                              </View>
                              
                           </TouchableOpacity>
                       </View>
@@ -140,7 +148,7 @@ const SearchInput = () => {
                                   }}
                                   onChangeText={handleSearch}
                               />
-                              <TouchableWithoutFeedback onPress={() => {}}>
+                              <TouchableWithoutFeed onPress={() => {}}>
                                   <Icon
                                       name="close-circle"
                                       type="material-community"
