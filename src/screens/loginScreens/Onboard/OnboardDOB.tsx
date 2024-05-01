@@ -72,9 +72,27 @@ const onChange = ({type}: {type: string}, selectedDate: Date) => {
 };
 
 const confirmIOSDate = ({type}: {type: string}, selectedDate: Date) => {
+    
+    // const currentDate = new Date(selectedDate);
+    // currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+    // setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+    // toggleDatePicker();
+    
+    selectedDate = date
+    if (!(selectedDate instanceof Date) || isNaN(selectedDate.getTime())) {
+        console.error('Invalid date provided:', selectedDate);
+        return;
+    }
+    
+    // Set time to midnight
     const currentDate = new Date(selectedDate);
-    currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
-    setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Convert to ISO string format with midnight time
+    const isoString = currentDate.toISOString();
+
+    // Handle any further operations (e.g., setDob, toggleDatePicker)
+    setDob(isoString);
     toggleDatePicker();
 };
 
@@ -176,7 +194,8 @@ const DOBSet = async () => {
                                   mode="date"
                                   value={date}
                                   onChange={onChange}
-                                  style={styles.datepicker}
+                                  style={Platform.OS == 'ios'? styles.datepickios: styles.datepicker}
+                                  
                               />
                           )}
                           {showPicker && Platform.OS === 'ios' && (

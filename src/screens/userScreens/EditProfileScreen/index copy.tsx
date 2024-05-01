@@ -74,6 +74,7 @@ export default function EditProfile2({session}: {session: Session}) {
     };
 
     const handleDescriptionModalOpen = () => {
+        console.log('Description:', description);
         setModifiedDescription(description);
         setDescriptionModalVisible(true);
     };

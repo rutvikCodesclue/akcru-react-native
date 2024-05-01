@@ -10,6 +10,7 @@ import {
     SafeAreaView,
     TouchableOpacity,
     Pressable,
+    Platform,
 } from 'react-native';
 // import data from "./data";
 import {Akcru_Content} from '../../../../assets/constants/ListData';
@@ -386,7 +387,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     style={{
                         position: 'absolute',
                         width: SIZES.ScreenWidth,
-                        bottom: SIZES.ScreenHeight / 1.3,
+                        bottom: SIZES.ScreenHeight / 1.4,
                     }}>
                     <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
                         <Text
@@ -395,7 +396,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
-                                marginBottom: 10,
+                       
                             }}>
                             Here are our top 5 movies recommended for you today
                         </Text>
@@ -406,6 +407,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                         style={{width: 30, height: 26, alignSelf: 'center', marginBottom: 10}}
                     />
                 </View>
+
                 <Circle scrollX={_scrollX} movies={movies} />
                 <Animated.FlatList
                     pagingEnabled
@@ -436,6 +438,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     scrollX={_scrollX}
                     onPress2={() => navigation.navigate('ClientTabNavigator')}
                     movies={movies}
+                    
                 />
 
                 {/* <Ticker scrollX={_scrollX} movies={movies} /> */}

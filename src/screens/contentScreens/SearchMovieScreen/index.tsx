@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, TouchableOpacity, FlatList, SafeAreaView} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, FlatList, SafeAreaView, Platform} from 'react-native';
 import React, {useEffect} from 'react';
 import SearchInput from '../../../components/searchInput';
 import GenreCard from '../../../components/GenreCard';
@@ -12,7 +12,7 @@ import {getMovieGenres} from '../../../lib/api/movies.lib';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-
+import styles from '../PlayContentScreen/styles';
 const SearchMovieScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
@@ -41,7 +41,7 @@ const SearchMovieScreen = () => {
         <View style={{flex: 1}}>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
-                  <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                  <View style={styles.backbutton}>
                       <TouchableOpacity
                           onPress={() => navigation.pop()}
                           style={{
@@ -49,7 +49,7 @@ const SearchMovieScreen = () => {
                               paddingVertical: 10,
                           }}>
                           <View
-                              style={{
+                              style={{  
                                   flexDirection: 'row',
                                   alignItems: 'center',
                               }}>

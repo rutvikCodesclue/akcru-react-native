@@ -23,7 +23,7 @@ import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../u
 import {IGenreItem, IUserProfile} from '../../../../types';
 import { findAUser } from "../../../lib/api/user.lib";
 import TabContainer from "../../../components/TabContainer/TabContainer";
-
+import styles from "../../contentScreens/PlayContentScreen/styles";
 type SendMITViewUserNavigationProp = StackNavigationProp<
   CrummunityStackParams,
   "SendMITViewUser"
@@ -88,7 +88,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
         <SafeAreaView>
           <ScrollView stickyHeaderIndices={[0]}>
               <View>
-                  <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                  <View style={styles.backbutton}>
                       <TouchableOpacity
                           onPress={() => navigation.pop()}
                           style={{
@@ -106,7 +106,7 @@ const SendMITViewUser = ({ route, navigation }: Props) => {
                       </TouchableOpacity>
                   </View>
 
-                  <SendMITSearchInput />
+                  <SendMITSearchInput userid={userID}/>
               </View>
               <View>
                   <Text
