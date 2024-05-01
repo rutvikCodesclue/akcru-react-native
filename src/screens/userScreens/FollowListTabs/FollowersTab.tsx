@@ -68,6 +68,8 @@ const FollowersTab = () => {
                                     userID: item.id,
                                 });
                             }}
+                            companyStatus={item?.companyStatus}
+                            ownerStatus={item?.ownerStatus}
                             influencer={item.influencerStatus}
                             userID={item.id}
                             akcruBadge={item.badge}

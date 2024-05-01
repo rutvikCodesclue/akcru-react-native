@@ -233,7 +233,7 @@ useEffect(() => {
                                     genre2={genres[1]}
                                     contentButtonName='Resume Movie'
                                     playContent={() => {
-                                        navigation2.navigate('ContentPlayer', {
+                                        navigation2.navigate('ResumePlayer', {
                                             id: id,
                                             movieURL: movieURL,
                                             landscapeURL: landscapeURL,

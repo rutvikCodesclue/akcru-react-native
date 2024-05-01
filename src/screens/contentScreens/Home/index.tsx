@@ -439,14 +439,16 @@ const HomeScreen = () => {
                                     movies: olderYearMovies,
                                 }}
                             />
-                            <ContinueWatchingList
-                                Akcru_Content={{
-                                    id: 'unfinshedMovies',
-                                    title: 'Continue Watching',
-                                    movies: unfinishedMovies,
-                                }}
-                                updateUnfinishedMovies={updateUnfinishedMovies}
-                            />
+                            {unfinishedMovies.length > 0 && (
+                                <ContinueWatchingList
+                                    Akcru_Content={{
+                                        id: 'unfinshedMovies',
+                                        title: 'Continue Watching',
+                                        movies: unfinishedMovies,
+                                    }}
+                                    updateUnfinishedMovies={updatedMovies => setUnfinishedMovies(updatedMovies)}
+                                />
+                            )}
                             <BasicListCategories
                                 Akcru_Content={{
                                     id: 'recommendedForYou',

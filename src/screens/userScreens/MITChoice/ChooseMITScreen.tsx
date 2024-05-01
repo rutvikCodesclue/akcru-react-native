@@ -1,65 +1,73 @@
-
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, {useState, useCallback, useRef, useEffect} from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Dimensions,
-  ImageBackground,
-  Image,
-  TouchableOpacity,
-  Pressable,
-  Modal,
-  TextInput,
-  Alert,
-  FlatList,
-  ActivityIndicator
-} from "react-native";
-import styles from "./styles";
-import { COLORS, FONTS, SIZES } from "../../../../assets/constants";
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    Dimensions,
+    ImageBackground,
+    Image,
+    TouchableOpacity,
+    Pressable,
+    Modal,
+    TextInput,
+    Alert,
+    FlatList,
+    ActivityIndicator,
+} from 'react-native';
+import styles from './styles';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 
-import { Icon, Avatar, color } from "@rneui/base";
-import MITSwipe from "../../../components/MITSwipe";
-import Header from "../../../components/header";
-import AkcruLevels from "../../../components/akcruBadges";
-import MITMessages from "../../../components/MITMessages";
-import AkcruButtons from "../../../components/akcruButtons";
-import LinearGradient from "react-native-linear-gradient";
-import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
-import imageindex from "../../../../assets/images/imageindex";
-import { JENNY_INVITES } from "../../../../assets/constants/Mockusers";
-import BottomSheet, {
-  BottomSheetHandleProps,
-  BottomSheetView,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { StackNavigationProp } from "@react-navigation/stack";
+import {Icon, Avatar, color} from '@rneui/base';
+import MITSwipe from '../../../components/MITSwipe';
+import Header from '../../../components/header';
+import AkcruLevels from '../../../components/akcruBadges';
+import MITMessages from '../../../components/MITMessages';
+import AkcruButtons from '../../../components/akcruButtons';
+import LinearGradient from 'react-native-linear-gradient';
+import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
+import imageindex from '../../../../assets/images/imageindex';
+import {JENNY_INVITES} from '../../../../assets/constants/Mockusers';
+import BottomSheet, {BottomSheetHandleProps, BottomSheetView, BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
-import { getCRUInvites } from "../../../lib/api/cru.lib";
+import {getCRUInvites} from '../../../lib/api/cru.lib';
 import YoutubePlayer from 'react-native-youtube-iframe';
-import moment from "moment";
-import { MediaType, launchImageLibrary } from "react-native-image-picker";
-import MITMessage from "../../../../assets/constants/MITmessages";
-import TabContainer from "../../../components/TabContainer/TabContainer";
-import { Bubble, GiftedChat, IMessage } from "react-native-gifted-chat";
-import { HMSAudioTrackSettings, HMSCameraFacing, HMSConfig, HMSMessage, HMSPeer, HMSSDK, HMSTrack, HMSTrackSettings, HMSTrackSettingsInitState, HMSTrackUpdate, HMSUpdateListenerActions, HMSVideoTrackSettings } from "@100mslive/react-native-hms";
-import { createChatRoom, getTextMessages, saveTextMessage, getUsers } from "../../../lib/api/rooms.lib";
-import useAuthStore from "../../../stores/auth.store";
-import { TouchableRipple } from "react-native-paper";
-import HexAvatar from "../../../components/HexAvatar";
-import UserCruChatCard from "../../../components/UserCruChatCard";
-import { IChatUser } from "../../../../types";
+import moment from 'moment';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import MITMessage from '../../../../assets/constants/MITmessages';
+import TabContainer from '../../../components/TabContainer/TabContainer';
+import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
+import {
+    HMSAudioTrackSettings,
+    HMSCameraFacing,
+    HMSConfig,
+    HMSMessage,
+    HMSPeer,
+    HMSSDK,
+    HMSTrack,
+    HMSTrackSettings,
+    HMSTrackSettingsInitState,
+    HMSTrackUpdate,
+    HMSUpdateListenerActions,
+    HMSVideoTrackSettings,
+} from '@100mslive/react-native-hms';
+import {createChatRoom, getTextMessages, saveTextMessage, getUsers} from '../../../lib/api/rooms.lib';
+import useAuthStore from '../../../stores/auth.store';
+import {TouchableRipple} from 'react-native-paper';
+import HexAvatar from '../../../components/HexAvatar';
+import UserCruChatCard from '../../../components/UserCruChatCard';
+import {IChatUser} from '../../../../types';
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
+    formatNumber,
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
-
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -70,9 +78,7 @@ type Props = {
     route: ChooseMITScreenRouteProp;
 };
 
-
-const ChooseMITScreen = ({ navigation, route }: Props) => {
-
+const ChooseMITScreen = ({navigation, route}: Props) => {
     const MITID: number | undefined = route.params?.MITID ?? null;
     const {user} = useAuthStore();
 
@@ -83,7 +89,7 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
     const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
     const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
     const inviteDate: string | undefined = route.params?.inviteDate ?? null;
-    const akcruBadge: any = route.params?.akcruBadge ?? null;
+    const akcruBadge: IUserProfile = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
     const timezone: string | undefined = route.params?.timezone ?? null;
 
@@ -91,31 +97,22 @@ const ChooseMITScreen = ({ navigation, route }: Props) => {
 
     const [messages, setMessages] = useState<IMessage[]>([]);
 
+    var roomId = '';
 
+    const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
+    useEffect(() => {
+        return () => {
+            hmsInstanceRef.current != null ?? hmsInstanceRef.current?.removeAllListeners();
+            hmsInstanceRef.current != null ?? hmsInstanceRef.current?.leave();
+        };
+    }, []);
 
-  var roomId =""
-  
-  const hmsInstanceRef = useRef<HMSSDK | null>(null);
-
-
-  useEffect(()=>{
-
-    return () =>  {
-      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.removeAllListeners();
-      hmsInstanceRef.current != null ?? hmsInstanceRef.current?.leave();
-    }
-  },[])
-
-
-const getTextMessage =  async(roomId:string)=>{
-  const response  =   await  getTextMessages(roomId)
-//   console.log(JSON.stringify(response));
-  setMessages(response!);
-}
-
-
- 
+    const getTextMessage = async (roomId: string) => {
+        const response = await getTextMessages(roomId);
+        //   console.log(JSON.stringify(response));
+        setMessages(response!);
+    };
 
     const handleDecline = () => {
         setIsLoading(true);
@@ -203,21 +200,18 @@ const getTextMessage =  async(roomId:string)=>{
     };
 
     const sayhi = () => {
-        const isCurrentUserCreator = user?.id ===creatorID;
+        const isCurrentUserCreator = user?.id === creatorID;
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-        const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
+        const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
-       
+
         navigation.navigate('ViewChat', {
             mItInviteId: MITID,
             userId: receiverUserId,
             profilePicture: receiverProfilePicture,
             username: receiverUsername, // Pass the receiver's username
         });
-   
     };
-  
-      
 
     return (
         <TabContainer>
@@ -275,7 +269,7 @@ const getTextMessage =  async(roomId:string)=>{
                                                 name="chatbox-ellipses"
                                                 type="ionicon"
                                                 size={30}
-                                                color={COLORS.MIDORANGE}
+                                                color={COLORS.PURPLE}
                                                 style={{marginRight: 20}}
                                             />
                                         </TouchableOpacity>
@@ -304,7 +298,7 @@ const getTextMessage =  async(roomId:string)=>{
                                         </TouchableOpacity>
                                         <View />
 
-                                        <View
+                                        {/* <View
                                             style={{
                                                 backgroundColor: 'green',
                                                 height: 12,
@@ -313,29 +307,27 @@ const getTextMessage =  async(roomId:string)=>{
                                                 position: 'absolute',
                                                 right: 8,
                                             }}
-                                        />
-
-                                        
+                                        /> */}
                                     </View>
                                     <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                         <Text style={{...FONTS.Username}}>{creator?.username}</Text>
                                         <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
-                                        {akcruBadge === 'AKCRUIT' && (
+                                        {creator?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
                                             </View>
                                         )}
-                                        {akcruBadge === 'GUARDIAN' && (
+                                        {creator?.badge === 'GUARDIAN' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeGuardian />
                                             </View>
                                         )}
-                                        {akcruBadge === 'HERO' && (
+                                        {creator?.badge === 'HERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeHero />
                                             </View>
                                         )}
-                                        {akcruBadge === 'SUPERHERO' && (
+                                        {creator?.badge === 'SUPERHERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeSuperHero />
                                             </View>
@@ -357,10 +349,10 @@ const getTextMessage =  async(roomId:string)=>{
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title1}}>
-                                                {creator?.followerCount}
+                                            <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                                {formatNumber(creator?.followerCount)}
                                             </Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                         </View>
                                     </View>
                                 </View>
@@ -381,13 +373,11 @@ const getTextMessage =  async(roomId:string)=>{
                                                             marginBottom: 5,
                                                             alignItems: 'center',
                                                         }}>
-                                                        <Text style={{...FONTS.paragraph1}}>
-                                                            {movie?.year}
-                                                        </Text>
+                                                        <Text style={{...FONTS.paragraph1}}>{movie?.year}</Text>
                                                         <Text
                                                             style={{
                                                                 ...FONTS.paragraph1,
-                                                                
+
                                                                 marginHorizontal: 10,
                                                             }}>
                                                             {formatMovieDuration(movie?.duration)}
@@ -401,7 +391,18 @@ const getTextMessage =  async(roomId:string)=>{
 
                                                         <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
                                                     </View>
-                                                    <TouchableOpacity
+                                                    <AkcruButtons.SmallButton
+                                                        btnname="Play Trailer"
+                                                        onPress={() => {
+                                                            navigation.navigate('TrailerPlayer', {
+                                                                id: movie?.id,
+                                                                trailerURL: movie?.trailerURL,
+                                                                landscapeURL: movie?.landscapeURL,
+                                                            });
+                                                        }}
+                                                        color={COLORS.PURPLE}
+                                                    />
+                                                    {/* <TouchableOpacity
                                                         onPressOut={() => {
                                                             navigation.navigate('TrailerPlayer', {
                                                                 id: movie?.id,
@@ -422,7 +423,7 @@ const getTextMessage =  async(roomId:string)=>{
                                                             }}>
                                                             <Text style={styles.playButton}>Play Trailer</Text>
                                                         </View>
-                                                    </TouchableOpacity>
+                                                    </TouchableOpacity> */}
                                                 </View>
                                             </View>
                                         </View>
@@ -431,7 +432,7 @@ const getTextMessage =  async(roomId:string)=>{
                                     <Text
                                         style={{
                                             ...FONTS.Title2AkcruBlue,
-                                            
+
                                             textAlign: 'center',
                                             color: COLORS.PURPLE,
                                         }}>
@@ -460,10 +461,8 @@ const getTextMessage =  async(roomId:string)=>{
                             </View>
                         </View>
                     </ScrollView>
-                  
                 </View>
             </View>
-            
         </TabContainer>
     );
 };

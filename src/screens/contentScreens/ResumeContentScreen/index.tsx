@@ -15,6 +15,7 @@ import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, startUserWatching, logUserMovieWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
+import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
 type ResumePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -143,6 +144,7 @@ export default function ResumePlayer({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
+            hideNavigationBar()
             if (isMoviePlaying) {
                 // startTimer();
                 // syncWatchTime(); // Sync when navigating away from the screen
@@ -151,6 +153,7 @@ export default function ResumePlayer({navigation, route}: Props) {
 
             return () => {
                 pauseTimer();
+                showNavigationBar();
 
                 if (!isFocused) {
                     resetTimer();

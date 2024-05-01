@@ -56,8 +56,8 @@ export default StyleSheet.create({
         marginTop: 10,
     },
     postfooter: {
-        marginTop: 10,
-        width: SIZES.ScreenWidth / 3,
+        marginTop: 20,
+        width: SIZES.ScreenWidth / 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },

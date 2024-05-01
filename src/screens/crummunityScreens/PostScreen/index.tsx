@@ -1,27 +1,45 @@
-import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, FlatList, Pressable, ActivityIndicator } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import styles from './styles'
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants/theme'
-import LinearGradient from 'react-native-linear-gradient'
-import { Icon } from '@rneui/base'
-import { RouteProp, useNavigation } from '@react-navigation/native'
-import { CrummunityStackParams } from '../../../navigation/CrummunityStack'
-import Header from '../../../components/header'
-import TabContainer from '../../../components/TabContainer/TabContainer'
-import { StackNavigationProp } from '@react-navigation/stack'
-import { IComment, IPost, IUserProfile } from '../../../../types'
-import useAuthStore from '../../../stores/auth.store'
-import PostCard from '../../../components/SkinnyPostCard'
-import { deleteComment, deletePost, getPost, getPosts, likeComment, likePost, unlikeComment, unlikePost } from '../../../lib/api/post.lib'
-import PostCommentCard from '../../../components/PostCommentCard'
-import { getPostComments } from '../../../lib/api/post.lib'
-import HexShape from '../../../components/HexShape'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack'
-import { getBlockedUsers, getUserFollowing, toggleFollow } from '../../../lib/api/user.lib'
-import { selectAvatarBorderColor } from '../../../util/util'
+import {
+    View,
+    Text,
+    SafeAreaView,
+    TouchableOpacity,
+    ScrollView,
+    FlatList,
+    Pressable,
+    ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import styles from './styles';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
+import {Icon} from '@rneui/base';
+import {RouteProp, useNavigation} from '@react-navigation/native';
+import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
+import Header from '../../../components/header';
+import TabContainer from '../../../components/TabContainer/TabContainer';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {IComment, IPost, IUserProfile} from '../../../../types';
+import useAuthStore from '../../../stores/auth.store';
+import PostCard from '../../../components/SkinnyPostCard';
+import {
+    deleteComment,
+    deletePost,
+    getPost,
+    getPosts,
+    likeComment,
+    likePost,
+    unlikeComment,
+    unlikePost,
+} from '../../../lib/api/post.lib';
+import PostCommentCard from '../../../components/PostCommentCard';
+import {getPostComments} from '../../../lib/api/post.lib';
+import HexShape from '../../../components/HexShape';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
+import {selectAvatarBorderColor} from '../../../util/util';
 
-type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>
+type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
 
 type Props = {
@@ -291,7 +309,7 @@ const PostScreen = ({navigation, route}: Props) => {
     };
 
     function handleToggleBlockUser(id: any, isCurrentlyBlocked: any) {
-        throw new Error('Function not implemented.')
+        throw new Error('Function not implemented.');
     }
 
     return (
@@ -353,7 +371,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
                         />
                     </View>
-                    <View style={{marginBottom: '30%'}}>
+                    <View style={{marginBottom: '5%'}}>
                         {loadingComments ? (
                             <View style={{marginTop: '25%'}}>
                                 <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />

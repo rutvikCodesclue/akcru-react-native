@@ -14,16 +14,17 @@ import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { FlashList } from '@shopify/flash-list';
 import AkcruButtons from '../../../components/akcruButtons';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 // const AllMovies = Akcru_Content[0];
 
 type SearchMovieResultScreenNavigationProp = StackNavigationProp<
-  ClientStackParams,
+  NoBottomTabStackParams,
   'SearchMovieResultScreen'
 >;
 
 type SearchMovieResultScreenRouteProp = RouteProp<
-  ClientStackParams,
+  NoBottomTabStackParams,
   'SearchMovieResultScreen'
 >;
 
@@ -80,12 +81,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
 
    const renderFooterComponent = () => {
        // Only display "Load More" button if there are more items to load
-       const moreItemsToLoad = displayMovies.length < filteredMovies.length;
-
-       // Debugging output to console (you can remove this after confirming it works correctly)
-       console.log(
-           `DisplayMovies: ${displayMovies.length}, FilteredMovies: ${filteredMovies.length}, More to load: ${moreItemsToLoad}`,
-       );
+       const moreItemsToLoad = displayMovies.length < filteredMovies.length;;
 
        if (moreItemsToLoad) {
            return (

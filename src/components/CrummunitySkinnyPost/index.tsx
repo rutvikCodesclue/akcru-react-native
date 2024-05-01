@@ -1,4 +1,13 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Image,
+    Modal,
+    Pressable,
+    ScrollView,
+    TouchableWithoutFeedback,
+} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
@@ -10,9 +19,9 @@ import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
-import { IUserProfile } from '../../../types';
+import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
-import { MULTISIZES } from '../../../assets/constants/theme';
+import {MULTISIZES} from '../../../assets/constants/theme';
 
 type FooterIconsProps = {
     iconname: string;
@@ -91,7 +100,6 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
-
 };
 
 type PostProps = {
@@ -109,6 +117,8 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
+    isPromo: boolean;
+    isOwner: boolean;
     onBlockUser: () => void;
     akcruBadgeColor: string;
 };
@@ -126,9 +136,10 @@ const SkinnyPostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     isSuggestedUser,
+    isPromo,
+    isOwner,
     onBlockUser,
-    akcruBadgeColor
-    
+    akcruBadgeColor,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -152,9 +163,9 @@ const SkinnyPostCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
-     const handleDeletePost = () => {
-         onDeletePost(+post.id);
-     };
+    const handleDeletePost = () => {
+        onDeletePost(+post.id);
+    };
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -552,13 +563,13 @@ const SkinnyPostCard = ({
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
-                <FooterIcons
+                {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
                     color={COLORS.AKCRUBLUE}
-                />
+                /> */}
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -570,12 +581,15 @@ const SkinnyPostCard = ({
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
-                    {post.numberOfReposts || 0} Repost
+                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
-                {post.isSuggestedUser && (
+
+                {post.isSuggestedUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>}
+                {post.author.ownerStatus && (
                     <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>
                 )}
+                {post.author.promoUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Promo</Text>}
             </View>
         </View>
     );

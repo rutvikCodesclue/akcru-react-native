@@ -60,8 +60,8 @@ export default StyleSheet.create({
         alignSelf: 'center',
     },
     postfooter: {
-        marginTop: 10,
-        width: SIZES.ScreenWidth / 3,
+        marginTop: 20,
+        width: SIZES.ScreenWidth / 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },

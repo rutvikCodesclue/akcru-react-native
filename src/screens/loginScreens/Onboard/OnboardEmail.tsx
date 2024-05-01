@@ -30,6 +30,28 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import LinearGradient from 'react-native-linear-gradient';
 import { API } from '../../../clients/api.client';
 
+const TOSModal = ({visible, children}: {visible: boolean; children: any}) => {
+    const [showModal, setShowModal] = useState(visible);
+    React.useEffect(() => {
+        togglemode();
+    }, [visible]);
+    const togglemode = () => {
+        if (visible) {
+            setShowModal(true);
+        } else {
+            setShowModal(false);
+        }
+    };
+
+    return (
+        <Modal transparent visible={showModal}>
+            <View style={styles.tosmodal}>
+                <View style={styles.tosmodalcontainer}>{children}</View>
+            </View>
+        </Modal>
+    );
+};
+
 const OnboardEmail = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -37,6 +59,13 @@ const [email, setEmail] = useState<string>('');
 const [loading, setLoading] = useState<boolean>(false);
 const [emailError, setEmailError] = useState(false);
 const [isFormComplete, setIsFormComplete] = useState(false);
+
+const [visible, setVisible] = useState(false);
+const [isChecked, setIsChecked] = useState(false);
+
+const handleCheckboxChange = () => {
+    setIsChecked(!isChecked); // Toggle the checked state
+};
 
 // Enhanced Email Validation
 const isEmailValid = (email: string) => {
@@ -52,7 +81,8 @@ const handleEmailChange = (text: string) => {
 const checkFormCompletion = () => {
     if (
         email &&
-        isEmailValid(email) // Check email format
+        isEmailValid(email) && // Check email format
+        isChecked // Check if the terms and conditions checkbox is checked
     ) {
         setIsFormComplete(true);
     } else {
@@ -62,7 +92,7 @@ const checkFormCompletion = () => {
 
 useEffect(() => {
     checkFormCompletion();
-}, [email]);
+}, [email, isChecked]);
 
 const [showEmailModal, setShowEmailModal] = useState(false);
 const [resetResultType, setResetResultType] = useState({
@@ -172,6 +202,40 @@ const [resetResultType, setResetResultType] = useState({
                           <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
                               You will be sent a one-time-password to this email address.
                           </Text>
+                      </View>
+                      <View>
+                          <View style={styles.checkboxContainer}>
+                              <TouchableOpacity onPress={() => handleCheckboxChange(!isChecked)}>
+                                  <View style={styles.checkbox}>
+                                      {isChecked && (
+                                          <Icon
+                                              name="checkmark-sharp"
+                                              type="ionicon"
+                                              size={18}
+                                              color={COLORS.AKCRUBLUE}
+                                              style={{marginTop: -3}}
+                                          />
+                                      )}
+                                  </View>
+                              </TouchableOpacity>
+                              <View style={{alignItems: 'center'}}>
+                                  <Text style={styles.checkboxText}>I have read and I agree to the</Text>
+                                  <Pressable onPress={() => setVisible(true)}>
+                                      <Text style={{...FONTS.Title2, color: COLORS.PINK}}>terms and conditions</Text>
+                                  </Pressable>
+                              </View>
+                          </View>
+                          <TOSModal visible={visible}>
+                              <View>
+                                  <Pressable onPress={() => setVisible(false)}>
+                                      <Icon name={'close'} color={COLORS.LIGHTGREY} />
+                                  </Pressable>
+                              </View>
+                              <ScrollView>
+                                  <Tos />
+                              </ScrollView>
+                              <View style={{height: 20}}></View>
+                          </TOSModal>
                       </View>
                       <View>
                           <View style={{alignItems: 'center', marginTop: 20}}>

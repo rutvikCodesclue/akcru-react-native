@@ -35,8 +35,8 @@ import BlockedUsers from '../screens/userScreens/BlockedUsers';
 import ContactList from '../screens/userScreens/ContactList/ContactList';
 import ResumeDetailScreen from '../screens/contentScreens/ResumeDetailScreen';
 import ResumePlayer from '../screens/contentScreens/ResumeContentScreen';
-
-
+import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResultScreen';
+import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -73,9 +73,11 @@ export type NoBottomTabStackParams = {
     NewPost: any;
     NewComment: any;
     ViewUserScreen: {userId: string; profilePicture: string; username: string};
+    UserMITHubScreen: any;
     ContactList: any;
     ResumeDetailScreen: any;
     ResumePlayer: any;
+    SearchMovieResultScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -147,6 +149,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="ClientStack"
               component={ClientStack}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="SearchMovieResultScreen"
+              component={SearchMovieResultScreen}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',
@@ -283,6 +293,14 @@ export default function NoBottomStack() {
           <NoBottom.Screen
               name="Questions"
               component={Questions}
+              options={{
+                  headerShown: false,
+                  gestureDirection: 'horizontal',
+              }}
+          />
+          <NoBottom.Screen
+              name="UserMITHubScreen"
+              component={UserMITHubScreen}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

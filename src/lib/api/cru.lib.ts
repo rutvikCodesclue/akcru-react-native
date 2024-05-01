@@ -236,3 +236,28 @@ export const leaveCRU = async (cruId: string): Promise<void> => {
     }
 };
 
+interface SearchCRUsResponse {
+    success: boolean;
+    data: ICru[];
+}
+
+export const searchCRUs = async (searchTerm: string): Promise<SearchCRUsResponse | undefined> => {
+    try {
+        // Use the GET method and pass the search term as a query parameter
+        const response = await API.get<SearchCRUsResponse>(`/v1/cru/search`, {
+            params: {search: searchTerm},
+        });
+
+        if (response.data.success) {
+            console.log('CRUs fetched successfully:', response.data.data);
+            return response.data;
+        } else {
+            console.error('Failed to fetch CRUs:', response.data);
+            return undefined;
+        }
+    } catch (error) {
+        console.error('Error fetching CRUs:', error);
+        return undefined;
+    }
+};
+

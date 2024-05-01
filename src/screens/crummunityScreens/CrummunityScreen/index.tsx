@@ -1,38 +1,46 @@
 import {
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Modal,
-  FlatList,
-  SafeAreaView,
-  Pressable,
-  ActivityIndicator,
-  Alert,
+    Text,
+    View,
+    ScrollView,
+    TouchableOpacity,
+    TouchableWithoutFeedback,
+    Modal,
+    FlatList,
+    SafeAreaView,
+    Pressable,
+    ActivityIndicator,
+    Alert,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
-import { FONTS, COLORS, SIZES } from '../../../../assets/constants';
+import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
+import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { deletePost, getPosts, likePost, unlikePost } from '../../../lib/api/post.lib';
-import { IPost, IUserProfile } from '../../../../types';
-import { StackNavigationProp } from '@react-navigation/stack';
-import {blockUser, findAUser, followUser, getBlockedUsers, getUserFollowing, unblockUser, unfollowUser} from '../../../lib/api/user.lib';
+import {deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
+import {IPost, IUserProfile} from '../../../../types';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {
+    blockUser,
+    findAUser,
+    followUser,
+    getBlockedUsers,
+    getUserFollowing,
+    unblockUser,
+    unfollowUser,
+} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import HexShape from '../../../components/HexShape';
-import { toggleFollow } from '../../../lib/api/user.lib';
+import {toggleFollow} from '../../../lib/api/user.lib';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import { selectAvatarBorderColor } from '../../../util/util';
+import {selectAvatarBorderColor} from '../../../util/util';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -42,7 +50,6 @@ type Props = {
     navigation: CrummunityScreenNavigationProp;
     route: CrummunityScreenRouteProp;
 };
-
 
 const CrummunityScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
@@ -65,6 +72,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [blockedUsers, setBlockedUsers] = useState([]);
 
+    const [refreshing, setRefreshing] = useState(false);
+
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             // Refresh posts or update state here
@@ -86,7 +95,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             if (currentUserID) {
                 // Fetch following status
                 const followingResponse = await getUserFollowing(currentUserID);
-                followingIds = new Set(followingResponse?.following.map((user: { id: any; }) => user.id));
+                followingIds = new Set(followingResponse?.following.map((user: {id: any}) => user.id));
 
                 // Fetch blocked users status
                 const blockedResponse = await getBlockedUsers(); // Assuming this function exists and returns a list of blocked user IDs
@@ -94,7 +103,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             }
 
             // Update posts with isFollowed and isBlocked status
-            const updatedPosts = fetchedPosts.map((post: { author: { id: unknown; }; }) => ({
+            const updatedPosts = fetchedPosts.map((post: {author: {id: unknown}}) => ({
                 ...post,
                 author: {
                     ...post.author,
@@ -119,7 +128,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setLoadingPosts(false);
         }
     };
-
 
     useEffect(() => {
         const handleFocus = () => {
@@ -147,8 +155,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         setIsLoadingMore(false);
     };
 
-
-
     const handlePostPress = (postId: number) => {
         const selectedPost = posts.find(post => +post.id === postId);
 
@@ -158,83 +164,82 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             // Handle the case when the post is not found
             console.error('Error: Post not found');
         }
-    };   
+    };
 
-const onLikeOrUnlike = async (postId: number) => {
-    try {
+    const onLikeOrUnlike = async (postId: number) => {
+        try {
+            // Find the post in the current state
+            const postIndex = posts.findIndex(post => +post.id === postId);
+            if (postIndex === -1) return;
+
+            const post = posts[postIndex];
+            const isLiked = post.isLikedByCurrentUser;
+
+            // Perform the like or unlike action
+            if (isLiked) {
+                await unlikePost(postId);
+            } else {
+                await likePost(postId);
+            }
+
+            // Optimistically update the UI
+            const updatedPosts = [...posts];
+            updatedPosts[postIndex] = {
+                ...post,
+                isLikedByCurrentUser: !isLiked,
+                _count: {
+                    ...post._count,
+                    likes: post._count.likes + (isLiked ? -1 : 1),
+                },
+            };
+            setPosts(updatedPosts);
+        } catch (error) {
+            console.error('Error changing like status:', error);
+            // Optionally handle reversion or user notification here
+        }
+    };
+
+    const handleDeletePost = async (postId: number) => {
         // Find the post in the current state
         const postIndex = posts.findIndex(post => +post.id === postId);
         if (postIndex === -1) return;
 
         const post = posts[postIndex];
-        const isLiked = post.isLikedByCurrentUser;
 
-        // Perform the like or unlike action
-        if (isLiked) {
-            await unlikePost(postId);
+        try {
+            // If the post is liked by the current user, unlike it first
+            if (post.isLikedByCurrentUser) {
+                await unlikePost(postId);
+            }
+
+            // Proceed to delete the post
+            await deletePost(postId);
+
+            // Update the local state to remove the post
+            setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
+        } catch (error) {
+            console.error('Error in deleting post:', error);
+            // Handle error (e.g., show a message to the user)
+        }
+    };
+
+    const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
+        //console.log('handleFollow', authorId);
+        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+        if (updatedStatus !== undefined) {
+            setPosts(prevPosts =>
+                prevPosts.map(post => {
+                    if (post.author.id === authorId) {
+                        // Update the follow status
+                        return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
+                    }
+                    return post;
+                }),
+            );
         } else {
-            await likePost(postId);
+            console.error('Failed to update follow status');
         }
-
-        // Optimistically update the UI
-        const updatedPosts = [...posts];
-        updatedPosts[postIndex] = {
-            ...post,
-            isLikedByCurrentUser: !isLiked,
-            _count: {
-                ...post._count,
-                likes: post._count.likes + (isLiked ? -1 : 1),
-            },
-        };
-        setPosts(updatedPosts);
-    } catch (error) {
-        console.error('Error changing like status:', error);
-        // Optionally handle reversion or user notification here
-    }
-};
-
-const handleDeletePost = async (postId: number) => {
-    // Find the post in the current state
-    const postIndex = posts.findIndex(post => +post.id === postId);
-    if (postIndex === -1) return;
-
-    const post = posts[postIndex];
-
-    try {
-        // If the post is liked by the current user, unlike it first
-        if (post.isLikedByCurrentUser) {
-            await unlikePost(postId);
-        }
-
-        // Proceed to delete the post
-        await deletePost(postId);
-
-        // Update the local state to remove the post
-        setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
-    } catch (error) {
-        console.error('Error in deleting post:', error);
-        // Handle error (e.g., show a message to the user)
-    }
-};
-
-const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-    //console.log('handleFollow', authorId);
-    const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
-    if (updatedStatus !== undefined) {
-        setPosts(prevPosts =>
-            prevPosts.map(post => {
-                if (post.author.id === authorId) {
-                    // Update the follow status
-                    return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
-                }
-                return post;
-            }),
-        );
-    } else {
-        console.error('Failed to update follow status');
-    }
-};
-
+    };
 
     const handleReportUser = (author: IUserProfile) => {
         // Navigate to the report screen, passing the authorId
@@ -248,40 +253,44 @@ const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: 
         //console.log('Report user screen opened:', author);
     };
 
+    const [blockUserModal, setBlockUserModal] = useState(false);
+    const [modalType, setModalType] = useState('');
+    const [blockUserMessage, setBlockUserMessage] = useState('');
+    const [iconName, setIconName] = useState('');
 
-const [blockUserModal, setBlockUserModal] = useState(false);
-const [modalType, setModalType] = useState('');
-const [blockUserMessage, setBlockUserMessage] = useState('');
-const [iconName, setIconName] = useState('');
+    const closeModal = () => {
+        setBlockUserModal(false);
+    };
 
-const closeModal = () => {
-    setBlockUserModal(false);
-};
+    const handleToggleBlockUser = async authorId => {
+        // Since you won't need to check for unblocking on this screen,
+        // we directly proceed with the blocking logic
+        let response = await blockUser(authorId);
 
+        if (response.success) {
+            // Update the blockedUsers state by adding the newly blocked user
+            // Note: You might need to adjust this part depending on the structure of your `response`
+            setBlockedUsers(prev => [...prev, {id: authorId}]);
 
-const handleToggleBlockUser = async authorId => {
-    // Since you won't need to check for unblocking on this screen,
-    // we directly proceed with the blocking logic
-    let response = await blockUser(authorId);
+            // Optionally, remove the blocked user's posts from the view
+            setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
 
-    if (response.success) {
-        // Update the blockedUsers state by adding the newly blocked user
-        // Note: You might need to adjust this part depending on the structure of your `response`
-        setBlockedUsers(prev => [...prev, {id: authorId}]);
+            // Alert.alert('Success', 'User blocked successfully.');
+            setModalType('success');
+            setBlockUserMessage('User successfully blocked');
+            setBlockUserModal(true);
+            setIconName('hand-back-left');
+        } else {
+            // Handle the error case
+            Alert.alert('Error', 'Failed to block user.');
+        }
+    };
 
-        // Optionally, remove the blocked user's posts from the view
-        setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
-
-        // Alert.alert('Success', 'User blocked successfully.');
-        setModalType('success');
-        setBlockUserMessage('User successfully blocked');
-        setBlockUserModal(true);
-        setIconName('hand-back-left');
-    } else {
-        // Handle the error case
-        Alert.alert('Error', 'Failed to block user.');
-    }
-};
+    const handleRefresh = () => {
+        setRefreshing(true);
+        fetchPostsAndFollowStatus(1);
+        setRefreshing(false);
+    };
 
     return (
         <TabContainer>
@@ -294,7 +303,7 @@ const handleToggleBlockUser = async authorId => {
                             </View>
                             <View
                                 style={{
-                                    height: SIZES.ScreenHeight * 0.26,
+                                    height: SIZES.ScreenHeight * 0.24,
                                     marginTop: -68,
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
@@ -306,7 +315,7 @@ const handleToggleBlockUser = async authorId => {
                                         left: 0,
                                         right: 0,
                                         top: 0,
-                                        height: SIZES.ScreenHeight * 0.26,
+                                        height: SIZES.ScreenHeight * 0.24,
                                     }}
                                 />
                                 <Text style={styles.screenTitle}>What's the Skinny?</Text>
@@ -341,7 +350,7 @@ const handleToggleBlockUser = async authorId => {
                                 </View>
                             </View>
                         </View>
-                        <View style={{marginBottom: '30%'}}>
+                        <View style={{marginBottom: '20%'}}>
                             {loadingPosts ? (
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />
@@ -356,6 +365,8 @@ const handleToggleBlockUser = async authorId => {
                                     data={posts}
                                     style={styles.postcontainer}
                                     keyExtractor={item => item.id}
+                                    refreshing={refreshing}
+                                    onRefresh={handleRefresh}
                                     renderItem={({item}) => (
                                         <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
                                             <SkinnyPostCard
@@ -375,13 +386,17 @@ const handleToggleBlockUser = async authorId => {
                                                 }
                                                 isFollowing={item.author.isFollowed}
                                                 onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
-                                                akcruBadgeColor={selectAvatarBorderColor(item.author.badge ?? 'AKCRUIT')}
+                                                akcruBadgeColor={selectAvatarBorderColor(
+                                                    item.author.badge ?? 'AKCRUIT',
+                                                )}
                                                 onBlockUser={() =>
                                                     handleToggleBlockUser(
                                                         item.author.id,
                                                         item.author.isCurrentlyBlocked,
                                                     )
                                                 }
+                                                isOwner={item.author.ownerStatus}
+                                                isPromo={item.author.promoUser}
                                             />
                                         </Pressable>
                                     )}

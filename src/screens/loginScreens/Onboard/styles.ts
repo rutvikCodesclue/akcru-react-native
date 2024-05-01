@@ -57,7 +57,8 @@ export default StyleSheet.create({
     checkboxContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 10,
+        justifyContent: 'center'
     },
     checkbox: {
         width: 20,

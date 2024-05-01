@@ -33,7 +33,7 @@ export type UserProfileStackParams = {
     // ViewUserScreen: any;
     UserSearchResultScreen: any;
     ChooseMITScreen: any;
-    UserMITHubScreen: any;
+    // UserMITHubScreen: any;
     DeclineMITScreen: any;
     AcceptMITScreen: any;
     RoomPreview: any;
@@ -76,13 +76,13 @@ export function UserProfileStack() {
                   headerShown: false,
               })}
           />
-          <UserProfile.Screen
+          {/* <UserProfile.Screen
               name="UserMITHubScreen"
               component={UserMITHubScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <UserProfile.Screen
               name="UserSearchResultScreen"
               component={UserSearchResultScreen}

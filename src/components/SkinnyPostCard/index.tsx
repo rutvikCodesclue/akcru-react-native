@@ -78,7 +78,7 @@ type PostStats = {
 
 type PostType = {
     id: string;
-    content: string;
+    content: any;
     author: User;
     createdAt: string;
     numberOfComments?: number;
@@ -101,7 +101,7 @@ type PostProps = {
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
-    akcruBadgeColor: string
+    akcruBadgeColor: string;
 };
 
 const PostCard = ({
@@ -115,7 +115,7 @@ const PostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
-    akcruBadgeColor
+    akcruBadgeColor,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -508,7 +508,7 @@ const PostCard = ({
                     <Video
                         ref={modalVideoRef}
                         style={{width: '100%', height: '100%'}}
-                        source={{uri: post.video}}
+                        source={{uri: videoUrl}}
                         resizeMode="cover"
                         onEnd={handleVideoEnd}
                         repeat={false}
@@ -519,7 +519,7 @@ const PostCard = ({
                     {showSkipButton && (
                         <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
                             <AkcruButtons.SmallButton
-                                color={COLORS.MIDORANGE}
+                                color={COLORS.PINK}
                                 btnname={'Skip'}
                                 onPress={handleSkipVideo}
                                 disabled={false}
@@ -531,13 +531,13 @@ const PostCard = ({
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
-                <FooterIcons
+                {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
                         ('');
                     }}
                     color={COLORS.AKCRUBLUE}
-                />
+                /> */}
                 {/* <FooterIcons
                     iconname={'stats-chart'}
                     text={post.impressions || 0}
@@ -549,8 +549,8 @@ const PostCard = ({
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes •{' '}
-                    {post.numberOfReposts || 0} Repost
+                    {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
             </View>
         </View>

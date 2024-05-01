@@ -1,37 +1,29 @@
-import { ActivityIndicator, Text, View, StatusBar } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
-import styles from './styles'
+import {ActivityIndicator, Text, View, StatusBar} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { IMovie } from '../../../../types';
-import { findMovieById } from '../../../lib/api/movies.lib';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {IMovie} from '../../../../types';
+import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
-import { COLORS, SIZES } from '../../../../assets/constants';
+import {COLORS, SIZES} from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
 import AkcruButtons from '../../../components/akcruButtons';
-import { finishUserWatching } from '../../../lib/api/user.lib';
+import {finishUserWatching} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import Video from 'react-native-video';
+import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
+type TrailerPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'TrailerPlayer'>;
 
-
-type TrailerPlayerNavigationProp = StackNavigationProp<
-  NoBottomTabStackParams,
-  'TrailerPlayer'
->;
-
-type TrailerPlayerRouteProp = RouteProp<
-  NoBottomTabStackParams,
-  'TrailerPlayer'
->;
+type TrailerPlayerRouteProp = RouteProp<NoBottomTabStackParams, 'TrailerPlayer'>;
 
 type Props = {
-  navigation: TrailerPlayerNavigationProp;
-  route: TrailerPlayerRouteProp;
+    navigation: TrailerPlayerNavigationProp;
+    route: TrailerPlayerRouteProp;
 };
-
 
 export default function TrailerPlayer({navigation, route}: Props) {
     // const id: number | undefined = route.params?.id ?? null;
@@ -45,39 +37,38 @@ export default function TrailerPlayer({navigation, route}: Props) {
     useFocusEffect(
         React.useCallback(() => {
             setShouldAutoplay(true);
+            hideNavigationBar();
 
             return () => {
                 setShouldAutoplay(false);
+                showNavigationBar();
             };
         }, []),
     );
-    
 
-    
     const movieId = routeParams.params?.id;
     const [hasStartedWatching, setHasStartedWatching] = useState(false);
-        const movieTrailer = ()=>{
-            if(videoRef.current){
-            console.log('trailer check')
+    const movieTrailer = () => {
+        if (videoRef.current) {
+            console.log('trailer check');
             fetch(movie?.trailerURL)
-  .then(response => {
-    // Check CloudFront-Cache-Status header to determine if it's a hit or miss
+                .then(response => {
+                    // Check CloudFront-Cache-Status header to determine if it's a hit or miss
 
-    const cacheStatus = response.headers.get('x-cache');
-    console.log(response)
-    if (cacheStatus === 'Hit from cloudfront') {
-      console.log('Response is served from CloudFront cache'), cacheStatus;
-    } else {
-      console.log('Response is fetched from origin server', cacheStatus);
-    } 
-  })
-  .catch(error => {
-    console.error('Error occurred:', error);
-  });
-             } }
+                    const cacheStatus = response.headers.get('x-cache');
+                    console.log(response);
+                    if (cacheStatus === 'Hit from cloudfront') {
+                        console.log('Response is served from CloudFront cache'), cacheStatus;
+                    } else {
+                        console.log('Response is fetched from origin server', cacheStatus);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error occurred:', error);
+                });
+        }
+    };
     useEffect(() => {
-        
-
         const fetchMovie = async () => {
             if (movieId) {
                 const fetchedMovie = await findMovieById(movieId);
@@ -104,10 +95,6 @@ export default function TrailerPlayer({navigation, route}: Props) {
         };
     }, [movieId, user?.id, hasStartedWatching]);
 
-
-
-
-
     const onPlay = () => {
         setIsMoviePlaying(true);
         StatusBar.setHidden(true);
@@ -122,14 +109,12 @@ export default function TrailerPlayer({navigation, route}: Props) {
             <View style={styles.container}>
                 {movie && movie?.trailerURL ? (
                     <>
-
-                    {/* {movieTrailer()} */}
+                        {/* {movieTrailer()} */}
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{
-                                uri: movie.trailerURL
+                                uri: movie.trailerURL,
                             }}
-                            
                             resizeMode="cover"
                             posterResizeMode="cover"
                             tapAnywhereToPause={false}
@@ -142,10 +127,9 @@ export default function TrailerPlayer({navigation, route}: Props) {
                             onPlay={onPlay}
                             onPause={onPause}
                             onEnd={() => navigation.pop()}
-                            onError={(error) => console.log('Video error:', error)}
-
+                            onError={error => console.log('Video error:', error)}
                         />
-                        
+
                         {/* <Video
                             source={{ uri: movie.trailerURL }}
                             style={{ flex: 1 }}
@@ -167,8 +151,8 @@ export default function TrailerPlayer({navigation, route}: Props) {
                     </>
                 ) : (
                     <>
-                    {console.log("Movie indicator")}
-                    <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
+                        {console.log('Movie indicator')}
+                        <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
                     </>
                 )}
             </View>

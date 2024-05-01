@@ -1,17 +1,17 @@
 import {
-  Text,
-  View,
-  Dimensions,
-  ImageBackground,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  Pressable,
-  Modal,
-  SafeAreaView,
-  TouchableWithoutFeedback,
-  Animated,
-  Alert
+    Text,
+    View,
+    Dimensions,
+    ImageBackground,
+    TouchableOpacity,
+    Image,
+    ScrollView,
+    Pressable,
+    Modal,
+    SafeAreaView,
+    TouchableWithoutFeedback,
+    Animated,
+    Alert,
 } from 'react-native';
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
@@ -19,49 +19,51 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
-import { Icon, Avatar } from '@rneui/base';
+import {Icon, Avatar} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import { CrummunityStackParams } from '../../../navigation/CrummunityStack';
+import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import { Akcru_Content } from '../../../../assets/constants/ListData';
-import { blockUser, findAUser, followUser, getBlockedUsers, getFollowers, getUserCurrentWatching, getUserFollowing, unblockUser, unfollowUser } from '../../../lib/api/user.lib';
-import { IMovie, IUserProfile } from '../../../../types';
-import { capitalizeFirstLetterOfString, selectAvatarBorderColor } from '../../../util/util';
-import { checkUserMembership, createACRUInvite, getCruInviteStatus } from '../../../lib/api/cru.lib';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import {Akcru_Content} from '../../../../assets/constants/ListData';
+import {
+    blockUser,
+    findAUser,
+    followUser,
+    getBlockedUsers,
+    getFollowers,
+    getUserCurrentWatching,
+    getUserFollowing,
+    unblockUser,
+    unfollowUser,
+} from '../../../lib/api/user.lib';
+import {IMovie, IUserProfile} from '../../../../types';
+import {capitalizeFirstLetterOfString, formatNumber, selectAvatarBorderColor} from '../../../util/util';
+import {checkUserMembership, createACRUInvite, getCruInviteStatus} from '../../../lib/api/cru.lib';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import useAuthStore from '../../../stores/auth.store';
-import { getViewedUserWatchlist, getWatchlist } from '../../../lib/api/movies.lib';
+import {getViewedUserWatchlist, getWatchlist} from '../../../lib/api/movies.lib';
 import WatchListCategory from '../../../components/WatchlistCategory';
 import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
-import { set } from 'lodash';
+import {set} from 'lodash';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import { MULTISIZES } from '../../../../assets/constants/theme';
+import {MULTISIZES} from '../../../../assets/constants/theme';
 
+type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
 
-type ViewUserScreenNavigationProp = StackNavigationProp<
-  NoBottomTabStackParams,
-  'ViewUserScreen'
->;
-
-type ViewUserScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  'ViewUserScreen'
->;
+type ViewUserScreenRouteProp = RouteProp<UserProfileStackParams, 'ViewUserScreen'>;
 
 type Props = {
-  navigation: ViewUserScreenNavigationProp;
-  route: ViewUserScreenRouteProp;
+    navigation: ViewUserScreenNavigationProp;
+    route: ViewUserScreenRouteProp;
 };
-
 
 const ViewUserwatchlist = Akcru_Content[6];
 
@@ -153,7 +155,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     // Determine button label and disabled status
     let btnName = 'CRU INVITE';
     let btnDisabled = false;
-    let btnColor = COLORS.AKCRUBLUE
+    let btnColor = COLORS.AKCRUBLUE;
 
     if (cruInviteStatus === 'PENDING') {
         btnName = 'PENDING';
@@ -347,78 +349,76 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }, [user?.id]), // Re-run the effect if the user's ID changes
     );
 
-    
-        const isUserBlocked = blockedUsers.some(blockedUser => blockedUser.id === userID);
+    const isUserBlocked = blockedUsers.some(blockedUser => blockedUser.id === userID);
 
-        const [blockUserModal, setBlockUserModal] = useState(false);
-        const [modalType, setModalType] = useState('');
-        const [blockUserMessage, setBlockUserMessage] = useState('');
-        const [iconName, setIconName] = useState('');
+    const [blockUserModal, setBlockUserModal] = useState(false);
+    const [modalType, setModalType] = useState('');
+    const [blockUserMessage, setBlockUserMessage] = useState('');
+    const [iconName, setIconName] = useState('');
 
-        const closeModal = () => {
-            setBlockUserModal(false);
-        };
+    const closeModal = () => {
+        setBlockUserModal(false);
+    };
 
+    const handleBlockUserPress = async () => {
+        //console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
 
-        const handleBlockUserPress = async () => {
-            //console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
-
-            if (isUserBlocked) {
-                try {
-                    const {success, message} = await unblockUser(userID); // Assuming userID is the ID of the user to unblock
-                    if (success) {
-                        // Alert.alert('User successfully unblocked');
-                        setModalType('success');
-                        setBlockUserMessage('User successfully unblocked');
-                        setBlockUserModal(true);
-                        setIconName('account-check');
-                        // setIsUserBlocked(false); // Update state to reflect the change
-                        fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
-                        setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
-                    } else {
-                        // Alert.alert('Error', `Failed to unblock user: ${message}`);
-                        setModalType('failed');
-                        setBlockUserMessage('Failed to unblock user');
-                        setIconName('alert-circle');
-                        setBlockUserModal(true);
-                    }
-                } catch (error) {
-                    console.error('Error on unblock:', error);
-                    // Alert.alert('Error', 'An error occurred while trying to unblock the user.');
-                    setModalType('error');
-                    setBlockUserMessage('An error occurred while trying to unblock the user.');
+        if (isUserBlocked) {
+            try {
+                const {success, message} = await unblockUser(userID); // Assuming userID is the ID of the user to unblock
+                if (success) {
+                    // Alert.alert('User successfully unblocked');
+                    setModalType('success');
+                    setBlockUserMessage('User successfully unblocked');
                     setBlockUserModal(true);
+                    setIconName('account-check');
+                    // setIsUserBlocked(false); // Update state to reflect the change
+                    fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
+                    setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
+                } else {
+                    // Alert.alert('Error', `Failed to unblock user: ${message}`);
+                    setModalType('failed');
+                    setBlockUserMessage('Failed to unblock user');
                     setIconName('alert-circle');
-                }
-            } else {
-                try {
-                    const {success, message} = await blockUser(userID); // Assuming userID is the ID of the user to block
-                    if (success) {
-                        // Alert.alert('User successfully blocked');
-                        setModalType('success');
-                        setBlockUserMessage('User successfully blocked');
-                        setBlockUserModal(true);
-                        setIconName('hand-back-left');
-                        // setIsUserBlocked(true); // Update state to reflect the change
-                        fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
-                        setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
-                    } else {
-                        // Alert.alert('Error', `Failed to block user: ${message}`);
-                        setModalType('failed');
-                        setBlockUserMessage('Failed to block user');
-                        setIconName('alert-circle');
-                        setBlockUserModal(true);
-                    }
-                } catch (error) {
-                    console.error('Error on block:', error);
-                    // Alert.alert('Error', 'An error occurred while trying to block the user.');
-                    setModalType('error');
-                    setBlockUserMessage('An error occurred while trying to block the user.');
                     setBlockUserModal(true);
-                    setIconName('alert-circle');
                 }
+            } catch (error) {
+                console.error('Error on unblock:', error);
+                // Alert.alert('Error', 'An error occurred while trying to unblock the user.');
+                setModalType('error');
+                setBlockUserMessage('An error occurred while trying to unblock the user.');
+                setBlockUserModal(true);
+                setIconName('alert-circle');
             }
-        };
+        } else {
+            try {
+                const {success, message} = await blockUser(userID); // Assuming userID is the ID of the user to block
+                if (success) {
+                    // Alert.alert('User successfully blocked');
+                    setModalType('success');
+                    setBlockUserMessage('User successfully blocked');
+                    setBlockUserModal(true);
+                    setIconName('hand-back-left');
+                    // setIsUserBlocked(true); // Update state to reflect the change
+                    fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
+                    setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
+                } else {
+                    // Alert.alert('Error', `Failed to block user: ${message}`);
+                    setModalType('failed');
+                    setBlockUserMessage('Failed to block user');
+                    setIconName('alert-circle');
+                    setBlockUserModal(true);
+                }
+            } catch (error) {
+                console.error('Error on block:', error);
+                // Alert.alert('Error', 'An error occurred while trying to block the user.');
+                setModalType('error');
+                setBlockUserMessage('An error occurred while trying to block the user.');
+                setBlockUserModal(true);
+                setIconName('alert-circle');
+            }
+        }
+    };
 
     return (
         <TabContainer>
@@ -516,63 +516,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </Pressable>
                                         </Modal>
                                     </View>
-                                    {/* <View style={{width: SIZES.ScreenWidth * 0.25}}>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <Text style={{...FONTS.Username}}>{user?.username}</Text>
-                                            {user?.ownerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.STARGOLD}
-                                                    baseSize={MULTISIZES.small11}
-                                                    style={{marginRight: 5}}
-                                                />
-                                            )}
-                                            {user?.companyStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.WHITE}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
-                                                />
-                                            )}
-                                            {user?.influencerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
-                                                />
-                                            )}
-                                        </View>
-                                        {user?.firstName && (
-                                            <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
-                                                {user?.firstName ? user.firstName : ''}
-                                            </Text>
-                                        )}
-                                        {user?.badge === 'AKCRUIT' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeAkcruit />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'GUARDIAN' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeGuardian />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'HERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeHero />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'SUPERHERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeSuperHero />
-                                            </View>
-                                        )}
-                                    </View> */}
                                 </View>
                                 <View
                                     style={{
@@ -594,8 +537,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title1}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
+                                        <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                            {formatNumber(followersCount)}
+                                        </Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
@@ -799,7 +744,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         ) : (
                             <View>
                                 {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
-                                    <View style={{marginHorizontal: 15, marginTop: "5%"}}>
+                                    <View style={{marginHorizontal: 15, marginTop: '5%'}}>
                                         <Text
                                             style={{
                                                 ...FONTS.paragraph1,
@@ -900,41 +845,41 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </Modal>
                                     {user?.gallery && user.gallery.length > 0 && (
                                         <>
-                                    <View style={styles.seperator} />
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'center',
-                                            marginTop: 10,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>GALLERY</Text>
-                                        <Icon
-                                            name="images"
-                                            type="ionicon"
-                                            color={COLORS.LIGHTGREY}
-                                            size={20}
-                                            style={{marginLeft: 5}}
-                                        />
-                                    </View>
-                                    <View style={styles.gallerycontainer}>
-                                        <View style={styles.galleryImagesContainer}>
-                                            {user?.gallery &&
-                                                user.gallery.map((imageUri, index) => {
-                                                    return (
-                                                        <TouchableOpacity
-                                                            key={index.toString()}
-                                                            onPress={() => openPhoto(imageUri)}
-                                                            activeOpacity={0.8}>
-                                                            <Image
-                                                                source={{uri: imageUri}}
-                                                                style={styles.galleryImage}
-                                                            />
-                                                        </TouchableOpacity>
-                                                    );
-                                                })}
-                                        </View>
-                                    </View>
-                                    </>
+                                            <View style={styles.seperator} />
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'center',
+                                                    marginTop: 10,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>GALLERY</Text>
+                                                <Icon
+                                                    name="images"
+                                                    type="ionicon"
+                                                    color={COLORS.LIGHTGREY}
+                                                    size={20}
+                                                    style={{marginLeft: 5}}
+                                                />
+                                            </View>
+                                            <View style={styles.gallerycontainer}>
+                                                <View style={styles.galleryImagesContainer}>
+                                                    {user?.gallery &&
+                                                        user.gallery.map((imageUri, index) => {
+                                                            return (
+                                                                <TouchableOpacity
+                                                                    key={index.toString()}
+                                                                    onPress={() => openPhoto(imageUri)}
+                                                                    activeOpacity={0.8}>
+                                                                    <Image
+                                                                        source={{uri: imageUri}}
+                                                                        style={styles.galleryImage}
+                                                                    />
+                                                                </TouchableOpacity>
+                                                            );
+                                                        })}
+                                                </View>
+                                            </View>
+                                        </>
                                     )}
                                     {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
                                         <View style={styles.watchlistcontainer}>

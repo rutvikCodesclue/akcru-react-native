@@ -59,7 +59,7 @@ const OnboardDescription = () => {
                     currentUser.description = description; // Update the description in the state
                     useAuthStore.setState({user: currentUser});
                 }
-                navigation.navigate('OnboardDOB'); // Replace 'NextScreen' with your actual next screen's name
+                navigation.navigate('OnboardCruName'); // Replace 'NextScreen' with your actual next screen's name
             } else {
                 Alert.alert('Failed to update description', 'Please try again later.');
             }

@@ -15,6 +15,7 @@ import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, startUserWatching, logUserMovieWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
+import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -43,9 +44,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
-        console.log("useEffect123")
-
-        
+        console.log('useEffect123');
 
         const fetchMovie = async () => {
             if (movieId) {
@@ -68,8 +67,6 @@ export default function ContentPlayer({navigation, route}: Props) {
         StatusBar.setHidden(true);
 
         return () => {
-            
-            
             if (hasStartedWatching && movieId) {
                 finishUserWatching(movieId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
@@ -113,7 +110,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     // useEffect(() => {
     //     console.log("useEffect")
     //     const subscription = AppState.addEventListener('change', nextAppState => {
-            
+
     //         if (appState.match(/inactive|background/) && nextAppState === 'active') {
     //             console.log('App has come to the foreground!');
     //             // App has come to the foreground, maybe refresh some data
@@ -146,21 +143,21 @@ export default function ContentPlayer({navigation, route}: Props) {
     // }, []);
 
     useFocusEffect(
-        React.useCallback(() => {         
+        React.useCallback(() => {
+            hideNavigationBar();
             if (isMoviePlaying) {
                 // startTimer();
                 // syncWatchTime(); // Sync when navigating away from the screen
-                console.log("focus")
+                console.log('focus');
             }
 
             return () => {
                 pauseTimer();
-                
+                showNavigationBar();
+
                 if (!isFocused) {
                     resetTimer();
                     pauseTimer();
-
-                    
                 }
             };
         }, [isMoviePlaying, isFocused]),
@@ -178,8 +175,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         }
     };
 
-    const onProgress = (data: { currentTime: number; }) => {
-
+    const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(movieId, currentTime);
@@ -193,10 +189,10 @@ export default function ContentPlayer({navigation, route}: Props) {
     };
 
     const onPlay = () => {
-        console.log("onPlay")
+        console.log('onPlay');
         setIsMoviePlaying(true);
         startTimer();
-        console.log(user?.id && movieId && hasStartedWatching)
+        console.log(user?.id && movieId && hasStartedWatching);
         if (user?.id && movieId && !hasStartedWatching) {
             startUserWatching(user.id, movieId).then(startedSuccessfully => {
                 if (startedSuccessfully) {
@@ -221,7 +217,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         setIsMoviePlaying(false);
         pauseTimer();
         resetTimer();
-        
+
         if (movieId) {
             const pausedCurrentTime = currentTime;
             //console.log('Ended at:', endedCurrentTime);
@@ -239,17 +235,13 @@ export default function ContentPlayer({navigation, route}: Props) {
         // Lock orientation to portrait
     };
 
-
-
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-         
                 {hasLottieFirstLoopCompleted ? (
                     !loadingError ? (
                         movie && movie.movieURL ? (
                             <>
-                            {console.log('movie url:', movie.movieURL)}
                                 <VideoPlayer
                                     videoRef={videoRef}
                                     source={{

@@ -9,7 +9,7 @@ import {acceptAMITInvite, declineAMITInvite} from '../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../types';
 import imageindex from '../../../assets/images/imageindex';
 import AkcruLevels from '../akcruBadges';
-import { getShortenedTimezone, selectAvatarBorderColor } from '../../util/util';
+import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
 import HexAvatar from '../HexAvatar';
 
@@ -100,22 +100,23 @@ const MITInviteHubCard = ({
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
+
+                            {creator.badge === 'GUARDIAN' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeGuardian />
                                 </View>
                             )}
-                            {akcruBadge === 'HERO' && (
+                            {creator.badge === 'AKCRUIT' && (
+                                <View>
+                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                </View>
+                            )}
+                            {creator.badge === 'HERO' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeHero />
                                 </View>
                             )}
-                            {akcruBadge === 'SUPERHERO' && (
+                            {creator.badge === 'SUPERHERO' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeSuperHero />
                                 </View>

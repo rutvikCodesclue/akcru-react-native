@@ -41,20 +41,18 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
     paragraphText: {
-        ...FONTS.Title2,
+        ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
-        fontSize: 12,
+
         marginHorizontal: 5,
     },
     paragraphText2: {
         ...FONTS.Title2,
         color: COLORS.AKCRUBLUE,
-        fontSize: 12,
     },
     paragraphText3: {
-        ...FONTS.Title2,
-        color: COLORS.MIDORANGE,
-        fontSize: 12,
+        ...FONTS.paragraph1,
+        color: COLORS.PINK,
     },
     declineButton: {
         ...FONTS.Title2,

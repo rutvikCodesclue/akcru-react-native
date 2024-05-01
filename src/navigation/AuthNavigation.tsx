@@ -27,6 +27,7 @@ import OnboardProfilePicture from '../screens/loginScreens/Onboard/OnboardProfil
 import OnboardEmailOrPassword from '../screens/loginScreens/Onboard/OnboardEmailOrPassword';
 import OnboardDescription from '../screens/loginScreens/Onboard/OnboardDescription';
 import OnboardContactList from '../screens/loginScreens/Onboard/OnboardContactList';
+import OnboardCruName from '../screens/loginScreens/Onboard/OnboardCruName';
 
 export type AuthStackParams = {
     Welcome: any;
@@ -63,6 +64,7 @@ export type AuthStackParams = {
     OnboardProfilePicture: any;
     OnboardEmailOrPassword: any;
     OnboardDescription: any;
+    OnboardCruName: any;
 };
 
 const Auth = createStackNavigator<AuthStackParams>();
@@ -236,8 +238,8 @@ export default function AuthStack() {
               }}
           />
           <Auth.Screen
-              name="OnBoard3"
-              component={OnBoard3}
+              name="OnboardCruName"
+              component={OnboardCruName}
               options={{
                   headerShown: false,
                   gestureDirection: 'horizontal',

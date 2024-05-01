@@ -1,90 +1,82 @@
-import * as React from "react";
+import * as React from 'react';
 import {
-  View,
-  useWindowDimensions,
-  Text,
-  ImageBackground,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-  Modal
-} from "react-native";
-import { TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps } from "react-native-tab-view";
+    View,
+    useWindowDimensions,
+    Text,
+    ImageBackground,
+    TouchableOpacity,
+    Image,
+    SafeAreaView,
+    Modal,
+} from 'react-native';
+import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import {
-  UserProfileCruInvites,
-  UserProfileDatesTab,
-  UserProfileDetailsTab,
-  UserProfileWalletTab
-} from "../UserProfileTabs";
-import { SIZES, COLORS, FONTS, AKCRUBADGES } from "../../../../assets/constants";
-import LinearGradient from "react-native-linear-gradient";
-import { Avatar, Icon } from "@rneui/themed";
-import Header from "../../../components/header";
-import AkcruLevels from "../../../components/akcruBadges";
-import imageindex from "../../../../assets/images/imageindex";
-import { PressableAndroidRippleConfig } from "react-native";
-import { StyleProp } from "react-native";
-import { ViewStyle } from "react-native";
-import { TextStyle } from "react-native";
-import { Route } from "react-native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { NavigationState, Scene, SceneRendererProps } from "react-native-tab-view/lib/typescript/src/types";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { API } from "../../../clients/api.client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
-import useAuthStore from "../../../stores/auth.store";
-import { selectAvatarBorderColor } from "../../../util/util";
-import { ICruInvite, ICruView, IMITInvite, IUserProfile } from "../../../../types";
-import { getMyMITInvites } from "../../../lib/api/mit.lib";
-import { getCRUInvites, getMyCRUViews } from "../../../lib/api/cru.lib";
+    UserProfileCruInvites,
+    UserProfileDatesTab,
+    UserProfileDetailsTab,
+    UserProfileWalletTab,
+} from '../UserProfileTabs';
+import {SIZES, COLORS, FONTS, AKCRUBADGES} from '../../../../assets/constants';
+import LinearGradient from 'react-native-linear-gradient';
+import {Avatar, Icon} from '@rneui/themed';
+import Header from '../../../components/header';
+import AkcruLevels from '../../../components/akcruBadges';
+import imageindex from '../../../../assets/images/imageindex';
+import {PressableAndroidRippleConfig} from 'react-native';
+import {StyleProp} from 'react-native';
+import {ViewStyle} from 'react-native';
+import {TextStyle} from 'react-native';
+import {Route} from 'react-native';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {API} from '../../../clients/api.client';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useEffect, useState} from 'react';
+import useAuthStore from '../../../stores/auth.store';
+import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
+import {ICruInvite, ICruView, IMITInvite, IUserProfile} from '../../../../types';
+import {getMyMITInvites} from '../../../lib/api/mit.lib';
+import {getCRUInvites, getMyCRUViews} from '../../../lib/api/cru.lib';
 import {isAfter, isBefore} from 'date-fns';
-import TabContainer from "../../../components/TabContainer/TabContainer";
-import HexAvatar from "../../../components/HexAvatar";
-import { getFollowers, getUserFollowing } from "../../../lib/api/user.lib";
-import CustomIcon from "../../../components/CustomIcon/CustomIcon";
-import { MULTISIZES } from "../../../../assets/constants/theme";
-import AkcruButtons from "../../../components/akcruButtons";
+import TabContainer from '../../../components/TabContainer/TabContainer';
+import HexAvatar from '../../../components/HexAvatar';
+import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import {MULTISIZES} from '../../../../assets/constants/theme';
+import AkcruButtons from '../../../components/akcruButtons';
 
+type UserProfileScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserProfileScreen'>;
 
-type UserProfileScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  "UserProfileScreen"
->;
-
-type UserProfileScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  "UserProfileScreen"
->;
+type UserProfileScreenRouteProp = RouteProp<UserProfileStackParams, 'UserProfileScreen'>;
 
 type Props = {
-  navigation: UserProfileScreenNavigationProp;
-  route: UserProfileScreenRouteProp;
+    navigation: UserProfileScreenNavigationProp;
+    route: UserProfileScreenRouteProp;
 };
 
-
 const FirstRoute = () => (
-  <View>
-    <UserProfileDetailsTab />
-  </View>
+    <View>
+        <UserProfileDetailsTab />
+    </View>
 );
 
 const SecondRoute = () => <UserProfileDatesTab />;
 
 const ThirdRoute = () => (
-  <View>
-    <UserProfileCruInvites />
-  </View>
+    <View>
+        <UserProfileCruInvites />
+    </View>
 );
 
-const FourthRoute = () => <UserProfileWalletTab/>;
+const FourthRoute = () => <UserProfileWalletTab />;
 
 const renderScene = SceneMap({
-  first: FirstRoute,
-  second: SecondRoute,
-  third: ThirdRoute,
-  fourth: FourthRoute
+    first: FirstRoute,
+    second: SecondRoute,
+    third: ThirdRoute,
+    fourth: FourthRoute,
 });
 
 export default function UserProfileScreen({navigation, route}: Props) {
@@ -98,7 +90,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            getRoomLimitRouteParam()
+            getRoomLimitRouteParam();
             // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             hydrateUser();
             return () => {
@@ -109,12 +101,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
     );
 
     const getRoomLimitRouteParam = async () => {
-        const isRoomTimeLimitCompleted = await AsyncStorage.getItem('isRoomTimeLimitCompleted')
-        if(isRoomTimeLimitCompleted === 'true') {
-            setshowMITEntryErr(true)
-            AsyncStorage.removeItem('isRoomTimeLimitCompleted')
+        const isRoomTimeLimitCompleted = await AsyncStorage.getItem('isRoomTimeLimitCompleted');
+        if (isRoomTimeLimitCompleted === 'true') {
+            setshowMITEntryErr(true);
+            AsyncStorage.removeItem('isRoomTimeLimitCompleted');
         }
-    }
+    };
 
     useFocusEffect(
         React.useCallback(() => {
@@ -291,9 +283,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
             activeColor={COLORS.PURPLE}
             renderBadge={({route}) => {
                 if (route.key === 'second' && datesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
                 } else if (route.key === 'third' && cruInvitesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.PURPLE}} />;
+                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
                 }
                 return null;
             }}
@@ -339,7 +331,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
         }, [user?.id]), // Only re-run the effect if user.id changes
     );
 
-    const followersCount = followersData.length;
+    // const followersCount = followersData.length;
+    const followersCount = formatNumber(followersData.length);
 
     //console.log('User Id:', user?.id);
 
@@ -351,7 +344,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         <View
                             // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                             // resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight * .33}}>
+                            style={{height: SIZES.ScreenHeight / 2.9}}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
@@ -474,8 +467,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         style={{
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title2}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Followers</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                     </TouchableOpacity>
                                 </View>
                                 <View
@@ -519,7 +512,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             btnname="Edit Profile"
                                             onPress={() => navigation.navigate('EditProfile')}
                                             color={COLORS.PINK}
-                                            disabled={false}                   
+                                            disabled={false}
                                         />
                                     </View>
                                 </View>

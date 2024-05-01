@@ -55,6 +55,7 @@
     "react-native-mask-text": "^0.14.2",
     "react-native-media-console": "^2.2.0",
     "react-native-mmkv": "^2.10.1",
+    "react-native-navigation-bar-color": "^2.0.2",
     "react-native-orientation-locker": "^1.5.0",
     "react-native-pager-view": "^6.2.0",
     "react-native-paper": "^5.9.1",

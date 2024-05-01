@@ -66,16 +66,16 @@ import {IUserProfile, IChatUser} from '../../../../types';
 import SmlMemberCard from '../../../components/SmlMemberCard';
 import {findAUser} from '../../../lib/api/user.lib';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import { getUsers } from "../../../lib/api/rooms.lib";
+import {getUsers} from '../../../lib/api/rooms.lib';
 import CruChatComponent from '../../ChatScreens/CruChatComponent';
 import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
+import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import {supabase} from '../../../../lib/supabase';
 import UnmutePermissionPopup from './unmutepermpopup';
 import ErrorModal from './ErrorModal';
 import WatchPartyDocker from '../../../components/WatchPartyDocker';
-
+import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -91,9 +91,9 @@ type Props = {
     micInitialState: boolean;
     cameraInitialState: boolean;
     isHost: boolean;
-    inviteId: any,
-    creator: any,
-    invitee: any
+    inviteId: any;
+    creator: any;
+    invitee: any;
     Timezone: string;
     Movietime: string;
     cru: any;
@@ -124,7 +124,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
     const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
     const mitId: IUserProfile | null = route.params?.inviteId ?? null;
-
 
     let isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
@@ -173,15 +172,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
     const {user} = useAuthStore();
     const snapPoints = ['1', '40'];
-    const isCurrentUserCreator = user?.id ===creatorID;
+    const isCurrentUserCreator = user?.id === creatorID;
     const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-    const receiverProfilePicture =isCurrentUserCreator? user?.profilePicture: creator?.profilePicture
+    const receiverProfilePicture = isCurrentUserCreator ? user?.profilePicture : creator?.profilePicture;
     const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
     const [unmutePermPopup, setUnmutePermissionPopup] = useState(false);
     const [userRequest, setUserRequest] = useState(null);
     const [popupErr, setPopupErr] = useState(false);
     const [popupErrMsg, setPopupErrMsg] = useState('');
-    const myuserid = user.id
+    const myuserid = user.id;
     const [isDockerOpen, setIsDockerOpen] = useState(false);
 
     route.params = {
@@ -190,12 +189,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         mItInviteId: movieId,
         userId: receiverUserId,
         profilePicture: receiverProfilePicture,
-        username: receiverUsername
-      }
+        username: receiverUsername,
+    };
 
-
-      useEffect(() => {
-
+    useEffect(() => {
         setShowDockerToHost(isHost);
         const channelA = supabase.channel(roomId);
         channelA
@@ -214,22 +211,21 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, []);
 
     // Simple function to log any messages we receive
-   async function askForPermission(payload: any) {
-        if(isHost == true && payload.payload.permtype! == 'request' ){
-            console.log('userReq',payload.payload.userReq!)
-            setUserRequest(payload.payload.userReq!)
-            setUnmutePermissionPopup(true)
-
+    async function askForPermission(payload: any) {
+        if (isHost == true && payload.payload.permtype! == 'request') {
+            console.log('userReq', payload.payload.userReq!);
+            setUserRequest(payload.payload.userReq!);
+            setUnmutePermissionPopup(true);
         }
-        if(isHost != true && payload.payload.permtype! == 'reqans' && payload.payload.userReq.id! == user.id){
-            const perm = payload.payload.micunmuteperm
-            if(perm == true){
-            const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-            if (localPeer) {
-                localPeer?.localAudioTrack()?.setMute(!perm);
-                setIsMicOn(perm)
+        if (isHost != true && payload.payload.permtype! == 'reqans' && payload.payload.userReq.id! == user.id) {
+            const perm = payload.payload.micunmuteperm;
+            if (perm == true) {
+                const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+                if (localPeer) {
+                    localPeer?.localAudioTrack()?.setMute(!perm);
+                    setIsMicOn(perm);
+                }
             }
-        }
         }
         // console.log(payload, user.id)
         // setUnmutePermissionPopup(false)
@@ -240,30 +236,25 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         //     setIsMicOn(perm)
         //     // setUnmutePermissionPopup(false)
         // }
-
     }
 
     const onSend = (permGrant, userid, permtype, userReq) => {
-        console.log('User id on send', userid)
+        console.log('User id on send', userid);
         if (channelll === null) {
             console.log('Channel not found');
-            return
+            return;
         }
 
-        if(permtype == 'request' && isHost == true) return
+        if (permtype == 'request' && isHost == true) return;
         channelll.send({
             type: 'broadcast',
             event: 'movie_room',
-            payload: {micunmuteperm:permGrant, senderId: user.id, permtype: permtype, userReq: userReq},
+            payload: {micunmuteperm: permGrant, senderId: user.id, permtype: permtype, userReq: userReq},
         });
-        if(permtype == 'reqans' && isHost == true){
-            setUnmutePermissionPopup(false)
-
+        if (permtype == 'reqans' && isHost == true) {
+            setUnmutePermissionPopup(false);
         }
-
     };
-
-
 
     useEffect(() => {
         RestrictPartyRoom();
@@ -279,8 +270,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 setIsLoading(false);
             }
         });
-
-
     }, []);
     useFocusEffect(
         React.useCallback(() => {
@@ -401,7 +390,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         // }
         console.log('about to enter the if');
         if (isHost) {
-            console.log('Went into mute all before try')
+            console.log('Went into mute all before try');
             try {
                 await hmsInstanceRef.current?.remoteMuteAllAudio();
                 console.log('Broadcasted mute-all event');
@@ -464,10 +453,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             const isRoomHost = peer.role?.name === 'host';
             if (isRoomHost) {
                 return true;
-            } 
+            }
         }
-        return false
-
+        return false;
     }
     const toggleMic = async () => {
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
@@ -476,27 +464,22 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 console.log('muting personal audio track...');
                 localPeer?.localAudioTrack()?.setMute(true);
                 setIsMicOn((prevState: boolean) => !prevState);
-
             } else {
-                if(isHost){
+                if (isHost) {
                     console.log('unmuting personal audio track...');
                     localPeer?.localAudioTrack()?.setMute(false);
                     setIsMicOn((prevState: boolean) => !prevState);
-
-                }else{
-                   const isHostAva = isHostAvailable()
-                   if(isHostAva){
-                    onSend(null, null, 'request', user)
-
-                   }else{
-                    setPopupErr(true)
-                    setPopupErrMsg('Host not available. Please wait for the host to join!')
-                   }
+                } else {
+                    const isHostAva = isHostAvailable();
+                    if (isHostAva) {
+                        onSend(null, null, 'request', user);
+                    } else {
+                        setPopupErr(true);
+                        setPopupErrMsg('Host not available. Please wait for the host to join!');
+                    }
                 }
-
             }
         }
-
     };
 
     const toggleVideo = async () => {
@@ -552,7 +535,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const _join100msRoom = async () => {
         let hmsInstance: HMSSDK | null = null;
-        console.log('mic Initail State:', micInitialState)
+        console.log('mic Initail State:', micInitialState);
 
         if (hmsInstanceRef.current == null) {
             // set track settings
@@ -621,7 +604,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             // Leave the Room
             await _handleRoomLeave();
         }
-    }
+    };
 
     const _handleRoomLeave = async () => {
         // console.log(members[0]);
@@ -1064,7 +1047,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
         // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
         // use these objects to update your local and remote peers.
-        
     };
     const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {
         // gets triggered when room is muted or unmuted.
@@ -1176,6 +1158,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         StatusBar.setHidden(true);
         Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
         // automatically play the video if it paused (if it was already playing)
+        hideNavigationBar();
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
                 // play on exit fullscreen if host
@@ -1201,6 +1184,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         StatusBar.setHidden(false);
         Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
         // Delay the seek operation to allow the video player to stabilize
+        showNavigationBar();
         setTimeout(() => {
             if (videoPlayerRef.current && currentTime) {
                 console.log(' you clicked exit FS... seeking to:', currentTime);
@@ -1333,38 +1317,34 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const sayhi = () => {
-        console.log(viewtype, cru)
-        if(viewtype == 'CRUView'){
+        console.log(viewtype, cru);
+        if (viewtype == 'CRUView') {
             navigation.navigate('ViewGroupChat', {
-                'isMyCruChat': false,
-                'cru': cru
-            })
-        }else{
-                // Determine receiver user details based on the current user's role in the chat
-                const isCurrentUserCreator = user?.id === creatorID;
-                const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-                const receiverProfilePicture =isCurrentUserCreator? invitee?.profilePicture: creator?.profilePicture
-                const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
-                console.log('Watch Party',{
-                    mItInviteId: mitId,
-                    userId: receiverUserId,
-                    profilePicture: receiverProfilePicture,
-                    username: receiverUsername, // Pass the receiver's username
-                }
-                )
-                navigation.navigate('ViewChat', {
-                    mItInviteId: mitId,
-                    userId: receiverUserId,
-                    profilePicture: receiverProfilePicture,
-                    username: receiverUsername, // Pass the receiver's username
-                });
+                isMyCruChat: false,
+                cru: cru,
+            });
+        } else {
+            // Determine receiver user details based on the current user's role in the chat
+            const isCurrentUserCreator = user?.id === creatorID;
+            const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
+            const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
+            const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+            console.log('Watch Party', {
+                mItInviteId: mitId,
+                userId: receiverUserId,
+                profilePicture: receiverProfilePicture,
+                username: receiverUsername, // Pass the receiver's username
+            });
+            navigation.navigate('ViewChat', {
+                mItInviteId: mitId,
+                userId: receiverUserId,
+                profilePicture: receiverProfilePicture,
+                username: receiverUsername, // Pass the receiver's username
+            });
         }
-        
-        
-
     };
     const handleSnapPress = useCallback((index: number) => {
-        console.log('heelo')
+        console.log('heelo');
         sheetRef.current?.snapToIndex(index);
         // setIsChatOpen(true);
     }, []);
@@ -1373,8 +1353,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         setPopupErrMsg('');
         setPopupErr(false);
     };
-
-
 
     const watchPartyView = () => {
         return (
@@ -1609,7 +1587,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             keyExtractor={node => node.id}
                             contentContainerStyle={{flexGrow: 1}}
                             renderItem={({item}) => {
-                                // console.log("this is item: ", JSON.stringify(item, null, 2));
+                                // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
                                 const isExpanded = expandedVideo === item;
 
@@ -1976,10 +1954,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                                 padding: 20,
                                 borderRadius: 10,
+                                marginHorizontal: '5%',
                             }}>
                             <View style={{alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm closing CRU View</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
                                     Are you sure you want to end this CRU View session?
                                 </Text>
                             </View>
@@ -1987,9 +1966,19 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             <View
                                 style={{
                                     flexDirection: 'row',
-                                    justifyContent: 'space-between',
+                                    justifyContent: 'space-around',
                                 }}>
-                                <TouchableOpacity
+                                <AkcruButtons.SmallButton
+                                    onPress={_handleTerminateRoom}
+                                    color={COLORS.PINK}
+                                    btnname="Terminate"
+                                />
+                                <AkcruButtons.SmallButton
+                                    onPress={handleCancelRoomTermination}
+                                    color={COLORS.PURPLE}
+                                    btnname="Cancel"
+                                />
+                                {/* <TouchableOpacity
                                     onPress={_handleTerminateRoom}
                                     style={{
                                         backgroundColor: 'green',
@@ -2006,7 +1995,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                         borderRadius: 5,
                                     }}>
                                     <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </View>
                         </View>
                     </View>
@@ -2025,38 +2014,57 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                     padding: 20,
                                     borderRadius: 10,
+                                    marginHorizontal: '5%',
                                 }}>
                                 <View style={{alignItems: 'center'}}>
                                     <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
                                         Please assign a new host or terminate the Watch Party session to leave
                                     </Text>
                                 </View>
 
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <TouchableOpacity
-                                        onPress={handleOptionModal}
+                                <View>
+                                    <View
                                         style={{
-                                            backgroundColor: 'green',
-                                            padding: 10,
-                                            borderRadius: 5,
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-around',
                                         }}>
-                                        <Text style={{...FONTS.Title3}}>Assign Host</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={handleRoomTermination}
-                                        style={{
-                                            backgroundColor: 'blue',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                        <AkcruButtons.SmallButton
+                                            onPress={handleOptionModal}
+                                            color={COLORS.PINK}
+                                            btnname="Assign Host"
+                                        />
+                                        {/* <TouchableOpacity
+                                            onPress={handleOptionModal}
+                                            style={{
+                                                backgroundColor: COLORS.PINK,
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Assign Host</Text>
+                                        </TouchableOpacity> */}
+                                        <AkcruButtons.SmallButton
+                                            onPress={handleRoomTermination}
+                                            color={COLORS.PURPLE}
+                                            btnname="Terminate"
+                                        />
+                                        {/* <TouchableOpacity
+                                            onPress={handleRoomTermination}
+                                            style={{
+                                                backgroundColor: COLORS.PURPLE,
+                                                padding: 10,
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title3}}>Terminate</Text>
+                                        </TouchableOpacity> */}
+                                    </View>
+                                    <View style={{alignItems: 'center', paddingTop: 10}}>
+                                        <AkcruButtons.SmallButton
+                                            onPress={handleCancelLeaveRoom}
+                                            color={COLORS.CATREDLGT}
+                                            btnname="Cancel"
+                                        />
+                                        {/* <TouchableOpacity
                                         onPress={handleCancelLeaveRoom}
                                         style={{
                                             backgroundColor: 'red',
@@ -2064,7 +2072,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             borderRadius: 5,
                                         }}>
                                         <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
+                                    </View>
                                 </View>
                             </View>
                         </View>
@@ -2086,7 +2095,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 }}>
                                 <View style={{alignItems: 'center'}}>
                                     <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
+                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
                                         Are you sure you want to leave this Watch Party session?
                                     </Text>
                                 </View>
@@ -2094,9 +2103,20 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 <View
                                     style={{
                                         flexDirection: 'row',
-                                        justifyContent: 'space-between',
+                                        justifyContent: 'space-around',
+                                        marginHorizontal: '5%',
                                     }}>
-                                    <TouchableOpacity
+                                    <AkcruButtons.SmallButton
+                                        onPress={_handleRoomLeave}
+                                        color={COLORS.PINK}
+                                        btnname="Leave Room"
+                                    />
+                                    <AkcruButtons.SmallButton
+                                        onPress={handleCancelLeaveRoom}
+                                        color={COLORS.PURPLE}
+                                        btnname="Cancel"
+                                    />
+                                    {/* <TouchableOpacity
                                         onPress={_handleRoomLeave}
                                         style={{
                                             backgroundColor: 'green',
@@ -2113,7 +2133,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             borderRadius: 5,
                                         }}>
                                         <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity>
+                                    </TouchableOpacity> */}
                                 </View>
                             </View>
                         </View>
@@ -2136,8 +2156,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     return isFullscreen ? (
         <View>
             {watchPartyView()}
-            {/* {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null} */}
-            {showDockerToHost ? <WatchPartyDocker members={peerTrackNodes} hmsInstanceRef={hmsInstanceRef} isExpanded={expandedVideo} HMSVideoViewMode={HMSVideoViewMode} peersMuteStatus={peersMuteStatus}></WatchPartyDocker> : null}
+            {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null}
         </View>
     ) : (
         <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
@@ -2154,11 +2173,11 @@ const styles = StyleSheet.create({
         width: 80, // Adjust width as needed
         height: 40, // Adjust height as needed
         borderRadius: 5, // Adjust border radius as needed
-      },
-      buttonText: {
+    },
+    buttonText: {
         color: 'white',
         fontSize: 12,
-      },
+    },
     topcontainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',

@@ -23,7 +23,7 @@ import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton
 export type ClientStackParams = {
     HomeScreen: any;
     ContentSwipe: any;
-    SearchMovieResultScreen: any;
+    // SearchMovieResultScreen: any;
     SearchMovieScreen: any;
     // ContentDetailScreen: any;
     MITDateSchedule: any;
@@ -67,13 +67,13 @@ export function ClientStack() {
                   headerShown: false,
               })}
           />
-          <ClientSearch.Screen
+          {/* <ClientSearch.Screen
               name="SearchMovieResultScreen"
               component={SearchMovieResultScreen}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           {/* <ClientSearch.Screen
               name="ContentDetailScreen"
               component={ContentDetailScreen}
