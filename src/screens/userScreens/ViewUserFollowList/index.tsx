@@ -26,6 +26,7 @@ import ViewUserFollowersTab from '../ViewUserFollowListTabs/ViewUserFollowersTab
 import ViewUserFollowingTab from '../ViewUserFollowListTabs/ViewUserFollowingTab';
 import { getFollowers, getUserFollowing } from '../../../lib/api/user.lib';
 import { IUserProfile } from '../../../../types';
+import styles from '../../contentScreens/PlayContentScreen/styles';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
 
@@ -166,7 +167,7 @@ const ViewUserFollowList = ({route}: Props) => {
     return (
         <View style={{flex: 1}}>
             <View>
-                <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                <View style={styles.backbutton}>
                     <Header />
                     <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
                         <View

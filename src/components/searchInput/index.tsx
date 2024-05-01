@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Keyboard,
   Image,
+  Platform
 } from 'react-native';
 
 import React, {useEffect, useRef, useState} from 'react';
@@ -76,6 +77,7 @@ const SearchInput = () => {
                   top: 0,
                   height: 65,
                   width: SIZES.ScreenWidth,
+                        
               }}
           />
           <View style={{alignItems: 'center'}}>
@@ -97,14 +99,14 @@ const SearchInput = () => {
 
               <Modal animationType="fade" transparent={false} visible={modalVisible}>
                   <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
-                      <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                      <View style={styles.backbutton}>
                           <TouchableOpacity
                               onPress={() => setModalVisible(false)}
                               style={{
                                   paddingHorizontal: 15,
                                   paddingVertical: 10,
                               }}>
-                              <View
+                               <View
                                   style={{
                                       flexDirection: 'row',
                                       alignItems: 'center',
@@ -112,6 +114,7 @@ const SearchInput = () => {
                                   <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
                                   <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                               </View>
+                             
                           </TouchableOpacity>
                       </View>
                       <View style={styles.searchmodal}>
@@ -145,7 +148,7 @@ const SearchInput = () => {
                                   }}
                                   onChangeText={handleSearch}
                               />
-                              <TouchableWithoutFeedback onPress={() => {}}>
+                              <TouchableWithoutFeed onPress={() => {}}>
                                   <Icon
                                       name="close-circle"
                                       type="material-community"

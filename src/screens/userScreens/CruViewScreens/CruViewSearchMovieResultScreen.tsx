@@ -18,7 +18,7 @@ import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
 import { findMovies } from "../../../lib/api/movies.lib";
 import { IMovie } from "../../../../types";
 import TabContainer from "../../../components/TabContainer/TabContainer";
-
+import styles from "../../contentScreens/PlayContentScreen/styles";
 type CruViewSearchMovieResultScreenNavigationProp = StackNavigationProp<
   UserProfileStackParams,
   'CruViewSearchMovieResultScreen'
@@ -88,7 +88,7 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
     <TabContainer>
       <View>
       <SafeAreaView>
-      <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+      <View style={styles.backbutton}>
         <TouchableOpacity
           onPress={() => navigation.pop()}
           style={{

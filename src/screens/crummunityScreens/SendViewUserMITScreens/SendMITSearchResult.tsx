@@ -24,6 +24,7 @@ import { IMovie, IUserProfile } from "../../../../types";
 import { findMovies } from "../../../lib/api/movies.lib";
 import { findAUser } from "../../../lib/api/user.lib";
 import TabContainer from "../../../components/TabContainer/TabContainer";
+import styles from "../../contentScreens/PlayContentScreen/styles";
 
 type SendMITSearchResultNavigationProp = StackNavigationProp<
   CrummunityStackParams,
@@ -41,11 +42,13 @@ type Props = {
 };
 const AllMovies = Akcru_Content[0];
 
+
 const SendMITSearchResult = ({ navigation, route }: Props) => {
 const userID: string | undefined = route.params?.userID ?? null;
 // const userprofile: string | undefined = route.params?.userName ?? null;
 
    const [selectedGenre, setSelectedGenre] = useState("");
+
    const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
 
    useFocusEffect(
@@ -118,7 +121,7 @@ const userID: string | undefined = route.params?.userID ?? null;
               {/* <View>
           <Header />
         </View> */}
-              <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+              <View style={styles.backbutton}>
                   <TouchableOpacity
                       onPress={() => navigation.pop()}
                       style={{
@@ -134,7 +137,7 @@ const userID: string | undefined = route.params?.userID ?? null;
                           <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                       </View>
                   </TouchableOpacity>
-                  <SendMITSearchInput />
+                  <SendMITSearchInput userid = {userID}/>
                   <View
                       style={{
                           backgroundColor: COLORS.TAGCOLOR,

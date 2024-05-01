@@ -14,6 +14,8 @@ import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import { FlashList } from '@shopify/flash-list';
 import AkcruButtons from '../../../components/akcruButtons';
+import styles from '../PlayContentScreen/styles';
+
 
 // const AllMovies = Akcru_Content[0];
 
@@ -140,7 +142,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
         <TabContainer>
             <View>
                 <View>
-                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                    <View style={styles.backbutton}>
                         <TouchableOpacity
                             onPress={() => navigation.pop()}
                             style={{

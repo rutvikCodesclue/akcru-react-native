@@ -112,6 +112,10 @@ export default StyleSheet.create({
     datepicker: {
         height: 120,
         marginTop: -10,
+        
+    },
+    datepickios: {
+        width: 320, backgroundColor: "white"
     },
     iosbutton: {
         height: 50,

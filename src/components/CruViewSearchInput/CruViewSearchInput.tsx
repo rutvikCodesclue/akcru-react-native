@@ -145,7 +145,7 @@ const CruViewSearchInput = () => {
                               </TouchableWithoutFeedback>
                           </View>
                       </View>
-                      <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                      <View style={styles.backbutton}>
                           <FlatList
                               data={data}
                               ListFooterComponent={<View style={{marginBottom: 70}} />}

@@ -5,12 +5,13 @@ import {
   Image,
   TextInput,
   StyleSheet,
-  TouchableOpacity,
   Pressable,
   TouchableWithoutFeedback,
   Modal,
-  Alert
+  Alert,
+  Platform
 } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import React, { useEffect, useRef, useState } from "react";
 import styles from "./styles";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -163,18 +164,36 @@ const UserProfileWalletTab = () => {
                 </View>
                 <View>
                     <Text style={styles.titleText2}>TO:</Text>
-                    <Pressable onPress={() => navigation.navigate('UserWalletSearch')}>
-                        <View style={styles.inputContainer2}>
-                            <TextInput
-                                placeholder={'To'}
-                                placeholderTextColor={'transparent'}
-                                style={{color: COLORS.WHITE, width: '100%'}}
-                                editable={false}
-                                secureTextEntry={false}
-                                value={sendTo} // Set the value of the TextInput to the selected user's username
-                            />
-                        </View>
-                    </Pressable>
+                    {
+                        Platform.OS === 'android' ? (
+                            <Pressable onPress={() => navigation.navigate('UserWalletSearch')}>
+                                <View style={styles.inputContainer2}>
+                                    <TextInput
+                                        placeholder={'To'}
+                                        placeholderTextColor={'transparent'}
+                                        style={{color: COLORS.WHITE, width: '100%'}}
+                                        editable={false}
+                                        secureTextEntry={false}
+                                        value={sendTo} // Set the value of the TextInput to the selected user's username
+                                    />
+                                </View>
+                            </Pressable>
+                        ) : (
+                            <TouchableOpacity onPress={() => navigation.navigate('UserWalletSearch')}>
+                                <View style={styles.inputContainer2}>
+                                    <TextInput
+                                        placeholder={'To'}
+                                        placeholderTextColor={'transparent'}
+                                        style={{color: COLORS.WHITE, width: '100%'}}
+                                        editable={false}
+                                        secureTextEntry={false}
+                                        value={sendTo} // Set the value of the TextInput to the selected user's username
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    }
+                
                 </View>
                 <View>
                     <Text style={styles.titleText2}>AKCRU DOLLAR AMOUNT:</Text>

@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Platform } from "react-native";
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
@@ -115,4 +115,8 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         paddingHorizontal: 15, // Adjust the horizontal padding as needed
     },
+    backbutton:{
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        marginTop: Platform.OS === 'ios' ? 40 : 0,
+    }
 });
