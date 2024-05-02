@@ -93,7 +93,7 @@ const ViewUserFollowList = ({route}: Props) => {
     ) => (
         <TabBar
             {...props}
-            indicatorStyle={{backgroundColor: COLORS.DARKORANGE}}
+            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
             scrollEnabled={false}
             tabStyle={{width: SIZES.ScreenWidth / 2}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
@@ -106,7 +106,7 @@ const ViewUserFollowList = ({route}: Props) => {
                 alignContent: 'center',
                 justifyContent: 'center',
             }}
-            activeColor={COLORS.MIDORANGE}
+            activeColor={COLORS.PURPLE}
         />
     );
 

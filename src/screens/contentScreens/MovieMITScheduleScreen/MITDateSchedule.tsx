@@ -318,43 +318,31 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     </View>
                                 </TouchableOpacity>
                                 <View style={{alignItems: 'center'}}>
-                                    <View style={styles.usermitsearchinput}>
-                                        <Icon
-                                            name="magnify"
-                                            type="material-community"
-                                            color={COLORS.AKCRUBLUE}
-                                            size={28}
-                                            style={{marginRight: 10}}
-                                        />
-                                        <TextInput
-                                            placeholder="Search for user"
-                                            placeholderTextColor={COLORS.DARKGREY}
-                                            autoCorrect={false}
-                                            autoFocus={false}
-                                            ref={textInputRef}
-                                            onFocus={() => {
-                                                setTextInputFocused(true);
-                                            }}
-                                            onBlur={() => {
-                                                setTextInputFocused(false);
-                                            }}
-                                            onChangeText={handleSearch}
-                                            style={{color: COLORS.LIGHTGREY}}
-                                        />
-                                        <TouchableWithoutFeedback onPress={() => {}}>
+                                    <View style={styles.searchinput}>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             <Icon
-                                                name="close-circle"
+                                                name="magnify"
                                                 type="material-community"
-                                                size={25}
-                                                color={COLORS.DARKGREY}
-                                                style={{marginLeft: SIZES.ScreenWidth / 2.3}}
-                                                onPress={() => {
-                                                    textInputRef.current.clear();
-                                                    handleSearch(textInputRef);
+                                                color={COLORS.AKCRUBLUE}
+                                                size={28}
+                                                style={{marginRight: 10}}
+                                            />
+                                            <TextInput
+                                                placeholder="Search for user"
+                                                placeholderTextColor={COLORS.DARKGREY}
+                                                autoCorrect={false}
+                                                autoFocus={false}
+                                                ref={textInputRef}
+                                                onFocus={() => {
                                                     setTextInputFocused(true);
                                                 }}
+                                                onBlur={() => {
+                                                    setTextInputFocused(false);
+                                                }}
+                                                onChangeText={handleSearch}
+                                                style={{color: COLORS.LIGHTGREY, width: '100%'}}
                                             />
-                                        </TouchableWithoutFeedback>
+                                        </View>
                                     </View>
                                 </View>
                             </View>

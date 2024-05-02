@@ -148,7 +148,7 @@ const SearchInput = () => {
                                   }}
                                   onChangeText={handleSearch}
                               />
-                              <TouchableWithoutFeed onPress={() => {}}>
+                              <TouchableWithoutFeedback onPress={() => {}}>
                                   <Icon
                                       name="close-circle"
                                       type="material-community"

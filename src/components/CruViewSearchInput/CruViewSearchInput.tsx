@@ -98,6 +98,23 @@ const CruViewSearchInput = () => {
 
               <Modal animationType="fade" transparent={false} visible={modalVisible}>
                   <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
+                      <View style={styles.backbutton}>
+                          <TouchableOpacity
+                              onPress={() => setModalVisible(false)}
+                              style={{
+                                  paddingHorizontal: 15,
+                                  paddingVertical: 10,
+                              }}>
+                              <View
+                                  style={{
+                                      flexDirection: 'row',
+                                      alignItems: 'center',
+                                  }}>
+                                  <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                              </View>
+                          </TouchableOpacity>
+                      </View>
                       <View style={styles.searchmodal}>
                           <View style={styles.searchinput}>
                               <View>
@@ -129,20 +146,21 @@ const CruViewSearchInput = () => {
                                   }}
                                   onChangeText={handleSearch}
                               />
-                              <TouchableWithoutFeedback onPress={() => {}}>
+                              {/* <TouchableWithoutFeedback onPress={() => {}}>
                                   <Icon
                                       name="close-circle"
                                       type="material-community"
                                       size={25}
                                       color={COLORS.DARKGREY}
                                       style={{marginLeft: SIZES.ScreenWidth / 2.2}}
-                                      onPress={() => { 
-                                        textInputRef.current.clear();
-                                      handleSearch('');
-                                      //    handleSearch(textInputRef);
-                                      setTextInputFocused(true);}}
+                                      onPress={() => {
+                                          textInputRef.current.clear();
+                                          handleSearch('');
+                                          //    handleSearch(textInputRef);
+                                          setTextInputFocused(true);
+                                      }}
                                   />
-                              </TouchableWithoutFeedback>
+                              </TouchableWithoutFeedback> */}
                           </View>
                       </View>
                       <View style={styles.backbutton}>

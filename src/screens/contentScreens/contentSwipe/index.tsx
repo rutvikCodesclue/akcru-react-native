@@ -10,7 +10,6 @@ import {
     SafeAreaView,
     TouchableOpacity,
     Pressable,
-    Platform,
 } from 'react-native';
 // import data from "./data";
 import {Akcru_Content} from '../../../../assets/constants/ListData';
@@ -24,14 +23,13 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 import {findMovieById, findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
-import { useEffect, useState } from 'react';
-import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util';
+import {useEffect, useState} from 'react';
+import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 import useAuthStore from '../../../stores/auth.store';
 import Header2 from '../../../components/header/header2';
-import { MULTISIZES } from '../../../../assets/constants/theme';
-import { findSponsoredMovies } from '../../../lib/api/movies.lib';
+import {MULTISIZES} from '../../../../assets/constants/theme';
+import {findSponsoredMovies} from '../../../lib/api/movies.lib';
 // const data = Akcru_Content[7].movies;
-
 
 const {width, height} = Dimensions.get('window');
 const TICKER_HEIGHT = MULTISIZES.medium14;
@@ -74,7 +72,7 @@ const Item = ({
     route,
     duration,
     year,
-    title
+    title,
 }: Props) => {
     const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
     const opacityInputRange = [(index - 0.4) * width, index * width, (index + 0.4) * width];
@@ -253,7 +251,6 @@ const Circle = ({scrollX, movies}) => {
 //     );
 // };
 
-
 const Pagination = ({scrollX, onPress2, movies}) => {
     const visibleMovies = movies.slice(0, 5); // Only consider the first five movies
 
@@ -286,13 +283,13 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                 })}
             </View>
             <TouchableOpacity onPress={onPress2}>
-                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PINK}}>Skip to Homepage</Text>
+                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PINK}}>
+                    Skip to Homepage
+                </Text>
             </TouchableOpacity>
         </View>
     );
 };
-
-
 
 export default function ContentSwipe({navigation, route}: Props) {
     const _scrollX = React.useRef(new Animated.Value(0)).current;
@@ -306,7 +303,7 @@ export default function ContentSwipe({navigation, route}: Props) {
     //         const fetchMovies = async () => {
     //             try {
     //                 await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-                    
+
     //                 const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
     //                 setMovies(fetchedMovies);
     //             } catch (error) {
@@ -353,20 +350,17 @@ export default function ContentSwipe({navigation, route}: Props) {
         }, []),
     );
 
-
-
     // useFocusEffect(() => {
     //     // Fetch movies on focus
     //     React.useCallback(async () => {}, []);
 
-
     //     const fetchMovies = async () => {
     //         try {
     //             console.log("Hydrating auth [content swipe]...");
-                
+
     //             await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
     //             console.log("accessing access token [content swipe]...", useAuthStore.getState().getSession()?.access_token);
-                
+
     //             const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
     //             setMovies(fetchedMovies);
     //         } catch (error) {
@@ -387,7 +381,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     style={{
                         position: 'absolute',
                         width: SIZES.ScreenWidth,
-                        bottom: SIZES.ScreenHeight / 1.4,
+                        bottom: SIZES.ScreenHeight / 1.3,
                     }}>
                     <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
                         <Text
@@ -396,7 +390,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
-                       
+                                marginBottom: 10,
                             }}>
                             Here are our top 5 movies recommended for you today
                         </Text>
@@ -407,7 +401,6 @@ export default function ContentSwipe({navigation, route}: Props) {
                         style={{width: 30, height: 26, alignSelf: 'center', marginBottom: 10}}
                     />
                 </View>
-
                 <Circle scrollX={_scrollX} movies={movies} />
                 <Animated.FlatList
                     pagingEnabled
@@ -438,7 +431,6 @@ export default function ContentSwipe({navigation, route}: Props) {
                     scrollX={_scrollX}
                     onPress2={() => navigation.navigate('ClientTabNavigator')}
                     movies={movies}
-                    
                 />
 
                 {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
@@ -457,23 +449,20 @@ const styles = StyleSheet.create({
     itemStyle: {
         width,
         height,
-        alignItems: 'center', 
-       
+        alignItems: 'center',
     },
     itemStyle2: {
         width,
         height,
         alignItems: 'center',
         justifyContent: 'center',
-        
     },
     imageStyle: {
         width: width * 1.35,
-        height: width * 1.90,
+        height: width * 1.9,
         resizeMode: 'cover',
-       
+
         borderRadius: 10,
-        
     },
     textContainer: {
         alignItems: 'center',
@@ -493,10 +482,9 @@ const styles = StyleSheet.create({
         // marginBottom: 10,
     },
     titlestyle: {
-        ...FONTS.paragraph1, 
-        marginLeft: 10, 
+        ...FONTS.paragraph1,
+        marginLeft: 10,
         // fontSize: 12
-       
     },
     description: {
         color: '#ccc',
@@ -545,7 +533,6 @@ const styles = StyleSheet.create({
     pagination: {
         flexDirection: 'row',
         height: DOT_SIZE,
-       
     },
     paginationDot: {
         width: DOT_SIZE * 0.3,

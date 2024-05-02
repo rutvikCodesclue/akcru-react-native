@@ -107,21 +107,6 @@ const UserSearchResultScreen = () => {
                                         style={{color: COLORS.LIGHTGREY, width: '100%'}}
                                     />
                                 </View>
-
-                                <TouchableWithoutFeedback onPress={() => {}}>
-                                    <Icon
-                                        name="close-circle"
-                                        type="material-community"
-                                        size={25}
-                                        color={COLORS.DARKGREY}
-                                        style={{}}
-                                        onPress={() => {
-                                            textInputRef.current.clear();
-                                            handleSearch(textInputRef);
-                                            setTextInputFocused(true);
-                                        }}
-                                    />
-                                </TouchableWithoutFeedback>
                             </View>
                         </View>
                     </View>

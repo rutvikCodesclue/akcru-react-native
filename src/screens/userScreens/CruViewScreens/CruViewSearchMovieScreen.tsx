@@ -38,7 +38,7 @@ const CruViewSearchMovieScreen = () => {
 
   return (
     <TabContainer>
-      <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
       <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND }}>
@@ -122,7 +122,7 @@ const CruViewSearchMovieScreen = () => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
     </TabContainer>
     
   );
