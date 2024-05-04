@@ -373,7 +373,8 @@ const SkinnyPostCard = ({
                         )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
-
+                
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     {akcruBadge === 'AKCRUIT' && (
                         <View>
                             <AkcruLevels.AkcruBadgeAkcruit />
@@ -394,6 +395,7 @@ const SkinnyPostCard = ({
                             <AkcruLevels.AkcruBadgeGuardian />
                         </View>
                     )}
+                </View>
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>

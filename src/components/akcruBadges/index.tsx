@@ -1,4 +1,4 @@
-import {View, Text} from 'react-native';
+import {View, Text, Platform} from 'react-native';
 import React from 'react';
 import { FONTS, COLORS, SIZES, AKCRUBADGES } from '../../../assets/constants';
 
@@ -11,8 +11,11 @@ const AkcruBadgeGuardian = () => {
                   //   paddingHorizontal: 10,
                 //   height: 18,
                 //   justifyContent: 'center',
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                  overflow: 'hidden', 
+                  borderRadius: 5, 
+                  
               }}>
               <Text
                   style={{
@@ -35,8 +38,11 @@ const AkcruBadgeSuperHero = () => {
       <View>
           <View
               style={{
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                  
+                  overflow: 'hidden', 
+                  borderRadius: 5, 
               }}>
               <Text
                   style={{
@@ -59,8 +65,11 @@ const AkcruBadgeHero = () => {
       <View>
           <View
               style={{
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                    overflow: 'hidden', 
+                    borderRadius: 5, 
+                    
               }}>
               <Text
                   style={{
@@ -83,11 +92,13 @@ const AkcruBadgeAkcruit = () => {
       
           <View
               style={{
-                 
+               
                     marginVertical: 5,
-                    overflow: 'hidden', // Ensure content doesn't overflow the rounded corners
-                    borderRadius: 5, // Apply borderRadius to the wrapping View
-                    width: '87%',
+                    overflow: 'hidden', 
+                    borderRadius: 5, 
+                    
+                    
+                    
               }}>
               <Text
                   style={{
@@ -95,6 +106,7 @@ const AkcruBadgeAkcruit = () => {
                       color: AKCRUBADGES.Akcruit.color,
                       backgroundColor: AKCRUBADGES.Akcruit.background,
                       paddingHorizontal: 10,
+                      borderRadius: 5,
                       paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.Akcruit.label}

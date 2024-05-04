@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView, Pressable} from 'react-native';
+import {View, Text, TouchableOpacity, ScrollView, ImageBackground, Button, SafeAreaView, Pressable, Platform} from 'react-native';
 
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
@@ -339,7 +339,7 @@ const Read = () => {
                     )}
                     {/* Conditionally render "Load More" button if there are more notifications to load */}
                     {displayedNotifications.length < notifications.length && (
-                        <View style={{alignItems: 'center', marginVertical: 10}}>
+                        <View style={{alignItems: 'center', marginVertical: 10, marginBottom:Platform.OS=='ios'?50:0}}>
                             <AkcruButtons.LrgButton
                                 btnname={'Load More'}
                                 onPress={handleLoadMore}
