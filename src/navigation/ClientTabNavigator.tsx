@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {View, Text, StyleSheet, Image, Platform} from 'react-native';
 import React, {useEffect, useState, useRef} from 'react';
 
 import {Icon} from '@rneui/base';
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         padding: 0,
 
-        bottom: 10,
+        bottom: Platform.OS === 'ios' ? 50 : 10,
         height: 60,
         borderRadius: 16,
         backgroundColor: COLORS.TRANSDARKGREY,

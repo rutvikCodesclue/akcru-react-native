@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
@@ -53,7 +53,7 @@ export default StyleSheet.create({
         height: 55,
         borderRadius: 25,
         position: 'relative',
-        bottom: '20%',
+        bottom: Platform.OS === 'ios' ? '26%' : '20%',
         left: '80%',
         alignItems: 'center',
         justifyContent: 'center',

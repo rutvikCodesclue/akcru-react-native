@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Platform } from 'react-native';
 import {
     Animated,
     Dimensions,
@@ -350,26 +351,6 @@ export default function ContentSwipe({navigation, route}: Props) {
         }, []),
     );
 
-    // useFocusEffect(() => {
-    //     // Fetch movies on focus
-    //     React.useCallback(async () => {}, []);
-
-    //     const fetchMovies = async () => {
-    //         try {
-    //             console.log("Hydrating auth [content swipe]...");
-
-    //             await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-    //             console.log("accessing access token [content swipe]...", useAuthStore.getState().getSession()?.access_token);
-
-    //             const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-    //             setMovies(fetchedMovies);
-    //         } catch (error) {
-    //             console.error('Error fetching movies:', error);
-    //         }
-    //     };
-
-    //     fetchMovies();
-    // }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -381,7 +362,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                     style={{
                         position: 'absolute',
                         width: SIZES.ScreenWidth,
-                        bottom: SIZES.ScreenHeight / 1.3,
+                        bottom: Platform.OS == 'ios' ? SIZES.ScreenHeight / 1.4 :SIZES.ScreenHeight / 1.3
                     }}>
                     <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
                         <Text
@@ -390,7 +371,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
-                                marginBottom: 10,
+                
                             }}>
                             Here are our top 5 movies recommended for you today
                         </Text>

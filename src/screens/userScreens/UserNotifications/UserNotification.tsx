@@ -28,6 +28,7 @@ import Unread from '../UserNotificationTabs/Unread';
 import Read from '../UserNotificationTabs/Read';
 import LinearGradient from 'react-native-linear-gradient';
 import UserNotifications from '.';
+import styles from './styles';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
 
@@ -132,7 +133,7 @@ const UserNotification = ({route}: Props) => {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, ...styles.backbutton}}>
             <View>
                 <View>
                     <View style={{zIndex: 100}}>

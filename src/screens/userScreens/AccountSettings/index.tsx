@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform} from 'react-native';
+import {View, Text, TextInput,Modal, ImageBackground, SafeAreaView, Alert, Platform} from 'react-native';
 import React, { useState } from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -15,6 +15,8 @@ import useAuthStore from '../../../stores/auth.store';
 import {supabase} from '../../../../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import InputsLrg from '../../../components/inputLrg';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+
 
 const date = new Date('2000-01-07');
 date.setHours(0, 0, 0, 0); // Set the time to midnight
@@ -114,13 +116,15 @@ const AccountSettings = () => {
     const [showUpdateFirstNameConfirmation, setShowUpdateFirstNameConfirmation] = useState(false);
 
     const handleChangeFirstName = () => {
+        setFirstNameModalVisible(false);
+
         setShowUpdateFirstNameConfirmation(true);
     };
 
     const confirmFirstNameUpdate = async () => {
         try {
             setLoading(true);
-
+            console.log('firstname', firstName)
             // Create an object with only the `firstName` field to update
             const updatedFields = {
                 firstName: firstName,
@@ -156,6 +160,7 @@ const AccountSettings = () => {
     const [showUpdateLastNameConfirmation, setShowUpdateLastNameConfirmation] = useState(false);
 
     const handleChangeLastName = () => {
+        setLastNameModalVisible(false)
         setShowUpdateLastNameConfirmation(true);
     };
 
@@ -204,6 +209,7 @@ const AccountSettings = () => {
             Alert.alert('Invalid Phone Number', 'Phone number must have at least 10 digits.');
         } else {
             // If the phone number is valid, show the confirmation modal
+            setPhoneModalVisible(false);
             setShowUpdatePhoneConfirmation(true);
         }
     };
@@ -277,10 +283,22 @@ const AccountSettings = () => {
     }
 };
 
-const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
+const confirmIOSDate = ( selectedDate: Date) => {
+    selectedDate = date
+    if (!(selectedDate instanceof Date) || isNaN(selectedDate.getTime())) {
+        console.error('Invalid date provided:', selectedDate);
+        return;
+    }
+    
+    // Set time to midnight
     const currentDate = new Date(selectedDate);
-    currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
-    setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Convert to ISO string format with midnight time
+    const isoString = currentDate.toISOString();
+
+    // Handle any further operations (e.g., setDob, toggleDatePicker)
+    setDob(isoString);
     toggleDatePicker();
 };
 
@@ -332,11 +350,13 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
             if (password === confirmPassword) {
                 // Check if passwords match
                 setPasswordError(false);
+                setPasswordModalVisible(false);
                 setShowUpdatePasswordConfirmation(true);
             } else {
                 setPasswordError(true); // Set a password error state
             }
         } else {
+            
             setShowPasswordFormatError(true);
         }
     };
@@ -379,7 +399,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
 
     return (
         <View>
-            <ScrollView stickyHeaderIndices={[0]}>
+            <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
                 <View style={{zIndex: 20}}>
                     <Header />
                 </View>
@@ -404,7 +424,8 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                     <View>
                         <Text style={styles.inputlabel}>First name</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handleFirstNameModalOpen}>
+                            {Platform.OS === 'ios' ? (
+                            <TouchableOpacity onPress={handleFirstNameModalOpen}>
                                 <TextInput
                                     placeholder={user?.firstName}
                                     placeholderTextColor={COLORS.DARKGREY}
@@ -414,7 +435,19 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     value={firstName || ''}
                                     editable={false}
                                 />
-                            </Pressable>
+                            </TouchableOpacity>): (
+                                <TouchableOpacity onPress={handleFirstNameModalOpen}>
+                                <TextInput
+                                    placeholder={user?.firstName}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => setFirstNameModified(text)}
+                                    value={firstName || ''}
+                                    editable={false}
+                                />
+                                </TouchableOpacity>
+                            )}
                         </View>
                     </View>
                     {/* firstName Modal */}
@@ -426,19 +459,37 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                 paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                 paddingTop: 20,
                             }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    marginBottom: 20,
-                                }}>
-                                <Pressable onPress={handleChangeFirstName}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                </Pressable>
-                                <Pressable onPress={() => setFirstNameModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
-                                </Pressable>
-                            </View>
+                            
+                                {Platform.OS === 'ios' ? (
+                                    <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        marginBottom: 20,
+                                    }}>
+                                    <TouchableOpacity onPress={handleChangeFirstName}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setFirstNameModalVisible(false)}>
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
+                                    </TouchableOpacity>
+                                    </View>
+                                ) : (
+                                    <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        marginBottom: 20,
+                                    }}>
+                                    <TouchableOpacity onPress={handleChangeFirstName}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setFirstNameModalVisible(false)}>
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
+                                    </TouchableOpacity>
+                                    </View>
+                                )}
+
 
                             <Text style={styles.inputlabel}>Change Firstname</Text>
                             <View style={styles.input}>
@@ -507,7 +558,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                     <View>
                         <Text style={styles.inputlabel}>Last name</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handleLastNameModalOpen}>
+                            <TouchableOpacity onPress={handleLastNameModalOpen}>
                                 <TextInput
                                     placeholder={user?.lastName}
                                     placeholderTextColor={COLORS.DARKGREY}
@@ -517,7 +568,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     value={lastName || ''}
                                     editable={false}
                                 />
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View>
                     {/* lastName Modal */}
@@ -535,12 +586,12 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     justifyContent: 'space-between',
                                     marginBottom: 20,
                                 }}>
-                                <Pressable onPress={handleChangeLastName}>
+                                <TouchableOpacity onPress={handleChangeLastName}>
                                     <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                </Pressable>
-                                <Pressable onPress={() => setLastNameModalVisible(false)}>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setLastNameModalVisible(false)}>
                                     <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
-                                </Pressable>
+                                </TouchableOpacity>
                             </View>
 
                             <Text style={styles.inputlabel}>Change Lastname</Text>
@@ -610,7 +661,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                     {/* <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handlePhoneModalOpen}>
+                            <TouchableOpacity onPress={handlePhoneModalOpen}>
                                 <MaskedTextInput
                                     mask="1-999-999-9999"
                                     placeholder={user?.phoneNumber}
@@ -621,13 +672,13 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     value={phone || ''}
                                     editable={false}
                                 />
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View> */}
                     <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handlePhoneModalOpen}>
+                            <TouchableOpacity onPress={handlePhoneModalOpen}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{color: COLORS.DARKGREY}}>+1</Text>
                                     <TextInput
@@ -644,7 +695,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                         editable={false}
                                     />
                                 </View>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View>
 
@@ -663,12 +714,12 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     justifyContent: 'space-between',
                                     marginBottom: 20,
                                 }}>
-                                <Pressable onPress={handleChangePhone}>
+                                <TouchableOpacity onPress={handleChangePhone}>
                                     <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                </Pressable>
-                                <Pressable onPress={() => setPhoneModalVisible(false)}>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setPhoneModalVisible(false)}>
                                     <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
-                                </Pressable>
+                                </TouchableOpacity>
                             </View>
 
                             <Text style={styles.inputlabel}>Change Phonenumber</Text>
@@ -748,7 +799,8 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                     <View>
                         <Text style={styles.inputlabel}>DOB</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handleDobModalOpen}>
+                            <TouchableOpacity onPress={handleDobModalOpen}>
+                       
                                 <TextInput
                                     placeholder={user?.dateOfBirth || 'Select Date of Birth'}
                                     placeholderTextColor={COLORS.DARKGREY}
@@ -757,8 +809,8 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     onChangeText={text => setDobModified(text)}
                                     value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''}
                                     editable={false}
-                                />
-                            </Pressable>
+                              />
+                            </TouchableOpacity>
                         </View>
                     </View>
                     {/* DOB Modal */}
@@ -776,12 +828,12 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     justifyContent: 'space-between',
                                     marginBottom: 20,
                                 }}>
-                                <Pressable onPress={confirmDobUpdate}>
+                                <TouchableOpacity onPress={confirmDobUpdate}>
                                     <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                </Pressable>
-                                <Pressable onPress={() => setDobModalVisible(false)}>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setDobModalVisible(false)}>
                                     <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
-                                </Pressable>
+                                </TouchableOpacity>
                             </View>
 
                             <Text style={styles.inputlabel}>Change Date of Birth</Text>
@@ -793,7 +845,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                         mode="date"
                                         value={date}
                                         onChange={onChange}
-                                        style={styles.datepicker}
+                                        style={Platform.OS == 'ios'? styles.datepickios: styles.datepicker}
                                     />
                                 )}
 
@@ -817,7 +869,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                 )}
 
                                 {!showPicker && (
-                                    <Pressable onPress={toggleDatePicker}>
+                                    <TouchableOpacity onPress={toggleDatePicker}>
                                         <TextInput
                                             placeholder={user?.dateOfBirth || 'Select Date of Birth'} // Use placeholder instead of placeholdername
                                             style={styles.textinput}
@@ -830,7 +882,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                             editable={true}
                                             onPressIn={toggleDatePicker}
                                         />
-                                    </Pressable>
+                                    </TouchableOpacity>
                                 )}
                             </View>
                         </SafeAreaView>
@@ -839,7 +891,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                     <View>
                         <Text style={styles.inputlabel}>Change Password</Text>
                         <View style={styles.input}>
-                            <Pressable onPress={handlePasswordModalOpen}>
+                            <TouchableOpacity onPress={handlePasswordModalOpen}>
                                 <TextInput
                                     placeholder={'**********'}
                                     placeholderTextColor={COLORS.DARKGREY}
@@ -849,7 +901,7 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     value={password || ''}
                                     editable={false}
                                 />
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View>
                     {/* Password Modal */}
@@ -867,12 +919,12 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
                                     justifyContent: 'space-between',
                                     marginBottom: 20,
                                 }}>
-                                <Pressable onPress={handleChangePassword}>
+                                <TouchableOpacity onPress={handleChangePassword}>
                                     <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                </Pressable>
-                                <Pressable onPress={() => setPasswordModalVisible(false)}>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setPasswordModalVisible(false)}>
                                     <Icon name="close-circle" type="ionicon" size={25} color={COLORS.DARKAKCRUBLUE} />
-                                </Pressable>
+                                </TouchableOpacity>
                             </View>
 
                             <Text style={styles.inputlabel}>
@@ -1031,22 +1083,22 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
 
                                 paddingBottom: 5,
                             }}>
-                            <Pressable onPress={() => setPrivacySetting('Public')}>
+                            <TouchableOpacity onPress={() => setPrivacySetting('Public')}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Public</Text>
                                     {privacySetting === 'Public' && (
                                         <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
                                     )}
                                 </View>
-                            </Pressable>
-                            <Pressable onPress={() => setPrivacySetting('Followers')}>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setPrivacySetting('Followers')}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Only Followers</Text>
                                     {privacySetting === 'Followers' && (
                                         <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
                                     )}
                                 </View>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
 
                         <View
@@ -1075,22 +1127,22 @@ const confirmIOSDate = ({ type }: { type: string }, selectedDate: Date) => {
 
                                 paddingBottom: 5,
                             }}>
-                            <Pressable onPress={() => setWatchStatus('Yes')}>
+                            <TouchableOpacity onPress={() => setWatchStatus('Yes')}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Yes</Text>
                                     {watchStatus === 'Yes' && (
                                         <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
                                     )}
                                 </View>
-                            </Pressable>
-                            <Pressable onPress={() => setWatchStatus('No')}>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => setWatchStatus('No')}>
                                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                     <Text style={{...FONTS.paragraph1, paddingRight: 10}}>No</Text>
                                     {watchStatus === 'No' && (
                                         <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
                                     )}
                                 </View>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View> */}
                     {/* <View style={{alignItems: 'center', marginTop: 20}}>

@@ -185,7 +185,7 @@ export default StyleSheet.create({
     },
     backbutton: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? 40 : 0,
+        marginTop: Platform.OS === 'ios' ? '10%' : 0
     },
         
 });

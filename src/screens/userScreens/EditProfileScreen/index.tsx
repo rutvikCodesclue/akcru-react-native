@@ -367,8 +367,8 @@ export default function EditProfile({session}: {session: Session}) {
     return (
         <TabContainer>
             <View>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20, ...styles.backbutton}}>
+                <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
+                    <View style={{zIndex: 20}}>
                         <Header />
                     </View>
                     <View style={styles.container}>

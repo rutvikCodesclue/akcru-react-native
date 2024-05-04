@@ -80,11 +80,14 @@ const AkcruBadgeHero = () => {
 
 const AkcruBadgeAkcruit = () => {
   return (
-      <View>
+      
           <View
               style={{
-                  alignItems: 'flex-start',
-                  marginVertical: 5,
+                 
+                    marginVertical: 5,
+                    overflow: 'hidden', // Ensure content doesn't overflow the rounded corners
+                    borderRadius: 5, // Apply borderRadius to the wrapping View
+                    width: '87%',
               }}>
               <Text
                   style={{
@@ -92,13 +95,12 @@ const AkcruBadgeAkcruit = () => {
                       color: AKCRUBADGES.Akcruit.color,
                       backgroundColor: AKCRUBADGES.Akcruit.background,
                       paddingHorizontal: 10,
-                      borderRadius: 5,
                       paddingVertical: 2,
                   }}>
                   {AKCRUBADGES.Akcruit.label}
               </Text>
           </View>
-      </View>
+
   );
 };
 

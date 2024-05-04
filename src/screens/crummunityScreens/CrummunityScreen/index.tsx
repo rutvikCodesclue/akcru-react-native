@@ -10,6 +10,7 @@ import {
     Pressable,
     ActivityIndicator,
     Alert,
+    Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
@@ -412,6 +413,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                             margin: 10,
                                                             ...FONTS.Title2,
                                                             color: COLORS.PINK,
+                                                            marginBottom: Platform.OS === 'ios' ? 130 : 0,
                                                         }}>
                                                         Load More
                                                     </Text>
