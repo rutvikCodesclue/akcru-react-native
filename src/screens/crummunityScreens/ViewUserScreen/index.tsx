@@ -597,11 +597,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         />
                                     )}
                                 </View>
+
                                 {user?.firstName && (
                                     <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                                         {user?.firstName ? user.firstName : ''}
                                     </Text>
                                 )}
+                                <View style={{flexDirection: 'row'}}>
                                 {user?.badge === 'AKCRUIT' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeAkcruit />
@@ -622,6 +624,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         <AkcruLevels.AkcruBadgeSuperHero />
                                     </View>
                                 )}
+                            </View>
                             </View>
                             <View style={{marginHorizontal: 15, paddingTop: '2%'}}>
                                 <Text
