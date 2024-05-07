@@ -285,12 +285,12 @@ const EditCru = () => {
                                     justifyContent: 'space-between',
                                     marginBottom: 20,
                                 }}>
-                                <TouchableOpacity onPress={handleChangeCruName}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setCruNameChangeModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
-                                </TouchableOpacity>
+                                <Pressable onPress={handleChangeCruName}>
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
+                                </Pressable>
+                                <Pressable onPress={() => setCruNameChangeModalVisible(false)}>
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                </Pressable>
                             </View>
                             )
                             :(
@@ -301,10 +301,10 @@ const EditCru = () => {
                                     marginBottom: 20,
                                 }}>
                                 <Pressable onPress={handleChangeCruName}>
-                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                    <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                 </Pressable>
                                 <Pressable onPress={() => setCruNameChangeModalVisible(false)}>
-                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                    <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                 </Pressable>
                             </View>)}
 
@@ -352,9 +352,9 @@ const EditCru = () => {
                                     
                             
                                 <View style={{flexDirection: 'row', alignSelf: 'center'}}>
-                                    <TouchableOpacity
+                                    <Pressable
                                         style={{
-                                            backgroundColor: COLORS.CATREDLGT,
+                                            backgroundColor: COLORS.PURPLE,
                                             paddingHorizontal: 20,
                                             paddingVertical: 10,
                                             marginRight: 10,
@@ -362,17 +362,17 @@ const EditCru = () => {
                                         }}
                                         onPress={() => handleCancelChangeCruName}>
                                         <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
+                                    </Pressable>
+                                    <Pressable
                                         style={{
-                                            backgroundColor: 'green',
+                                            backgroundColor: COLORS.AKCRUBLUE,
                                             paddingHorizontal: 20,
                                             paddingVertical: 10,
                                             borderRadius: 5,
                                         }}
                                         onPress={ConfirmChangeCruName}>
                                         <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Confirm</Text>
-                                    </TouchableOpacity>
+                                    </Pressable>
                                 </View>
                             </View>
                         </SafeAreaView>
@@ -503,7 +503,7 @@ const EditCru = () => {
                 </Modal>
                 {/* Confirmation Modal */}
                 <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                    <SafeAreaView
+                    <View
                         style={{
                             flex: 1,
                             backgroundColor: 'rgba(0, 0, 0, 0.5)',
@@ -526,7 +526,7 @@ const EditCru = () => {
                                 {`Are you sure you want to delete "${memberToDelete?.username}" from your Cru?`}
                             </Text>
                             <View style={{flexDirection: 'row'}}>
-                                <TouchableOpacity
+                                <Pressable
                                     style={{
                                         backgroundColor: COLORS.PURPLE,
                                         paddingHorizontal: 20,
@@ -536,8 +536,8 @@ const EditCru = () => {
                                     }}
                                     onPress={() => setShowConfirmationModal(false)}>
                                     <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
+                                </Pressable>
+                                <Pressable
                                     style={{
                                         backgroundColor: COLORS.PINK,
                                         paddingHorizontal: 20,
@@ -546,10 +546,10 @@ const EditCru = () => {
                                     }}
                                     onPress={handleConfirmDelete}>
                                     <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Delete</Text>
-                                </TouchableOpacity>
+                                </Pressable>
                             </View>
                         </View>
-                    </SafeAreaView>
+                    </View>
                 </Modal>
 
                 {/* Add Member Confirmation Modal */}
@@ -573,7 +573,7 @@ const EditCru = () => {
                             <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: COLORS.CATREDLGT,
+                                        backgroundColor: COLORS.PURPLE,
                                         paddingHorizontal: 20,
                                         paddingVertical: 10,
                                         marginRight: 10,
@@ -584,7 +584,7 @@ const EditCru = () => {
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={{
-                                        backgroundColor: COLORS.GREEN,
+                                        backgroundColor: COLORS.AKCRUBLUE,
                                         paddingHorizontal: 20,
                                         paddingVertical: 10,
                                         borderRadius: 5,
