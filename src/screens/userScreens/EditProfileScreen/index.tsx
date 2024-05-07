@@ -16,7 +16,7 @@ import {
     Platform,
 
 } from 'react-native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
@@ -367,8 +367,8 @@ export default function EditProfile({session}: {session: Session}) {
     return (
         <TabContainer>
             <View>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20, ...styles.backbutton}}>
+                <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
+                    <View style={{zIndex: 20}}>
                         <Header />
                     </View>
                     <View style={styles.container}>
@@ -781,7 +781,7 @@ export default function EditProfile({session}: {session: Session}) {
                                 {filteredGenres.map((item, index) => (
                                     <View key={item.id} style={{width: '33.33%', padding: 4}}>
                                         <View style={styles.checkboxContainer}>
-                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
+                                            <TouchableHighlight onPress={() => handleCheckboxChange(item.id)}>
                                                 <View style={styles.checkbox}>
                                                     {checkedGenres[item.id] && (
                                                         <Icon
@@ -793,7 +793,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                         />
                                                     )}
                                                 </View>
-                                            </TouchableOpacity>
+                                            </TouchableHighlight>
                                             <View>
                                                 <Text style={styles.checkboxText}>{item.genre}</Text>
                                             </View>

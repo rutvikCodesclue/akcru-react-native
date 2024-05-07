@@ -192,7 +192,7 @@ const EditCru = () => {
         <TabContainer>
             <SafeAreaView>
             <ScrollView stickyHeaderIndices={[0]}>
-                <View style={styles.backbutton}>
+                <View >
                     <Header />
                     <View style={styles.container}>
                         <TouchableOpacity onPress={() => navigation.pop()}>

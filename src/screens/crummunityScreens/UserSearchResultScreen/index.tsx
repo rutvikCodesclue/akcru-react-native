@@ -66,8 +66,8 @@ const UserSearchResultScreen = () => {
     return (
         <TabContainer>
             <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={styles.backbutton}>
+               
+                    <View >
                         <Header />
                         <TouchableOpacity
                             style={{marginHorizontal: 15, marginBottom: 10}}
@@ -110,6 +110,7 @@ const UserSearchResultScreen = () => {
                             </View>
                         </View>
                     </View>
+                    <ScrollView>
                     {searchInput.length === 0 && (
                     <View style={{marginHorizontal: 15, marginBottom: '20%'}}>
                         <FlatList

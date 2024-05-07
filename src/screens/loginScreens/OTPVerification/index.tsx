@@ -117,6 +117,7 @@ const OTPVerification = ({route}) => {
                 otp: code,
                 // emailOrPhoneNumber: emailOrPhoneNumber,
             });
+            console.log(response.data)
 
             const data = response.data;
 

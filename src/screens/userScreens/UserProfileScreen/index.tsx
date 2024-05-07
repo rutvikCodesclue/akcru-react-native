@@ -409,7 +409,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 />
                                             )}
                                         </View>
-
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        
                                         {user?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
@@ -448,6 +449,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 </Text>
                                             </View>
                                         </TouchableOpacity> */}
+                                    </View>
                                     </View>
                                 </View>
 

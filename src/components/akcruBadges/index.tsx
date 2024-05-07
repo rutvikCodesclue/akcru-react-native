@@ -1,4 +1,4 @@
-import {View, Text} from 'react-native';
+import {View, Text, Platform} from 'react-native';
 import React from 'react';
 import { FONTS, COLORS, SIZES, AKCRUBADGES } from '../../../assets/constants';
 
@@ -11,8 +11,11 @@ const AkcruBadgeGuardian = () => {
                   //   paddingHorizontal: 10,
                 //   height: 18,
                 //   justifyContent: 'center',
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                  overflow: 'hidden', 
+                  borderRadius: 5, 
+                  
               }}>
               <Text
                   style={{
@@ -35,8 +38,11 @@ const AkcruBadgeSuperHero = () => {
       <View>
           <View
               style={{
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                  
+                  overflow: 'hidden', 
+                  borderRadius: 5, 
               }}>
               <Text
                   style={{
@@ -59,8 +65,11 @@ const AkcruBadgeHero = () => {
       <View>
           <View
               style={{
-                  alignItems: 'flex-start',
+                 
                   marginVertical: 5,
+                    overflow: 'hidden', 
+                    borderRadius: 5, 
+                    
               }}>
               <Text
                   style={{
@@ -80,11 +89,16 @@ const AkcruBadgeHero = () => {
 
 const AkcruBadgeAkcruit = () => {
   return (
-      <View>
+      
           <View
               style={{
-                  alignItems: 'flex-start',
-                  marginVertical: 5,
+               
+                    marginVertical: 5,
+                    overflow: 'hidden', 
+                    borderRadius: 5, 
+                    
+                    
+                    
               }}>
               <Text
                   style={{
@@ -98,7 +112,7 @@ const AkcruBadgeAkcruit = () => {
                   {AKCRUBADGES.Akcruit.label}
               </Text>
           </View>
-      </View>
+
   );
 };
 

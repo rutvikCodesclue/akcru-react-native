@@ -13,6 +13,7 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../PlayContentScreen/styles';
+import LinearGradient from 'react-native-linear-gradient';
 const SearchMovieScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ClientStackParams>>();
@@ -38,10 +39,11 @@ const SearchMovieScreen = () => {
 
   return (
     <TabContainer>
+         
         <View style={{flex: 1}}>
-          <ScrollView stickyHeaderIndices={[0]}>
-              <View>
-                  <View style={styles.backbutton}>
+
+              <View style={styles.backbutton} >
+                  <View >
                       <TouchableOpacity
                           onPress={() => navigation.pop()}
                           style={{
@@ -61,7 +63,7 @@ const SearchMovieScreen = () => {
 
                   <SearchInput />
               </View>
-              <View>
+              <View >
                   <Text
                       style={{
                           ...FONTS.Title2,
@@ -71,6 +73,8 @@ const SearchMovieScreen = () => {
                       Choose Genre
                   </Text>
               </View>
+             <ScrollView >
+
               <View style={{marginBottom: 75}}>
                   <View
                       style={{

@@ -1,4 +1,4 @@
-import {View, Text, FlatList, TouchableOpacity, Image, SafeAreaView} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, Platform} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
@@ -87,7 +87,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
 
        if (moreItemsToLoad) {
            return (
-               <View style={{marginBottom: SIZES.ScreenHeight * 0.58, alignItems: 'center', marginTop: 10}}>
+               <View style={{marginBottom:Platform.OS=='ios'?SIZES.ScreenHeight * 0.7:SIZES.ScreenHeight * 0.58, alignItems: 'center', marginTop: 10}}>
                    <AkcruButtons.XlLrgButton btnname="Load More" onPress={loadMoreMovies} color={COLORS.PURPLE} />
                </View>
            );

@@ -111,6 +111,8 @@ const UserSearchCard = ({
                           )}
                       </View>
                       <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
+                      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+
                       {akcruBadge === 'AKCRUIT' && (
                           <View>
                               <AkcruLevels.AkcruBadgeAkcruit />
@@ -131,6 +133,7 @@ const UserSearchCard = ({
                               <AkcruLevels.AkcruBadgeSuperHero />
                           </View>
                       )}
+                  </View>
                   </View>
               </View>
               <View>

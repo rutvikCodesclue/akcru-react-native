@@ -72,7 +72,8 @@ const ForgotPassword = () => {
         try {
             // Replace the following line with your API call to send OTP
             const {data, error} = await API.post('/v1/user/sendOTP', {email});
-
+            
+            console.log("Data", data, error)
             if (error) {
                 setResetResultType({
                     messageheader: 'Error',

@@ -57,4 +57,13 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         color: 'red',
     },
+    backbutton: {
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        marginTop: Platform.OS === 'ios' ? '10%' : 0
+
+    },
+    datepickios: {
+        width: 320, backgroundColor: "white"
+    },
+
 });
