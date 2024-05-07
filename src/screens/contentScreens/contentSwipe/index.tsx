@@ -364,18 +364,18 @@ export default function ContentSwipe({navigation, route}: Props) {
                         width: SIZES.ScreenWidth,
                         bottom: Platform.OS == 'ios' ? SIZES.ScreenHeight / 1.4 :SIZES.ScreenHeight / 1.3
                     }}>
-                    <TouchableOpacity onPress={() => navigation.navigate('ClientTabNavigator')} movies={movies}>
+                    <View>
                         <Text
                             style={{
                                 ...FONTS.paragraph1,
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
-                
+                                marginBottom: 10
                             }}>
                             Here are our top 5 movies recommended for you today
                         </Text>
-                    </TouchableOpacity>
+                    </View>
 
                     <Image
                         source={imageindex.AkcruHexLogo}

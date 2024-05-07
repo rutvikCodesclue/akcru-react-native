@@ -499,10 +499,10 @@ export default function EditProfile({session}: {session: Session}) {
                                             marginBottom: 20,
                                         }}>
                                         <TouchableOpacity onPress={handleChangeUsername}>
-                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => setUsernameModalVisible(false)}>
-                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                         </TouchableOpacity>
                                     </View>
                                     )
@@ -515,10 +515,10 @@ export default function EditProfile({session}: {session: Session}) {
                                     }}>
 
                                     <Pressable onPress={handleChangeUsername}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                     </Pressable>
                                     <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                 </View>
                                         )
@@ -574,24 +574,24 @@ export default function EditProfile({session}: {session: Session}) {
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                         }}>
-                                        <TouchableOpacity
+                                        <Pressable
                                             onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
                                             style={{
-                                                backgroundColor: 'red',
+                                                backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
+                                        </Pressable>
+                                        <Pressable
                                             onPress={confirmUsernameUpdate} // Confirm the update
                                             style={{
-                                                backgroundColor: 'green',
+                                                backgroundColor: COLORS.AKCRUBLUE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Update</Text>
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                                 </View>
                             </View>
@@ -652,10 +652,10 @@ export default function EditProfile({session}: {session: Session}) {
                                                 marginBottom: 20,
                                             }}>
                                             <TouchableOpacity onPress={handleChangeDescription}>
-                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN}  />
+                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE}  />
                                             </TouchableOpacity>
                                             <TouchableOpacity onPress={() => setDescriptionModalVisible(false)}>
-                                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                             </TouchableOpacity>
                                             </View>):
                                     (
@@ -666,10 +666,10 @@ export default function EditProfile({session}: {session: Session}) {
                                         marginBottom: 20,
                                     }}>
                                             <Pressable onPress={handleChangeDescription}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.GREEN} />
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
                                     </Pressable>
                                     <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.CATREDLGT} />
+                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                     </View>
                                     )
@@ -726,24 +726,24 @@ export default function EditProfile({session}: {session: Session}) {
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                         }}>
-                                        <TouchableOpacity
+                                        <Pressable
                                             onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
                                             style={{
-                                                backgroundColor: 'red',
+                                                backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
+                                        </Pressable>
+                                        <Pressable
                                             onPress={confirmDescriptionUpdate} // Confirm the update
                                             style={{
-                                                backgroundColor: 'green',
+                                                backgroundColor: COLORS.AKCRUBLUE,
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Update</Text>
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                                 </View>
                             </View>
