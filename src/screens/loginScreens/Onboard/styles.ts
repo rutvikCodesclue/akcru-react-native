@@ -118,6 +118,7 @@ export default StyleSheet.create({
     datepickios: {
         width: 320, backgroundColor: "white"
     },
+
     iosbutton: {
         height: 50,
         justifyContent: 'center',

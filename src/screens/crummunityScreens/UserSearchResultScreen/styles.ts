@@ -1,5 +1,6 @@
-import {StyleSheet, Platform} from 'react-native';
+import {StyleSheet, Platform, Dimensions} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default StyleSheet.create({
   searchinput: {
@@ -16,6 +17,5 @@ export default StyleSheet.create({
   },
   backbutton: {
     backgroundColor: COLORS.AKCRUBACKGROUND,
-    marginTop: Platform.OS === 'ios' ? SCREEN_HEIGHT : 0
   },
 });

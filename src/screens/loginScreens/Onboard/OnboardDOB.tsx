@@ -188,22 +188,35 @@ const DOBSet = async () => {
                           <Text style={{...FONTS.Title2, textAlign: 'center'}}>Enter your date of birth.</Text>
                       </View>
                       <View style={{alignItems: 'center', marginTop: 10}}>
-                          {showPicker && (
+                          {showPicker &&  Platform.OS === 'android' && (
                               <DateTimePicker
                                   display="spinner"
                                   mode="date"
                                   value={date}
                                   onChange={onChange}
-                                  style={Platform.OS == 'ios'? styles.datepickios: styles.datepicker}
+                                  style= {styles.datepicker}
+                                 
                                   
                               />
                           )}
                           {showPicker && Platform.OS === 'ios' && (
+                            <View>
+                            <DateTimePicker
+                            display="spinner"
+                            mode="date"
+                            value={date}
+                            onChange={onChange}
+                            textColor= 'white'
+                        
+                            
+                            
+                        />
                               <View
                                   style={{
                                       flexDirection: 'row',
                                       justifyContent: 'space-around',
                                   }}>
+                                    
                                   <TouchableOpacity
                                       style={[styles.iosbutton, styles.iospickerbutton]}
                                       onPress={toggleDatePicker}>
@@ -214,6 +227,7 @@ const DOBSet = async () => {
                                       onPress={confirmIOSDate}>
                                       <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Confirm</Text>
                                   </TouchableOpacity>
+                              </View>
                               </View>
                           )}
                           {!showPicker && (
