@@ -599,10 +599,17 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         if (hmsInstanceRef.current) {
             console.log('IN THE IF CONDITION');
             // end the room for every one
+           
+            try {
             await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
+            } catch (error) {
+            // Handle the error here
+            console.error('An error occurred:', error);
+            }            
             console.log('End Room Success');
             // Leave the Room
             await _handleRoomLeave();
+
         }
     };
 
@@ -2156,7 +2163,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     return isFullscreen ? (
         <View>
             {watchPartyView()}
-            {showDockerToHost ? <WatchPartyDocker members={members}></WatchPartyDocker> : null}
+            <WatchPartyDocker members={peerTrackNodes} hmsInstanceRef={hmsInstanceRef} isExpanded={expandedVideo} HMSVideoViewMode={HMSVideoViewMode} peersMuteStatus={peersMuteStatus}></WatchPartyDocker>
         </View>
     ) : (
         <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
