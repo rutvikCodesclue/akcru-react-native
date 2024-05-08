@@ -185,7 +185,7 @@ const AcceptMITScreen = ({ navigation, route }: Props) => {
                                       )
                                   ) : null} */}
                               </View>
-                              <View style={{width: SIZES.ScreenWidth / 2.5}}>
+                              <View style={{width: SIZES.ScreenWidth / 4}}>
                                   <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
                                   {akcruBadge === 'AKCRUIT' && (
                                       <View>
