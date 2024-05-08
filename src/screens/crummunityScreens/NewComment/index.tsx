@@ -84,7 +84,7 @@ const NewComment = ({navigation, route}: Props) => {
                 callbackExecuted = true;
                 //console.log('Number of images selected:', response.assets.length);
 
-                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+                const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
@@ -513,7 +513,7 @@ const NewComment = ({navigation, route}: Props) => {
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Image is too large. Please select an image under 2MB.`}
+                                        {`Image is too large. Please select an image under 5MB.`}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {

@@ -246,7 +246,7 @@ export default function EditProfile({session}: {session: Session}) {
 
                 // Check the size of the selected image
                 const imageSizeInBytes = response.assets[0].fileSize;
-                const maxSizeInBytes = 2 * 1024 * 1024; // 2 MB
+                const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
 
                 if (imageSizeInBytes > maxSizeInBytes) {
                     // Show size error modal
@@ -429,7 +429,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Image is too large. Please select an image under 2MB.`}
+                                        {`Image is too large. Please select an image under 5MB.`}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {
