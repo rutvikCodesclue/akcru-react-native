@@ -129,15 +129,87 @@ const PostScreen = ({navigation, route}: Props) => {
     //     };
     // }, [post, navigation]); // Include navigation in the dependency array
 
+    // useEffect(() => {
+    //     const fetchCommentsAndStatuses = async () => {
+    //         //console.log('Fetching comments and statuses');
+    //         if (post && post.id) {
+    //             setLoadingComments(true);
+    //             try {
+    //                 // Fetch comments
+    //                 const fetchedComments = await getPostComments(+post.id);
+    //                 //console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
+
+    //                 // Initialize sets for following and blocked user IDs
+    //                 let followingIds = new Set();
+    //                 let blockedUserIds = new Set();
+
+    //                 if (currentUserID) {
+    //                     // Fetch following status
+    //                     const followingResponse = await getUserFollowing(currentUserID);
+    //                     followingIds = new Set(followingResponse?.following.map(user => user.id));
+
+    //                     // Fetch blocked users status
+    //                     const blockedResponse = await getBlockedUsers(); // Adjust as needed
+    //                     blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+    //                 }
+    //                 // Sort comments by createdAt in descending order
+    //                 const sortedComments = fetchedComments?.comments.sort(
+    //                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    //                 );
+    //                 // Update comments with follow and block statuses
+    //                 const updatedComments = sortedComments?.comments.map(comment => ({
+    //                     ...comment,
+    //                     author: {
+    //                         ...comment.author,
+    //                         isFollowed: followingIds.has(comment.author.id),
+    //                         isBlocked: blockedUserIds.has(comment.author.id),
+    //                     },
+    //                 }));
+
+    //                 if (fetchedComments && fetchedComments.success) {
+    //                     setComments(updatedComments); // Set updated comments with follow/block statuses
+    //                 }
+    //                 setLoadingComments(false);
+    //             } catch (error) {
+    //                 console.error('Failed to fetch comments or statuses:', error);
+    //                 setError(error.message || 'Failed to fetch comments');
+    //                 setLoadingComments(false);
+    //             }
+    //         } else {
+    //             //console.log('Post or post.id is not defined');
+    //         }
+    //     };
+
+    //     const handleFocus = () => {
+    //         if (post && post.id) {
+    //             fetchCommentsAndStatuses();
+    //         }
+    //     };
+
+    //     // Add a listener for the focus event
+    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
+
+    //     // Fetch data when the component mounts or when the post object changes
+    //     fetchCommentsAndStatuses();
+
+    //     // Cleanup the listener when the component unmounts
+    //     return () => unsubscribeFocus;
+    // }, [post, navigation, currentUserID]); // Include currentUserID in the dependency array
+
     useEffect(() => {
         const fetchCommentsAndStatuses = async () => {
-            //console.log('Fetching comments and statuses');
             if (post && post.id) {
                 setLoadingComments(true);
                 try {
                     // Fetch comments
                     const fetchedComments = await getPostComments(+post.id);
-                    //console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
+
+                    if (!fetchedComments || !fetchedComments.comments) {
+                        console.error('No comments data received:', fetchedComments);
+                        setError('Failed to load comments. Please try again.');
+                        setLoadingComments(false);
+                        return;
+                    }
 
                     // Initialize sets for following and blocked user IDs
                     let followingIds = new Set();
@@ -153,8 +225,13 @@ const PostScreen = ({navigation, route}: Props) => {
                         blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
                     }
 
+                    // Sort comments by createdAt in descending order
+                    const sortedComments = fetchedComments.comments.sort(
+                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+                    );
+
                     // Update comments with follow and block statuses
-                    const updatedComments = fetchedComments?.comments.map(comment => ({
+                    const updatedComments = sortedComments.map(comment => ({
                         ...comment,
                         author: {
                             ...comment.author,
@@ -163,9 +240,7 @@ const PostScreen = ({navigation, route}: Props) => {
                         },
                     }));
 
-                    if (fetchedComments && fetchedComments.success) {
-                        setComments(updatedComments); // Set updated comments with follow/block statuses
-                    }
+                    setComments(updatedComments); // Set updated comments with follow/block statuses
                     setLoadingComments(false);
                 } catch (error) {
                     console.error('Failed to fetch comments or statuses:', error);
@@ -173,17 +248,15 @@ const PostScreen = ({navigation, route}: Props) => {
                     setLoadingComments(false);
                 }
             } else {
-                //console.log('Post or post.id is not defined');
-            }
-        };
-
-        const handleFocus = () => {
-            if (post && post.id) {
-                fetchCommentsAndStatuses();
+                console.log('Post or post.id is not defined');
             }
         };
 
         // Add a listener for the focus event
+        const handleFocus = () => {
+            fetchCommentsAndStatuses();
+        };
+
         const unsubscribeFocus = navigation.addListener('focus', handleFocus);
 
         // Fetch data when the component mounts or when the post object changes
@@ -191,7 +264,7 @@ const PostScreen = ({navigation, route}: Props) => {
 
         // Cleanup the listener when the component unmounts
         return () => unsubscribeFocus;
-    }, [post, navigation, currentUserID]); // Include currentUserID in the dependency array
+    }, [post, navigation, currentUserID]); // Include navigation and currentUserID in the dependency array
 
     const handleDeletePost = async (postId: number) => {
         try {

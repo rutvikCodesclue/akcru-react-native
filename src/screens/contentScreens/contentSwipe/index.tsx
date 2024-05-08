@@ -39,7 +39,7 @@ const LOGO_HEIGHT = 40;
 const CIRCLE_SIZE = width * 0.6;
 const DOT_SIZE = 15;
 
-type ContentSwipeNavigationProp = StackNavigationProp<ClientStackParams, 'ContentSwipe'>;
+type ContentSwipeNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentSwipe'>;
 
 type ContentSwipeRouteProp = RouteProp<NoBottomTabStackParams, 'ContentSwipe'>;
 

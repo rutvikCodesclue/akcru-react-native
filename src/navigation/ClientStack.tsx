@@ -26,7 +26,7 @@ export type ClientStackParams = {
     // SearchMovieResultScreen: any;
     SearchMovieScreen: any;
     // ContentDetailScreen: any;
-    MITDateSchedule: any;
+    // MITDateSchedule: any;
     ViewUserScreen: any;
     ViewUserDetailScreen: any;
     SendMITViewUser: any;
@@ -81,13 +81,13 @@ export function ClientStack() {
                   headerShown: false,
               })}
           /> */}
-          <ClientSearch.Screen
+          {/* <ClientSearch.Screen
               name="MITDateSchedule"
               component={MITDateSchedule}
               options={() => ({
                   headerShown: false,
               })}
-          />
+          /> */}
           <ClientSearch.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}

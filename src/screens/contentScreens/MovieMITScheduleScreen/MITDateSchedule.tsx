@@ -32,10 +32,11 @@ import AkcruButtons from '../../../components/akcruButtons';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
 import HexAvatar from '../../../components/HexAvatar';
 import { MULTISIZES } from '../../../../assets/constants/theme';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
-type MITDateScheduleNavigationProp = StackNavigationProp<ClientStackParams, 'MITDateSchedule'>;
+type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
-type MITDateScheduleRouteProp = RouteProp<ClientStackParams, 'MITDateSchedule'>;
+type MITDateScheduleRouteProp = RouteProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
 type Props = {
     navigation: MITDateScheduleNavigationProp;
