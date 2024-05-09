@@ -452,9 +452,8 @@ export default function EditProfile({session}: {session: Session}) {
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <Text style={styles.inputlabel}>Username</Text>
                             <View style={styles.input}>
-                                {
-                                    Platform.OS == 'ios' ? (
-                                        <TouchableOpacity onPress={handleUsernameModalOpen}>
+                                {Platform.OS == 'ios' ? (
+                                    <TouchableOpacity onPress={handleUsernameModalOpen}>
                                         <TextInput
                                             placeholder={user?.username}
                                             placeholderTextColor={COLORS.DARKGREY}
@@ -464,22 +463,20 @@ export default function EditProfile({session}: {session: Session}) {
                                             value={userName || ''} // Display the original value, not the modified one
                                             editable={false}
                                         />
-                                    </TouchableOpacity>):
-                                    (
-                                        <Pressable onPress={handleUsernameModalOpen}>
-                                            <TextInput
-                                                placeholder={user?.username}
-                                                placeholderTextColor={COLORS.DARKGREY}
-                                                style={styles.textinput}
-                                                secureTextEntry={false}
-                                                onChangeText={text => setModifiedUserName(text)}
-                                                value={userName || ''} // Display the original value, not the modified one
-                                                editable={false}
-                                            />
-                                        </Pressable>
-                                    )
-                                }
-                                
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Pressable onPress={handleUsernameModalOpen}>
+                                        <TextInput
+                                            placeholder={user?.username}
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={text => setModifiedUserName(text)}
+                                            value={userName || ''} // Display the original value, not the modified one
+                                            editable={false}
+                                        />
+                                    </Pressable>
+                                )}
                             </View>
                         </View>
                         {/* Username Modal */}
@@ -491,39 +488,45 @@ export default function EditProfile({session}: {session: Session}) {
                                     paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                     paddingTop: 20,
                                 }}>
-                                    {Platform.OS == 'ios' ? (
-                                        <View
+                                {Platform.OS == 'ios' ? (
+                                    <View
                                         style={{
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                             marginBottom: 20,
                                         }}>
                                         <TouchableOpacity onPress={handleChangeUsername}>
-                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
+                                            <Icon
+                                                name="checkmark-circle"
+                                                type="ionicon"
+                                                size={25}
+                                                color={COLORS.AKCRUBLUE}
+                                            />
                                         </TouchableOpacity>
                                         <TouchableOpacity onPress={() => setUsernameModalVisible(false)}>
                                             <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                         </TouchableOpacity>
                                     </View>
-                                    )
-                                        :(
-                                            <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-
-                                    <Pressable onPress={handleChangeUsername}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
-                                    </Pressable>
-                                    <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
-                                </View>
-                                        )
-                                    }
-                                
+                                ) : (
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            marginBottom: 20,
+                                        }}>
+                                        <Pressable onPress={handleChangeUsername}>
+                                            <Icon
+                                                name="checkmark-circle"
+                                                type="ionicon"
+                                                size={25}
+                                                color={COLORS.AKCRUBLUE}
+                                            />
+                                        </Pressable>
+                                        <Pressable onPress={() => setUsernameModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        </Pressable>
+                                    </View>
+                                )}
 
                                 <Text style={styles.inputlabel}>Change Username (12 character max)</Text>
                                 <View style={styles.input}>
@@ -568,31 +571,57 @@ export default function EditProfile({session}: {session: Session}) {
                                             Are you sure you want to update your Username?
                                         </Text>
                                     </View>
-
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                        }}>
-                                        <Pressable
-                                            onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                    {Platform.OS == 'ios' ? (
+                                        <View
                                             style={{
-                                                backgroundColor: COLORS.PURPLE,
-                                                padding: 10,
-                                                borderRadius: 5,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                        </Pressable>
-                                        <Pressable
-                                            onPress={confirmUsernameUpdate} // Confirm the update
+                                            <TouchableOpacity
+                                                onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                                style={{
+                                                    backgroundColor: COLORS.PURPLE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={confirmUsernameUpdate} // Confirm the update
+                                                style={{
+                                                    backgroundColor: COLORS.AKCRUBLUE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Update</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ) : (
+                                        <View
                                             style={{
-                                                backgroundColor: COLORS.AKCRUBLUE,
-                                                padding: 10,
-                                                borderRadius: 5,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
-                                        </Pressable>
-                                    </View>
+                                            <Pressable
+                                                onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                                style={{
+                                                    backgroundColor: COLORS.PURPLE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                onPress={confirmUsernameUpdate} // Confirm the update
+                                                style={{
+                                                    backgroundColor: COLORS.AKCRUBLUE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Update</Text>
+                                            </Pressable>
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         </Modal>
@@ -604,7 +633,11 @@ export default function EditProfile({session}: {session: Session}) {
                                 {Platform.OS == 'ios' ? (
                                     <TouchableOpacity onPress={handleDescriptionModalOpen}>
                                         <TextInput
-                                            placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
+                                            placeholder={
+                                                user?.description == '' || user?.description == null
+                                                    ? 'Add a bio'
+                                                    : user?.description
+                                            }
                                             placeholderTextColor={COLORS.DARKGREY}
                                             style={styles.textinput}
                                             secureTextEntry={false}
@@ -616,7 +649,11 @@ export default function EditProfile({session}: {session: Session}) {
                                 ) : (
                                     <Pressable onPress={handleDescriptionModalOpen}>
                                         <TextInput
-                                            placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
+                                            placeholder={
+                                                user?.description == '' || user?.description == null
+                                                    ? 'Add a bio'
+                                                    : user?.description
+                                            }
                                             placeholderTextColor={COLORS.DARKGREY}
                                             style={styles.textinput}
                                             secureTextEntry={false}
@@ -626,7 +663,6 @@ export default function EditProfile({session}: {session: Session}) {
                                         />
                                     </Pressable>
                                 )}
-                                
                             </View>
                         </View>
                         {/* Description Modal */}
@@ -638,49 +674,54 @@ export default function EditProfile({session}: {session: Session}) {
                                     paddingHorizontal: SIZES.ScreenWidth * 0.03,
                                     paddingTop: 20,
                                 }}>
-                                  
-
-                                            
-                                    
-                               
-                                    {
-                                        Platform.OS == 'ios' ? (
-                                            <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'space-between',
-                                                marginBottom: 20,
-                                            }}>
-                                            <TouchableOpacity onPress={handleChangeDescription}>
-                                            <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE}  />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity onPress={() => setDescriptionModalVisible(false)}>
-                                                <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                            </TouchableOpacity>
-                                            </View>):
-                                    (
-                                        <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                            <Pressable onPress={handleChangeDescription}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.AKCRUBLUE} />
-                                    </Pressable>
-                                    <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                        <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
+                                {Platform.OS == 'ios' ? (
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            marginBottom: 20,
+                                        }}>
+                                        <TouchableOpacity onPress={handleChangeDescription}>
+                                            <Icon
+                                                name="checkmark-circle"
+                                                type="ionicon"
+                                                size={25}
+                                                color={COLORS.AKCRUBLUE}
+                                            />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => setDescriptionModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        </TouchableOpacity>
                                     </View>
-                                    )
-
-                                    }
-                                    
+                                ) : (
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            marginBottom: 20,
+                                        }}>
+                                        <Pressable onPress={handleChangeDescription}>
+                                            <Icon
+                                                name="checkmark-circle"
+                                                type="ionicon"
+                                                size={25}
+                                                color={COLORS.AKCRUBLUE}
+                                            />
+                                        </Pressable>
+                                        <Pressable onPress={() => setDescriptionModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        </Pressable>
+                                    </View>
+                                )}
 
                                 <Text style={styles.inputlabel}>Change Bio (150 characters max)</Text>
                                 <View style={styles.bioinput}>
                                     <TextInput
-                                        placeholder={user?.description == '' || user?.description == null ? 'Add a bio' : user?.description}
+                                        placeholder={
+                                            user?.description == '' || user?.description == null
+                                                ? 'Add a bio'
+                                                : user?.description
+                                        }
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}
@@ -706,7 +747,6 @@ export default function EditProfile({session}: {session: Session}) {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                    
                                 }}>
                                 <View
                                     style={{
@@ -720,31 +760,57 @@ export default function EditProfile({session}: {session: Session}) {
                                             Are you sure you want to update your Bio?
                                         </Text>
                                     </View>
-
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                        }}>
-                                        <Pressable
-                                            onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                    {Platform.OS == 'ios' ? (
+                                        <View
                                             style={{
-                                                backgroundColor: COLORS.PURPLE,
-                                                padding: 10,
-                                                borderRadius: 5,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                        </Pressable>
-                                        <Pressable
-                                            onPress={confirmDescriptionUpdate} // Confirm the update
+                                            <TouchableOpacity
+                                                onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                                style={{
+                                                    backgroundColor: COLORS.PURPLE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress={confirmDescriptionUpdate} // Confirm the update
+                                                style={{
+                                                    backgroundColor: COLORS.AKCRUBLUE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Update</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    ) : (
+                                        <View
                                             style={{
-                                                backgroundColor: COLORS.AKCRUBLUE,
-                                                padding: 10,
-                                                borderRadius: 5,
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
-                                        </Pressable>
-                                    </View>
+                                            <Pressable
+                                                onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                                style={{
+                                                    backgroundColor: COLORS.PURPLE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                onPress={confirmDescriptionUpdate} // Confirm the update
+                                                style={{
+                                                    backgroundColor: COLORS.AKCRUBLUE,
+                                                    padding: 10,
+                                                    borderRadius: 5,
+                                                }}>
+                                                <Text style={{...FONTS.Title3}}>Update</Text>
+                                            </Pressable>
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                         </Modal>
