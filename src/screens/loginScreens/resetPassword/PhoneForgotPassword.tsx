@@ -57,7 +57,7 @@ const PhoneForgotPassword = () => {
         setLoading(true);
         try {
             // Replace the following line with your API call to send OTP
-            const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: "1"+phone});
+            const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: phone});
 
             if (error) {
                 setResetResultType({

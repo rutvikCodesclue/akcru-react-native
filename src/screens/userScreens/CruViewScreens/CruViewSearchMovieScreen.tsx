@@ -12,7 +12,7 @@ import { getMovieGenres } from "../../../lib/api/movies.lib";
 import { capitalizeFirstLetterOfString } from "../../../util/util";
 import { IGenreItem } from "../../../../types";
 import TabContainer from "../../../components/TabContainer/TabContainer";
-
+import styles from "./styles";
 const CruViewSearchMovieScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -38,8 +38,8 @@ const CruViewSearchMovieScreen = () => {
 
   return (
     <TabContainer>
-      <View style={{ flex: 1 }}>
-      <ScrollView stickyHeaderIndices={[0]}>
+      <View style={{ flex: 1, ...styles.backbutton }}>
+      
         <View>
           <View style={{ backgroundColor: COLORS.AKCRUBACKGROUND }}>
             <TouchableOpacity
@@ -68,6 +68,7 @@ const CruViewSearchMovieScreen = () => {
 
           <CruViewSearchInput />
         </View>
+        <ScrollView stickyHeaderIndices={[0]}>
         <View>
           <Text
             style={{
