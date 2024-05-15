@@ -12,7 +12,7 @@ type CodeInputProps = {
 const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
     const codeDigitArray = new Array(maxLength).fill(0);
 
-    const [inputFocused, setInputFocused] = useState(false)
+    const [inputFocused, setInputFocused] = useState(false);
 
     const textInputRef = useRef(null);
 
@@ -23,11 +23,11 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
     const handleOnSubmitEditing = () => {
         setInputFocused(false);
     };
-    
+
     useEffect(() => {
-        setPinReady(code.length === maxLength)
+        setPinReady(code.length === maxLength);
         return () => setPinReady(false);
-    },[code]);
+    }, [code]);
 
     const toCodeDigitInput = (value, index) => {
         const emptyInputChar = ' ';
@@ -35,9 +35,9 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
 
         const isCurrentDigit = index === code.length;
         const isLastDigit = index === maxLength - 1;
-        const isCodeFull = code.length === maxLength
+        const isCodeFull = code.length === maxLength;
 
-        const isDigitFocused = isCurrentDigit || (isLastDigit && isCodeFull)
+        const isDigitFocused = isCurrentDigit || (isLastDigit && isCodeFull);
 
         return (
             <View
@@ -55,7 +55,7 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
     };
 
     return (
-        <View style={{ alignItems: 'center'}}>
+        <View style={{alignItems: 'center'}}>
             <Pressable
                 style={{width: '80%', flexDirection: 'row', justifyContent: 'space-between'}}
                 onPress={handleOnPress}>
@@ -70,7 +70,7 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
                 onChangeText={setCode}
                 maxLength={maxLength}
                 onSubmitEditing={handleOnSubmitEditing}
-                style={{position: 'absolute', width: 1, height: 1, opacity: 0,}}
+                style={{position: 'absolute', width: 1, height: 1, opacity: 0}}
             />
         </View>
     );

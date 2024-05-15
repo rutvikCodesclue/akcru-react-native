@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from "react-native";
+import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
@@ -107,16 +107,15 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     genresContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
-        paddingHorizontal: 15, // Adjust the horizontal padding as needed
+        paddingHorizontal: 15,
     },
-    backbutton:{
+    backbutton: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? '10%' : 0
-    }
+        marginTop: Platform.OS === 'ios' ? '10%' : 0,
+    },
 });

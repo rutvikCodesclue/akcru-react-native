@@ -1,7 +1,6 @@
 import {View, FlatList, Text} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import MITHubCard from './MITHubCard';
-import {JENNY_INVITES} from '../../../assets/constants/Mockusers';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -9,7 +8,6 @@ import {getMyMITInvites, getMyMITs} from '../../lib/api/mit.lib';
 import {ICruInvite, IMITInvite} from '../../../types';
 import MITInviteHubCard from './MITInviteHubCard';
 import {FONTS} from '../../../assets/constants/theme';
-import CruInviteCard from '../CruInviteCard';
 import {getCRUInvites} from '../../lib/api/cru.lib';
 
 const MITHubList = () => {
@@ -21,33 +19,24 @@ const MITHubList = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getMyMITs().then(res => {
                 if (res) {
                     setCurrentMITS(res);
                 }
             });
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-            };
+            return () => {};
         }, []),
     );
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            // console.log('User Profile Cru Invite Tab focused');
             getCRUInvites({pending: true}).then(invites => {
-                // console.log("cru invites: ", JSON.stringify(invites, null, 3));
                 setInvites(invites);
 
-                // get the MITS for the user and merge
                 getMyMITInvites({pending: true}).then(mitInvites => {
-                    // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
-
                     if (mitInvites) {
                         setInvites(prevInvites => [...prevInvites, ...mitInvites]);
-                        // sort invites by date (newest to oldest) and set state
+
                         setInvites(prevInvites =>
                             prevInvites.sort((a, b) => {
                                 if (a.createdAt < b.createdAt) {
@@ -65,10 +54,7 @@ const MITHubList = () => {
                 });
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // console.log('User Profile Cru Invite Tab unfocused');
-            };
+            return () => {};
         }, []),
     );
 
@@ -82,30 +68,32 @@ const MITHubList = () => {
                             invites.map(item => {
                                 if (item instanceof Object && 'cru' in item) {
                                 } else {
-                                    // FIXME: implement MIT invite card
                                     return (
                                         <View key={item.id} style={{marginHorizontal: 15, marginBottom: 10}}>
                                             <MITInviteHubCard
                                                 MITInviteID={item.id}
                                                 movie={item.movie}
                                                 creator={item.creator}
-                                                // inviteeName={`${item.creator.firstName} ${item.creator.lastName}`}
-                                                // inviteePicture={item.creator.profilePicture ?? undefined}
                                                 inviteDate={item.createdAt}
                                                 akcruBadge={item.invitee.badge}
-                                                onPress={() => navigation.navigate('ChooseMITScreen', {
-                                                    MITID: item.id,
-                                                    movie: item.movie,
-                                                    creator: item.creator,
-                                                    inviteDate: item.createdAt,
-                                                    akcruBadge: item.invitee.badge,
-                                                })} scheduleDate={''} scheduleTime={''} timezone={''}                                            />
+                                                onPress={() =>
+                                                    navigation.navigate('ChooseMITScreen', {
+                                                        MITID: item.id,
+                                                        movie: item.movie,
+                                                        creator: item.creator,
+                                                        inviteDate: item.createdAt,
+                                                        akcruBadge: item.invitee.badge,
+                                                    })
+                                                }
+                                                scheduleDate={''}
+                                                scheduleTime={''}
+                                                timezone={''}
+                                            />
                                         </View>
                                     );
                                 }
                             })
                         ) : (
-                            // FIXME: implement no invites empty state
                             <Text style={{...FONTS.Title1, textAlign: 'center'}}>No Invites</Text>
                         )}
                     </View>
@@ -115,8 +103,8 @@ const MITHubList = () => {
                 data={currentMITS}
                 horizontal={false}
                 scrollEnabled={false}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({item, index}) => (
+                keyExtractor={(_, index) => index.toString()}
+                renderItem={({item}) => (
                     <View style={{marginVertical: 5, marginHorizontal: 15}}>
                         <MITHubCard
                             inviteeName={
@@ -128,12 +116,7 @@ const MITHubList = () => {
                             scheduleDate={item.startDate}
                             scheduleTime={item.startDate}
                             timezone={item.timezone}
-                            onPressIn={() =>
-                                navigation.navigate('ViewUserScreen', {
-                                    userID: item.inviteeId,
-                                })
-                            }
-                            // influencer={item.influencer}
+                            onPressIn={() => navigation.navigate('ViewUserScreen', {userID: item.inviteeId})}
                             akcruBadge={item.invitee.badge}
                         />
                     </View>

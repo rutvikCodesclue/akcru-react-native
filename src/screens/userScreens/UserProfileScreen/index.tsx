@@ -1,14 +1,5 @@
 import * as React from 'react';
-import {
-    View,
-    useWindowDimensions,
-    Text,
-    ImageBackground,
-    TouchableOpacity,
-    Image,
-    SafeAreaView,
-    Modal,
-} from 'react-native';
+import {View, useWindowDimensions, Text, TouchableOpacity, Image, SafeAreaView, Modal} from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import {
     UserProfileCruInvites,
@@ -16,9 +7,8 @@ import {
     UserProfileDetailsTab,
     UserProfileWalletTab,
 } from '../UserProfileTabs';
-import {SIZES, COLORS, FONTS, AKCRUBADGES} from '../../../../assets/constants';
+import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
-import {Avatar, Icon} from '@rneui/themed';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import imageindex from '../../../../assets/images/imageindex';
@@ -31,9 +21,8 @@ import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {API} from '../../../clients/api.client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import useAuthStore from '../../../stores/auth.store';
 import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, ICruView, IMITInvite, IUserProfile} from '../../../../types';
@@ -42,7 +31,7 @@ import {getCRUInvites, getMyCRUViews} from '../../../lib/api/cru.lib';
 import {isAfter, isBefore} from 'date-fns';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
+import {getFollowers} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -84,17 +73,16 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [showMITEntryErr, setshowMITEntryErr] = useState(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-    // Add a state to keep track of the invite count
+
     const [inviteCount, setInviteCount] = React.useState<number>(0);
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
 
     useFocusEffect(
         React.useCallback(() => {
             getRoomLimitRouteParam();
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
+
             hydrateUser();
             return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 hydrateUser();
             };
         }, []),
@@ -110,18 +98,10 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            // console.log('User Profile Cru Invite Tab focused');
-
-            // Get the MITS for the user
             getMyMITInvites({pending: true}).then(mitInvites => {
-                // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
-
                 if (mitInvites) {
-                    // Count the number of MIT invites
                     const mitInviteCount = mitInvites.length;
 
-                    // sort invites by date (newest to oldest) and set state
                     setInvites(
                         mitInvites.sort((a, b) => {
                             if (a.createdAt < b.createdAt) {
@@ -135,61 +115,46 @@ export default function UserProfileScreen({navigation, route}: Props) {
                     );
 
                     setIsLoaded(true);
-                    // Call setInviteCount with the total count of MIT invites
+
                     setInviteCount(mitInviteCount);
                 } else {
-                    // If there are no MIT invites, set the count to 0
                     setIsLoaded(true);
                     setInviteCount(0);
                 }
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // console.log('User Profile Cru Invite Tab unfocused');
-            };
+            return () => {};
         }, []),
     );
 
     React.useEffect(() => {
-        // When the invites change, update the invite count
         setInviteCount(invites.length);
     }, [invites]);
 
-    // Define your state variable to hold the count of pending CRU invites
     const [pendingCRUInviteCount, setPendingCRUInviteCount] = useState(0);
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getCRUInvites({pending: true}).then(cruInvites => {
-                // Check if cruInvites is not null or undefined
                 if (cruInvites) {
-                    // Filter the cruInvites to keep only the pending ones
                     const pendingCRUInvites = cruInvites.filter(
                         (invite: {status: string}) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
                     );
 
-                    // Set the filtered pending CRU invites to your state variable
                     setPendingCRUInviteCount(pendingCRUInvites.length);
 
-                    // Set any other state or perform additional actions if necessary
                     setIsLoaded(true);
                 }
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // You can perform cleanup or reset state if needed when the screen is unfocused
-            };
+            return () => {};
         }, []),
     );
 
-    const [eventCount, setEventCount] = useState(0); // Initialize the event count state
+    const [eventCount, setEventCount] = useState(0);
 
     useFocusEffect(
         React.useCallback(() => {
-            // get CRUViews and MITs and merge them
             const fetchMyEvents = async () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true});
@@ -197,10 +162,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
                     if (myCRUViews && myMITs) {
                         let events = [...myCRUViews, ...myMITs];
-                        // Set the event count state
+
                         setEventCount(events.length);
 
-                        // sort invites by date (newest to oldest) and set state
                         setMyEvents(
                             events.sort((a, b) => {
                                 let date1 = new Date(a.startDate);
@@ -224,8 +188,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
         }, []),
     );
 
-    const datesIndicatorCount = eventCount; // Replace this with your actual count
-    const cruInvitesIndicatorCount = pendingCRUInviteCount; // Replace this with your actual count
+    const datesIndicatorCount = eventCount;
+    const cruInvitesIndicatorCount = pendingCRUInviteCount;
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -304,7 +268,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
 
-    // Fetch followers data when the screen comes into focus
     useFocusEffect(
         React.useCallback(() => {
             const fetchData = async () => {
@@ -312,26 +275,20 @@ export default function UserProfileScreen({navigation, route}: Props) {
                     try {
                         const result = await getFollowers(user.id);
                         if (result && result.followers && Array.isArray(result.followers)) {
-                            setFollowersData(result.followers); // Set the 'following' array as your data
+                            setFollowersData(result.followers);
                         }
                     } catch (error) {
                         console.error('Error fetching followers:', error);
-                        // Optionally, handle the error by showing a message to the user or taking other actions
                     }
                 }
             };
 
             fetchData();
 
-            // Optional: Return a cleanup function if needed
-            return () => {
-                // For example: reset followers data
-                // setFollowersData([]);
-            };
-        }, [user?.id]), // Only re-run the effect if user.id changes
+            return () => {};
+        }, [user?.id]),
     );
 
-    // const followersCount = followersData.length;
     const followersCount = formatNumber(followersData.length);
 
     //console.log('User Id:', user?.id);
@@ -341,15 +298,11 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <View style={{flex: 1}}>
                 <SafeAreaView style={{flex: 1}}>
                     <View>
-                        <View
-                            // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                            // resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 2.9}}>
+                        <View style={{height: SIZES.ScreenHeight / 2.9}}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
                             <LinearGradient
-                                // Background Linear Gradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
@@ -410,28 +363,27 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             )}
                                         </View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        
-                                        {user?.badge === 'AKCRUIT' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeAkcruit />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'GUARDIAN' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeGuardian />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'HERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeHero />
-                                            </View>
-                                        )}
-                                        {user?.badge === 'SUPERHERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeSuperHero />
-                                            </View>
-                                        )}
-                                        {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
+                                            {user?.badge === 'AKCRUIT' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                                </View>
+                                            )}
+                                            {user?.badge === 'GUARDIAN' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeGuardian />
+                                                </View>
+                                            )}
+                                            {user?.badge === 'HERO' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeHero />
+                                                </View>
+                                            )}
+                                            {user?.badge === 'SUPERHERO' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                                </View>
+                                            )}
+                                            {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
                                             <View style={{flexDirection: 'row'}}>
                                                 <Icon
                                                     name="square-edit-outline"
@@ -449,16 +401,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 </Text>
                                             </View>
                                         </TouchableOpacity> */}
-                                    </View>
+                                        </View>
                                     </View>
                                 </View>
 
                                 <View
                                     style={{
-                                        // borderLeftWidth: 2,
-                                        // borderRightWidth: 2,
-                                        // borderColor: COLORS.TRANSPURPLE,
-
                                         marginTop: '2%',
                                         justifyContent: 'center',
 
@@ -506,7 +454,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             btnname="Contacts"
                                             onPress={() => navigation.navigate('ContactList')}
                                             color={COLORS.PURPLE}
-                                            disabled={false}                   
+                                            disabled={false}
                                         />
                                     </View> */}
                                     <View style={{marginTop: '30%'}}>
@@ -562,7 +510,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     marginBottom: 10,
                                     textAlign: 'center',
                                 }}>
-                                {`Your party room time limit is over, I hope you enjoy your movie.`}
+                                {'Your party room time limit is over, I hope you enjoy your movie.'}
                             </Text>
                             <TouchableOpacity
                                 onPress={() => {
@@ -575,7 +523,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         textAlign: 'center',
                                         color: COLORS.MIDORANGE,
                                     }}>
-                                    {`Close`}
+                                    {'Close'}
                                 </Text>
                             </TouchableOpacity>
                         </View>

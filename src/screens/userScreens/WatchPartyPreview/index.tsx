@@ -1,43 +1,40 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  TouchableOpacity,
-  Image,
-  Pressable,
-  Platform,
-} from "react-native";
-import React, { useRef } from "react";
-import Header from "../../../components/header";
-import { SIZES, FONTS, COLORS } from "../../../../assets/constants";
-import LinearGradient from "react-native-linear-gradient";
-import { Icon } from "@rneui/base";
-import { RouteProp, useFocusEffect } from "@react-navigation/native";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import { useState, useEffect } from "react";
+import {StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image, Pressable, Platform} from 'react-native';
+import React, {useRef} from 'react';
+import Header from '../../../components/header';
+import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
+import LinearGradient from 'react-native-linear-gradient';
+import {Icon} from '@rneui/base';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {useState, useEffect} from 'react';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import { StackNavigationProp } from "@react-navigation/stack";
-import { findMovieById } from "../../../lib/api/movies.lib";
-import { IMovie, IUserProfile } from "../../../../types";
-import { formatMovieDuration } from "../../../util/util";
-import { joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom } from "../../../lib/api/rooms.lib";
-import { HMSConfig, HMSException, HMSRoom, HMSSDK, HMSTrack, HMSTrackSource, HMSTrackType, HMSUpdateListenerActions, HMSVideoViewMode } from "@100mslive/react-native-hms";
-import useAuthStore from "../../../stores/auth.store";
+import {StackNavigationProp} from '@react-navigation/stack';
+import {findMovieById} from '../../../lib/api/movies.lib';
+import {IMovie, IUserProfile} from '../../../../types';
+import {formatMovieDuration} from '../../../util/util';
+import {joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom} from '../../../lib/api/rooms.lib';
+import {
+    HMSConfig,
+    HMSException,
+    HMSRoom,
+    HMSSDK,
+    HMSTrack,
+    HMSTrackSource,
+    HMSTrackType,
+    HMSUpdateListenerActions,
+    HMSVideoViewMode,
+} from '@100mslive/react-native-hms';
+import useAuthStore from '../../../stores/auth.store';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
-import AkcruButtons from "../../../components/akcruButtons";
-import { NoBottomTabStackParams } from "../../../navigation/NoBottomTabStack";
-import { checkRoomTime } from "../../../util/checkRoomTime";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ROOM_VALIDATION_CHECK_TIME } from "../../../util/config";
-
+import AkcruButtons from '../../../components/akcruButtons';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {checkRoomTime} from '../../../util/checkRoomTime';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 
 type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
 
-type RoomPreviewRouteProp = RouteProp<
-  UserProfileStackParams,
-  "WatchPartyPreview"
->;
+type RoomPreviewRouteProp = RouteProp<UserProfileStackParams, 'WatchPartyPreview'>;
 
 type Props = {
     navigation: RoomPreviewNavigationProp;
@@ -51,484 +48,429 @@ type Props = {
     movieTime?: any;
     timezone?: any;
     type: 'MITInvite' | 'CRUView';
-    creator: any,
-    invitee: any,
-    cru: any
+    creator: any;
+    invitee: any;
+    cru: any;
 };
 
-const WatchPartyPreview = ({ navigation, route }: Props) => {
-  const inviteId = route.params?.id;
-  const creator: IUserProfile | null = route.params?.creator ?? null;
-  const invitee: IUserProfile | null = route.params?.invitee ?? null;
-  const cruId = route.params?.cruId;
-  const cru = route.params?.cru;
-  
-  const userId = route.params?.userId;
-  const isHost = route.params?.isHost;
-  const type = route.params?.type;
-  const movieId = route.params?.movieId;
-  const movieTime = route.params?.scheduleTime;
-  const timezone = route.params?.timezone;
-  const [movie, setMovie] = useState<IMovie | null>(null);
-  const [cameraPermission, setCameraPermission] = useState<boolean>(false);
-  const [micPermission, setMicPermission] = useState<boolean>(false);
-  const [isMicOn, setIsMicOn] = useState(false);
-  const [isUserVideoOn, setIsUserVideoOn] = useState(true);
-  const [canJoinRoom, setCanJoinRoom] = useState(false);
-  const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
-  const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
-  const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
-  const [Timezone,] = useState<string>(timezone);
-  const [Movietime] = useState<string>(movieTime);
-  const { user } = useAuthStore()
-  const hmsInstanceRef = useRef<HMSSDK | null>(null);
+const WatchPartyPreview = ({navigation, route}: Props) => {
+    const inviteId = route.params?.id;
+    const creator: IUserProfile | null = route.params?.creator ?? null;
+    const invitee: IUserProfile | null = route.params?.invitee ?? null;
+    const cruId = route.params?.cruId;
+    const cru = route.params?.cru;
 
-  useEffect(() => {
+    const userId = route.params?.userId;
+    const isHost = route.params?.isHost;
+    const type = route.params?.type;
+    const movieId = route.params?.movieId;
+    const movieTime = route.params?.scheduleTime;
+    const timezone = route.params?.timezone;
+    const [movie, setMovie] = useState<IMovie | null>(null);
+    const [cameraPermission, setCameraPermission] = useState<boolean>(false);
+    const [micPermission, setMicPermission] = useState<boolean>(false);
+    const [isMicOn, setIsMicOn] = useState(false);
+    const [isUserVideoOn, setIsUserVideoOn] = useState(true);
+    const [canJoinRoom, setCanJoinRoom] = useState(false);
+    const [roomIdFrom100ms, setRoomIdFrom100ms] = useState<string | null>(null);
+    const [previewVideoTrack, setPreviewVideoTrack] = useState<HMSTrack | undefined>(undefined);
+    const [roomAuthToken, setAuthRoomToken] = useState<string | null>(null);
+    const [Timezone] = useState<string>(timezone);
+    const [Movietime] = useState<string>(movieTime);
+    const {user} = useAuthStore();
+    const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
-    RestrictPartyRoom();
-    // load the movie
-    findMovieById(movieId).then((res) => {
-      if (res) {
-        setMovie(res);
-      } 
-    })
-  }, []);
-
-  const RestrictPartyRoom = () => {
-    const room_time_limit = checkRoomTime(Timezone, Movietime)
-    if (room_time_limit) {
-      AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
-      navigation.navigate('UserProfileScreen');
-
-  } else {
-      setTimeout(() => {
+    useEffect(() => {
         RestrictPartyRoom();
-      }, Number(ROOM_VALIDATION_CHECK_TIME));
-  }
-  }
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-      console.log('Screen focused [WatchPartyPreviewScreen]');
-      console.log("Starting room preview...");
-      _startRoomPreview()
+        findMovieById(movieId).then(res => {
+            if (res) {
+                setMovie(res);
+            }
+        });
+    }, []);
 
-      return () => {
-        // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-        console.log('Screen unfocused [WatchPartyPreviewScreen]');
-        console.log("Leaving room preview...");
-      
-      // cleanup (if app crashes or user leaves the screen unexpectedly)
-      if (hmsInstanceRef.current) {
-        _handleRoomLeave()
-      }
-      };
-    }, [])
-  );
-
-  const _checkPermissions = async () => {
-    //check permissions for camera and microphone on android
-    if (Platform.OS === 'android') {
-      // Request microphone permission
-      check(PERMISSIONS.ANDROID.RECORD_AUDIO)
-      .then(audioResult => {
-          if (audioResult === RESULTS.GRANTED) {
-              // Microphone permission granted
-              console.log('Microphone permission granted');
-          }
-      })
-      .catch(audioError => {
-          // Handle microphone permission request error
-          console.log('Microphone permission request error:', audioError);
-      });
-
-      // Request camera permission
-      check(PERMISSIONS.ANDROID.CAMERA)
-      .then(cameraResult => {
-          if (cameraResult === RESULTS.GRANTED) {
-              // Camera permission granted
-              console.log('Camera permission granted');
-          }
-      })
-      .catch(cameraError => {
-          // Handle camera permission request error
-          console.log('Camera permission request error:', cameraError);
-      });
-    }
-    // check permissions for camera and microphone on iOS
-    if (Platform.OS === 'ios') {
-      check(PERMISSIONS.IOS.CAMERA)
-      .then((result) => {
-        switch (result) {
-          case RESULTS.UNAVAILABLE:
-            console.log('The camera is not available (on this device / in this context)');
-            break;
-          case RESULTS.DENIED:
-            console.log('The camera permission has not been requested / is denied but requestable');
-            request(PERMISSIONS.IOS.CAMERA).then((result) => {
-              // …
-              console.log("Requested camera permission", result);
-              if (result === RESULTS.GRANTED) {
-                setCameraPermission(true);
-              }
-            });
-            break;
-          case RESULTS.LIMITED:
-            console.log('The camera permission is limited: some actions are possible');
-            break;
-          case RESULTS.GRANTED:
-            console.log('The camera permission is granted', result);
-            setCameraPermission(true);
-            break;
-          case RESULTS.BLOCKED:
-            console.log('The camera permission is denied and not requestable anymore');
-            break;
+    const RestrictPartyRoom = () => {
+        const room_time_limit = checkRoomTime(Timezone, Movietime);
+        if (room_time_limit) {
+            AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
+            navigation.navigate('UserProfileScreen');
+        } else {
+            setTimeout(() => {
+                RestrictPartyRoom();
+            }, Number(ROOM_VALIDATION_CHECK_TIME));
         }
-      })
-      .catch((error) => {
-        // display some error message for the user
-      });
-      
-      check(PERMISSIONS.IOS.MICROPHONE)
-      .then((result) => {
-        switch (result) {
-          case RESULTS.UNAVAILABLE:
-            console.log('The microphone is not available (on this device / in this context)');
-            break;
-          case RESULTS.DENIED:
-            console.log('The microphone permission has not been requested / is denied but requestable');
-            request(PERMISSIONS.IOS.MICROPHONE).then((result) => {
-              // …
-              console.log("Requested microphone permission");
-              if (result === RESULTS.GRANTED) {
-                setMicPermission(true);
-              }
-            });
-            break;
-          case RESULTS.LIMITED:
-            console.log('The microphone permission is limited: some actions are possible');
-            break;
-          case RESULTS.GRANTED:
-            console.log('The microphone permission is granted');
-            setMicPermission(true);
-            break;
-          case RESULTS.BLOCKED:
-            console.log('The microphone permission is denied and not requestable anymore');
-            break;
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log('Screen focused [WatchPartyPreviewScreen]');
+            console.log('Starting room preview...');
+            _startRoomPreview();
+
+            return () => {
+                console.log('Screen unfocused [WatchPartyPreviewScreen]');
+                console.log('Leaving room preview...');
+
+                if (hmsInstanceRef.current) {
+                    _handleRoomLeave();
+                }
+            };
+        }, []),
+    );
+
+    const _checkPermissions = async () => {
+        //check permissions for camera and microphone on android
+        if (Platform.OS === 'android') {
+            check(PERMISSIONS.ANDROID.RECORD_AUDIO)
+                .then(audioResult => {
+                    if (audioResult === RESULTS.GRANTED) {
+                        console.log('Microphone permission granted');
+                    }
+                })
+                .catch(audioError => {
+                    console.log('Microphone permission request error:', audioError);
+                });
+
+            check(PERMISSIONS.ANDROID.CAMERA)
+                .then(cameraResult => {
+                    if (cameraResult === RESULTS.GRANTED) {
+                        console.log('Camera permission granted');
+                    }
+                })
+                .catch(cameraError => {
+                    console.log('Camera permission request error:', cameraError);
+                });
         }
-      })
-      .catch((error) => {
-        // display some error message for the user
-      });
-    }
-  }
 
-  const __onError = (error: HMSException) => {
-    console.log("Error previewing room", error);
-  }
-  const __onPreview = (data: { room: HMSRoom, previewTracks: HMSTrack[] }) => {
-    // console.log("Previewing room..."); // FIXME: remove this
-    // console.log("Room", data.room); // FIXME: remove this
-    setRoomIdFrom100ms(data.room.id)
-    // console.log("Preview Tracks", data.previewTracks); // FIXME: remove this
-    
-    // Get Local Audio Track from preview tracks (we don't need this for preview)
-    // const regularAudioTrack = data.previewTracks.find((previewTrack) => {
-    //   return (
-    //       previewTrack.source === HMSTrackSource.REGULAR && previewTrack.type === HMSTrackType.AUDIO
-    //   );
-    // });
+        if (Platform.OS === 'ios') {
+            check(PERMISSIONS.IOS.CAMERA)
+                .then(result => {
+                    switch (result) {
+                        case RESULTS.UNAVAILABLE:
+                            console.log('The camera is not available (on this device / in this context)');
+                            break;
+                        case RESULTS.DENIED:
+                            console.log('The camera permission has not been requested / is denied but requestable');
+                            request(PERMISSIONS.IOS.CAMERA).then(result => {
+                                console.log('Requested camera permission', result);
+                                if (result === RESULTS.GRANTED) {
+                                    setCameraPermission(true);
+                                }
+                            });
+                            break;
+                        case RESULTS.LIMITED:
+                            console.log('The camera permission is limited: some actions are possible');
+                            break;
+                        case RESULTS.GRANTED:
+                            console.log('The camera permission is granted', result);
+                            setCameraPermission(true);
+                            break;
+                        case RESULTS.BLOCKED:
+                            console.log('The camera permission is denied and not requestable anymore');
+                            break;
+                    }
+                })
+                .catch(error => {});
 
-    // Get Local Video Track from preview tracks
-    const regularVideoTrack = data.previewTracks.find((previewTrack) => {
-      return (
-          previewTrack.source === HMSTrackSource.REGULAR && previewTrack.type === HMSTrackType.VIDEO
-      );
-    });
+            check(PERMISSIONS.IOS.MICROPHONE)
+                .then(result => {
+                    switch (result) {
+                        case RESULTS.UNAVAILABLE:
+                            console.log('The microphone is not available (on this device / in this context)');
+                            break;
+                        case RESULTS.DENIED:
+                            console.log('The microphone permission has not been requested / is denied but requestable');
+                            request(PERMISSIONS.IOS.MICROPHONE).then(result => {
+                                console.log('Requested microphone permission');
+                                if (result === RESULTS.GRANTED) {
+                                    setMicPermission(true);
+                                }
+                            });
+                            break;
+                        case RESULTS.LIMITED:
+                            console.log('The microphone permission is limited: some actions are possible');
+                            break;
+                        case RESULTS.GRANTED:
+                            console.log('The microphone permission is granted');
+                            setMicPermission(true);
+                            break;
+                        case RESULTS.BLOCKED:
+                            console.log('The microphone permission is denied and not requestable anymore');
+                            break;
+                    }
+                })
+                .catch(error => {});
+        }
+    };
 
-    setPreviewVideoTrack(regularVideoTrack)
+    const __onError = (error: HMSException) => {
+        console.log('Error previewing room', error);
+    };
+    const __onPreview = (data: {room: HMSRoom; previewTracks: HMSTrack[]}) => {
+        setRoomIdFrom100ms(data.room.id);
 
-    // preview is successful, re-enable Join Room button
-    setCanJoinRoom(true)
-  }
+        const regularVideoTrack = data.previewTracks.find(previewTrack => {
+            return previewTrack.source === HMSTrackSource.REGULAR && previewTrack.type === HMSTrackType.VIDEO;
+        });
 
-  const _startRoomPreview = async () => {
-    const hmsInstance = await HMSSDK.build();
-    // set the hmsInstanceRef
-    hmsInstanceRef.current = hmsInstance;
+        setPreviewVideoTrack(regularVideoTrack);
 
-    console.log("Joining room preview [WatchPartyPreviewScreen]...");
+        setCanJoinRoom(true);
+    };
 
-    // call join the room API endpoint to get the room Token
-    let authTokenForRoom;
-    if (isHost) {
-      if (type === 'CRUView') {
-        authTokenForRoom = await joinMyRoom()
-        setAuthRoomToken(authTokenForRoom)
-        console.log("Generating auth token for room as HOST... [CRUView]");
-      } else if (type === 'MITInvite') {
-        console.log("Generating auth token for room as HOST... [MITInvite]");
-        authTokenForRoom = await joinMyMITRoom()
-        setAuthRoomToken(authTokenForRoom)
-      }
-    } else {
-      if (type === 'CRUView') {
-        authTokenForRoom = await joinARoom(cruId)
-        setAuthRoomToken(authTokenForRoom)
-        console.log("Generating auth token for room as MEMBER... [CRUView]");
-      } else if (type === 'MITInvite') {
-        console.log("Generating auth token for room as MEMBER... [MITInvite]");
-        authTokenForRoom = await joinMITRoom(inviteId)
-        setAuthRoomToken(authTokenForRoom)
-      }
-    }
+    const _startRoomPreview = async () => {
+        const hmsInstance = await HMSSDK.build();
 
-    // check permissions for microphone and camera (iOS/Android)
-    await _checkPermissions()
+        hmsInstanceRef.current = hmsInstance;
 
-    // if (cameraPermission && micPermission && hmsInstance) { // TODO: make sure camera and mic permissions are granted
-    if (hmsInstance && authTokenForRoom) {
-      console.log("Registering Room Preview Event Listeners [WatchPartyPreviewScreen]...");
-      
-      // 1. add Event Listeners to subscribe to Join Success or Failure updates
-      hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onError); 
-      hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PREVIEW, __onPreview);
+        console.log('Joining room preview [WatchPartyPreviewScreen]...');
 
-      // 2. create an object of HMSConfig class using the available joining configurations.
-      let config = new HMSConfig({
-        authToken: authTokenForRoom, // client-side token generated from `getAuthTokenByRoomCode` method
-        username: user?.username ?? "Anonymous", // username of the user joining the room
-      });
+        let authTokenForRoom;
+        if (isHost) {
+            if (type === 'CRUView') {
+                authTokenForRoom = await joinMyRoom();
+                setAuthRoomToken(authTokenForRoom);
+                console.log('Generating auth token for room as HOST... [CRUView]');
+            } else if (type === 'MITInvite') {
+                console.log('Generating auth token for room as HOST... [MITInvite]');
+                authTokenForRoom = await joinMyMITRoom();
+                setAuthRoomToken(authTokenForRoom);
+            }
+        } else {
+            if (type === 'CRUView') {
+                authTokenForRoom = await joinARoom(cruId);
+                setAuthRoomToken(authTokenForRoom);
+                console.log('Generating auth token for room as MEMBER... [CRUView]');
+            } else if (type === 'MITInvite') {
+                console.log('Generating auth token for room as MEMBER... [MITInvite]');
+                authTokenForRoom = await joinMITRoom(inviteId);
+                setAuthRoomToken(authTokenForRoom);
+            }
+        }
 
-      // 3. call the preview method to join the room
-      // starting room preview
-      hmsInstance.preview(config)
-  
-      
-    } else {
-      // TODO: handle permissions not granted
-      console.error("=== Permissions not granted or no hmsInstance ===");
-      
-    }
-  }
+        await _checkPermissions();
 
-  const _handleJoinRoom = async () => {
-    // navigate to room and pass in the room auth token and current camera/mic settings
-    if (roomIdFrom100ms && roomAuthToken) {
-      // leave the room preview (cleanup 100ms resources)
-      const leaveRoomSuccessful = await _handleRoomLeave()
+        if (hmsInstance && authTokenForRoom) {
+            console.log('Registering Room Preview Event Listeners [WatchPartyPreviewScreen]...');
 
-      if (leaveRoomSuccessful) {
-        // navigate to the room
-        navigation.navigate("StartWatchPartyView", {
-          type,
-          movieId,
-          roomId: roomIdFrom100ms,
-          roomAuthToken,
-          micInitialState: false,
-          cameraInitialState: isUserVideoOn,
-          isHost,
-          inviteId,
-          creator,
-          invitee,
-          Timezone,
-          Movietime,
-          cru
-        })
-      }
+            hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onError);
+            hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PREVIEW, __onPreview);
 
-    }
-  }
+            let config = new HMSConfig({
+                authToken: authTokenForRoom,
+                username: user?.username ?? 'Anonymous',
+            });
 
-  const _handleRoomLeave = async () => {
-    try {
-      const hmsInstance = hmsInstanceRef.current;
-  
-      if (!hmsInstance) {
-        return Promise.reject('HMSSDK instance is null');
-      }
-      // Removing all registered listeners
-      hmsInstance.removeAllListeners();
-      console.log('All listeners removed [WatchPartyPreviewScreen]');
-      
-  
-      /**
-       * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
-       */
-      const leaveResult = await hmsInstance.leave();
-      console.log('Leave Success [WatchPartyPreviewScreen]:', leaveResult);
-  
-      /**
-       * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
-       */
-      const destroyResult = await hmsInstance.destroy();
-      console.log('Destroy Success [WatchPartyPreviewScreen]:', destroyResult);
-  
-      // Removing HMSSDK instance
-      hmsInstanceRef.current = null;
+            hmsInstance.preview(config);
+        } else {
+            console.error('=== Permissions not granted or no hmsInstance ===');
+        }
+    };
 
-      return true
-    } catch (error) {
-      console.log('Leave or Destroy Error: ', error);
-      return false
-    }
-  };
+    const _handleJoinRoom = async () => {
+        if (roomIdFrom100ms && roomAuthToken) {
+            const leaveRoomSuccessful = await _handleRoomLeave();
 
-  const toggleMic = () => {
-      setIsMicOn((prevState: boolean) => !prevState);
-  };
-  const toggleVideo = () => {
-    setIsUserVideoOn((prevState: boolean) => !prevState);
-  };
+            if (leaveRoomSuccessful) {
+                navigation.navigate('StartWatchPartyView', {
+                    type,
+                    movieId,
+                    roomId: roomIdFrom100ms,
+                    roomAuthToken,
+                    micInitialState: false,
+                    cameraInitialState: isUserVideoOn,
+                    isHost,
+                    inviteId,
+                    creator,
+                    invitee,
+                    Timezone,
+                    Movietime,
+                    cru,
+                });
+            }
+        }
+    };
 
-  return (
-    <SafeAreaView>
-        <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
-            <View style={{zIndex: 20}}>
-                <Header />
-            </View>
+    const _handleRoomLeave = async () => {
+        try {
+            const hmsInstance = hmsInstanceRef.current;
 
-            <View style={styles.topcontainer}>
-                <TouchableOpacity onPress={() => navigation.pop()}>
+            if (!hmsInstance) {
+                return Promise.reject('HMSSDK instance is null');
+            }
+
+            hmsInstance.removeAllListeners();
+            console.log('All listeners removed [WatchPartyPreviewScreen]');
+
+            /**
+             * Leave Room. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/leave | Leave Room}
+             */
+            const leaveResult = await hmsInstance.leave();
+            console.log('Leave Success [WatchPartyPreviewScreen]:', leaveResult);
+
+            /**
+             * Free/Release Resources. For more info, Check out {@link https://www.100ms.live/docs/react-native/v2/features/release-resources | Release Resources}
+             */
+            const destroyResult = await hmsInstance.destroy();
+            console.log('Destroy Success [WatchPartyPreviewScreen]:', destroyResult);
+
+            hmsInstanceRef.current = null;
+
+            return true;
+        } catch (error) {
+            console.log('Leave or Destroy Error: ', error);
+            return false;
+        }
+    };
+
+    const toggleMic = () => {
+        setIsMicOn((prevState: boolean) => !prevState);
+    };
+    const toggleVideo = () => {
+        setIsUserVideoOn((prevState: boolean) => !prevState);
+    };
+
+    return (
+        <SafeAreaView>
+            <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
+                <View style={{zIndex: 20}}>
+                    <Header />
+                </View>
+
+                <View style={styles.topcontainer}>
+                    <TouchableOpacity onPress={() => navigation.pop()}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+
+                <View>
+                    <View style={styles.movieview}>
+                        <LinearGradient
+                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                bottom: 0,
+                                borderRadius: 5,
+                            }}
+                        />
+                        <View style={styles.moviecontainer}>
+                            <View style={{marginRight: 10}}>
+                                <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
+                            </View>
+                            <View>
+                                <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        marginVertical: 8,
+                                        alignItems: 'center',
+                                    }}>
+                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            fontSize: 12,
+                                            marginHorizontal: 10,
+                                        }}>
+                                        {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                    </Text>
+                                </View>
+                                <View style={{flexDirection: 'row'}}>
+                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                    <Text style={styles.drawfonttag}>
+                                        {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
+                                    </Text>
+                                    <Text style={styles.drawfonttag}>
+                                        {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
+                                    </Text>
+
+                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={{marginTop: '3%'}}>
+                            <Text style={{...FONTS.paragraph1, fontSize: 12}}>{movie?.description}</Text>
+                        </View>
+                    </View>
+                </View>
+
+                <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10}}>
+                    <View
+                        style={{
+                            width: '100%',
+                            height: '110%',
+                            backgroundColor: '#000',
+                            marginBottom: 20,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}>
+                        {hmsInstanceRef.current && previewVideoTrack ? (
+                            isUserVideoOn ? (
+                                <hmsInstanceRef.current.HmsView
+                                    trackId={previewVideoTrack.trackId}
+                                    scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                    style={{width: '100%', height: '100%'}}
+                                    mirror={true}
+                                />
+                            ) : (
+                                <Text style={{color: '#fff'}}>Camera Off</Text>
+                            )
+                        ) : (
+                            <Text style={{color: '#fff'}}>Loading....</Text>
+                        )}
+                    </View>
+                </View>
+
+                <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
+                    <TouchableOpacity style={{marginTop: '4%'}}>
+                        <AkcruButtons.XlLrgButton
+                            disabled={!canJoinRoom}
+                            onPress={() => {
+                                _handleJoinRoom();
+                            }}
+                            btnname="Join Room"
+                            color={COLORS.AKCRUBLUE}
+                        />
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.bottombtn}>
                     <View
                         style={{
                             flexDirection: 'row',
-                            alignItems: 'center',
+                            justifyContent: 'space-around',
                         }}>
-                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                    </View>
-                </TouchableOpacity>
-            </View>
-
-            {/* Video Info */}
-            <View>
-                <View style={styles.movieview}>
-                    <LinearGradient
-                        // Background Linear Gradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: 0,
-                            bottom: 0,
-                            borderRadius: 5,
-                        }}
-                    />
-                    <View style={styles.moviecontainer}>
-                        <View style={{marginRight: 10}}>
-                            <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
-                        </View>
-                        <View>
-                            <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    marginVertical: 8,
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        fontSize: 12,
-                                        marginHorizontal: 10,
-                                    }}>
-                                    {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                </Text>
-                            </View>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                <Text style={styles.drawfonttag}>
-                                    {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                                </Text>
-                                <Text style={styles.drawfonttag}>
-                                    {movie?.genres[1] ? capitalizeFirstLetterOfString(movie?.genres[1]) : '...'}
-                                </Text>
-
-                                <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                            </View>
-                        </View>
-                    </View>
-                    <View style={{marginTop: '3%'}}>
-                      <Text style={{...FONTS.paragraph1, fontSize: 12}}>
-                        {movie?.description}
-                      </Text>
-                    </View>
-                </View>
-            </View>
-
-            <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10}}>
-                {/* Video Preview */}
-                <View
-                    style={{
-                        width: '100%',
-                        height: '110%',
-                        backgroundColor: '#000',
-                        marginBottom: 20,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
-                    {/* Only show when  */}
-                    {hmsInstanceRef.current && previewVideoTrack ? (
-                        isUserVideoOn ? (
-                            <hmsInstanceRef.current.HmsView
-                                trackId={previewVideoTrack.trackId} // Render Video track by using its' trackId
-                                scaleType={HMSVideoViewMode.ASPECT_FILL}
-                                style={{width: '100%', height: '100%'}}
-                                mirror={true}
-                            />
-                        ) : (
-                            <Text style={{color: '#fff'}}>Camera Off</Text>
-                        )
-                    ) : (
-                        <Text style={{color: '#fff'}}>Loading....</Text>
-                    )}
-                </View>
-            </View>
-
-            <View style={{flex: 1, marginHorizontal: 15, marginVertical: 10, alignItems: 'center'}}>
-                {/* Join Room Button */}
-                <TouchableOpacity style={{marginTop: '4%'}}>
-                    <AkcruButtons.XlLrgButton
-                        disabled={!canJoinRoom}
-                        onPress={() => {
-                            _handleJoinRoom();
-                        }}
-                        btnname="Join Room"
-                        color={COLORS.AKCRUBLUE}
-                    />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.bottombtn}>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-around',
-                    }}>
-                    <Pressable onPress={toggleVideo}>
-                        {isUserVideoOn ? (
-                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                        ) : (
-                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                        )}
-                    </Pressable>
-                    {/* <Pressable onPress={toggleMic}>
+                        <Pressable onPress={toggleVideo}>
+                            {isUserVideoOn ? (
+                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                            ) : (
+                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                            )}
+                        </Pressable>
+                        {/* <Pressable onPress={toggleMic}>
                         {isMicOn ? (
                             <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
                         ) : (
                             <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
                         )}
                     </Pressable> */}
+                    </View>
                 </View>
             </View>
-        </View>
-    </SafeAreaView>
-  );
+        </SafeAreaView>
+    );
 };
 
 export default WatchPartyPreview;

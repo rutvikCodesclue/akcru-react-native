@@ -28,9 +28,9 @@ import { getPushToken } from '../../../../lib/pushNotifications';
 const Signin = () => {
     useEffect(() => {
         const _checkPermissions = async () => {
-            // Check permissions for camera and microphone on Android
+            
             if (Platform.OS === 'android') {
-                // Request microphone permission
+                
                 const audioResult = await check(PERMISSIONS.ANDROID.RECORD_AUDIO);
                 if (audioResult !== RESULTS.GRANTED) {
                     const audioRequestResult = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
@@ -39,7 +39,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request camera permission
+                
                 const cameraResult = await check(PERMISSIONS.ANDROID.CAMERA);
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.ANDROID.CAMERA);
@@ -48,7 +48,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_AUDIO permission
+                
                 const audioMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -67,7 +67,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_IMAGES permission
+                
                 const imagesMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -76,7 +76,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_VIDEO permission
+                
                 const videoMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -85,7 +85,7 @@ const Signin = () => {
                     }
                 }
             }
-            // Android 13 (API level 33) and above: Check POST_NOTIFICATIONS permission
+            
             if (Platform.OS === 'android' && Platform.Version >= 33) {
                 const notificationPermission = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
                 if (notificationPermission !== RESULTS.GRANTED) {
@@ -96,9 +96,9 @@ const Signin = () => {
                 }
             }
 
-            // Check permissions for camera and microphone on iOS
+            
             if (Platform.OS === 'ios') {
-                // Request camera permission
+                
                 const cameraResult = await check(PERMISSIONS.IOS.CAMERA);
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.IOS.CAMERA);
@@ -107,7 +107,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request microphone permission
+                
                 const micResult = await check(PERMISSIONS.IOS.MICROPHONE);
                 if (micResult !== RESULTS.GRANTED) {
                     const micRequestResult = await request(PERMISSIONS.IOS.MICROPHONE);
@@ -116,7 +116,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_AUDIO permission on iOS
+                
                 const audioMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -125,7 +125,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_IMAGES permission on iOS
+                
                 const imagesMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -134,7 +134,7 @@ const Signin = () => {
                     }
                 }
 
-                // Request READ_MEDIA_VIDEO permission on iOS
+                
                 const videoMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -145,7 +145,7 @@ const Signin = () => {
             }
         };
 
-        // Call the permission checking function when the component mounts
+        
         _checkPermissions();
     }, []);
 
@@ -153,41 +153,41 @@ const Signin = () => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    // const showErrorAlert = () => {
-    //     Alert.alert('Login error', 'Please try again.', [
-    //         {text: 'OK', onPress: () => {}}, // You can add a callback function if needed
-    //     ]);
-    // };
+    
+    
+    
+    
+    
     const [showLoginError, setShowLoginError] = useState(false);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
 
-    // useEffect(() => {
-    //     const checkAuth = async () => {
-    //         await authStore.hydrateAuth();
-    //         const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
+    
+    
+    
+    
 
-    //         const accessToken = await AsyncStorage.getItem('access_token');
-    //         const isLoggedInWithToken = isAuthed && accessToken !== null;
+    
+    
 
-    //         setTimeout(() => {
-    //             if (accessToken) {
-    //                 setIsLoggedIn(true);
-    //                 // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
-    //             } else {
-    //                 setIsLoggedIn(false);
-    //             }
-    //         }, 100); // Wait for 3 seconds before executing the code
-    //     };
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    //     checkAuth().catch(err => {
-    //         console.error('Error checking auth', err);
-    //     });
-    // }, []);
+    
+    
+    
+    
     useEffect(() => {
         const checkAuth = async () => {
             await authStore.hydrateAuth();
@@ -196,7 +196,7 @@ const Signin = () => {
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
             
-            setIsLoggedIn(isLoggedInWithToken); // Set login status based on actual auth check
+            setIsLoggedIn(isLoggedInWithToken); 
         };
 ;
         checkAuth().catch(err => {
@@ -209,31 +209,31 @@ const Signin = () => {
         try {
             setLoading(true);
             console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-            // login through the API
+            
             const loginResponse = await authStore.loginWithEmail(email, password);
             const session = loginResponse?.session;
             const user = loginResponse?.user;
 
             if (!session || !user) {
                 Alert.alert('Error Logging In');
-                setShowLoginError(true); // Display the error alert
+                setShowLoginError(true); 
                 setLoading(false);
                 return;
             }
             if (!loginResponse) {
                 Alert.alert('Error Logging In. Please try again.');
-                setShowLoginError(true); // Display the error alert
+                setShowLoginError(true); 
                 setLoading(false);
                 return;
             }
 
-            // set the acces_token in local storage
+            
             const accessToken = session.access_token;
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
             try{
-                await getPushToken(user.id); // or use another unique identifier like email
+                await getPushToken(user.id); 
 
             }catch(e){  
                 console.log('Error getting push token:', e);
@@ -241,14 +241,14 @@ const Signin = () => {
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
-            setShowLoginError(true); // Display the error alert
+            setShowLoginError(true); 
             //console.log('LOGIN Error:', error);
             setLoading(false);
         }
     }
 
     async function handleLogout() {
-        await AsyncStorage.removeItem('access_token'); // Remove the stored token
+        await AsyncStorage.removeItem('access_token'); 
         await authStore.logout();
         setIsLoggedIn(false);
     }
@@ -257,7 +257,7 @@ const Signin = () => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -268,7 +268,7 @@ const Signin = () => {
                     }}
                 />
                 <View style={styles.container}>
-                    {isLoggedIn ? ( // Display different content for logged-in and logged-out users
+                    {isLoggedIn ? ( 
                         <View style={styles.container2}>
                             <AkcruLogo width={200} height={60} />
                             <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
@@ -326,7 +326,7 @@ const Signin = () => {
                                     iconname={'mail'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={(text: React.SetStateAction<string>) => setEmail(text)}
+                                    onChangeText={(text: string) => setEmail(text.toLowerCase())}
                                     value={email}
                                     editable={true}
                                 />
@@ -348,28 +348,6 @@ const Signin = () => {
                                     disabled={loading}
                                 />
                             </View>
-                            {/* <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <TouchableOpacity>
-                                    <Googlelogo
-                                        width={42}
-                                        height={42}
-                                        onPress={() =>
-                                            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'})
-                                        }
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Fblogo
-                                        width={40}
-                                        height={40}
-                                        style={{marginLeft: 25, marginRight: 25}}
-                                        onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity>
-                                    <Applelogo width={50} height={50} onPress={() => {}} />
-                                </TouchableOpacity>
-                            </View> */}
                             <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
                                 <Text
                                     style={{
@@ -380,15 +358,7 @@ const Signin = () => {
                                     Forgot your password?
                                 </Text>
                             </TouchableOpacity>
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('OTPVerification')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>OTP Verification</Text>
-                            </TouchableOpacity> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('TestScreen')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>TestScreen</Text>
-                            </TouchableOpacity> */}
-                            {/* <TouchableOpacity onPress={() => navigation.navigate('ResetPassword')}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>ResetPassword</Text>
-                            </TouchableOpacity> */}
+                            
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{

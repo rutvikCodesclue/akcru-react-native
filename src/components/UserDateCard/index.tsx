@@ -1,11 +1,10 @@
-import {View, Text, TouchableOpacity, Image, Alert, Modal} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal} from 'react-native';
 import React, {useState} from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import imageindex from '../../../assets/images/imageindex';
 import moment from 'moment-timezone';
 import {getShortenedTimezone} from '../../util/util';
@@ -39,6 +38,8 @@ type UserDatesCardProps = {
     timezone: string;
     onPress: () => void;
     cru: any;
+    creator: any;
+    invitee: any;
 };
 
 const UserDatesCard = ({
@@ -63,8 +64,7 @@ const UserDatesCard = ({
     timezone,
     onPress,
     creator,
-    invitee
-
+    invitee,
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -86,7 +86,7 @@ const UserDatesCard = ({
 
     const handleCancelCruView = async () => {
         try {
-            const response = await cancelCRUView(id); // Use the CRU View ID
+            const response = await cancelCRUView(id);
             if (response.success) {
                 setRefetchDates(true);
                 setConfirmCancelModal(false);
@@ -118,7 +118,7 @@ const UserDatesCard = ({
 
     const handleCancelMIT = async (mitInviteId: string) => {
         try {
-            const response = await cancelMIT(mitInviteId); // Use the CRU View ID
+            const response = await cancelMIT(mitInviteId);
             if (response.success) {
                 setRefetchDates(true);
                 setConfirmCancelMITModal(false);
@@ -156,12 +156,11 @@ const UserDatesCard = ({
             const res: any = await API.get(
                 `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
             );
-            console.log(res.data.success)
-            res.data.success === false // to enter hard code bypass the timegate
+            console.log(res.data.success);
+            res.data.success === false;
             if (res.data.success === false) {
-
                 if (res.data) {
-                    if ((type == 'MITInvite')) {
+                    if (type == 'MITInvite') {
                         navigation.navigate('WatchPartyPreview', {
                             id,
                             type,
@@ -171,9 +170,9 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
-                            invitee
+                            invitee,
                         });
-                    } else if ((type == 'CRUView')) {
+                    } else if (type == 'CRUView') {
                         navigation.navigate('WatchPartyPreview', {
                             id,
                             type,
@@ -183,13 +182,13 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
-                            invitee, 
-                            cru
+                            invitee,
+                            cru,
                         });
                     }
                 }
             } else {
-                if ((type == 'MITInvite')) {
+                if (type == 'MITInvite') {
                     navigation.navigate('WatchPartyPreview', {
                         id,
                         type,
@@ -199,9 +198,9 @@ const UserDatesCard = ({
                         scheduleTime,
                         timezone,
                         creator,
-                        invitee
+                        invitee,
                     });
-                } else if ((type == 'CRUView')) {
+                } else if (type == 'CRUView') {
                     navigation.navigate('WatchPartyPreview', {
                         id,
                         type,
@@ -212,14 +211,12 @@ const UserDatesCard = ({
                         timezone,
                         creator,
                         invitee,
-                        cru
+                        cru,
                     });
                 }
-
-                // setshowMITEntryErr(true);
             }
         } catch (error) {
-            if ((type == 'MITInvite')) {
+            if (type == 'MITInvite') {
                 navigation.navigate('WatchPartyPreview', {
                     id,
                     type,
@@ -229,9 +226,9 @@ const UserDatesCard = ({
                     scheduleTime,
                     timezone,
                     creator,
-                    invitee
+                    invitee,
                 });
-            } else if ((type == 'CRUView')) {
+            } else if (type == 'CRUView') {
                 navigation.navigate('WatchPartyPreview', {
                     id,
                     type,
@@ -242,11 +239,9 @@ const UserDatesCard = ({
                     timezone,
                     creator,
                     invitee,
-                    cru
+                    cru,
                 });
             }
-
-            // setshowMITEntryErr(true);
         }
     };
 
@@ -258,7 +253,6 @@ const UserDatesCard = ({
                 justifyContent: 'center',
             }}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -324,7 +318,7 @@ const UserDatesCard = ({
                     )}
 
                     <Text style={styles.paragraphText}>scheduled for</Text>
-                    {/* DATE */}
+
                     <View style={{marginHorizontal: 5}}>
                         <Text style={styles.paragraphText2}>
                             {moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}
@@ -332,10 +326,9 @@ const UserDatesCard = ({
                     </View>
 
                     <Text style={styles.paragraphText}>at </Text>
-                    {/* TIME */}
+
                     <View style={{marginRight: 5}}>
                         <Text style={styles.paragraphText2}>
-                            {/* render UTC Time w/ moment */}
                             {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
                         </Text>
                     </View>
@@ -372,8 +365,6 @@ const UserDatesCard = ({
                     }}>
                     {type === 'MITInvite' && (
                         <AkcruButtons.SmallButton
-
-  
                             onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start MIT Date"
                             color={COLORS.AKCRUBLUE}
@@ -383,9 +374,7 @@ const UserDatesCard = ({
 
                     {type === 'CRUView' && (
                         <AkcruButtons.SmallButton
-                  onPress={() =>
-                                checkTimeGate(type, scheduleTime, timezone, scheduleDate)
-                            }
+                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
                             btnname="Start Cru View"
                             color={COLORS.PURPLE}
                             disabled={false}
@@ -431,7 +420,7 @@ const UserDatesCard = ({
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            {`Movie hasn't started yet! Please join at scheduled time`}
+                            {"Movie hasn't started yet! Please join at scheduled time"}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -444,12 +433,11 @@ const UserDatesCard = ({
                                     textAlign: 'center',
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                {`Close`}
+                                {'Close'}
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </Modal>
             <Modal visible={confirmCancelModal} transparent={true} animationType="fade">
                 <ComfirmationModal
@@ -482,7 +470,6 @@ const UserDatesCard = ({
                     message={dateMITMessage}
                     closeModal={() => setDateMITResultModal(false)}
                 />
-
             </Modal>
         </View>
     );

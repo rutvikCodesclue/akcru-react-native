@@ -3,8 +3,7 @@ import {API} from '../../clients/api.client';
 
 export const getMe = async (): Promise<IUserProfile | undefined> => {
     try {
-        // GET /v1/auth/me
-        const {data} = await API.get(`/v1/auth/me`);
+        const {data} = await API.get('/v1/auth/me');
 
         if (data.success === false) {
             return undefined;
@@ -24,8 +23,8 @@ export const findAUser = async (params: {
 }): Promise<IUserProfile | undefined> => {
     try {
         const {id, username, email} = params;
-        // GET /v1/cru/me
-        const {data} = await API.post(`/v1/user/find`, {
+
+        const {data} = await API.post('/v1/user/find', {
             id: id ?? undefined,
             username: username ?? undefined,
             email: email ?? undefined,
@@ -44,8 +43,7 @@ export const findAUser = async (params: {
 
 export const searchForUsers = async (search: string): Promise<IUserProfile[] | []> => {
     try {
-        // GET /v1/user/search
-        const {data} = await API.post(`/v1/user/search`, {
+        const {data} = await API.post('/v1/user/search', {
             search,
         });
 
@@ -62,8 +60,7 @@ export const searchForUsers = async (search: string): Promise<IUserProfile[] | [
 
 export const fetchRandomUsers = async (): Promise<IUserProfile[] | []> => {
     try {
-        // Assume your endpoint for fetching random users is /v1/user/random
-        const {data} = await API.get(`/v1/user/random`);
+        const {data} = await API.get('/v1/user/random');
 
         if (data.success === false) {
             return [];
@@ -75,7 +72,6 @@ export const fetchRandomUsers = async (): Promise<IUserProfile[] | []> => {
         return [];
     }
 };
-
 
 export const updateUser = async (params: {
     username?: string;
@@ -91,7 +87,7 @@ export const updateUser = async (params: {
 }): Promise<IUserProfile | undefined> => {
     try {
         const {username, firstName, lastName, email, description, phone, password, dob, archetype, gender} = params;
-        // PUT /v1/user/
+
         const updateUserObj = {
             ...(username && {username}),
             ...(firstName && {firstName}),
@@ -105,10 +101,9 @@ export const updateUser = async (params: {
             ...(gender && {gender}),
         };
 
-        // Log the updateUserObj to verify its contents
         //console.log('Update User Object:', updateUserObj);
 
-        const {data} = await API.put(`/v1/user`, updateUserObj);
+        const {data} = await API.put('/v1/user', updateUserObj);
 
         if (data.success === false) {
             return undefined;
@@ -127,29 +122,24 @@ export const updateUserProfilePicture = async (params: {
     name: string;
 }): Promise<IUserProfile | undefined> => {
     try {
-        // this should be a file object
-        const { uri, type, name } = params;
+        const {uri, type, name} = params;
 
-        // type must be one of the following: image/jpeg, image/png, image/jpg
         //if (type !== 'image/jpeg' && type !== 'image/png') {
-         //   console.log('type must be one of the following: image/jpeg, image/png:', type);
-           // return undefined;
-        //}
 
+        //}
 
         const form = new FormData();
         form.append('image', {
-            type,  // Adjust the type as needed (e.g. png, jpeg, gif, etc)
+            type,
             uri,
-            name, // Adjust the filename as needed
+            name,
         });
-        // PUT /v1/user/profilePicture
-        const { data } = await API.put(`/v1/user/profilePicture`, form, {
+
+        const {data} = await API.put('/v1/user/profilePicture', form, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-
 
         if (data.success === false) {
             return undefined;
@@ -168,17 +158,16 @@ export const updateUserGallery = async (params: {
     name: string;
 }): Promise<IUserProfile | undefined> => {
     try {
-        // this should be a file object
         const {uri, type, name} = params;
 
         const form = new FormData();
         form.append('images', {
-            type, // Adjust the type as needed (e.g. png, jpeg, gif, etc)
+            type,
             uri,
-            name, // Adjust the filename as needed
+            name,
         });
-        // PUT /v1/user/profilePicture
-        const {data} = await API.post(`/v1/user/profileGallery/add`, form, {
+
+        const {data} = await API.post('/v1/user/profileGallery/add', form, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -198,7 +187,6 @@ export const updateUserGallery = async (params: {
 
 export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserProfile | undefined> => {
     try {
-        // Send a DELETE request to the backend with imageUrl as a query parameter
         const {data} = await API.delete(`/v1/user/profileGallery/delete?imageUrl=${encodeURIComponent(imageUrl)}`);
 
         //console.log('data', data);
@@ -214,36 +202,31 @@ export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserPro
     }
 };
 
-
 export const fetchUserGallery = async (id: IUserProfile) => {
     try {
-        const response = await fetch(`/api/user/profileGallery`);
+        const response = await fetch('/api/user/profileGallery');
         const data = await response.json();
 
         if (data.success) {
-            return data.gallery; // Return the gallery data
+            return data.gallery;
         } else {
             console.error('Failed to fetch gallery:', data.message);
-            return []; // Return empty array in case of failure
+            return [];
         }
     } catch (error) {
         console.error('Error fetching user gallery:', error);
-        return []; // Return empty array in case of error
+        return [];
     }
 };
-
 
 export const updateUserWatchTime = async (params: {
     watchTime?: number;
     movieId?: string;
 }): Promise<boolean | undefined> => {
     try {
-        // TODO: in the future, we will want to track these things: watchTime, movieId, movieTime, etc...
         const {watchTime, movieId} = params;
-        // PUT /v1/watchtime/me
-        const {data} = await API.put(`/v1/watchtime/me`, {
-            // watchTime
-        });
+
+        const {data} = await API.put('/v1/watchtime/me', {});
 
         if (data.success === false) {
             return false;
@@ -260,49 +243,31 @@ export const updateUserWatchTime = async (params: {
     TODO: test these
 */
 
-// export const toggleFollow = async (
-//     targetUserId: string,
-// ): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
-//     try {
-//         const response = await API.post('/v1/user/toggle-follow', {
-//             targetUserId: targetUserId,
-//         });
-
-//         // Make sure to return the actual data from the API response
-//         return response.data;
-//     } catch (error) {
-//         console.error('Error in toggleFollow:', error);
-//         // Return a default error response
-//         return {
-//             success: false,
-//             isFollowing: false,
-//             message: 'An error occurred while attempting to toggle follow status.',
-//         };
-//     }
-// };
-
-export const toggleFollow = async (targetUserId: string): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
+export const toggleFollow = async (
+    targetUserId: string,
+): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
     try {
         const response = await API.post('/v1/user/toggle-follow', {
             targetUserId: targetUserId,
         });
 
-        // Make sure to return the actual data from the API response
         return response.data;
     } catch (error) {
         console.error('Error in toggleFollow:', error);
-        // Return a default error response
-        return { success: false, isFollowing: false, message: 'An error occurred while attempting to toggle follow status.' };
+
+        return {
+            success: false,
+            isFollowing: false,
+            message: 'An error occurred while attempting to toggle follow status.',
+        };
     }
 };
-
-
 
 export const followUser = async (params: {userId?: string}): Promise<boolean | undefined> => {
     try {
         const {userId} = params;
-        // PUT /v1/watchtime/me
-        const {data} = await API.post(`/v1/user/follow`, {
+
+        const {data} = await API.post('/v1/user/follow', {
             id: userId,
         });
 
@@ -320,8 +285,8 @@ export const followUser = async (params: {userId?: string}): Promise<boolean | u
 export const unfollowUser = async (params: {userId?: string}): Promise<boolean | undefined> => {
     try {
         const {userId} = params;
-        // PUT /v1/watchtime/me
-        const {data} = await API.post(`/v1/user/unfollow`, {
+
+        const {data} = await API.post('/v1/user/unfollow', {
             id: userId,
         });
 
@@ -397,8 +362,6 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
 };
 
 export const startUserWatching = async (userId: string, movieId: string) => {
-
-    // Check if userId and movieId are strings (or whatever type you expect)
     if (typeof userId !== 'string' || typeof movieId !== 'string') {
         console.error('userId or movieId is not of type string.');
         return false;
@@ -423,56 +386,6 @@ export const startUserWatching = async (userId: string, movieId: string) => {
     }
 };
 
-// export const finishUserWatching = async (userId: string, movieId: string) => {
-
-//     // Check if userId and movieId are strings (or whatever type you expect)
-//     if (typeof userId !== 'string' || typeof movieId !== 'string') {
-//         console.error('userId or movieId is not of type string.');
-//         return false;
-//     }
-
-//     try {
-//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`, {
-//             userId, // If needed, though userId might be inferred from the session on the backend
-//         });
-
-//         if (response.data && response.data.success) {
-//             //console.log('User finished watching movie successfully:', response.data.userWatching);
-//             return true;
-//         } else {
-//             console.error('Failed to finish watching movie:', response.data.message);
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error('Error finishing watching movie:', error);
-//         return false;
-//     }
-// };
-
-// export const finishUserWatching = async (movieId: string) => {
-//     // Check if movieId is a string (or whatever type you expect)
-//     if (typeof movieId !== 'string') {
-//         console.error('movieId is not of type string.');
-//         return false;
-//     }
-
-//     try {
-//         // Note: No need to send userId in the body, as the backend uses session-based user identification
-//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
-
-//         if (response.data && response.data.success) {
-//             console.log('User finished watching movie successfully:', response.data.userWatching);
-//             return true;
-//         } else {
-//             console.error('Failed to finish watching movie:', response.data.message);
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error('Error finishing watching movie:', error);
-//         return false;
-//     }
-// };
-
 export const finishUserWatching = async (movieId: string) => {
     try {
         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
@@ -489,11 +402,8 @@ export const finishUserWatching = async (movieId: string) => {
     }
 };
 
-
-
 export const getUserCurrentWatching = async (userId: string): Promise<any | undefined> => {
     try {
-        // GET /v1/user/currentWatching/:userId
         const {data} = await API.get(`/v1/user/currentWatching/${encodeURIComponent(userId)}`);
 
         if (data.success === false) {
@@ -501,13 +411,12 @@ export const getUserCurrentWatching = async (userId: string): Promise<any | unde
             return undefined;
         }
 
-        return data.currentWatching; // Returns the list of movies the user is currently watching or the last movie they watched
+        return data.currentWatching;
     } catch (error) {
         console.error("Error fetching user's current watching:", error);
         return undefined;
     }
 };
-
 
 export const logUserMovieWatchHistory = async (userId: string, movieId: string) => {
     try {
@@ -531,7 +440,7 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
 
 interface ReportData {
     email: string;
-    imageURL?: string[]; // Make imageURL optional since it may not always be provided
+    imageURL?: string[];
     description: string;
     type: string;
     name: string;
@@ -568,63 +477,12 @@ export const sendReportToBackend = async ({
     }
 };
 
-// export const uploadImage = async (uri?: string): Promise<string | undefined> => {
-//     //console.log('Attempting to upload image:', uri);
-//     if (!uri) {
-//         console.log('No URI provided for upload');
-//         return undefined;
-//     }
-
-//     const fileExtension = uri.split('.').pop().toLowerCase();
-//     let mimeType = 'image/jpeg';
-//     if (fileExtension === 'png') {
-//         mimeType = 'image/png';
-//     }
-
-//     const formData = new FormData();
-//     formData.append('images', {
-//         // Ensure this matches the backend expectation
-//         uri: uri,
-//         type: mimeType,
-//         name: `upload.${fileExtension}`,
-//     });
-
-//     try {
-//         const response = await API.post('/v1/user/uploadPictures', formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data',
-//             },
-//         });
-
-//         console.log('Upload response:', response.data);
-
-//         // Inside your uploadImage function
-//         if (response.data && response.data.success) {
-//             return response.data; // Adjust this to match the structure of your actual response
-//         } else {
-//             console.error('Failed to upload image:', response.data.message);
-//             return undefined;
-//         }
-//     } catch (error) {
-//         console.error('Error uploading image:', error);
-//         return undefined;
-//     }
-// };
-
-
 export const uploadImages = async (uris: string[]): Promise<string[] | undefined> => {
     //console.log('Attempting to upload image:', uris);
     if (!uris.length) {
         //console.log('No URI provided for upload');
         return undefined;
     }
-
-
-    // const fileExtension = uri.split('.').pop().toLowerCase();
-    // let mimeType = 'image/jpeg';
-    // if (fileExtension === 'png') {
-    //     mimeType = 'image/png';
-    // }
 
     const formData = new FormData();
 
@@ -651,9 +509,8 @@ export const uploadImages = async (uris: string[]): Promise<string[] | undefined
 
         //console.log('Upload response:', response.data);
 
-        // Inside your uploadImage function
         if (response.data && response.data.success) {
-            return response.data; // Adjust this to match the structure of your actual response
+            return response.data;
         } else {
             console.error('Failed to upload image:', response.data.message);
             return undefined;
@@ -667,7 +524,7 @@ export const uploadImages = async (uris: string[]): Promise<string[] | undefined
 interface AbuseReportData {
     description: string;
     email: string;
-    imageURL?: string[]; // Corrected to be an array of strings or undefined
+    imageURL?: string[];
     type: string;
     reportedByUserId: string;
     userId: string;
@@ -706,47 +563,53 @@ export const sendAbuseReportToBackend = async ({
     }
 };
 
-// API client instance is assumed to be configured to include authorization headers
-
-export const blockUser = async (blockedId: string): Promise<{ success: boolean; message: string }> => {
+export const blockUser = async (blockedId: string): Promise<{success: boolean; message: string}> => {
     try {
-        const response = await API.post('/v1/user/block-user', { blockedId });
+        const response = await API.post('/v1/user/block-user', {blockedId});
         if (response.data && response.data.success) {
             //console.log('User successfully blocked:', response.data);
-            return { success: true, message: 'User successfully blocked.' };
+            return {success: true, message: 'User successfully blocked.'};
         } else {
             console.error('Failed to block user:', response.data.message);
-            return { success: false, message: response.data.message || 'Failed to block user.' };
+            return {success: false, message: response.data.message || 'Failed to block user.'};
         }
     } catch (error) {
         console.error('Error blocking user:', error);
-        return { success: false, message: error.response?.data?.message || 'An error occurred while blocking the user.' };
+        return {success: false, message: error.response?.data?.message || 'An error occurred while blocking the user.'};
     }
 };
 
-export const getBlockedUsers = async (): Promise<{ success: boolean; message: string; blockedUsers?: IUserProfile[] }> => {
+export const getBlockedUsers = async (): Promise<{
+    success: boolean;
+    message: string;
+    blockedUsers?: IUserProfile[];
+}> => {
     try {
         const response = await API.get('/v1/user/blocked-users');
         if (response.data && response.data.success) {
             //console.log('Retrieved blocked users successfully:', response.data.blockedUsers);
-            return { success: true, message: 'Blocked users retrieved successfully.', blockedUsers: response.data.blockedUsers };
+            return {
+                success: true,
+                message: 'Blocked users retrieved successfully.',
+                blockedUsers: response.data.blockedUsers,
+            };
         } else {
             console.error('Failed to retrieve blocked users:', response.data.message);
-            return { success: false, message: response.data.message || 'Failed to retrieve blocked users.' };
+            return {success: false, message: response.data.message || 'Failed to retrieve blocked users.'};
         }
     } catch (error) {
         console.error('Error retrieving blocked users:', error);
-        return { success: false, message: error.response?.data?.message || 'An error occurred while retrieving blocked users.' };
+        return {
+            success: false,
+            message: error.response?.data?.message || 'An error occurred while retrieving blocked users.',
+        };
     }
 };
 
-// Function to unblock a user
 export const unblockUser = async (userIdToUnblock: string): Promise<{success: boolean; message?: string}> => {
     try {
-        // Replace `/v1/user/unblock` with your actual endpoint path if different
-        const {data} = await API.post(`/v1/user/unblock`, {userIdToUnblock});
+        const {data} = await API.post('/v1/user/unblock', {userIdToUnblock});
 
-        // Assuming your backend sends back a 'success' boolean and an optional 'message' in the response
         if (data.success) {
             //console.log('User unblocked successfully:', data.message);
             return {success: true, message: data.message};
@@ -767,11 +630,11 @@ export const fetchUnfinishedMovies = async (): Promise<IMovie[]> => {
             return response.data.unfinishedMovies;
         } else {
             console.log('Failed to fetch unfinished movies:', response.data);
-            return []; // Return an empty array if unsuccessful
+            return [];
         }
     } catch (error) {
         console.error('Error fetching unfinished movies:', error);
-        return []; // Return an empty array in case of errors
+        return [];
     }
 };
 
@@ -784,12 +647,10 @@ export const removeUnfinishedMovie = async (movieId: string): Promise<boolean> =
             return true;
         } else {
             console.log('Failed to remove movie from unfinished list:', response.data.message);
-            return false; // Return false if unsuccessful
+            return false;
         }
     } catch (error) {
         console.error('Error removing movie from unfinished list:', error.response ? error.response.data : error);
-        return false; // Return false in case of errors
+        return false;
     }
 };
-
-

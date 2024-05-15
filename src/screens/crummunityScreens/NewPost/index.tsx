@@ -1,38 +1,49 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import {
+    View,
+    Text,
+    SafeAreaView,
+    TouchableOpacity,
+    TextInput,
+    Modal,
+    FlatList,
+    Pressable,
+    ScrollView,
+    ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import {Avatar, Icon} from '@rneui/base';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {Icon} from '@rneui/base';
+import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import { extractUsernamesFromText, selectAvatarBorderColor } from '../../../util/util';
+import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
 import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
-import { MediaType, launchImageLibrary } from 'react-native-image-picker';
-import { Image } from 'react-native';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import {Image} from 'react-native';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import { createPost, uploadPictures, uploadVideo } from '../../../lib/api/post.lib';
+import {createPost, uploadPictures, uploadVideo} from '../../../lib/api/post.lib';
 import CalculateVideoDuration from '../../../util/calculatevideoduration';
 import Video from 'react-native-video';
-import { findAUser, searchForUsers } from '../../../lib/api/user.lib';
-import { IUserProfile } from '../../../../types';
+import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
+import {IUserProfile} from '../../../../types';
 import UserTaggedCard from '../../../components/UserTaggedCard';
-import { sendTagNotification } from '../../../lib/api/notify.lib';
+import {sendTagNotification} from '../../../lib/api/notify.lib';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
     const {user} = useAuthStore();
     const [postText, setPostText] = useState('');
-    //console.log('Post Text:', postText);
+
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
-    //console.log('Selected Images:', selectedImages);
+
     const [selectedVideo, setSelectedVideo] = useState('');
-    //console.log('Selected Video:', selectedVideo);
+
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
 
     const [isTagging, setIsTagging] = useState(false);
@@ -40,11 +51,6 @@ const NewPost = () => {
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
 
     const [isPosting, setIsPosting] = useState(false);
-
-
-    const [isTagModalVisible, setIsTagModalVisible] = useState(false);
-
-
     const videoRef = useRef(null);
 
     const selectPostImage = async () => {
@@ -53,10 +59,8 @@ const NewPost = () => {
             storageOptions: {
                 path: 'images',
             },
-            selectionLimit: 3, // Limit to 3 images for a post
+            selectionLimit: 3,
         };
-
-        //console.log('Selecting post image');
 
         let callbackExecuted = false;
 
@@ -67,47 +71,40 @@ const NewPost = () => {
                 }
 
                 callbackExecuted = true;
-                //console.log('Number of images selected:', response.assets.length);
 
-                const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+                const maxSizeInBytes = 5 * 1024 * 1024;
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
-                    if (asset.fileSize > maxSizeInBytes) {
+                    if (asset.fileSize && asset.fileSize > maxSizeInBytes) {
                         setShowSizeErrorModal(true);
                         return;
                     } else {
                         if (asset.uri) {
-                            imagesForPost.push(asset.uri); // Collect URIs of selected images
+                            imagesForPost.push(asset.uri);
                         }
                     }
                 }
 
-                // Update the state with selected images
                 setSelectedImages(imagesForPost);
             }
         });
     };
 
-    // In your component where you handle video selection
     const [videoDuration, setVideoDuration] = useState(0);
 
     const handleVideoDuration = (duration: React.SetStateAction<number>) => {
         setVideoDuration(duration);
     };
 
-    // Render the CalculateVideoDuration component somewhere in your return statement
-    // Make sure to pass the selected video URI and the function to handle the duration
     <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />;
 
     const selectPostVideo = async () => {
         let options = {
             mediaType: 'video' as MediaType,
             quality: 1,
-            selectionLimit: 1, // Only allows 1 video
+            selectionLimit: 1,
         };
-
-        //console.log('Selecting post video');
 
         let callbackExecuted = false;
 
@@ -118,27 +115,17 @@ const NewPost = () => {
                 }
 
                 callbackExecuted = true;
-                //console.log('User cancelled video picker');
             } else if (response.errorCode) {
-                //console.log('VideoPicker Error: ', response.errorMessage);
             } else if (response.assets) {
                 const video = response.assets[0];
 
-                // Check if the video file size is within limits
-                const maxSizeInBytes = 100 * 1024 * 1024; // Example: 100 MB limit
+                const maxSizeInBytes = 100 * 1024 * 1024;
                 if (video.fileSize > maxSizeInBytes) {
-                    //console.log('Video file is too large.');
-                    // Handle the error (e.g., show an error message)
                     return;
                 }
 
                 setSelectedVideo(video.uri);
 
-                // TODO: Calculate video duration if necessary
-                // const videoDuration = CalculateVideoDuration(video.uri);
-                // You might need to implement CalculateVideoDuration or find another way to get the video duration
-
-                // Reset selected images if HYBRID post
                 if (postText) {
                     setSelectedImages([]);
                 }
@@ -159,7 +146,7 @@ const NewPost = () => {
     };
 
     const OnPostPress = async () => {
-        setIsPosting(true); // Start the upload indicator
+        setIsPosting(true);
         try {
             const postType = determinePostType();
             let content = [];
@@ -167,15 +154,12 @@ const NewPost = () => {
             if (postType === 'TEXT') {
                 content = [postText];
             } else if (postType === 'IMAGE') {
-                // If images are selected, upload them and get URLs
                 content = await uploadPictures(selectedImages);
-                content = content.join(', '); // Convert array of URLs to a comma-separated string
+                content = content.join(', ');
             } else if (postType === 'VIDEO') {
-                // If a video is selected, upload it and get URL
                 const videoUrl = await uploadVideo(selectedVideo, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
-                // If hybrid post, handle both text and media
                 content.push(postText);
                 const mediaUrls =
                     selectedImages.length > 0
@@ -184,32 +168,20 @@ const NewPost = () => {
                 content = content.concat(mediaUrls);
             }
 
-            //console.log('Post type:', postType);
-            //console.log('Content:', content);
-
-            // Call the createPost API function
             const result = await createPost(postType, content);
             if (result && result.id) {
-                //console.log('Result.postId:', result.id);
-                //console.log('Post created successfully', result);
                 const newPostId = result.id;
 
-                // Extract tagged usernames from postText
                 const taggedUsernames = extractUsernamesFromText(postText);
 
-                // Process each tagged username to find their user ID and send a tag notification
-                // Using Promise.all to handle multiple async operations in parallel
                 await Promise.all(
                     taggedUsernames.map(async username => {
                         try {
-                            // Use findAUser to get the user profile
                             const user = await findAUser({username});
                             if (user && user.id) {
-                                // Now that you have the userId, send the tag notification
-                                const notificationType = 'UserTaggedOnPost'; // Adjust as needed
+                                const notificationType = 'UserTaggedOnPost';
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
-                                    //console.log(`Notification sent to ${username}`);
                                 } else {
                                     console.error(`Failed to send notification to ${username}`);
                                 }
@@ -221,17 +193,15 @@ const NewPost = () => {
                         }
                     }),
                 );
-                setIsPosting(false); // Stop the upload indicator
+                setIsPosting(false);
                 navigation.goBack();
             } else {
-                //console.log('Failed to create the post');
             }
         } catch (error) {
             console.error('Error creating the post:', error);
-            setIsPosting(false); // Stop the upload indicator
+            setIsPosting(false);
         }
 
-        // Reset the state
         setPostText('');
         setSelectedImages([]);
         setSelectedVideo('');
@@ -255,8 +225,6 @@ const NewPost = () => {
         fetchUserSuggestions();
     }, [currentTag, isTagging]);
 
-
-
     return (
         <TabContainer>
             <SafeAreaView>
@@ -271,7 +239,6 @@ const NewPost = () => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
-                            // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
                                 position: 'absolute',
@@ -346,25 +313,23 @@ const NewPost = () => {
                                 style={styles.textinput}
                                 secureTextEntry={false}
                                 onChangeText={text => {
-                                    // Start or continue tagging
                                     const parts = text.split(' ');
                                     const lastPart = parts[parts.length - 1];
                                     if (lastPart.startsWith('@')) {
                                         setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1)); // Extract current tag without '@'
+                                        setCurrentTag(lastPart.slice(1));
                                     } else {
                                         setIsTagging(false);
                                         setCurrentTag('');
                                     }
 
-                                    // Update post text ensuring it doesn't exceed 200 characters
                                     if (text.length <= 200) {
                                         setPostText(text);
                                     }
                                 }}
                                 value={postText}
                                 multiline={true}
-                                maxLength={200} // Enforce the character limit
+                                maxLength={200}
                                 editable={true}
                             />
                         </View>
@@ -380,7 +345,6 @@ const NewPost = () => {
                                     <Pressable
                                         style={{marginVertical: 5}}
                                         onPress={() => {
-                                            // Handle the selection of a suggested user
                                             const newText =
                                                 postText.substring(0, postText.lastIndexOf('@')) + `@${item.username} `;
                                             setPostText(newText);
@@ -391,7 +355,6 @@ const NewPost = () => {
                                             userPicture={item.profilePicture}
                                             userName={item.username}
                                             onPress={() => {
-                                                // Handle the selection of a suggested user
                                                 const newText =
                                                     postText.substring(0, postText.lastIndexOf('@')) +
                                                     `@${item.username} `;
@@ -399,7 +362,6 @@ const NewPost = () => {
                                                 setIsTagging(false);
                                                 setCurrentTag('');
                                             }}
-                                            // influencer={item.influencer} // TODO: handle this
                                             userID={item.id}
                                             akcruBadge={item.badge}
                                             firstName={item.firstName}
@@ -414,14 +376,6 @@ const NewPost = () => {
                                     <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
 
-                                {/* <TouchableOpacity onPress={selectAGIF}>
-                                <Icon
-                                    name="file-gif-box"
-                                    type="material-community"
-                                    color={COLORS.MIDORANGE}
-                                    size={26}
-                                />
-                            </TouchableOpacity> */}
                                 <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
                                     <Icon
                                         name="video-account"
@@ -432,7 +386,7 @@ const NewPost = () => {
                                 </TouchableOpacity>
                             </View>
                         )}
-                        {/* Conditional rendering of CalculateVideoDuration */}
+
                         {selectedVideo && (
                             <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
                         )}
@@ -464,17 +418,14 @@ const NewPost = () => {
                                             style={{width: '100%', height: '100%', borderRadius: 10}}
                                             source={{uri: selectedVideo}}
                                             resizeMode="cover"
-                                            // onEnd={handleVideoEnd}
                                             repeat={true}
-                                            // onError={handleVideoError}
-                                            // onLoad={handleVideoLoad}
                                             muted={true}
                                         />
                                     </View>
                                 )}
                             </View>
                         )}
-                        {/* Picture Size Error Modal*/}
+
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
@@ -497,7 +448,7 @@ const NewPost = () => {
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Image is too large. Please select an image under 5MB.`}
+                                        {'Image is too large. Please select an image under 5MB.'}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {
@@ -510,7 +461,7 @@ const NewPost = () => {
                                                 textAlign: 'center',
                                                 color: COLORS.MIDORANGE,
                                             }}>
-                                            {`Close`}
+                                            {'Close'}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>

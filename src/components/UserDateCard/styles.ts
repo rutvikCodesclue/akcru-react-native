@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, SIZES, FONTS} from '../../../assets/constants';
+import {COLORS, FONTS} from '../../../assets/constants';
 
 export default StyleSheet.create({
     drawfonttag: {
@@ -20,27 +20,23 @@ export default StyleSheet.create({
     paragraphText: {
         ...FONTS.Username,
         color: COLORS.LIGHTGREY,
-       
     },
     paragraphText2: {
         ...FONTS.Username,
         color: COLORS.AKCRUBLUE,
-        
     },
     paragraphText3: {
         ...FONTS.Username,
         color: COLORS.PINK,
-        
     },
     paragraphText2label: {
         ...FONTS.Title3,
         color: COLORS.AKCRUBLUE,
-        
-        marginBottom:10
+
+        marginBottom: 10,
     },
     paragraphText3label: {
         ...FONTS.Title3,
         color: COLORS.MIDORANGE,
-        
     },
 });

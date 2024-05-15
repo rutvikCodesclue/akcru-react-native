@@ -1,38 +1,30 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    SafeAreaView,
-    Image,
-    FlatList,
-    TextInput,
-    ImageBackground,
-    ActivityIndicator,
-} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, Image, FlatList, TextInput, ImageBackground} from 'react-native';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
 import MITUserSearchCard from './MITUserCard';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {findAUser} from '../../../lib/api/user.lib';
 import {searchForUsers} from '../../../lib/api/user.lib';
-import {ClientStackParams} from '../../../navigation/ClientStack';
 import {IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
+import {
+    capitalizeFirstLetterOfString,
+    combineDateAndTime,
+    formatMovieDuration,
+    selectAvatarBorderColor,
+} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
 import HexAvatar from '../../../components/HexAvatar';
-import { MULTISIZES } from '../../../../assets/constants/theme';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {MULTISIZES} from '../../../../assets/constants/theme';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
@@ -49,7 +41,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const [data, setData] = useState<IUserProfile[] | []>([]);
 
-    // Fetch movie data based on the provided ID
     useEffect(() => {
         const fetchMovieData = async () => {
             try {
@@ -67,7 +58,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         fetchMovieData();
     }, [id]);
 
-    const userID: string | undefined = route.params?.userId ?? null; // Define userID here
+    const userID: string | undefined = route.params?.userId ?? null;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -88,14 +79,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                 fetchUserData();
             }
         }, [userID, setUser]),
-    ); // Include setUser as a dependency
+    );
 
     const [textInputFocused, setTextInputFocused] = useState(false);
     const textInputRef = useRef(null);
 
     const handleSearch = (text: any) => {
         if (text.length > 1) {
-            // send search request to backend when text is 2 or more characte
             searchForUsers(text).then(res => {
                 if (res.length > 0) {
                     setData(res);
@@ -104,8 +94,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
     };
 
-    //console.log('Movie title:', movie?.title); // Log movie URL for debugging
-    //console.log('Movie title:', movie?.year); // Log movie URL for debugging
+    //console.log('Movie title:', movie?.title);
+    //console.log('Movie title:', movie?.year);
 
     const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
@@ -117,8 +107,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedUserPicture, setSelectedUserPicture] = useState('');
     const [selectedInfluencer, setSelectedInfluencer] = useState('');
     const [selectedUser, setSelectedUser] = useState(false);
-    const [selectedBorderColor, setSelectedBorderColor] = useState('')
-    
+    const [selectedBorderColor, setSelectedBorderColor] = useState('');
 
     const handlePress = (username, badge, profilePicture) => {
         //console.log('Item with username', username, badge, 'pressed!');
@@ -133,7 +122,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedAkcruBadgeSuperHero(badge);
         setSelectedUserPicture(profilePicture);
         setSelectedUser(true);
-        // setSelectedInfluencer(influencer);
+
         setSelectedBorderColor(borderColor);
     };
 
@@ -215,7 +204,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             //console.log('DATE SENT TO API:', selectedDate.toISOString());
 
             if (formattedSelectedDateTimeInISO) {
-                // Call API to send MIT Invite
                 const response = await createAMITInvite({
                     movieId: movie.id,
                     username: selectedUserName,
@@ -227,7 +215,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                 if (response) {
                     setIsDateTimeSelected(true);
                     setIsSelectionDisabled(true);
-                    setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+                    setShowSendMIT(true);
                 }
             }
         }
@@ -366,7 +354,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                     });
                                                     setTextInputFocused(true);
                                                 }}
-                                                //   influencer={item.influencer}
                                                 userID={item.id}
                                                 akcruBadge={item.badge}
                                                 userDesc={item.description}
@@ -409,7 +396,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            {/* Start of Scheduling render */}
+
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -516,7 +503,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         padding: 10,
                                     }}>
                                     <LinearGradient
-                                        // Background Linear Gradient
                                         colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                         style={{
                                             position: 'absolute',
@@ -580,7 +566,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     <Image source={imageindex.MITticket} />
                                 </View>
                             </View>
-                            {/* Calendar */}
+
                             <View style={{marginTop: 20, marginBottom: 90}}>
                                 <Text style={styles.choosedate}>Choose date</Text>
                                 <View style={styles.container}>
@@ -596,8 +582,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         </TouchableOpacity>
                                     </View>
 
-                                    {/* Day picker */}
-
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.datePickerContainer}>
                                             {[...Array(daysInMonth)].map((_, index) => {
@@ -607,7 +591,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 const currentDay = new Date(currentYear, currentMonth, day);
                                                 const currentDayOfWeek = currentDay.getDay();
 
-                                                // Allow selection for current day and future days
                                                 const isSelectable = currentDay >= currentDate;
 
                                                 return (
@@ -645,7 +628,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         </Text>
                                     </View>
 
-                                    {/* Time picker */}
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.timePickerContainer}>
                                             {[...Array(24 * 4)].map((_, index) => {

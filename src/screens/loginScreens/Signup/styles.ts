@@ -39,7 +39,7 @@ export default StyleSheet.create({
   },
   bgimage: {
     height: SIZES.ScreenHeight,
-    // width: SIZES.ScreenWidth,
+    
   },
   container: {
     flex: 1,

@@ -1,63 +1,37 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-  Pressable,
-  Modal,
-  KeyboardAvoidingView,
-  Alert,
-  ActivityIndicator
-} from 'react-native';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert} from 'react-native';
 import React, {useState, useEffect} from 'react';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import { AkcruLogo } from '../../../../assets/svg';
+import {useNavigation} from '@react-navigation/native';
+import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
-import {Icon} from '@rneui/base';
 import useAuthStore from '../../../stores/auth.store';
-import { appVersion } from '../../../../assets/constants/Data';
-import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
-import { searchForUsers, updateUser } from '../../../lib/api/user.lib';
-import { ICru } from '../../../../types';
-import { searchCRUs, updateCRUInfo } from '../../../lib/api/cru.lib';
+import {ICru} from '../../../../types';
+import {searchCRUs, updateCRUInfo} from '../../../lib/api/cru.lib';
 
-const OnboardCruName = ({route}) => {
+const OnboardCruName = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const phoneNumber = route.params?.phoneNumber;
-    //console.log('Phone number passed to username:', phoneNumber);
 
-    const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the AP
+    const [, setCRU] = useState<ICru | undefined>(undefined);
 
     const [cruName, setCruName] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [userNameError, setUserNameError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    // Enhanced Email Validation
     const isCruNameValid = (cruName: string) => {
-       
         return cruName.length > 2;
     };
 
-    // const handleCruNameChange = (text: string) => {
-    //     setCruName(text);
-    //     setUserNameError(!isCruNameValid(text));
-    // };
-
     const checkFormCompletion = () => {
-        if (
-            cruName &&
-            isCruNameValid(cruName) // Check email format
-        ) {
+        if (cruName && isCruNameValid(cruName)) {
             setIsFormComplete(true);
         } else {
             setIsFormComplete(false);
@@ -69,7 +43,7 @@ const OnboardCruName = ({route}) => {
     }, [cruName]);
 
     const [showEmailModal, setShowEmailModal] = useState(false);
-    const [resetResultType, setResetResultType] = useState({
+    const [resetResultType, _] = useState({
         messageheader: '',
         messageheadercolor: '',
         message: '',
@@ -77,27 +51,17 @@ const OnboardCruName = ({route}) => {
         iconcolor: '',
     });
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [signupErrorMessage, setSignupErrorMessage] = useState('');
-
     const checkCruNameExists = async (cruName: string) => {
         try {
-            // Convert the CRU name to lowercase for consistency in checking
             const lowercaseCruName = cruName.toLowerCase();
 
-            // Perform a search to find any existing CRUs with the same name
             const response = await searchCRUs(lowercaseCruName);
 
-            // Check if the API call was successful and if there are any CRUs with the same name
             if (response && response.success) {
-                // Assuming no current CRU name is set or comparing against the previous name if updating an existing CRU
                 const currentCruName = useAuthStore.getState().user?.Cru?.name.toLowerCase();
 
-                // Filter the results to exclude the current CRU if updating
                 const filteredCrus = response.data.filter(cru => cru.name.toLowerCase() !== currentCruName);
 
-                // Check if there's any CRU with the exact name
                 const cruNameExists = filteredCrus.some(cru => cru.name.toLowerCase() === lowercaseCruName);
 
                 return cruNameExists;
@@ -105,49 +69,14 @@ const OnboardCruName = ({route}) => {
             return false;
         } catch (error) {
             console.error('Error checking CRU name:', error);
-            return false; // Assume CRU name doesn't exist in case of an error
+            return false;
         }
     };
-
-
-    // const ConfirmChangeCruName = async () => {
-    //     setLoading(true);
-
-    //     try {
-    //         const cruNameExists = await checkCruNameExists(cruName);
-
-    //         if (cruNameExists) {
-    //             // If the CRU name already exists, show an alert and prevent further actions
-    //             Alert.alert('CRU Name Taken', 'This CRU name is already in use. Please choose a different name.');
-    //             setLoading(false); // Stop the loading state
-    //         } else {
-    //             // Proceed with updating the CRU name if it's unique
-    //             if (CRU && cruName.trim() !== '') {
-    //                 console.log('CRU:', CRU);
-    //                 const updatedCRU = await updateCRUInfo({name: cruName});
-    //                 console.log('Updated CRU:', updatedCRU);
-    //                 if (updatedCRU) {
-    //                     setCRU(updatedCRU);
-    //                     navigation.navigate('OnboardDOB'); // Navigate to the next screen or update state
-    //                 } else {
-    //                     Alert.alert('Update Failed', 'Failed to update CRU name. Please try again.');
-    //                 }
-    //             } else {
-    //                 Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');
-    //             }
-    //             setLoading(false); // Stop the loading state
-    //         }
-    //     } catch (error) {
-    //         console.error('Error during CRU name confirmation:', error);
-    //         Alert.alert('Error', 'An error occurred while checking the CRU name.');
-    //         setLoading(false); // Stop the loading state
-    //     }
-    // };
 
     const ConfirmChangeCruName = async () => {
         if (!isCruNameValid(cruName)) {
             Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');
-            return; // Exit the function early
+            return;
         }
 
         setLoading(true);
@@ -158,7 +87,6 @@ const OnboardCruName = ({route}) => {
             if (cruNameExists) {
                 Alert.alert('CRU Name Taken', 'This CRU name is already in use. Please choose a different name.');
             } else {
-                // If the name is valid and does not exist, proceed to update or set the name
                 const updatedCRU = await updateCRUInfo({name: cruName});
                 if (updatedCRU) {
                     setCRU(updatedCRU);
@@ -184,16 +112,10 @@ const OnboardCruName = ({route}) => {
         setUserNameError(!isCruNameValid(text));
     };
 
-
-
-   
-
-
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

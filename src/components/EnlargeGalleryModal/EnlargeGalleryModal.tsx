@@ -1,5 +1,5 @@
-import { Pressable, TouchableWithoutFeedback, Image, Dimensions, Modal } from 'react-native'
-import React, { useState } from 'react'
+import {Pressable, TouchableWithoutFeedback, Image, Modal} from 'react-native';
+import React, {useState} from 'react';
 import ConfirmationModal from '../ConfirmationModal';
 
 type EnlargeGalleryProps = {
@@ -9,56 +9,50 @@ type EnlargeGalleryProps = {
 };
 
 const EnlargeGalleryModal = ({closeModal, image, deleteImage}: EnlargeGalleryProps) => {
-
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-    const {width, height} = Dimensions.get('window');
-
     const handleDeletePress = () => {
-        // Show confirmation modal
         setShowConfirmationModal(true);
     };
 
-     const handleConfirmDelete = async () => {
-         // Hide confirmation modal
-         setShowConfirmationModal(false);
-         // Call delete image function
-         await deleteImage(image);
-         // Close the image modal after deletion
-         closeModal();
-     };
+    const handleConfirmDelete = async () => {
+        setShowConfirmationModal(false);
 
-  return (
-      <Pressable
-          onPress={closeModal}
-          style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          }}>
-          <TouchableWithoutFeedback onLongPress={handleDeletePress}>
-              <Image
-                  source={{uri: image}}
-                  style={{
+        await deleteImage(image);
 
-                      borderRadius: 5,
-                      width: '90%',
-                      height: '75%' 
-                  }}
-                  resizeMode='cover'
-              />
-          </TouchableWithoutFeedback>
+        closeModal();
+    };
 
-          <Modal visible={showConfirmationModal} transparent={true} animationType="fade">
-              <ConfirmationModal
-                  confirmationText="Are you sure you want to delete this image?"
-                  onPressYes={handleConfirmDelete}
-                  onPressNo={() => setShowConfirmationModal(false)}
-              />
-          </Modal>
-      </Pressable>
-  );
-}
+    return (
+        <Pressable
+            onPress={closeModal}
+            style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}>
+            <TouchableWithoutFeedback onLongPress={handleDeletePress}>
+                <Image
+                    source={{uri: image}}
+                    style={{
+                        borderRadius: 5,
+                        width: '90%',
+                        height: '75%',
+                    }}
+                    resizeMode="cover"
+                />
+            </TouchableWithoutFeedback>
 
-export default EnlargeGalleryModal
+            <Modal visible={showConfirmationModal} transparent={true} animationType="fade">
+                <ConfirmationModal
+                    confirmationText="Are you sure you want to delete this image?"
+                    onPressYes={handleConfirmDelete}
+                    onPressNo={() => setShowConfirmationModal(false)}
+                />
+            </Modal>
+        </Pressable>
+    );
+};
+
+export default EnlargeGalleryModal;

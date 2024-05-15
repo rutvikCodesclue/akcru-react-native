@@ -15,7 +15,7 @@ export default StyleSheet.create({
     },
     footStats: {
         ...FONTS.paragraph1,
-        // fontSize: 12,
+        
         lineHeight: 18,
         color: COLORS.AKCRUBLUE,
         opacity: 0.5,

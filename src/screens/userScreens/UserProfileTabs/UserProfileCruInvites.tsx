@@ -1,18 +1,16 @@
-import { View, Text, ScrollView, FlatList, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import {View, Text, FlatList} from 'react-native';
+import React, {useState} from 'react';
 import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
-import { acceptACRUInvite, declineACRUInvite, getCRUInvites, listCrusForUser } from '../../../lib/api/cru.lib';
-import { ICru, ICruInvite, IMITInvite } from '../../../../types';
-import { COLORS, FONTS } from '../../../../assets/constants';
-import { getMyMITInvites } from '../../../lib/api/mit.lib';
-import MITInviteCard from '../../../components/MITInviteCard';
-import imageindex from '../../../../assets/images/imageindex';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ClientStackParams } from '../../../navigation/ClientStack';
+import {acceptACRUInvite, declineACRUInvite, getCRUInvites} from '../../../lib/api/cru.lib';
+import {ICruInvite, IMITInvite} from '../../../../types';
+import {COLORS, FONTS} from '../../../../assets/constants';
+import {getMyMITInvites} from '../../../lib/api/mit.lib';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {ClientStackParams} from '../../../navigation/ClientStack';
 import useAuthStore from '../../../stores/auth.store';
-import { UseTabMenu } from '../../../context/TabContext';
+import {UseTabMenu} from '../../../context/TabContext';
 
 const UserProfileCruInvites = () => {
     const [cruInvites, setCRUInvites] = useState<ICruInvite[] | []>([]);
@@ -24,46 +22,31 @@ const UserProfileCruInvites = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             getCRUInvites({pending: true}).then(cruInvites => {
-                // Check if cruInvites is not null or undefined
                 if (cruInvites) {
-                    // Filter the cruInvites to keep only the pending ones
                     const pendingCRUInvites = cruInvites.filter(
                         (invite: {status: string}) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
                     );
 
-                    // Set the filtered pending CRU invites to your state
                     setCRUInvites(pendingCRUInvites);
 
-                    // Set any other state or perform additional actions if necessary
                     setIsLoaded(true);
                 }
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // You can perform cleanup or reset state if needed when the screen is unfocused
-            };
+            return () => {};
         }, []),
     );
 
-
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            // console.log('User Profile Cru Invite Tab focused');
             getCRUInvites({pending: true}).then(invites => {
-                // console.log("cru invites: ", JSON.stringify(invites, null, 3));
                 setInvites(invites);
 
-                // get the MITS for the user and merge
                 getMyMITInvites({pending: true}).then(mitInvites => {
-                    // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
-
                     if (mitInvites) {
                         setInvites(prevInvites => [...prevInvites, ...mitInvites]);
-                        // sort invites by date (newest to oldest) and set state
+
                         setInvites(prevInvites =>
                             prevInvites.sort((a, b) => {
                                 if (a.createdAt < b.createdAt) {
@@ -81,10 +64,7 @@ const UserProfileCruInvites = () => {
                 });
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // console.log('User Profile Cru Invite Tab unfocused');
-            };
+            return () => {};
         }, []),
     );
 
@@ -96,8 +76,8 @@ const UserProfileCruInvites = () => {
         acceptACRUInvite({inviteId: item.id}).then(res => {
             //console.log('accepted res:', res);
             setIsLoading(false);
-            // Navigate to CruInviteAccept screen with necessary parameters for CruInvite
-            setRefetchCrus(true); // This will update the state in your context
+
+            setRefetchCrus(true);
             navigation.navigate('CruInviteAccept', {
                 id: item.cruId,
                 inviteeName: item.cru.creator.firstName,
@@ -114,7 +94,7 @@ const UserProfileCruInvites = () => {
         declineACRUInvite({inviteId: item.id}).then(res => {
             //console.log('declined res:', res);
             setIsLoading(false);
-            // Navigate to CruInviteDecline screen with necessary parameters for CruInvite
+
             navigation.navigate('CruInviteDecline', {
                 id: item.cruId,
                 inviteeName: item.cru.creator.firstName,
@@ -126,7 +106,6 @@ const UserProfileCruInvites = () => {
     };
 
     const handleCruInviteCardPress = (creatorId: string) => {
-        // Navigate to the ViewUserScreen with the user's ID
         navigation.navigate('ViewUserScreen', {userID: creatorId});
     };
 
@@ -144,7 +123,7 @@ const UserProfileCruInvites = () => {
                     data={cruInvites}
                     horizontal={false}
                     showsVerticalScrollIndicator={false}
-                    keyExtractor={(item, index) => index.toString()} // Use a unique identifier for the key
+                    keyExtractor={(item, index) => index.toString()}
                     renderItem={({item, index}) => (
                         <View style={{marginHorizontal: 15, marginBottom: 10}}>
                             <CruInviteCard
@@ -153,20 +132,19 @@ const UserProfileCruInvites = () => {
                                 inviteePicture={item.cru.creator.profilePicture ?? undefined}
                                 inviteDate={item.createdAt}
                                 invitee={item.cru.creator}
-                                onPress={() => handleCruInviteCardPress(item.cru.creatorId)} // Navigate to the user's profile
+                                onPress={() => handleCruInviteCardPress(item.cru.creatorId)}
                                 decline={() => _declineCruInvite(item)}
                                 accept={() => _acceptCruInvite(item)}
                             />
                         </View>
                     )}
                     ListEmptyComponent={
-                        // Render this when the list is empty
                         <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>No Invites</Text>
                     }
                 />
             )}
         </View>
     );
-}
+};
 
-export default UserProfileCruInvites
+export default UserProfileCruInvites;

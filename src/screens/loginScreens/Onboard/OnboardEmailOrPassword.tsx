@@ -1,53 +1,33 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  ImageBackground,
-  Pressable,
-  Modal,
-  KeyboardAvoidingView,
-  Alert,
-  ActivityIndicator,
-  TextInput
-} from 'react-native';
-import React, {useState, useEffect} from 'react';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, ActivityIndicator, TextInput} from 'react-native';
+import React, {useState} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import { AkcruLogo } from '../../../../assets/svg';
+import {useNavigation} from '@react-navigation/native';
+import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
-import Tos from './tos';
-import useAuthStore from '../../../stores/auth.store';
-import { appVersion } from '../../../../assets/constants/Data';
-import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
 
 const OnboardEmailOrPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    // Retrieve both email and phoneNumber from route.params
     const email = route.params?.email;
-    //console.log('Email passed to PW:', email);
+
     const phoneNumber = route.params?.phoneNumber;
-    //console.log('Phone number passed to PW:', phoneNumber);
 
     const [phone, setPhone] = useState('');
     const [loading, setLoading] = useState(false);
     const [phoneError, setPhoneError] = useState(false);
-    const [isFormComplete, setIsFormComplete] = useState(false);
+    const [, setIsFormComplete] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Phone Number Validation
     const isPhoneValid = (phone: string) => {
-        // Add your phone number validation logic here
         return /^\d{10}$/.test(phone);
     };
 
@@ -60,14 +40,14 @@ const OnboardEmailOrPassword = ({route}) => {
 
     const [emailError, setEmailError] = useState(false);
     const [Email, setEmail] = useState<string>('');
-    // Enhanced Email Validation
+
     const isEmailValid = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
     const handleEmailChange = (text: string) => {
-        setEmail(text);
+        setEmail(text.toLowerCase());
         setEmailError(!isEmailValid(text));
     };
 
@@ -75,7 +55,6 @@ const OnboardEmailOrPassword = ({route}) => {
         setIsFormComplete(isPhoneValid(phoneNumber));
     };
 
-    //reset password modal
     const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
     const [resetResultType, setResetResultType] = useState({
         messageheader: '',
@@ -89,7 +68,6 @@ const OnboardEmailOrPassword = ({route}) => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -127,34 +105,23 @@ const OnboardEmailOrPassword = ({route}) => {
                                         style={{marginRight: 5}}
                                     />
                                     <Text style={styles.textinputprefix}>+1</Text>
-                                    {/* <TextInput
-                                        // mask="+1-999-999-9999"
-                                        placeholder="1-123-456-7890"
+
+                                    <TextInput
+                                        placeholder="234-456-7890"
                                         placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.phonenuminput}
+                                        style={styles.textinput}
                                         secureTextEntry={false}
                                         onChangeText={handlePhoneNumberChange}
                                         value={phone}
-                                        keyboardType="phone-pad"
+                                        keyboardType="number-pad"
+                                        maxLength={10}
                                         editable={true}
-                                    /> */}
-                                    <TextInput
-                                    placeholder="234-456-7890" // Updated placeholder
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={handlePhoneNumberChange}
-                                    value={phone}
-                                    keyboardType="number-pad"
-                                    maxLength={10} // Ensure only 10 digits can be entered
-                                    editable={true}
                                     />
                                 </View>
                                 {phoneError && <Text style={styles.warningText}>Invalid mobile number</Text>}
                             </View>
                         )}
 
-                        {/* Email Input - Only shown if phoneNumber is passed and email is not */}
                         {!email && phoneNumber && (
                             <View style={{alignItems: 'center', marginTop: 10}}>
                                 <Inputs
@@ -175,15 +142,10 @@ const OnboardEmailOrPassword = ({route}) => {
                                     <AkcruButtons.LrgButton
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your mobile number'}
-                                  
-                                        onPress={() =>{
-
-                                        
-                                            console.log("phone =>", "1"+phone)
-                                            navigation.navigate('OnboardPassword', {email: email, phoneNumber: phone})
-                                        }
-
-                                        }
+                                        onPress={() => {
+                                            console.log('phone =>', '1' + phone);
+                                            navigation.navigate('OnboardPassword', {email: email, phoneNumber: phone});
+                                        }}
                                         disabled={phoneError || !phone}
                                     />
                                 </View>

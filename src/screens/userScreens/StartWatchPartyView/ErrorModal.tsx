@@ -1,8 +1,8 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, FONTS } from '../../../../assets/constants';
+import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {COLORS, FONTS} from '../../../../assets/constants';
 
-const ErrorModal = ({ errorMessage, onClose }) => {
+const ErrorModal = ({errorMessage, onClose}) => {
     return (
         <Modal animationType="fade" transparent={true} visible={true}>
             <View style={styles.modalContainer}>
@@ -36,14 +36,14 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     okButton: {
-        backgroundColor: 'red', // Adjust color as needed
+        backgroundColor: 'red',
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 5,
     },
     okButtonText: {
         ...FONTS.Title3,
-        color: COLORS.WHITE, // Adjust color as needed
+        color: COLORS.WHITE,
     },
 });
 

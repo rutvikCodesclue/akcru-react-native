@@ -1,9 +1,9 @@
-import {View, Text, Pressable } from 'react-native';
+import {View, Text, Pressable} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
 import AkcruButtons from '../akcruButtons';
-import { TouchableWithoutFeedback } from 'react-native';
+import {TouchableWithoutFeedback} from 'react-native';
 
 type HelpModalProps = {
     closeModal: () => void;
@@ -52,12 +52,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
                                 Here's our frequently ask questions. Also ask Trinity
                             </Text>
                         </View>
-                        <AkcruButtons.XlLrgButton
-                            btnname="FAQ"
-                            onPress={faq}
-                            color={COLORS.PINK}
-                            disabled={false}
-                        />
+                        <AkcruButtons.XlLrgButton btnname="FAQ" onPress={faq} color={COLORS.PINK} disabled={false} />
                     </View>
                     <View style={{paddingVertical: 10, alignItems: 'center'}}>
                         <View style={{paddingBottom: 10}}>

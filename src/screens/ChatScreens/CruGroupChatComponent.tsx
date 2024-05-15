@@ -1,40 +1,15 @@
-import {
-    HMSAudioTrackSettings,
-    HMSCameraFacing,
-    HMSConfig,
-    HMSMessage,
-    HMSPeer,
-    HMSSDK,
-    HMSTrack,
-    HMSTrackSettings,
-    HMSTrackSettingsInitState,
-    HMSTrackUpdate,
-    HMSUpdateListenerActions,
-    HMSVideoTrackSettings,
-} from '@100mslive/react-native-hms';
-``;
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/base';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {SafeAreaView, View} from 'react-native';
+import {HMSSDK} from '@100mslive/react-native-hms';
+import {useNavigation} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {View} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
-import {COLORS, FONTS} from '../../../assets/constants';
-
+import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Text, TouchableRipple} from 'react-native-paper';
 import HexAvatar from '../../components/HexAvatar';
-import Header from '../../components/header';
-import {
-    createChatRoom,
-    getTextMessages,
-    getTextMessagesGroup,
-    saveTextMessage,
-    updateMessageStatus,
-} from '../../lib/api/rooms.lib';
+import {getTextMessagesGroup, saveTextMessage, updateMessageStatus} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../util/util';
-import _, {uniqueId} from 'lodash';
 import {supabase} from '../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../util/playMessageSound';
@@ -51,12 +26,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const cruId = cru.id || null;
     const [membersdata, setMembersData] = useState({});
 
-    // const userID: string | undefined = route.params?.userId ?? null;
-    // const {creatorProfilePicture, inviteeProfilePicture, profilePicture} = route.params;
     const {user} = useAuthStore();
 
-    var roomId = '';
-    const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
     const [channelP, setChannelP] = useState<RealtimeChannel | null>(null);
@@ -105,14 +76,15 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         };
     }, []);
 
-    // Simple function to log any messages we receive
     function messageReceived(payload: any) {
-        if (payload.payload.senderId === user.id) return;
+        if (payload.payload.senderId === user.id) {
+            return;
+        }
         var messsages: IMessage[] = [];
         const iMessage: IMessage = {
             _id: payload.payload.msgId,
             text: payload.payload.message,
-            user: {_id: payload.payload.senderId!, name: membersdata[payload.payload.senderId!]['username']},
+            user: {_id: payload.payload.senderId!, name: membersdata[payload.payload.senderId!].username},
             createdAt: Date.now(),
         };
         playMessageSound();
@@ -143,7 +115,9 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     const onSend = (messages: IMessage[] = []) => {
-        if (channelll === null) return; // console.log('Channel not found');
+        if (channelll === null) {
+            return;
+        }
         const msgId = generateUUID();
         channelll.send({
             type: 'broadcast',
@@ -158,11 +132,9 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         saveTextMessage(cruId, messages[0]!.text!, user.id!, true, msgId);
-        // updateMessageStatus([messages[0]._id])
     };
 
     const handleAvatarPress = (user: any) => {
-        // Navigate to the user's profile screen
         navigation.navigate('ViewUserScreen', {userID: user._id});
     };
 
@@ -210,7 +182,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                 )}
                                 source={{
                                     uri: membersdata[props.currentMessage?.user?._id]
-                                        ? membersdata[props.currentMessage?.user?._id]['profilePicture']
+                                        ? membersdata[props.currentMessage?.user?._id].profilePicture
                                         : null,
                                 }}
                                 {...props}
@@ -223,21 +195,17 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                         {...props}
                         wrapperStyle={{
                             right: {
-                                // Change the background color for messages sent by the current user
                                 backgroundColor: COLORS.AKCRUBLUE,
                             },
                             left: {
-                                // Change the background color for messages sent by other users
                                 backgroundColor: COLORS.CATPURPDRK,
                             },
                         }}
                         textStyle={{
                             right: {
-                                // Text color for messages sent by the current user
                                 color: COLORS.WHITE,
                             },
                             left: {
-                                // Text color for messages sent by other users
                                 color: COLORS.WHITE,
                             },
                         }}

@@ -1,12 +1,8 @@
-import {View} from 'react-native';
-import React, {useState} from 'react';
-import {Avatar, Icon} from '@rneui/base';
+import React from 'react';
 import {selectAvatarBorderColor} from '../../util/util';
 import imageindex from '../../../assets/images/imageindex';
 import HexAvatar from '../HexAvatar';
-import { MULTISIZES } from '../../../assets/constants/theme';
-
-
+import {MULTISIZES} from '../../../assets/constants/theme';
 
 type CruMemberPicProps = {
     userPicture: string | undefined;

@@ -1,33 +1,28 @@
-import {View, Text, ImageBackground, Modal, TouchableOpacity, Alert, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, ImageBackground, Modal, Alert, ScrollView, ActivityIndicator} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
-import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import Svg, {Path} from 'react-native-svg';
 import Inputs from '../../../components/input';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import useAuthStore from '../../../stores/auth.store';
-import { API } from '../../../clients/api.client';
-import { AkcruLogo } from '../../../../assets/svg';
+import {AkcruLogo} from '../../../../assets/svg';
 import LinearGradient from 'react-native-linear-gradient';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
-import { getPushToken } from '../../../../lib/pushNotifications';
-
+import {getPushToken} from '../../../../lib/pushNotifications';
 
 const OnboardPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    // Retrieve both email and phoneNumber from route.params
+
     const email = route.params?.email;
-    //console.log('Email passed to pw screen:', email);
+
     const phoneNumber = route.params?.phoneNumber;
-    //console.log('Phone number passed pw screen:', phoneNumber);
-  
+
     const user = useAuthStore(state => state.user);
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
 
@@ -84,17 +79,12 @@ const OnboardPassword = ({route}) => {
             setIsLoading(true);
 
             setLoading(true);
-            //console.log('Attempting to Signup w/ Email/Password:', email, password);
 
-            // Create an email signup
             const {user, error: signupError} = await useAuthStore.getState().signUpWithEmail(email, password);
             if (signupError) {
                 throw new Error(signupError.message || 'Error during signup');
             }
 
-            //console.log('Signup Successful!', user);
-
-            // Login through the API
             const {
                 user: loggedInUser,
                 session,
@@ -104,12 +94,11 @@ const OnboardPassword = ({route}) => {
                 throw new Error(loginError.message || 'Error logging in after signup');
             }
 
-            //console.log('Login AFTER SIGNUP Successful!', session);
             await useAuthStore.getState().hydrateAuth();
             await useAuthStore.getState().hydrateUser();
-            //console.log('Hydrated auth and user after successful login and signup', session);
+
             getPushToken(email);
-            // Navigate to the next screen on successful signup and login
+
             navigation.navigate('OnboardUsername', {phoneNumber: phoneNumber});
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -126,8 +115,7 @@ const OnboardPassword = ({route}) => {
                 } else if (error.response?.status === 401) {
                     userMessage = 'Unauthorized. Please check your credentials.';
                 }
-                setSignupErrorMessage(userMessage); // Set the error message for the modal
-                //  Alert.alert('Signup Error', userMessage);
+                setSignupErrorMessage(userMessage);
             } else {
                 setSignupErrorMessage('An unexpected error occurred during signup.');
                 console.error('Non-Axios error during signup:', error);
@@ -139,38 +127,10 @@ const OnboardPassword = ({route}) => {
         }
     };
 
-    // const handleConfirmSetPassword = async () => {
-    //     if (!isFormComplete) {
-    //         Alert.alert('Error', 'Please ensure all fields are correctly filled.');
-    //         return;
-    //     }
-
-    //     if (password !== confirmPassword) {
-    //         Alert.alert('Error', 'Passwords do not match.');
-    //         return;
-    //     }
-
-    //     if (password.length < 8) {
-    //         Alert.alert('Error', 'Password should be at least 8 characters long.');
-    //         return;
-    //     }
-
-    //     setLoading(true);
-
-    //     try {
-    //         // Construct the payload based on what is available
-    //         const payload = email ? {email} : {phoneNumber};
-    //         navigation.navigate('OnboardUsername');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

@@ -146,7 +146,7 @@ const UserNotification = ({route}: Props) => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
-                            // Background Linear Gradient
+                            
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
                                 position: 'absolute',

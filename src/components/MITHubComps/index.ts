@@ -1,9 +1,5 @@
-import MITHubCard from "./MITHubCard";
-import MITHubList from "./MITHubList";
-import MITInviteHubCard from "./MITInviteHubCard";
+import MITHubCard from './MITHubCard';
+import MITHubList from './MITHubList';
+import MITInviteHubCard from './MITInviteHubCard';
 
-export {
-MITHubCard,
-MITHubList,
-MITInviteHubCard
-};
+export {MITHubCard, MITHubList, MITInviteHubCard};

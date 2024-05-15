@@ -1,8 +1,6 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
-import { COLORS } from '../../assets/constants';
-import ClientTabNavigator from './ClientTabNavigator';
-import { ClientStack } from './ClientStack';
+import {COLORS} from '../../assets/constants';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
@@ -14,7 +12,7 @@ export type AkcruButtonStackParams = {
     FlickFlirtScreen: any;
     AkcruNetworkScreen: any;
     ClientTabNavigator: any;
-  
+
     AkcruCenterButton: any;
 };
 

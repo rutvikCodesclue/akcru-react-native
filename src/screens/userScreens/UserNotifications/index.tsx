@@ -20,9 +20,9 @@ const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
-    const [isLoading, setIsLoading] = useState(true); // Initialize loading state to true
+    const [isLoading, setIsLoading] = useState(true); 
 
-    // Fetch notifications when the component mounts
+    
     useEffect(() => {
         async function fetchNotifications() {
             try {
@@ -32,14 +32,14 @@ const UserNotifications = () => {
             } catch (error) {
                 console.error(error);
             } finally {
-                setIsLoading(false); // End loading, regardless of the outcome
+                setIsLoading(false); 
             }
         }
 
         fetchNotifications();
     }, []);
 
-    // Example function to handle navigation based on notification
+    
   const navigateToContent = async (notification: INotification) => {
       try {
           switch (notification.type) {
@@ -49,7 +49,7 @@ const UserNotifications = () => {
               case 'UserCommentedOnPost':
               case 'UserTaggedOnComment':
               case 'ADReceived':
-                  // Fetch the post data before navigating
+                  
                   const postId = notification.postId;
                   if (postId) {
                       const numericPostId = parseInt(postId, 10);
@@ -61,7 +61,7 @@ const UserNotifications = () => {
                       }
                   }
                   break;
-              // Handle other cases as needed
+              
               default:
                   console.warn('Unhandled notification type:', notification.type);
                   break;
@@ -69,8 +69,8 @@ const UserNotifications = () => {
               case 'CruInviteReceived':
               case 'CruInviteAccepted':
               case 'CruInviteDeclined':
-                  // Assuming the notification includes the user ID of the follower
-                  const userId = notification.senderId; // Adjust this to match your notification structure
+                  
+                  const userId = notification.senderId; 
                   //console.log('Notification Data:', notification)
                   if (userId) {
                       navigation.navigate('ViewUserScreen', {userID: userId});
@@ -100,13 +100,13 @@ const UserNotifications = () => {
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
             ADReceived: 'You just received AD',
-            // Add more mappings as needed
+            
         };
 
-        return typeDisplayNames[type] || type; // Return the original type if not found in the map
+        return typeDisplayNames[type] || type; 
     };
 
-    // Filter notifications based on specific types and unread status
+    
     const filteredNotifications = notifications.filter(
         notification =>
             !notification.isRead &&
@@ -134,13 +134,13 @@ const UserNotifications = () => {
 
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
-            // Call the API to mark the notification as read
+            
             const updatedNotification = await markNotificationRead({id: notificationId});
 
             //console.log('API Response:', updatedNotification);
 
             if (updatedNotification) {
-                // Update the local state to mark the notification as read
+                
                 setNotifications(prevNotifications =>
                     prevNotifications.map(notification =>
                         notification.id === notificationId ? {...notification, isRead: true} : notification,
@@ -159,7 +159,7 @@ const UserNotifications = () => {
 
         if (unreadNotificationIds.length > 0) {
             try {
-                const response = await batchMarkNotificationsRead(unreadNotificationIds); // Implement this function
+                const response = await batchMarkNotificationsRead(unreadNotificationIds); 
                 if (response.success) {
                     setNotifications(notifications.map(notif => ({...notif, isRead: true})));
                     //console.log('All notifications marked as read');
@@ -178,7 +178,7 @@ const UserNotifications = () => {
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
                 {isLoading ? (
-                    // Render LoadingComponent only when isLoading is true
+                    
                     <LoadingComponent />
                 ) : (
                     <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
@@ -194,7 +194,7 @@ const UserNotifications = () => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
                                 <LinearGradient
-                                    // Background Linear Gradient
+                                    
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -238,15 +238,15 @@ const UserNotifications = () => {
                         </View>
 
                         <View style={{marginHorizontal: 15}}>
-                            {/* Render user notifications */}
+                            
                             {sortedNotifications.map((notification, index) => {
                                 const {id, type, message, isRead, createdAt, user} = notification;
 
-                                // //console.log the isRead property
+                                
                                 //console.log(`Notification ID: ${id}, isRead: ${isRead}`);
                                 //console.log('User Data Notification:', notification);
 
-                                // Use the mapping function to get the display name
+                                
                                 const displayName = getNotificationDisplayName(type);
 
                                 return (
@@ -255,7 +255,7 @@ const UserNotifications = () => {
                                         
                                         <View key={index} style={styles.cardcontainer}>
                                             <LinearGradient
-                                                // Background Linear Gradient
+                                                
                                                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                                 style={{
                                                     position: 'absolute',
@@ -277,7 +277,7 @@ const UserNotifications = () => {
                                             <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
                                                 {formatTimestampToAMPM(createdAt)}
                                             </Text>
-                                            {/* <Text style={{...FONTS.Title2}}>{`${user?.username}`}</Text> */}
+                                            
                                             <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
                                             <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
                                                 <Text

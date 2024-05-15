@@ -31,17 +31,17 @@ import BlockUserResultModal from "../../../components/BlockUserResultModal/Block
 
 
 const UserProfileWalletTab = () => {
-    // Use the useRoute hook to access the selected user data
+    
     const route = useRoute();
     const selectedUser = route.params?.selectedUser;
 
-    // Define state for the AD amount
-    const [adAmount, setAdAmount] = useState(''); // This will hold the amount entered in the input field
+    
+    const [adAmount, setAdAmount] = useState(''); 
 
-    const [amountToSend, setAmountToSend] = useState(''); // State to store the amount entered
+    const [amountToSend, setAmountToSend] = useState(''); 
 
-    // console.log('Selected User:', selectedUser);
-    // const toText = selectedUser ? selectedUser.username : '';
+    
+    
     useEffect(() => {
         if (selectedUser && selectedUser?.username) {
             setSendTo(selectedUser.username);
@@ -65,63 +65,63 @@ const UserProfileWalletTab = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // Do something when the screen is focused
+            
             getTotalSupplyOfAD().then(amount => {
                 setTotalSupply(amount);
             });
 
             return () => {
-                // Do something when the screen is unfocused
+                
             };
         }, []),
     );
 
-    // Function to handle the AD transfer
+    
     const handleSendAD = async () => {
         const adAmountNumber = parseFloat(amountToSend);
 
         if (!isNaN(adAmountNumber) && adAmountNumber > 0) {
             if (user && selectedUser && adAmountNumber <= user.adAmount) {
                 const response = await sendAD({
-                    recipientId: selectedUser.id, // Assuming selectedUser has an 'id' field
+                    recipientId: selectedUser.id, 
                     adAmount: adAmountNumber,
                 });
                 //console.log('Response:', response);
                 if (response.success) {
-                    // Alert.alert('Success', response.message || 'AD sent successfully');
-                    // Optionally, update any relevant state or navigate as needed
+                    
+                    
                     setModalType('success');
                     setWalletResultModal(true);
 
                     setwalletResultMessage(response.message || 'AD sent successfully');
                     setIconName('check');
-                    setAmountToSend(''); // Clear the amount input
+                    setAmountToSend(''); 
                     setSendTo('');
                 } else {
-                    // Alert.alert('Error', response.message || 'Failed to send AD');
+                    
                     setModalType('failed');
                     setWalletResultModal(true);
                     setwalletResultMessage(response.message || 'Failed to send AD');
                     setIconName('close');
-                    setAmountToSend(''); // Clear the amount input
+                    setAmountToSend(''); 
                     setSendTo('');
                 }
             } else {
-                // Alert.alert('Error', response.message );
+                
                 setModalType('failed');
                 setWalletResultModal(true);
                 setwalletResultMessage('Failed to send AD');
                 setIconName('close');
-                setAmountToSend(''); // Clear the amount input
+                setAmountToSend(''); 
                 setSendTo('');
             }
         } else {
-            // Alert.alert('Error', 'Please enter a valid amount');
+            
             setModalType('failed');
             setWalletResultModal(true);
             setwalletResultMessage('Please enter a valid amount');
             setIconName('close');
-            setAmountToSend(''); // Clear the amount input
+            setAmountToSend(''); 
             setSendTo('');
         }
     };
@@ -133,8 +133,8 @@ const UserProfileWalletTab = () => {
     };
 
     const handleClearInput = () => {
-        setSendTo(''); // Assuming you're using sendTo to store the recipient's username
-        setAmountToSend(''); // Clear the AD amount input
+        setSendTo(''); 
+        setAmountToSend(''); 
     };
     
 
@@ -174,7 +174,7 @@ const UserProfileWalletTab = () => {
                                         style={{color: COLORS.WHITE, width: '100%'}}
                                         editable={false}
                                         secureTextEntry={false}
-                                        value={sendTo} // Set the value of the TextInput to the selected user's username
+                                        value={sendTo} 
                                     />
                                 </View>
                             </Pressable>
@@ -187,7 +187,7 @@ const UserProfileWalletTab = () => {
                                         style={{color: COLORS.WHITE, width: '100%'}}
                                         editable={false}
                                         secureTextEntry={false}
-                                        value={sendTo} // Set the value of the TextInput to the selected user's username
+                                        value={sendTo} 
                                     />
                                 </View>
                             </TouchableOpacity>
@@ -202,8 +202,8 @@ const UserProfileWalletTab = () => {
                             placeholder={'Amount'}
                             placeholderTextColor={'transparent'}
                             style={{color: COLORS.WHITE, width: '100%'}}
-                            keyboardType="phone-pad" // Set keyboard type to phone-pad
-                            onChangeText={text => setAmountToSend(text)} // Update the amountToSend state
+                            keyboardType="phone-pad" 
+                            onChangeText={text => setAmountToSend(text)} 
                         />
                     </View>
                 </View>

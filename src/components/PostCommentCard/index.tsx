@@ -1,7 +1,7 @@
 import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
@@ -9,8 +9,7 @@ import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
-import {deletePost} from '../../lib/api/post.lib';
-import { IUserProfile } from '../../../types';
+import {IUserProfile} from '../../../types';
 
 type FooterIconsProps = {
     iconname: string;
@@ -78,6 +77,7 @@ type PostStats = {
 };
 
 type PostType = {
+    isLikedByCurrentUser: any;
     id: string;
     content: string;
     author: IUserProfile;
@@ -107,7 +107,7 @@ type PostProps = {
     openProfile: () => void;
     onFollow: () => void;
     onUnfollow: () => void;
-    isFollowing: boolean; // Add this to track follow status
+    isFollowing: boolean;
     onDeleteComment: () => void;
     currentUserID?: string;
     akcruBadge?: string;
@@ -115,50 +115,45 @@ type PostProps = {
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
     comment: any;
-    likeCount: number
-    userName: string
-    firstName: string
-    akcruBadgeColor: string
+    likeCount: number;
+    userName: string;
+    firstName: string;
+    akcruBadgeColor: string;
 };
 
 const PostCommentCard = ({
-    comment,
     post,
     openProfile,
     onFollow,
-    onUnfollow,
     isFollowing,
     onDeleteComment,
     currentUserID,
     akcruBadge,
     onLikeOrUnlike,
-    CommentOnPostButton,
     likeCount,
     userName,
     firstName,
-    akcruBadgeColor
+    akcruBadgeColor,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
     const [isVideoModalVisible, setVideoModalVisible] = useState(false);
-    const [selectedVideo, setSelectedVideo] = useState('');
+    const [, setSelectedVideo] = useState('');
 
     const [isPostOptionsVisible, setPostOptionsVisible] = useState(false);
 
-    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [, setIsVideoLoaded] = useState(false);
 
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
-    // Determine the color for the "happy" icon based on whether the post is liked by the current user
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
-    // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author?.id === currentUserID;
 
     const openModal = (image: React.SetStateAction<string>) => {
@@ -172,37 +167,28 @@ const PostCommentCard = ({
     };
 
     const handleVideoEnd = () => {
-        // Logic for when the video ends
         setVideoModalVisible(false);
     };
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         setVideoModalVisible(false);
     };
 
     const handleVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
     };
 
     const handleModalVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
 
     const handleSkipVideo = () => {
-        // Logic for skipping the video
         setVideoModalVisible(false);
     };
 
     const closeModal = () => {
         setImageModalVisible(false);
-    };
-
-    const closeVideoModal = () => {
-        setVideoModalVisible(false);
     };
 
     const openPostOptions = () => {
@@ -213,15 +199,10 @@ const PostCommentCard = ({
         setPostOptionsVisible(false);
     };
 
-    const openShareOptions = () => {
-        setShareOptionsVisible(true);
-    };
-
     const closeShareOptions = () => {
         setShareOptionsVisible(false);
     };
 
-    // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor) {
             return (
@@ -274,26 +255,14 @@ const PostCommentCard = ({
         }
         return null;
     };
-    const renderNotInterested = () => {
-        if (!isCurrentUserAuthor) {
-            return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon name="sad" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
-                </Pressable>
-            );
-        }
-        return null;
-    };
-
     const renderFollowUser = () => {
         if (!isCurrentUserAuthor) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={() => {
-                        onFollow(); // Call the report user function
-                        closePostOptions(); // Close the modal
+                        onFollow();
+                        closePostOptions();
                     }}>
                     <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
@@ -305,12 +274,11 @@ const PostCommentCard = ({
         return null;
     };
 
-    const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
+    const {textContent, imageUrls, videoUrl} = classifyPostContent([post.content]);
 
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -396,21 +364,6 @@ const PostCommentCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {/* {renderNotInterested()} */}
-                            {/* <Pressable
-                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                                onPress={handleFollowPress}>
-                                <Icon
-                                    name="person"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={20}
-                                    style={{marginLeft: 5}}
-                                />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
-                                </Text>
-                            </Pressable> */}
                             {renderFollowUser()}
                             {/* {renderMuteUser()}
                             {renderBlockUser()} */}
@@ -463,7 +416,7 @@ const PostCommentCard = ({
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
                 {timeSince(post.createdAt)}
             </Text>
-            {/* Render text if available */}
+
             {textContent && (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{textContent}</Text>
@@ -471,7 +424,6 @@ const PostCommentCard = ({
             )}
 
             <View>
-                {/* Render images */}
                 {imageUrls.map((url, index) => (
                     <TouchableOpacity key={index} onPress={() => openModal(url)}>
                         <Image source={{uri: url}} style={styles.postimage} />
@@ -479,7 +431,6 @@ const PostCommentCard = ({
                 ))}
             </View>
             <View>
-                {/* Render video if available */}
                 {videoUrl && (
                     <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
                         <View style={styles.postvideo}>
@@ -498,7 +449,7 @@ const PostCommentCard = ({
                     </TouchableOpacity>
                 )}
             </View>
-            {/* Image Modal */}
+
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
@@ -513,7 +464,7 @@ const PostCommentCard = ({
                     </TouchableOpacity>
                 </View>
             </Modal>
-            {/* Video Modal */}
+
             <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
@@ -546,7 +497,6 @@ const PostCommentCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                {/* <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
                 {/* <FooterIcons
                     iconname={'sync'}
@@ -561,11 +511,9 @@ const PostCommentCard = ({
                         ('');
                     }}
                 /> */}
-                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
             <View>
                 <Text style={styles.footStats}>
-                    {/* {post._count?.comments || 0} Comments •  */}
                     {likeCount} Likes
                     {/* • {post?.numberOfReposts || 0}{' '}
                     Repost */}

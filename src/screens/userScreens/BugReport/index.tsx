@@ -1,15 +1,27 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, FlatList, Image, Modal, Alert, Pressable} from 'react-native';
-import {Icon} from '@rneui/base';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import React, { useState } from 'react';
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    ScrollView,
+    StyleSheet,
+    FlatList,
+    Image,
+    Modal,
+    Alert,
+    Pressable,
+} from 'react-native';
+import { Icon } from '@rneui/base';
+import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import {launchImageLibrary} from 'react-native-image-picker';
-import {MediaType} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
+import { MediaType } from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
 import { sendReportToBackend, uploadImages } from '../../../lib/api/user.lib';
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
@@ -29,23 +41,21 @@ const BugReport = () => {
 
     const [showImageCountErrorModal, setShowImageCountErrorModal] = useState(false);
 
-
     const selectPostImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
             storageOptions: {
                 path: 'images',
             },
-            selectionLimit: 3, // 0 for no limit or set to a specific number greater than 1
+            selectionLimit: 3,
         };
 
         launchImageLibrary(options, response => {
             //console.log('Response from Image Picker:', response);
 
             if (response && !response.didCancel && response.assets) {
-                // Map through the assets to extract URIs
                 const uris = response.assets.map(asset => asset.uri);
-                setSelectedImages(prevImages => [...prevImages, ...uris]); // Append new images to the existing array
+                setSelectedImages(prevImages => [...prevImages, ...uris]);
             }
         });
     };
@@ -53,12 +63,10 @@ const BugReport = () => {
     const handleSubmitReport = async () => {
         let uploadedImageUrls: string[] = [];
         if (selectedImages.length > 0) {
-            // Attempt to upload the selected image and log the attempt
             //console.log('Attempting to upload image:', selectedImages);
             const uploadResponses = await uploadImages(selectedImages);
             //console.log('Upload response:', uploadResponses);
 
-            // Check if the upload was successful and a URL was returned
             if (uploadResponses && uploadResponses.success) {
                 uploadedImageUrls = uploadResponses.content;
                 //console.log('Uploaded Image URL:', uploadedImageUrls);
@@ -66,63 +74,54 @@ const BugReport = () => {
                 //console.log('No image URL returned from upload');
             }
         }
-        // Proceed to use `uploadedImageUrl` as before...
+
         const reportData = {
             email: user?.email,
             description: description,
             type: 'BUG',
             name: user?.firstName,
-            imageURL: uploadedImageUrls, // Now sending an array of image URLs
-            // ...(uploadedImageUrl && {imageURL: uploadedImageUrl}), // Add imageURL only if it's defined
+            imageURL: uploadedImageUrls,
         };
 
         try {
             const {success, message} = await sendReportToBackend(reportData);
             if (success) {
                 setModalType('success');
-                // Alert.alert('Success', 'Report submitted successfully.');
             } else {
                 setModalType('failure');
-                // Alert.alert('Failed', `Failed to submit report: ${message}`);
             }
         } catch (error) {
             console.error('Error submitting report:', error);
             Alert.alert('Error', 'An error occurred while submitting the report.');
         } finally {
-            setModalVisible(true); // Show the modal after submission attempt
+            setModalVisible(true);
         }
     };
 
     const closeModal = () => {
+        navigation.navigate('EditProfile');
 
-            navigation.navigate('EditProfile'); // Adjust the screen name as necessary
-
-            // Reset fields
-            setDescription('');
-            setSelectedImages([]);
-            setModalVisible(false);
-
+        setDescription('');
+        setSelectedImages([]);
+        setModalVisible(false);
     };
 
     const removeFromUpload = async imageUri => {
         //console.log('Attempting to remove image:', imageUri);
-        // Logic to remove image from your selectedImages state
+
         const updatedImages = selectedImages.filter(img => img !== imageUri);
         setSelectedImages(updatedImages);
-        // Any additional logic you might need after deletion
     };
 
-    const [selectedImage, setSelectedImage] = useState(null); // State for the selected image
+    const [selectedImage, setSelectedImage] = useState(null);
 
-    // Function to handle image press
     const handleImageEnlarge = imageUri => {
-        setSelectedImage(imageUri); // Set the selected image
-        setEnlargeModalVisible(true); // Open the modal
+        setSelectedImage(imageUri);
+        setEnlargeModalVisible(true);
     };
 
-    const [enlargeModalVisible, setEnlargeModalVisible] = useState(false); // State to control modal visibility
+    const [enlargeModalVisible, setEnlargeModalVisible] = useState(false);
 
-    // Function to toggle the modal's visibility
     const toggleEnlargeModal = () => {
         setEnlargeModalVisible(!enlargeModalVisible);
     };
@@ -178,22 +177,20 @@ const BugReport = () => {
                                         )}
                                     />
                                 </View>
-                            ) : 
-                            null}
+                            ) : null}
                         </View>
 
                         <TouchableOpacity onPress={selectPostImage} style={styles.imagePickerButton}>
                             <Icon name="images" type="ionicon" color={COLORS.MIDORANGE} size={30} />
                         </TouchableOpacity>
-                        {/* Render selected images if any */}
                     </View>
                 </ScrollView>
                 <View style={styles.sendReportButtonContainer}>
                     <AkcruButtons.LrgButton
                         btnname="Send Report"
                         onPress={() => handleSubmitReport()}
-                        color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY} // Change color based on description length
-                        disabled={description.length < 3} // Disable button if description is less than 3 characters
+                        color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY}
+                        disabled={description.length < 3}
                     />
                 </View>
                 <Modal
@@ -268,7 +265,3 @@ const styles = StyleSheet.create({
 });
 
 export default BugReport;
-function alert(arg0: string) {
-    throw new Error('Function not implemented.');
-}
-

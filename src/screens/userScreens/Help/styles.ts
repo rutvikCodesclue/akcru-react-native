@@ -1,6 +1,5 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import styles from '../PurchaseMIT/styles';
 
 export default StyleSheet.create({
     input: {
@@ -26,16 +25,15 @@ export default StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
         textAlign: 'center',
-        
+
         textDecorationLine: 'underline',
-        color: COLORS.PINK
+        color: COLORS.PINK,
     },
     container: {
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     datepicker: {
         height: 120,

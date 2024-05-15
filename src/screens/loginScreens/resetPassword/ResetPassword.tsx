@@ -38,7 +38,7 @@ const ResetPassword = () => {
         iconcolor: '',
     });
 
-    // Retrieve both email and phoneNumber from route.params
+    
     const email = route.params?.email;
     const phoneNumber = route.params?.phoneNumber;
 
@@ -93,7 +93,7 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            // Construct the payload based on what is available
+            
             const payload = email ? {email} : {phoneNumber};
 
             const response = await API.post('/v1/user/resetPassword', {
@@ -105,7 +105,7 @@ const ResetPassword = () => {
             const data = response.data;
 
             if (data.success) {
-                // Handle success
+                
                 setResetResultType({
                     messageheader: 'Success',
                     messageheadercolor: COLORS.CATGREENDRK,
@@ -114,12 +114,12 @@ const ResetPassword = () => {
                     iconcolor: COLORS.CATGREENLGT,
                 });
                 setShowConfirmNewPasswordModal(true);
-                // Optionally set a timeout to navigate after showing the modal
+                
                 setTimeout(() => {
                     navigation.navigate('Signin');
                 }, 3000);
             } else {
-                // Handle failure
+                
                 setResetResultType({
                     messageheader: 'Failed',
                     messageheadercolor: COLORS.CATREDDRK,
@@ -150,7 +150,7 @@ const ResetPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

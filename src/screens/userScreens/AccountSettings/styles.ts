@@ -1,6 +1,5 @@
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import styles from '../PurchaseMIT/styles';
 
 export default StyleSheet.create({
     input: {
@@ -35,7 +34,6 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     datepicker: {
         height: 120,
@@ -59,11 +57,10 @@ export default StyleSheet.create({
     },
     backbutton: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? '10%' : 0
-
+        marginTop: Platform.OS === 'ios' ? '10%' : 0,
     },
     datepickios: {
-        width: 320, backgroundColor: "white"
+        width: 320,
+        backgroundColor: 'white',
     },
-
 });

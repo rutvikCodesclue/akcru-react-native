@@ -1,27 +1,13 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  Image,
-  Pressable,
-} from 'react-native';
-import React, { useState } from 'react';
-import {Avatar, Icon} from '@rneui/base';
+import {Text, View, TouchableOpacity, Image} from 'react-native';
+import React from 'react';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
-import { IUserProfile } from '../../../../types';
-import { useFocusEffect } from '@react-navigation/native';
-import { findAUser } from '../../../lib/api/user.lib';
-import { selectAvatarBorderColor } from '../../../util/util';
+import {selectAvatarBorderColor} from '../../../util/util';
 import HexAvatar from '../../../components/HexAvatar';
-import { MULTISIZES } from '../../../../assets/constants/theme';
+import {MULTISIZES} from '../../../../assets/constants/theme';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-
-const MAX_USERDESC_LENGTH = 50; // Maximum number of characters for the userDesc
-
 type MITUserSearchCardProps = {
     userPicture?: string;
     userName: string;
@@ -37,7 +23,6 @@ type MITUserSearchCardProps = {
 };
 
 const MITUserSearchCard = ({
-    
     userPicture,
     userName,
     influencerStatus,
@@ -45,15 +30,9 @@ const MITUserSearchCard = ({
     companyStatus,
     akcruBadge,
     onPress,
-    userID,
-    userDesc,
     onPressOut,
     firstName,
 }: MITUserSearchCardProps) => {
-    // const truncateduserDesc =
-    //     userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
-    
-
     return (
         <View
             style={{
@@ -63,7 +42,6 @@ const MITUserSearchCard = ({
                 height: SIZES.ScreenHeight / 9.3,
             }}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -133,9 +111,7 @@ const MITUserSearchCard = ({
                                     />
                                 )}
                             </View>
-                            <Text style={{...FONTS.paragraph1}}>
-                                {firstName}
-                            </Text>
+                            <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
                             {akcruBadge === 'AKCRUIT' && (
                                 <View>
                                     <AkcruLevels.AkcruBadgeAkcruit />

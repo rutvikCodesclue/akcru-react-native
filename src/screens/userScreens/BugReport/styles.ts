@@ -1,10 +1,9 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import styles from '../PurchaseMIT/styles';
 
 export default StyleSheet.create({
     input: {
-        width: "95%",
+        width: '95%',
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderColor: COLORS.LIGHTGREY,
@@ -34,7 +33,6 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     datepicker: {
         height: 120,

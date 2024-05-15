@@ -1,62 +1,62 @@
-import { ImageBackground, Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React from 'react'
+import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React from 'react';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import Header from '../../../components/header';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants/theme';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import imageindex from '../../../../assets/images/imageindex';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AkcruButtonStackParams } from '../../../navigation/AkcruButtonStack';
-import { Icon } from '@rneui/base';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
+import {Icon} from '@rneui/base';
 
 const AkcruNetworkScreen = () => {
-const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
-  return (
-      <TabContainer>
-          <View>
-              <ImageBackground
-                  source={imageindex.Akcrunetwork2}
-                  resizeMode="cover"
-                  style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
-                  <SafeAreaView>
-                      <View>
-                          <Header />
-                      </View>
-                      <TouchableOpacity
-                          style={{marginHorizontal: 15, marginBottom: 10}}
-                          onPress={() => navigation.pop()}>
-                          <View
-                              style={{
-                                  flexDirection: 'row',
-                                  alignItems: 'center',
-                              }}>
-                              <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                              <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                          </View>
-                      </TouchableOpacity>
-                      <View style={{justifyContent: 'center', marginTop: "10%"}}>
-                          <View style={styles.textcontainer}>
-                              <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Akcru Network"</Text>
-                              <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
-                                  Connecting Users to the Pulse of Akcru
-                              </Text>
-                              <Text style={styles.paragraph}>
-                                  The Akcru Network stands as a revolutionary feature within the Akcru app, designed to
-                                  establish a direct line of communication from the Akcru admin to every user on the
-                                  platform. This feature ensures that users are promptly informed about crucial updates,
-                                  community events, celebrity interviews, new releases, private screenings, and various
-                                  other exciting events happening both on and offline.
-                              </Text>
-                          </View>
-                      </View>
-                  </SafeAreaView>
-              </ImageBackground>
-          </View>
-      </TabContainer>
-  );
-}
+    const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
+    return (
+        <TabContainer>
+            <View>
+                <ImageBackground
+                    source={imageindex.Akcrunetwork2}
+                    resizeMode="cover"
+                    style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                    <SafeAreaView>
+                        <View>
+                            <Header />
+                        </View>
+                        <TouchableOpacity
+                            style={{marginHorizontal: 15, marginBottom: 10}}
+                            onPress={() => navigation.pop()}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            </View>
+                        </TouchableOpacity>
+                        <View style={{justifyContent: 'center', marginTop: '10%'}}>
+                            <View style={styles.textcontainer}>
+                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Akcru Network"</Text>
+                                <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
+                                    Connecting Users to the Pulse of Akcru
+                                </Text>
+                                <Text style={styles.paragraph}>
+                                    The Akcru Network stands as a revolutionary feature within the Akcru app, designed
+                                    to establish a direct line of communication from the Akcru admin to every user on
+                                    the platform. This feature ensures that users are promptly informed about crucial
+                                    updates, community events, celebrity interviews, new releases, private screenings,
+                                    and various other exciting events happening both on and offline.
+                                </Text>
+                            </View>
+                        </View>
+                    </SafeAreaView>
+                </ImageBackground>
+            </View>
+        </TabContainer>
+    );
+};
 
-export default AkcruNetworkScreen
+export default AkcruNetworkScreen;
 
 const styles = StyleSheet.create({
     title: {

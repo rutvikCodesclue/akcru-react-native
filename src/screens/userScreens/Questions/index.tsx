@@ -1,16 +1,7 @@
-import React, { useState} from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    ScrollView,
-    StyleSheet,
-    Modal,
-    Alert,
-} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Alert} from 'react-native';
 import {Icon} from '@rneui/base';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {COLORS, FONTS} from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
 import {useNavigation} from '@react-navigation/native';
@@ -18,7 +9,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
-import {sendReportToBackend, uploadImage} from '../../../lib/api/user.lib';
+import {sendReportToBackend} from '../../../lib/api/user.lib';
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
 
 const Questions = () => {
@@ -30,9 +21,7 @@ const Questions = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState('');
 
-
     const handleSubmitReport = async () => {
-        // Proceed to use `uploadedImageUrl` as before...
         const reportData = {
             email: user?.email,
             description: description,
@@ -44,23 +33,20 @@ const Questions = () => {
             const {success, message} = await sendReportToBackend(reportData);
             if (success) {
                 setModalType('success');
-                // Alert.alert('Success', 'Report submitted successfully.');
             } else {
                 setModalType('failure');
-                // Alert.alert('Failed', `Failed to submit report: ${message}`);
             }
         } catch (error) {
             console.error('Error submitting report:', error);
             Alert.alert('Error', 'An error occurred while submitting the report.');
         } finally {
-            setModalVisible(true); // Show the modal after submission attempt
+            setModalVisible(true);
         }
     };
 
     const closeModal = () => {
-        navigation.navigate('EditProfile'); // Adjust the screen name as necessary
+        navigation.navigate('EditProfile');
 
-        // Reset fields
         setDescription('');
         setModalVisible(false);
     };
@@ -84,9 +70,7 @@ const Questions = () => {
                                 QUESTIONS
                             </Text>
                             <View style={{width: '90%'}}>
-                                <Text style={styles.instructionText}>
-                                    Ask any question pertaining to Akcru here.
-                                </Text>
+                                <Text style={styles.instructionText}>Ask any question pertaining to Akcru here.</Text>
                             </View>
                             <TextInput
                                 style={styles.input}
@@ -104,8 +88,8 @@ const Questions = () => {
                     <AkcruButtons.LrgButton
                         btnname="Send Question"
                         onPress={() => handleSubmitReport()}
-                        color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY} // Change color based on description length
-                        disabled={description.length < 3} // Disable button if description is less than 3 characters
+                        color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY}
+                        disabled={description.length < 3}
                     />
                 </View>
                 <Modal

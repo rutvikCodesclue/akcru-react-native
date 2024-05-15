@@ -4,7 +4,7 @@ import styles from './styles';
 import {Avatar, Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
-import { formatDatestamp, formatTimestampToAMPM } from '../../util/util';
+import {formatDatestamp, formatTimestampToAMPM} from '../../util/util';
 
 type User = {
     id: string;
@@ -55,7 +55,7 @@ const MITMessages = ({post, InviterUserName, InviterPicture}: MessageProps) => {
 
     return (
         <View style={styles.cardcontainer}>
-            <View style={{flexDirection: 'row', alignItems: 'flex-start', alignItems: 'center'}}>
+            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                 <View style={{marginRight: 8}}>
                     <TouchableOpacity>
                         <Avatar
@@ -173,7 +173,7 @@ const MITMessages = ({post, InviterUserName, InviterPicture}: MessageProps) => {
                     </TouchableOpacity>
                 )}
             </View>
-            {/* Image Modal */}
+
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{

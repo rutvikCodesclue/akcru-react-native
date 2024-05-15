@@ -4,10 +4,10 @@ import {PixelRatio, Dimensions} from 'react-native';
 interface TabContextType {
     opened: boolean;
     toggleOpened: () => void;
-    getAdjustedIconSize: (baseSize: number) => number; // Function to calculate adjusted icon size
+    getAdjustedIconSize: (baseSize: number) => number;
 
-    refetchCrus: boolean; // Add this line
-    setRefetchCrus: (value: boolean) => void; // And this one
+    refetchCrus: boolean;
+    setRefetchCrus: (value: boolean) => void;
 
     refetchDates: boolean;
     setRefetchDates: (value: boolean) => void;
@@ -28,13 +28,13 @@ interface TabContextType {
 const TabContext = React.createContext<TabContextType>({
     opened: false,
     toggleOpened: () => {},
-    getAdjustedIconSize: (baseSize: number) => baseSize, // Default implementation
+    getAdjustedIconSize: (baseSize: number) => baseSize,
 
-    refetchCrus: false, // Default value for refetchCrus
-    setRefetchCrus: () => {}, // Default implementation (noop function) for setRefetchCrus
+    refetchCrus: false,
+    setRefetchCrus: () => {},
 
-    refetchDates: false, // Default value for refetchCrus
-    setRefetchDates: () => {}, // Default implementation (noop function) for setRefetchCrus
+    refetchDates: false,
+    setRefetchDates: () => {},
 
     refetchReadNotifications: false,
     setRefetchReadNotifications: () => {},
@@ -49,14 +49,12 @@ const TabContext = React.createContext<TabContextType>({
     setUpdateMITs: () => {},
 });
 
-// const TabContext = React.createContext({opened: false, toggleOpened: () => {}});
-
 export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [opened, setOpened] = React.useState(false);
 
-    const [refetchCrus, setRefetchCrus] = React.useState(false); // Add this line
+    const [refetchCrus, setRefetchCrus] = React.useState(false);
 
-    const [refetchDates, setRefetchDates] = React.useState(false); // Add this line
+    const [refetchDates, setRefetchDates] = React.useState(false);
 
     const [refetchReadNotifications, setRefetchReadNotifications] = React.useState(false);
 
@@ -68,17 +66,14 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
 
     const toggleOpened = () => {
         setOpened(!opened);
-        // console.log('Toggling opened state');
     };
 
-    // Function to dynamically calculate icon size
     const getAdjustedIconSize = (baseSize: number) => {
-        // You can adjust this logic to fit your needs
         const {width} = Dimensions.get('window');
-        const adjustmentFactor = PixelRatio.get(); // Get device's pixel density
-        // Adjust the base size based on the width or density
+        const adjustmentFactor = PixelRatio.get();
+
         const adjustedSize = baseSize * (width > 400 ? 1.1 : 1) * adjustmentFactor;
-        return Math.min(adjustedSize, baseSize * 1.5); // Example cap to 1.5 times the base size
+        return Math.min(adjustedSize, baseSize * 1.5);
     };
 
     return (

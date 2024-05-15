@@ -1,28 +1,22 @@
-import {View, Text, TextInput, TouchableOpacity, Pressable, Modal, ImageBackground, SafeAreaView, Alert, Platform, Image, FlatList} from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import {View, Text, TouchableOpacity} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import styles from './styles';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {COLORS, FONTS} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import {ScrollView} from 'react-native-gesture-handler';
 import {Icon} from '@rneui/base';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import { helpData } from '../../../../assets/constants/helpData';
+import {helpData} from '../../../../assets/constants/helpData';
 import Accordian from '../../../components/Accordian/Accordian';
-import imageindex from '../../../../assets/images/imageindex';
-import { TrinityHowToData } from '../../../../assets/constants/helpData';
-import HowToTrinity from '../../../components/HowToTrinity';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { IHelpVideo } from '../../../../types';
-import { getHelpVideos } from '../../../lib/api/helpvideo.lib';
+import {IHelpVideo} from '../../../../types';
+import {getHelpVideos} from '../../../lib/api/helpvideo.lib';
 import HelpVideoList from '../../../components/HelpVideoList';
-import Video from 'react-native-video';
-import AkcruButtons from '../../../components/akcruButtons';
-
 
 const Help = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>()
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const [helpVideos, setHelpVideos] = useState<IHelpVideo[]>([]);
 
@@ -33,8 +27,6 @@ const Help = () => {
         };
         loadHelpVideos();
     }, []);
-
-    
 
     return (
         <TabContainer>

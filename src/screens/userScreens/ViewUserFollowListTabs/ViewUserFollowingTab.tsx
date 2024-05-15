@@ -1,4 +1,4 @@
-import {View, Text, FlatList} from 'react-native';
+import {View, FlatList} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -15,9 +15,9 @@ const ViewUserFollowingTab = ({userID}) => {
     useEffect(() => {
         const fetchData = async () => {
             const result = await getUserFollowing(userID);
-            // console.log('Data received:', result);
+
             if (result && result.following && Array.isArray(result.following)) {
-                setData(result.following); // Set the 'following' array as your data
+                setData(result.following);
             }
         };
 
@@ -38,13 +38,6 @@ const ViewUserFollowingTab = ({userID}) => {
                             userPicture={item.profilePicture}
                             userName={item.username}
                             onPress={() => {
-                                // console.log(
-                                //     'Navigating to ViewUserScreen with userID:',
-                                //     item.username,
-                                //     item.id,
-                                //     item.firstName,
-                                //     item.description
-                                // );
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
                                 });

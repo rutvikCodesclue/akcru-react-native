@@ -1,8 +1,6 @@
 import moment from 'moment-timezone';
 
 export const checkRoomTime = (movie_timezone: any, scheduleTime: any): boolean | void => {
-
-    // get the current time acc to the movie timezone
     const currentTimeInMovieTimezone = moment.tz(movie_timezone);
     const initialTime = moment.tz(scheduleTime, movie_timezone);
     const room_time = initialTime.add(3, 'hours').add(30, 'minutes');

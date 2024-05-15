@@ -18,22 +18,14 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
 import {IPost, IUserProfile} from '../../../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {
-    blockUser,
-    findAUser,
-    followUser,
-    getBlockedUsers,
-    getUserFollowing,
-    unblockUser,
-    unfollowUser,
-} from '../../../lib/api/user.lib';
+import {blockUser, getBlockedUsers, getUserFollowing} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
@@ -52,33 +44,28 @@ type Props = {
     route: CrummunityScreenRouteProp;
 };
 
-const CrummunityScreen = ({navigation, route}: Props) => {
-    const {user, hydrateUser} = useAuthStore();
-    // console.log('user', user?.username);
+const CrummunityScreen = ({navigation}: Props) => {
+    const {user} = useAuthStore();
+
     const currentUserID = user?.id;
-    const author: IPost | null = route.params?.author ?? null;
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    const [likedPosts, setLikedPosts] = useState(new Set());
-
     const [posts, setPosts] = useState<IPost[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
     const [loadingPosts, setLoadingPosts] = useState(true);
-    const [error, setError] = useState('');
+    const [, setError] = useState('');
 
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    const [blockedUsers, setBlockedUsers] = useState([]);
+    const [, setBlockedUsers] = useState([]);
 
     const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            // Refresh posts or update state here
-        });
+        const unsubscribe = navigation.addListener('focus', () => {});
 
         return unsubscribe;
     }, [navigation]);
@@ -86,30 +73,25 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const fetchPostsAndFollowStatus = async (pageNumber: number) => {
         setLoading(true);
         try {
-            // Fetch posts
             const fetchedPosts = await getPosts(pageNumber);
 
-            // Initialize sets for following and blocked user IDs
             let followingIds = new Set();
             let blockedUserIds = new Set();
 
             if (currentUserID) {
-                // Fetch following status
                 const followingResponse = await getUserFollowing(currentUserID);
                 followingIds = new Set(followingResponse?.following.map((user: {id: any}) => user.id));
 
-                // Fetch blocked users status
-                const blockedResponse = await getBlockedUsers(); // Assuming this function exists and returns a list of blocked user IDs
+                const blockedResponse = await getBlockedUsers();
                 blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
             }
 
-            // Update posts with isFollowed and isBlocked status
             const updatedPosts = fetchedPosts.map((post: {author: {id: unknown}}) => ({
                 ...post,
                 author: {
                     ...post.author,
                     isFollowed: followingIds.has(post.author.id),
-                    isBlocked: blockedUserIds.has(post.author.id), // Add blocked status
+                    isBlocked: blockedUserIds.has(post.author.id),
                 },
             }));
 
@@ -132,26 +114,25 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const handleFocus = () => {
-            //console.log('Screen gained focus');
-            fetchPostsAndFollowStatus(1); // Fetch the first page of posts along with follow status
+            fetchPostsAndFollowStatus(1);
         };
 
         const unsubscribeFocus = navigation.addListener('focus', handleFocus);
 
-        // Initial fetch
         fetchPostsAndFollowStatus(1);
 
         return () => {
             unsubscribeFocus();
-            //console.log('Screen lost focus');
         };
-    }, [navigation, currentUserID]); // Depend on currentUserID to refetch if it changes
+    }, [navigation, currentUserID]);
 
     const loadMorePosts = async () => {
-        if (!hasMore) return; // Do nothing if there are no more posts to load
+        if (!hasMore) {
+            return;
+        }
 
         setIsLoadingMore(true);
-        // Use the modified function to fetch more posts along with follow status
+
         await fetchPostsAndFollowStatus(page + 1);
         setIsLoadingMore(false);
     };
@@ -162,28 +143,26 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         if (selectedPost) {
             navigation2.navigate('PostScreen', {post: selectedPost});
         } else {
-            // Handle the case when the post is not found
             console.error('Error: Post not found');
         }
     };
 
     const onLikeOrUnlike = async (postId: number) => {
         try {
-            // Find the post in the current state
             const postIndex = posts.findIndex(post => +post.id === postId);
-            if (postIndex === -1) return;
+            if (postIndex === -1) {
+                return;
+            }
 
             const post = posts[postIndex];
             const isLiked = post.isLikedByCurrentUser;
 
-            // Perform the like or unlike action
             if (isLiked) {
                 await unlikePost(postId);
             } else {
                 await likePost(postId);
             }
 
-            // Optimistically update the UI
             const updatedPosts = [...posts];
             updatedPosts[postIndex] = {
                 ...post,
@@ -196,42 +175,36 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(updatedPosts);
         } catch (error) {
             console.error('Error changing like status:', error);
-            // Optionally handle reversion or user notification here
         }
     };
 
     const handleDeletePost = async (postId: number) => {
-        // Find the post in the current state
         const postIndex = posts.findIndex(post => +post.id === postId);
-        if (postIndex === -1) return;
+        if (postIndex === -1) {
+            return;
+        }
 
         const post = posts[postIndex];
 
         try {
-            // If the post is liked by the current user, unlike it first
             if (post.isLikedByCurrentUser) {
                 await unlikePost(postId);
             }
 
-            // Proceed to delete the post
             await deletePost(postId);
 
-            // Update the local state to remove the post
             setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
         } catch (error) {
             console.error('Error in deleting post:', error);
-            // Handle error (e.g., show a message to the user)
         }
     };
 
     const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        //console.log('handleFollow', authorId);
-        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+        const updatedStatus = await toggleFollow(authorId);
         if (updatedStatus !== undefined) {
             setPosts(prevPosts =>
                 prevPosts.map(post => {
                     if (post.author.id === authorId) {
-                        // Update the follow status
                         return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
                     }
                     return post;
@@ -243,7 +216,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleReportUser = (author: IUserProfile) => {
-        // Navigate to the report screen, passing the authorId
         navigation2.navigate('ReportUser', {
             authorId: author.id,
             authorUsername: author.username,
@@ -251,7 +223,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             authorProfilePicture: author.profilePicture,
             authorBadge: author.badge,
         });
-        //console.log('Report user screen opened:', author);
     };
 
     const [blockUserModal, setBlockUserModal] = useState(false);
@@ -264,25 +235,18 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleToggleBlockUser = async authorId => {
-        // Since you won't need to check for unblocking on this screen,
-        // we directly proceed with the blocking logic
         let response = await blockUser(authorId);
 
         if (response.success) {
-            // Update the blockedUsers state by adding the newly blocked user
-            // Note: You might need to adjust this part depending on the structure of your `response`
             setBlockedUsers(prev => [...prev, {id: authorId}]);
 
-            // Optionally, remove the blocked user's posts from the view
             setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
 
-            // Alert.alert('Success', 'User blocked successfully.');
             setModalType('success');
             setBlockUserMessage('User successfully blocked');
             setBlockUserModal(true);
             setIconName('hand-back-left');
         } else {
-            // Handle the error case
             Alert.alert('Error', 'Failed to block user.');
         }
     };
@@ -309,7 +273,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
                                 <LinearGradient
-                                    // Background Linear Gradient
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -356,8 +319,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />
                                 </View>
-                            ) : // You can customize the size and color
-                            posts.length === 0 ? (
+                            ) : posts.length === 0 ? (
                                 <View>
                                     <Text style={styles.noPostText}>No Post yet</Text>
                                 </View>
@@ -375,7 +337,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                 openProfile={() =>
                                                     navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
-                                                // onFollow={() => handleFollow(item.author)}
                                                 reportUser={() => handleReportUser(item.author)}
                                                 onDeletePost={handleDeletePost}
                                                 currentUserID={currentUserID || ''}

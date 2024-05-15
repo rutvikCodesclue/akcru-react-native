@@ -1,16 +1,6 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-  Dimensions,
-  Pressable,
-  Modal,
-  StatusBar,
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS, FONTS, SIZES } from '../../../assets/constants';
+import {View, Text, TouchableOpacity, Image, Modal} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../assets/images/imageindex';
@@ -19,12 +9,11 @@ import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
-import { formatMovieDuration } from '../../util/util';
-import { capitalizeFirstLetterOfString } from '../../util/util';
+import {formatMovieDuration} from '../../util/util';
+import {capitalizeFirstLetterOfString} from '../../util/util';
 import ConfirmationModal from '../ConfirmationModal';
-import { getUserReactions } from '../../lib/api/movies.lib';
-import { API } from '../../clients/api.client';
-import { MULTISIZES } from '../../../assets/constants/theme';
+import {API} from '../../clients/api.client';
+import {MULTISIZES} from '../../../assets/constants/theme';
 
 type ReactionStat = {
     type: string;
@@ -35,7 +24,6 @@ type CombinedReaction = {
     type: string;
     percentage: string;
 };
-
 
 type MovieDetailCardProps = {
     title: string;
@@ -63,7 +51,6 @@ type MovieDetailCardProps = {
     reactions: any;
     contentButtonName: string;
 };
-
 
 const MovieDetailCard = ({
     id: movieId,
@@ -95,8 +82,8 @@ const MovieDetailCard = ({
 
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
-     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
-     
+    const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
+
     useEffect(() => {
         const fetchReactionStats = async () => {
             try {
@@ -113,14 +100,12 @@ const MovieDetailCard = ({
         fetchReactionStats();
     }, [movieId]);
 
-
     useEffect(() => {
         const fetchUserReaction = async () => {
             try {
                 const response = await API.get(`/v1/movies/${movieId}/user-reaction`);
                 if (response.data && response.data.success) {
                     setSelectedReaction(response.data.reaction);
-                    
                 }
             } catch (error) {
                 console.error('Error fetching user reaction:', error);
@@ -129,20 +114,19 @@ const MovieDetailCard = ({
 
         fetchUserReaction();
     }, [movieId]);
-    // The getIconForReaction function
 
     const postReaction = async (reactionType: string | null) => {
         try {
             const response = await API.post(`/v1/movies/${movieId}/reactions`, {reactionType});
             console.log('Reaction posted:', response.data);
-            // Additional logic to handle the response
-            setSelectedReaction(reactionType); // Update the selected reaction
+
+            setSelectedReaction(reactionType);
             console.log('Selected Reaction State:', selectedReaction);
         } catch (error) {
             console.error('Error posting reaction:', error);
         }
     };
-    
+
     const handleReactionClick = (reactionType: string | null) => {
         if (selectedReaction !== reactionType) {
             postReaction(reactionType);
@@ -152,12 +136,12 @@ const MovieDetailCard = ({
     const getIconForReaction = (reactionType: string | null) => {
         let color = COLORS.LIGHTGREY;
         if (reactionType === selectedReaction) {
-            color = COLORS.PURPLE; // Highlight color for selected reaction
+            color = COLORS.PURPLE;
         }
 
         return (
             <Icon
-                key={selectedReaction} // Force re-render
+                key={selectedReaction}
                 name={reactionType === 'LOVE' ? 'heart' : reactionType === 'LIKE' ? 'thumbs-up' : 'thumbs-down'}
                 type="ionicon"
                 size={20}
@@ -165,9 +149,6 @@ const MovieDetailCard = ({
             />
         );
     };
-
-    
-   
 
     useEffect(() => {
         if (Array.isArray(reactions) && reactionStats) {
@@ -205,7 +186,6 @@ const MovieDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        // Background Linear Gradient
                         colors={[COLORS.BLACK, 'transparent', COLORS.AKCRUBACKGROUND]}
                         style={{
                             position: 'absolute',
@@ -221,7 +201,7 @@ const MovieDetailCard = ({
                             position: 'absolute',
                             left: 0,
                             right: 0,
-                            // top: -250,
+
                             top: SIZES.ScreenHeight * -0.32,
                             marginHorizontal: 15,
                         }}>
@@ -260,7 +240,6 @@ const MovieDetailCard = ({
                         </View>
                     </View>
 
-                    {/* Add to watchlist Confirmation Modal */}
                     <Modal animationType="fade" transparent={true} visible={showAddToWatchListConfirmationModal}>
                         <ConfirmationModal
                             onPressYes={handleConfirmAddToWatchList}
@@ -348,10 +327,7 @@ const MovieDetailCard = ({
                         <Text style={styles.drawfonttag}>{rated}</Text>
                         <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
                         <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
-                        <Text style={styles.drawfonttag}>
-                            {/* <Icon name="star" type="ionicon" size={12} color={COLORS.BLACK} style={{marginRight: 5}} /> */}
-                            {rating}/10
-                        </Text>
+                        <Text style={styles.drawfonttag}>{rating}/10</Text>
                     </View>
                 </View>
                 <View

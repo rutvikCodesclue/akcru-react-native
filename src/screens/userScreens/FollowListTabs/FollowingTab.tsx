@@ -1,4 +1,4 @@
-import {View, Text, FlatList} from 'react-native';
+import {View, FlatList} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -12,15 +12,13 @@ const FollowingTab = () => {
     const [data, setData] = useState<IUserProfile[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    
+
     const {user, hydrateUser} = useAuthStore();
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             hydrateUser();
             return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
                 hydrateUser();
             };
         }, []),
@@ -32,11 +30,10 @@ const FollowingTab = () => {
                 try {
                     const result = await getUserFollowing(user.id);
                     if (result && result.following && Array.isArray(result.following)) {
-                        setData(result.following); // Set the 'following' array as your data
+                        setData(result.following);
                     }
                 } catch (error) {
                     console.error('Error fetching following:', error);
-                    // Optionally, handle the error by showing a message to the user or taking other actions
                 }
             }
         };
@@ -58,12 +55,6 @@ const FollowingTab = () => {
                             userPicture={item.profilePicture}
                             userName={item.username}
                             onPress={() => {
-                                // console.log(
-                                //     'Navigating to ViewUserScreen with userID:',
-                                //     item.username,
-                                //     item.id,
-                                //     item.firstName,
-                                // );
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
                                 });

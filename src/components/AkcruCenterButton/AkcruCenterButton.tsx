@@ -1,24 +1,17 @@
-import {Animated, Image, Modal, Pressable, StyleSheet, Text, TouchableWithoutFeedback, View} from 'react-native';
-import React, { useState } from 'react';
+import {Animated, Image, Pressable, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
+import React from 'react';
 import {AkcruControlBtn} from '../../../assets/svg';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import imageindex from '../../../assets/images/imageindex';
-import { Icon } from '@rneui/base';
-import { COLORS, FONTS } from '../../../assets/constants';
+import {Icon} from '@rneui/base';
+import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {CrummunityStackParams} from '../../navigation/CrummunityStack';
 import {useNavigation} from '@react-navigation/native';
-import { ClientStackParams } from '../../navigation/ClientStack';
-import { AkcruButtonStackParams } from '../../navigation/AkcruButtonStack';
+import {AkcruButtonStackParams} from '../../navigation/AkcruButtonStack';
 
-
-
-const AkcruCenterButton = ({opened, toggleOpened}) => {
+const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
 
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
-
-    // console.log('Akcru Button opened:', opened); // Check if this log is showing in the console
 
     const handlePressShop = () => {
         navigation.navigate('PurchaseMITScreen');
@@ -37,9 +30,9 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
     };
 
     const handlePressCenterButton = () => {
-       toggleOpened();
-       console.log('handlePressCenterButton');
-    }
+        toggleOpened();
+        console.log('handlePressCenterButton');
+    };
 
     React.useEffect(() => {
         Animated.timing(animation, {
@@ -82,17 +75,14 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
                                 ],
                             },
                         ]}>
-                           
-                              <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                                <Icon
-                                    name="robot-love"
-                                    type="material-community"
-                                    color={COLORS.WHITE}
-                                    size={25}
-                                    style={styles.itemIcon}
-                                />  
-                     
-
+                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
+                        <Icon
+                            name="robot-love"
+                            type="material-community"
+                            color={COLORS.WHITE}
+                            size={25}
+                            style={styles.itemIcon}
+                        />
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressBullhorn}>
@@ -163,7 +153,7 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
                     <Animated.View
                         style={[
                             {
-                                zIndex: opened ? 0 : 1, // Adjust the zIndex based on the opened state
+                                zIndex: opened ? 0 : 1,
                                 transform: [
                                     {
                                         translateY: animation.interpolate({
@@ -180,7 +170,7 @@ const AkcruCenterButton = ({opened, toggleOpened}) => {
             </View>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -192,7 +182,6 @@ const styles = StyleSheet.create({
         width: 70,
         height: 60,
         marginTop: -3,
-        
     },
     item: {
         position: 'absolute',

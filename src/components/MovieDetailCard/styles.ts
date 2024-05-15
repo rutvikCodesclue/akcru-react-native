@@ -12,18 +12,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    // drawfonttag: {
-    //     ...FONTS.Title2Orange,
-    //     color: COLORS.BLACK,
-    //     backgroundColor: COLORS.STARGOLD,
-    //     paddingHorizontal: 8,
-    //     paddingVertical: 2,
-    //     marginHorizontal: 2,
-    //     marginVertical: 2,
-    //     borderRadius: 4,
-    //     textAlign: 'center',
-    //     justifyContent: 'center',
-    // },
+
     drawfonttag: {
         ...FONTS.Title2Orange,
         color: COLORS.BLACK,

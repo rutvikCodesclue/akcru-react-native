@@ -13,32 +13,26 @@ type Props = {
 };
 
 export default function HowToTrinity({value}: Props) {
-    const [isVideoPlaying, setIsVideoPlaying] = useState(false);
     const [trinityModal, setTrinityModal] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const handleSkipVideo = () => {
-        // Logic for skipping the video
         setTrinityModal(false);
     };
 
     const handleVideoEnd = () => {
-        // Logic for when the video ends
         setTrinityModal(false);
     };
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         Alert.alert(
             'Video Loading Error',
             "We're having trouble loading this video. Please check your connection and try again.",
             [
                 {
                     text: 'Retry',
-                    onPress: () => {
-                        /* Retry logic here */
-                    },
+                    onPress: () => {},
                 },
                 {text: 'Cancel', onPress: () => setTrinityModal(false)},
             ],
@@ -47,7 +41,6 @@ export default function HowToTrinity({value}: Props) {
     };
 
     const handleVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
@@ -61,7 +54,7 @@ export default function HowToTrinity({value}: Props) {
         <View>
             <Pressable style={{alignItems: 'center', padding: 20}} onPress={() => setTrinityModal(true)}>
                 <View style={{width: size, height: size, alignItems: 'center', justifyContent: 'center'}}>
-                    <Svg height={size} width={size} viewBox={`0 0 270 234`} style={{position: 'absolute'}}>
+                    <Svg height={size} width={size} viewBox={'0 0 270 234'} style={{position: 'absolute'}}>
                         <Path d={hexagonPath} fill={bordercolor} />
                     </Svg>
                     <MaskedView
@@ -70,7 +63,7 @@ export default function HowToTrinity({value}: Props) {
                             <Svg
                                 height={size - borderSize}
                                 width={size - borderSize}
-                                viewBox={`0 0 270 234`}
+                                viewBox={'0 0 270 234'}
                                 style={{overflow: 'hidden'}}>
                                 <Path d={hexagonPath} fill="black" />
                             </Svg>
@@ -92,7 +85,6 @@ export default function HowToTrinity({value}: Props) {
             <Modal animationType="fade" transparent={true} visible={trinityModal}>
                 <View
                     style={{flex: 1, justifyContent: 'center', backgroundColor: COLORS.AKCRUBACKGROUND, width: '100%'}}>
-                    {/* Display the loading indicator if the video is still loading */}
                     {!isVideoLoaded && (
                         <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
                             <ActivityIndicator size="large" color={COLORS.PURPLE} />

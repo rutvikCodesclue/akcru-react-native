@@ -22,9 +22,9 @@ import LinearGradient from 'react-native-linear-gradient';
 const OTPVerificationSignup = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    // const route = useRoute();
+    
 
-    // Retrieve both email and phoneNumber from route.params
+    
     const email = route.params?.email;
     //console.log('Email passed:', email);
     const phoneNumber = route.params?.phoneNumber;
@@ -84,15 +84,15 @@ const OTPVerificationSignup = ({route}) => {
          try {
              setVerify(true);
 
-             // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
-             // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
+             
+             
              const payload = email ? {email} : {phoneNumber};
 
-             // Call verifyOTP() with the user's email or phone number and the OTP code
+             
              const response = await API.post('/v1/auth/verify', {
                  ...payload,
                  otp: code,
-                 // emailOrPhoneNumber: emailOrPhoneNumber,
+                 
              });
 
              const data = response.data;
@@ -102,14 +102,14 @@ const OTPVerificationSignup = ({route}) => {
                  setVerify(false);
                  handleShowOTPModal('success');
 
-                 // Navigate to ResetPassword screen
-                 // Pass any necessary data as parameters
+                 
+                 
                  navigation.navigate('OnboardEmailOrPassword', {
                      email: email,
                      phoneNumber: phoneNumber,
                  });
              } else {
-                 // Handle the case where data.success is false
+                 
                  throw new Error(data.message || 'Verification failed');
              }
          } catch (error) {
@@ -123,7 +123,7 @@ const OTPVerificationSignup = ({route}) => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

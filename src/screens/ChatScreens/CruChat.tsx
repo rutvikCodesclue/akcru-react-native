@@ -1,21 +1,13 @@
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import {SafeAreaView, View} from 'react-native';
-import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS, FONTS} from '../../../assets/constants';
 
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {RealtimeChannel} from '@supabase/supabase-js';
-import _ from 'lodash';
 import {Text, TouchableRipple} from 'react-native-paper';
-import {supabase} from '../../../lib/supabase';
-import HexAvatar from '../../components/HexAvatar';
 import Header from '../../components/header';
-import {getTextMessages, saveTextMessage} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
-import useAuthStore from '../../stores/auth.store';
-import {selectAvatarBorderColor} from '../../util/util';
 import CruChatComponent from './CruChatComponent';
 
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
@@ -44,7 +36,7 @@ const CruChat = ({route}: Props) => {
                     </View>
                 </TouchableRipple>
             </View>
-            <CruChatComponent route={route}/>
+            <CruChatComponent route={route} />
         </SafeAreaView>
     );
 };

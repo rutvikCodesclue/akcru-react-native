@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     pricecontainer: {
@@ -16,7 +16,6 @@ export default StyleSheet.create({
     },
     mitprice: {
         ...FONTS.Title1,
-        
         color: COLORS.LIGHTGREY,
         marginBottom: 10,
     },

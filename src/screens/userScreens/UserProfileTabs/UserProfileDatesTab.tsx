@@ -14,7 +14,7 @@ import {ClientStackParams} from '../../../navigation/ClientStack';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import {isAfter, isBefore} from 'date-fns';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
-import { UseTabMenu } from '../../../context/TabContext';
+import {UseTabMenu} from '../../../context/TabContext';
 
 const UserProfileDatesTab = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
@@ -23,37 +23,31 @@ const UserProfileDatesTab = () => {
     const {refetchDates, setRefetchDates} = UseTabMenu();
     const [cameraPermission, setCameraPermission] = useState<boolean>(false);
     const [micPermission, setMicPermission] = useState<boolean>(false);
-    
+
     const _checkPermissions = async () => {
         //check permissions for camera and microphone on android
         if (Platform.OS === 'android') {
-            // Request microphone permission
             check(PERMISSIONS.ANDROID.RECORD_AUDIO)
                 .then(audioResult => {
                     if (audioResult === RESULTS.GRANTED) {
-                        // Microphone permission granted
                         //console.log('Microphone permission granted');
                     }
                 })
                 .catch(audioError => {
-                    // Handle microphone permission request error
                     //console.log('Microphone permission request error:', audioError);
                 });
 
-            // Request camera permission
             check(PERMISSIONS.ANDROID.CAMERA)
                 .then(cameraResult => {
                     if (cameraResult === RESULTS.GRANTED) {
-                        // Camera permission granted
                         //console.log('Camera permission granted');
                     }
                 })
                 .catch(cameraError => {
-                    // Handle camera permission request error
                     //console.log('Camera permission request error:', cameraError);
                 });
         }
-        // check permissions for camera and microphone on iOS
+
         if (Platform.OS === 'ios') {
             check(PERMISSIONS.IOS.CAMERA)
                 .then(result => {
@@ -64,7 +58,6 @@ const UserProfileDatesTab = () => {
                         case RESULTS.DENIED:
                             //console.log('The camera permission has not been requested / is denied but requestable');
                             request(PERMISSIONS.IOS.CAMERA).then(result => {
-                                // …
                                 //console.log('Requested camera permission', result);
                                 if (result === RESULTS.GRANTED) {
                                     setCameraPermission(true);
@@ -83,9 +76,7 @@ const UserProfileDatesTab = () => {
                             break;
                     }
                 })
-                .catch(error => {
-                    // display some error message for the user
-                });
+                .catch(error => {});
 
             check(PERMISSIONS.IOS.MICROPHONE)
                 .then(result => {
@@ -96,7 +87,6 @@ const UserProfileDatesTab = () => {
                         case RESULTS.DENIED:
                             //console.log('The microphone permission has not been requested / is denied but requestable');
                             request(PERMISSIONS.IOS.MICROPHONE).then(result => {
-                                // …
                                 //console.log('Requested microphone permission');
                                 if (result === RESULTS.GRANTED) {
                                     setMicPermission(true);
@@ -115,22 +105,19 @@ const UserProfileDatesTab = () => {
                             break;
                     }
                 })
-                .catch(error => {
-                    // display some error message for the user
-                });
+                .catch(error => {});
         }
     };
 
     useFocusEffect(
         React.useCallback(() => {
-            // get CRUViews and MITs and merge them
             const fetchMyEvents = async () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true});
-                    const myMITs = await getMyMITInvites({accepted: true, me: true}); // get accepted MITs & accepted created MITs (def upcoming)
+                    const myMITs = await getMyMITInvites({accepted: true, me: true});
                     if (myCRUViews && myMITs) {
                         let events = [...myCRUViews, ...myMITs];
-                        // sort invites by date (newest to oldest) and set state
+
                         setMyEvents(
                             events.sort((a, b) => {
                                 let date1 = new Date(a.startDate);
@@ -158,14 +145,11 @@ const UserProfileDatesTab = () => {
     );
 
     const handleInviterPress = (creatorId: string) => {
-        // Navigate to the ViewUserScreen with the user's ID
         navigation.navigate('ViewUserScreen', {userID: creatorId});
     };
 
-    // render CRUViews and MITs (when MITs are implemented)
     const _renderMyEvents = () => {
         if (myEvents.length === 0) {
-            // If there are no events, display the "No dates scheduled" message
             return (
                 <View style={{alignItems: 'center'}}>
                     <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>
@@ -173,90 +157,82 @@ const UserProfileDatesTab = () => {
                     </Text>
                 </View>
             );
-        } else 
-        return myEvents.map(item => {
-            if (item instanceof Object && 'cru' in item) {
-                // item is a CRUView
-                // scheduleWith  is either the CRU creator or yourself
-                const scheduleWith =
-                    item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator?.username}'s CRU`;
-                return (
-                    <View key={item.id} style={{marginBottom: 10}}>
-                        <UserDatesCard
-                            id={item.id}
-                            cru = {item.cru}
-                            cruId={item.cru.id}
-                            isHost={item.cru.creatorId === user?.id}
-                            movieId={item.movie.id}
-                            moviePoster={item.movie.portraitURL}
-                            movieName={item.movie.title}
-                            length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
-                            movieYear={item.movie.year}
-                            movieRated={item.movie.rated}
-                            movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                            movieRating={item.movie.rating}
-                            scheduleDate={item.startDate}
-                            scheduleTime={item.startDate}
-                            scheduleWith={scheduleWith}
-                            timezone={item.timezone}
-                            type="CRUView"
-                            onPressin={() =>
-                                navigation.navigate('ContentDetailScreen', {
-                                    id: item.movie.id,
-                                    movie: item.movie.title,
-                                    _checkPermissions,
-                                })
-                            }
-                            onPress={() => handleInviterPress(item.cru.creatorId)}
-                        />
-                    </View>
-                );
-            } else {
-                // item is a MITInvite
-                // scheduleWith  is either the MIT creator
-                const scheduleWith =
-                    item.creator.id === user?.id
-                        ? ` ${item.invitee.username}`
-                        : `${item.creator.username}`;
-                const isHost = item.creator.id === user?.id;
+        } else {
+            return myEvents.map(item => {
+                if (item instanceof Object && 'cru' in item) {
+                    const scheduleWith =
+                        item.cru.creatorId === user?.id ? 'your CRU' : `${item.cru.creator?.username}'s CRU`;
+                    return (
+                        <View key={item.id} style={{marginBottom: 10}}>
+                            <UserDatesCard
+                                id={item.id}
+                                cru={item.cru}
+                                cruId={item.cru.id}
+                                isHost={item.cru.creatorId === user?.id}
+                                movieId={item.movie.id}
+                                moviePoster={item.movie.portraitURL}
+                                movieName={item.movie.title}
+                                length={formatMovieDuration(item.movie.duration)}
+                                movieYear={item.movie.year}
+                                movieRated={item.movie.rated}
+                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                movieRating={item.movie.rating}
+                                scheduleDate={item.startDate}
+                                scheduleTime={item.startDate}
+                                scheduleWith={scheduleWith}
+                                timezone={item.timezone}
+                                type="CRUView"
+                                onPressin={() =>
+                                    navigation.navigate('ContentDetailScreen', {
+                                        id: item.movie.id,
+                                        movie: item.movie.title,
+                                        _checkPermissions,
+                                    })
+                                }
+                                onPress={() => handleInviterPress(item.cru.creatorId)}
+                            />
+                        </View>
+                    );
+                } else {
+                    const scheduleWith =
+                        item.creator.id === user?.id ? ` ${item.invitee.username}` : `${item.creator.username}`;
+                    const isHost = item.creator.id === user?.id;
 
-                // pretty print item in the console
-                // console.log(JSON.stringify(item, null, 2))
-
-                return (
-                    <View key={item.id} style={{marginBottom: 10}}>
-                        <UserDatesCard
-                            type="MITInvite"
-                            id={item.id}
-                            isHost={isHost}
-                            userId={isHost ? item.creator.id : item.invitee.id}
-                            movieId={item.movie.id}
-                            moviePoster={item.movie.portraitURL}
-                            movieName={item.movie.title}
-                            length={formatMovieDuration(item.movie.duration)} // FIXME: make this render in hours and minutes
-                            movieYear={item.movie.year}
-                            movieRated={item.movie.rated}
-                            movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                            movieRating={item.movie.rating}
-                            scheduleDate={item.startDate}
-                            scheduleTime={item.startDate}
-                            scheduleWith={scheduleWith}
-                            timezone={item.timezone}
-                            onPressin={() =>
-                                navigation.navigate('ContentDetailScreen', {
-                                    id: item.movie.id,
-                                    movie: item.movie.title,
-                                    _checkPermissions,
-                                })
-                            }
-                            creator = {item.creator}
-                            invitee = {item.invitee}
-                            onPress={() => handleInviterPress(item.creatorId)}
-                        />
-                    </View>
-                );
-            }
-        });
+                    return (
+                        <View key={item.id} style={{marginBottom: 10}}>
+                            <UserDatesCard
+                                type="MITInvite"
+                                id={item.id}
+                                isHost={isHost}
+                                userId={isHost ? item.creator.id : item.invitee.id}
+                                movieId={item.movie.id}
+                                moviePoster={item.movie.portraitURL}
+                                movieName={item.movie.title}
+                                length={formatMovieDuration(item.movie.duration)}
+                                movieYear={item.movie.year}
+                                movieRated={item.movie.rated}
+                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                movieRating={item.movie.rating}
+                                scheduleDate={item.startDate}
+                                scheduleTime={item.startDate}
+                                scheduleWith={scheduleWith}
+                                timezone={item.timezone}
+                                onPressin={() =>
+                                    navigation.navigate('ContentDetailScreen', {
+                                        id: item.movie.id,
+                                        movie: item.movie.title,
+                                        _checkPermissions,
+                                    })
+                                }
+                                creator={item.creator}
+                                invitee={item.invitee}
+                                onPress={() => handleInviterPress(item.creatorId)}
+                            />
+                        </View>
+                    );
+                }
+            });
+        }
     };
 
     return (

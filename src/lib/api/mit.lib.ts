@@ -2,9 +2,8 @@ import {IMITInvite} from '../../../types';
 import {API} from '../../clients/api.client';
 
 export const getMyMITs = async (): Promise<IMITInvite[] | undefined> => {
-    // GET /v1/mit/me
     try {
-        const {data} = await API.get(`/v1/mit/me`);
+        const {data} = await API.get('/v1/mit/me');
         if (data.success === false) {
             return [];
         }
@@ -20,11 +19,9 @@ export const getMyMITInvites = async (params: {
     declined?: boolean;
     me?: boolean;
 }): Promise<IMITInvite[] | undefined> => {
-    // GET /v1/mit/invites/me
     try {
-        // if params is empty return all MIT Invites
         if (!params) {
-            const {data} = await API.get(`/v1/mit/invites/me`);
+            const {data} = await API.get('/v1/mit/invites/me');
             if (data.success === false) {
                 return [];
             }
@@ -62,10 +59,9 @@ export const getMyMITInvites = async (params: {
 };
 
 export const getMoreMITs = async (params: {count: number}): Promise<number | undefined> => {
-    // POST /v1/mit/create
     try {
         const {count} = params;
-        const {data} = await API.post(`/v1/mit/create`, {count});
+        const {data} = await API.post('/v1/mit/create', {count});
 
         if (data.success === false) {
             return undefined;
@@ -83,10 +79,9 @@ export const createAMITInvite = async (params: {
     startDate: string;
     timezone: string;
 }): Promise<IMITInvite | undefined> => {
-    // POST /v1/mit/invite/create
     try {
         const {movieId, username, startDate, timezone} = params;
-        const {data} = await API.post(`/v1/mit/invite/create`, {movieId, username, startDate, timezone});
+        const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
 
         return data.invite;
     } catch (error) {
@@ -96,7 +91,7 @@ export const createAMITInvite = async (params: {
 
 export const cancelMIT = async (mitInviteId: string): Promise<any> => {
     try {
-        const {data} = await API.post(`/v1/mit/cancel-mit`, {mitInviteId});
+        const {data} = await API.post('/v1/mit/cancel-mit', {mitInviteId});
         return data;
     } catch (error) {
         console.error('Error cancelling MIT:', error);
@@ -106,7 +101,7 @@ export const cancelMIT = async (mitInviteId: string): Promise<any> => {
 
 export const cancelSentMIT = async (mitInviteId: string): Promise<{success: boolean; message?: string}> => {
     try {
-        const {data} = await API.post(`/v1/mit/cancel-sent-mit`, {mitInviteId}); // Corrected line
+        const {data} = await API.post('/v1/mit/cancel-sent-mit', {mitInviteId});
         return {
             success: data.success,
             message: data.message,
@@ -117,11 +112,9 @@ export const cancelSentMIT = async (mitInviteId: string): Promise<{success: bool
     }
 };
 
-
 export const acceptAMITInvite = async (params: {inviteId: string}): Promise<IMITInvite | undefined> => {
-    // POST /v1/mit/invite/accept
     try {
-        const {data} = await API.post(`/v1/mit/invite/accept`, {inviteId: params.inviteId});
+        const {data} = await API.post('/v1/mit/invite/accept', {inviteId: params.inviteId});
 
         if (data.success === false) {
             return undefined;
@@ -134,9 +127,8 @@ export const acceptAMITInvite = async (params: {inviteId: string}): Promise<IMIT
 };
 
 export const declineAMITInvite = async (params: {inviteId: string}): Promise<IMITInvite | undefined> => {
-    // POST /v1/mit/invite/decline
     try {
-        const {data} = await API.post(`/v1/mit/invite/decline`, {inviteId: params.inviteId});
+        const {data} = await API.post('/v1/mit/invite/decline', {inviteId: params.inviteId});
 
         if (data.success === false) {
             return undefined;

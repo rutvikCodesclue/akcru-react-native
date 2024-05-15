@@ -1,71 +1,57 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  TouchableWithoutFeedback
-} from "react-native";
-import React, { useRef, useState } from "react";
-import styles from "./styles";
+import {View, Text, ScrollView, Image, TextInput, Pressable} from 'react-native';
+import React, {useState} from 'react';
+import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import imageindex from "../../../../assets/images/imageindex";
+import imageindex from '../../../../assets/images/imageindex';
 
-import { Icon } from "@rneui/base";
-import AkcruButtons from "../../../components/akcruButtons";
-import useAuthStore from "../../../stores/auth.store";
-import { useFocusEffect } from "@react-navigation/native";
-import { getTotalSupplyOfAD } from "../../../lib/api/wallet.lib";
-
+import AkcruButtons from '../../../components/akcruButtons';
+import useAuthStore from '../../../stores/auth.store';
+import {useFocusEffect} from '@react-navigation/native';
+import {getTotalSupplyOfAD} from '../../../lib/api/wallet.lib';
 
 const UserProfileWalletTab2 = () => {
-  const { user } = useAuthStore();
-  const [toUSD, setToUSD] = useState(true);
-  const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
+    const {user} = useAuthStore();
+    const [toUSD, setToUSD] = useState(true);
+    const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
 
-  
+
 
    const toggleToUSD = () => {
-    setToUSD(!toUSD);
-  };
+        setToUSD(!toUSD);
+    };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      // Do something when the screen is focused
+    useFocusEffect(
+        React.useCallback(() => {
+
       getTotalSupplyOfAD().then((amount) => {
-        setTotalSupply(amount);
-      });
+                setTotalSupply(amount);
+            });
 
-      return () => {
-        // Do something when the screen is unfocused
+            return () => {};
+
       };
-    }
-  , []));
 
-  return (
-      <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-              <View>
-                  <Text style={styles.titleText1}>WALLET</Text>
-              </View>
-              <View
-                  style={{
-                      alignItems: 'center',
-                      borderColor: COLORS.DARKERGREY,
-                      borderWidth: 1,
-                      borderRadius: 8,
-                      height: 175,
-                      justifyContent: 'center',
-                  }}>
-                  <Image source={imageindex.AkcruHexLogo} style={{width: 40, height: 33}} />
-                  <Text style={styles.titleText2}>BALANCE</Text>
-                  <Text style={{...FONTS.Title3, fontSize: 18}}>{user?.adAmount} AD</Text>
-              </View>
+    return (
+        <View style={{marginHorizontal: SIZES.marginhorizontal}}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <View>
+                    <Text style={styles.titleText1}>WALLET</Text>
+                </View>
+                <View
+                    style={{
+                        alignItems: 'center',
+                        borderColor: COLORS.DARKERGREY,
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        height: 175,
+                        justifyContent: 'center',
+                    }}>
+                    <Image source={imageindex.AkcruHexLogo} style={{width: 40, height: 33}} />
+                    <Text style={styles.titleText2}>BALANCE</Text>
+                    <Text style={{...FONTS.Title3, fontSize: 18}}>{user?.adAmount} AD</Text>
+                </View>
 
-              {/* <View style={styles.lineSeperator} />
+                {/* <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2}>REWARDS EARNED</Text>
         </View>
@@ -76,7 +62,7 @@ const UserProfileWalletTab2 = () => {
             style={{ width: SIZES.ScreenWidth / 1.1, height: 170 }}
           />
         </View> */}
-              {/* <View style={styles.lineSeperator} />
+                {/* <View style={styles.lineSeperator} />
         <View style={{ marginBottom: 10 }}>
           <Text style={styles.titleText2White}>
             Exchange AD to USD / USD to AD
@@ -176,75 +162,75 @@ const UserProfileWalletTab2 = () => {
           />
         </View> */}
 
-              <View style={styles.lineSeperator} />
-              <View style={{marginBottom: 10}}>
-                  <Text style={styles.titleText2White}>Send Akcru Dollars to your friends and family</Text>
+                <View style={styles.lineSeperator} />
+                <View style={{marginBottom: 10}}>
+                    <Text style={styles.titleText2White}>Send Akcru Dollars to your friends and family</Text>
+                </View>
+                <View>
+                    <Text style={styles.titleText2}>TO:</Text>
+                    <Pressable>
+                        <View style={styles.inputContainer2}>
+                            <TextInput
+                                placeholder={'To'}
+                                placeholderTextColor={'transparent'}
+                                style={{color: COLORS.WHITE, width: '100%'}}
+                                editable={false}
+                                secureTextEntry={false}
+                            />
+                        </View>
+                    </Pressable>
+
               </View>
-              <View>
-                  <Text style={styles.titleText2}>TO:</Text>
-                <Pressable>
-                  <View style={styles.inputContainer2}>
-                      <TextInput
-                          placeholder={'To'}
-                          placeholderTextColor={'transparent'}
-                          style={{color: COLORS.WHITE, width: '100%'}}
-                          editable={false}
-                          secureTextEntry={false}
-                      />
-                  </View>
-                </Pressable>
-                  
-              </View>
-              <View>
-                  <Text style={styles.titleText2}>AKCRU DOLLAR AMOUNT:</Text>
-                  <View style={styles.inputContainer2}>
-                      <TextInput
-                          placeholder={'Amount'}
-                          placeholderTextColor={'transparent'}
-                          style={{color: COLORS.WHITE, width: '100%'}}
-                          keyboardType="phone-pad" // Set keyboard type to phone-pad
-                      />
-                  </View>
-              </View>
-              <View>
-                  <Text style={styles.titleText2}>GOOGLE AUTHENTIFICATION</Text>
-                  <View style={styles.inputContainer2}>
-                      <TextInput
-                          placeholder={'Google Authentification'}
-                          placeholderTextColor={'transparent'}
-                          style={{color: COLORS.WHITE}}
-                      />
-                  </View>
-              </View>
-              <View style={{alignItems: 'center', marginTop: 30, marginBottom: 20}}>
-                  <AkcruButtons.MedButton btnname={'Send'} onPress={function (): void {}} color={COLORS.AKCRUBLUE} />
-              </View>
-              <View style={styles.lineSeperator} />
-              <View style={{marginBottom: 10}}>
-                  <Text style={styles.titleText2White}>Total AKCRU Dollars in Circulation</Text>
-              </View>
-              <View
-                  style={{
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      marginBottom: 10,
-                  }}>
-                  <Image source={imageindex.AkcruHexLogo} style={{width: 26, height: 20, marginRight: 10}} />
-                  <Text style={{...FONTS.Title3, fontSize: 18, marginRight: 25}}>
-                      {`${totalSupply?.toString()} AD` ?? 'Loading...'}
-                  </Text>
-                  {/* <Text
+                <View>
+                    <Text style={styles.titleText2}>AKCRU DOLLAR AMOUNT:</Text>
+                    <View style={styles.inputContainer2}>
+                        <TextInput
+                            placeholder={'Amount'}
+                            placeholderTextColor={'transparent'}
+                            style={{color: COLORS.WHITE, width: '100%'}}
+                            keyboardType="phone-pad"
+                        />
+                    </View>
+                </View>
+                <View>
+                    <Text style={styles.titleText2}>GOOGLE AUTHENTIFICATION</Text>
+                    <View style={styles.inputContainer2}>
+                        <TextInput
+                            placeholder={'Google Authentification'}
+                            placeholderTextColor={'transparent'}
+                            style={{color: COLORS.WHITE}}
+                        />
+                    </View>
+                </View>
+                <View style={{alignItems: 'center', marginTop: 30, marginBottom: 20}}>
+                    <AkcruButtons.MedButton btnname={'Send'} onPress={function (): void {}} color={COLORS.AKCRUBLUE} />
+                </View>
+                <View style={styles.lineSeperator} />
+                <View style={{marginBottom: 10}}>
+                    <Text style={styles.titleText2White}>Total AKCRU Dollars in Circulation</Text>
+                </View>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginBottom: 10,
+                    }}>
+                    <Image source={imageindex.AkcruHexLogo} style={{width: 26, height: 20, marginRight: 10}} />
+                    <Text style={{...FONTS.Title3, fontSize: 18, marginRight: 25}}>
+                        {`${totalSupply?.toString()} AD` ?? 'Loading...'}
+                    </Text>
+                    {/* <Text
             style={{ ...FONTS.Title3, fontSize: 18, color: COLORS.AKCRUBLUE }}
           >
             +{AKCRUAPP_TOTAL_AD[0].percentageChange}%
           </Text> */}
-              </View>
-              <View style={{marginBottom: 75}}>
-                  <Image source={imageindex.GRAPHwallet2} style={{width: SIZES.ScreenWidth / 1.1, height: 170}} />
-              </View>
-          </ScrollView>
-      </View>
-  );
+                </View>
+                <View style={{marginBottom: 75}}>
+                    <Image source={imageindex.GRAPHwallet2} style={{width: SIZES.ScreenWidth / 1.1, height: 170}} />
+                </View>
+            </ScrollView>
+        </View>
+    );
 };
 
 export default UserProfileWalletTab2;

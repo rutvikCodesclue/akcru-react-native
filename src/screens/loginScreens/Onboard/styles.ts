@@ -39,7 +39,6 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     container: {
         flex: 1,
@@ -58,7 +57,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginTop: 10,
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     checkbox: {
         width: 20,
@@ -113,10 +112,10 @@ export default StyleSheet.create({
     datepicker: {
         height: 120,
         marginTop: -10,
-        
     },
     datepickios: {
-        width: 320, backgroundColor: "white"
+        width: 320,
+        backgroundColor: 'white',
     },
 
     iosbutton: {
@@ -137,16 +136,16 @@ export default StyleSheet.create({
     },
     textinputprefix: {
         color: COLORS.WHITE,
-        marginBottom:2
+        marginBottom: 2,
     },
     input: {
         width: SIZES.ScreenWidth * 0.9,
-        borderWidth:1,
+        borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,
         borderRadius: 5,
         marginTop: 10,
         alignSelf: 'center',
-        height: SIZES.ScreenHeight * .15,
+        height: SIZES.ScreenHeight * 0.15,
         paddingHorizontal: 10,
     },
 });

@@ -1,17 +1,14 @@
 import React from 'react';
 import {View, StyleSheet, Animated} from 'react-native';
 import {UseTabMenu} from '../../context/TabContext';
-import { COLORS } from '../../../assets/constants';
+import {COLORS} from '../../../assets/constants';
 
-const TabContainer = ({children}) => {
+const TabContainer = ({children}: any) => {
     const {opened} = UseTabMenu();
-
-    
 
     const animation = React.useRef(new Animated.Value(0)).current;
 
     React.useEffect(() => {
-        
         Animated.timing(animation, {
             toValue: opened ? 1 : 0,
             duration: 300,

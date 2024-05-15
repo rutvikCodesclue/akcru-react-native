@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     galleryImage: {
@@ -12,7 +12,7 @@ export default StyleSheet.create({
         marginHorizontal: 15,
         marginBottom: 90,
     },
-    
+
     galleryImagesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',

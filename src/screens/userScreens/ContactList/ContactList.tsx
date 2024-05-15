@@ -1,4 +1,13 @@
-import {View, Text, TouchableOpacity, ImageBackground, ActivityIndicator, Platform, StyleSheet, Modal} from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ImageBackground,
+    ActivityIndicator,
+    Platform,
+    StyleSheet,
+    Modal,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
@@ -13,14 +22,14 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import Contacts from 'react-native-contacts';
 import Header from '../../../components/header';
-import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
+import {PERMISSIONS, RESULTS, check} from 'react-native-permissions';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
-import { Icon } from '@rneui/base';
+import {Icon} from '@rneui/base';
 
 const ContactList = () => {
-    const [contactsData, setContacts] = useState<any>([]);
+    const [, setContacts] = useState<any>([]);
     const [isLoading, setLoading] = useState<boolean>(false);
     const [openModal, setOpenModal] = useState<boolean>(false);
     const [OpenInvitedModal, setOpenInvitedModal] = useState<boolean>(false);
@@ -33,62 +42,56 @@ const ContactList = () => {
     const getContactList = async () => {
         setLoading(true);
 
-        const contacts = await Contacts.getAll()
-        console.log('length',contacts.length)
+        const contacts = await Contacts.getAll();
+        console.log('length', contacts.length);
         setIsContactPermission(true);
         let allPhoneNumbers: any = [];
-        // Iterate over each contact object
+
         contacts.forEach(contact => {
-            // Extract phone numbers from the current contact object
             const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
-            // Add extracted phone numbers to the allPhoneNumbers array
+
             allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
         });
-        // Now allPhoneNumbers array contains all the phone numbers from all contacts
+
         const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
         setContacts(cleanedPhoneNumbers);
         getKnownUsers(cleanedPhoneNumbers);
-        // setLoading(false);
     };
 
     async function cleanPhoneNumbersAsync(phoneNumbers) {
         const cleanedNumbers = [];
-    
+
         for (const phoneNumber of phoneNumbers) {
             let cleanedNumber = '';
-            
+
             for (let i = 0; i < phoneNumber.length; i++) {
                 const char = phoneNumber.charAt(i);
-                if (!isNaN(char) && char !== ' ') { // Check if the character is a digit and not a space
+                if (!isNaN(char) && char !== ' ') {
                     cleanedNumber += char;
                 }
             }
-    
-            // Extract the last 11 digits
+
             const finalNumber = cleanedNumber.slice(-11);
-            if (finalNumber.length === 11) { // Check if the cleaned number has 11 digits
+            if (finalNumber.length === 11) {
                 cleanedNumbers.push(finalNumber);
             }
         }
-    
+
         return cleanedNumbers;
     }
 
-    const getKnownUsers = async (allPhoneNumbers) => {
+    const getKnownUsers = async allPhoneNumbers => {
         try {
-
-
             const user_known_contacts: any = await API.post('/v1/user/find-known-users', {
-                phoneNumbers: allPhoneNumbers
-            }); // after testing replace ['11111111111'] with contacts
+                phoneNumbers: allPhoneNumbers,
+            });
             if (user_known_contacts.data.success) {
                 const clonedArray = user_known_contacts.data.users.map(obj => ({
-                    ...obj, // Spread the original object
-                    isFollowed: false, // Add new key isFollowed with value false
-                    isSendInvite: false, // Add new key isFollowed with value false
+                    ...obj,
+                    isFollowed: false,
+                    isSendInvite: false,
                 }));
                 setKnowContacts(clonedArray);
-
             }
         } catch (error) {
             console.log('error =>', error);
@@ -97,7 +100,6 @@ const ContactList = () => {
     };
 
     const sections = React.useMemo(() => {
-        // Group contacts by the first letter of their names
         const sectionsMap = knowContacts.reduce((acc, contact) => {
             if (contact.username !== null) {
                 const firstLetter = contact.username?.trim().charAt(0).toUpperCase();
@@ -105,7 +107,7 @@ const ContactList = () => {
                     ...acc,
                     [firstLetter]: [...(acc[firstLetter] || []), contact],
                 };
-             } else if (contact.firstName !== null) {
+            } else if (contact.firstName !== null) {
                 const firstLetter = contact.firstName?.trim().charAt(0).toUpperCase();
                 return {
                     ...acc,
@@ -120,7 +122,6 @@ const ContactList = () => {
             }
         }, {});
 
-        // Sort sections alphabetically
         const sortedSections = Object.entries(sectionsMap)
             .sort(([letterA], [letterB]) => letterA.localeCompare(letterB))
             .map(([letter, items]) => ({letter, items}));
@@ -129,7 +130,6 @@ const ContactList = () => {
 
     const checkContactPermission = async () => {
         if (Platform.OS === 'android') {
-            // let contactResult;
             let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
             if (contactResult === RESULTS.GRANTED) {
                 setIsContactPermission(true);
@@ -143,7 +143,7 @@ const ContactList = () => {
     const FollowContact = async (contact_id: string) => {
         try {
             setBtnLoading(true);
-            const isContactAlreadyFollowed: any = checkAlreadyFollow(contact_id)
+            const isContactAlreadyFollowed: any = checkAlreadyFollow(contact_id);
             if (!isContactAlreadyFollowed._j) {
                 const follow_contact = await API.post('v1/user/toggle-follow', {user, targetUserId: contact_id});
                 if (follow_contact.data.success) {
@@ -151,62 +151,64 @@ const ContactList = () => {
                     handleFollow(contact_id);
                 }
             } else {
-                setOpenModal(true)
+                setOpenModal(true);
             }
         } catch (error) {
             console.log(error);
         }
     };
 
-    const checkAlreadyFollow = async (contact_id : string) => {
+    const checkAlreadyFollow = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if(selectedObject.isFollowed){
+        if (selectedObject.isFollowed) {
             return true;
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     const handleFollow = (contact_id: string) => {
-        // Filter the array based on objectId
         const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isFollowed: true} : obj));
-        // Update the state with the modified array
+
         setKnowContacts(updatedArray);
     };
 
     const sendCRUInvite = async (sender_id: string, sender_username: string) => {
         try {
             setBtnLoading(true);
-            const isContactAlreadyInvited: any = checkAlreadySendInvite(sender_id)
+            const isContactAlreadyInvited: any = checkAlreadySendInvite(sender_id);
             if (!isContactAlreadyInvited._j) {
-                const follow_contact = await API.post('v1/cru/invite/create', {user, username: sender_username, senderId: sender_id});
+                const follow_contact = await API.post('v1/cru/invite/create', {
+                    user,
+                    username: sender_username,
+                    senderId: sender_id,
+                });
                 if (follow_contact.data.success) {
                     setBtnLoading(false);
                     handleInvite(sender_id);
                 }
             } else {
-                setOpenInvitedModal(true)
+                setOpenInvitedModal(true);
             }
         } catch (error) {
             console.log(error);
         }
-    }
+    };
 
     const handleInvite = (contact_id: string) => {
-        // Filter the array based on objectId
         const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isSendInvite: true} : obj));
-        // Update the state with the modified array
+
         setKnowContacts(updatedArray);
     };
 
-    const checkAlreadySendInvite = async (contact_id : string) => {
+    const checkAlreadySendInvite = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if(selectedObject.isSendInvite){
+        if (selectedObject.isSendInvite) {
             return true;
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     useEffect(() => {
         checkContactPermission();
@@ -216,7 +218,6 @@ const ContactList = () => {
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -226,20 +227,19 @@ const ContactList = () => {
                         height: SIZES.ScreenHeight,
                     }}
                 />
-                <Header/>
+                <Header />
                 <View style={{marginHorizontal: '5%'}}>
                     <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}>
-                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                    </View>
-                </TouchableOpacity>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
-                
 
                 {isContactPermission === true ? (
                     <>
@@ -359,13 +359,10 @@ const ContactList = () => {
                                                                                         onPress={() =>
                                                                                             FollowContact(id)
                                                                                         }
-                                                                                        width={
-                                                                                            90
-                                                                                        }></AkcruButtons.AutoButton>
+                                                                                        width={90}
+                                                                                    />
 
-                                                                                    {/* CRU Invite Button */}
-                                                                                    <View
-                                                                                        style={{marginTop: 10}}></View>
+                                                                                    <View style={{marginTop: 10}} />
                                                                                     <AkcruButtons.AutoButton
                                                                                         color={
                                                                                             isSendInvite
@@ -381,9 +378,8 @@ const ContactList = () => {
                                                                                         onPress={() =>
                                                                                             sendCRUInvite(id, username)
                                                                                         }
-                                                                                        width={
-                                                                                            90
-                                                                                        }></AkcruButtons.AutoButton>
+                                                                                        width={90}
+                                                                                    />
                                                                                 </View>
                                                                             </View>
                                                                         </View>
@@ -407,7 +403,6 @@ const ContactList = () => {
                 ) : (
                     <View style={style.noContactContainer}>
                         <View style={style.noContactDetailContainer}>
-                            {/* <Text> <MaterialSymbol icon="person_off" size={24} fill grade={-25} color="red" /> </Text> */}
                             <Text style={style.noContactHeading}>Need Contact Access</Text>
                             <Text style={style.noContactPara}>
                                 Uh Oh! seems like you didn't given the access of your contacts{' '}
@@ -444,7 +439,7 @@ const ContactList = () => {
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            {`You already followed this person.`}
+                            {'You already followed this person.'}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -457,7 +452,7 @@ const ContactList = () => {
                                     textAlign: 'center',
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                {`Close`}
+                                {'Close'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -486,7 +481,7 @@ const ContactList = () => {
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            {`You already send the CRU invitation to this person.`}
+                            {'You already send the CRU invitation to this person.'}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -499,7 +494,7 @@ const ContactList = () => {
                                     textAlign: 'center',
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                {`Close`}
+                                {'Close'}
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -523,19 +518,19 @@ const style = StyleSheet.create({
         marginBottom: 12,
         marginTop: 10,
     },
-    /** Section */
+
     section: {
         marginTop: 12,
         paddingLeft: 24,
     },
     sectionTitle: {
-       ...FONTS.ContentTitle,
+        ...FONTS.ContentTitle,
         marginTop: 20,
     },
     sectionItems: {
         marginTop: 8,
     },
-    /** Card */
+
     card: {
         paddingVertical: 22,
         flexDirection: 'row',

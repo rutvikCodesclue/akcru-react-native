@@ -7,20 +7,17 @@ export default StyleSheet.create({
         marginTop: 10,
         marginBottom: 20,
         textAlign: 'center',
-        
+
         textDecorationLine: 'underline',
     },
     paragraphText: {
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
-        
     },
     gallerycontainer: {
         marginBottom: 20,
         alignItems: 'center',
         width: '100%',
-
-        
     },
     gallerycontainer2: {
         marginHorizontal: 15,
@@ -40,19 +37,18 @@ export default StyleSheet.create({
     titleText2: {
         ...FONTS.Title2,
         color: COLORS.PINK,
-        
+
         marginVertical: 5,
     },
     titleText2White: {
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
-        
+
         marginVertical: 5,
     },
     titleText3: {
         ...FONTS.Title2,
         color: COLORS.DARKGREY,
-        
     },
     lineSeperator: {
         borderBottomWidth: 1.5,
@@ -122,7 +118,7 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         justifyContent: 'center',
         alignItems: 'center',
-        width: '100%'
+        width: '100%',
     },
     selectedPhoto: {
         width: SIZES.ScreenWidth,

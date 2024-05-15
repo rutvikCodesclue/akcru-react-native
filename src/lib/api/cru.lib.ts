@@ -1,4 +1,4 @@
-import {IMovie, ICruView, ICru, ICruInvite, IUserProfile} from '../../../types';
+import {ICruView, ICru, ICruInvite, IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 
 interface GetMyCRUResponse {
@@ -8,8 +8,7 @@ interface GetMyCRUResponse {
 
 export const getMyCRU = async (): Promise<GetMyCRUResponse | undefined> => {
     try {
-        // GET /v1/cru/me
-        const {data} = await API.get(`/v1/cru/me`);
+        const {data} = await API.get('/v1/cru/me');
         return data;
     } catch (error) {
         console.error(error);
@@ -19,23 +18,13 @@ export const getMyCRU = async (): Promise<GetMyCRUResponse | undefined> => {
 export const updateCRUInfo = async (params: {name: string}): Promise<ICru | undefined> => {
     try {
         const {name} = params;
-        // PUT /v1/cru/me/update
-        const {data} = await API.put(`/v1/cru/me/update`, {name});
+
+        const {data} = await API.put('/v1/cru/me/update', {name});
         return data.CRU;
     } catch (error) {
         console.error(error);
     }
 };
-
-// export const removeAUserFromCRU = async (userId: string): Promise<ICru | undefined> => {
-//     try {
-//         // DELETE /v1/cru/me/remove
-//         const {data} = await API.delete(`/v1/cru/me/remove`, {data: {userId}});
-//         return data.CRU;
-//     } catch (error) {
-//         console.error(error);
-//     }
-// };
 
 export const removeAUserFromCRU = async (userId: string, cruId: string): Promise<ICru | undefined> => {
     try {
@@ -56,13 +45,9 @@ export const removeAUserFromCRU = async (userId: string, cruId: string): Promise
     }
 };
 
-
-
-
 export const addPotentialMemberToCRU = async (userId: string): Promise<ICru | undefined> => {
     try {
-        // POST /v1/cru/me/add-user
-        const {data} = await API.post(`/v1/cru/me/add-user`, {userId});
+        const {data} = await API.post('/v1/cru/me/add-user', {userId});
         console.log('data', data);
 
         return data.CRU;
@@ -72,11 +57,9 @@ export const addPotentialMemberToCRU = async (userId: string): Promise<ICru | un
 };
 
 export const getMyCRUViews = async (params?: {upcoming?: boolean; past?: boolean}): Promise<ICruView[] | undefined> => {
-    // GET /v1/cru/views/me
     try {
-        // if params is empty return all CRUViews
         if (!params) {
-            const {data} = await API.get(`/v1/cru/views/me`);
+            const {data} = await API.get('/v1/cru/views/me');
             if (data.success === false) {
                 return [];
             }
@@ -105,9 +88,8 @@ export const getMyCRUViews = async (params?: {upcoming?: boolean; past?: boolean
 
 export const createACRUView = async (params: {movieId: string; startTime: string; timezone: string}) => {
     try {
-        // POST /v1/cru/create-cru-view
         const {movieId, startTime, timezone} = params;
-        const {data} = await API.post(`/v1/cru/create-cru-view`, {movieId, startTime, timezone});
+        const {data} = await API.post('/v1/cru/create-cru-view', {movieId, startTime, timezone});
 
         return data.CRUView;
     } catch (error) {
@@ -117,22 +99,22 @@ export const createACRUView = async (params: {movieId: string; startTime: string
 
 export const cancelCRUView = async (cruViewId: string): Promise<{success: boolean; message?: string}> => {
     try {
-        // Replace with the correct endpoint as per your backend setup
-        const response = await API.post(`/v1/cru/cancel-cru-view`, {cruViewId});
+        const response = await API.post('/v1/cru/cancel-cru-view', {cruViewId});
         console.log('CRU View cancelled:', response.data);
-        return response.data; // Assuming the API returns an object with a success flag and possibly a message
+        return response.data;
     } catch (error) {
         console.error('Error cancelling CRU View:', error);
-        throw error; // Re-throw the error so you can handle it in the calling component
+        throw error;
     }
 };
 
-
-export const createACRUInvite = async (params: {username: string; senderId: string}): Promise<ICruInvite | undefined> => {
-    // POST /v1/cru/invite/create
+export const createACRUInvite = async (params: {
+    username: string;
+    senderId: string;
+}): Promise<ICruInvite | undefined> => {
     try {
         const {username, senderId} = params;
-        const {data} = await API.post(`/v1/cru/invite/create`, {username, senderId});
+        const {data} = await API.post('/v1/cru/invite/create', {username, senderId});
 
         return data.invite;
     } catch (error) {
@@ -141,7 +123,6 @@ export const createACRUInvite = async (params: {username: string; senderId: stri
 };
 
 export const getCRUInvites = async (params: {pending?: boolean; accepted?: boolean; declined?: boolean}) => {
-    // GET /v1/cru/invites/me
     const {pending, accepted, declined} = params;
 
     if (pending) {
@@ -157,13 +138,13 @@ export const getCRUInvites = async (params: {pending?: boolean; accepted?: boole
         return data.invites;
     }
 
-    const {data} = await API.get(`/v1/cru/invite/me`);
+    const {data} = await API.get('/v1/cru/invite/me');
     return data.invites;
 };
 
 export const acceptACRUInvite = async (params: {inviteId: string}) => {
     try {
-        const {data} = await API.post(`/v1/cru/invite/accept`, {inviteId: params.inviteId});
+        const {data} = await API.post('/v1/cru/invite/accept', {inviteId: params.inviteId});
         return data;
     } catch (error) {
         console.error(error);
@@ -172,7 +153,7 @@ export const acceptACRUInvite = async (params: {inviteId: string}) => {
 
 export const declineACRUInvite = async (params: {inviteId: string}) => {
     try {
-        const {data} = await API.post(`/v1/cru/invite/decline`, {inviteId: params.inviteId});
+        const {data} = await API.post('/v1/cru/invite/decline', {inviteId: params.inviteId});
         return data;
     } catch (error) {
         console.error(error);
@@ -182,32 +163,30 @@ export const declineACRUInvite = async (params: {inviteId: string}) => {
 export const getCruInviteStatus = async (viewedUserId: string) => {
     try {
         const response = await API.get(`/v1/cru/invite/status?viewedUserId=${viewedUserId}`);
-        return response.data.status; // 'Pending', 'Accepted', 'Declined', or 'No Invite'
+        return response.data.status;
     } catch (error) {
         console.error('Error fetching CRU invite status:', error);
-        return 'Error'; // Handle error state as needed
+        return 'Error';
     }
 };
 
 export const checkUserMembership = async (viewedUserId: string) => {
     try {
-        // Directly use `viewedUserId` as a path parameter in the URL
         const response = await API.get(`/v1/cru/check-crumembership/${viewedUserId}`);
-        // Assuming the backend returns a JSON object with a boolean property `isMember`
+
         return response.data.isMember;
     } catch (error) {
         console.error('Error checking user membership:', error);
-        throw error; // Re-throw the error to be handled by the caller
+        throw error;
     }
 };
 
 export const listCrusForUser = async (userId: string): Promise<ICru[] | undefined> => {
     try {
-        // Replace `/v1/cru/user/:userId/crus` with the correct endpoint as per your API structure
         const {data} = await API.get(`/v1/cru/user/${userId}/crus`);
 
         if (data && Array.isArray(data)) {
-            return data; // Assuming the backend returns an array of Crüs
+            return data;
         } else {
             console.error('Unexpected response format from the listCrusForUser endpoint');
             return undefined;
@@ -220,14 +199,10 @@ export const listCrusForUser = async (userId: string): Promise<ICru[] | undefine
 
 export const leaveCRU = async (cruId: string): Promise<void> => {
     try {
-        // Make a DELETE request to the endpoint with the CRU ID
-        // Note: No need to send userId in the body, assuming the backend can determine this from the session or token
         const response = await API.delete(`/v1/cru/${cruId}/leave`);
 
-        // Check if the response is successful
         if (response.data.success) {
             console.log('Successfully left CRU:', response.data.CRU);
-            // Optionally, refresh CRU data or navigate as needed
         } else {
             console.error('Failed to leave CRU:', response.data.message);
         }
@@ -243,8 +218,7 @@ interface SearchCRUsResponse {
 
 export const searchCRUs = async (searchTerm: string): Promise<SearchCRUsResponse | undefined> => {
     try {
-        // Use the GET method and pass the search term as a query parameter
-        const response = await API.get<SearchCRUsResponse>(`/v1/cru/search`, {
+        const response = await API.get<SearchCRUsResponse>('/v1/cru/search', {
             params: {search: searchTerm},
         });
 
@@ -260,4 +234,3 @@ export const searchCRUs = async (searchTerm: string): Promise<SearchCRUsResponse
         return undefined;
     }
 };
-

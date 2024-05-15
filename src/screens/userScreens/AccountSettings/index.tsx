@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Modal, ImageBackground, SafeAreaView, Alert, Platform, Pressable} from 'react-native';
+import {View, Text, TextInput, Modal, SafeAreaView, Alert, Platform, Pressable} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -8,45 +8,33 @@ import {Icon} from '@rneui/base';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import AkcruButtons from '../../../components/akcruButtons';
-import {MaskedTextInput} from 'react-native-mask-text';
 import {updateUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
-import {supabase} from '../../../../lib/supabase';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import InputsLrg from '../../../components/inputLrg';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-
 const date = new Date('2000-01-07');
-date.setHours(0, 0, 0, 0); // Set the time to midnight
-
-const day = date.getDate();
-const month = date.toLocaleString('default', {month: 'long'});
-const year = date.getFullYear();
-const formattedDate = `${day} ${month} ${year}`;
+date.setHours(0, 0, 0, 0);
 
 const AccountSettings = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const user = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
 
-    const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
-    const [privacySetting, setPrivacySetting] = useState('Public'); // Add state for privacy setting
-    const [watchStatus, setWatchStatus] = useState('Yes'); // Add state for privacy setting
+    const [, setShowUpdateConfirmation] = useState(false);
 
     const [firstName, setFirstName] = useState('');
-    const [firstNameModified, setFirstNameModified] = useState('');
+    const [, setFirstNameModified] = useState('');
     const [firstNameModalVisible, setFirstNameModalVisible] = useState(false);
 
     const [lastName, setLastName] = useState('');
-    const [lastNameModified, setLastNameModified] = useState('');
+    const [, setLastNameModified] = useState('');
     const [lastNameModalVisible, setLastNameModalVisible] = useState(false);
 
     const [phone, setPhone] = useState('');
-    const [phoneModified, setPhoneModified] = useState('');
+    const [, setPhoneModified] = useState('');
     const [phoneModalVisible, setPhoneModalVisible] = useState(false);
 
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
 
     const formatDateToDayMonthYear = (date: Date) => {
         const day = date.getDate();
@@ -57,19 +45,9 @@ const AccountSettings = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            //console.log('AccountSettings Screen focused [AccountSettings]');
             hydrateUser();
-            //console.log(user?.username)
-            //console.log(user?.password)
-            //console.log(user?.dateOfBirth)
-            //console.log(user?.firstName)
-            //console.log(user?.email)
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                //console.log('AccountSettings Screen unfocused [AccountSettings]');
-            };
+            return () => {};
         }, []),
     );
 
@@ -94,22 +72,12 @@ const AccountSettings = () => {
     };
 
     const handleUpdateProfile = () => {
-        // Show the confirmation modal
         setShowUpdateConfirmation(true);
     };
 
     const handleConfirmUpdate = () => {
-        // Hide the confirmation modal
         setShowUpdateConfirmation(false);
-
-        // Call the UpdateProfile function to update the profile information
-        // UpdateProfile({userName, desc});
     };
-
-    // const handlePhoneChange = (text: React.SetStateAction<string | undefined>) => {
-    //     console.log('New Phone Number:', text);
-    //     setPhone(text);
-    // };
 
     const [showUpdateFirstNameConfirmation, setShowUpdateFirstNameConfirmation] = useState(false);
 
@@ -123,7 +91,7 @@ const AccountSettings = () => {
         try {
             setLoading(true);
             console.log('firstname', firstName);
-            // Create an object with only the `firstName` field to update
+
             const updatedFields = {
                 firstName: firstName,
             };
@@ -131,14 +99,10 @@ const AccountSettings = () => {
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                // Update was successful on both client and backend
-                //console.log('Profile updated successfully:', updatedUser);
             } else {
-                // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
             }
         } catch (error) {
-            // Handle any errors (e.g., network issues)
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
@@ -147,10 +111,9 @@ const AccountSettings = () => {
 
             const currentUser = useAuthStore.getState().user;
 
-            // Update the username in the user's profile in the store immediately:
             if (currentUser) {
                 currentUser.firstName = firstName;
-                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+                useAuthStore.setState({user: currentUser});
             }
         }
     };
@@ -166,7 +129,6 @@ const AccountSettings = () => {
         try {
             setLoading(true);
 
-            // Create an object with only the `firstName` field to update
             const updatedFields = {
                 lastName: lastName,
             };
@@ -174,14 +136,10 @@ const AccountSettings = () => {
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                // Update was successful on both client and backend
-                //console.log('Profile updated successfully:', updatedUser);
             } else {
-                // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
             }
         } catch (error) {
-            // Handle any errors (e.g., network issues)
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
@@ -190,10 +148,9 @@ const AccountSettings = () => {
 
             const currentUser = useAuthStore.getState().user;
 
-            // Update the username in the user's profile in the store immediately:
             if (currentUser) {
                 currentUser.lastName = lastName;
-                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+                useAuthStore.setState({user: currentUser});
             }
         }
     };
@@ -201,12 +158,9 @@ const AccountSettings = () => {
     const [showUpdatePhoneConfirmation, setShowUpdatePhoneConfirmation] = useState(false);
 
     const handleChangePhone = () => {
-        // Check if the phone number has at least 11 digits
         if (phone.length < 10) {
-            // Show an alert to inform the user
             Alert.alert('Invalid Phone Number', 'Phone number must have at least 10 digits.');
         } else {
-            // If the phone number is valid, show the confirmation modal
             setPhoneModalVisible(false);
             setShowUpdatePhoneConfirmation(true);
         }
@@ -216,13 +170,11 @@ const AccountSettings = () => {
         try {
             setLoading(true);
 
-            // Create an object with only the `phone` field to update
             const updatedFields = {phone};
 
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                //console.log('Profile updated successfully:', updatedUser);
             } else {
                 console.error('Failed to update profile.');
             }
@@ -239,7 +191,6 @@ const AccountSettings = () => {
             setShowUpdatePhoneConfirmation(false);
             setPhoneModalVisible(false);
 
-            // Update the phone number in the user's profile in the store immediately:
             const currentUser = useAuthStore.getState().user;
             if (currentUser) {
                 currentUser.phoneNumber = phone;
@@ -266,14 +217,12 @@ const AccountSettings = () => {
     const onChange = ({type}: {type: string}, selectedDate: Date) => {
         if (type === 'set') {
             const currentDate = new Date(selectedDate);
-            currentDate.setHours(0, 0, 0, 0); // Set the time to midnight
+            currentDate.setHours(0, 0, 0, 0);
             setDate(currentDate);
-            //console.log('DOB setDate:', currentDate);
 
             if (Platform.OS === 'android') {
                 toggleDatePicker();
-                setDob(currentDate.toISOString()); // Convert to ISO string format with midnight time
-                //console.log('DOB setDate to string:', currentDate);
+                setDob(currentDate.toISOString());
             }
         } else {
             toggleDatePicker();
@@ -287,14 +236,11 @@ const AccountSettings = () => {
             return;
         }
 
-        // Set time to midnight
         const currentDate = new Date(selectedDate);
         currentDate.setHours(0, 0, 0, 0);
 
-        // Convert to ISO string format with midnight time
         const isoString = currentDate.toISOString();
 
-        // Handle any further operations (e.g., setDob, toggleDatePicker)
         setDob(isoString);
         toggleDatePicker();
     };
@@ -303,32 +249,26 @@ const AccountSettings = () => {
         try {
             setLoading(true);
 
-            // Call the updateUser function to send the updated data to the backend
             const updatedFields = {
-                dob: dob, // Use dob as a string
+                dob: dob,
             };
 
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                // Update was successful on both client and backend
-                //console.log('Profile updated successfully:', updatedUser);
             } else {
-                // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
             }
         } catch (error) {
-            // Handle any errors (e.g., network issues)
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
             setDobModalVisible(false);
             const currentUser = useAuthStore.getState().user;
 
-            // Update the username and dob in the user's profile in the store immediately:
             if (currentUser) {
-                currentUser.dateOfBirth = dob; // Update dob
-                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+                currentUser.dateOfBirth = dob;
+                useAuthStore.setState({user: currentUser});
             }
         }
     };
@@ -345,12 +285,11 @@ const AccountSettings = () => {
     const handleChangePassword = () => {
         if (password.length >= 8) {
             if (password === confirmPassword) {
-                // Check if passwords match
                 setPasswordError(false);
                 setPasswordModalVisible(false);
                 setShowUpdatePasswordConfirmation(true);
             } else {
-                setPasswordError(true); // Set a password error state
+                setPasswordError(true);
             }
         } else {
             setShowPasswordFormatError(true);
@@ -361,7 +300,6 @@ const AccountSettings = () => {
         try {
             setLoading(true);
 
-            // Create an object with only the `Password` field to update
             const updatedFields = {
                 password: password,
             };
@@ -369,14 +307,10 @@ const AccountSettings = () => {
             const updatedUser = await updateUser(updatedFields);
 
             if (updatedUser) {
-                // Update was successful on both client and backend
-                //console.log('Profile updated successfully:', updatedUser);
             } else {
-                // Handle update failure (e.g., show an error message)
                 console.error('Failed to update profile.');
             }
         } catch (error) {
-            // Handle any errors (e.g., network issues)
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
@@ -385,10 +319,9 @@ const AccountSettings = () => {
 
             const currentUser = useAuthStore.getState().user;
 
-            // Update the username in the user's profile in the store immediately:
             if (currentUser) {
                 currentUser.password = password;
-                useAuthStore.setState({user: currentUser}); // Use setState to update the user
+                useAuthStore.setState({user: currentUser});
             }
         }
     };
@@ -416,7 +349,7 @@ const AccountSettings = () => {
                     <Text style={{...FONTS.paragraph1, marginBottom: 10, color: COLORS.PINK}}>
                         ( This information will not be shared publicly )
                     </Text>
-                    {/* firstName */}
+
                     <View>
                         <Text style={styles.inputlabel}>First name</Text>
                         <View style={styles.input}>
@@ -447,7 +380,7 @@ const AccountSettings = () => {
                             )}
                         </View>
                     </View>
-                    {/* firstName Modal */}
+
                     <Modal animationType="fade" transparent={false} visible={firstNameModalVisible}>
                         <SafeAreaView
                             style={{
@@ -504,13 +437,13 @@ const AccountSettings = () => {
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={text => setFirstName(text)}
-                                    value={firstName} // Use the modified value in the TextInput
+                                    value={firstName}
                                     editable={true}
                                 />
                             </View>
                         </SafeAreaView>
                     </Modal>
-                    {/* firstName Confirmation Modal */}
+
                     <Modal animationType="fade" transparent={true} visible={showUpdateFirstNameConfirmation}>
                         <View
                             style={{
@@ -538,7 +471,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() => setShowUpdateFirstNameConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdateFirstNameConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -547,7 +480,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            onPress={confirmFirstNameUpdate} // Confirm the update
+                                            onPress={confirmFirstNameUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -563,7 +496,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <Pressable
-                                            onPress={() => setShowUpdateFirstNameConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdateFirstNameConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -572,7 +505,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
-                                            onPress={confirmFirstNameUpdate} // Confirm the update
+                                            onPress={confirmFirstNameUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -585,7 +518,7 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-                    {/* lastName*/}
+
                     <View>
                         <Text style={styles.inputlabel}>Last name</Text>
                         <View style={styles.input}>
@@ -616,7 +549,7 @@ const AccountSettings = () => {
                             )}
                         </View>
                     </View>
-                    {/* lastName Modal */}
+
                     <Modal animationType="fade" transparent={false} visible={lastNameModalVisible}>
                         <SafeAreaView
                             style={{
@@ -673,13 +606,13 @@ const AccountSettings = () => {
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={text => setLastName(text)}
-                                    value={lastName} // Use the modified value in the TextInput
+                                    value={lastName}
                                     editable={true}
                                 />
                             </View>
                         </SafeAreaView>
                     </Modal>
-                    {/* lastName Confirmation Modal */}
+
                     <Modal animationType="fade" transparent={true} visible={showUpdateLastNameConfirmation}>
                         <View
                             style={{
@@ -707,7 +640,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() => setShowUpdateLastNameConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdateLastNameConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -716,7 +649,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            onPress={confirmLastNameUpdate} // Confirm the update
+                                            onPress={confirmLastNameUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -732,7 +665,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() => setShowUpdateLastNameConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdateLastNameConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -741,7 +674,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            onPress={confirmLastNameUpdate} // Confirm the update
+                                            onPress={confirmLastNameUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -754,7 +687,7 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-                    {/* phone*/}
+
                     {/* <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
@@ -784,7 +717,7 @@ const AccountSettings = () => {
                                             placeholderTextColor={COLORS.DARKGREY}
                                             style={styles.textinput}
                                             keyboardType="number-pad"
-                                            maxLength={10} // Limit input to 10 digits
+                                            maxLength={10}
                                             onChangeText={text => {
                                                 const numericText = text.replace(/[^0-9]/g, '');
                                                 setPhoneModified(numericText);
@@ -803,7 +736,7 @@ const AccountSettings = () => {
                                             placeholderTextColor={COLORS.DARKGREY}
                                             style={styles.textinput}
                                             keyboardType="number-pad"
-                                            maxLength={10} // Limit input to 10 digits
+                                            maxLength={10}
                                             onChangeText={text => {
                                                 const numericText = text.replace(/[^0-9]/g, '');
                                                 setPhoneModified(numericText);
@@ -817,7 +750,6 @@ const AccountSettings = () => {
                         </View>
                     </View>
 
-                    {/* phone Modal */}
                     <Modal animationType="fade" transparent={false} visible={phoneModalVisible}>
                         <SafeAreaView
                             style={{
@@ -873,23 +805,20 @@ const AccountSettings = () => {
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={text => {
-                                        // Remove non-numeric characters from the input
                                         const numericText = text.replace(/[^0-9]/g, '');
 
-                                        // Limit the input to 10 characters
                                         const limitedText = numericText.substring(0, 10);
 
-                                        // Update the state with the limited and formatted text
                                         setPhone(limitedText);
                                     }}
-                                    value={phone} // Use the modified value in the TextInput
-                                    keyboardType="phone-pad" // Set keyboard type to phone-pad
+                                    value={phone}
+                                    keyboardType="phone-pad"
                                     editable={true}
                                 />
                             </View>
                         </SafeAreaView>
                     </Modal>
-                    {/* phone Confirmation Modal */}
+
                     <Modal animationType="fade" transparent={true} visible={showUpdatePhoneConfirmation}>
                         <View
                             style={{
@@ -917,7 +846,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() => setShowUpdatePhoneConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdatePhoneConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -926,7 +855,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            onPress={confirmPhoneUpdate} // Confirm the update
+                                            onPress={confirmPhoneUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -942,7 +871,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <Pressable
-                                            onPress={() => setShowUpdatePhoneConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdatePhoneConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -951,7 +880,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
-                                            onPress={confirmPhoneUpdate} // Confirm the update
+                                            onPress={confirmPhoneUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -964,7 +893,7 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-                    {/* DOB */}
+
                     {/* <View>
                         <Text style={styles.inputlabel}>DOB</Text>
                         <View style={styles.input}>
@@ -981,7 +910,7 @@ const AccountSettings = () => {
                             </TouchableOpacity>
                         </View>
                     </View> */}
-                    {/* DOB Modal */}
+
                     <Modal animationType="fade" transparent={false} visible={dobModalVisible}>
                         <SafeAreaView
                             style={{
@@ -1006,7 +935,6 @@ const AccountSettings = () => {
 
                             <Text style={styles.inputlabel}>Change Date of Birth</Text>
                             <View style={styles.input}>
-                                {/* Dob picker */}
                                 {showPicker && (
                                     <DateTimePicker
                                         display="spinner"
@@ -1039,14 +967,13 @@ const AccountSettings = () => {
                                 {!showPicker && (
                                     <TouchableOpacity onPress={toggleDatePicker}>
                                         <TextInput
-                                            placeholder={user?.dateOfBirth || 'Select Date of Birth'} // Use placeholder instead of placeholdername
+                                            placeholder={user?.dateOfBirth || 'Select Date of Birth'}
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={(text: string) => {
-                                                //console.log('Input Changed:', text); // Log input changes
-                                                setDob(text); // Call handleDobChange
+                                                setDob(text);
                                             }}
-                                            value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''} // Use the dob state
+                                            value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''}
                                             editable={true}
                                             onPressIn={toggleDatePicker}
                                         />
@@ -1055,7 +982,7 @@ const AccountSettings = () => {
                             </View>
                         </SafeAreaView>
                     </Modal>
-                    {/* Password */}
+
                     <View>
                         <Text style={styles.inputlabel}>Change Password</Text>
                         <View style={styles.input}>
@@ -1086,7 +1013,7 @@ const AccountSettings = () => {
                             )}
                         </View>
                     </View>
-                    {/* Password Modal */}
+
                     <Modal animationType="fade" transparent={false} visible={passwordModalVisible}>
                         <SafeAreaView
                             style={{
@@ -1146,7 +1073,7 @@ const AccountSettings = () => {
                                     style={styles.textinput}
                                     secureTextEntry={true}
                                     onChangeText={text => setPassword(text)}
-                                    value={password} // Use the modified value in the TextInput
+                                    value={password}
                                     editable={true}
                                 />
                             </View>
@@ -1158,22 +1085,22 @@ const AccountSettings = () => {
                                     style={styles.textinput}
                                     secureTextEntry={true}
                                     onChangeText={text => {
-                                        setConfirmPassword(text); // Update confirmPassword state
-                                        // Check if the passwords match in real-time
+                                        setConfirmPassword(text);
+
                                         if (password === text) {
-                                            setPasswordError(false); // Clear the error if they match
+                                            setPasswordError(false);
                                         } else {
                                             setPasswordError(true);
                                         }
                                     }}
-                                    value={confirmPassword} // Use the modified value in the TextInput
+                                    value={confirmPassword}
                                     editable={true}
                                 />
                                 {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
                             </View>
                         </SafeAreaView>
                     </Modal>
-                    {/* Password Confirmation Modal */}
+
                     <Modal animationType="fade" transparent={true} visible={showUpdatePasswordConfirmation}>
                         <View
                             style={{
@@ -1201,7 +1128,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() => setShowUpdatePasswordConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdatePasswordConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -1210,7 +1137,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
-                                            onPress={confirmPasswordUpdate} // Confirm the update
+                                            onPress={confirmPasswordUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -1226,7 +1153,7 @@ const AccountSettings = () => {
                                             justifyContent: 'space-between',
                                         }}>
                                         <Pressable
-                                            onPress={() => setShowUpdatePasswordConfirmation(false)} // Hide the confirmation modal
+                                            onPress={() => setShowUpdatePasswordConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -1235,7 +1162,7 @@ const AccountSettings = () => {
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
-                                            onPress={confirmPasswordUpdate} // Confirm the update
+                                            onPress={confirmPasswordUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
                                                 padding: 10,
@@ -1248,7 +1175,7 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-                    {/* Password Format Error Modal */}
+
                     <Modal animationType="fade" transparent={true} visible={showPasswordFormatError}>
                         <View
                             style={{
@@ -1273,7 +1200,7 @@ const AccountSettings = () => {
                                 <View>
                                     {Platform.OS === 'ios' ? (
                                         <TouchableOpacity
-                                            onPress={() => setShowPasswordFormatError(false)} // Hide the confirmation modal
+                                            onPress={() => setShowPasswordFormatError(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -1284,7 +1211,7 @@ const AccountSettings = () => {
                                         </TouchableOpacity>
                                     ) : (
                                         <Pressable
-                                            onPress={() => setShowPasswordFormatError(false)} // Hide the confirmation modal
+                                            onPress={() => setShowPasswordFormatError(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
                                                 padding: 10,
@@ -1397,10 +1324,10 @@ const AccountSettings = () => {
                             btnname={'Update'}
                             disabled={false}
                             color={COLORS.AKCRUBLUE}
-                            onPress={handleUpdateProfile} // Show the confirmation modal
+                            onPress={handleUpdateProfile}
                         />
                     </View> */}
-                    {/* Confirmation Modal */}
+
                     {/* <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
                         <View
                             style={{
@@ -1428,7 +1355,7 @@ const AccountSettings = () => {
                                         justifyContent: 'space-between',
                                     }}>
                                     <TouchableOpacity
-                                        onPress={() => setShowUpdateConfirmation(false)} // Hide the confirmation modal
+                                        onPress={() => setShowUpdateConfirmation(false)}
                                         style={{
                                             backgroundColor: 'red',
                                             padding: 10,
@@ -1437,7 +1364,7 @@ const AccountSettings = () => {
                                         <Text style={{...FONTS.Title3}}>Cancel</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        onPress={confirmUpdate} // Confirm the update
+                                        onPress={confirmUpdate}
                                         style={{
                                             backgroundColor: 'green',
                                             padding: 10,

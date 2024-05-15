@@ -22,21 +22,21 @@ const ForgotPassword = () => {
     const [emailError, setEmailError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    // Enhanced Email Validation
+    
     const isEmailValid = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
     };
 
     const handleEmailChange = (text: string) => {
-        setEmail(text);
+        setEmail(text.toLowerCase());
         setEmailError(!isEmailValid(text));
     };
 
     const checkFormCompletion = () => {
         if (
             email &&
-            isEmailValid(email) // Check email format
+            isEmailValid(email) 
         ) {
             setIsFormComplete(true);
         } else {
@@ -61,7 +61,7 @@ const ForgotPassword = () => {
         iconcolor: '',
     });
 
-    // Reset Password Function with Email Existence Check
+    
     const SendOTP = async () => {
         if (!isEmailValid(email)) {
             setEmailError(true);
@@ -70,7 +70,7 @@ const ForgotPassword = () => {
 
         setLoading(true);
         try {
-            // Replace the following line with your API call to send OTP
+            
             const {data, error} = await API.post('/v1/user/sendOTP', {email});
             
             console.log("Data", data, error)
@@ -91,10 +91,10 @@ const ForgotPassword = () => {
                     iconcolor: COLORS.CATGREENLGT,
                 });
 
-                // Navigate to otpVerification screen after showing the success message
+                
                 setTimeout(() => {
                     navigation.navigate('OTPVerification', {email});
-                }, 3000); // 5 seconds delay
+                }, 3000); 
             }
 
             setShowPasswordResetModal(true);
@@ -116,7 +116,7 @@ const ForgotPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

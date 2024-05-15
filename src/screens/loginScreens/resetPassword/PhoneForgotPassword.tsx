@@ -20,7 +20,7 @@ const PhoneForgotPassword = () => {
     const [phoneError, setPhoneError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    // Phone Number Validation
+    
     const isPhoneValid = (phone: string) => {
         return /^\d{10}$/.test(phone);
     };
@@ -56,7 +56,7 @@ const PhoneForgotPassword = () => {
 
         setLoading(true);
         try {
-            // Replace the following line with your API call to send OTP
+            
             const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: phone});
 
             if (error) {
@@ -77,10 +77,10 @@ const PhoneForgotPassword = () => {
                      iconcolor: COLORS.CATGREENLGT,
                  });
                  setShowPasswordResetModal(true);
-                // Navigate to otpVerification screen after showing the success message
+                
                 setTimeout(() => {
                     navigation.navigate('OTPVerification', {phoneNumber: phone});
-                }, 3000); // 5 seconds delay
+                }, 3000); 
             }
         } catch (error) {
             setResetResultType({
@@ -100,7 +100,7 @@ const PhoneForgotPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -151,7 +151,7 @@ const PhoneForgotPassword = () => {
                                 />
                                     <Text style={styles.textinputprefix}>+1</Text>
                                 {/* <TextInput
-                                    // mask="+1-999-999-9999"
+                                    
                                     placeholder="1-234-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
@@ -162,14 +162,14 @@ const PhoneForgotPassword = () => {
                                     editable={true}
                                 /> */}
                                 <TextInput
-                                    placeholder="234-456-7890" // Updated placeholder
+                                    placeholder="234-456-7890" 
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={handlePhoneNumberChange}
                                     value={phone}
                                     keyboardType="number-pad"
-                                    maxLength={10} // Ensure only 10 digits can be entered
+                                    maxLength={10} 
                                     editable={true}
                                 />
                             </View>

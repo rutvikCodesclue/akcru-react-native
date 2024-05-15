@@ -1,4 +1,13 @@
-import {View, Text, TouchableOpacity, ImageBackground, ActivityIndicator, Platform, StyleSheet, Modal} from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    ImageBackground,
+    ActivityIndicator,
+    Platform,
+    StyleSheet,
+    Modal,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
@@ -32,62 +41,59 @@ const OnboardContactList = () => {
     const getContactList = async () => {
         setLoading(true);
 
-        const contacts = await Contacts.getAll()
-        console.log('length',contacts.length)
+        const contacts = await Contacts.getAll();
+        console.log('length', contacts.length);
         setIsContactPermission(true);
         let allPhoneNumbers: any = [];
-        // Iterate over each contact object
+
         contacts.forEach(contact => {
-            // Extract phone numbers from the current contact object
+
             const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
-            // Add extracted phone numbers to the allPhoneNumbers array
+
             allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
         });
-        // Now allPhoneNumbers array contains all the phone numbers from all contacts
+
         const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
         setContacts(cleanedPhoneNumbers);
         getKnownUsers(cleanedPhoneNumbers);
-        // setLoading(false);
+
     };
 
     async function cleanPhoneNumbersAsync(phoneNumbers) {
         const cleanedNumbers = [];
-    
+
         for (const phoneNumber of phoneNumbers) {
             let cleanedNumber = '';
-            
+
             for (let i = 0; i < phoneNumber.length; i++) {
                 const char = phoneNumber.charAt(i);
-                if (!isNaN(char) && char !== ' ') { // Check if the character is a digit and not a space
+                if (!isNaN(char) && char !== ' ') {
                     cleanedNumber += char;
                 }
             }
-    
-            // Extract the last 11 digits
+
+
             const finalNumber = cleanedNumber.slice(-11);
-            if (finalNumber.length === 11) { // Check if the cleaned number has 11 digits
+            if (finalNumber.length === 11) {
                 cleanedNumbers.push(finalNumber);
             }
         }
-    
+
         return cleanedNumbers;
     }
 
-    const getKnownUsers = async (allPhoneNumbers) => {
+    const getKnownUsers = async allPhoneNumbers => {
         try {
-
-
             const user_known_contacts: any = await API.post('/v1/user/find-known-users', {
-                phoneNumbers: allPhoneNumbers
-            }); // after testing replace ['11111111111'] with contacts
+                phoneNumbers: allPhoneNumbers,
+            });
             if (user_known_contacts.data.success) {
                 const clonedArray = user_known_contacts.data.users.map(obj => ({
-                    ...obj, // Spread the original object
-                    isFollowed: false, // Add new key isFollowed with value false
-                    isSendInvite: false, // Add new key isFollowed with value false
+                    ...obj,
+                    isFollowed: false,
+                    isSendInvite: false,
                 }));
                 setKnowContacts(clonedArray);
-
             }
         } catch (error) {
             console.log('error =>', error);
@@ -96,7 +102,7 @@ const OnboardContactList = () => {
     };
 
     const sections = React.useMemo(() => {
-        // Group contacts by the first letter of their names
+
         const sectionsMap = knowContacts.reduce((acc, contact) => {
             if (contact.username !== null) {
                 const firstLetter = contact.username?.trim().charAt(0).toUpperCase();
@@ -104,7 +110,7 @@ const OnboardContactList = () => {
                     ...acc,
                     [firstLetter]: [...(acc[firstLetter] || []), contact],
                 };
-             } else if (contact.firstName !== null) {
+            } else if (contact.firstName !== null) {
                 const firstLetter = contact.firstName?.trim().charAt(0).toUpperCase();
                 return {
                     ...acc,
@@ -119,7 +125,7 @@ const OnboardContactList = () => {
             }
         }, {});
 
-        // Sort sections alphabetically
+
         const sortedSections = Object.entries(sectionsMap)
             .sort(([letterA], [letterB]) => letterA.localeCompare(letterB))
             .map(([letter, items]) => ({letter, items}));
@@ -128,7 +134,7 @@ const OnboardContactList = () => {
 
     const checkContactPermission = async () => {
         if (Platform.OS === 'android') {
-            // let contactResult;
+
             let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
             if (contactResult === RESULTS.GRANTED) {
                 setIsContactPermission(true);
@@ -142,7 +148,7 @@ const OnboardContactList = () => {
     const FollowContact = async (contact_id: string) => {
         try {
             setBtnLoading(true);
-            const isContactAlreadyFollowed: any = checkAlreadyFollow(contact_id)
+            const isContactAlreadyFollowed: any = checkAlreadyFollow(contact_id);
             if (!isContactAlreadyFollowed._j) {
                 const follow_contact = await API.post('v1/user/toggle-follow', {user, targetUserId: contact_id});
                 if (follow_contact.data.success) {
@@ -150,62 +156,65 @@ const OnboardContactList = () => {
                     handleFollow(contact_id);
                 }
             } else {
-                setOpenModal(true)
+                setOpenModal(true);
             }
         } catch (error) {
             console.log(error);
         }
     };
 
-    const checkAlreadyFollow = async (contact_id : string) => {
+    const checkAlreadyFollow = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if(selectedObject.isFollowed){
+        if (selectedObject.isFollowed){
             return true;
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     const handleFollow = (contact_id: string) => {
-        // Filter the array based on objectId
         const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isFollowed: true} : obj));
-        // Update the state with the modified array
+
         setKnowContacts(updatedArray);
     };
 
     const sendCRUInvite = async (sender_id: string, sender_username: string) => {
         try {
             setBtnLoading(true);
-            const isContactAlreadyInvited: any = checkAlreadySendInvite(sender_id)
+            const isContactAlreadyInvited: any = checkAlreadySendInvite(sender_id);
             if (!isContactAlreadyInvited._j) {
-                const follow_contact = await API.post('v1/cru/invite/create', {user, username: sender_username, senderId: sender_id});
+                const follow_contact = await API.post('v1/cru/invite/create', {
+                    user,
+                    username: sender_username,
+                    senderId: sender_id,
+                });
                 if (follow_contact.data.success) {
                     setBtnLoading(false);
                     handleInvite(sender_id);
                 }
             } else {
-                setOpenInvitedModal(true)
+                setOpenInvitedModal(true);
             }
         } catch (error) {
             console.log(error);
         }
-    }
+    };
 
     const handleInvite = (contact_id: string) => {
-        // Filter the array based on objectId
+
         const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isSendInvite: true} : obj));
-        // Update the state with the modified array
+
         setKnowContacts(updatedArray);
     };
 
-    const checkAlreadySendInvite = async (contact_id : string) => {
+    const checkAlreadySendInvite = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if(selectedObject.isSendInvite){
+        if (selectedObject.isSendInvite){
             return true;
         } else {
-            return false
+            return false;
         }
-    }
+    };
 
     useEffect(() => {
         checkContactPermission();
@@ -215,7 +224,7 @@ const OnboardContactList = () => {
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -243,7 +252,7 @@ const OnboardContactList = () => {
                             </TouchableOpacity>
                         </View>
                         <>
-                            {isLoading === true  && sections.length == 0 ? (
+                            {isLoading === true && sections.length == 0 ? (
                                 <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '45%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PURPLE} />
                                 </View>
@@ -265,7 +274,7 @@ const OnboardContactList = () => {
                                                                     description,
                                                                     isFollowed,
                                                                     id,
-                                                                    isSendInvite
+                                                                    isSendInvite,
                                                                 },
                                                                 index,
                                                             ) => {
@@ -322,7 +331,11 @@ const OnboardContactList = () => {
                                                                                         </Text>
                                                                                     </Text>
 
-                                                                                    <Text style={style.cardPhone, { maxWidth: 170 }} >
+                                                                                    <Text
+                                                                                        style={
+                                                                                            (style.cardPhone,
+                                                                                            {maxWidth: 170})
+                                                                                        }>
                                                                                         {description}
                                                                                     </Text>
                                                                                 </View>
@@ -345,10 +358,10 @@ const OnboardContactList = () => {
                                                                                         }
                                                                                         width={
                                                                                             90
-                                                                                        }></AkcruButtons.AutoButton>
+                                                                                        } />
 
-                                                                                        {/* CRU Invite Button */}
-                                                                                        <View style={{marginTop:10}}></View>
+
+                                                                                        style={{marginTop: 10}} />
                                                                                     <AkcruButtons.AutoButton
                                                                                         color={
                                                                                             isSendInvite
@@ -366,7 +379,7 @@ const OnboardContactList = () => {
                                                                                         }
                                                                                         width={
                                                                                             90
-                                                                                        }></AkcruButtons.AutoButton>
+                                                                                        } />
                                                                                 </View>
                                                                             </View>
                                                                         </View>
@@ -390,7 +403,7 @@ const OnboardContactList = () => {
                 ) : (
                     <View style={style.noContactContainer}>
                         <View style={style.noContactDetailContainer}>
-                            {/* <Text> <MaterialSymbol icon="person_off" size={24} fill grade={-25} color="red" /> </Text> */}
+
                             <Text style={style.noContactHeading}>Need Contact Access</Text>
                             <Text style={style.noContactPara}>
                                 Uh Oh! seems like you didn't given the access of your contacts{' '}
@@ -427,7 +440,7 @@ const OnboardContactList = () => {
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            {`You already followed this person.`}
+                            {'You already followed this person.'}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -440,12 +453,11 @@ const OnboardContactList = () => {
                                     textAlign: 'center',
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                {`Close`}
+                                {'Close'}
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </Modal>
 
             <Modal animationType="fade" transparent={true} visible={OpenInvitedModal}>
@@ -470,7 +482,7 @@ const OnboardContactList = () => {
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            {`You already send the CRU invitation to this person.`}
+                            {'You already send the CRU invitation to this person.'}
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
@@ -483,12 +495,11 @@ const OnboardContactList = () => {
                                     textAlign: 'center',
                                     color: COLORS.MIDORANGE,
                                 }}>
-                                {`Close`}
+                                {'Close'}
                             </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-
             </Modal>
         </SafeAreaView>
     );
@@ -510,7 +521,7 @@ const style = StyleSheet.create({
         marginBottom: 12,
         marginTop: 10,
     },
-    /** Section */
+
     section: {
         marginTop: 12,
         paddingLeft: 24,
@@ -524,7 +535,7 @@ const style = StyleSheet.create({
     sectionItems: {
         marginTop: 8,
     },
-    /** Card */
+
     card: {
         paddingVertical: 22,
         flexDirection: 'row',

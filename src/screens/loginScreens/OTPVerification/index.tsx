@@ -22,11 +22,11 @@ import LinearGradient from 'react-native-linear-gradient';
 const OTPVerification = ({route}) => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
 
-    // const route = useRoute();
+    
 
-    // Retrieve both email and phoneNumber from route.params
+    
     const email = route.params?.email;
     const phoneNumber = route.params?.phoneNumber;
 
@@ -43,11 +43,11 @@ const OTPVerification = ({route}) => {
             setTimeout(() => {
                 if (accessToken) {
                     setIsLoggedIn(true);
-                    // navigation.navigate('NoBottomStack', {screen: 'UserProfileStack'});
+                    
                 } else {
                     setIsLoggedIn(false);
                 }
-            }, 1000); // Wait for 3 seconds before executing the code
+            }, 1000); 
         };
 
         checkAuth().catch(err => {
@@ -107,15 +107,15 @@ const OTPVerification = ({route}) => {
         try {
             setVerify(true);
 
-            // Assuming the email or phone number is stored or passed to this component. If not, you need to provide it.
-            // const emailOrPhoneNumber = route.params?.email || route.params?.phoneNumber; // Or get it from state or AsyncStorage, depending on your app's flow
+            
+            
             const payload = email ? {email} : {phoneNumber};
 
-            // Call verifyOTP() with the user's email or phone number and the OTP code
+            
             const response = await API.post('/v1/user/verifyOTP', {
                 ...payload,
                 otp: code,
-                // emailOrPhoneNumber: emailOrPhoneNumber,
+                
             });
             console.log(response.data)
 
@@ -126,14 +126,14 @@ const OTPVerification = ({route}) => {
                 setVerify(false);
                 handleShowOTPModal('success');
 
-                // Navigate to ResetPassword screen
-                // Pass any necessary data as parameters
+                
+                
                 navigation.navigate('ResetPassword', {
                     email: email,
                     phoneNumber: phoneNumber,
                 });
             } else {
-                // Handle the case where data.success is false
+                
                 throw new Error(data.message || 'Verification failed');
             }
         } catch (error) {
@@ -147,7 +147,7 @@ const OTPVerification = ({route}) => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
+                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

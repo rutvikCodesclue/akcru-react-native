@@ -1,15 +1,13 @@
 import {
-  SafeAreaView,
-  Text,
-  View,
-  Image,
-  ScrollView,
-  FlatList,
-  TouchableOpacity,
-  ImageBackground,
-  Animated,
-  Modal,
-  Pressable,
+    Text,
+    View,
+    Image,
+    ScrollView,
+    TouchableOpacity,
+    ImageBackground,
+    Animated,
+    Modal,
+    Pressable,
 } from 'react-native';
 import styles from './styles';
 import React, {useRef, useState} from 'react';
@@ -18,61 +16,43 @@ import AkcruLevels from '../../../components/akcruBadges';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/index';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import LinearGradient from 'react-native-linear-gradient';
-import { findAUser } from '../../../lib/api/user.lib';
-import { ICru, IUserProfile } from '../../../../types';
-import { selectAvatarBorderColor } from '../../../util/util';
+import {findAUser} from '../../../lib/api/user.lib';
+import {IUserProfile} from '../../../../types';
+import {selectAvatarBorderColor} from '../../../util/util';
 import imageindex from '../../../../assets/images/imageindex';
-import { ClientStackParams } from '../../../navigation/ClientStack';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 
-type ViewUserDetailScreenNavigationProp = StackNavigationProp<
-  UserProfileStackParams,
-  'ViewUserDetailScreen'
->;
+type ViewUserDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
 
-type ViewUserDetailScreenRouteProp = RouteProp<
-  UserProfileStackParams,
-  'ViewUserDetailScreen'
->;
+type ViewUserDetailScreenRouteProp = RouteProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
 
 type Props = {
-  navigation: ViewUserDetailScreenNavigationProp;
-  route: ViewUserDetailScreenRouteProp;
+    navigation: ViewUserDetailScreenNavigationProp;
+    route: ViewUserDetailScreenRouteProp;
 };
 
 const ViewUserDetailScreen = ({route, navigation}: Props) => {
     const userID: string | undefined = route.params?.userID ?? null;
-    const username: string | undefined = route.params?.userName ?? null;
+    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
 
-    const [CRU, setCRU] = useState<ICru | undefined>(undefined); // CRU object from the API
-    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
-
-    // Function to toggle the modal's visibility
     const toggleAvatarModal = () => {
         setAvatarModalVisible(!isAvatarModalVisible);
     };
 
-    
-
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
             findAUser({id: userID}).then(user => {
-                // Assuming the user object has a gallery array
-                // If there are more than 6 images, slice the array to keep only the first 6
                 if (user && user.gallery && user.gallery.length > 6) {
                     user.gallery = user.gallery.slice(0, 6);
                 }
                 setUser(user);
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-            };
+            return () => {};
         }, []),
     );
 
@@ -108,7 +88,6 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             resizeMode="cover"
                             style={{height: SIZES.ScreenHeight / 5}}>
                             <LinearGradient
-                                // Digitalpass Linear Gradient overlay
                                 colors={['transparent', 'transparent', COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
@@ -139,7 +118,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                 bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                             />
                         </Pressable>
-                        {/* Create a modal to display the enlarged image */}
+
                         <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
                             <View
                                 style={{

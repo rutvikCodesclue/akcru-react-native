@@ -44,22 +44,22 @@ const OnboardDescription = () => {
         try {
             setLoading(true);
 
-            // You can add any description validation logic here if needed
+            
 
-            // Call the updateUser function to send the updated data to the backend
+            
             const updatedUser = await updateUser({
                 description: description,
             });
 
             if (updatedUser) {
                 //console.log('Description updated successfully:', updatedUser);
-                // Assuming useAuthStore is for state management
+                
                 const currentUser = useAuthStore.getState().user;
                 if (currentUser) {
-                    currentUser.description = description; // Update the description in the state
+                    currentUser.description = description; 
                     useAuthStore.setState({user: currentUser});
                 }
-                navigation.navigate('OnboardCruName'); // Replace 'NextScreen' with your actual next screen's name
+                navigation.navigate('OnboardCruName'); 
             } else {
                 Alert.alert('Failed to update description', 'Please try again later.');
             }
@@ -87,7 +87,7 @@ const [resetResultType, setResetResultType] = useState({
       <View>
           <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
               <LinearGradient
-                  // Background Linear Gradient
+                  
                   colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                   style={{
                       position: 'absolute',
@@ -123,14 +123,14 @@ const [resetResultType, setResetResultType] = useState({
                                   style={styles.textinput}
                                   secureTextEntry={false}
                                   onChangeText={text => {
-                                      // Limit the description to 150 characters
+                                      
                                       if (text.length <= 250) {
                                           setDescription(text);
                                       }
                                   }}
-                                  value={description} // Use the modified value in the TextInput
+                                  value={description} 
                                   multiline={true}
-                                  maxLength={200} // Set the maximum character limit
+                                  maxLength={200} 
                                   editable={true}
                               />
                           </View>

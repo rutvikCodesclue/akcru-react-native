@@ -1,13 +1,9 @@
-import {View, Text, Image, FlatList, TouchableOpacity, Modal} from 'react-native';
-import styles from './styles';
-import { FONTS } from '../../../assets/constants';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, { useRef, useState } from 'react';
-import { IHelpVideo} from '../../../types';
-import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
+import {View, Text, FlatList, TouchableOpacity, Modal} from 'react-native';
+import {FONTS} from '../../../assets/constants';
+import React, {useRef, useState} from 'react';
+import {IHelpVideo} from '../../../types';
 import HexAvatar from '../HexAvatar';
-import { COLORS, MULTISIZES, SIZES } from '../../../assets/constants/theme';
+import {COLORS, MULTISIZES, SIZES} from '../../../assets/constants/theme';
 import Video from 'react-native-video';
 
 interface HelpVideoListProps {
@@ -19,39 +15,25 @@ interface HelpVideoListProps {
 }
 
 const HelpVideoList = (props: HelpVideoListProps) => {
-    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const {Help_Video} = props;
 
     const modalVideoRef = useRef(null);
 
     const [isVideoModalVisible, setVideoModalVisible] = useState(false);
-    const [showSkipButton, setShowSkipButton] = useState(false);
-    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [, setShowSkipButton] = useState(false);
+    const [, setIsVideoLoaded] = useState(false);
     const [selectedVideoURL, setSelectedVideoURL] = useState('');
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         setVideoModalVisible(false);
     };
 
-    const handleVideoLoad = () => {
-        // Logic for when the video is loaded
-        setIsVideoLoaded(true);
-    };
-
     const handleModalVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
 
-    const handleSkipVideo = () => {
-        // Logic for skipping the video
-        setVideoModalVisible(false);
-    };
-
     const handleVideoEnd = () => {
-        // Logic for when the video ends
         setVideoModalVisible(false);
     };
 
@@ -102,16 +84,6 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                         onLoad={handleModalVideoLoad}
                         muted={false}
                     />
-                    {/* {showSkipButton && (
-                        <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
-                            <AkcruButtons.SmallButton
-                                color={COLORS.PINK}
-                                btnname={'Skip'}
-                                onPress={handleSkipVideo}
-                                disabled={false}
-                            />
-                        </View>
-                    )} */}
                 </View>
             </Modal>
         </View>

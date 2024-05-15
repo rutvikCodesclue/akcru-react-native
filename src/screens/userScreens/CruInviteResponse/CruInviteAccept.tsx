@@ -1,22 +1,15 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  SafeAreaView,
-} from "react-native";
+import React, {useEffect} from 'react';
+import {View, Text, ScrollView, SafeAreaView} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import styles from "./styles";
-import { RouteProp, useNavigation } from "@react-navigation/native";
-import { Icon, Avatar } from "@rneui/base";
-import AkcruLevels from "../../../components/akcruBadges";
-import Header from "../../../components/header";
-import LinearGradient from "react-native-linear-gradient";
-import { DIGITAL_PASS } from "../../../../assets/constants/Mockusers";
-import imageindex from "../../../../assets/images/imageindex";
-import { StackNavigationProp } from "@react-navigation/stack";
-import { IMovie, IUserProfile } from "../../../../types";
-import { ClientStackParams } from "../../../navigation/ClientStack";
+import styles from './styles';
+import {RouteProp} from '@react-navigation/native';
+import {Avatar} from '@rneui/base';
+import Header from '../../../components/header';
+import LinearGradient from 'react-native-linear-gradient';
+import imageindex from '../../../../assets/images/imageindex';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {IUserProfile} from '../../../../types';
+import {ClientStackParams} from '../../../navigation/ClientStack';
 
 type CruInviteAcceptNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
 
@@ -27,22 +20,15 @@ type Props = {
     route: CruInviteAcceptRouteProp;
 };
 
-
 const CruInviteAccept = ({navigation, route}: Props) => {
-    const id: string = route.params?.id ?? null;
-    const inviteeName: string | undefined = route.params?.inviteeName ?? null;
     const creator: IUserProfile | null = route.params?.creator ?? null;
-    const inviteDate: string | undefined = route.params?.inviteDate ?? null;
-    const akcruBadge: any = route.params?.akcruBadge ?? null;
-      useEffect(() => {
-          const timer = setTimeout(() => {
-              // Navigate to UserProfileScreen
-              navigation.navigate('UserProfileScreen');
-          }, 4000); // 4000 milliseconds (4 seconds)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            navigation.navigate('UserProfileScreen');
+        }, 4000);
 
-          // Clear the timer if the component unmounts
-          return () => clearTimeout(timer);
-      }, []);
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <SafeAreaView style={{flex: 1}}>
@@ -54,7 +40,6 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                     <View>
                         <View style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                             <LinearGradient
-                                // Background Linear Gradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
@@ -112,32 +97,6 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                                         }}
                                     />
                                     <View />
-
-                                    {/* {!privateaccount ? (
-                                      online ? (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'green',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      ) : (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'red',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      )
-                                  ) : null} */}
                                 </View>
                             </View>
                         </View>
@@ -151,7 +110,7 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                                     }}>
                                     We will notify "{creator?.username}" you have ACCEPTED to join their CRU.
                                 </Text>
-                                <View style={{alignItems: 'center', marginTop: 30}}></View>
+                                <View style={{alignItems: 'center', marginTop: 30}} />
                             </View>
                         </View>
                     </View>

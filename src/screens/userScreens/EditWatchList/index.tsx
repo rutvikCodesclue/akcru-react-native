@@ -1,70 +1,38 @@
-import { View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image, FlatList } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import styles from './styles'
-import Header from '../../../components/header'
-import { Icon } from '@rneui/base'
-import { COLORS, FONTS } from '../../../../assets/constants'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack'
+import {View, Text, ScrollView, TouchableOpacity, Modal, Pressable, Image, FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import styles from './styles';
+import Header from '../../../components/header';
+import {Icon} from '@rneui/base';
+import {COLORS, FONTS} from '../../../../assets/constants';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
-import { Akcru_Content } from '../../../../assets/constants/ListData'
-import { ClientStackParams } from '../../../navigation/ClientStack'
-import LinearGradient from 'react-native-linear-gradient'
-import { findMovies } from '../../../lib/api/movies.lib'
-import { IMovie } from '../../../../types'
-import { capitalizeFirstLetterOfString, formatMovieDuration } from '../../../util/util'
-
-// interface EditWatchListProps {
-//     Akcru_Content: {
-//         id: string;
-//         title: string;
-//         movies: {
-//             name: string;
-//             desc: string;
-//             actors: string[];
-//             directors: string[];
-//             genre: string[];
-//             portrait_poster: string;
-//             landscape_poster: string;
-//             rating: number;
-//             year: number;
-//             rated: string;
-//             length: string;
-//             id: string;
-//             movie_url: string;
-//             youtubetrailer: string;
-//         }[];
-//     };
-// }
-
-const Userwatchlist = Akcru_Content[5];
+import {ClientStackParams} from '../../../navigation/ClientStack';
+import LinearGradient from 'react-native-linear-gradient';
+import {findMovies} from '../../../lib/api/movies.lib';
+import {IMovie} from '../../../../types';
+import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 
 const EditWatchList = () => {
-
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-  
 
-useEffect(() => {
-    const fetchNewerYearMovies = async () => {
-        try {
-            const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+    useEffect(() => {
+        const fetchNewerYearMovies = async () => {
+            try {
+                const allMovies: IMovie[] = await findMovies();
 
-            // Sort allMovies by year in descending order
-            const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
+                const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
 
-            // Get the 5 oldest movies
-            const Newer5Movies = sortedMovies.slice(0, 5);
+                const Newer5Movies = sortedMovies.slice(0, 5);
 
-            setNewerYearMovies(Newer5Movies);
-        } catch (error) {
-            console.error('Error fetching top rated movies:', error);
-        }
-    };
-    fetchNewerYearMovies();
-}, []);
-
+                setNewerYearMovies(Newer5Movies);
+            } catch (error) {
+                console.error('Error fetching top rated movies:', error);
+            }
+        };
+        fetchNewerYearMovies();
+    }, []);
 
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
@@ -78,21 +46,16 @@ useEffect(() => {
     };
 
     const handleCancelDelete = () => {
-        // Hide the confirmation modal
         setShowDeleteConfirmation(false);
     };
 
     const handleDeleteContent = () => {
-        // Delete the content at the specified index
         const updatedcontent = [...content];
         updatedcontent.splice(contentToDeleteIndex, 1);
         setContent(updatedcontent);
 
-        // Hide the confirmation modal
         setShowDeleteConfirmation(false);
     };
-
-    
 
     return (
         <View>
@@ -130,7 +93,6 @@ useEffect(() => {
                                         padding: 5,
                                     }}>
                                     <LinearGradient
-                                        // Background Linear Gradient
                                         colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                         style={{
                                             position: 'absolute',
@@ -145,8 +107,6 @@ useEffect(() => {
                                         <View style={{paddingRight: 5}}>
                                             <TouchableOpacity
                                                 onPress={() => {
-                                                    //console.log('id:', item.id);
-                                                    //console.log('movie:', item.title);
                                                     navigation.navigate('ContentDetailScreen', {
                                                         id: item.id,
                                                         movie: item.title,
@@ -240,4 +200,4 @@ useEffect(() => {
     );
 };
 
-export default EditWatchList
+export default EditWatchList;

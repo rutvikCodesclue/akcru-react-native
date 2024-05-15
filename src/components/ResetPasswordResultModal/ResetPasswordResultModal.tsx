@@ -12,7 +12,14 @@ type ResetPasswordResultModalProps = {
     iconcolor: string;
 };
 
-const ResetPasswordResultModal = ({closeModal, message, messageheader, messageheadercolor, iconcolor, iconname}: ResetPasswordResultModalProps) => {
+const ResetPasswordResultModal = ({
+    closeModal,
+    message,
+    messageheader,
+    messageheadercolor,
+    iconcolor,
+    iconname,
+}: ResetPasswordResultModalProps) => {
     return (
         <Pressable
             onPress={closeModal}
@@ -32,12 +39,7 @@ const ResetPasswordResultModal = ({closeModal, message, messageheader, messagehe
                     width: '75%',
                 }}>
                 <View>
-                    <Icon
-                        name={iconname}
-                        type="ionicon"
-                        size={80}
-                        color={iconcolor}
-                    />
+                    <Icon name={iconname} type="ionicon" size={80} color={iconcolor} />
                 </View>
                 <Text
                     style={{
@@ -45,7 +47,7 @@ const ResetPasswordResultModal = ({closeModal, message, messageheader, messagehe
                         marginBottom: 5,
                         textAlign: 'center',
                         fontSize: 20,
-                        color: messageheadercolor
+                        color: messageheadercolor,
                     }}>
                     {messageheader}
                 </Text>

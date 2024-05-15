@@ -1,9 +1,7 @@
 import {
     View,
     Text,
-    ScrollView,
     TouchableOpacity,
-    FlatList,
     PressableAndroidRippleConfig,
     StyleProp,
     useWindowDimensions,
@@ -21,11 +19,11 @@ import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {Route} from 'react-native';
-import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
+import {TabView, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import ViewUserFollowersTab from '../ViewUserFollowListTabs/ViewUserFollowersTab';
 import ViewUserFollowingTab from '../ViewUserFollowListTabs/ViewUserFollowingTab';
-import { getFollowers, getUserFollowing } from '../../../lib/api/user.lib';
-import { IUserProfile } from '../../../../types';
+import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
+import {IUserProfile} from '../../../../types';
 import styles from '../../contentScreens/PlayContentScreen/styles';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
@@ -123,9 +121,8 @@ const ViewUserFollowList = ({route}: Props) => {
     useEffect(() => {
         const fetchData = async () => {
             const result = await getUserFollowing(userID);
-            //console.log('Data received on FollowList Screen:', result);
             if (result && result.following && Array.isArray(result.following)) {
-                setFollowingData(result.following); // Set the 'following' array as your data
+                setFollowingData(result.following);
             }
         };
 
@@ -136,7 +133,7 @@ const ViewUserFollowList = ({route}: Props) => {
         const fetchData = async () => {
             const result = await getFollowers(userID);
             if (result && result.followers && Array.isArray(result.followers)) {
-                setFollowersData(result.followers); // Set the 'following' array as your data
+                setFollowersData(result.followers);
             }
         };
 
@@ -169,7 +166,9 @@ const ViewUserFollowList = ({route}: Props) => {
             <View>
                 <View style={styles.backbutton}>
                     <Header />
-                    <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
+                    <TouchableOpacity
+                        style={{marginHorizontal: 15, marginBottom: 10}}
+                        onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
                         <View
                             style={{
                                 flexDirection: 'row',

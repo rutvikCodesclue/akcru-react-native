@@ -2,12 +2,8 @@ import {
     Text,
     View,
     Image,
-    ImageBackground,
     TouchableOpacity,
-    TextInput,
-    KeyboardAvoidingView,
     ScrollView,
-    FlatList,
     SafeAreaView,
     StyleProp,
     ViewStyle,
@@ -18,17 +14,12 @@ import {
 } from 'react-native';
 import styles from './styles';
 import React, {useState} from 'react';
-import UserCruChatCard from '../../../components/UserCruChatCard';
 import Header from '../../../components/header';
-import AkcruButtons from '../../../components/akcruButtons';
 import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
-import {AkcruDollarAmount} from '../../../../assets/constants/Mockusers';
 import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -41,9 +32,9 @@ import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from '
 import UserCruChat from '../UserCruChatTabs/UserCruChat';
 import Bulletin from '../UserCruChatTabs/Bulletin';
 import useAuthStore from '../../../stores/auth.store';
-import { selectAvatarBorderColor } from '../../../util/util';
-import { ICruInvite, IMITInvite } from '../../../../types';
-import { getMyMITInvites } from '../../../lib/api/mit.lib';
+import {selectAvatarBorderColor} from '../../../util/util';
+import {ICruInvite, IMITInvite} from '../../../../types';
+import {getMyMITInvites} from '../../../lib/api/mit.lib';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -54,35 +45,23 @@ type Props = {
     route: UserCruChatScreenRouteProp;
 };
 
-const FirstRoute = () => (
-
-        <UserCruChat />
-    
-);
+const FirstRoute = () => <UserCruChat />;
 
 const SecondRoute = () => <Bulletin />;
 
 const UserCruChatScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    const { user } = useAuthStore();
+    const {user} = useAuthStore();
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const [inviteCount, setInviteCount] = React.useState<number>(0);
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            // console.log('User Profile Cru Invite Tab focused');
-
-            // Get the MITS for the user
             getMyMITInvites({pending: true}).then(mitInvites => {
-                // console.log("mitInvites: ", JSON.stringify(mitInvites, null, 3));
-
                 if (mitInvites) {
-                    // Count the number of MIT invites
                     const mitInviteCount = mitInvites.length;
 
-                    // sort invites by date (newest to oldest) and set state
                     setInvites(
                         mitInvites.sort((a, b) => {
                             if (a.createdAt < b.createdAt) {
@@ -96,24 +75,19 @@ const UserCruChatScreen = () => {
                     );
 
                     setIsLoaded(true);
-                    // Call setInviteCount with the total count of MIT invites
+
                     setInviteCount(mitInviteCount);
                 } else {
-                    // If there are no MIT invites, set the count to 0
                     setIsLoaded(true);
                     setInviteCount(0);
                 }
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // console.log('User Profile Cru Invite Tab unfocused');
-            };
+            return () => {};
         }, []),
     );
 
     React.useEffect(() => {
-        // When the invites change, update the invite count
         setInviteCount(invites.length);
     }, [invites]);
 
@@ -178,8 +152,8 @@ const UserCruChatScreen = () => {
 
     const [index, setIndex] = useState(0);
     const [routes] = useState([
-        {key: 'first', title: `YOUR CRU CHAT`},
-        {key: 'second', title: `BULLETIN`},
+        {key: 'first', title: 'YOUR CRU CHAT'},
+        {key: 'second', title: 'BULLETIN'},
     ]);
 
     const renderScene = SceneMap({
@@ -190,10 +164,7 @@ const UserCruChatScreen = () => {
     return (
         <SafeAreaView style={{flex: 1}}>
             <ScrollView stickyHeaderIndices={[0, 3]}>
-                <View
-                    // source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                    // resizeMode="cover"
-                    style={{height: SIZES.ScreenHeight / 3.3}}>
+                <View style={{height: SIZES.ScreenHeight / 3.3}}>
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
@@ -210,7 +181,6 @@ const UserCruChatScreen = () => {
                         </TouchableOpacity>
                     </View>
                     <LinearGradient
-                        // Background Linear Gradient
                         colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                         style={{
                             position: 'absolute',
@@ -236,10 +206,7 @@ const UserCruChatScreen = () => {
                                 />
                             </View>
                             <View>
-                                <Text style={{...FONTS.Title2}}>
-                                    {/* {FAKE_USER_PROFILES[0].userName} */}
-                                    {user ? user?.username : 'Guest'}
-                                </Text>
+                                <Text style={{...FONTS.Title2}}>{user ? user?.username : 'Guest'}</Text>
                                 {user?.badge === 'AKCRUIT' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeAkcruit />
@@ -274,10 +241,7 @@ const UserCruChatScreen = () => {
                                     paddingLeft: 10,
                                     alignItems: 'center',
                                 }}>
-                                <Text style={{...FONTS.Title3, fontSize: 14}}>
-                                    {user?.followerCount ?? 0}
-                                    {/* {FAKE_USER_PROFILES[0].userFollowerAmount} */}
-                                </Text>
+                                <Text style={{...FONTS.Title3, fontSize: 14}}>{user?.followerCount ?? 0}</Text>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
                             </View>
                         </Pressable>

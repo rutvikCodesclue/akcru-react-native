@@ -26,7 +26,7 @@ type Props = {
     route: ContentPlayerRouteProp;
 };
 
-export default function ContentPlayer({navigation, route}: Props) {
+export default function ContentPlayer({navigation}: Props) {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
@@ -74,80 +74,17 @@ export default function ContentPlayer({navigation, route}: Props) {
                         pauseTimer();
                         Orientation.lockToPortrait();
                         StatusBar.setHidden(false);
-                        //console.log(`User finished watching movie: ${movieId}`);
                     } else {
-                        //console.log(`Failed to mark movie as finished: ${movieId}`);
                     }
                 });
             }
         };
     }, [movieId, hasStartedWatching]);
 
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         // Logic to execute when the screen comes into focus could go here
-
-    //         return () => {
-    //     console.log("useFOcus2")
-
-    //             // This cleanup function runs when the screen loses focus
-    //             // Perform the "finished watching" logic here
-    //             if (user?.id && movieId && hasStartedWatching) {
-    //                 finishUserWatching(movieId).then(finishedSuccessfully => {
-    //                     if (finishedSuccessfully) {
-    //                         console.log(`User finished watching movie: ${movieId}`);
-    //                     } else {
-    //                         console.log(`Failed to mark movie as finished: ${movieId}`);
-    //                     }
-    //                 });
-    //             }
-    //         };
-    //     }, [user?.id, movieId, hasStartedWatching]),
-    // );
-
-    const [appState, setAppState] = useState(AppState.currentState);
-
-    // useEffect(() => {
-    //     console.log("useEffect")
-    //     const subscription = AppState.addEventListener('change', nextAppState => {
-
-    //         if (appState.match(/inactive|background/) && nextAppState === 'active') {
-    //             console.log('App has come to the foreground!');
-    //             // App has come to the foreground, maybe refresh some data
-    //         } else if (nextAppState.match(/inactive|background/)) {
-    //             console.log('App has gone to the background');
-    //             // App has gone to the background, consider pausing or finishing video playback
-    //             if (user?.id && movieId && hasStartedWatching) {
-    //                 finishUserWatching(movieId).then(finishedSuccessfully => {
-    //                     if (finishedSuccessfully) {
-    //                         console.log(`App state, User finished watching movie: ${movieId}`);
-    //                     } else {
-    //                         console.log(` App state,Failed to mark movie as finished: ${movieId}`);
-    //                     }
-    //                 });
-    //             }
-    //         }
-    //         setAppState(nextAppState);
-    //     });
-
-    //     return () => {
-    //         subscription.remove();
-    //     };
-    // }, [user?.id, movieId, hasStartedWatching, appState]);
-
-    // Sync watch time on unmount and when app goes into background
-    // useEffect(() => {
-    //     return () => {
-    //         syncWatchTime();
-    //     };
-    // }, []);
-
     useFocusEffect(
         React.useCallback(() => {
             hideNavigationBar();
             if (isMoviePlaying) {
-                // startTimer();
-                // syncWatchTime(); // Sync when navigating away from the screen
                 console.log('focus');
             }
 
@@ -208,7 +145,7 @@ export default function ContentPlayer({navigation, route}: Props) {
         pauseTimer();
         if (movieId) {
             const pausedCurrentTime = currentTime;
-            //console.log('Paused at:', pausedCurrentTime);
+
             setLastPlaybackPosition(movieId, pausedCurrentTime);
         }
     };
@@ -220,7 +157,7 @@ export default function ContentPlayer({navigation, route}: Props) {
 
         if (movieId) {
             const pausedCurrentTime = currentTime;
-            //console.log('Ended at:', endedCurrentTime);
+
             setLastPlaybackPosition(movieId, pausedCurrentTime);
             setHasStartedWatching(false);
             Orientation.lockToPortrait();
@@ -230,9 +167,7 @@ export default function ContentPlayer({navigation, route}: Props) {
     };
 
     const onBack = () => {
-        // Navigate back to the previous screen
         navigation.pop();
-        // Lock orientation to portrait
     };
 
     return (

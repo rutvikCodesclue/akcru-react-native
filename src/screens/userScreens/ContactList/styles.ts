@@ -39,7 +39,6 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     container: {
         flex: 1,
@@ -131,16 +130,16 @@ export default StyleSheet.create({
     },
     textinputprefix: {
         color: COLORS.WHITE,
-        marginBottom:2
+        marginBottom: 2,
     },
     input: {
         width: SIZES.ScreenWidth * 0.85,
-        borderWidth:1,
+        borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,
         borderRadius: 5,
         marginTop: 10,
         alignSelf: 'center',
-        height: SIZES.ScreenHeight * .15,
+        height: SIZES.ScreenHeight * 0.15,
         paddingHorizontal: 10,
     },
 });

@@ -1,6 +1,5 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import styles from '../PurchaseMIT/styles';
 
 export default StyleSheet.create({
     input: {
@@ -34,7 +33,6 @@ export default StyleSheet.create({
     },
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
     },
     datepicker: {
         height: 120,

@@ -11,8 +11,15 @@ type ResendTimerProps = {
     resendingEmail: any;
 };
 
-
-const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmail, resendStatus, resendingEmail,...props}: ResendTimerProps) => {
+const ResendTimer = ({
+    activeResend,
+    setActiveResend,
+    targetTimeInSec,
+    resendEmail,
+    resendStatus,
+    resendingEmail,
+    ...props
+}: ResendTimerProps) => {
     const [timeLeft, setTimeLeft] = useState(null);
     const [targetTime, setTargetTime] = useState(null);
 
@@ -22,7 +29,6 @@ const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmai
         } else if (resendStatus === 'Sent') {
             return COLORS.GREEN;
         } else {
-            // Default to orange when neither 'Failed' nor 'Sent'
             return COLORS.LIGHTORANGE;
         }
     };

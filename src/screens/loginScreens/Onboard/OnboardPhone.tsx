@@ -1,35 +1,27 @@
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  ImageBackground,
-  Pressable,
-  Modal,
-  KeyboardAvoidingView,
-  Alert,
-  ActivityIndicator,
-  TextInput
+    View,
+    Text,
+    TouchableOpacity,
+    ImageBackground,
+    Modal,
+    KeyboardAvoidingView,
+    ActivityIndicator,
+    TextInput,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
+import React, {useState} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import { AkcruLogo } from '../../../../assets/svg';
+import {useNavigation} from '@react-navigation/native';
+import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
-import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
-import Tos from './tos';
-import useAuthStore from '../../../stores/auth.store';
-import { appVersion } from '../../../../assets/constants/Data';
-import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal/ErrorModal';
+import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 
 const OnboardPhone = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -40,10 +32,7 @@ const OnboardPhone = () => {
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-    // Phone Number Validation
     const isPhoneValid = (phone: string) => {
-        // Add your phone number validation logic here
-        // Example: return true if phone number length is 10 digits
         return /^\d{10}$/.test(phone);
     };
 
@@ -58,7 +47,6 @@ const OnboardPhone = () => {
         setIsFormComplete(isPhoneValid(phoneNumber));
     };
 
-    //reset password modal
     const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
     const [resetResultType, setResetResultType] = useState({
         messageheader: '',
@@ -68,60 +56,57 @@ const OnboardPhone = () => {
         iconcolor: '',
     });
 
-   const SendOTP = async () => {
-       if (!isFormComplete) {
-           setPhoneError(true);
-           return;
-       }
+    const SendOTP = async () => {
+        if (!isFormComplete) {
+            setPhoneError(true);
+            return;
+        }
 
-       setLoading(true);
-       try {
-           // Replace the following line with your API call to send OTP
-           const {data, error} = await API.post('/v1/auth/sentOTP', {phoneNumber: "1"+phone});
+        setLoading(true);
+        try {
+            const {data, error} = await API.post('/v1/auth/sentOTP', {phoneNumber: '1' + phone});
 
-           if (error) {
-               setResetResultType({
-                   messageheader: 'Error',
-                   messageheadercolor: COLORS.CATREDDRK,
-                   message: error.message,
-                   iconname: 'alert-circle',
-                   iconcolor: COLORS.CATREDLGT,
-               });
-               setShowPasswordResetModal(true);
-           } else {
-               setResetResultType({
-                   messageheader: 'Success',
-                   messageheadercolor: COLORS.CATGREENDRK,
-                   message: 'OTP has been sent to your phone.',
-                   iconname: 'send',
-                   iconcolor: COLORS.CATGREENLGT,
-               });
-               setShowPasswordResetModal(true);
-               // Navigate to otpVerification screen after showing the success message
-               setTimeout(() => {
-                   navigation.navigate('OTPVerificationSignup', {phoneNumber: phone});
-               }, 3000); // 5 seconds delay
-           }
-       } catch (error) {
-           setResetResultType({
-               messageheader: 'Error',
-               messageheadercolor: COLORS.CATREDDRK,
-               message: 'An error occurred while sending the OTP.',
-               iconname: 'alert-circle',
-               iconcolor: COLORS.CATREDLGT,
-           });
-           setShowPasswordResetModal(true);
-       } finally {
-           setLoading(false);
-       }
-   };
+            if (error) {
+                setResetResultType({
+                    messageheader: 'Error',
+                    messageheadercolor: COLORS.CATREDDRK,
+                    message: error.message,
+                    iconname: 'alert-circle',
+                    iconcolor: COLORS.CATREDLGT,
+                });
+                setShowPasswordResetModal(true);
+            } else {
+                setResetResultType({
+                    messageheader: 'Success',
+                    messageheadercolor: COLORS.CATGREENDRK,
+                    message: 'OTP has been sent to your phone.',
+                    iconname: 'send',
+                    iconcolor: COLORS.CATGREENLGT,
+                });
+                setShowPasswordResetModal(true);
 
+                setTimeout(() => {
+                    navigation.navigate('OTPVerificationSignup', {phoneNumber: phone});
+                }, 3000);
+            }
+        } catch (error) {
+            setResetResultType({
+                messageheader: 'Error',
+                messageheadercolor: COLORS.CATREDDRK,
+                message: 'An error occurred while sending the OTP.',
+                iconname: 'alert-circle',
+                iconcolor: COLORS.CATREDLGT,
+            });
+            setShowPasswordResetModal(true);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    // Background Linear Gradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -160,7 +145,6 @@ const OnboardPhone = () => {
                                 />
                                 <Text style={styles.textinputprefix}>+1</Text>
                                 <TextInput
-                                    // mask="+1-999-999-9999"
                                     placeholder="123-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.phonenuminput}

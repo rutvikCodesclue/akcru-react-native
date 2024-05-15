@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useEffect } from 'react';
+import React, {useState} from 'react';
+import {useEffect} from 'react';
 import Video from 'react-native-video';
 
 const CalculateVideoDuration = ({videoUri, onDuration}) => {
@@ -15,8 +15,8 @@ const CalculateVideoDuration = ({videoUri, onDuration}) => {
         <Video
             source={{uri: videoUri}}
             onLoad={data => setDuration(data.duration)}
-            paused={true} // Ensure the video doesn't play
-            style={{width: 0, height: 0}} // Render it out of view
+            paused={true}
+            style={{width: 0, height: 0}}
         />
     );
 };

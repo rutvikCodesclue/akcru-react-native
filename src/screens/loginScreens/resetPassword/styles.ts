@@ -4,7 +4,7 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 export default StyleSheet.create({
     bgimage: {
         height: SIZES.ScreenHeight,
-        // width: SIZES.ScreenWidth,
+        
     },
     container: {
         flex: 1,

@@ -1,77 +1,51 @@
-import {useState, useEffect, useRef, useCallback} from 'react';
-import {supabase} from '../../../../lib/supabase';
+import {useState} from 'react';
 import styles from './styles';
-import {
-    View,
-    Alert,
-    Text,
-    ScrollView,
-    Image,
-    SafeAreaView,
-    TextInput,
-    Button,
-    Modal,
-    FlatList,
-    Pressable,
-    Platform,
-
-} from 'react-native';
+import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
-import {Icon, Avatar} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import React from 'react';
-import {ImagePickerResponse, MediaType, launchCamera, launchImageLibrary} from 'react-native-image-picker';
-// import * as ImagePicker from "expo-image-picker";
-import {API} from '../../../clients/api.client';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
-import InputsLrg from '../../../components/inputLrg';
 import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
-import imageindex from '../../../../assets/images/imageindex';
 import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import { selectAvatarBorderColor } from '../../../util/util';
+import {selectAvatarBorderColor} from '../../../util/util';
 import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImageModal';
 import HelpModal from '../../../components/HelpModal/HelpModal';
-
-
-const gallery = FAKE_USER_PROFILES[0].gallery;
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    // get user from auth store, also get the logout function
     const user = useAuthStore(state => state.user);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
     const {hydrateUser} = useAuthStore();
 
-    const [loading, setLoading] = useState(false);
+    const [, setLoading] = useState(false);
 
     const [userName, setUserName] = useState('');
-    const [modifiedUserName, setModifiedUserName] = useState('');
+    const [, setModifiedUserName] = useState('');
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
 
     const [description, setDescription] = useState('');
-    const [modifiedDescription, setModifiedDescription] = useState('');
+    const [, setModifiedDescription] = useState('');
     const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
-
-    const [avatarUrl, setAvatarUrl] = useState('');
-
-    const [emailError, setEmailError] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Add login status state
+    const [, setIsLoggedIn] = useState<boolean>(false);
 
     const handleUsernameModalOpen = () => {
         setModifiedUserName(userName);
@@ -84,7 +58,6 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const handleDescriptionModalOpen = () => {
-        // console.log("Pressed")
         setModifiedDescription(description);
         setDescriptionModalVisible(true);
     };
@@ -97,45 +70,28 @@ export default function EditProfile({session}: {session: Session}) {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            //console.log('Edit Profile Screen focused [EditProfileScreen]');
             hydrateUser();
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                //console.log('Edit Profile Screen unfocused [EditProfileScreen]');
-            };
+            return () => {};
         }, []),
     );
-
-    // const [showUpdateConfirmation, setShowUpdateConfirmation] = useState(false);
-
-    // const handleUpdateProfile = () => {
-    //     // Show the confirmation modal
-    //     setShowUpdateConfirmation(true);
-    // };
 
     const confirmDescriptionUpdate = async () => {
         try {
             setLoading(true);
 
-            // Call the updateUser function to send the updated data to the backend
             const updatedUser = await updateUser({
                 description: description,
             });
 
-            // Update the local user data with the new description
             if (updatedUser) {
-                //console.log('Profile updated successfully:', updatedUser);
                 const currentUser = useAuthStore.getState().user;
 
                 if (currentUser) {
-                    // Update only the description
                     currentUser.description = description;
                     useAuthStore.setState({user: currentUser});
                 }
             }
-            // Navigate to the next screen or perform other actions
         } catch (error) {
             console.error('Error updating profile:', error);
         } finally {
@@ -153,29 +109,15 @@ export default function EditProfile({session}: {session: Session}) {
         try {
             setLoading(true);
 
-            // Check if userName is defined and not empty
             if (userName && userName !== user?.username) {
                 const usernameExists = await checkUsernameExists(userName, user?.username);
 
                 if (usernameExists) {
-                    // Username is already taken by another user, show an error message
                     Alert.alert('Username is already taken', 'Please choose a different username.');
                     setLoading(false);
-                    return; // Exit the function to prevent further execution
+                    return;
                 }
             }
-
-            // Call the updateUser function to send the updated data to the backend
-            const updatedUser = await updateUser({
-                username: userName || '', // Include the username even if it hasn't changed
-            });
-
-            // Update the local user data only if the current user's username is not the same as the updated username
-            if (updatedUser && userName !== user?.username) {
-                //console.log('Profile updated successfully:', updatedUser);
-                const currentUser = useAuthStore.getState().user;
-            }
-            // Navigate to the next screen or perform other actions
         } catch (error) {
             console.error('Error updating profile:', error);
         } finally {
@@ -187,27 +129,21 @@ export default function EditProfile({session}: {session: Session}) {
 
     const checkUsernameExists = async (username: string, currentUserUsername: string | undefined) => {
         try {
-            // Convert both the provided username and existing usernames to lowercase
             const lowercaseUsername = username.toLowerCase();
             const lowercaseCurrentUserUsername = currentUserUsername?.toLowerCase();
 
-            // You can implement logic here to check if the lowercase username exists in your database
-            // For example, you can make an API request to check if the lowercase username is already in use
-            // Exclude the current user's username from the search
-            const response = await searchForUsers(lowercaseUsername); // Replace with your actual API call
+            const response = await searchForUsers(lowercaseUsername);
 
-            // Filter out the current user's username from the response
             const filteredResponse = response.filter(
                 user => user.username.toLowerCase() !== lowercaseCurrentUserUsername,
             );
 
-            // Check if any usernames in the filtered response match the provided lowercase username
             const usernameExists = filteredResponse.some(user => user.username.toLowerCase() === lowercaseUsername);
 
             return usernameExists;
         } catch (error) {
             console.error('Error checking username:', error);
-            return false; // Assume username doesn't exist in case of an error
+            return false;
         }
     };
 
@@ -222,37 +158,27 @@ export default function EditProfile({session}: {session: Session}) {
             },
         };
 
-        //console.log('select picture button');
-
-        // Add a flag to prevent multiple invocations
         let callbackExecuted = false;
 
         launchImageLibrary(options, async response => {
             if (response && !response.didCancel && response.assets) {
-                // Check if the response is defined, not canceled, and has assets
                 if (callbackExecuted) {
                     return;
                 }
 
-                // Set the flag to true to indicate the callback has been executed
                 callbackExecuted = true;
-                //console.log('uri:', response.assets[0].uri);
-                //console.log('filesize:', response.assets[0].fileSize);
+
                 const selectedImage = response.assets[0].uri;
 
-                // Get the type and name for the selected image
                 const imageType = response.assets[0].type;
                 const imageName = response.assets[0].fileName;
 
-                // Check the size of the selected image
                 const imageSizeInBytes = response.assets[0].fileSize;
-                const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+                const maxSizeInBytes = 5 * 1024 * 1024;
 
                 if (imageSizeInBytes > maxSizeInBytes) {
-                    // Show size error modal
                     setShowSizeErrorModal(true);
                 } else {
-                    // Call the API function to update the user's profile picture
                     const updatedUserProfilePicture = await updateUserProfilePicture({
                         uri: selectedImage,
                         type: imageType,
@@ -260,12 +186,7 @@ export default function EditProfile({session}: {session: Session}) {
                     });
 
                     if (updatedUserProfilePicture) {
-                        // Set the new profile picture immediately
-                        //console.log('updatedUserProfilePicture:', updatedUserProfilePicture);
                         setSelectImage(updatedUserProfilePicture.profilePicture || '');
-                    } else {
-                        // Handle failure or display an error message
-                        //console.log('Failed to update profile picture');
                     }
                 }
             }
@@ -273,52 +194,39 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     async function handleLogout() {
-        await AsyncStorage.removeItem('access_token'); // Remove the stored token
+        await AsyncStorage.removeItem('access_token');
         await logout();
         setIsLoggedIn(false);
     }
 
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
-    const [archetypeKey, setArchetypeKey] = useState('');
 
-    const [archetypeName, setArchetypeName] = useState('');
-    const [archetypeImage, setArchetypeImage] = useState<string | null>(null);
-    const [archetypeDescription, setArchetypeDescription] = useState('');
+    const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false);
+    const [isHelpModalVisible, setHelpModalVisible] = useState(false);
 
-    const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false); // State to control modal visibility
-    const [isHelpModalVisible, setHelpModalVisible] = useState(false); // State to control modal visibility
-
-    // Function to toggle the modal's visibility
     const toggleArchetypeModal = () => {
         setArchetypeModalVisible(!isArchetypeModalVisible);
     };
 
     const handleCheckboxChange = (genreId: string) => {
-        // Check if the genre is already selected
         if (checkedGenres[genreId]) {
-            // If it's selected, unselect it
             setCheckedGenres(prevState => ({
                 ...prevState,
                 [genreId]: false,
             }));
         } else {
-            // Check if the limit of two genres is reached
             if (Object.values(checkedGenres).filter(Boolean).length < 2) {
-                // If not reached, select the genre
                 setCheckedGenres(prevState => ({
                     ...prevState,
                     [genreId]: true,
                 }));
             } else {
-                // If limit is reached, show a message or perform an action
-                //console.log('You can only select up to two genres.');
             }
         }
     };
 
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
-        //console.log('Selected Genres:', selectedGenres);
 
         if (selectedGenres.length === 2) {
             const genreNames = selectedGenres.map(genreId => {
@@ -327,38 +235,26 @@ export default function EditProfile({session}: {session: Session}) {
             });
 
             const newArchetypeKey = genreNames.sort().join(', ');
-            //console.log('Archetype Key:', newArchetypeKey);
 
             const selectedArchetype = archetypeMapping[newArchetypeKey];
 
             if (selectedArchetype) {
-                // Serialize the archetype data including the genres
                 const archetypeData = JSON.stringify({
                     name: selectedArchetype.name,
                     image: selectedArchetype.image,
                     description: selectedArchetype.description,
-                    genres: genreNames, // Add the selected genre names
+                    genres: genreNames,
                 });
 
                 try {
-                    // Update the user's archetype in the backend
                     const updatedUser = await updateUser({archetype: archetypeData});
                     if (updatedUser) {
-                        //console.log('Archetype updated successfully:', updatedUser);
-
-                        // Update the global state/context with the new user data
                         useAuthStore.setState({user: updatedUser});
-
-                        // Optionally update local component state here
                     }
                 } catch (error) {
                     console.error('Error updating archetype:', error);
                 }
-            } else {
-                //console.log('No matching archetype found for the selected genres.');
             }
-        } else {
-            //console.log('Please select exactly 2 genres.');
         }
     };
 
@@ -406,7 +302,7 @@ export default function EditProfile({session}: {session: Session}) {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        {/* Picture Size Error Modal*/}
+
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
@@ -429,7 +325,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Image is too large. Please select an image under 5MB.`}
+                                        {'Image is too large. Please select an image under 5MB.'}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {
@@ -442,13 +338,13 @@ export default function EditProfile({session}: {session: Session}) {
                                                 textAlign: 'center',
                                                 color: COLORS.MIDORANGE,
                                             }}>
-                                            {`Close`}
+                                            {'Close'}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                         </Modal>
-                        {/* Username */}
+
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <Text style={styles.inputlabel}>Username</Text>
                             <View style={styles.input}>
@@ -460,7 +356,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedUserName(text)}
-                                            value={userName || ''} // Display the original value, not the modified one
+                                            value={userName || ''}
                                             editable={false}
                                         />
                                     </TouchableOpacity>
@@ -472,14 +368,14 @@ export default function EditProfile({session}: {session: Session}) {
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedUserName(text)}
-                                            value={userName || ''} // Display the original value, not the modified one
+                                            value={userName || ''}
                                             editable={false}
                                         />
                                     </Pressable>
                                 )}
                             </View>
                         </View>
-                        {/* Username Modal */}
+
                         <Modal animationType="fade" transparent={false} visible={usernameModalVisible}>
                             <SafeAreaView
                                 style={{
@@ -536,21 +432,19 @@ export default function EditProfile({session}: {session: Session}) {
                                         style={styles.textinput}
                                         secureTextEntry={false}
                                         onChangeText={text => {
-                                            // Remove spaces from the input text
                                             const formattedText = text.replace(/\s/g, '');
 
-                                            // Enforce the 11-character limit
                                             if (formattedText.length <= 12) {
                                                 setUserName(formattedText);
                                             }
                                         }}
-                                        value={userName} // Use the modified value in the TextInput
+                                        value={userName}
                                         editable={true}
                                     />
                                 </View>
                             </SafeAreaView>
                         </Modal>
-                        {/* Username Confirmation Modal */}
+
                         <Modal animationType="fade" transparent={true} visible={showUpdateUsernameConfirmation}>
                             <View
                                 style={{
@@ -578,7 +472,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 justifyContent: 'space-between',
                                             }}>
                                             <TouchableOpacity
-                                                onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                                onPress={() => setShowUpdateUsernameConfirmation(false)}
                                                 style={{
                                                     backgroundColor: COLORS.PURPLE,
                                                     padding: 10,
@@ -587,7 +481,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 <Text style={{...FONTS.Title3}}>Cancel</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity
-                                                onPress={confirmUsernameUpdate} // Confirm the update
+                                                onPress={confirmUsernameUpdate}
                                                 style={{
                                                     backgroundColor: COLORS.AKCRUBLUE,
                                                     padding: 10,
@@ -603,7 +497,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 justifyContent: 'space-between',
                                             }}>
                                             <Pressable
-                                                onPress={() => setShowUpdateUsernameConfirmation(false)} // Hide the confirmation modal
+                                                onPress={() => setShowUpdateUsernameConfirmation(false)}
                                                 style={{
                                                     backgroundColor: COLORS.PURPLE,
                                                     padding: 10,
@@ -612,7 +506,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 <Text style={{...FONTS.Title3}}>Cancel</Text>
                                             </Pressable>
                                             <Pressable
-                                                onPress={confirmUsernameUpdate} // Confirm the update
+                                                onPress={confirmUsernameUpdate}
                                                 style={{
                                                     backgroundColor: COLORS.AKCRUBLUE,
                                                     padding: 10,
@@ -626,7 +520,6 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        {/* Description */}
                         <View style={{alignItems: 'center'}}>
                             <Text style={styles.inputlabel}>Bio</Text>
                             <View style={styles.input}>
@@ -642,7 +535,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedDescription(text)}
-                                            value={description || ''} // Display the original value, not the modified one
+                                            value={description || ''}
                                             editable={false}
                                         />
                                     </TouchableOpacity>
@@ -658,14 +551,14 @@ export default function EditProfile({session}: {session: Session}) {
                                             style={styles.textinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedDescription(text)}
-                                            value={description || ''} // Display the original value, not the modified one
+                                            value={description || ''}
                                             editable={false}
                                         />
                                     </Pressable>
                                 )}
                             </View>
                         </View>
-                        {/* Description Modal */}
+
                         <Modal animationType="fade" transparent={false} visible={descriptionModalVisible}>
                             <SafeAreaView
                                 style={{
@@ -726,20 +619,19 @@ export default function EditProfile({session}: {session: Session}) {
                                         style={styles.textinput}
                                         secureTextEntry={false}
                                         onChangeText={text => {
-                                            // Limit the description to 150 characters
                                             if (text.length <= 150) {
                                                 setDescription(text);
                                             }
                                         }}
-                                        value={description} // Use the modified value in the TextInput
+                                        value={description}
                                         multiline={true}
-                                        maxLength={150} // Set the maximum character limit
+                                        maxLength={150}
                                         editable={true}
                                     />
                                 </View>
                             </SafeAreaView>
                         </Modal>
-                        {/* Description Confirmation Modal */}
+
                         <Modal animationType="fade" transparent={true} visible={showUpdateDescriptionConfirmation}>
                             <View
                                 style={{
@@ -767,7 +659,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 justifyContent: 'space-between',
                                             }}>
                                             <TouchableOpacity
-                                                onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                                onPress={() => setShowUpdateDescriptionConfirmation(false)}
                                                 style={{
                                                     backgroundColor: COLORS.PURPLE,
                                                     padding: 10,
@@ -776,7 +668,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 <Text style={{...FONTS.Title3}}>Cancel</Text>
                                             </TouchableOpacity>
                                             <TouchableOpacity
-                                                onPress={confirmDescriptionUpdate} // Confirm the update
+                                                onPress={confirmDescriptionUpdate}
                                                 style={{
                                                     backgroundColor: COLORS.AKCRUBLUE,
                                                     padding: 10,
@@ -792,7 +684,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 justifyContent: 'space-between',
                                             }}>
                                             <Pressable
-                                                onPress={() => setShowUpdateDescriptionConfirmation(false)} // Hide the confirmation modal
+                                                onPress={() => setShowUpdateDescriptionConfirmation(false)}
                                                 style={{
                                                     backgroundColor: COLORS.PURPLE,
                                                     padding: 10,
@@ -801,7 +693,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 <Text style={{...FONTS.Title3}}>Cancel</Text>
                                             </Pressable>
                                             <Pressable
-                                                onPress={confirmDescriptionUpdate} // Confirm the update
+                                                onPress={confirmDescriptionUpdate}
                                                 style={{
                                                     backgroundColor: COLORS.AKCRUBLUE,
                                                     padding: 10,
@@ -815,7 +707,6 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        {/* Email */}
                         <View style={{alignItems: 'center'}}>
                             <Text style={styles.inputlabel}>Email</Text>
                             <View style={styles.input}>
@@ -825,7 +716,7 @@ export default function EditProfile({session}: {session: Session}) {
                                         placeholderTextColor={COLORS.DARKGREY}
                                         style={styles.textinput}
                                         secureTextEntry={false}
-                                        value={session?.user?.email} // Display the original value, not the modified one
+                                        value={session?.user?.email}
                                         editable={false}
                                     />
                                 </Pressable>
@@ -923,7 +814,6 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </View>
 
-                        {/* Create a modal to display the enlarged image */}
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
                             <EnlargeImageModal
                                 image={archetype ? archetype.image : ''}
@@ -979,7 +869,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <TouchableOpacity
                                 onPress={() => {
                                     handleLogout();
-                                    // after logging out, navigate to the Signin screen
+
                                     navigation2.navigate('Signin');
                                 }}>
                                 <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
@@ -992,19 +882,19 @@ export default function EditProfile({session}: {session: Session}) {
                             <HelpModal
                                 closeModal={() => setHelpModalVisible(false)}
                                 faq={() => {
-                                    setHelpModalVisible(false); // Close the modal first
+                                    setHelpModalVisible(false);
                                     navigation2.navigate('Help');
                                 }}
                                 bugReport={() => {
-                                    setHelpModalVisible(false); // Close the modal first
+                                    setHelpModalVisible(false);
                                     navigation2.navigate('BugReport');
                                 }}
                                 suggestion={() => {
-                                    setHelpModalVisible(false); // Close the modal first
+                                    setHelpModalVisible(false);
                                     navigation2.navigate('Suggestions');
                                 }}
                                 question={() => {
-                                    setHelpModalVisible(false); // Close the modal first
+                                    setHelpModalVisible(false);
                                     navigation2.navigate('Questions');
                                 }}
                             />

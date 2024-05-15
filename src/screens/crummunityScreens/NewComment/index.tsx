@@ -1,30 +1,40 @@
-import {View, Text, SafeAreaView, TouchableOpacity, TextInput, Modal, Keyboard, TouchableWithoutFeedback, FlatList, Pressable, ScrollView, ActivityIndicator} from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import {
+    View,
+    Text,
+    SafeAreaView,
+    TouchableOpacity,
+    TextInput,
+    Modal,
+    FlatList,
+    Pressable,
+    ScrollView,
+    ActivityIndicator,
+} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import {Avatar, Icon} from '@rneui/base';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Icon} from '@rneui/base';
+import {RouteProp} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import { extractUsernamesFromText, selectAvatarBorderColor } from '../../../util/util';
+import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
 import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
-import { MediaType, launchImageLibrary } from 'react-native-image-picker';
-import { Image } from 'react-native';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import {Image} from 'react-native';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import { createPost, uploadPictures, uploadVideo } from '../../../lib/api/post.lib';
-import { commentOnPost } from '../../../lib/api/post.lib';
-import { StackNavigationProp } from '@react-navigation/stack';
+import {uploadPictures, uploadVideo} from '../../../lib/api/post.lib';
+import {commentOnPost} from '../../../lib/api/post.lib';
+import {StackNavigationProp} from '@react-navigation/stack';
 import CalculateVideoDuration from '../../../util/calculatevideoduration';
 import Video from 'react-native-video';
-import { IUserProfile } from '../../../../types';
+import {IUserProfile} from '../../../../types';
 import UserTaggedCard from '../../../components/UserTaggedCard';
-import { findAUser, searchForUsers } from '../../../lib/api/user.lib';
-import { sendTagNotification } from '../../../lib/api/notify.lib';
+import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
+import {sendTagNotification} from '../../../lib/api/notify.lib';
 
 type NewCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'NewComment'>;
 
@@ -37,7 +47,7 @@ type Props = {
 
 const NewComment = ({navigation, route}: Props) => {
     const postId = route.params;
-    // const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+
     const {user} = useAuthStore();
     const [comment, setComment] = useState('');
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -51,27 +61,15 @@ const NewComment = ({navigation, route}: Props) => {
     const [isCommenting, setIsCommenting] = useState(false);
 
     const videoRef = useRef(null);
-    // const {user, hydrateUser} = useAuthStore();
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-    //         hydrateUser();
-    //         return () => {
-    //             // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-    //             hydrateUser();
-    //         };
-    //     }, []),
-    // );
+
     const selectPostImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
             storageOptions: {
                 path: 'images',
             },
-            selectionLimit: 3, // Limit to 3 images for a post
+            selectionLimit: 3,
         };
-
-        //console.log('Selecting post image');
 
         let callbackExecuted = false;
 
@@ -82,9 +80,8 @@ const NewComment = ({navigation, route}: Props) => {
                 }
 
                 callbackExecuted = true;
-                //console.log('Number of images selected:', response.assets.length);
 
-                const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+                const maxSizeInBytes = 5 * 1024 * 1024;
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
@@ -93,12 +90,11 @@ const NewComment = ({navigation, route}: Props) => {
                         return;
                     } else {
                         if (asset.uri) {
-                            imagesForPost.push(asset.uri); // Collect URIs of selected images
+                            imagesForPost.push(asset.uri);
                         }
                     }
                 }
 
-                // Update the state with selected images
                 setSelectedImages(imagesForPost);
             }
         });
@@ -114,10 +110,8 @@ const NewComment = ({navigation, route}: Props) => {
         let options = {
             mediaType: 'video' as MediaType,
             quality: 1,
-            selectionLimit: 1, // Only allows 1 video
+            selectionLimit: 1,
         };
-
-        //console.log('Selecting post video');
 
         let callbackExecuted = false;
 
@@ -128,27 +122,17 @@ const NewComment = ({navigation, route}: Props) => {
                 }
 
                 callbackExecuted = true;
-                //console.log('User cancelled video picker');
             } else if (response.errorCode) {
-                //console.log('VideoPicker Error: ', response.errorMessage);
             } else if (response.assets) {
                 const video = response.assets[0];
 
-                // Check if the video file size is within limits
-                const maxSizeInBytes = 100 * 1024 * 1024; // Example: 100 MB limit
+                const maxSizeInBytes = 100 * 1024 * 1024;
                 if (video.fileSize > maxSizeInBytes) {
-                    //console.log('Video file is too large.');
-                    // Handle the error (e.g., show an error message)
                     return;
                 }
 
                 setSelectedVideo(video.uri);
 
-                // TODO: Calculate video duration if necessary
-                // const videoDuration = CalculateVideoDuration(video.uri);
-                // You might need to implement CalculateVideoDuration or find another way to get the video duration
-
-                // Reset selected images if HYBRID post
                 if (comment) {
                     setSelectedImages([]);
                 }
@@ -169,7 +153,7 @@ const NewComment = ({navigation, route}: Props) => {
     };
 
     const OnCommentPress = async () => {
-        setIsCommenting(true); // Start the upload indicator
+        setIsCommenting(true);
         try {
             const postType = determinePostType();
             let content = [];
@@ -177,15 +161,12 @@ const NewComment = ({navigation, route}: Props) => {
             if (postType === 'TEXT') {
                 content = [comment];
             } else if (postType === 'IMAGE') {
-                // If images are selected, upload them and get URLs
                 content = await uploadPictures(selectedImages);
-                content = content.join(', '); // Convert array of URLs to a comma-separated string
+                content = content.join(', ');
             } else if (postType === 'VIDEO') {
-                // If a video is selected, upload it and get URL
                 const videoUrl = await uploadVideo(selectedVideo, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
-                // If hybrid post, handle both text and media
                 content.push(comment);
                 const mediaUrls =
                     selectedImages.length > 0
@@ -195,29 +176,21 @@ const NewComment = ({navigation, route}: Props) => {
             }
 
             const postId = route.params.postId;
-            // Call the createPost API function
+
             const result = await commentOnPost(postId, postType, content);
             if (result && result.id) {
-                //console.log('Result.postId:', result.id);
-                //console.log('Post created successfully', result);
                 const newPostId = result.id;
 
-                // Extract tagged usernames from postText
                 const taggedUsernames = extractUsernamesFromText(comment);
 
-                // Process each tagged username to find their user ID and send a tag notification
-                // Using Promise.all to handle multiple async operations in parallel
                 await Promise.all(
                     taggedUsernames.map(async username => {
                         try {
-                            // Use findAUser to get the user profile
                             const user = await findAUser({username});
                             if (user && user.id) {
-                                // Now that you have the userId, send the tag notification
-                                const notificationType = 'UserTaggedOnComment'; // Adjust as needed
+                                const notificationType = 'UserTaggedOnComment';
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
-                                    //console.log(`Notification sent to ${username}`);
                                 } else {
                                     console.error(`Failed to send notification to ${username}`);
                                 }
@@ -229,17 +202,15 @@ const NewComment = ({navigation, route}: Props) => {
                         }
                     }),
                 );
-                setIsCommenting(false); // Start the upload indicator
+                setIsCommenting(false);
                 navigation.goBack();
             } else {
-                //console.log('Failed to create the comment');
             }
         } catch (error) {
             console.error('Error creating the comment:', error);
-            setIsCommenting(false); // Start the upload indicator
+            setIsCommenting(false);
         }
 
-        // Reset the state
         setComment('');
         setSelectedImages([]);
         setSelectedVideo('');
@@ -277,7 +248,6 @@ const NewComment = ({navigation, route}: Props) => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
-                            // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
                                 position: 'absolute',
@@ -352,25 +322,23 @@ const NewComment = ({navigation, route}: Props) => {
                                 style={styles.textinput}
                                 secureTextEntry={false}
                                 onChangeText={text => {
-                                    // Start or continue tagging
                                     const parts = text.split(' ');
                                     const lastPart = parts[parts.length - 1];
                                     if (lastPart.startsWith('@')) {
                                         setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1)); // Extract current tag without '@'
+                                        setCurrentTag(lastPart.slice(1));
                                     } else {
                                         setIsTagging(false);
                                         setCurrentTag('');
                                     }
 
-                                    // Update post text ensuring it doesn't exceed 200 characters
                                     if (text.length <= 200) {
                                         setComment(text);
                                     }
                                 }}
                                 value={comment}
                                 multiline={true}
-                                maxLength={200} // Enforce the character limit
+                                maxLength={200}
                                 editable={true}
                             />
                             {/* <TextInput
@@ -379,14 +347,14 @@ const NewComment = ({navigation, route}: Props) => {
                             style={styles.textinput}
                             secureTextEntry={false}
                             onChangeText={text => {
-                                // Limit the description to 150 characters
+
                                 if (text.length <= 200) {
                                     setComment(text);
                                 }
                             }}
-                            value={comment} // Use the modified value in the TextInput
+                            value={comment}
                             multiline={true}
-                            maxLength={200} // Set the maximum character limit
+                            maxLength={200}
                             editable={true}
                         /> */}
                         </View>
@@ -401,7 +369,6 @@ const NewComment = ({navigation, route}: Props) => {
                                     <Pressable
                                         style={{marginVertical: 5}}
                                         onPress={() => {
-                                            // Handle the selection of a suggested user
                                             const newText =
                                                 comment.substring(0, comment.lastIndexOf('@')) + `@${item.username} `;
                                             setComment(newText);
@@ -412,7 +379,6 @@ const NewComment = ({navigation, route}: Props) => {
                                             userPicture={item.profilePicture}
                                             userName={item.username}
                                             onPress={() => {
-                                                // Handle the selection of a suggested user
                                                 const newText =
                                                     comment.substring(0, comment.lastIndexOf('@')) +
                                                     `@${item.username} `;
@@ -420,7 +386,6 @@ const NewComment = ({navigation, route}: Props) => {
                                                 setIsTagging(false);
                                                 setCurrentTag('');
                                             }}
-                                            // influencer={item.influencer} // TODO: handle this
                                             userID={item.id}
                                             akcruBadge={item.badge}
                                             firstName={item.firstName}
@@ -447,7 +412,7 @@ const NewComment = ({navigation, route}: Props) => {
                                 </TouchableOpacity>
                             </View>
                         )}
-                        {/* Conditional rendering of CalculateVideoDuration */}
+
                         {selectedVideo && (
                             <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
                         )}
@@ -479,10 +444,7 @@ const NewComment = ({navigation, route}: Props) => {
                                             style={{width: '100%', height: '100%', borderRadius: 10}}
                                             source={{uri: selectedVideo}}
                                             resizeMode="cover"
-                                            // onEnd={handleVideoEnd}
                                             repeat={true}
-                                            // onError={handleVideoError}
-                                            // onLoad={handleVideoLoad}
                                             muted={true}
                                         />
                                     </View>
@@ -490,7 +452,6 @@ const NewComment = ({navigation, route}: Props) => {
                             </View>
                         )}
 
-                        {/* Picture Size Error Modal*/}
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
@@ -513,7 +474,7 @@ const NewComment = ({navigation, route}: Props) => {
                                             marginBottom: 10,
                                             textAlign: 'center',
                                         }}>
-                                        {`Image is too large. Please select an image under 5MB.`}
+                                        {'Image is too large. Please select an image under 5MB.'}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {
@@ -526,7 +487,7 @@ const NewComment = ({navigation, route}: Props) => {
                                                 textAlign: 'center',
                                                 color: COLORS.MIDORANGE,
                                             }}>
-                                            {`Close`}
+                                            {'Close'}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>

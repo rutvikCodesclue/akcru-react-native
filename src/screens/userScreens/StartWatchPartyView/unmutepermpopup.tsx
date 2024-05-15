@@ -1,13 +1,8 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {Modal, View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
-import useAuthStore from '../../../stores/auth.store';
 
-
-// Example functional component
-const UnmutePermissionPopup = ({ handleCancel, handleUnmute, channelroom, userdata }) => {
-
-
+const UnmutePermissionPopup = ({handleCancel, handleUnmute, userdata}) => {
     return (
         <Modal animationType="fade" transparent={true} visible={true}>
             <View
@@ -23,9 +18,9 @@ const UnmutePermissionPopup = ({ handleCancel, handleUnmute, channelroom, userda
                         padding: 20,
                         borderRadius: 10,
                     }}>
-                    <View style={{ alignItems: 'center' }}>
-                        <Text style={{ ...FONTS.Title3, marginBottom: 10 }}>Permission to Unmute</Text>
-                        <Text style={{ marginBottom: 20, ...FONTS.Title3 }}>
+                    <View style={{alignItems: 'center'}}>
+                        <Text style={{...FONTS.Title3, marginBottom: 10}}>Permission to Unmute</Text>
+                        <Text style={{marginBottom: 20, ...FONTS.Title3}}>
                             {userdata.username} is requesting to unmute themselves. Do you accept the request?
                         </Text>
                     </View>
@@ -42,17 +37,16 @@ const UnmutePermissionPopup = ({ handleCancel, handleUnmute, channelroom, userda
                                 padding: 10,
                                 borderRadius: 5,
                             }}>
-                            <Text style={{ ...FONTS.Title3 }}>Decline</Text>
+                            <Text style={{...FONTS.Title3}}>Decline</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             onPress={handleUnmute}
-
                             style={{
                                 backgroundColor: 'green',
                                 padding: 10,
                                 borderRadius: 5,
                             }}>
-                            <Text style={{ ...FONTS.Title3 }}>Accept</Text>
+                            <Text style={{...FONTS.Title3}}>Accept</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

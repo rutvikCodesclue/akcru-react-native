@@ -1,17 +1,13 @@
 import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-import React, { useState } from 'react';
-import {Avatar, Icon} from '@rneui/base';
+import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
-import { FAKE_USER_PROFILES } from '../../../assets/constants/Mockusers';
 import LinearGradient from 'react-native-linear-gradient';
-import { selectAvatarBorderColor } from '../../util/util';
-import { IUserProfile } from '../../../types';
-import imageindex from '../../../assets/images/imageindex';
+import {selectAvatarBorderColor} from '../../util/util';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import HexAvatar from '../HexAvatar';
 
-const MAX_USERDESC_LENGTH = 50; // Maximum number of characters for the userDesc
+const MAX_USERDESC_LENGTH = 50;
 
 type UserWalletSearchCardProps = {
     userPicture?: string;
@@ -23,19 +19,17 @@ type UserWalletSearchCardProps = {
     userID: any;
     userDesc?: string;
     firstName?: string;
-    ownerStatus?: boolean; // New prop
-    companyStatus?: boolean; // New prop
-    influencerStatus?: boolean; // New prop
+    ownerStatus?: boolean;
+    companyStatus?: boolean;
+    influencerStatus?: boolean;
 };
 
 const UserSearchCard = ({
     userPicture,
     userName,
-    influencer,
     akcruBadge,
     onPress,
     onPressIn,
-    userID,
     userDesc,
     firstName,
     ownerStatus,
@@ -54,7 +48,6 @@ const UserSearchCard = ({
                 height: SIZES.ScreenHeight / 9.3,
             }}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -148,5 +141,3 @@ const UserSearchCard = ({
 };
 
 export default UserSearchCard;
-
-const styles = StyleSheet.create({});

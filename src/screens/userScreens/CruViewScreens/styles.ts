@@ -52,7 +52,7 @@ export default StyleSheet.create({
         borderRadius: 4,
         textAlign: 'center',
     },
-    //Starting Picker Styles
+
     container: {
         marginHorizontal: 15,
     },
@@ -165,8 +165,8 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    backbutton:{
+    backbutton: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? '10%' : 0
-    }
+        marginTop: Platform.OS === 'ios' ? '10%' : 0,
+    },
 });

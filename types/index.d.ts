@@ -12,7 +12,7 @@ interface IUserProfile {
     followerCount?: number;
     MITCount?: number;
     adAmount?: number;
-    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO' | 'CELEBRITY'; // FIXME: add remianing badges
+    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO' | 'CELEBRITY';
     gallery?: string[];
     lastReview?: string;
     published?: boolean;
@@ -26,14 +26,14 @@ interface IUserProfile {
     influencerStatus: boolean;
     ownerStatus: boolean;
     companyStatus: boolean;
-    blocking?: IUserBlock[]; // This assumes you have an IUserBlock interface defined
-    blockedBy?: IUserBlock[]; // Same as above
-    followers?: string[]; // This is a recursive relation, assuming followers are also of type IUserProfile
-    following?: string[]; // Same as above
-    wallet?: IWallet; // This assumes you have an IWallet interface defined
-    watchlist?: IWatchlist[]; // Array of watchlist items
-    watching?: IUserWatching; // Array of movies being watched
-    posts?: IPost[]; // Array of posts created by the user
+    blocking?: IUserBlock[];
+    blockedBy?: IUserBlock[];
+    followers?: string[];
+    following?: string[];
+    wallet?: IWallet;
+    watchlist?: IWatchlist[];
+    watching?: IUserWatching;
+    posts?: IPost[];
 }
 
 interface IUserWatching {
@@ -183,7 +183,7 @@ export interface IUserProfile {
     followerCount?: number;
     MITCount?: number;
     adAmount?: number;
-    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO'; // FIXME: add remianing badges
+    badge?: 'AKCRUIT' | 'GUARDIAN' | 'HERO' | 'SUPERHERO';
     gallery?: string[];
     lastReview?: string;
     published?: boolean;
@@ -197,40 +197,39 @@ export interface IUserProfile {
     influencerStatus: boolean;
     ownerStatus: boolean;
     companyStatus: boolean;
-    blocking?: IUserBlock[]; // This assumes you have an IUserBlock interface defined
-    blockedBy?: IUserBlock[]; // Same as above
-    followers?: IUserProfile[]; // This is a recursive relation, assuming followers are also of type IUserProfile
-    following?: IUserProfile[]; // Same as above
-    wallet?: IWallet; // This assumes you have an IWallet interface defined
-    watchlist?: IWatchlist[]; // Array of watchlist items
+    blocking?: IUserBlock[];
+    blockedBy?: IUserBlock[];
+    followers?: IUserProfile[];
+    following?: IUserProfile[];
+    wallet?: IWallet;
+    watchlist?: IWatchlist[];
     promoUser: boolean;
 }
 
 export interface IWatchlist {
-    id: string; // Unique identifier for the watchlist record
-    userId: string; // ID of the user who owns the watchlist
-    movieId: string; // ID of the movie added to the watchlist
-    createdAt: Date | string; // Date when the movie was added to the watchlist, use Date for actual Date objects, string if dates are kept in ISO format
-    updatedAt: Date | string; // Date when the watchlist record was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    id: string;
+    userId: string;
+    movieId: string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
     movie?: IMovie;
 }
 
-
 export interface IUserBlock {
-    id: string; // Unique identifier for the block record
-    blockerId: string; // ID of the user who initiated the block
-    blockedId: string; // ID of the user who is being blocked
-    createdAt: Date | string; // Date when the block was created, use Date for actual Date objects, string if dates are kept in ISO format
-    updatedAt: Date | string; // Date when the block record was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    id: string;
+    blockerId: string;
+    blockedId: string;
+    createdAt: Date | string;
+    updatedAt: Date | string;
     blocker?: IUserProfile;
     blocked?: IUserProfile;
 }
 
 export interface IWallet {
-    id: string; // Unique identifier for the wallet
-    userId: string; // ID of the user who owns the wallet
-    balance: number; // The current balance in the wallet
-    updatedAt: Date | string; // Date when the wallet was last updated, use Date for actual Date objects, string if dates are kept in ISO format
+    id: string;
+    userId: string;
+    balance: number;
+    updatedAt: Date | string;
     user?: IUserProfile;
 }
 
@@ -351,7 +350,7 @@ export type INotification = {
 export interface IPost {
     id: string;
     type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
-    content: string[]; // Array of content, could be text, image URLs, video URLs etc.
+    content: string[];
     createdAt: string;
     updatedAt: string;
     author: IUserProfile;
@@ -365,20 +364,19 @@ export interface IPost {
     isLikedByCurrentUser?: boolean;
 }
 
-
 export interface ICreatePostData {
     id: string;
     user?: IUserProfile;
     title: string;
     content: string;
-    gifUrl?: string; // Add gifUrl as an optional property
+    gifUrl?: string;
     createdAt: string;
     numberOfComments?: number;
     numberOfReposts?: number;
     numberOfLikes?: number;
     type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
-    content: string[]; // Array of strings representing content
-    authorId: string; // ID of the author creating the post
+    content: string[];
+    authorId: string;
 }
 
 export interface IComment {
@@ -394,7 +392,6 @@ export interface IComment {
         comments: number;
     };
     isLikedByCurrentUser: boolean;
-    // Other properties related to a post
 }
 
 export interface ICommentLike {
@@ -410,7 +407,7 @@ export interface ICreateCommentData {
     user?: IUserProfile;
     title: string;
     content: string;
-    gifUrl?: string; // Add gifUrl as an optional property
+    gifUrl?: string;
     createdAt: string;
     numberOfComments?: number;
     numberOfReposts?: number;
@@ -431,9 +428,6 @@ export type SkinnyType = {
     numberOfLikes?: number;
 };
 
-
-
-
 export type IChatType = {
     id: string;
     content: string;
@@ -442,41 +436,39 @@ export type IChatType = {
     createdAt: string;
     updatedAt: string;
     chatRoomId: string;
-    
 };
 
 export type IChatUser = {
-    id:string,
-    movieId:string,
-    status:string,
-    creatorId:string,
-    creator:IUserProfile,
-    invitee:IUserProfile,
-    inviteeId:string,
-    startDate:string,
-    timezone:string,
-    createdAt:string,
-    updatedAt:string,
-    lastMessage:string,
-    lastMessageAt:string,
-    movie: IChatMovie
+    id: string;
+    movieId: string;
+    status: string;
+    creatorId: string;
+    creator: IUserProfile;
+    invitee: IUserProfile;
+    inviteeId: string;
+    startDate: string;
+    timezone: string;
+    createdAt: string;
+    updatedAt: string;
+    lastMessage: string;
+    lastMessageAt: string;
+    movie: IChatMovie;
+};
 
-}
-
-export type IChatMovie ={
-    id:string,
-    title:string,
-    description:string,
-    duration:number,
-    year: number,
-    movieURL?:string,
-    trailerURL?:string,
-    landscapeURL?:string,
-    image?:string,
-    price?:string,
-    portraitURL?:string
-    rating:string
-}
+export type IChatMovie = {
+    id: string;
+    title: string;
+    description: string;
+    duration: number;
+    year: number;
+    movieURL?: string;
+    trailerURL?: string;
+    landscapeURL?: string;
+    image?: string;
+    price?: string;
+    portraitURL?: string;
+    rating: string;
+};
 
 export type ITicket = {
     id: string;
@@ -487,9 +479,9 @@ export type ITicket = {
     type: 'BUG' | 'SUGGESTION' | 'QUESTION' | 'REPORT';
     reportedByUserId: string;
     reportedBy: string;
-    reportedUserId:  string;
+    reportedUserId: string;
     reported: string;
-}
+};
 
 export interface IHelpVideo {
     id: string;

@@ -1,21 +1,16 @@
 import {View, Text, TouchableOpacity, Image, Pressable} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import {Icon, Badge, withBadge} from '@rneui/base';
+import React, {useEffect, useState} from 'react';
+import {Icon, withBadge} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import { AuthStackParams } from '../../navigation/AuthNavigation';
+import {AuthStackParams} from '../../navigation/AuthNavigation';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import useAuthStore from '../../stores/auth.store';
-import { getMyNotifications } from '../../lib/api/notify.lib'; // Import the API function
-import { NoBottomTabStackParams } from '../../navigation/NoBottomTabStack';
-import { UseTabMenu } from '../../context/TabContext';
-
-
-// interface Props {
-//   userpoints: number;
-// }
+import {getMyNotifications} from '../../lib/api/notify.lib';
+import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import {UseTabMenu} from '../../context/TabContext';
 
 const Header = () => {
     const {user} = useAuthStore();
@@ -32,11 +27,10 @@ const Header = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    const [unreadCount, setUnreadCount] = useState(''); // State to store unread notification count
+    const [unreadCount, setUnreadCount] = useState('');
 
-    const isFocused = useIsFocused(); // Check if the screen is currently focused
+    const isFocused = useIsFocused();
 
-    // Fetch notifications and calculate unread count when the component mounts
     const fetchNotifications = async () => {
         try {
             const notifications = await getMyNotifications();
@@ -62,26 +56,22 @@ const Header = () => {
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
                 setUnreadCount(unreadNotifications.length.toString());
-                // console.log('Unread Notifications:', unreadNotifications);
             }
         } catch (error) {
             console.error(error);
         }
     };
 
-    // Use useEffect to fetch notifications when the screen comes into focus
-    // Effect to refetch notifications
     useEffect(() => {
         if (isFocused) {
             fetchNotifications();
         }
     }, [isFocused]);
 
-
     useEffect(() => {
         if (refetchReadNotifications || refetchUnreadNotifications || deletedNotifications) {
             fetchNotifications();
-            // Reset the flags
+
             setRefetchReadNotifications(false);
             setRefetchUnreadNotifications(false);
             setDeletedNotifications(false);
@@ -96,7 +86,6 @@ const Header = () => {
                 width: SIZES.ScreenWidth,
             }}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
                 style={{position: 'absolute', left: 0, right: 0, top: 0, height: 65}}
             />

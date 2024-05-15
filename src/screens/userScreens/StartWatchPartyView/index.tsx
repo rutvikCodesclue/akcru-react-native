@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import {
     StyleSheet,
     Text,
@@ -7,10 +6,7 @@ import {
     TouchableOpacity,
     Image,
     TouchableWithoutFeedback,
-    TextInput,
-    ScrollView,
     Pressable,
-    Dimensions,
     FlatList,
     ActivityIndicator,
     Modal,
@@ -19,13 +15,12 @@ import {
 import React from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
-import MITChatCard from '../../../components/MITChatCard/MITChatCard';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
-import {RouteProp, useNavigation, useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useState, useRef, useEffect, useCallback} from 'react';
-import BottomSheet, {BottomSheetHandleProps, BottomSheetView, BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import {StackNavigationProp} from '@react-navigation/stack';
 import VideoPlayer from 'react-native-media-console';
 import {findMovieById} from '../../../lib/api/movies.lib';
@@ -38,7 +33,6 @@ import {
     HMSException,
     HMSPeer,
     HMSPeerUpdate,
-    HMSLocalPeer,
     HMSRoom,
     HMSRoomUpdate,
     HMSSDK,
@@ -50,8 +44,6 @@ import {
     HMSVideoViewMode,
     HMSSpeaker,
     HMSMessage,
-    HMSRole,
-    HMSRemotePeer,
     HMSTrackSettings,
     HMSAudioTrackSettings,
     HMSVideoTrackSettings,
@@ -62,12 +54,10 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video, {LoadError, OnBufferData, OnProgressData, OnSeekData} from 'react-native-video';
-import {IUserProfile, IChatUser} from '../../../../types';
+import {IUserProfile} from '../../../../types';
 import SmlMemberCard from '../../../components/SmlMemberCard';
 import {findAUser} from '../../../lib/api/user.lib';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import {getUsers} from '../../../lib/api/rooms.lib';
-import CruChatComponent from '../../ChatScreens/CruChatComponent';
 import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
@@ -115,8 +105,6 @@ type MemberInfo = {
 };
 
 const StartWatchPartyView = ({navigation, route}: Props) => {
-    // console.log('route', route)
-    // PARAMS
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     const creator: IUserProfile | null = route.params?.creator ?? null;
@@ -135,9 +123,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const movieTime = route.params?.Movietime;
     const cru = route.params?.cru;
     const viewtype = route.params?.type;
-    // USESTATES
+
     const [movie, setMovie] = useState<IMovie | null>(null);
-    const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]); // Use this state to render Peer Tiles
+    const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]);
 
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
@@ -149,9 +137,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
     const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    const [terminateRoom, setTerminateRoom] = useState(false); // Add state for terminate setting
+    const [terminateRoom, setTerminateRoom] = useState(false);
     const [leaveRoom, setLeaveRoom] = useState(false);
-    const [members, setMembers] = useState<MemberInfo[] | []>([]); // Initial member list
+    const [members, setMembers] = useState<MemberInfo[] | []>([]);
     const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
     const [IsStreamHost, setIsStreamHost] = useState(isHost);
@@ -160,14 +148,14 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
     const [showDockerToHost, setShowDockerToHost] = useState(false);
-    /* REFS */
+
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const sheetRef = useRef<BottomSheet>(null); //Pop up chat
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
     const isSyncedWithHost = useRef<boolean | null>(null);
-    /* EXTRAS */
+
     const isFocused = useIsFocused();
     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
     const {user} = useAuthStore();
@@ -199,7 +187,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             .on('broadcast', {event: 'movie_room'}, payload => askForPermission(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
-                    // // console.log('setting channel');
                     setChannel(channelA);
                 }
             });
@@ -210,7 +197,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         };
     }, []);
 
-    // Simple function to log any messages we receive
     async function askForPermission(payload: any) {
         if (isHost == true && payload.payload.permtype! == 'request') {
             console.log('userReq', payload.payload.userReq!);
@@ -227,15 +213,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
         }
-        // console.log(payload, user.id)
-        // setUnmutePermissionPopup(false)
-
-        // if(payload.payload.senderId === user.id){
-        //     console.log(user?.username, 'is here')
-        //     const perm = payload.payload.micunmuteperm
-        //     setIsMicOn(perm)
-        //     // setUnmutePermissionPopup(false)
-        // }
     }
 
     const onSend = (permGrant, userid, permtype, userReq) => {
@@ -245,7 +222,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             return;
         }
 
-        if (permtype == 'request' && isHost == true) return;
+        if (permtype == 'request' && isHost == true) {
+            return;
+        }
         channelll.send({
             type: 'broadcast',
             event: 'movie_room',
@@ -258,12 +237,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     useEffect(() => {
         RestrictPartyRoom();
-        // join the 100ms room
+
         _join100msRoom().then(() => {
-            // setup the realtime channels for the room, once room is joined (needs roomId)
             _setupRoomChannels();
         });
-        // load the movie
+
         findMovieById(movieId).then(res => {
             if (res) {
                 setMovie(res);
@@ -273,20 +251,17 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, []);
     useFocusEffect(
         React.useCallback(() => {
-            // Start the timer when the component mounts and the movie is playing
             if (isMoviePlaying) {
                 startTimer();
             }
 
-            // Clean up the timer when the component unmounts
             return () => {
                 if (isFocused) {
-                    // pause the timer
                     console.log('pausing timer...');
                     pauseTimer();
                 } else {
                     console.log('resetting timer...');
-                    // reset the timer
+
                     resetTimer();
                 }
             };
@@ -301,10 +276,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         );
 
         const updateMembersList = async () => {
-            // update members list
             console.log('updating members lists');
             const membersWithInfo = await getAvailableMembers();
-            // set the members list, add new members if they don't exist, keep existing members if they still exist
+
             setMembers(membersWithInfo);
         };
 
@@ -333,13 +307,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         if (localPeer && isHost) {
             const audioTrack = peer.audioTrack;
             if (audioTrack) {
-                const isMuted = audioTrack.isMute(); // Get the current mute status
-                const newMuteStatus = !isMuted; // Toggle the mute status
+                const isMuted = audioTrack.isMute();
+                const newMuteStatus = !isMuted;
 
-                // Update the track state
                 await hmsInstanceRef.current?.changeTrackState(audioTrack, newMuteStatus);
 
-                // Broadcast the mute status
                 roomChannelRef.current?.send({
                     type: 'broadcast',
                     event: 'mute-peer',
@@ -353,41 +325,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const muteAllPeers = async () => {
-        // const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-        // const localPeerPermissions: HMSPermissions = localPeer.role?.permissions;
-        // const canMute: boolean = localPeerPermissions?.mute; // Check if Local Peer has Mute Permission
-        // console.log('about to enter the if in mute all func')
-        // if (isHost) {
-        //     if (!isAllMuteOn){ //check if everyone is already muted
-        //     console.log('Went into mute all before try')
-        //     try {
-        //         console.log('Went into mute all before try')
-        //         await hmsInstanceRef.current?.remoteMuteAllAudio();
-        //         setIsAllMuteOn(true);
-        //         console.log('Broadcasted mute-all event');
-        //     } catch (error) {
-        //         console.error('Failed to mute all peers or broadcast: ', error);
-        //     }
-        //     }
-        //     else{
-        //         try {
-        //             if (members) {
-        //                 // Loop through participants
-        //                 members.forEach(async member => {
-        //                     // Check if the participant is muted
-        //                     if (hmsInstanceRef.current?.getPeerFromPeerId(member.peerID)?.audioTrack()?.isMute()) {
-        //                         // Unmute the participant
-        //                         await hmsInstanceRef.current?.getPeerFromPeerId(member.peerID)?.audioTrack.;
-        //                     }
-        //                 });
-        //             }
-
-        //             console.log("All participants unmuted successfully.");
-        //         } catch (error) {
-        //             console.error("Error while unmuting participants:", error);
-        //         }
-        //     }
-        // }
         console.log('about to enter the if');
         if (isHost) {
             console.log('Went into mute all before try');
@@ -420,17 +357,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     const result = await hmsInstanceRef.current?.changeRoleOfPeer(targetPeer, newRole, force);
                     console.log('Change Role Success: ', result);
                     if (result) {
-                        // Current user is no longer the host
                         setIsStreamHost(false);
 
-                        // Update members list to reflect the new host
                         const updatedMembers = members.map(member => {
                             if (member.peerID === targetPeerId) {
-                                // Assign host status to the target member
                                 return {...member, role: 'host'};
                             }
                             if (member.role === 'host') {
-                                // Remove host status from the current host
                                 return {...member, role: 'member'};
                             }
                             return member;
@@ -483,7 +416,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const toggleVideo = async () => {
-        // access the local peer
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
         if (localPeer) {
             if (isUserVideoOn) {
@@ -497,30 +429,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
 
-        // toggle the state (for the icon)
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
     /**
      * ADDITIONAL METHODS
      */
     const _setupRoomChannels = async () => {
-        // setup the realtime channels for the room
         let roomChannel: RealtimeChannel | null = null;
         let syncChannel: RealtimeChannel | null = null;
 
         if (roomId) {
             roomChannel = supabaseRealtime.channel(`room-${roomId}`, {
                 config: {
-                    broadcast: {
-                        // self: isHost ? true: false,
-                    },
+                    broadcast: {},
                 },
             });
             syncChannel = supabaseRealtime.channel(`room-${roomId}/sync`, {
                 config: {
-                    presence: {
-                        // self: isHost ? true: false,
-                    },
+                    presence: {},
                 },
             });
 
@@ -528,7 +454,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             syncChannelRef.current = syncChannel;
             console.log('Created room and sync channels');
 
-            // handle the room channel events
             __handleRoomChannelEventsAndSubscribe();
         }
     };
@@ -538,7 +463,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         console.log('mic Initail State:', micInitialState);
 
         if (hmsInstanceRef.current == null) {
-            // set track settings
             let audioSettings = new HMSAudioTrackSettings({
                 initialState: micInitialState ? HMSTrackSettingsInitState.UNMUTED : HMSTrackSettingsInitState.MUTED,
             });
@@ -554,15 +478,14 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             hmsInstance = await HMSSDK.build({
                 trackSettings,
             });
-            // set the hmsInstanceRef
+
             hmsInstanceRef.current = hmsInstance;
         }
-        // set the hmsInstance to the currently set hmsInstanceRef
+
         hmsInstance = hmsInstanceRef.current;
 
         if (roomId && roomAuthToken) {
             if (hmsInstance) {
-                // 1. add Event Listeners to subscribe to Join Success or Failure updates
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onErrorListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, __onJoinListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, __onPeerListener);
@@ -577,15 +500,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, __onReconnectedListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, __onReconnectingListener);
 
-                // 2. create an object of HMSConfig class using the available joining configurations.
                 if (roomAuthToken && user) {
                     let config = new HMSConfig({
-                        authToken: roomAuthToken, // client-side token generated from `getAuthTokenByRoomCode` method
-                        username: user.username, // username of the user joining the room
+                        authToken: roomAuthToken,
+                        username: user.username,
                     });
 
-                    // 3. call the preview method to join the room
-                    // starting room preview
                     console.log('Joining the call...');
 
                     hmsInstance.join(config);
@@ -598,25 +518,20 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         console.log('In the terminate room function');
         if (hmsInstanceRef.current) {
             console.log('IN THE IF CONDITION');
-            // end the room for every one
-           
-            try {
-            await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
-            } catch (error) {
-            // Handle the error here
-            console.error('An error occurred:', error);
-            }            
-            console.log('End Room Success');
-            // Leave the Room
-            await _handleRoomLeave();
 
+            try {
+                await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
+            } catch (error) {
+                console.error('An error occurred:', error);
+            }
+            console.log('End Room Success');
+
+            await _handleRoomLeave();
         }
     };
 
     const _handleRoomLeave = async () => {
-        // console.log(members[0]);
         if (hmsInstanceRef.current) {
-            // leave the room
             console.log('Leaving the watchparty room [StartWatchPartyView]...');
             hmsInstanceRef.current.leave();
 
@@ -626,10 +541,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         hmsInstanceRef.current = null;
 
-        // reset watch timer
         resetTimer();
-        // clear the navigation stack history
-        // reset navigation
+
         navigation.reset({
             index: 0,
             routes: [{name: 'UserProfileScreen'}],
@@ -640,7 +553,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const _handleCloseMovie = async () => {
-        // close the movie
         if (videoPlayerRef.current) {
             videoPlayerRef.current.dismissFullscreenPlayer();
             setIsFullscreen(false);
@@ -652,18 +564,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         console.log('Starting the movie...');
 
         if (isHost && videoPlayerRef.current) {
-            // SYNC: send a message to the room that the host started playing the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'start-movie',
                 payload: {
-                    // send timestamp in seconds since epoch
                     timestamp: new Date().toISOString(),
                 },
             });
-
-            // setIsStreamOpen(false);
-            // setIsMoviePlaying(true);
         }
     };
 
@@ -674,7 +581,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             isMoviePlaying: boolean;
         };
 
-        // SYNC CHANNEL EVENTS - subscribe to the sync channel if not host, and not synced (just joined)
         if (syncChannelRef.current) {
             syncChannelRef.current
                 .on('presence', {event: 'sync'}, () => {
@@ -684,10 +590,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             let syncObject: any = Object.values(newSyncState)[0];
                             if (syncObject) {
                                 syncObject = syncObject as [ISyncObject];
-                                const currentTime = syncObject[0].currentTime; // there should only be one object in the array (from host)
+                                const currentTime = syncObject[0].currentTime;
                                 const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
                                 if (!isHost && !isSyncedWithHost.current) {
-                                    // if not host, and not synced, get the current video timestamp sync the video player
                                     if (videoPlayerRef.current) {
                                         console.log(
                                             `SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`,
@@ -695,7 +600,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                         videoPlayerRef.current.seek(currentTime);
                                         setCurrentTime(currentTime);
                                         setIsMoviePlaying(isMoviePlayingFromHost);
-                                        isSyncedWithHost.current = true; // set synced to true
+                                        isSyncedWithHost.current = true;
                                     }
                                 }
                             }
@@ -706,24 +611,21 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 })
                 .subscribe();
         }
-        // ROOM CHANNEL EVENTS - once synced, subscribe to the room channel
+
         if (roomChannelRef.current) {
-            // subscribe to play event
             roomChannelRef.current
                 .on('broadcast', {event: 'start-movie'}, payload => {
-                    // play video player if not host
                     if (!isHost && videoPlayerRef.current) {
                         console.log(payload);
-                        // play the video player, for host
+
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
                 .on('broadcast', {event: 'play-movie'}, payload => {
-                    // play video player if not host
                     if (!isHost && videoPlayerRef.current) {
                         console.log(payload);
-                        // play the video player, for host
+
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
@@ -731,41 +633,36 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 .on('broadcast', {event: 'pause-movie'}, payload => {
                     if (!isHost && videoPlayerRef.current) {
                         console.log(payload);
-                        // pause the video player if not host
+
                         setIsMoviePlaying(false);
                     }
                 })
                 .on('broadcast', {event: 'seek-movie'}, payload => {
-                    // seek the video player if not host
                     if (!isHost && videoPlayerRef.current) {
                         console.log(payload);
-                        // seek the video player if not host
+
                         videoPlayerRef.current.seek(Number(payload.payload.seekTime));
                     }
                 })
                 .on('broadcast', {event: 'close-movie'}, payload => {
                     console.log(payload);
-                    // TODO: close the video player if not host
                 })
                 .on('broadcast', {event: 'exit-movie'}, payload => {
                     console.log(payload);
                     if (!isHost && videoPlayerRef.current) {
                         setIsFullscreen(false);
-                        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-                        // videoPlayerRef.current.dismissFullscreenPlayer();
+                        Orientation.lockToPortrait();
                     }
                 })
                 .on('broadcast', {event: 'mute-peer'}, async payload => {
                     const {peerID, isMuted} = payload.payload;
                     const localPeer = await hmsInstanceRef.current?.getLocalPeer();
 
-                    // Update peersMuteStatus for all peers
                     setPeersMuteStatus(prevStatus => ({
                         ...prevStatus,
                         [peerID]: isMuted,
                     }));
 
-                    // If the local peer is the target, also update isMicOn
                     if (localPeer && peerID === localPeer.peerID) {
                         setIsMicOn(!isMuted);
                     }
@@ -776,12 +673,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
-    //  returns `uniqueId` for a given `peer` and `track` combination
     const getPeerTrackNodeId = (peer: HMSPeer, track: HMSTrack | undefined) => {
         return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
     };
 
-    // creates `PeerTrackNode` object for given `peer` and `track` combination
     const createPeerTrackNode = (peer: HMSPeer, track?: HMSTrack | undefined): PeerTrackNode => {
         let isVideoTrack = false;
         if (track && track?.type === HMSTrackType.VIDEO) {
@@ -794,14 +689,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             track: videoTrack,
         };
     };
-    // Removes all nodes which has `peer` with `id` same as the given `peerID`.
+
     const removeNodeWithPeerId = (nodes: PeerTrackNode[], peerID: string) => {
         return nodes.filter(node => node.peer.peerID !== peerID);
     };
-    //   Updates `track` and `peer` of `PeerTrackNode` objects which has `id` same as `uniqueId` generated from given `peer` and `track`.
+
     //
-    //   If `createNew` is passed as `true` and no `PeerTrackNode` exists with `id` same as `uniqueId` generated from given `peer` and `track`
-    //   then new `PeerTrackNode` object will be created
+
     //
     const _updateNode = (data: {
         nodes: PeerTrackNode[];
@@ -824,7 +718,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             });
         }
 
-        if (!createNew) return nodes;
+        if (!createNew) {
+            return nodes;
+        }
 
         if (peer.isLocal) {
             return [createPeerTrackNode(peer, track), ...nodes];
@@ -834,7 +730,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const _findNodeByPeerId = (peerID: string) => {
-        // pretty print all peerTrackNodes ( expand to see all the properties )
         console.log('peerTrackNodes:', peerTrackNodes);
 
         return peerTrackNodes.find(node => node.peer.peerID === peerID);
@@ -854,7 +749,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             });
         }
 
-        if (!createNew) return nodes;
+        if (!createNew) {
+            return nodes;
+        }
 
         if (peer.isLocal) {
             return [createPeerTrackNode(peer), ...nodes];
@@ -867,18 +764,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         100ms Event Listeners
     */
     const __onErrorListener = (data: HMSException) => {
-        // FIXME: handle errors (if host leaves, or if user leaves)
         console.log('=== 100ms Error ===:', data);
-
-        // console.log("onJoin [local peer / video]", localPeer.localVideoTrack);
-        // console.log("onJoin [local peer / audio]", localPeer.localAudioTrack);
     };
     const __onJoinListener = (data: {room: HMSRoom}) => {
-        // gets triggered when join is successful. You can navigate to other screens.
-        // use these objects to update your local and remote peers.
         const {localPeer} = data.room;
 
-        // ADD YOUR OWN VIDEO TRACK (no audio)
         if (localPeer) {
             console.log(`OWN video track Added [__onJoin]: ${localPeer.videoTrack?.trackId}`);
             setPeerTrackNodes(prevPeerTrackNodes =>
@@ -894,13 +784,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
     const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
-        // gets triggered when peer leaves, joins,  starts or stops speaking, role is changed or becomes dominant speaker.
-        // use these objects to update your local and remote peers.
-
-        // We will create Tile for the Joined Peer when we receive `HMSUpdateListenerActions.ON_TRACK_UPDATE` event.
-        // Note: We are chosing to not create Tiles for Peers which does not have any tracks
         if (type === HMSPeerUpdate.PEER_JOINED) {
-            // add video track for the peer
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
                     nodes: prevPeerTrackNodes,
@@ -909,7 +793,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     createNew: true,
                 }),
             );
-            // add audio track for the peer
+
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
                     nodes: prevPeerTrackNodes,
@@ -923,18 +807,14 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
-            // check if any remaining peer track nodes have host role
             const remainingPeerTrackNodes = peerTrackNodes.filter(node => node.peer.peerID !== peer.peerID);
             const remainingHosts = remainingPeerTrackNodes.filter(node => node.peer._role.name === 'host').length;
 
             if (remainingHosts === 0 && !isHost) {
-                // no more hosts, trigger the room leave handler
                 console.log('No more hosts, leaving room...');
                 await _handleRoomLeave();
             }
 
-            // Remove all Tiles which has peer same as the peer which just left the room.
-            // `removeNodeWithPeerId` function removes peerTrackNodes which has given peerID and returns updated list.
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
             return;
         }
@@ -945,16 +825,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             type === HMSPeerUpdate.NAME_CHANGED ||
             type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
         ) {
-            // FIXME: update nodes on these events
             console.log('Peer Role, Metadata, Name or Network Quality changed for peer:', peer.name);
 
             return;
         }
 
         if (peer.isLocal) {
-            // Updating the LocalPeer Tile.
-            // `updateNodeWithPeer` function updates Peer object in PeerTrackNodes and returns updated list.
-            // if none exist then we are "creating a new PeerTrackNode for the updated Peer".
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
             );
@@ -962,15 +838,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
     const __onTrackListener = ({track, peer, type}: {track: HMSTrack; peer: HMSPeer; type: HMSTrackUpdate}) => {
-        // We will only consider Video tracks events to render videos
         if (track.type === HMSTrackType.VIDEO) {
-            // If Video track is added, you can use `trackId` to render video
             if (type === HMSTrackUpdate.TRACK_ADDED) {
                 if (!peer.isLocal) {
-                    // FIXME: add the track to the peerTrackNodes if peer is not local
-                    // Updating the Tiles with Track and Peer.
-                    // `updateNode` function updates "Track and Peer objects" in PeerTrackNodes and returns updated list.
-                    // if none exist then we are "creating a new PeerTrackNode with the received Track and Peer".
                     setPeerTrackNodes(prevPeerTrackNodes =>
                         _updateNode({
                             nodes: prevPeerTrackNodes,
@@ -982,13 +852,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
 
-            // If Video track is removed, remove `HMSView` which is using this `trackId`
             if (type === HMSTrackUpdate.TRACK_REMOVED) {
                 console.log(`${peer.name}s' video track Removed: ${track.trackId}`);
                 console.log(`Remove HMSView rendering trackId: ${track.trackId}`);
             }
 
-            // if video track is muted or unmuted, update the UI
             if (
                 type === HMSTrackUpdate.TRACK_MUTED ||
                 type === HMSTrackUpdate.TRACK_UNMUTED ||
@@ -1003,7 +871,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         } else if (track.type === HMSTrackType.AUDIO) {
             if (type === HMSTrackUpdate.TRACK_ADDED) {
                 if (!peer.isLocal) {
-                    // Update the Node with peer for audio track
                     setPeerTrackNodes(prevPeerTrackNodes =>
                         _updateNodeWithPeer({
                             nodes: prevPeerTrackNodes,
@@ -1014,13 +881,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
 
-            // TODO: If Audio track is removed, remove node which is using this `trackId`
             if (type === HMSTrackUpdate.TRACK_REMOVED) {
                 console.log(`${peer.name}s' audio track Removed: ${track.trackId}`);
                 console.log(`Remove Audio Track playing trackId: ${track.trackId}`);
             }
 
-            // if video track is muted or unmuted, update the UI
             if (type === HMSTrackUpdate.TRACK_MUTED) {
                 console.log(`Update UI to show Audio Muted updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
@@ -1033,7 +898,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
             }
-            // if video track is muted or unmuted, update the UI
+
             if (type === HMSTrackUpdate.TRACK_RESTORED || type === HMSTrackUpdate.TRACK_DEGRADED) {
                 console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             }
@@ -1052,45 +917,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
         }
-        // gets triggered when track is added, removed, muted, unmuted, degraded and restored back.
-        // use these objects to update your local and remote peers.
     };
-    const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {
-        // gets triggered when room is muted or unmuted.
-        // TODO: implement this after host room functionality is added
-    };
+    const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {};
     const __onRemovedFromRoomListener = async (data: any) => {
-        // const __onRemovedFromRoomListener = (data: HMSLeaveRoomRequest) => {
-        // triggered whenever someone removes local peer from the room or the room is ended.
-        // You can navigate to home screen, clear all reducers and reset all the states whenever this is triggered
         console.log('onRemovedFromRoomListener triggered');
         console.log('onRemovedFromRoomListener data:', data);
 
         if (data?.roomEnded) {
-            // TODO: show a message that the room has ended
-            // Pause the Movie
             await setIsMoviePlaying(false);
-            // Close the Mvie
+
             await _handleCloseMovie();
-            // Leave the Room
+
             await _handleRoomLeave();
         }
     };
-    const __onMessageListener = (data: HMSMessage) => {
-        // gets triggered whenever you receive a direct message, broadcasted message or role-based message.
-        // whenever local peer receives a message this is triggered. Add the message to reducer.
-    };
-    const __onSpeakerListener = (data: HMSSpeaker[]) => {
-        // gets triggered whenever someone speaks
-        // an array of speakers is received. Use it to highlight the speakers.
-        // TODO: implement this
-    };
-    const __onReconnectedListener = (data: any) => {
-        // triggered when local peer is reconnected to the room.
-    };
-    const __onReconnectingListener = (data: any) => {
-        // triggered whenever local peer is trying to reconnect to room, that is bad network.
-    };
+    const __onMessageListener = (data: HMSMessage) => {};
+    const __onSpeakerListener = (data: HMSSpeaker[]) => {};
+    const __onReconnectedListener = (data: any) => {};
+    const __onReconnectingListener = (data: any) => {};
 
     /*
         WatchParty Video Player Sync Methods
@@ -1098,14 +942,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(true);
-            // SYNC: send a message to the room that the host started playing the movie
-            // Hide the status bar when the movie starts playing
+
             StatusBar.setHidden(true);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'play-movie',
                 payload: {
-                    // send timestamp in seconds since epoch
                     timestamp: new Date().toISOString(),
                 },
             });
@@ -1114,14 +956,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const ___onPause = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
-            // SYNC: send a message to the room that the host paused the movie
 
             StatusBar.setHidden(false);
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'pause-movie',
                 payload: {
-                    // send timestamp in seconds since epoch
                     timestamp: new Date().toISOString(),
                 },
             });
@@ -1129,12 +969,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
     const ___onSeek = (data: OnSeekData) => {
         if (isHost && videoPlayerRef.current) {
-            // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'seek-movie',
                 payload: {
-                    // send timestamp in seconds since epoch
                     currentTime: data.currentTime,
                     seekTime: data.seekTime,
                     timestamp: new Date().toISOString(),
@@ -1146,66 +984,58 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         startTimer();
     };
     const ___onProgress = async (data: OnProgressData) => {
-        // send an event to the room every 2 seconds
         if (isHost && Number(data.currentTime.toFixed(1)) % 2 === 0) {
-            // SYNC: send a message to the room (sync channel) with the current progress of the movie
             await syncChannelRef.current?.track({
                 isMoviePlaying: true,
                 currentTime: data.currentTime,
                 timestamp: new Date().toISOString(),
             });
-            // update the currentTime state
+
             setCurrentTime(data.currentTime);
         }
     };
     const ___onEnterFullscreen = () => {
-        // enter fullscreen
         setIsFullscreen(true);
-        // Hide the status bar when the movie starts playing
+
         StatusBar.setHidden(true);
-        Orientation.lockToLandscape(); // Lock to landscape when entering fullscreen
-        // automatically play the video if it paused (if it was already playing)
+        Orientation.lockToLandscape();
+
         hideNavigationBar();
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
-                // play on exit fullscreen if host
                 setIsMoviePlaying(true);
             } else {
                 if (isSyncedWithHost.current) {
-                    // play on exit fullscreen if synced with host
                     setIsMoviePlaying(true);
                 }
             }
         }
-        // Delay the seek operation to allow the video player to stabilize
+
         setTimeout(() => {
             if (videoPlayerRef.current && currentTime) {
                 console.log(' you clicked enter FS... seeking to:', currentTime);
                 videoPlayerRef.current.seek(currentTime);
             }
-        }, 2000); // Delay of 2 seconds
+        }, 2000);
     };
     const ___onExitFullScreen = () => {
-        // exit fullscreen
         setIsFullscreen(false);
         StatusBar.setHidden(false);
-        Orientation.lockToPortrait(); // Lock to portrait when exiting fullscreen
-        // Delay the seek operation to allow the video player to stabilize
+        Orientation.lockToPortrait();
+
         showNavigationBar();
         setTimeout(() => {
             if (videoPlayerRef.current && currentTime) {
                 console.log(' you clicked exit FS... seeking to:', currentTime);
                 videoPlayerRef.current.seek(currentTime);
             }
-        }, 2000); // Delay of 2 seconds
-        // automatically play the video if it paused (if it was already playing)
+        }, 2000);
+
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isHost) {
-                // play on exit fullscreen if host
                 setIsMoviePlaying(true);
             } else {
                 if (isSyncedWithHost.current) {
-                    // play on exit fullscreen if synced with host
                     setIsMoviePlaying(true);
                 }
             }
@@ -1213,7 +1043,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
     const ___onBack = () => {
         if (isHost && videoPlayerRef.current) {
-            // SYNC: send a message to the room that the host paused the movie
             roomChannelRef.current?.send({
                 type: 'broadcast',
                 event: 'exit-movie',
@@ -1231,7 +1060,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
     const ___onEnd = () => {
-        // setIsMoviePlaying(false);
         console.log(`${user?.username} ended the movie`);
     };
     const ___onBuffer = (data: OnBufferData) => {
@@ -1253,14 +1081,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const getAvailableMembers = async () => {
-        // Get the userIDs of existing CRU members
         let membersWithInfo: MemberInfo[] = [];
         const memberUserNames: {name: string; peer: HMSPeer}[] = [];
         await Promise.all(
             peerTrackNodes.map(async ({id, peer, track}) => {
-                // only count video track types (avoid double counting of audio tracks)
-
-                // find all unique peer.names and place in array
                 if (!memberUserNames.includes({name: peer.name, peer})) {
                     memberUserNames.push({name: peer.name, peer});
                 }
@@ -1309,7 +1133,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         if (hmsInstanceRef.current) {
             console.log('CLOSE ROOM AS HOST');
             confirmOptions();
-            // Stop the Movie
+
             setTerminateRoom(true);
             setIsMoviePlaying(false);
         }
@@ -1331,7 +1155,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 cru: cru,
             });
         } else {
-            // Determine receiver user details based on the current user's role in the chat
             const isCurrentUserCreator = user?.id === creatorID;
             const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
             const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
@@ -1340,20 +1163,19 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 mItInviteId: mitId,
                 userId: receiverUserId,
                 profilePicture: receiverProfilePicture,
-                username: receiverUsername, // Pass the receiver's username
+                username: receiverUsername,
             });
             navigation.navigate('ViewChat', {
                 mItInviteId: mitId,
                 userId: receiverUserId,
                 profilePicture: receiverProfilePicture,
-                username: receiverUsername, // Pass the receiver's username
+                username: receiverUsername,
             });
         }
     };
     const handleSnapPress = useCallback((index: number) => {
         console.log('heelo');
         sheetRef.current?.snapToIndex(index);
-        // setIsChatOpen(true);
     }, []);
 
     const handleCloseError = () => {
@@ -1370,7 +1192,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     </View>
                 )}
 
-                {/* Leave Room / Close Movie Buttons */}
                 {!isFullscreen && (
                     <View style={styles.topcontainer}>
                         <TouchableOpacity onPress={handleLeaveRoom}>
@@ -1404,13 +1225,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     </View>
                 )}
 
-                {/* Movie Player */}
                 <View style={{flex: 1, zIndex: 100}}>
                     {isStreamOpen ? (
-                        // MOVIE INFO
                         <View style={styles.moviecontainer}>
                             <LinearGradient
-                                // Background Linear Gradient
                                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                 style={{
                                     position: 'absolute',
@@ -1473,7 +1291,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
                                         </View>
                                     </TouchableWithoutFeedback>
-                                    {/* START MOVIE BUTTON */}
+
                                     {isHost && roomChannelRef.current && (
                                         <TouchableWithoutFeedback onPress={_handleStartMovie}>
                                             <View
@@ -1501,7 +1319,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             </View>
                         </View>
                     ) : (
-                        // VIDEO PLAYER
                         <View>
                             <View style={styles.videocontain}>
                                 <View style={{flex: 1}}>
@@ -1509,7 +1326,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                         movie?.movieURL ? (
                                             <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
                                                 <VideoPlayer
-                                                    // setup a videoPlayerRef to control playback
                                                     videoRef={videoPlayerRef}
                                                     source={{
                                                         uri: movie?.movieURL,
@@ -1523,10 +1339,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                     tapAnywhereToPause={false}
                                                     preventsDisplaySleepDuringVideoPlayback={true}
                                                     isFullscreen={isFullscreen}
-                                                    // toggleResizeModeOnFullscreen={true}
                                                     fullscreenAutorotate={false}
                                                     disableBack={true}
-                                                    // only show certain controls when you are host
                                                     disablePlayPause={isHost ? false : true}
                                                     disableSeekButtons={isHost ? false : true}
                                                     disableSeekbar={isHost ? false : true}
@@ -1536,13 +1350,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                     onSeek={___onSeek}
                                                     onEnterFullscreen={___onEnterFullscreen}
                                                     onExitFullscreen={___onExitFullScreen}
-                                                    // onBack={___onBack}
-                                                    // onShowControls={___onShowControls}
-                                                    // onHideControls={___onHideControls}
-                                                    // onEnd={___onEnd} // TODO: handle end of movie
-                                                    // onPlaybackResume={___onPlaybackResume}
-                                                    // onBuffer={___onBuffer} // TODO: handle buffering
-                                                    // onError={___onError} // TODO: handle error
                                                 />
                                             </View>
                                         ) : (
@@ -1573,7 +1380,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     )}
                 </View>
 
-                {/* CHAT ROOM */}
                 <View
                     style={{
                         width: SIZES.ScreenWidth * 0.95,
@@ -1590,15 +1396,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             style={{height: '100%', width: '100%'}}
                             key={peerTrackNodes.length}
                             numColumns={3}
-                            data={peerTrackNodes} // peerTrackNodes is an array of PeerTrackNode objects
+                            data={peerTrackNodes}
                             keyExtractor={node => node.id}
                             contentContainerStyle={{flexGrow: 1}}
                             renderItem={({item}) => {
-                                // console.log("item", JSON.stringify(item, null, 2));
                                 const isRoomHost = item.peer.role?.name === 'host';
                                 const isExpanded = expandedVideo === item;
 
-                                // console.log('isExpanded:', isExpanded);  Log the isExpanded variable
                                 return hmsInstanceRef.current ? (
                                     <View
                                         style={{
@@ -1615,7 +1419,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             borderColor: COLORS.CATPURPLGT,
                                             borderWidth: 4,
                                         }}>
-                                        {/* CAMERA SCREEN */}
                                         {item.peer.videoTrack?.trackId ? (
                                             <hmsInstanceRef.current.HmsView
                                                 key={item.peer.peerID}
@@ -1629,7 +1432,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                 mirror={true}
                                             />
                                         ) : null}
-                                        {/* HOST BADGE */}
+
                                         {isRoomHost ? (
                                             <View style={{position: 'absolute', top: 0, right: 0}}>
                                                 <Text
@@ -1644,19 +1447,17 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                 </Text>
                                             </View>
                                         ) : null}
-                                        {/* EXPAND CAMERA VIEW */}
+
                                         <View style={{position: 'absolute', top: 0, left: 0}}>
                                             <TouchableOpacity
                                                 onPress={() => {
                                                     if (isExpanded) {
-                                                        // Contract the currently expanded video
                                                         setExpandedVideo(null);
                                                     } else {
                                                         if (expandedVideo) {
-                                                            // Minimize the user's video if it's expanded
                                                             setExpandedVideo(null);
                                                         }
-                                                        setExpandedVideo(item); // Expand this video
+                                                        setExpandedVideo(item);
                                                     }
                                                 }}>
                                                 {isExpanded ? (
@@ -1677,7 +1478,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                             </TouchableOpacity>
                                         </View>
 
-                                        {/* USERNAME */}
                                         <View
                                             style={{
                                                 position: 'absolute',
@@ -1697,16 +1497,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                                 }}>
                                                 <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
                                                     {isExpanded
-                                                        ? item.peer.name // Display full name when expanded
+                                                        ? item.peer.name
                                                         : item.peer.name.length > 8
-                                                        ? item.peer.name.substring(0, 8) + '...' // Truncate to 10 characters and add ellipsis
+                                                        ? item.peer.name.substring(0, 8) + '...'
                                                         : item.peer.name}
                                                 </Text>
-                                                <Pressable
-                                                // onPress={() => {
-                                                //     handleMic(item.peer);
-                                                // }}
-                                                >
+                                                <Pressable>
                                                     <Icon
                                                         name={
                                                             peersMuteStatus[item.peer.peerID] === undefined ||
@@ -1818,7 +1614,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             </Text>
                             <View>
                                 <FlatList
-                                    // data={members}
                                     data={members.filter(member => member.role !== 'host')}
                                     horizontal={false}
                                     showsHorizontalScrollIndicator={false}
@@ -1828,14 +1623,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                     renderItem={({item}) => (
                                         <View style={{marginVertical: 5}}>
                                             <SmlMemberCard
-                                                userPicture={item.user.profilePicture ?? ''} // FIXME: change to place holder image
+                                                userPicture={item.user.profilePicture ?? ''}
                                                 userName={item.user.username ?? 'Anonymous'}
                                                 onPress={() => {
                                                     console.log('onPress FIRED');
 
                                                     setShowTransferConfirmation(true);
                                                 }}
-                                                // influencer={item.influencer}
                                                 userID={item.user.id}
                                                 akcruBadge={item.user.badge}
                                                 userDesc={item.user.description ?? ''}
@@ -1916,7 +1710,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             <View style={{alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Host Transfer</Text>
                                 <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                    {/* {`Are you sure you want to transfer hosting privileges to "${members}"`} */}
                                     {`Are you sure you want to transfer hosting privileges to "${selectedMemeberForHost?.user.username}"`}
                                 </Text>
                             </View>
@@ -2152,7 +1945,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                         handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
                         handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}
                         userdata={userRequest}
-                        channelroom={channelll}
                     />
                 ) : null}
                 {popupErr ? <ErrorModal errorMessage={popupErrMsg} onClose={handleCloseError} /> : null}
@@ -2163,7 +1955,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     return isFullscreen ? (
         <View>
             {watchPartyView()}
-            <WatchPartyDocker members={peerTrackNodes} hmsInstanceRef={hmsInstanceRef} isExpanded={expandedVideo} HMSVideoViewMode={HMSVideoViewMode} peersMuteStatus={peersMuteStatus}></WatchPartyDocker>
+            <WatchPartyDocker
+                members={peerTrackNodes}
+                hmsInstanceRef={hmsInstanceRef}
+                isExpanded={expandedVideo}
+                HMSVideoViewMode={HMSVideoViewMode}
+                peersMuteStatus={peersMuteStatus}
+            />
         </View>
     ) : (
         <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
@@ -2177,9 +1975,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: COLORS.CATREDLGT,
-        width: 80, // Adjust width as needed
-        height: 40, // Adjust height as needed
-        borderRadius: 5, // Adjust border radius as needed
+        width: 80,
+        height: 40,
+        borderRadius: 5,
     },
     buttonText: {
         color: 'white',

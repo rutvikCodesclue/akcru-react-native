@@ -1,7 +1,7 @@
 import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
@@ -9,7 +9,6 @@ import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
-import {deletePost} from '../../lib/api/post.lib';
 
 type FooterIconsProps = {
     iconname: string;
@@ -93,14 +92,14 @@ type PostProps = {
     openProfile: () => void;
     onFollow: () => void;
     onUnfollow: () => void;
-    isFollowing: boolean; // Add this to track follow status
+    isFollowing: boolean;
     onDeletePost: (postId: number) => void;
     currentUserID: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
-    isLikedByCurrentUser?: boolean; // Assuming this property exists
+    isLikedByCurrentUser?: boolean;
     akcruBadgeColor: string;
 };
 
@@ -131,13 +130,11 @@ const PostCard = ({
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
-    // Determine the color for the "happy" icon based on whether the post is liked by the current user
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
-    // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
     const handleDeletePost = () => {
@@ -155,28 +152,23 @@ const PostCard = ({
     };
 
     const handleVideoEnd = () => {
-        // Logic for when the video ends
         setVideoModalVisible(false);
     };
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         setVideoModalVisible(false);
     };
 
     const handleVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
     };
 
     const handleModalVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
 
     const handleSkipVideo = () => {
-        // Logic for skipping the video
         setVideoModalVisible(false);
     };
 
@@ -204,7 +196,6 @@ const PostCard = ({
         setShareOptionsVisible(false);
     };
 
-    // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor) {
             return (
@@ -275,8 +266,8 @@ const PostCard = ({
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={() => {
-                        onFollow(); // Call the report user function
-                        closePostOptions(); // Close the modal
+                        onFollow();
+                        closePostOptions();
                     }}>
                     <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
@@ -293,7 +284,6 @@ const PostCard = ({
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
-                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -379,24 +369,8 @@ const PostCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {/* {renderNotInterested()} */}
-                            {/* <Pressable
-                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                                onPress={handleFollowPress}>
-                                <Icon
-                                    name="person"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={20}
-                                    style={{marginLeft: 5}}
-                                />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
-                                </Text>
-                            </Pressable> */}
-                            {/* {renderMuteUser()} */}
                             {renderFollowUser()}
-                            {/* {renderBlockUser()} */}
+
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
                         </View>
@@ -446,7 +420,7 @@ const PostCard = ({
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
                 {timeSince(post.createdAt)}
             </Text>
-            {/* Render text if available */}
+
             {textContent && (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{textContent}</Text>
@@ -454,7 +428,6 @@ const PostCard = ({
             )}
 
             <View>
-                {/* Render images */}
                 {imageUrls.map((url, index) => (
                     <TouchableOpacity key={index} onPress={() => openModal(url)}>
                         <Image source={{uri: url}} style={styles.postimage} />
@@ -462,7 +435,6 @@ const PostCard = ({
                 ))}
             </View>
             <View>
-                {/* Render video if available */}
                 {videoUrl && (
                     <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
                         <View style={styles.postvideo}>
@@ -481,7 +453,7 @@ const PostCard = ({
                     </TouchableOpacity>
                 )}
             </View>
-            {/* Image Modal */}
+
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
@@ -496,7 +468,7 @@ const PostCard = ({
                     </TouchableOpacity>
                 </View>
             </Modal>
-            {/* Video Modal */}
+
             <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
@@ -545,12 +517,10 @@ const PostCard = ({
                         ('');
                     }}
                 /> */}
-                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
             <View>
                 <Text style={styles.footStats}>
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
-                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
             </View>
         </View>

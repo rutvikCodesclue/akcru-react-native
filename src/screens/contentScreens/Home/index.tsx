@@ -1,40 +1,25 @@
-import {
-  View,
-  Text,
-  FlatList,
-  ScrollView,
-  TouchableWithoutFeedback,
-  Pressable,
-  ActivityIndicator,
-} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import {View, Text, FlatList, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import React, {useEffect, useState} from 'react';
 import BasicListCategories from '../../../components/BasicListCategories';
 import LargeListCategories from '../../../components/LargeListCategories';
-import FullPageCategories from '../../../components/FullPageCategories';
-import {Akcru_Content} from '../../../../assets/constants/ListData';
 import Header from '../../../components/header';
 import CategoriesBtn from '../../../components/CategoriesBtn';
 import LinearGradient from 'react-native-linear-gradient';
-import AkcruButtons from '../../../components/akcruButtons';
-
 import {COLORS, SIZES} from '../../../../assets/constants/index';
 import styles from './styles';
-import {CATEGORIES} from '../../../../assets/constants/Data';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
-import { ClientStackParams } from '../../../navigation/ClientStack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
-import VideoPlayer from 'react-native-media-console';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { Icon } from '@rneui/base';
-import { TouchableOpacity } from 'react-native-gesture-handler';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { fetchUnfinishedMovies } from '../../../lib/api/user.lib';
+import {Icon} from '@rneui/base';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {fetchUnfinishedMovies} from '../../../lib/api/user.lib';
 import ContinueWatchingList from '../../../components/ContinueWatchingList';
 
 const HomeScreen = () => {
@@ -53,60 +38,46 @@ const HomeScreen = () => {
 
     const [elapsedTime, setElapsedTime] = useState(0);
 
-    // Function to handle the end of the video
     const handleVideoEnd = () => {
-        // Update the index to the next video in topBox
-        // Generate a random index for the next video in topBox
         const randomIndex = Math.floor(Math.random() * topBox.length);
-        // setTopBoxIndex(prevIndex => (prevIndex + 1) % topBox.length);
 
         setTopBoxIndex(randomIndex);
-        setElapsedTime(0); // Reset the elapsed time for the new video
+        setElapsedTime(0);
     };
 
     const handlePreviousVideo = () => {
-        // Logic to determine the previous video index
         const previousIndex = Math.max(0, topBoxIndex - 1);
         setTopBoxIndex(previousIndex);
     };
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         const randomIndex = Math.floor(Math.random() * topBox.length);
-        // setTopBoxIndex(prevIndex => (prevIndex + 1) % topBox.length);
 
         setTopBoxIndex(randomIndex);
     };
 
     const handleVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
-        // console.log(topBox.length);
-        setElapsedTime(0); // Reset elapsed time when a new video is loaded
+
+        setElapsedTime(0);
     };
 
-    // Start a timer when the video is loaded
     useEffect(() => {
         let timer: number;
 
         const handleTimerTick = () => {
-            // Increment the elapsed time every second
             setElapsedTime(prev => prev + 1);
 
-            // Check if 60 seconds have passed
             if (elapsedTime >= 30) {
-                // Stop the timer and trigger the transition
                 clearInterval(timer);
                 handleVideoEnd();
             }
         };
 
-        // Start the timer when the video is loaded
         if (isVideoLoaded && topBoxShouldAutoplay) {
             timer = setInterval(handleTimerTick, 1000);
         }
 
-        // Clean up the timer when the component is unmounted or the video changes
         return () => clearInterval(timer);
     }, [isVideoLoaded, topBoxShouldAutoplay, elapsedTime]);
 
@@ -128,7 +99,7 @@ const HomeScreen = () => {
                 const newUploads = allMovies
                     .map(movie => ({
                         ...movie,
-                        createdAt: new Date(movie.createdAt).getTime(), // Get timestamp
+                        createdAt: new Date(movie.createdAt).getTime(),
                     }))
                     .sort((a, b) => b.createdAt - a.createdAt)
                     .slice(0, 10);
@@ -143,10 +114,8 @@ const HomeScreen = () => {
             try {
                 const allMovies: IMovie[] = await findMovies('');
 
-                // Sort allMovies by rating in descending order
                 const sortedMovies = allMovies.sort((a, b) => b.rating - a.rating);
 
-                // Get the top 8 highest rated movies
                 const top8RatedMovies = sortedMovies.slice(0, 10);
 
                 setTopRatedMovies(top8RatedMovies);
@@ -157,12 +126,10 @@ const HomeScreen = () => {
 
         const fetchOldYearMovies = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies();
 
-                // Sort allMovies by year in descending order
                 const sortedMovies = allMovies.sort((a, b) => a.year - b.year);
 
-                // Get the 5 oldest movies
                 const Oldest5Movies = sortedMovies.slice(0, 10);
 
                 setOlderYearMovies(Oldest5Movies);
@@ -173,12 +140,10 @@ const HomeScreen = () => {
 
         const fetchNewerYearMovies = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies();
 
-                // Sort allMovies by year in descending order
                 const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
 
-                // Get the 5 oldest movies
                 const Newer5Movies = sortedMovies.slice(0, 10);
 
                 setNewerYearMovies(Newer5Movies);
@@ -189,9 +154,8 @@ const HomeScreen = () => {
 
         const fetchRandomMovies = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies();
 
-                // Get 5 random movies from the list
                 const randomMovies: IMovie[] = [];
                 while (randomMovies.length < 5) {
                     const randomIndex = Math.floor(Math.random() * allMovies.length);
@@ -209,15 +173,12 @@ const HomeScreen = () => {
 
         const fetchTopBoxMovie = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
+                const allMovies: IMovie[] = await findMovies();
 
-                // Sort allMovies by rating in descending order
                 const sortedMovies = allMovies.sort((a, b) => b.rating - a.rating);
 
-                // Get the top 8 highest rated movies
                 const top15RatedMovies = sortedMovies.slice(0, 15);
 
-                // Set the topBox state with the top rated movies
                 setTopBox(top15RatedMovies);
                 setIsMovieDataLoaded(true);
             } catch (error) {
@@ -240,26 +201,21 @@ const HomeScreen = () => {
 
     const handlePress = () => {
         navigation.navigate('ContentDetailScreen', {
-            id: topBox[topBoxIndex]?.id, // Pass the appropriatemovie ID to the ContentDetailScreen
+            id: topBox[topBoxIndex]?.id,
         });
     };
 
     const [isMuted, setIsMuted] = useState(true);
 
-    // Function to toggle mute
     const toggleMute = () => {
         setIsMuted(!isMuted);
     };
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            // console.log('Home Screen focused [HomeScreen]');
             setTopBoxShouldAutoplay(true);
 
             return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                // console.log('Home Screen unfocused [HomeScreen]');
                 setTopBoxShouldAutoplay(false);
             };
         }, []),
@@ -277,7 +233,6 @@ const HomeScreen = () => {
         loadUnfinishedMovies();
     }, []);
 
-    // Function to update the list of unfinished movies
     const updateUnfinishedMovies = (updatedMovies: React.SetStateAction<IMovie[]>) => {
         setUnfinishedMovies(updatedMovies);
     };
@@ -328,9 +283,7 @@ const HomeScreen = () => {
                         <Pressable style={styles.videocontainer} onPress={handlePress}>
                             <View style={{height: SIZES.ScreenHeight / 1.63}}>
                                 {!isVideoLoaded && (
-                                    <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
-                                        {/* <ActivityIndicator size="large" color={COLORS.PURPLE} /> */}
-                                    </View>
+                                    <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
                                 )}
                                 {/* <VideoPlayer
                                     source={{
@@ -350,7 +303,7 @@ const HomeScreen = () => {
                                     isFullscreen={true}
                                     posterResizeMode="cover"
                                     poster={topBox[topBoxIndex]?.portraitURL}
-                                    onEnd={handleVideoEnd} // Call the function when the video ends
+                                    onEnd={handleVideoEnd}
                                 /> */}
                                 <Video
                                     style={{width: '100%', height: '100%'}}
@@ -368,7 +321,6 @@ const HomeScreen = () => {
                             </View>
                             <View>
                                 <LinearGradient
-                                    // Background Linear Gradient
                                     colors={['transparent', COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -406,7 +358,6 @@ const HomeScreen = () => {
                             </View>
                         </Pressable>
                         <View style={{marginTop: 75, marginBottom: 75}}>
-                            {/* TODO: remove this.  */}
                             <View>
                                 <FlatList
                                     data={MOVIE_GENRES}
@@ -456,9 +407,6 @@ const HomeScreen = () => {
                                     movies: randomMovies,
                                 }}
                             />
-
-                            {/* <BasicListCategories Akcru_Content={RecommendedForYou} /> */}
-                            {/* <FullPageCategories Akcru_Content={allcategory} /> */}
                         </View>
                     </ScrollView>
                 ) : (

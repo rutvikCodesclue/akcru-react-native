@@ -1,7 +1,6 @@
 import {
     Text,
     View,
-    Dimensions,
     ImageBackground,
     TouchableOpacity,
     Image,
@@ -11,7 +10,6 @@ import {
     SafeAreaView,
     TouchableWithoutFeedback,
     Animated,
-    Alert,
 } from 'react-native';
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
@@ -19,9 +17,8 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
-import {Icon, Avatar} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
-import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {Akcru_Content} from '../../../../assets/constants/ListData';
@@ -45,14 +42,12 @@ import HexAvatar from '../../../components/HexAvatar';
 import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import useAuthStore from '../../../stores/auth.store';
-import {getViewedUserWatchlist, getWatchlist} from '../../../lib/api/movies.lib';
-import WatchListCategory from '../../../components/WatchlistCategory';
+import {getViewedUserWatchlist} from '../../../lib/api/movies.lib';
 import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
-import {set} from 'lodash';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 
@@ -65,20 +60,13 @@ type Props = {
     route: ViewUserScreenRouteProp;
 };
 
-const ViewUserwatchlist = Akcru_Content[6];
-
-const MAX_STATUS_LENGTH = 17; // Maximum number of characters for the username
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const [follow, setFollow] = useState(false);
-    //Get current user
+
     const currentuser = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
     const userID: string | undefined = route.params?.userID ?? null;
-    const id: string | undefined = route.params?.id;
-    const userprofile: string | undefined = route.params?.userName ?? null;
-
-    const userId = route.params?.userId;
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
@@ -86,29 +74,22 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            //console.log('ViewUserScreen focused [ViewUserScreen]');
             hydrateUser();
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-                //console.log('ViewUserScreen Screen unfocused [ViewUserScreen]');
-            };
+            return () => {};
         }, []),
     );
 
     const [cruInviteStatus, setCruInviteStatus] = useState('');
 
-    const [watchlist, setWatchlist] = useState<IMovie[]>([]); // State to store the watchlist data
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]);
 
-    // Fetch the watchlist when the component is focused or when the user ID changes
     useFocusEffect(
         React.useCallback(() => {
             const fetchWatchlist = async () => {
                 if (userID) {
-                    // Make sure this userID is the ID of the viewed user
                     try {
-                        const watchlistMovies = await getViewedUserWatchlist(userID); // Use the viewed user's ID
+                        const watchlistMovies = await getViewedUserWatchlist(userID);
                         setWatchlist(watchlistMovies);
                     } catch (error) {
                         console.error('Error fetching watchlist:', error);
@@ -117,16 +98,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
             };
 
             fetchWatchlist();
-        }, [userID]), // Re-run the effect if the user's ID changes
+        }, [userID]),
     );
 
     useEffect(() => {
         const fetchCruInviteStatus = async () => {
-            const status = await getCruInviteStatus(userID); // Assuming userID is the ID of the profile being viewed
+            const status = await getCruInviteStatus(userID);
             setCruInviteStatus(status);
-            //console.log('Cru Invite Status', status);
-            // Update component state with the fetched status
-            // This state will then be used to determine the label and action of the CRU Invite button
         };
 
         fetchCruInviteStatus();
@@ -137,12 +115,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
     useEffect(() => {
         const fetchData = async () => {
             if (userID) {
-                // Assuming `userID` is the ID of the user being viewed
                 try {
-                    // Directly call `checkUserMembership` with `userID` (the ID of the user being viewed)
                     const membershipStatus = await checkUserMembership(userID);
                     setIsMember(membershipStatus);
-                    //console.log('Membership Status:', membershipStatus);
                 } catch (error) {
                     console.error('Failed to fetch membership status:', error);
                 }
@@ -150,9 +125,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
         };
 
         fetchData();
-    }, [userID]); // Dependency array now only needs to include userID since currentuser.id is no longer needed for the API call
+    }, [userID]);
 
-    // Determine button label and disabled status
     let btnName = 'CRU INVITE';
     let btnDisabled = false;
     let btnColor = COLORS.AKCRUBLUE;
@@ -169,7 +143,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            //Find and set the viewed user
             findAUser({id: userID}).then(user => {
                 setUser(user);
             });
@@ -183,9 +156,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 }
             });
 
-            return () => {
-                // Cleanup code if needed
-            };
+            return () => {};
         }, [userID, currentuser?.id]),
     );
 
@@ -194,9 +165,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
     useEffect(() => {
         const fetchData = async () => {
             const result = await getFollowers(userID);
-            // console.log('Data received:', result);
+
             if (result && result.followers && Array.isArray(result.followers)) {
-                setFollowersData(result.followers); // Set the 'following' array as your data
+                setFollowersData(result.followers);
             }
         };
 
@@ -205,9 +176,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const followersCount = followersData.length;
 
-    const [isModalVisible, setModalVisible] = useState(false); // State to control modal visibility
+    const [isModalVisible, setModalVisible] = useState(false);
 
-    // Function to toggle the modal's visibility
     const toggleModal = () => {
         setModalVisible(!isModalVisible);
     };
@@ -219,32 +189,25 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const handleSendCruInvite = async () => {
         try {
-            // Assume currentuser.id is the sender's ID
             const senderId = currentuser?.id as string;
-            const username = user?.username as string; // The username of the invitee
+            const username = user?.username as string;
             const response = await createACRUInvite({username, senderId});
 
-            // Check the response or handle success/failure accordingly
             if (response) {
-                // The invite was sent successfully
                 setShowCruInviteSent(true);
                 setShowConfirmationModal(false);
 
-                // Start a timer to hide the modal after a certain duration
                 setTimeout(() => {
                     setShowCruInviteSent(false);
-                }, 4000); // 4000 milliseconds = 4 seconds
+                }, 4000);
             }
         } catch (error) {
-            // Handle any errors that may occur during the invite creation
             console.error(error);
         }
     };
 
-    //console.log('ViewUserScreen render', {follow});
-
     const [blockedUsers, setBlockedUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [, setLoading] = useState(true);
 
     useEffect(() => {
         fetchBlockedUsers();
@@ -256,20 +219,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
         if (response.success) {
             setBlockedUsers(response.blockedUsers || []);
         } else {
-            // Handle failure
         }
         setLoading(false);
     };
 
     const handleReportUser = () => {
-        // Using navigation2 as per your provided code snippet for navigating
         navigation2.navigate('ReportUser', {userID: userID});
         setUserOptionModal(false);
     };
 
     const handleFollowPress = async () => {
-        //console.log(`Attempting to ${follow ? 'unfollow' : 'follow'} user with ID: ${userID}`);
-
         if (follow) {
             try {
                 const success = await unfollowUser({userId: userID});
@@ -321,23 +280,21 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }).start(() => setSelectedPhotoUri(null));
     };
 
-    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false); // State to control modal visibility
+    const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
 
-    // Function to toggle the modal's visibility
     const toggleAvatarModal = () => {
         setAvatarModalVisible(!isAvatarModalVisible);
     };
 
-    const [currentlyWatching, setCurrentlyWatching] = useState([]); // Adjust the initial state based on your data structure
+    const [currentlyWatching, setCurrentlyWatching] = useState([]);
 
     useFocusEffect(
         React.useCallback(() => {
             const fetchCurrentlyWatching = async () => {
                 try {
-                    const userId = user?.id; // Get the current user's ID
+                    const userId = user?.id;
                     if (userId) {
-                        const currentWatchingData = await getUserCurrentWatching(userId); // Replace with your actual API call
-                        //console.log('currentWatchingData', currentWatchingData);
+                        const currentWatchingData = await getUserCurrentWatching(userId);
                         setCurrentlyWatching(currentWatchingData);
                     }
                 } catch (error) {
@@ -346,7 +303,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
             };
 
             fetchCurrentlyWatching();
-        }, [user?.id]), // Re-run the effect if the user's ID changes
+        }, [user?.id]),
     );
 
     const isUserBlocked = blockedUsers.some(blockedUser => blockedUser.id === userID);
@@ -361,22 +318,18 @@ export default function ViewUserScreen({route, navigation}: Props) {
     };
 
     const handleBlockUserPress = async () => {
-        //console.log(`Attempting to ${isUserBlocked ? 'unblock' : 'block'} user with ID: ${userID}`);
-
         if (isUserBlocked) {
             try {
-                const {success, message} = await unblockUser(userID); // Assuming userID is the ID of the user to unblock
+                const {success, message} = await unblockUser(userID);
                 if (success) {
-                    // Alert.alert('User successfully unblocked');
                     setModalType('success');
                     setBlockUserMessage('User successfully unblocked');
                     setBlockUserModal(true);
                     setIconName('account-check');
-                    // setIsUserBlocked(false); // Update state to reflect the change
-                    fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
-                    setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
+
+                    fetchBlockedUsers();
+                    setUserOptionModal(false);
                 } else {
-                    // Alert.alert('Error', `Failed to unblock user: ${message}`);
                     setModalType('failed');
                     setBlockUserMessage('Failed to unblock user');
                     setIconName('alert-circle');
@@ -384,7 +337,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 }
             } catch (error) {
                 console.error('Error on unblock:', error);
-                // Alert.alert('Error', 'An error occurred while trying to unblock the user.');
+
                 setModalType('error');
                 setBlockUserMessage('An error occurred while trying to unblock the user.');
                 setBlockUserModal(true);
@@ -392,18 +345,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
             }
         } else {
             try {
-                const {success, message} = await blockUser(userID); // Assuming userID is the ID of the user to block
+                const {success, message} = await blockUser(userID);
                 if (success) {
-                    // Alert.alert('User successfully blocked');
                     setModalType('success');
                     setBlockUserMessage('User successfully blocked');
                     setBlockUserModal(true);
                     setIconName('hand-back-left');
-                    // setIsUserBlocked(true); // Update state to reflect the change
-                    fetchBlockedUsers(); // Optionally refresh the list of blocked users if you're maintaining such a list
-                    setUserOptionModal(false); // Assuming this closes the modal where the block/unblock option is shown
+
+                    fetchBlockedUsers();
+                    setUserOptionModal(false);
                 } else {
-                    // Alert.alert('Error', `Failed to block user: ${message}`);
                     setModalType('failed');
                     setBlockUserMessage('Failed to block user');
                     setIconName('alert-circle');
@@ -411,7 +362,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 }
             } catch (error) {
                 console.error('Error on block:', error);
-                // Alert.alert('Error', 'An error occurred while trying to block the user.');
+
                 setModalType('error');
                 setBlockUserMessage('An error occurred while trying to block the user.');
                 setBlockUserModal(true);
@@ -429,12 +380,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     </View>
                     <View style={{marginBottom: '5%'}}>
                         <ImageBackground
-                            //   source={{uri: digitalpass ?? undefined}}
                             source={{uri: undefined}}
                             resizeMode="cover"
                             style={{height: SIZES.ScreenHeight / 2.3, marginTop: -60}}>
                             <LinearGradient
-                                // Digitalpass Linear Gradient overlay
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
@@ -519,8 +468,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 </View>
                                 <View
                                     style={{
-                                        // borderLeftWidth: 2,
-                                        // borderRightWidth: 2,
                                         borderColor: COLORS.TRANSPURPLE,
                                         width: 100,
                                         height: 60,
@@ -604,27 +551,27 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     </Text>
                                 )}
                                 <View style={{flexDirection: 'row'}}>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
-                            </View>
+                                    {user?.badge === 'AKCRUIT' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeAkcruit />
+                                        </View>
+                                    )}
+                                    {user?.badge === 'GUARDIAN' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeGuardian />
+                                        </View>
+                                    )}
+                                    {user?.badge === 'HERO' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeHero />
+                                        </View>
+                                    )}
+                                    {user?.badge === 'SUPERHERO' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeSuperHero />
+                                        </View>
+                                    )}
+                                </View>
                             </View>
                             <View style={{marginHorizontal: 15, paddingTop: '2%'}}>
                                 <Text
@@ -643,21 +590,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}>
-                            {/* <Pressable
-                                onPress={() =>
-                                    navigation.navigate('ViewUserFollowList', {
-                                        userID: userID,
-                                    })
-                                }
-                                style={{
-                                    width: 100,
-                                    height: 30,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title3, fontSize: 14}}>{followersCount}</Text>
-                                <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
-                            </Pressable> */}
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -671,7 +603,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     color={btnColor}
                                     disabled={btnDisabled}
                                 />
-                                {/* Cru Invite Confirmation Modal */}
+
                                 <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
                                     <ComfirmationModal
                                         confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
@@ -679,7 +611,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         onPressNo={() => setShowConfirmationModal(false)}
                                     />
                                 </Modal>
-                                {/* Cru Invite Sent Modal */}
+
                                 <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
                                     <View
                                         style={{
@@ -823,7 +755,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         </View>
                                     )}
 
-                                    {/* Create a modal to display the enlarged image */}
                                     <Modal visible={isModalVisible} animationType="fade" transparent={true}>
                                         <Pressable
                                             onPress={toggleModal}
@@ -833,7 +764,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 alignItems: 'center',
                                                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                             }}>
-                                            {/* Display the enlarged image */}
                                             <TouchableWithoutFeedback>
                                                 <Image
                                                     source={{uri: archetype ? archetype.image : ''}}
@@ -884,7 +814,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </View>
                                         </>
                                     )}
-                                    {watchlist.length > 0 && ( // Only render WatchListCategory if watchlist has movies
+                                    {watchlist.length > 0 && (
                                         <View style={styles.watchlistcontainer}>
                                             <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
                                             <View>
@@ -899,38 +829,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </View>
                                         </View>
                                     )}
-                                    {/* <View style={styles.seperator} />
-                          <View style={styles.watchlistcontainer}>
-                              <Text style={styles.watchlisttext}>{user?.username} Watchlist</Text>
-                              <View style={{flexDirection: 'row', marginLeft: 15}}>
-                                  <View style={{marginRight: 25}}>
-                                      <TouchableOpacity>
-                                          <Icon
-                                              name="thumb-up-outline"
-                                              type="material-community"
-                                              color={'green'}
-                                              size={SIZES.MedIcon}
-                                          />
-                                      </TouchableOpacity>
-                                      <Text style={{...FONTS.Title2}}>I Like</Text>
-                                  </View>
-                                  <View>
-                                      <TouchableOpacity>
-                                          <Icon
-                                              name="thumb-down-outline"
-                                              type="material-community"
-                                              color={'red'}
-                                              size={SIZES.MedIcon}
-                                          />
-                                      </TouchableOpacity>
-                                      <Text style={{...FONTS.Title2}}>Nah</Text>
-                                  </View>
-                              </View>
-                          </View>
-
-                          <View style={{marginBottom: 75, marginTop: -20}}>
-                              <BasicListCategories Akcru_Content={ViewUserwatchlist} />
-                          </View> */}
                                 </View>
                             </View>
                         )}

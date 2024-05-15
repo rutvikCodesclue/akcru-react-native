@@ -1,22 +1,15 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  PanResponder,
-  Animated,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
-import styles from "./styles";
-import {COLORS, SIZES, FONTS} from '../../../assets/constants';
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { UserProfileStackParams } from "../../navigation/UserProfileStack";
-import { Icon } from "@rneui/base";
-import { AkcruControlBtn } from "../../../assets/svg";
-import { MULTISIZES } from "../../../assets/constants/theme";
+import React, {useState} from 'react';
+import {View, Text, PanResponder, Animated, Dimensions} from 'react-native';
+import styles from './styles';
+import {COLORS} from '../../../assets/constants';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {UserProfileStackParams} from '../../navigation/UserProfileStack';
+import {Icon} from '@rneui/base';
+import {AkcruControlBtn} from '../../../assets/svg';
+import {MULTISIZES} from '../../../assets/constants/theme';
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get('window');
 
 type MITSwipeProps = {
     decline: any;
@@ -35,27 +28,20 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
         }),
         onPanResponderRelease: (event, gesture) => {
             if (gesture.dx > 50) {
-                // Swiped to the right
                 Animated.timing(swipeValue, {
-                    toValue: width / 5.5, // Move button to the right edge
+                    toValue: width / 5.5,
                     duration: 400,
                     useNativeDriver: false,
-                }).start(
-                    () => accept(),
-                    // navigation.navigate('DeclineMITScreen', {}), // Navigate to the DeclinedScreen
-                );
+                }).start(() => accept());
             } else if (gesture.dx < -50) {
-                // Swiped to the left
                 Animated.timing(swipeValue, {
-                    toValue: -width / 5.5, // Move button to the left edge
+                    toValue: -width / 5.5,
                     duration: 400,
                     useNativeDriver: false,
                 }).start(() => {
-                  decline();
-                    // navigation.navigate('AcceptMITScreen', {}); // Navigate to the DeclinedScreen
+                    decline();
                 });
             } else {
-                // Reset to the middle
                 Animated.timing(swipeValue, {
                     toValue: 0,
                     duration: 200,

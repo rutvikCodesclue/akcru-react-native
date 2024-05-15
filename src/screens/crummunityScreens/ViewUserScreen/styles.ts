@@ -31,11 +31,8 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         marginTop: 10,
         marginBottom: -20,
-        
     },
     watchlistcontainer: {
-        
-        
         marginHorizontal: 15,
         marginBottom: 10,
     },
@@ -48,10 +45,9 @@ export default StyleSheet.create({
     },
     desctext: {
         ...FONTS.Title2,
-        marginTop: "5%",
+        marginTop: '5%',
         marginBottom: 20,
         textAlign: 'center',
-        
         textDecorationLine: 'underline',
     },
     drawfonttag: {
@@ -66,7 +62,7 @@ export default StyleSheet.create({
     },
     gallerycontainer: {
         marginHorizontal: 10,
-       
+
         alignItems: 'center',
     },
 

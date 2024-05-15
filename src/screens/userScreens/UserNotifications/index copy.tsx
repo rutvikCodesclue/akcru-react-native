@@ -126,7 +126,7 @@ const UserNotification = ({route}: Props) => {
             const result = await getUserFollowing(userID);
             console.log('Data received on FollowList Screen:', result);
             if (result && result.following && Array.isArray(result.following)) {
-                setFollowingData(result.following); // Set the 'following' array as your data
+                setFollowingData(result.following); 
             }
         };
 
@@ -137,7 +137,7 @@ const UserNotification = ({route}: Props) => {
         const fetchData = async () => {
             const result = await getFollowers(userID);
             if (result && result.followers && Array.isArray(result.followers)) {
-                setFollowersData(result.followers); // Set the 'following' array as your data
+                setFollowersData(result.followers); 
             }
         };
 
@@ -179,7 +179,7 @@ const UserNotification = ({route}: Props) => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
-                            // Background Linear Gradient
+                            
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
                                 position: 'absolute',

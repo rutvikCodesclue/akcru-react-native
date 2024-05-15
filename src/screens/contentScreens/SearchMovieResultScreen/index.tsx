@@ -1,38 +1,26 @@
-import {View, Text, FlatList, TouchableOpacity, Image, SafeAreaView, Platform} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image, Platform} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
 import {RouteProp} from '@react-navigation/native';
-import { ClientStackParams } from '../../../navigation/ClientStack';
 import {StackNavigationProp} from '@react-navigation/stack';
-import { MOVIE_GENRES } from '../../../../assets/constants/Data';
+import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import {Icon} from '@rneui/base';
-import { Akcru_Content } from '../../../../assets/constants/ListData';
-
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { FlashList } from '@shopify/flash-list';
 import AkcruButtons from '../../../components/akcruButtons';
 import styles from '../PlayContentScreen/styles';
 
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
-// const AllMovies = Akcru_Content[0];
+type SearchMovieResultScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'SearchMovieResultScreen'>;
 
-type SearchMovieResultScreenNavigationProp = StackNavigationProp<
-  NoBottomTabStackParams,
-  'SearchMovieResultScreen'
->;
-
-type SearchMovieResultScreenRouteProp = RouteProp<
-  NoBottomTabStackParams,
-  'SearchMovieResultScreen'
->;
+type SearchMovieResultScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SearchMovieResultScreen'>;
 
 type Props = {
-  navigation: SearchMovieResultScreenNavigationProp;
-  route: SearchMovieResultScreenRouteProp;
+    navigation: SearchMovieResultScreenNavigationProp;
+    route: SearchMovieResultScreenRouteProp;
 };
 
 const SearchMovieResultScreen = ({navigation, route}: Props) => {
@@ -40,7 +28,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
     const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
     const [displayMovies, setDisplayMovies] = useState<IMovie[]>([]);
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 12; // Number of movies to load per page
+    const pageSize = 12;
 
     useEffect(() => {
         if (route.params && route.params.genre) {
@@ -69,52 +57,52 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
             return;
         }
 
-        // Sort movies by createdAt in descending order (newest first)
         const sortedMovies = movies.sort((a, b) => {
             const dateA = new Date(a.createdAt);
             const dateB = new Date(b.createdAt);
             return dateB.getTime() - dateA.getTime();
         });
 
-        // console.log('Found movies: ', movies);
         setFilteredMovies(sortedMovies);
         return;
     };
 
-   const renderFooterComponent = () => {
-       // Only display "Load More" button if there are more items to load
-       const moreItemsToLoad = displayMovies.length < filteredMovies.length;;
+    const renderFooterComponent = () => {
+        const moreItemsToLoad = displayMovies.length < filteredMovies.length;
 
-       if (moreItemsToLoad) {
-           return (
-               <View style={{marginBottom:Platform.OS=='ios'?SIZES.ScreenHeight * 0.7:SIZES.ScreenHeight * 0.58, alignItems: 'center', marginTop: 10}}>
-                   <AkcruButtons.XlLrgButton btnname="Load More" onPress={loadMoreMovies} color={COLORS.PURPLE} />
-               </View>
-           );
-       } else {
-           // If no more items to load, show only the bottom margin
-           return <View style={{marginBottom: SIZES.ScreenHeight * 0.58}} />;
-       }
-   };
+        if (moreItemsToLoad) {
+            return (
+                <View
+                    style={{
+                        marginBottom: Platform.OS == 'ios' ? SIZES.ScreenHeight * 0.7 : SIZES.ScreenHeight * 0.58,
+                        alignItems: 'center',
+                        marginTop: 10,
+                    }}>
+                    <AkcruButtons.XlLrgButton btnname="Load More" onPress={loadMoreMovies} color={COLORS.PURPLE} />
+                </View>
+            );
+        } else {
+            return <View style={{marginBottom: SIZES.ScreenHeight * 0.58}} />;
+        }
+    };
 
-   const loadMoreMovies = () => {
-       const nextSetStartIndex = displayMovies.length;
-       const nextSetEndIndex = nextSetStartIndex + pageSize;
+    const loadMoreMovies = () => {
+        const nextSetStartIndex = displayMovies.length;
+        const nextSetEndIndex = nextSetStartIndex + pageSize;
 
-       console.log(`Loading more from ${nextSetStartIndex} to ${nextSetEndIndex}`);
+        console.log(`Loading more from ${nextSetStartIndex} to ${nextSetEndIndex}`);
 
-       const nextSet = filteredMovies.slice(nextSetStartIndex, nextSetEndIndex);
+        const nextSet = filteredMovies.slice(nextSetStartIndex, nextSetEndIndex);
 
-       console.log(`Found ${nextSet.length} items to load`);
+        console.log(`Found ${nextSet.length} items to load`);
 
-       if (nextSet.length > 0) {
-           setDisplayMovies([...displayMovies, ...nextSet]);
-           setPageIndex(prevPageIndex => prevPageIndex + 1);
-       } else {
-           console.log('No more movies to load');
-       }
-   };
-
+        if (nextSet.length > 0) {
+            setDisplayMovies([...displayMovies, ...nextSet]);
+            setPageIndex(prevPageIndex => prevPageIndex + 1);
+        } else {
+            console.log('No more movies to load');
+        }
+    };
 
     const renderItem = ({item, index}: {item: any; index: number}) => {
         const isActive = item.genre === selectedGenre;
@@ -181,7 +169,6 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                         <View style={{alignItems: 'center'}}>
                             <FlatList
                                 data={displayMovies}
-                                // data={filteredMovies}
                                 horizontal={false}
                                 numColumns={3}
                                 initialNumToRender={filteredMovies.length}
@@ -210,10 +197,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                                         </TouchableOpacity>
                                     </View>
                                 )}
-                                // ListFooterComponent={<View style={{marginBottom: 500}}></View>}
-                                ListFooterComponent={
-                                    renderFooterComponent
-                                }
+                                ListFooterComponent={renderFooterComponent}
                             />
                         </View>
                     </View>

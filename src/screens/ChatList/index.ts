@@ -1,3 +1,3 @@
-import ChatList from "./ChatList";
+import ChatList from './ChatList';
 
-export {ChatList};
+export { ChatList };

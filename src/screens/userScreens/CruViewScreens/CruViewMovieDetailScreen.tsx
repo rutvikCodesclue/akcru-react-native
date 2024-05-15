@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, TouchableOpacity, StyleSheet, SafeAreaView, Image, ImageBackground} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, SafeAreaView, Image, ImageBackground} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -12,11 +12,8 @@ import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
-import {API} from '../../../clients/api.client';
 import {createACRUView} from '../../../lib/api/cru.lib';
 import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
-import moment from 'moment-timezone';
-import {set} from 'date-fns';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'CruViewMovieDetailScreen'>;
@@ -30,7 +27,6 @@ type Props = {
 
 export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     const id: number | undefined = route.params?.id ?? null;
-    // const movie: string | undefined = route.params?.movie ?? null;
 
     const [loaded, setIsLoaded] = useState(false);
     const [movie, setMovie] = useState<IMovie | null>(null);
@@ -49,9 +45,9 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
         let actorsList = '';
         actors.map((actor, index) => {
             if (index === actors.length - 1) {
-                actorsList += actor['name'];
+                actorsList += actor.name;
             } else {
-                actorsList += actor['name'] + ', ';
+                actorsList += actor.name + ', ';
             }
         });
 
@@ -61,9 +57,9 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
         let directorsList = '';
         directors.map((director, index) => {
             if (index === directors.length - 1) {
-                directorsList += director['name'];
+                directorsList += director.name;
             } else {
-                directorsList += director['name'] + ', ';
+                directorsList += director.name + ', ';
             }
         });
 
@@ -75,8 +71,6 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
-
-    // const formattedTime = selectedTime.format('hh:mm A');
 
     const months = [
         'January',
@@ -137,13 +131,11 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
 
     const handleSetDateTime = async () => {
         if (selectedDate && selectedTime && selectedTimeZone) {
-            // Format selected date in ISO 8601 format
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
             if (formattedSelectedDateTimeInISO) {
                 //console.log('formattedSelectedDateTime', formattedSelectedDateTimeInISO);
 
-                // Send formatted date along with time and timezone to the API
                 const createdCruView = await createACRUView({
                     movieId: String(movie?.id),
                     startTime: formattedSelectedDateTimeInISO,
@@ -349,7 +341,6 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                                 const currentDay = new Date(currentYear, currentMonth, day);
                                                 const currentDayOfWeek = currentDay.getDay();
 
-                                                // Allow selection for current day and future days
                                                 const isSelectable = currentDay >= currentDate;
 
                                                 return (
@@ -387,7 +378,6 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                         </Text>
                                     </View>
 
-                                    {/* Time picker */}
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.timePickerContainer}>
                                             {[...Array(24 * 4)].map((_, index) => {
@@ -539,7 +529,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                                             </View>
                                                         </View>
 
-                                                        <View style={{alignItems: 'center', marginBottom: 20}}></View>
+                                                        <View style={{alignItems: 'center', marginBottom: 20}} />
                                                     </View>
                                                 </View>
                                             )}

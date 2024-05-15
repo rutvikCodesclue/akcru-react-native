@@ -16,25 +16,28 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import AkcruButtons from '../../../components/akcruButtons';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
-import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
+import {
+    capitalizeFirstLetterOfString,
+    combineDateAndTime,
+    formatMovieDuration,
+    selectAvatarBorderColor,
+} from '../../../util/util';
 import {findAUser} from '../../../lib/api/user.lib';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {ClientStackParams} from '../../../navigation/ClientStack';
 import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { ROOM_VALIDATION_CHECK_TIME } from '../../../util/config';
+import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import HexAvatar from '../../../components/HexAvatar';
-import { MULTISIZES } from '../../../../assets/constants/theme';
+import {MULTISIZES} from '../../../../assets/constants/theme';
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -57,16 +60,13 @@ export default function SendMITSchedule({route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            console.log("Userid", userID)
-            // This code will run when the screen comes into focus (e.g., when navigating to this screen)
-            findAUser({id: userID}).then(user => {
+            console.log('Userid', userID);
 
+            findAUser({id: userID}).then(user => {
                 setUser(user);
             });
 
-            return () => {
-                // This code will run when the screen goes out of focus (e.g., when navigating away from this screen)
-            };
+            return () => {};
         }, []),
     );
 
@@ -80,15 +80,15 @@ export default function SendMITSchedule({route}: Props) {
                     const fetchedMovie: IMovie | null = await findMovieById(id);
                     if (fetchedMovie) {
                         setMovie(fetchedMovie);
-                        setIsMovieDataLoaded(true); // Data fetched successfully
+                        setIsMovieDataLoaded(true);
                     } else {
                         setMovie(null);
-                        setIsMovieDataLoaded(false); // Data not found
+                        setIsMovieDataLoaded(false);
                     }
                 }
             } catch (error) {
                 console.error('Error fetching movie:', error);
-                setIsMovieDataLoaded(false); // Error occurred during fetching
+                setIsMovieDataLoaded(false);
             }
         };
 
@@ -96,27 +96,24 @@ export default function SendMITSchedule({route}: Props) {
     }, [routeParams.params?.id]);
 
     const {
-        id,
         title,
         description,
         actors,
         director,
         genres,
         portraitURL,
-        landscapeURL,
+
         rating,
         year,
         rated,
-        length,
-        movieURL,
+
         duration,
-        trailerURL,
     } = movie || {};
 
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
-    const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
+    const [, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const months = [
         'January',
@@ -164,14 +161,12 @@ export default function SendMITSchedule({route}: Props) {
     };
 
     const handleSetDateTime = async () => {
-        console.log("Test mit", selectedDate, selectedTime, selectedTimeZone, movie, user)
+        console.log('Test mit', selectedDate, selectedTime, selectedTimeZone, movie, user);
         setLoading(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
-            // Format selected date in ISO 8601 format
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
             if (formattedSelectedDateTimeInISO) {
-                // Call API to send MIT Invite
                 const response = await createAMITInvite({
                     movieId: movie.id,
                     username: user.username,
@@ -183,7 +178,7 @@ export default function SendMITSchedule({route}: Props) {
                 if (response) {
                     setIsDateTimeSelected(true);
                     setIsSelectionDisabled(true);
-                    setShowSendMIT(true); // on successfull send MIT, show MIT sent screen
+                    setShowSendMIT(true);
                 }
             }
         }
@@ -210,7 +205,6 @@ export default function SendMITSchedule({route}: Props) {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
 
-                // navigate back to View User MITs screen (UserMITHubScreen)
                 navigation.navigate('UserProfileStack', {
                     screen: 'UserMITHubScreen',
                 });
@@ -404,7 +398,6 @@ export default function SendMITSchedule({route}: Props) {
                                                 padding: 10,
                                             }}>
                                             <LinearGradient
-                                                // Background Linear Gradient
                                                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                                 style={{
                                                     position: 'absolute',
@@ -494,8 +487,6 @@ export default function SendMITSchedule({route}: Props) {
                                                 </TouchableOpacity>
                                             </View>
 
-                                            {/* Day picker */}
-
                                             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                                 <View style={styles.datePickerContainer}>
                                                     {[...Array(daysInMonth)].map((_, index) => {
@@ -505,7 +496,6 @@ export default function SendMITSchedule({route}: Props) {
                                                         const currentDay = new Date(currentYear, currentMonth, day);
                                                         const currentDayOfWeek = currentDay.getDay();
 
-                                                        // Allow selection for current day and future days
                                                         const isSelectable = currentDay >= currentDate;
                                                         return (
                                                             <TouchableOpacity
@@ -541,7 +531,6 @@ export default function SendMITSchedule({route}: Props) {
                                                 </Text>
                                             </View>
 
-                                            {/* Time picker */}
                                             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                                 <View style={styles.timePickerContainer}>
                                                     {[...Array(24 * 4)].map((_, index) => {

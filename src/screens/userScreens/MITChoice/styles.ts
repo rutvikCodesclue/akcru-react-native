@@ -35,7 +35,7 @@ export default StyleSheet.create({
     },
     sheetview: {},
     opensheet: {
-        height: SIZES.ScreenHeight * .20,
+        height: SIZES.ScreenHeight * 0.2,
         backgroundColor: COLORS.TAGCOLOR,
         padding: 10,
     },

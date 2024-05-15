@@ -1,15 +1,5 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    ImageBackground,
-    ScrollView,
-    Image,
-    TouchableOpacity,
-    SafeAreaView,
-    Modal,
-} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import {Text, View, ImageBackground, Image, TouchableOpacity, SafeAreaView, Modal} from 'react-native';
+import React, {useState} from 'react';
 import styles from './styles';
 import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
 import Header from '../../../components/header';
@@ -18,12 +8,10 @@ import imageindex from '../../../../assets/images/imageindex';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {useNavigation} from '@react-navigation/native';
-import {Button, Icon} from '@rneui/base';
-import LottieView from 'lottie-react-native';
+import {Icon} from '@rneui/base';
 import useAuthStore from '../../../stores/auth.store';
 import {purchaseMIT} from '../../../lib/api/wallet.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-
 
 const PurchaseMITScreen = () => {
     const {user} = useAuthStore();
@@ -41,10 +29,9 @@ const PurchaseMITScreen = () => {
     const maxMITs = Math.floor(user?.adAmount ? user?.adAmount / 500 : 0);
 
     const handlePurchaseModalOpen = () => {
-        // Check if at least 1 MIT is selected
         if (countMIT === 0) {
             setCountMITError2(true);
-            // Display an error message indicating that at least 1 MIT needs to be selected
+
             return;
         }
 
@@ -54,10 +41,9 @@ const PurchaseMITScreen = () => {
     const handlePurchaseComplete = () => {
         setPurchaseCompleteModalVisible(true);
 
-        // Automatically close the modal after 4 seconds
         setTimeout(() => {
             setPurchaseCompleteModalVisible(false);
-            setCountMIT(0); // Reset countMIT to 0
+            setCountMIT(0);
         }, 4000);
     };
 
@@ -67,28 +53,23 @@ const PurchaseMITScreen = () => {
             purchaseMIT({
                 amount: countMIT,
             });
-            // Deduct AD and perform MIT purchase logic
-            // Subtract totalCost from user.adAmount
-            // setCountMIT(0);
+
             setPurchaseModalVisible(false);
             setInsufficientADError(false);
             handlePurchaseComplete();
         } else {
             setInsufficientADError(true);
-            // Handle insufficient AD balance
-            // Show a warning or error message
         }
     };
 
     const incrementCount = () => {
         if (countMIT < maxMITs) {
             setCountMIT(countMIT + 1);
-            setCountMITError(false); // Reset the error state when incrementing
-            setCountMITError2(false); // Reset the error state when incrementing
+            setCountMITError(false);
+            setCountMITError2(false);
         } else {
             setCountMITError(true);
-            // Show a warning that the user doesn't have enough AD
-            // You can display an alert or a modal here
+
             setTimeout(() => {
                 setCountMITError(false);
             }, 3000);
@@ -98,7 +79,7 @@ const PurchaseMITScreen = () => {
     const decrementCount = () => {
         if (countMIT > 1) {
             setCountMIT(countMIT - 1);
-            setCountMITError(false); // Reset the error state when decrementing
+            setCountMITError(false);
         }
     };
 
@@ -221,7 +202,6 @@ const PurchaseMITScreen = () => {
                                         <Text style={{...FONTS.Title1}}>You are purchasing '{countMIT}' MIT(s).</Text>
                                         <Text style={{...FONTS.Title1}}>Total Cost: {countMIT * 500} AD</Text>
                                         <View style={{flexDirection: 'row', marginTop: 10}}>
-                                            {/* CANCEL BUTTON */}
                                             <TouchableOpacity
                                                 onPress={() => setPurchaseModalVisible(false)}
                                                 disabled={isLoading}>
@@ -238,7 +218,7 @@ const PurchaseMITScreen = () => {
                                                     <Text style={{...FONTS.Title2}}>CANCEL</Text>
                                                 </View>
                                             </TouchableOpacity>
-                                            {/* PURCHASE BUTTON */}
+
                                             <TouchableOpacity onPress={confirmPurchase} disabled={isLoading}>
                                                 <View
                                                     style={{

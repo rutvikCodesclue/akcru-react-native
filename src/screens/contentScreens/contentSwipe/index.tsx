@@ -1,36 +1,17 @@
 import * as React from 'react';
-import { Platform } from 'react-native';
-import {
-    Animated,
-    Dimensions,
-    Text,
-    View,
-    StyleSheet,
-    Image,
-    StatusBar,
-    SafeAreaView,
-    TouchableOpacity,
-    Pressable,
-} from 'react-native';
-// import data from "./data";
-import {Akcru_Content} from '../../../../assets/constants/ListData';
+import {Platform} from 'react-native';
+import {Animated, Dimensions, Text, View, StyleSheet, Image, SafeAreaView, TouchableOpacity} from 'react-native';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
-import {ClientStackParams} from '../../../navigation/ClientStack';
 import imageindex from '../../../../assets/images/imageindex';
 import Header from '../../../components/header';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-
-import {findMovieById, findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
-import useAuthStore from '../../../stores/auth.store';
-import Header2 from '../../../components/header/header2';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {findSponsoredMovies} from '../../../lib/api/movies.lib';
-// const data = Akcru_Content[7].movies;
 
 const {width, height} = Dimensions.get('window');
 const TICKER_HEIGHT = MULTISIZES.medium14;
@@ -60,30 +41,12 @@ type Props = {
     title: string;
 };
 
-const Item = ({
-    movie,
-    portraitURL,
-    genres,
-    rated,
-    rating,
-    scrollX,
-    index,
-    onPress,
-    navigation,
-    route,
-    duration,
-    year,
-    title,
-}: Props) => {
+const Item = ({movie, portraitURL, genres, rated, rating, scrollX, index, onPress, duration, year, title}: Props) => {
     const inputRange = [(index - 1) * width, index * width, (index + 1) * width];
     const opacityInputRange = [(index - 0.4) * width, index * width, (index + 0.4) * width];
     const translateXHeading = scrollX.interpolate({
         inputRange,
         outputRange: [width * 0.1, 0, -width * 0.1],
-    });
-    const translateXDescription = scrollX.interpolate({
-        inputRange,
-        outputRange: [width, 0, -width],
     });
     const opacity = scrollX.interpolate({
         inputRange: opacityInputRange,
@@ -222,41 +185,11 @@ const Circle = ({scrollX, movies}) => {
     );
 };
 
-// const Ticker = ({scrollX, movies}) => {
-//     return (
-//         <View style={styles.tickerContainer}>
-//             <Animated.View
-//                 style={{
-//                     transform: [
-//                         {
-//                             translateY: scrollX.interpolate({
-//                                 inputRange: [-width * 2, -width, 0, width, width * 2],
-//                                 outputRange: [TICKER_HEIGHT * 2, TICKER_HEIGHT, 0, -TICKER_HEIGHT, -TICKER_HEIGHT * 2],
-//                             }),
-//                         },
-//                     ],
-//                 }}>
-//                 {movies.map(({title, year, duration}, index) => {
-//                     return (
-//                         <View key={index.toString()} style={{flexDirection: 'row', alignItems: 'center'}}>
-//                             <Text key={index} style={styles.tickername}>
-//                                 {title}
-//                             </Text>
-//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{year}</Text>
-//                             <Text style={{...FONTS.paragraph1, marginLeft: 10, fontSize: 12}}>{formatMovieDuration(duration)}</Text>
-//                         </View>
-//                     );
-//                 })}
-//             </Animated.View>
-//         </View>
-//     );
-// };
-
 const Pagination = ({scrollX, onPress2, movies}) => {
-    const visibleMovies = movies.slice(0, 5); // Only consider the first five movies
+    const visibleMovies = movies.slice(0, 5);
 
     if (visibleMovies.length < 2) {
-        return null; // Return null if there are fewer than two visible movies
+        return null;
     }
 
     const translateX = scrollX.interpolate({
@@ -292,50 +225,9 @@ const Pagination = ({scrollX, onPress2, movies}) => {
     );
 };
 
-export default function ContentSwipe({navigation, route}: Props) {
+export default function ContentSwipe({navigation}: Props) {
     const _scrollX = React.useRef(new Animated.Value(0)).current;
-
     const [movies, setMovies] = useState<IMovie[]>([]);
-    const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
-
-    // create a useFocusEffect hook to fetch movies on focus
-    // useFocusEffect(
-    //     React.useCallback(() => {
-    //         const fetchMovies = async () => {
-    //             try {
-    //                 await useAuthStore.getState().hydrateAuth(); // hydrate auth before fetching movies (on inital load)
-
-    //                 const fetchedMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-    //                 setMovies(fetchedMovies);
-    //             } catch (error) {
-    //                 console.error('Error fetching movies:', error);
-    //             }
-    //         };
-    //         fetchRandomMovies();
-    //         fetchMovies();
-    //     }, [])
-    // );
-
-    // const fetchRandomMovies = async () => {
-    //     try {
-    //         const allMovies: IMovie[] = await findMovies(/* specify parameters if needed */);
-
-    //         // Get 5 random movies from the list
-    //         const randomMovies: IMovie[] = [];
-    //         while (randomMovies.length < 5) {
-    //             const randomIndex = Math.floor(Math.random() * allMovies.length);
-    //             const randomMovie = allMovies[randomIndex];
-    //             if (!randomMovies.includes(randomMovie)) {
-    //                 randomMovies.push(randomMovie);
-    //             }
-    //         }
-
-    //         setRandomMovies(randomMovies);
-    //     } catch (error) {
-    //         console.error('Error fetching random movies:', error);
-    //     }
-    // };
-
     useFocusEffect(
         React.useCallback(() => {
             const fetchSponsoredMovies = async () => {
@@ -351,18 +243,17 @@ export default function ContentSwipe({navigation, route}: Props) {
         }, []),
     );
 
-
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <Header2 />
+                    <Header />
                 </View>
                 <View
                     style={{
                         position: 'absolute',
                         width: SIZES.ScreenWidth,
-                        bottom: Platform.OS == 'ios' ? SIZES.ScreenHeight / 1.4 :SIZES.ScreenHeight / 1.3
+                        bottom: Platform.OS == 'ios' ? SIZES.ScreenHeight / 1.4 : SIZES.ScreenHeight / 1.3,
                     }}>
                     <View>
                         <Text
@@ -371,7 +262,7 @@ export default function ContentSwipe({navigation, route}: Props) {
                                 textAlign: 'center',
                                 width: SIZES.ScreenWidth / 1.2,
                                 alignSelf: 'center',
-                                marginBottom: 10
+                                marginBottom: 10,
                             }}>
                             Here are our top 5 movies recommended for you today
                         </Text>
@@ -397,8 +288,6 @@ export default function ContentSwipe({navigation, route}: Props) {
                             index={index}
                             scrollX={_scrollX}
                             onPress={() => {
-                                // console.log('id:', item.id);
-                                // console.log('movie:', item.title);
                                 navigation.navigate('ContentDetailScreen', {
                                     id: item.id,
                                     movie: item.id,
@@ -413,8 +302,6 @@ export default function ContentSwipe({navigation, route}: Props) {
                     onPress2={() => navigation.navigate('ClientTabNavigator')}
                     movies={movies}
                 />
-
-                {/* <Ticker scrollX={_scrollX} movies={movies} /> */}
             </View>
         </SafeAreaView>
     );
@@ -460,12 +347,10 @@ const styles = StyleSheet.create({
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
-        // marginBottom: 10,
     },
     titlestyle: {
         ...FONTS.paragraph1,
         marginLeft: 10,
-        // fontSize: 12
     },
     description: {
         color: '#ccc',
