@@ -50,6 +50,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../../assets/constants/theme';
+import GalleryPic from '../../../components/GalleryPic';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
 
@@ -59,7 +60,6 @@ type Props = {
     navigation: ViewUserScreenNavigationProp;
     route: ViewUserScreenRouteProp;
 };
-
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const [follow, setFollow] = useState(false);
@@ -835,12 +835,18 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     </View>
                 </ScrollView>
                 {selectedPhotoUri && (
-                    <TouchableOpacity style={styles.selectedPhotoContainer} onPress={closePhoto} activeOpacity={1}>
-                        <Animated.Image
+                    <TouchableOpacity style={styles.selectedPhotoContainer} activeOpacity={1}>
+                        <GalleryPic image={selectedPhotoUri} />
+                        <View style={{marginTop: '10%'}}>
+                            <TouchableOpacity onPress={closePhoto}>
+                                <Text style={{...FONTS.Title2}}>Close</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {/* <Animated.Image
                             source={{uri: selectedPhotoUri}}
                             resizeMode="contain"
                             style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
-                        />
+                        /> */}
                     </TouchableOpacity>
                 )}
                 <Modal

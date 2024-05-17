@@ -1,142 +1,121 @@
 import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TextInput,
-  StyleSheet,
-  Pressable,
-  TouchableWithoutFeedback,
-  Modal,
-  Alert,
-  Platform
-} from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import React, { useEffect, useRef, useState } from "react";
-import styles from "./styles";
+    View,
+    Text,
+    ScrollView,
+    Image,
+    TextInput,
+    StyleSheet,
+    Pressable,
+    TouchableWithoutFeedback,
+    Modal,
+    Alert,
+    Platform,
+} from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
+import React, {useEffect, useRef, useState} from 'react';
+import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import imageindex from "../../../../assets/images/imageindex";
-
-import { Icon } from "@rneui/base";
-import AkcruButtons from "../../../components/akcruButtons";
-import useAuthStore from "../../../stores/auth.store";
-import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
-import { getTotalSupplyOfAD, sendAD } from "../../../lib/api/wallet.lib";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { UserProfileStackParams } from "../../../navigation/UserProfileStack";
-import ComfirmationModal from "../../../components/ConfirmationModal";
-import { set } from "lodash";
-import BlockUserResultModal from "../../../components/BlockUserResultModal/BlockUserResultModal";
-
-
+import imageindex from '../../../../assets/images/imageindex';
+import {Icon} from '@rneui/base';
+import AkcruButtons from '../../../components/akcruButtons';
+import useAuthStore from '../../../stores/auth.store';
+import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
+import {getTotalSupplyOfAD, sendAD} from '../../../lib/api/wallet.lib';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import ComfirmationModal from '../../../components/ConfirmationModal';
+import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 
 const UserProfileWalletTab = () => {
-    
+    // Use the useRoute hook to access the selected user data
     const route = useRoute();
     const selectedUser = route.params?.selectedUser;
 
-    
-    const [adAmount, setAdAmount] = useState(''); 
+    // Define state for the AD amount
+    const [adAmount, setAdAmount] = useState<number | string>(''); // This will hold the amount entered in the input field
+    const [sendTo, setSendTo] = useState(selectedUser ? selectedUser.username : '');
 
-    const [amountToSend, setAmountToSend] = useState(''); 
+    // Initialize other states
+    const {user} = useAuthStore();
+    const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
+    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+    const [walletResultModal, setWalletResultModal] = useState(false);
+    const [modalType, setModalType] = useState('');
+    const [walletResultMessage, setWalletResultMessage] = useState('');
+    const [iconName, setIconName] = useState('');
 
-    
-    
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
     useEffect(() => {
         if (selectedUser && selectedUser?.username) {
             setSendTo(selectedUser.username);
         }
     }, [selectedUser]);
 
-    const {user} = useAuthStore();
-    const [totalSupply, setTotalSupply] = useState<Number | undefined>(undefined);
-    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
-    const [walletResultModal, setWalletResultModal] = useState(false);
-    const [modalType, setModalType] = useState('');
-    const [walletResultMessage, setwalletResultMessage] = useState('');
-    const [iconName, setIconName] = useState('');
-    const [sendTo, setSendTo] = useState(selectedUser ? selectedUser.username : '');
-
-    const closeModal = () => {
-        setWalletResultModal(false);
-    };
-
-    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-
     useFocusEffect(
         React.useCallback(() => {
-            
+            // Do something when the screen is focused
             getTotalSupplyOfAD().then(amount => {
                 setTotalSupply(amount);
             });
 
             return () => {
-                
+                // Do something when the screen is unfocused
             };
         }, []),
     );
 
-    
-    const handleSendAD = async () => {
-        const adAmountNumber = parseFloat(amountToSend);
+    const closeModal = () => {
+        setWalletResultModal(false);
+    };
 
-        if (!isNaN(adAmountNumber) && adAmountNumber > 0) {
-            if (user && selectedUser && adAmountNumber <= user.adAmount) {
+    // Function to clear both the recipient and the amount input
+    const handleClearInput = () => {
+        setSendTo(''); // Clear the recipient input
+        setAdAmount(''); // Clear the AD amount input
+    };
+
+    // Function to handle the AD transfer
+    const handleSendAD = async () => {
+        const adAmountNumber = parseFloat(adAmount as string);
+
+        if (!isNaN(adAmountNumber) && adAmountNumber > 0 && user && selectedUser && adAmountNumber <= user.adAmount) {
+            try {
                 const response = await sendAD({
-                    recipientId: selectedUser.id, 
+                    recipientId: selectedUser.id, // Assuming selectedUser has an 'id' field
                     adAmount: adAmountNumber,
                 });
-                //console.log('Response:', response);
+
                 if (response.success) {
-                    
-                    
                     setModalType('success');
                     setWalletResultModal(true);
-
-                    setwalletResultMessage(response.message || 'AD sent successfully');
+                    setWalletResultMessage(response.message || 'AD sent successfully');
                     setIconName('check');
-                    setAmountToSend(''); 
-                    setSendTo('');
                 } else {
-                    
                     setModalType('failed');
                     setWalletResultModal(true);
-                    setwalletResultMessage(response.message || 'Failed to send AD');
+                    setWalletResultMessage(response.message || 'Failed to send AD');
                     setIconName('close');
-                    setAmountToSend(''); 
-                    setSendTo('');
                 }
-            } else {
-                
+            } catch (error) {
+                console.error('Error while sending AD:', error);
                 setModalType('failed');
                 setWalletResultModal(true);
-                setwalletResultMessage('Failed to send AD');
+                setWalletResultMessage('Failed to send AD');
                 setIconName('close');
-                setAmountToSend(''); 
-                setSendTo('');
+            } finally {
+                handleClearInput(); // Clear inputs regardless of success or failure
             }
         } else {
-            
-            setModalType('failed');
-            setWalletResultModal(true);
-            setwalletResultMessage('Please enter a valid amount');
-            setIconName('close');
-            setAmountToSend(''); 
-            setSendTo('');
+            Alert.alert('Invalid Input', 'Please enter a valid amount and ensure you have sufficient balance.');
+            handleClearInput(); // Clear inputs if validation fails
         }
     };
 
     const handleSendButtonPress = () => {
         setSendTo(selectedUser?.username);
         setConfirmationModalVisible(true);
-        
     };
-
-    const handleClearInput = () => {
-        setSendTo(''); 
-        setAmountToSend(''); 
-    };
-    
 
     return (
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -164,36 +143,33 @@ const UserProfileWalletTab = () => {
                 </View>
                 <View>
                     <Text style={styles.titleText2}>TO:</Text>
-                    {
-                        Platform.OS === 'android' ? (
-                            <Pressable onPress={() => navigation.navigate('UserWalletSearch')}>
-                                <View style={styles.inputContainer2}>
-                                    <TextInput
-                                        placeholder={'To'}
-                                        placeholderTextColor={'transparent'}
-                                        style={{color: COLORS.WHITE, width: '100%'}}
-                                        editable={false}
-                                        secureTextEntry={false}
-                                        value={sendTo} 
-                                    />
-                                </View>
-                            </Pressable>
-                        ) : (
-                            <TouchableOpacity onPress={() => navigation.navigate('UserWalletSearch')}>
-                                <View style={styles.inputContainer2}>
-                                    <TextInput
-                                        placeholder={'To'}
-                                        placeholderTextColor={'transparent'}
-                                        style={{color: COLORS.WHITE, width: '100%'}}
-                                        editable={false}
-                                        secureTextEntry={false}
-                                        value={sendTo} 
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    }
-                
+                    {Platform.OS === 'android' ? (
+                        <Pressable onPress={() => navigation.navigate('UserWalletSearch')}>
+                            <View style={styles.inputContainer2}>
+                                <TextInput
+                                    placeholder={'To'}
+                                    placeholderTextColor={'transparent'}
+                                    style={{color: COLORS.WHITE, width: '100%'}}
+                                    editable={false}
+                                    secureTextEntry={false}
+                                    value={sendTo} // Set the value of the TextInput to the selected user's username
+                                />
+                            </View>
+                        </Pressable>
+                    ) : (
+                        <TouchableOpacity onPress={() => navigation.navigate('UserWalletSearch')}>
+                            <View style={styles.inputContainer2}>
+                                <TextInput
+                                    placeholder={'To'}
+                                    placeholderTextColor={'transparent'}
+                                    style={{color: COLORS.WHITE, width: '100%'}}
+                                    editable={false}
+                                    secureTextEntry={false}
+                                    value={sendTo} // Set the value of the TextInput to the selected user's username
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    )}
                 </View>
                 <View>
                     <Text style={styles.titleText2}>AKCRU DOLLAR AMOUNT:</Text>
@@ -202,8 +178,9 @@ const UserProfileWalletTab = () => {
                             placeholder={'Amount'}
                             placeholderTextColor={'transparent'}
                             style={{color: COLORS.WHITE, width: '100%'}}
-                            keyboardType="phone-pad" 
-                            onChangeText={text => setAmountToSend(text)} 
+                            keyboardType="phone-pad" // Set keyboard type to phone-pad
+                            value={adAmount.toString()}
+                            onChangeText={text => setAdAmount(text)} // Update the adAmount state
                         />
                     </View>
                 </View>
@@ -218,17 +195,13 @@ const UserProfileWalletTab = () => {
                     }}>
                     <AkcruButtons.FollowButton
                         btnname={'Clear'}
-                        onPress={() => {
-                            handleClearInput();
-                        }}
+                        onPress={handleClearInput}
                         color={COLORS.AKCRUBLUE}
                         disabled={false}
                     />
                     <AkcruButtons.FollowButton
                         btnname={'Send'}
-                        onPress={() => {
-                            handleSendButtonPress();
-                        }}
+                        onPress={handleSendButtonPress}
                         color={COLORS.PURPLE}
                         disabled={false}
                     />
@@ -254,7 +227,7 @@ const UserProfileWalletTab = () => {
             </ScrollView>
             <Modal transparent={true} visible={confirmationModalVisible} animationType="fade">
                 <ComfirmationModal
-                    confirmationText={`Are you sure you want to send ${sendTo} "${amountToSend}" AD?`}
+                    confirmationText={`Are you sure you want to send ${sendTo} "${adAmount}" AD?`}
                     onPressYes={() => {
                         handleSendAD();
                         setConfirmationModalVisible(false);

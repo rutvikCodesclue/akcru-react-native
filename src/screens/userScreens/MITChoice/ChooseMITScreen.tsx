@@ -1,26 +1,66 @@
-import React, {useState, useRef, useEffect} from 'react';
-import {View, Text, ScrollView, Image, TouchableOpacity} from 'react-native';
+import React, {useState, useCallback, useRef, useEffect} from 'react';
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    Dimensions,
+    ImageBackground,
+    Image,
+    TouchableOpacity,
+    Pressable,
+    Modal,
+    TextInput,
+    Alert,
+    FlatList,
+    ActivityIndicator,
+} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {Icon} from '@rneui/base';
+
+import {Icon, Avatar, color} from '@rneui/base';
 import MITSwipe from '../../../components/MITSwipe';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
+import MITMessages from '../../../components/MITMessages';
 import AkcruButtons from '../../../components/akcruButtons';
 import LinearGradient from 'react-native-linear-gradient';
+import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
 import imageindex from '../../../../assets/images/imageindex';
-import {RouteProp} from '@react-navigation/native';
+import {JENNY_INVITES} from '../../../../assets/constants/Mockusers';
+import BottomSheet, {BottomSheetHandleProps, BottomSheetView, BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {acceptAMITInvite, declineAMITInvite} from '../../../lib/api/mit.lib';
+import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
+import {getCRUInvites} from '../../../lib/api/cru.lib';
+import YoutubePlayer from 'react-native-youtube-iframe';
 import moment from 'moment';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import MITMessage from '../../../../assets/constants/MITmessages';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import {IMessage} from 'react-native-gifted-chat';
-import {HMSSDK} from '@100mslive/react-native-hms';
-import {getTextMessages} from '../../../lib/api/rooms.lib';
+import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
+import {
+    HMSAudioTrackSettings,
+    HMSCameraFacing,
+    HMSConfig,
+    HMSMessage,
+    HMSPeer,
+    HMSSDK,
+    HMSTrack,
+    HMSTrackSettings,
+    HMSTrackSettingsInitState,
+    HMSTrackUpdate,
+    HMSUpdateListenerActions,
+    HMSVideoTrackSettings,
+} from '@100mslive/react-native-hms';
+import {createChatRoom, getTextMessages, saveTextMessage, getUsers} from '../../../lib/api/rooms.lib';
 import useAuthStore from '../../../stores/auth.store';
+import {TouchableRipple} from 'react-native-paper';
 import HexAvatar from '../../../components/HexAvatar';
+import UserCruChatCard from '../../../components/UserCruChatCard';
+import {IChatUser} from '../../../../types';
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
@@ -28,6 +68,7 @@ import {
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
+import FingerAnimation from '../../../components/FingerAnimation';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -42,6 +83,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const MITID: number | undefined = route.params?.MITID ?? null;
     const {user} = useAuthStore();
 
+    // Access other passed parameters
     const movie: IMovie | null = route.params?.movie ?? null;
     const creator: IUserProfile | null = route.params?.creator ?? null;
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
@@ -69,7 +111,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     const getTextMessage = async (roomId: string) => {
         const response = await getTextMessages(roomId);
-
+        //   console.log(JSON.stringify(response));
         setMessages(response!);
     };
 
@@ -80,6 +122,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             .then(res => {
                 //console.log('declined res:', res);
                 setIsLoading(false);
+                // Add any additional logic you need after declining the invite
+                // For example, navigate to another screen or update the UI.
+                // You can add navigation.navigate here if needed.
             })
             .catch(error => {
                 console.error('Error declining invite:', error);
@@ -94,6 +139,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             .then(res => {
                 //console.log('accepted res:', res);
                 setIsLoading(false);
+                // Add any additional logic you need after accepting the invite
+                // For example, navigate to another screen or update the UI.
+                // You can add navigation.navigate here if needed.
             })
             .catch(error => {
                 console.error('Error accepting invite:', error);
@@ -101,8 +149,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             });
     };
 
+    // Then, you can use these functions in your navigation.navigate calls
     const handleDeclineNavigation = () => {
-        handleDecline();
+        handleDecline(); // Call the decline function here
         navigation.navigate('DeclineMITScreen', {
             MITID: MITID,
             movie: movie,
@@ -115,7 +164,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     };
 
     const handleAcceptNavigation = () => {
-        handleAccept();
+        handleAccept(); // Call the accept function here
         navigation.navigate('AcceptMITScreen', {
             MITID: MITID,
             movie: movie,
@@ -125,6 +174,30 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             schedule: schedule,
             timezone: timezone,
         });
+    };
+
+    //Playing Trailer functions
+
+    const [playing, setPlaying] = useState(false);
+
+    const onStateChange = useCallback((state: string) => {
+        if (state === 'ended') {
+            setPlaying(false);
+            Alert.alert('Trailer has finished playing!');
+        }
+    }, []);
+
+    const toggleTrailerPlaying = useCallback(() => {
+        setPlaying(prev => !prev);
+    }, []);
+
+    //Chat Room functions
+
+    const [showChat, setShowChat] = useState(false);
+
+    const handleAvatarPress = (user: any) => {
+        // Navigate to the user's profile screen
+        navigation.navigate('ViewUserScreen', {userID: user._id});
     };
 
     const sayhi = () => {
@@ -137,7 +210,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             mItInviteId: MITID,
             userId: receiverUserId,
             profilePicture: receiverProfilePicture,
-            username: receiverUsername,
+            username: receiverUsername, // Pass the receiver's username
         });
     };
 
@@ -150,8 +223,12 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                             <Header />
                         </View>
                         <View>
-                            <View style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                            <View
+                                //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                                //   resizeMode="cover"
+                                style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                                 <LinearGradient
+                                    // Background Linear Gradient
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -233,7 +310,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             }}
                                         /> */}
                                     </View>
-                                    <View style={{width: SIZES.ScreenWidth / 2.5}}>
+                                    <View>
                                         <Text style={{...FONTS.Username}}>{creator?.username}</Text>
                                         <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
                                         {creator?.badge === 'AKCRUIT' && (
@@ -326,6 +403,28 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                         }}
                                                         color={COLORS.PURPLE}
                                                     />
+                                                    {/* <TouchableOpacity
+                                                        onPressOut={() => {
+                                                            navigation.navigate('TrailerPlayer', {
+                                                                id: movie?.id,
+                                                                trailerURL: movie?.trailerURL,
+                                                                landscapeURL: movie?.landscapeURL,
+                                                            });
+                                                        }}
+                                                        disabled={false}
+                                                        style={{marginTop: 10}}>
+                                                        <View
+                                                            style={{
+                                                                width: 125,
+                                                                height: 30,
+                                                                backgroundColor: COLORS.CATPURPDRK,
+                                                                justifyContent: 'center',
+                                                                alignItems: 'center',
+                                                                borderRadius: 3,
+                                                            }}>
+                                                            <Text style={styles.playButton}>Play Trailer</Text>
+                                                        </View>
+                                                    </TouchableOpacity> */}
                                                 </View>
                                             </View>
                                         </View>
@@ -349,13 +448,22 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         </Text>
                                         <Text style={styles.datetext}>@ </Text>
                                         <Text style={styles.datetext}>
+                                            {/* render UTC Time w/ moment */}
                                             {moment(schedule).tz(timezone).format('h:mm A')}{' '}
                                             {getShortenedTimezone(timezone)}
                                         </Text>
+
+                                        {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                     </View>
                                 </View>
                                 <View style={{marginTop: 25}}>
                                     <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                </View>
+                                <FingerAnimation />
+                                <View>
+                                    <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
+                                        SWIPE BUTTON LEFT OR RIGHT.
+                                    </Text>
                                 </View>
                             </View>
                         </View>

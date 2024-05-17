@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
-import {Icon} from '@rneui/base';
+import {Avatar, Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
@@ -18,6 +18,7 @@ import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import {deletePost} from '../../lib/api/post.lib';
 import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../assets/constants/theme';
@@ -70,6 +71,19 @@ const ShareOptions = ({iconname, sharename, sharePress}: ShareOptionProps) => {
     );
 };
 
+type User = {
+    id: string;
+    username: string;
+    image?: string;
+    akcruBadge?: string;
+    avatarbordercolor?: string;
+    influencer?: string;
+    profilePicture?: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+};
+
 type PostStats = {
     comments: number;
     likes: number;
@@ -77,8 +91,6 @@ type PostStats = {
 };
 
 type PostType = {
-    isSuggestedUser: React.JSX.Element;
-    isLikedByCurrentUser: any;
     id: string;
     content: string;
     author: IUserProfile;
@@ -96,14 +108,14 @@ type PostProps = {
     onFollow: () => void;
     onUnfollow: () => void;
     reportUser: () => void;
-    isFollowing: boolean;
+    isFollowing: boolean; // Add this to track follow status
     onDeletePost: (postId: number) => void;
     currentUserID?: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
     CommentOnPostButton: any;
     handleDeletePost: (postId: number) => void;
-    isLikedByCurrentUser?: boolean;
+    isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
     isPromo: boolean;
     isOwner: boolean;
@@ -115,6 +127,7 @@ const SkinnyPostCard = ({
     post,
     openProfile,
     onFollow,
+    onUnfollow,
     reportUser,
     isFollowing,
     onDeletePost,
@@ -122,6 +135,9 @@ const SkinnyPostCard = ({
     akcruBadge,
     onLikeOrUnlike,
     CommentOnPostButton,
+    isSuggestedUser,
+    isPromo,
+    isOwner,
     onBlockUser,
     akcruBadgeColor,
 }: PostProps) => {
@@ -129,8 +145,11 @@ const SkinnyPostCard = ({
     const [selectedImage, setSelectedImage] = useState('');
 
     const [isVideoModalVisible, setVideoModalVisible] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState('');
 
     const [isPostOptionsVisible, setPostOptionsVisible] = useState(false);
+
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
     const [showSkipButton, setShowSkipButton] = useState(false);
 
@@ -141,6 +160,7 @@ const SkinnyPostCard = ({
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
+    // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
     const handleDeletePost = () => {
@@ -152,28 +172,43 @@ const SkinnyPostCard = ({
         setImageModalVisible(true);
     };
 
-    const openVideoModal = () => {
+    const openVideoModal = (video: React.SetStateAction<string>) => {
+        setSelectedVideo(video);
         setVideoModalVisible(true);
     };
 
     const handleVideoEnd = () => {
+        // Logic for when the video ends
         setVideoModalVisible(false);
     };
 
     const handleVideoError = () => {
+        // Logic for handling video errors
         setVideoModalVisible(false);
     };
 
+    const handleVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
+    };
+
     const handleModalVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
 
     const handleSkipVideo = () => {
+        // Logic for skipping the video
         setVideoModalVisible(false);
     };
 
     const closeModal = () => {
         setImageModalVisible(false);
+    };
+
+    const closeVideoModal = () => {
+        setVideoModalVisible(false);
     };
 
     const openPostOptions = () => {
@@ -184,10 +219,15 @@ const SkinnyPostCard = ({
         setPostOptionsVisible(false);
     };
 
+    const openShareOptions = () => {
+        setShareOptionsVisible(true);
+    };
+
     const closeShareOptions = () => {
         setShareOptionsVisible(false);
     };
 
+    // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor) {
             return (
@@ -201,7 +241,17 @@ const SkinnyPostCard = ({
         }
         return null;
     };
-
+    const renderMuteUser = () => {
+        if (!isCurrentUserAuthor) {
+            return (
+                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                    <Icon name="volume-mute" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author.username}</Text>
+                </Pressable>
+            );
+        }
+        return null;
+    };
     const renderBlockUser = () => {
         if (!isCurrentUserAuthor) {
             return (
@@ -209,7 +259,7 @@ const SkinnyPostCard = ({
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={() => {
                         onBlockUser();
-                        closePostOptions();
+                        closePostOptions(); // Close the modal
                     }}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
@@ -224,11 +274,22 @@ const SkinnyPostCard = ({
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={() => {
-                        reportUser();
-                        closePostOptions();
+                        reportUser(); // Call the report user function
+                        closePostOptions(); // Close the modal
                     }}>
                     <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
+                </Pressable>
+            );
+        }
+        return null;
+    };
+    const renderNotInterested = () => {
+        if (!isCurrentUserAuthor) {
+            return (
+                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
+                    <Icon name="sad" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
                 </Pressable>
             );
         }
@@ -241,8 +302,8 @@ const SkinnyPostCard = ({
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={() => {
-                        onFollow();
-                        closePostOptions();
+                        onFollow(); // Call the report user function
+                        closePostOptions(); // Close the modal
                     }}>
                     <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
@@ -254,11 +315,12 @@ const SkinnyPostCard = ({
         return null;
     };
 
-    const {textContent, imageUrls, videoUrl} = classifyPostContent([post.content]);
+    const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
+                // Background Linear Gradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
@@ -336,6 +398,9 @@ const SkinnyPostCard = ({
                     </View>
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
+                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                        {timeSince(post.createdAt)}
+                    </Text> */}
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
@@ -343,8 +408,23 @@ const SkinnyPostCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
+                            {/* {renderNotInterested()} */}
+                            {/* <Pressable
+                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                                onPress={handleFollowPress}>
+                                <Icon
+                                    name="person"
+                                    type="ionicon"
+                                    color={COLORS.MIDORANGE}
+                                    size={20}
+                                    style={{marginLeft: 5}}
+                                />
+                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
+                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
+                                </Text>
+                            </Pressable> */}
                             {renderFollowUser()}
-
+                            {/* {renderMuteUser()} */}
                             {renderBlockUser()}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
@@ -395,7 +475,7 @@ const SkinnyPostCard = ({
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
                 {timeSince(post.createdAt)}
             </Text>
-
+            {/* Render text if available */}
             {textContent && (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{textContent}</Text>
@@ -403,6 +483,7 @@ const SkinnyPostCard = ({
             )}
 
             <View>
+                {/* Render images */}
                 {imageUrls.map((url, index) => (
                     <TouchableOpacity key={index} onPress={() => openModal(url)}>
                         <Image source={{uri: url}} style={styles.postimage} />
@@ -410,24 +491,26 @@ const SkinnyPostCard = ({
                 ))}
             </View>
             <View>
+                {/* Render video if available */}
                 {videoUrl && (
-                    <TouchableOpacity onPress={() => openVideoModal()}>
+                    <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
                         <View style={styles.postvideo}>
                             <Video
                                 ref={topVideoRef}
-                                style={{width: '100%', height: '100%', borderRadius: 10}}
+                                style={styles.videoStyle}
                                 source={{uri: videoUrl}}
                                 resizeMode="cover"
                                 onEnd={handleVideoEnd}
                                 repeat={false}
                                 onError={handleVideoError}
+                                onLoad={handleVideoLoad}
                                 muted={true}
                             />
                         </View>
                     </TouchableOpacity>
                 )}
             </View>
-
+            {/* Image Modal */}
             <Modal visible={isImageModalVisible} transparent={true} animationType="fade">
                 <Pressable
                     onPress={closeModal}
@@ -446,7 +529,7 @@ const SkinnyPostCard = ({
                     </TouchableWithoutFeedback>
                 </Pressable>
             </Modal>
-
+            {/* Video Modal */}
             <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
@@ -480,11 +563,28 @@ const SkinnyPostCard = ({
             </Modal>
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
+                {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}
                 <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
+                {/* <FooterIcons
+                    iconname={'sync'}
+                    onPress={() => {
+                        ('');
+                    }}
+                    color={COLORS.AKCRUBLUE}
+                /> */}
+                {/* <FooterIcons
+                    iconname={'stats-chart'}
+                    text={post.impressions || 0}
+                    onPress={() => {
+                        ('');
+                    }}
+                /> */}
+                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
 
                 {post.isSuggestedUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Suggested User</Text>}

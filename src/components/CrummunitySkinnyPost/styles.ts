@@ -15,7 +15,7 @@ export default StyleSheet.create({
     },
     footStats: {
         ...FONTS.paragraph1,
-        
+
         lineHeight: 18,
         color: COLORS.AKCRUBLUE,
         opacity: 0.5,
@@ -81,4 +81,5 @@ export default StyleSheet.create({
         justifyContent: 'flex-end',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
+    videoStyle: {width: '100%', height: '100%', borderRadius: 10},
 });

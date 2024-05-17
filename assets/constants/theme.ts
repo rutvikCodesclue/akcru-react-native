@@ -88,6 +88,7 @@ export const MULTISIZES = {
     Xlarge40: getAdaptiveSize(40),
     Xlarge43: getAdaptiveSize(43),
     Xlarge60: getAdaptiveSize(60),
+    Xlarge75: getAdaptiveSize(75),
     Xlarge80: getAdaptiveSize(80),
     Xlarge150: getAdaptiveSize(150),
 };
