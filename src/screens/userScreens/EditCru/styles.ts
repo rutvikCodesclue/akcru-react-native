@@ -3,7 +3,7 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     container: {
-        marginBottom: 20,
+        
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     input: {

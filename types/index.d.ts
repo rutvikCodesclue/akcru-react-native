@@ -204,6 +204,8 @@ export interface IUserProfile {
     wallet?: IWallet;
     watchlist?: IWatchlist[];
     promoUser: boolean;
+    galleryLikes: IGalleryLike[];
+    userGallery: IGallery[];
 }
 
 export interface IWatchlist {
@@ -492,4 +494,24 @@ export interface IHelpVideo {
     createdAt: string;
     updatedAt: string;
     trinity: boolean;
+}
+
+export interface IGallery {
+    id: string;
+    imageURL: string;
+    createdAt: string;
+    updatedAt: string;
+    userId: String;
+    user: IUserProfiler;
+    galleryLikes: IGalleryLike[];
+    likesCount: number;
+}
+
+export interface IGalleryLike {
+    id: string;
+    user: IUserProfile;
+    userId: string;
+    gallery: IGallery;
+    galleryId: string;
+    dateCreated: string;
 }

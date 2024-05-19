@@ -126,4 +126,11 @@ export default StyleSheet.create({
         opacity: 0,
         marginTop: -100,
     },
+
+    lineDivider: {
+        borderBottomWidth: 1.5,
+        borderColor: COLORS.DARKERGREY,
+        marginTop: 20,
+        marginBottom: 10,
+    },
 });

@@ -161,7 +161,7 @@ const EditCru = () => {
         <TabContainer>
             <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]}>
-                    <View>
+                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                         <Header />
                         <View style={styles.container}>
                             <TouchableOpacity onPress={() => navigation.pop()}>
@@ -347,18 +347,9 @@ const EditCru = () => {
                                 </View>
                             </SafeAreaView>
                         </Modal>
-                        <Text
-                            style={{
-                                ...FONTS.Title2,
-                                marginBottom: 20,
-                                textAlign: 'center',
-                                fontSize: 14,
-                            }}>
-                            EDIT YOUR CRU MEMBERS
-                        </Text>
                     </View>
 
-                    <View style={{marginBottom: 75, alignItems: 'center'}}>
+                    <View style={{marginVertical: 10, alignItems: 'center'}}>
                         <FlatList
                             data={cruMembers()}
                             horizontal={false}
@@ -366,14 +357,30 @@ const EditCru = () => {
                             scrollEnabled={false}
                             numColumns={2}
                             keyExtractor={item => item.id}
+                            ListHeaderComponent={
+                                <View>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 20,
+                                            textAlign: 'center',
+                                        }}>
+                                        EDIT YOUR CRU MEMBERS
+                                    </Text>
+                                </View>
+                            }
                             ListFooterComponent={
                                 <View>
-                                    {cruMembers().length < 6 && (
+                                    {cruMembers().length < 6 && potentialMembers.length > 0 && (
                                         <View style={styles.listfooter}>
-                                            <Pressable onPress={() => setShowAddMemberModal(true)}>
+                                            {/* <Pressable onPress={() => setShowAddMemberModal(true)}>
                                                 <Icon name="add-circle" type="ionicon" size={25} color={COLORS.PINK} />
                                                 <Text style={{...FONTS.Title2}}>Add a member</Text>
-                                            </Pressable>
+                                            </Pressable> */}
+                                            <View>
+                                                <Icon name="add-circle" type="ionicon" size={18} color={COLORS.PINK} />
+                                                <Text style={{...FONTS.Title2, textAlign: 'center'}}>Add a potential member</Text>
+                                            </View>
                                         </View>
                                     )}
                                 </View>
@@ -398,6 +405,60 @@ const EditCru = () => {
                             )}
                         />
                     </View>
+
+                    {potentialMembers.length > 0 && (
+                        <View style={{marginTop: 20, alignItems: 'center', marginBottom: '25%'}}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginBottom: 20,
+                                    textAlign: 'center',
+                                }}>
+                                POTENTIAL MEMBERS
+                            </Text>
+                            <FlatList
+                                data={getAvailableMembers()}
+                                horizontal={false}
+                                showsHorizontalScrollIndicator={false}
+                                scrollEnabled={false}
+                                numColumns={2}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <View style={{marginVertical: 5, alignItems: 'center'}}>
+                                        <AddMemberCard
+                                            userPicture={item.profilePicture}
+                                            userName={item.username}
+                                            onPress={() => {
+                                                navigation.navigate('ViewUserScreen', {
+                                                    userID: item.id,
+                                                });
+                                            }}
+                                            influencer={item.private ?? false}
+                                            userID={item.id}
+                                            akcruBadge={item.badge}
+                                            userDesc={item.description ?? ''}
+                                            AddMember={async () => {
+                                                const response = await addPotentialMemberToCRU(item.id);
+
+                                                if (response) {
+                                                    setShowAddMemberModal(false);
+
+                                                    const res = await getMyCRU();
+                                                    if (res?.CRU) {
+                                                        setCRU(res.CRU);
+                                                        if (res.CRU.members) {
+                                                            setMembers(res.CRU.members);
+                                                        }
+                                                        setPotentialMembers(res.acceptedMembers);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </View>
+                                )}
+                            />
+                        </View>
+                    )}
 
                     <Modal animationType="fade" transparent={false} visible={showAddMemberModal}>
                         <SafeAreaView

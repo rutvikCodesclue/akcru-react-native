@@ -776,6 +776,24 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </TouchableWithoutFeedback>
                                         </Pressable>
                                     </Modal>
+                                    {watchlist.length > 0 && (
+                                        <>
+                                            <View style={styles.seperator} />
+                                            <View style={styles.watchlistcontainer}>
+                                                <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
+                                                <View>
+                                                    <ViewUserWatchListCategory
+                                                        Akcru_Content={{
+                                                            id: 'YourFavourite',
+                                                            title: '',
+                                                            movies: watchlist,
+                                                        }}
+                                                        updateWatchlist={() => ''}
+                                                    />
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
                                     {user?.gallery && user.gallery.length > 0 && (
                                         <>
                                             <View style={styles.seperator} />
@@ -813,21 +831,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                 </View>
                                             </View>
                                         </>
-                                    )}
-                                    {watchlist.length > 0 && (
-                                        <View style={styles.watchlistcontainer}>
-                                            <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
-                                            <View>
-                                                <ViewUserWatchListCategory
-                                                    Akcru_Content={{
-                                                        id: 'YourFavourite',
-                                                        title: '',
-                                                        movies: watchlist,
-                                                    }}
-                                                    updateWatchlist={() => ''}
-                                                />
-                                            </View>
-                                        </View>
                                     )}
                                 </View>
                             </View>

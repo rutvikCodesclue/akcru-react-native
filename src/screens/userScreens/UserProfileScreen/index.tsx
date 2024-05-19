@@ -383,24 +383,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     <AkcruLevels.AkcruBadgeSuperHero />
                                                 </View>
                                             )}
-                                            {/* <TouchableOpacity onPress={() => navigation.navigate('EditProfile')}>
-                                            <View style={{flexDirection: 'row'}}>
-                                                <Icon
-                                                    name="square-edit-outline"
-                                                    type="material-community"
-                                                    color={COLORS.PINK}
-                                                    size={15}
-                                                    style={{marginRight: 5}}
-                                                />
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.Username,
-                                                        color: COLORS.PINK,
-                                                    }}>
-                                                    Edit Profile
-                                                </Text>
-                                            </View>
-                                        </TouchableOpacity> */}
+
                                         </View>
                                     </View>
                                 </View>

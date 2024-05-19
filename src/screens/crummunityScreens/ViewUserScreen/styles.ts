@@ -61,9 +61,7 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     gallerycontainer: {
-        marginHorizontal: 10,
-
-        alignItems: 'center',
+        marginHorizontal: '4%',
     },
 
     galleryImagesContainer: {

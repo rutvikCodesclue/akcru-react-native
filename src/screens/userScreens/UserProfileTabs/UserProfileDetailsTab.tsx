@@ -172,10 +172,10 @@ const UserProfileDetailsTab = () => {
     }, [user]);
 
     const selectGalleryImage = async () => {
-        if (userPics.length >= 6) {
-            setShowImageCountErrorModal(true);
-            return;
-        }
+        // if (userPics.length >= 6) {
+        //     setShowImageCountErrorModal(true);
+        //     return;
+        // }
 
         let options = {
             mediaType: 'photo' as MediaType,
@@ -200,7 +200,7 @@ const UserProfileDetailsTab = () => {
 
                 let uploadedImages = [];
 
-                const maxSizeInBytes = 2 * 1024 * 1024;
+                const maxSizeInBytes = 5 * 1024 * 1024;
 
                 for (const asset of response.assets) {
                     //console.log('uri:', asset.uri);
@@ -238,7 +238,7 @@ const UserProfileDetailsTab = () => {
                 const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
 
                 if (filteredUploadedImages.length > 0) {
-                    const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 6);
+                    const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 30);
                     setUserPics(newGallery);
                 }
             }
@@ -653,26 +653,6 @@ const UserProfileDetailsTab = () => {
                                                             ))}
                                                         </ScrollView>
                                                     </View>
-                                                    {/* <View style={{backgroundColor: 'red', width: '100%', flex: 1}}>
-                                            <FlatList
-                                                data={item.members}
-                                                horizontal={true}
-                                                showsHorizontalScrollIndicator={false}
-                                                renderItem={({item: member}) => (
-                                                    <TouchableOpacity
-                                                        onPress={() =>
-                                                            navigation.navigate('ViewUserScreen', {userID: member.id})
-                                                        }
-                                                        key={member.id}>
-                                                        <CruMemberPic
-                                                            userPicture={member.profilePicture}
-                                                            akcruBadge={member.badge}
-                                                        />
-                                                    </TouchableOpacity>
-                                                )}
-                                                keyExtractor={member => member.id}
-                                            />
-                                        </View> */}
                                                     <Text
                                                         style={{
                                                             ...FONTS.paragraph1,
@@ -694,15 +674,21 @@ const UserProfileDetailsTab = () => {
                                         }}
                                     />
                                 </View>
-                                <View
-                                    style={{
-                                        borderBottomWidth: 1.5,
-                                        borderColor: COLORS.DARKERGREY,
-                                        marginTop: 20,
-                                        marginBottom: 10,
-                                    }}
-                                />
-                                <View style={{alignItems: 'center', justifyContent: 'center', marginBottom: 10}}>
+                                <View style={styles.lineDivider} />
+                                {watchlist.length > 0 && (
+                                    <View>
+                                        <WatchListCategory
+                                            Akcru_Content={{
+                                                id: 'YourFavourite',
+                                                title: 'Your Favorites',
+                                                movies: watchlist,
+                                            }}
+                                            updateWatchlist={updateWatchlist}
+                                        />
+                                    </View>
+                                )}
+                                <View style={styles.lineDivider} />
+                                <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
                                     <AkcruButtons.LrgButton
                                         btnname={'Add to Gallery'}
                                         onPress={selectGalleryImage}
@@ -714,29 +700,7 @@ const UserProfileDetailsTab = () => {
                         }
                         ListFooterComponent={
                             <View>
-                                <View style={{marginBottom: 75}}>
-                                    {/* <View style={{marginBottom: 10}}>
-                            <BasicListCategories
-                                Akcru_Content={{
-                                    id: 'recommendedForYou',
-                                    title: 'Recommended for you',
-                                    movies: newerYearMovies,
-                                }}
-                            />
-                        </View> */}
-                                    {watchlist.length > 0 && (
-                                        <View>
-                                            <WatchListCategory
-                                                Akcru_Content={{
-                                                    id: 'YourFavourite',
-                                                    title: 'Your Favorites',
-                                                    movies: watchlist,
-                                                }}
-                                                updateWatchlist={updateWatchlist}
-                                            />
-                                        </View>
-                                    )}
-                                </View>
+                                <View style={{marginBottom: 75}}></View>
                                 <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
                                     <ErrorModal
                                         closeModal={() => setShowImageCountErrorModal(false)}
