@@ -33,6 +33,7 @@ import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResult
 import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MITDateSchedule';
+import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -75,6 +76,7 @@ export type NoBottomTabStackParams = {
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
     MITDateSchedule: any;
+    SearchMovieScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -154,6 +156,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="SearchMovieResultScreen"
                 component={SearchMovieResultScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SearchMovieScreen"
+                component={SearchMovieScreen}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
