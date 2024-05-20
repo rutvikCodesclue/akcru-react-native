@@ -12,6 +12,7 @@ import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import { API } from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
+import BackButton from '../../../components/General/backbutton';
 
 const PhoneForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -111,16 +112,7 @@ const PhoneForgotPassword = () => {
                     }}
                 />
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                     <View style={{flex: 1, alignItems: 'center', marginTop: '45%'}}>
                         <View>
                             <Svg

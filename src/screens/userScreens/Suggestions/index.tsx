@@ -11,6 +11,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
 import {sendReportToBackend} from '../../../lib/api/user.lib';
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
+import BackButton from '../../../components/General/backbutton';
 
 const Suggestions = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -57,12 +58,7 @@ const Suggestions = () => {
                 <ScrollView style={{flex: 1}} stickyHeaderIndices={[0]}>
                     <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 10}}>
                         <Header />
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{flexDirection: 'row', alignItems: 'center', padding: 10}}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                     </View>
                     <View>
                         <View style={{alignItems: 'center'}}>

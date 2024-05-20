@@ -12,6 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
+import BackButton from '../../../components/General/backbutton';
 
 const EditWatchList = () => {
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
@@ -64,18 +65,7 @@ const EditWatchList = () => {
                     <Header />
                 </View>
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                marginBottom: 15,
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-
+                    <BackButton navigation={navigation} />
                     <View>
                         <Text style={{...FONTS.Title2, textAlign: 'center', marginBottom: 15}}>YOUR WATCHLIST</Text>
                     </View>

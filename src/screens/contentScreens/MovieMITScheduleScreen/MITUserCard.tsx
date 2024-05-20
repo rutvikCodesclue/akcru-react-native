@@ -8,6 +8,8 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import DisplayBadge from '../../../components/General/akcrubadge';
+
 type MITUserSearchCardProps = {
     userPicture?: string;
     userName: string;
@@ -112,26 +114,7 @@ const MITUserSearchCard = ({
                                 )}
                             </View>
                             <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {akcruBadge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {akcruBadge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
                     </View>
                     <View>
@@ -143,10 +126,6 @@ const MITUserSearchCard = ({
                         </TouchableOpacity>
                     </View>
                 </View>
-
-                {/* <View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{truncateduserDesc}</Text>
-                </View> */}
             </View>
         </View>
     );

@@ -35,6 +35,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
+import BackButton from '../../../components/General/backbutton';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -169,16 +170,7 @@ const UserCruChatScreen = () => {
                         <Header />
                     </View>
                     <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                        <TouchableOpacity onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                     </View>
                     <LinearGradient
                         colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}

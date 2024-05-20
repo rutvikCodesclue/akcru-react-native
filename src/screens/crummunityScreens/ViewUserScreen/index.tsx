@@ -51,6 +51,7 @@ import BlockUserResultModal from '../../../components/BlockUserResultModal/Block
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import GalleryPic from '../../../components/GalleryPic';
+import BackButton from '../../../components/General/backbutton';
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
 
@@ -401,16 +402,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                 }}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
+                                <BackButton navigation={navigation} />
                                 <TouchableOpacity onPress={() => setUserOptionModal(true)}>
                                     <View
                                         style={{

@@ -2,12 +2,12 @@ import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 
-import AkcruLevels from '../akcruBadges';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
 import HexAvatar from '../HexAvatar';
+import DisplayBadge from '../General/akcrubadge';
 
 type MITHubCardProps = {
     inviteePicture: string;
@@ -63,26 +63,7 @@ const MITHubCard = ({
                             <Text style={{...FONTS.Title2}}>{inviteeName}</Text>
                         </View>
 
-                        {akcruBadge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {akcruBadge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
-                        {akcruBadge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {akcruBadge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
+                        <DisplayBadge akcruBadge={akcruBadge} />
                     </View>
                 </View>
 

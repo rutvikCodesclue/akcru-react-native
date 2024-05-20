@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import BackButton from '../../../components/General/backbutton';
 
 const FlickFlirtScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
@@ -23,18 +24,7 @@ const FlickFlirtScreen = () => {
                         <View>
                             <Header />
                         </View>
-                        <TouchableOpacity
-                            style={{marginHorizontal: 15, marginBottom: 10}}
-                            onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                         <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.65}}>
                             <View style={styles.textcontainer}>
                                 <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Flick Flirt"</Text>

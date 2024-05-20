@@ -12,6 +12,7 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../PlayContentScreen/styles';
+import BackButton from '../../../components/General/backbutton';
 const SearchMovieScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
@@ -37,27 +38,7 @@ const SearchMovieScreen = () => {
     return (
         <TabContainer>
             <View style={{flex: 1}}>
-                <View style={styles.backbutton}>
-                    <View>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{
-                                paddingHorizontal: 15,
-                                paddingVertical: 10,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-
-                    <SearchInput />
-                </View>
+                <BackButton navigation={navigation} />
                 <View>
                     <Text
                         style={{

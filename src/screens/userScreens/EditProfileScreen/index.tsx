@@ -25,6 +25,7 @@ import HexAvatar from '../../../components/HexAvatar';
 import {selectAvatarBorderColor} from '../../../util/util';
 import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImageModal';
 import HelpModal from '../../../components/HelpModal/HelpModal';
+import BackButton from '../../../components/General/backbutton';
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -268,16 +269,7 @@ export default function EditProfile({session}: {session: Session}) {
                         <Header />
                     </View>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                         <View>
                             <Text style={styles.title}>EDIT PROFILE</Text>
                             <View style={{alignItems: 'center'}}>

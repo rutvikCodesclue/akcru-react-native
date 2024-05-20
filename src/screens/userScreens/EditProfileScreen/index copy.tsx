@@ -36,6 +36,7 @@ import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import imageindex from '../../../../assets/images/imageindex';
 import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import BackButton from '../../../components/General/backbutton';
 
 const gallery = FAKE_USER_PROFILES[0].gallery;
 
@@ -253,16 +254,7 @@ export default function EditProfile2({session}: {session: Session}) {
                     <Header />
                 </View>
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                     <View>
                         <Text style={styles.title}>EDIT PROFILE</Text>
                         <View style={{alignItems: 'center'}}>

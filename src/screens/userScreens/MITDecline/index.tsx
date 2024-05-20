@@ -1,21 +1,15 @@
-import React, { useEffect } from 'react';
-import {
-    View,
-    Text,
-    ScrollView, ImageBackground,
-    Image, SafeAreaView
-} from 'react-native';
+import React, {useEffect} from 'react';
+import {View, Text, ScrollView, ImageBackground, Image, SafeAreaView} from 'react-native';
 import styles from './styles';
-import { COLORS, SIZES, FONTS } from '../../../../assets/constants';
-import { RouteProp } from '@react-navigation/native';
+import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {RouteProp} from '@react-navigation/native';
 import Header from '../../../components/header';
-import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
-import { DIGITAL_PASS } from '../../../../assets/constants/Mockusers';
+import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
 import imageindex from '../../../../assets/images/imageindex';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { IMovie, IUserProfile } from '../../../../types';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {IMovie, IUserProfile} from '../../../../types';
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
@@ -24,6 +18,7 @@ import {
 } from '../../../util/util';
 import moment from 'moment';
 import HexAvatar from '../../../components/HexAvatar';
+import DisplayBadge from '../../../components/General/akcrubadge';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -38,8 +33,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
     const MITID: number | undefined = route.params?.MITID ?? null;
     const inviteeName: string | undefined = route.params?.inviteeName ?? null;
 
-
- const movie: IMovie | null = route.params?.movie ?? null;
+    const movie: IMovie | null = route.params?.movie ?? null;
     const creator: IUserProfile | null = route.params?.creator ?? null;
     const inviteDate: string | undefined = route.params?.inviteDate ?? null;
     const akcruBadge: any = route.params?.akcruBadge ?? null;
@@ -48,12 +42,10 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-
-          navigation.navigate('UserProfileScreen');
+            navigation.navigate('UserProfileScreen');
         }, 4000);
 
-
-      return () => clearTimeout(timer);
+        return () => clearTimeout(timer);
     }, []);
 
     return (
@@ -69,8 +61,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                             resizeMode="cover"
                             style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                             <LinearGradient
-
-                              colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -80,7 +71,6 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                 }}
                             />
                             <View style={styles.topcontainer}>
-                                
                                 <View>
                                     <Text
                                         style={{
@@ -107,7 +97,6 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                             }}>
                             <View style={{flexDirection: 'row'}}>
                                 <View style={{marginRight: 8}}>
-                                   
                                     <HexAvatar
                                         source={{uri: creator?.profilePicture}}
                                         size={75}
@@ -124,31 +113,10 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                             right: 8,
                                         }}
                                     />
-
-                                    
                                 </View>
                                 <View style={{width: SIZES.ScreenWidth / 2.5}}>
                                     <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
-                                    {akcruBadge === 'AKCRUIT' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeAkcruit />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'GUARDIAN' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeGuardian />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'HERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeHero />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'SUPERHERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeSuperHero />
-                                        </View>
-                                    )}
+                                    <DisplayBadge akcruBadge={akcruBadge} />
                                 </View>
                             </View>
                             <View style={{marginVertical: 20}}>
@@ -241,15 +209,13 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                         </Text>
                                         <Text style={styles.datetext}>@ </Text>
                                         <Text style={styles.datetext}>
-
-                                          {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                            {moment(schedule).tz(timezone).format('h:mm A')}{' '}
                                             {getShortenedTimezone(timezone)}
                                         </Text>
-
+                                    </View>
                                 </View>
                             </View>
                         </View>
-                    </View>
                     </View>
                 </ScrollView>
             </View>

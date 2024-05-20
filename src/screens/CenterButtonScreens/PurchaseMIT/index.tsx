@@ -12,6 +12,7 @@ import {Icon} from '@rneui/base';
 import useAuthStore from '../../../stores/auth.store';
 import {purchaseMIT} from '../../../lib/api/wallet.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import BackButton from '../../../components/General/backbutton';
 
 const PurchaseMITScreen = () => {
     const {user} = useAuthStore();
@@ -96,18 +97,7 @@ const PurchaseMITScreen = () => {
                         <View>
                             <Header />
                         </View>
-                        <TouchableOpacity
-                            style={{marginHorizontal: 15, marginBottom: 10}}
-                            onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                         <View>
                             <View>
                                 <Text

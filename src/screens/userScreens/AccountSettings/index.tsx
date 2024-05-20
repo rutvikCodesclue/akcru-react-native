@@ -12,6 +12,7 @@ import {updateUser} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import BackButton from '../../../components/General/backbutton';
 const date = new Date('2000-01-07');
 date.setHours(0, 0, 0, 0);
 
@@ -334,16 +335,7 @@ const AccountSettings = () => {
                 </View>
                 <View style={styles.container}>
                     <View>
-                        <TouchableOpacity onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                     </View>
                     <Text style={styles.title}>ACCOUNT SETTINGS</Text>
                     <Text style={{...FONTS.paragraph1, marginBottom: 10, color: COLORS.PINK}}>

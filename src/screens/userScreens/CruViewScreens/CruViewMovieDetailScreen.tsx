@@ -15,6 +15,7 @@ import {IMovie} from '../../../../types';
 import {createACRUView} from '../../../lib/api/cru.lib';
 import {capitalizeFirstLetterOfString, combineDateAndTime, formatMovieDuration} from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import BackButton from '../../../components/General/backbutton';
 
 type CruViewMovieDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'CruViewMovieDetailScreen'>;
 
@@ -225,16 +226,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                 <Header />
                             </View>
                             <View style={styles.topcontainer}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
+                                <BackButton navigation={navigation} />
                             </View>
                             <View
                                 style={{

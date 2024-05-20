@@ -12,6 +12,7 @@ import {IChatUser} from '../../../types';
 
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import BackButton from '../../components/General/backbutton';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
@@ -80,17 +81,7 @@ const ChatList = () => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                     paddingBottom: 10,
                                 }}>
-                                <TouchableRipple onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            marginHorizontal: 15,
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableRipple>
+                                <BackButton navigation={navigation} />
                             </View>
                         </View>
                     }

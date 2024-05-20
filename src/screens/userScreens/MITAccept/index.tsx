@@ -3,7 +3,6 @@ import {View, Text, ScrollView, ImageBackground, Image, SafeAreaView} from 'reac
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import styles from './styles';
 import {RouteProp} from '@react-navigation/native';
-import AkcruLevels from '../../../components/akcruBadges';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
@@ -19,6 +18,7 @@ import {
 } from '../../../util/util';
 import moment from 'moment';
 import HexAvatar from '../../../components/HexAvatar';
+import DisplayBadge from '../../../components/General/akcrubadge';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -68,16 +68,7 @@ const AcceptMITScreen = ({navigation, route}: Props) => {
                                 }}
                             />
                             <View style={styles.topcontainer}>
-                                {/* <TouchableOpacity onPress={() => navigation.navigate('ChooseMITScreen')}>
-                                  <View
-                                      style={{
-                                          flexDirection: 'row',
-                                          alignItems: 'center',
-                                      }}>
-                                      <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                      <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                  </View>
-                              </TouchableOpacity> */}
+                              
                                 <View>
                                     <Text
                                         style={{
@@ -103,15 +94,7 @@ const AcceptMITScreen = ({navigation, route}: Props) => {
                             }}>
                             <View style={{flexDirection: 'row'}}>
                                 <View style={{marginRight: 8}}>
-                                    {/* <Avatar
-                                      rounded
-                                      size={70}
-                                      source={{uri: creator?.profilePicture}}
-                                      avatarStyle={{
-                                          borderWidth: 2,
-                                          borderColor: COLORS.AKCRUBLUE,
-                                      }}
-                                  /> */}
+                                    
                                     <HexAvatar
                                         source={{uri: creator?.profilePicture}}
                                         size={75}
@@ -129,55 +112,10 @@ const AcceptMITScreen = ({navigation, route}: Props) => {
                                             right: 8,
                                         }}
                                     />
-
-                                    {/* {!privateaccount ? (
-                                      online ? (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'green',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      ) : (
-                                          <View
-                                              style={{
-                                                  backgroundColor: 'red',
-                                                  height: 12,
-                                                  width: 12,
-                                                  borderRadius: 8,
-                                                  position: 'absolute',
-                                                  right: 8,
-                                              }}
-                                          />
-                                      )
-                                  ) : null} */}
                                 </View>
                                 <View style={{width: SIZES.ScreenWidth / 4}}>
                                     <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
-                                    {akcruBadge === 'AKCRUIT' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeAkcruit />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'GUARDIAN' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeGuardian />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'HERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeHero />
-                                        </View>
-                                    )}
-                                    {akcruBadge === 'SUPERHERO' && (
-                                        <View>
-                                            <AkcruLevels.AkcruBadgeSuperHero />
-                                        </View>
-                                    )}
+                                    <DisplayBadge akcruBadge={akcruBadge} />
                                 </View>
                             </View>
                             <View style={{marginVertical: 20}}>

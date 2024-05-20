@@ -13,6 +13,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import styles from '../PlayContentScreen/styles';
 
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import BackButton from '../../../components/General/backbutton';
 
 type SearchMovieResultScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'SearchMovieResultScreen'>;
 
@@ -127,21 +128,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
             <View>
                 <View>
                     <View style={styles.backbutton}>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{
-                                paddingHorizontal: 15,
-                                paddingVertical: 10,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                         <SearchInput />
                         <View
                             style={{

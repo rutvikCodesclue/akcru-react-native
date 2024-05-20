@@ -39,6 +39,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
 import {selectAvatarBorderColor} from '../../../util/util';
 import PostButton from '../../../components/AkcruPostButton';
+import BackButton from '../../../components/General/backbutton';
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
@@ -411,18 +412,7 @@ const PostScreen = ({navigation, route}: Props) => {
                                     top: 0,
                                     height: SIZES.ScreenHeight * 0.15,
                                 }}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            marginTop: '20%',
-                                            marginHorizontal: 15,
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
+                               <BackButton navigation={navigation} />
                             </LinearGradient>
                         </View>
                     </View>

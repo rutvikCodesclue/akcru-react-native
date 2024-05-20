@@ -6,6 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import HexAvatar from '../HexAvatar';
+import DisplayBadge from '../General/akcrubadge';
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -103,26 +104,7 @@ const UserSearchCard = ({
                                 )}
                             </View>
                             <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {akcruBadge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {akcruBadge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
                     </View>
                     <TouchableOpacity onPress={onPressIn}>

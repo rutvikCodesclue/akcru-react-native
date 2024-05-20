@@ -12,6 +12,7 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from './styles';
+import BackButton from '../../../components/General/backbutton';
 const CruViewSearchMovieScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const [genres, setGenres] = React.useState<IGenreItem[]>([]);
@@ -37,21 +38,7 @@ const CruViewSearchMovieScreen = () => {
             <View style={{flex: 1, ...styles.backbutton}}>
                 <View>
                     <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{
-                                paddingHorizontal: 15,
-                                paddingVertical: 10,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                     </View>
 
                     <CruViewSearchInput />

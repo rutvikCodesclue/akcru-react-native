@@ -71,3 +71,5 @@ __MACOSX
 
 android/
 ios/
+gradle.properties
+android
