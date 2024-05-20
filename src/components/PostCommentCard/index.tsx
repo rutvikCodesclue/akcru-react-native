@@ -11,6 +11,7 @@ import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 import {IUserProfile} from '../../../types';
+import DisplayBadge from '../General/akcrubadge';
 
 type FooterIconsProps = {
     iconname: string;
@@ -363,27 +364,7 @@ const PostCommentCard = ({
                         )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-
-                    {akcruBadge === 'AKCRUIT' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeAkcruit />
-                        </View>
-                    )}
-                    {akcruBadge === 'HERO' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeHero />
-                        </View>
-                    )}
-                    {akcruBadge === 'SUPERHERO' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeSuperHero />
-                        </View>
-                    )}
-                    {akcruBadge === 'GUARDIAN' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeGuardian />
-                        </View>
-                    )}
+                    <DisplayBadge akcruBadge={akcruBadge} />
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
@@ -396,24 +377,7 @@ const PostCommentCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {/* {renderNotInterested()} */}
-                            {/* <Pressable
-                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                                onPress={handleFollowPress}>
-                                <Icon
-                                    name="person"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={20}
-                                    style={{marginLeft: 5}}
-                                />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
-                                </Text>
-                            </Pressable> */}
                             {renderFollowUser()}
-                            {/* {renderMuteUser()}
-                            {renderBlockUser()} */}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
                         </View>

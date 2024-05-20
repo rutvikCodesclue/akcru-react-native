@@ -13,6 +13,7 @@ import {findMovies} from '../../../lib/api/movies.lib';
 import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../../contentScreens/PlayContentScreen/styles';
+import BackButton from '../../../components/General/backbutton';
 
 type SendMITSearchResultNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSearchResult'>;
 
@@ -91,25 +92,8 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
         <TabContainer>
             <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]}>
-                    {/* <View>
-          <Header />
-        </View> */}
+                    <BackButton navigation={navigation} />
                     <View style={styles.backbutton}>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{
-                                paddingHorizontal: 15,
-                                paddingVertical: 10,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
                         <SendMITSearchInput userid={userID} />
                         <View
                             style={{

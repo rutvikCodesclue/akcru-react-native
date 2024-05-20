@@ -38,6 +38,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
+import BackButton from '../../../components/General/backbutton';
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -278,21 +279,7 @@ export default function SendMITSchedule({route}: Props) {
                                         }}>
                                         <Header />
                                         <View style={styles.topcontainer}>
-                                            <TouchableOpacity onPress={() => navigation.pop()}>
-                                                <View
-                                                    style={{
-                                                        flexDirection: 'row',
-                                                        alignItems: 'center',
-                                                    }}>
-                                                    <Icon
-                                                        name="chevron-back"
-                                                        type="ionicon"
-                                                        size={20}
-                                                        color={COLORS.LIGHTGREY}
-                                                    />
-                                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                                </View>
-                                            </TouchableOpacity>
+                                            <BackButton navigation={navigation} />
                                         </View>
                                     </View>
                                     <View

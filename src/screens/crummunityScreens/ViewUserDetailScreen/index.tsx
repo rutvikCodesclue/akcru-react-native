@@ -25,6 +25,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
+import BackButton from '../../../components/General/backbutton';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
 
@@ -98,18 +99,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                 }}
                             />
                             <Header />
-                            <TouchableOpacity onPress={() => navigation.navigate('ViewUserScreen', {userID})}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        marginHorizontal: 15,
-                                        marginBottom: 30,
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <BackButton navigation={navigation} />
                         </ImageBackground>
                         <Pressable style={{alignItems: 'center', marginTop: -50}} onPress={toggleAvatarModal}>
                             <HexAvatar

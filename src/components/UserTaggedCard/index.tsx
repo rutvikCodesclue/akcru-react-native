@@ -6,6 +6,7 @@ import AkcruLevels from '../akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
+import DisplayBadge from '../General/akcrubadge';
 
 type UserTaggedCardProps = {
     userPicture?: string;
@@ -66,26 +67,7 @@ const UserTaggedCard = ({userPicture, userName, influencer, akcruBadge, onPress,
                             <Text style={{...FONTS.paragraph1, fontSize: 12}}> / {firstName}</Text>
                         </View>
 
-                        {akcruBadge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {akcruBadge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
-                        {akcruBadge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {akcruBadge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
+                        <DisplayBadge akcruBadge={akcruBadge} />
                     </View>
                 </View>
             </View>

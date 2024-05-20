@@ -1,31 +1,12 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    SafeAreaView,
-    TouchableOpacity,
-    Image,
-    TouchableWithoutFeedback,
-    Pressable,
-    FlatList,
-    ActivityIndicator,
-    Modal,
-    StatusBar,
-} from 'react-native';
+import {View, SafeAreaView, StatusBar} from 'react-native';
 import React from 'react';
-import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
-import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
-import LinearGradient from 'react-native-linear-gradient';
-import {Icon} from '@rneui/base';
+import {SIZES} from '../../../../assets/constants';
 import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
-import {useState, useRef, useEffect, useCallback} from 'react';
-import BottomSheet from '@gorhom/bottom-sheet';
+import {useState, useRef, useEffect} from 'react';
 import {StackNavigationProp} from '@react-navigation/stack';
-import VideoPlayer from 'react-native-media-console';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
-import {capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
 import {supabaseRealtime} from '../../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import {
@@ -51,11 +32,9 @@ import {
 } from '@100mslive/react-native-hms';
 import useAuthStore from '../../../stores/auth.store';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
-import Video, {LoadError, OnBufferData, OnProgressData, OnSeekData} from 'react-native-video';
+import Video, {OnProgressData, OnSeekData} from 'react-native-video';
 import {IUserProfile} from '../../../../types';
-import SmlMemberCard from '../../../components/SmlMemberCard';
 import {findAUser} from '../../../lib/api/user.lib';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {checkRoomTime} from '../../../util/checkRoomTime';
@@ -65,6 +44,15 @@ import {supabase} from '../../../../lib/supabase';
 import UnmutePermissionPopup from './unmutepermpopup';
 import ErrorModal from './ErrorModal';
 import WatchPartyDocker from '../../../components/WatchPartyDocker';
+import MovieScreen from './MovieScreen';
+import UserVideos from './UserVideos';
+import UserControls from './UserControls';
+import HostOptionsModal from './HostOptionsModal';
+import HostTransferModal from './HostTransferModal';
+import TerminateRoomModal from './TerminateRoomModal';
+import HostLeaveRoomModal from './HostLeaveRoomModal';
+import LeaveRoomModal from './LeaveRoomModal';
+import TopContainer from './TopContainer';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
@@ -131,7 +119,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
     const [isMicOn, setIsMicOn] = useState(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
-    const [isChatOpen, setIsChatOpen] = useState(false);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
@@ -144,13 +131,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [peersMuteStatus, setPeersMuteStatus] = useState({});
     const [IsStreamHost, setIsStreamHost] = useState(isHost);
     const [selectedMemeberForHost, setSelectedMemeberForHost] = useState<any>();
-    const [isAllMuteOff, setIsAllMuteOff] = useState(true);
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
     const [showDockerToHost, setShowDockerToHost] = useState(false);
+    const [optionModalVisible, setOptionModalVisible] = useState(false);
 
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
-    const sheetRef = useRef<BottomSheet>(null); //Pop up chat
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
     const videoPlayerRef = useRef<Video | null>(null);
@@ -159,7 +145,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const isFocused = useIsFocused();
     const {startTimer, pauseTimer, resetTimer} = useWatchTimeStore();
     const {user} = useAuthStore();
-    const snapPoints = ['1', '40'];
     const isCurrentUserCreator = user?.id === creatorID;
     const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
     const receiverProfilePicture = isCurrentUserCreator ? user?.profilePicture : creator?.profilePicture;
@@ -168,8 +153,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [userRequest, setUserRequest] = useState(null);
     const [popupErr, setPopupErr] = useState(false);
     const [popupErrMsg, setPopupErrMsg] = useState('');
-    const myuserid = user.id;
-    const [isDockerOpen, setIsDockerOpen] = useState(false);
 
     route.params = {
         ...route.params,
@@ -199,7 +182,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     async function askForPermission(payload: any) {
         if (isHost == true && payload.payload.permtype! == 'request') {
-            console.log('userReq', payload.payload.userReq!);
             setUserRequest(payload.payload.userReq!);
             setUnmutePermissionPopup(true);
         }
@@ -216,7 +198,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }
 
     const onSend = (permGrant, userid, permtype, userReq) => {
-        console.log('User id on send', userid);
         if (channelll === null) {
             console.log('Channel not found');
             return;
@@ -249,6 +230,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         });
     }, []);
+
     useFocusEffect(
         React.useCallback(() => {
             if (isMoviePlaying) {
@@ -301,33 +283,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
-    const handleMic = async (peer: HMSPeer) => {
-        console.log('Handling the mic now');
-        const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-        if (localPeer && isHost) {
-            const audioTrack = peer.audioTrack;
-            if (audioTrack) {
-                const isMuted = audioTrack.isMute();
-                const newMuteStatus = !isMuted;
-
-                await hmsInstanceRef.current?.changeTrackState(audioTrack, newMuteStatus);
-
-                roomChannelRef.current?.send({
-                    type: 'broadcast',
-                    event: 'mute-peer',
-                    payload: {
-                        peerID: peer.peerID,
-                        isMuted: newMuteStatus,
-                    },
-                });
-            }
-        }
-    };
-
     const muteAllPeers = async () => {
-        console.log('about to enter the if');
         if (isHost) {
-            console.log('Went into mute all before try');
             try {
                 await hmsInstanceRef.current?.remoteMuteAllAudio();
                 console.log('Broadcasted mute-all event');
@@ -344,10 +301,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
 
         const roles = await hmsInstanceRef.current?.getRoles();
-        console.log(roles);
         const newRole = roles ? roles.find(role => role.name === 'host') : undefined;
-        console.log('newRole:', newRole);
-        console.log('targetPeerId:', targetPeerId);
 
         if (isHost) {
             try {
@@ -380,6 +334,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             console.log('Current user is not the host.');
         }
     };
+
     function isHostAvailable() {
         for (let i = 0; i < peerTrackNodes.length; i++) {
             const peer = peerTrackNodes[i].peer;
@@ -390,6 +345,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
         return false;
     }
+
     const toggleMic = async () => {
         const localPeer = await hmsInstanceRef.current?.getLocalPeer();
         if (localPeer) {
@@ -431,9 +387,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
+
     /**
      * ADDITIONAL METHODS
      */
+
     const _setupRoomChannels = async () => {
         let roomChannel: RealtimeChannel | null = null;
         let syncChannel: RealtimeChannel | null = null;
@@ -460,7 +418,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const _join100msRoom = async () => {
         let hmsInstance: HMSSDK | null = null;
-        console.log('mic Initail State:', micInitialState);
 
         if (hmsInstanceRef.current == null) {
             let audioSettings = new HMSAudioTrackSettings({
@@ -515,10 +472,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const _handleTerminateRoom = async () => {
-        console.log('In the terminate room function');
         if (hmsInstanceRef.current) {
-            console.log('IN THE IF CONDITION');
-
             try {
                 await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
             } catch (error) {
@@ -616,31 +570,23 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             roomChannelRef.current
                 .on('broadcast', {event: 'start-movie'}, payload => {
                     if (!isHost && videoPlayerRef.current) {
-                        console.log(payload);
-
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
                 .on('broadcast', {event: 'play-movie'}, payload => {
                     if (!isHost && videoPlayerRef.current) {
-                        console.log(payload);
-
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
                 .on('broadcast', {event: 'pause-movie'}, payload => {
                     if (!isHost && videoPlayerRef.current) {
-                        console.log(payload);
-
                         setIsMoviePlaying(false);
                     }
                 })
                 .on('broadcast', {event: 'seek-movie'}, payload => {
                     if (!isHost && videoPlayerRef.current) {
-                        console.log(payload);
-
                         videoPlayerRef.current.seek(Number(payload.payload.seekTime));
                     }
                 })
@@ -648,7 +594,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     console.log(payload);
                 })
                 .on('broadcast', {event: 'exit-movie'}, payload => {
-                    console.log(payload);
                     if (!isHost && videoPlayerRef.current) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait();
@@ -694,9 +639,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         return nodes.filter(node => node.peer.peerID !== peerID);
     };
 
-    //
-
-    //
     const _updateNode = (data: {
         nodes: PeerTrackNode[];
         peer: HMSPeer;
@@ -729,12 +671,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         return [...nodes, createPeerTrackNode(peer, track)];
     };
 
-    const _findNodeByPeerId = (peerID: string) => {
-        console.log('peerTrackNodes:', peerTrackNodes);
-
-        return peerTrackNodes.find(node => node.peer.peerID === peerID);
-    };
-
     const _updateNodeWithPeer = (data: {nodes: PeerTrackNode[]; peer: HMSPeer; createNew?: boolean}) => {
         const {nodes, peer, createNew = false} = data;
 
@@ -763,6 +699,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     /*
         100ms Event Listeners
     */
+
     const __onErrorListener = (data: HMSException) => {
         console.log('=== 100ms Error ===:', data);
     };
@@ -783,6 +720,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             console.log('localPeer is null');
         }
     };
+
     const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
         if (type === HMSPeerUpdate.PEER_JOINED) {
             setPeerTrackNodes(prevPeerTrackNodes =>
@@ -837,6 +775,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             return;
         }
     };
+
     const __onTrackListener = ({track, peer, type}: {track: HMSTrack; peer: HMSPeer; type: HMSTrackUpdate}) => {
         if (track.type === HMSTrackType.VIDEO) {
             if (type === HMSTrackUpdate.TRACK_ADDED) {
@@ -905,7 +844,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
             if (type === HMSTrackUpdate.TRACK_MUTED || type === HMSTrackUpdate.TRACK_UNMUTED) {
                 const isMuted = track.isMute();
-                console.log('isMuted:', isMuted);
                 if (isMuted !== undefined) {
                     setPeersMuteStatus(prevStatus => ({
                         ...prevStatus,
@@ -918,10 +856,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
     };
+
     const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {};
     const __onRemovedFromRoomListener = async (data: any) => {
         console.log('onRemovedFromRoomListener triggered');
-        console.log('onRemovedFromRoomListener data:', data);
 
         if (data?.roomEnded) {
             await setIsMoviePlaying(false);
@@ -931,6 +869,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             await _handleRoomLeave();
         }
     };
+
     const __onMessageListener = (data: HMSMessage) => {};
     const __onSpeakerListener = (data: HMSSpeaker[]) => {};
     const __onReconnectedListener = (data: any) => {};
@@ -939,6 +878,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     /*
         WatchParty Video Player Sync Methods
     */
+
     const ___onPlay = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(true);
@@ -953,6 +893,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             });
         }
     };
+
     const ___onPause = () => {
         if (isHost && videoPlayerRef.current) {
             setIsMoviePlaying(false);
@@ -967,6 +908,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             });
         }
     };
+
     const ___onSeek = (data: OnSeekData) => {
         if (isHost && videoPlayerRef.current) {
             roomChannelRef.current?.send({
@@ -983,6 +925,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         resetTimer();
         startTimer();
     };
+
     const ___onProgress = async (data: OnProgressData) => {
         if (isHost && Number(data.currentTime.toFixed(1)) % 2 === 0) {
             await syncChannelRef.current?.track({
@@ -994,6 +937,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             setCurrentTime(data.currentTime);
         }
     };
+
     const ___onEnterFullscreen = () => {
         setIsFullscreen(true);
 
@@ -1018,6 +962,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }, 2000);
     };
+
     const ___onExitFullScreen = () => {
         setIsFullscreen(false);
         StatusBar.setHidden(false);
@@ -1041,36 +986,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
     };
-    const ___onBack = () => {
-        if (isHost && videoPlayerRef.current) {
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'exit-movie',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-
-            if (isFullscreen) {
-                ___onExitFullScreen();
-            }
-            setIsStreamOpen(true);
-        } else {
-            console.log(`${user?.username} is exited the movie`);
-        }
-    };
-    const ___onEnd = () => {
-        console.log(`${user?.username} ended the movie`);
-    };
-    const ___onBuffer = (data: OnBufferData) => {
-        console.log(`${user?.username} is buffering the movie: ${data.isBuffering}`);
-    };
-    const ___onError = (error: LoadError) => {
-        console.log(`${user?.username} encountered an error with the movie`);
-    };
+    
     //open options Modal
-    const [optionModalVisible, setOptionModalVisible] = useState(false);
-
     const handleOptionModal = () => {
         setOptionModalVisible(true);
     };
@@ -1148,7 +1065,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const sayhi = () => {
-        console.log(viewtype, cru);
         if (viewtype == 'CRUView') {
             navigation.navigate('ViewGroupChat', {
                 isMyCruChat: false,
@@ -1173,10 +1089,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             });
         }
     };
-    const handleSnapPress = useCallback((index: number) => {
-        console.log('heelo');
-        sheetRef.current?.snapToIndex(index);
-    }, []);
 
     const handleCloseError = () => {
         setPopupErrMsg('');
@@ -1193,751 +1105,86 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 )}
 
                 {!isFullscreen && (
-                    <View style={styles.topcontainer}>
-                        <TouchableOpacity onPress={handleLeaveRoom}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Leave Room</Text>
-                            </View>
-                        </TouchableOpacity>
-                        {!isStreamOpen && isHost && (
-                            <>
-                                <TouchableOpacity onPress={handleOptionModal}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon
-                                            name="ellipsis-vertical-circle"
-                                            type="ionicon"
-                                            size={23}
-                                            color={COLORS.LIGHTGREY}
-                                        />
-                                    </View>
-                                </TouchableOpacity>
-                            </>
-                        )}
-                    </View>
+                    <TopContainer
+                    handleLeaveRoom={handleLeaveRoom} 
+                    isStreamOpen={isStreamOpen} 
+                    isHost={isHost} 
+                    handleOptionModal={handleOptionModal}
+                    />
                 )}
 
-                <View style={{flex: 1, zIndex: 100}}>
-                    {isStreamOpen ? (
-                        <View style={styles.moviecontainer}>
-                            <LinearGradient
-                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
+                <MovieScreen 
+                onPress={_handleStartMovie}
+                isStreamOpen={isStreamOpen}
+                isHost={isHost}
+                movie={movie}
+                roomChannelRef={roomChannelRef}
+                hasLottieFirstLoopCompleted={hasLottieFirstLoopCompleted}
+                isFullscreen={isFullscreen}
+                videoPlayerRef={videoPlayerRef}
+                isMoviePlaying={isMoviePlaying}
+                onProgress={___onProgress}
+                onPlay={___onPlay}
+                onPause={___onPause}
+                onSeek={___onSeek}
+                onEnterFullScreen={___onEnterFullscreen}
+                onExitFullScreen={___onExitFullScreen}
+                setHasLottieFirstLoopCompleted={setHasLottieFirstLoopCompleted}
+                />
 
-                                    borderRadius: 5,
-                                    height: SIZES.ScreenHeight * 0.18,
-                                }}
-                            />
-                            <View style={{marginRight: 10}}>
-                                <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
-                            </View>
-                            <View>
-                                <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        marginVertical: 4,
-                                        alignItems: 'center',
-                                    }}>
-                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            fontSize: 12,
-                                            marginHorizontal: 10,
-                                        }}>
-                                        {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                    </Text>
-                                </View>
-                                <View style={{flexDirection: 'row', marginBottom: 8}}>
-                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                    <Text style={styles.drawfonttag}>
-                                        {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
-                                    </Text>
-                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                </View>
-                                <View style={{flexDirection: 'row'}}>
-                                    <TouchableWithoutFeedback>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                backgroundColor: COLORS.TAGCOLOR,
-                                                marginRight: 5,
-                                                paddingHorizontal: 5,
-                                                paddingVertical: 5,
-                                                borderRadius: 5,
-                                                alignItems: 'center',
-                                            }}>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.paragraph1,
-                                                    marginRight: 5,
-                                                    fontSize: 12,
-                                                }}>
-                                                Link Device
-                                            </Text>
-                                            <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
-                                        </View>
-                                    </TouchableWithoutFeedback>
+                <UserVideos
+                hmsInstanceRef={hmsInstanceRef} 
+                peerTrackNodes={peerTrackNodes}
+                expandedVideo={expandedVideo}
+                setExpandedVideo={setExpandedVideo}
+                peersMuteStatus={peersMuteStatus}
+                />
 
-                                    {isHost && roomChannelRef.current && (
-                                        <TouchableWithoutFeedback onPress={_handleStartMovie}>
-                                            <View
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    backgroundColor: COLORS.TAGCOLOR,
-                                                    paddingHorizontal: 5,
-                                                    paddingVertical: 5,
-                                                    borderRadius: 5,
-                                                    alignItems: 'center',
-                                                }}>
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.paragraph1,
-                                                        marginRight: 5,
-                                                        fontSize: 12,
-                                                    }}>
-                                                    Play Stream
-                                                </Text>
-                                                <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
-                                            </View>
-                                        </TouchableWithoutFeedback>
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-                    ) : (
-                        <View>
-                            <View style={styles.videocontain}>
-                                <View style={{flex: 1}}>
-                                    {hasLottieFirstLoopCompleted ? (
-                                        movie?.movieURL ? (
-                                            <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
-                                                <VideoPlayer
-                                                    videoRef={videoPlayerRef}
-                                                    source={{
-                                                        uri: movie?.movieURL,
-                                                    }}
-                                                    showHours={true}
-                                                    paused={!isMoviePlaying}
-                                                    poster={movie?.landscapeURL}
-                                                    resizeMode="contain"
-                                                    posterResizeMode="cover"
-                                                    showOnStart={true}
-                                                    tapAnywhereToPause={false}
-                                                    preventsDisplaySleepDuringVideoPlayback={true}
-                                                    isFullscreen={isFullscreen}
-                                                    fullscreenAutorotate={false}
-                                                    disableBack={true}
-                                                    disablePlayPause={isHost ? false : true}
-                                                    disableSeekButtons={isHost ? false : true}
-                                                    disableSeekbar={isHost ? false : true}
-                                                    onProgress={___onProgress}
-                                                    onPlay={___onPlay}
-                                                    onPause={___onPause}
-                                                    onSeek={___onSeek}
-                                                    onEnterFullscreen={___onEnterFullscreen}
-                                                    onExitFullscreen={___onExitFullScreen}
-                                                />
-                                            </View>
-                                        ) : (
-                                            <ActivityIndicator size="large" color={COLORS.BLACK} />
-                                        )
-                                    ) : (
-                                        <View>
-                                            <Video
-                                                source={require('../../../../assets/sounds/akcrusound1.mp3')}
-                                                repeat={false}
-                                            />
-                                            <LottieView
-                                                source={require('../../../../assets/lottie/Akcruopener1.json')}
-                                                autoPlay
-                                                loop={false}
-                                                style={styles.movieview}
-                                                onAnimationFinish={() => {
-                                                    if (!hasLottieFirstLoopCompleted) {
-                                                        setHasLottieFirstLoopCompleted(true);
-                                                    }
-                                                }}
-                                            />
-                                        </View>
-                                    )}
-                                </View>
-                            </View>
-                        </View>
-                    )}
-                </View>
+                <UserControls 
+                toggleVideo={toggleVideo}
+                isUserVideoOn={isUserVideoOn} 
+                toggleMic={toggleMic} 
+                isMicOn={isMicOn} 
+                isHost={isHost}
+                muteAllPeers={muteAllPeers} 
+                sayhi={sayhi}
+                />
 
-                <View
-                    style={{
-                        width: SIZES.ScreenWidth * 0.95,
-                        height: (SIZES.ScreenWidth / 3) * 2.6,
-                        marginTop: SIZES.ScreenHeight * 0.3,
+                <HostOptionsModal
+                optionModalVisible={optionModalVisible} 
+                members={members} 
+                setShowTransferConfirmation={setShowTransferConfirmation} 
+                isHost={isHost} 
+                handleRoomTermination={handleCancelRoomTermination}
+                confirmOptions={confirmOptions}
+                />
 
-                        alignSelf: 'center',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    {hmsInstanceRef.current ? (
-                        <FlatList
-                            scrollEnabled={false}
-                            style={{height: '100%', width: '100%'}}
-                            key={peerTrackNodes.length}
-                            numColumns={3}
-                            data={peerTrackNodes}
-                            keyExtractor={node => node.id}
-                            contentContainerStyle={{flexGrow: 1}}
-                            renderItem={({item}) => {
-                                const isRoomHost = item.peer.role?.name === 'host';
-                                const isExpanded = expandedVideo === item;
+                <HostTransferModal 
+                showTransferConfirmation={showTransferConfirmation}
+                selectedMemeberForHost={selectedMemeberForHost} 
+                handleCancelTransfer={handleCancelTransfer} 
+                handleTransfer={handleTransfer}
+                />
 
-                                return hmsInstanceRef.current ? (
-                                    <View
-                                        style={{
-                                            width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
-                                            height: isExpanded
-                                                ? (SIZES.ScreenWidth / 3) * 2.6
-                                                : SIZES.ScreenWidth / 2.5,
-                                            backgroundColor: 'red',
-                                            flex: isExpanded ? 1 : 0,
-                                            position: isExpanded ? 'absolute' : 'relative',
-                                            zIndex: isExpanded ? 99 : 0,
-                                            bottom: 0,
-                                            top: 0,
-                                            borderColor: COLORS.CATPURPLGT,
-                                            borderWidth: 4,
-                                        }}>
-                                        {item.peer.videoTrack?.trackId ? (
-                                            <hmsInstanceRef.current.HmsView
-                                                key={item.peer.peerID}
-                                                trackId={item.peer.videoTrack.trackId}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    backgroundColor: 'black',
-                                                }}
-                                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                                                mirror={true}
-                                            />
-                                        ) : null}
+                <TerminateRoomModal
+                terminateRoom={terminateRoom} 
+                _handleTerminateRoom={_handleTerminateRoom} 
+                handleCancelRoomTermination={handleCancelRoomTermination}
+                />
 
-                                        {isRoomHost ? (
-                                            <View style={{position: 'absolute', top: 0, right: 0}}>
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.paragraph1,
-                                                        backgroundColor: COLORS.AKCRUBLUE,
-                                                        paddingHorizontal: 5,
-                                                        paddingVertical: 2,
-                                                        borderBottomLeftRadius: 4,
-                                                    }}>
-                                                    {'Host'}
-                                                </Text>
-                                            </View>
-                                        ) : null}
-
-                                        <View style={{position: 'absolute', top: 0, left: 0}}>
-                                            <TouchableOpacity
-                                                onPress={() => {
-                                                    if (isExpanded) {
-                                                        setExpandedVideo(null);
-                                                    } else {
-                                                        if (expandedVideo) {
-                                                            setExpandedVideo(null);
-                                                        }
-                                                        setExpandedVideo(item);
-                                                    }
-                                                }}>
-                                                {isExpanded ? (
-                                                    <Icon
-                                                        name="contract"
-                                                        type="ionicon"
-                                                        size={30}
-                                                        color={COLORS.AKCRUBLUE}
-                                                    />
-                                                ) : (
-                                                    <Icon
-                                                        name="expand"
-                                                        type="ionicon"
-                                                        size={23}
-                                                        color={COLORS.AKCRUBLUE}
-                                                    />
-                                                )}
-                                            </TouchableOpacity>
-                                        </View>
-
-                                        <View
-                                            style={{
-                                                position: 'absolute',
-                                                bottom: 0,
-                                                left: 0,
-                                                backgroundColor: COLORS.TRANSDARKGREY,
-                                                width: '100%',
-                                                borderTopLeftRadius: 5,
-                                                borderTopRightRadius: 5,
-                                            }}>
-                                            <View
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    justifyContent: 'space-between',
-                                                    paddingHorizontal: 3,
-                                                    paddingVertical: 5,
-                                                }}>
-                                                <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
-                                                    {isExpanded
-                                                        ? item.peer.name
-                                                        : item.peer.name.length > 8
-                                                        ? item.peer.name.substring(0, 8) + '...'
-                                                        : item.peer.name}
-                                                </Text>
-                                                <Pressable>
-                                                    <Icon
-                                                        name={
-                                                            peersMuteStatus[item.peer.peerID] === undefined ||
-                                                            peersMuteStatus[item.peer.peerID] == true
-                                                                ? 'mic-off-circle'
-                                                                : 'mic-circle'
-                                                        }
-                                                        type="ionicon"
-                                                        size={25}
-                                                        color={
-                                                            peersMuteStatus[item.peer.peerID] === undefined ||
-                                                            peersMuteStatus[item.peer.peerID] == true
-                                                                ? COLORS.CATREDLGT
-                                                                : COLORS.GREEN
-                                                        }
-                                                    />
-                                                </Pressable>
-                                            </View>
-                                        </View>
-                                    </View>
-                                ) : null;
-                            }}
-                        />
-                    ) : (
-                        <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
-                            <Text>Loading...</Text>
-                        </View>
-                    )}
-                </View>
-
-                <View style={styles.bottombtn}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-around',
-                        }}>
-                        <Pressable onPress={toggleVideo}>
-                            {isUserVideoOn ? (
-                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                            ) : (
-                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                            )}
-                        </Pressable>
-                        <Pressable onPress={() => sayhi()}>
-                            <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        </Pressable>
-                        <Pressable onPress={toggleMic}>
-                            {isMicOn ? (
-                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />
-                            ) : (
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                            )}
-                        </Pressable>
-                        {isHost ? (
-                            <Pressable onPress={muteAllPeers} style={styles.button}>
-                                <Text style={styles.buttonText}>Mute All</Text>
-                            </Pressable>
-                        ) : null}
-                    </View>
-                </View>
-
-                <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
-                    <SafeAreaView
-                        style={{
-                            flex: 1,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                        }}>
-                        <View
-                            style={{
-                                borderWidth: 0.8,
-                                borderRadius: 5,
-                                borderColor: COLORS.LIGHTGREY,
-                                padding: 10,
-                                width: '95%',
-                                marginTop: '10%',
-                            }}>
-                            <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>
-                                Room Host Options
-                            </Text>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    paddingBottom: 10,
-                                    alignSelf: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title2, paddingRight: 10}}>Transfer Hosting Permissions</Text>
-                                <Icon name="body" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            </View>
-                            <Text
-                                style={{
-                                    ...FONTS.paragraph1,
-                                    textAlign: 'center',
-                                    fontSize: 12,
-                                    color: COLORS.MIDORANGE,
-                                }}>
-                                (Once transfer is complete, you won't be able to gain permissions back until it is given
-                                back or your next CRU View)
-                            </Text>
-                            <Text
-                                style={{
-                                    ...FONTS.paragraph1,
-                                    textAlign: 'center',
-                                    fontSize: 12,
-                                }}>
-                                Choose who you are giving host privileges:
-                            </Text>
-                            <View>
-                                <FlatList
-                                    data={members.filter(member => member.role !== 'host')}
-                                    horizontal={false}
-                                    showsHorizontalScrollIndicator={false}
-                                    numColumns={2}
-                                    scrollEnabled={false}
-                                    keyExtractor={item => item.user?.id}
-                                    renderItem={({item}) => (
-                                        <View style={{marginVertical: 5}}>
-                                            <SmlMemberCard
-                                                userPicture={item.user.profilePicture ?? ''}
-                                                userName={item.user.username ?? 'Anonymous'}
-                                                onPress={() => {
-                                                    console.log('onPress FIRED');
-
-                                                    setShowTransferConfirmation(true);
-                                                }}
-                                                userID={item.user.id}
-                                                akcruBadge={item.user.badge}
-                                                userDesc={item.user.description ?? ''}
-                                                avatarbordercolor={selectAvatarBorderColor(
-                                                    item.user.badge ?? 'AKCRUIT',
-                                                )}
-                                            />
-                                        </View>
-                                    )}
-                                />
-                            </View>
-
-                            <View
-                                style={{
-                                    borderBottomWidth: 0.8,
-                                    borderColor: COLORS.LIGHTGREY,
-                                    marginVertical: 20,
-                                    width: SIZES.ScreenWidth / 4,
-                                    alignSelf: 'center',
-                                }}
-                            />
-
-                            <View
-                                style={{
-                                    paddingBottom: 10,
-                                }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        paddingRight: 10,
-                                        textAlign: 'center',
-                                        marginBottom: '5%',
-                                    }}>
-                                    Terminate Watchparty and close room
-                                </Text>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-around',
-
-                                        paddingBottom: 5,
-                                    }}>
-                                    <AkcruButtons.SmallButton
-                                        btnname="Terminate"
-                                        color={COLORS.CATREDLGT}
-                                        disabled={false}
-                                        onPress={isHost && handleRoomTermination}
-                                    />
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{marginBottom: '10%'}}>
-                            <AkcruButtons.XlLrgButton
-                                btnname="Close Options"
-                                disabled={false}
-                                color={COLORS.AKCRUBLUE}
-                                onPress={confirmOptions}
-                            />
-                        </View>
-                    </SafeAreaView>
-                </Modal>
-                <Modal animationType="fade" transparent={true} visible={showTransferConfirmation}>
-                    <View
-                        style={{
-                            zIndex: 100,
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        }}>
-                        <View
-                            style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
-                            }}>
-                            <View style={{alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Host Transfer</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                    {`Are you sure you want to transfer hosting privileges to "${selectedMemeberForHost?.user.username}"`}
-                                </Text>
-                            </View>
-
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                }}>
-                                <TouchableOpacity
-                                    onPress={handleCancelTransfer}
-                                    style={{
-                                        backgroundColor: 'red',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleTransfer}
-                                    style={{
-                                        backgroundColor: 'green',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Transfer</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
-                <Modal animationType="fade" transparent={true} visible={terminateRoom}>
-                    <View
-                        style={{
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        }}>
-                        <View
-                            style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                padding: 20,
-                                borderRadius: 10,
-                                marginHorizontal: '5%',
-                            }}>
-                            <View style={{alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm closing CRU View</Text>
-                                <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
-                                    Are you sure you want to end this CRU View session?
-                                </Text>
-                            </View>
-
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-around',
-                                }}>
-                                <AkcruButtons.SmallButton
-                                    onPress={_handleTerminateRoom}
-                                    color={COLORS.PINK}
-                                    btnname="Terminate"
-                                />
-                                <AkcruButtons.SmallButton
-                                    onPress={handleCancelRoomTermination}
-                                    color={COLORS.PURPLE}
-                                    btnname="Cancel"
-                                />
-                                {/* <TouchableOpacity
-                                    onPress={_handleTerminateRoom}
-                                    style={{
-                                        backgroundColor: 'green',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={handleCancelRoomTermination}
-                                    style={{
-                                        backgroundColor: 'red',
-                                        padding: 10,
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                </TouchableOpacity> */}
-                            </View>
-                        </View>
-                    </View>
-                </Modal>
                 {isHost ? (
-                    <Modal animationType="fade" transparent={true} visible={leaveRoom}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                    marginHorizontal: '5%',
-                                }}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
-                                        Please assign a new host or terminate the Watch Party session to leave
-                                    </Text>
-                                </View>
-
-                                <View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-around',
-                                        }}>
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleOptionModal}
-                                            color={COLORS.PINK}
-                                            btnname="Assign Host"
-                                        />
-                                        {/* <TouchableOpacity
-                                            onPress={handleOptionModal}
-                                            style={{
-                                                backgroundColor: COLORS.PINK,
-                                                padding: 10,
-                                                borderRadius: 5,
-                                            }}>
-                                            <Text style={{...FONTS.Title3}}>Assign Host</Text>
-                                        </TouchableOpacity> */}
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleRoomTermination}
-                                            color={COLORS.PURPLE}
-                                            btnname="Terminate"
-                                        />
-                                        {/* <TouchableOpacity
-                                            onPress={handleRoomTermination}
-                                            style={{
-                                                backgroundColor: COLORS.PURPLE,
-                                                padding: 10,
-                                                borderRadius: 5,
-                                            }}>
-                                            <Text style={{...FONTS.Title3}}>Terminate</Text>
-                                        </TouchableOpacity> */}
-                                    </View>
-                                    <View style={{alignItems: 'center', paddingTop: 10}}>
-                                        <AkcruButtons.SmallButton
-                                            onPress={handleCancelLeaveRoom}
-                                            color={COLORS.CATREDLGT}
-                                            btnname="Cancel"
-                                        />
-                                        {/* <TouchableOpacity
-                                        onPress={handleCancelLeaveRoom}
-                                        style={{
-                                            backgroundColor: 'red',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity> */}
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                    </Modal>
+                    <HostLeaveRoomModal
+                    leaveRoom={leaveRoom} 
+                    handleOptionModal={handleOptionModal}
+                    handleRoomTermination={handleRoomTermination} 
+                    handleCancelLeaveRoom={handleCancelLeaveRoom}
+                    />
                 ) : (
-                    <Modal animationType="fade" transparent={true} visible={leaveRoom}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                }}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm leaving Watch Party</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.paragraph2, textAlign: 'center'}}>
-                                        Are you sure you want to leave this Watch Party session?
-                                    </Text>
-                                </View>
-
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-around',
-                                        marginHorizontal: '5%',
-                                    }}>
-                                    <AkcruButtons.SmallButton
-                                        onPress={_handleRoomLeave}
-                                        color={COLORS.PINK}
-                                        btnname="Leave Room"
-                                    />
-                                    <AkcruButtons.SmallButton
-                                        onPress={handleCancelLeaveRoom}
-                                        color={COLORS.PURPLE}
-                                        btnname="Cancel"
-                                    />
-                                    {/* <TouchableOpacity
-                                        onPress={_handleRoomLeave}
-                                        style={{
-                                            backgroundColor: 'green',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Leave Room</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={handleCancelLeaveRoom}
-                                        style={{
-                                            backgroundColor: 'red',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity> */}
-                                </View>
-                            </View>
-                        </View>
-                    </Modal>
+                    <LeaveRoomModal
+                    leaveRoom={leaveRoom} 
+                    _handleRoomLeave={_handleRoomLeave} 
+                    handleCancelLeaveRoom={handleCancelLeaveRoom}
+                    />
                 )}
 
                 {unmutePermPopup ? (
@@ -1969,83 +1216,3 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 };
 
 export default StartWatchPartyView;
-
-const styles = StyleSheet.create({
-    button: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: COLORS.CATREDLGT,
-        width: 80,
-        height: 40,
-        borderRadius: 5,
-    },
-    buttonText: {
-        color: 'white',
-        fontSize: 12,
-    },
-    topcontainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginHorizontal: 15,
-        marginBottom: 15,
-    },
-    poster: {
-        width: 70,
-        height: 110,
-        borderRadius: 5,
-    },
-    moviecontainer: {
-        marginHorizontal: 15,
-        padding: 10,
-        flexDirection: 'row',
-        backgroundColor: '#1C202A',
-        borderRadius: 5,
-        height: SIZES.ScreenHeight * 0.18,
-        alignItems: 'center',
-    },
-    drawfonttag: {
-        ...FONTS.Title2Orange,
-        color: COLORS.BLACK,
-        backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 8,
-        paddingVertical: 2,
-        marginRight: 4,
-        borderRadius: 4,
-        textAlign: 'center',
-    },
-    input: {
-        flexDirection: 'row',
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
-        justifyContent: 'space-between',
-        marginVertical: 10,
-        paddingLeft: 10,
-        alignItems: 'center',
-        height: 35,
-    },
-    textinput: {
-        color: COLORS.LIGHTGREY,
-    },
-    videocontain: {
-        flex: 1,
-        zIndex: 1,
-        justifyContent: 'center',
-    },
-    movieview: {
-        height: SIZES.ScreenHeight / 3.5,
-    },
-    fullscreenmovie: {
-        width: SIZES.ScreenHeight,
-        height: SIZES.ScreenWidth,
-    },
-    videoplayer: {
-        alignSelf: 'center',
-        aspectRatio: 16 / 9,
-        width: '100%',
-    },
-    bottombtn: {
-        paddingTop: 10,
-        position: 'relative',
-    },
-});

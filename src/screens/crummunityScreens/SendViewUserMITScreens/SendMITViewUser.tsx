@@ -16,6 +16,7 @@ import {IGenreItem, IUserProfile} from '../../../../types';
 import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../../contentScreens/PlayContentScreen/styles';
+import BackButton from '../../../components/General/backbutton';
 type SendMITViewUserNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITViewUser'>;
 
 type SendMITViewUserRouteProp = RouteProp<CrummunityStackParams, 'SendMITViewUser'>;
@@ -66,23 +67,7 @@ const SendMITViewUser = ({route, navigation}: Props) => {
             <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]}>
                     <View>
-                        <View style={styles.backbutton}>
-                            <TouchableOpacity
-                                onPress={() => navigation.pop()}
-                                style={{
-                                    paddingHorizontal: 15,
-                                    paddingVertical: 10,
-                                }}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
-                        </View>
+                       <BackButton navigation={navigation} />
 
                         <SendMITSearchInput userid={userID} />
                     </View>

@@ -4,6 +4,7 @@ import {Avatar, Icon} from '@rneui/base';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
 import AkcruLevels from '../akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
+import DisplayBadge from '../General/akcrubadge';
 
 const MAX_USERNAME_LENGTH = 10;
 
@@ -74,35 +75,12 @@ const SmlMemberCard = ({userPicture, userName, influencer, akcruBadge, onPress, 
                                 )}
                             </View>
 
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {akcruBadge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {akcruBadge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
                     </View>
                 </View>
             </View>
-            {/* <View style={{position: 'absolute', right: 5, top: -5}}>
-                <Pressable onPress={handleAddHost}>
-                    <Icon name="add-circle" type="ionicon" size={25} color={COLORS.GREEN} />
-                </Pressable>
-            </View> */}
+            
         </View>
     );
 };

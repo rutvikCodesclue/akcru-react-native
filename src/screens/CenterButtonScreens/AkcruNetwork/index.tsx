@@ -8,6 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import {Icon} from '@rneui/base';
+import BackButton from '../../../components/General/backbutton';
 
 const AkcruNetworkScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
@@ -22,18 +23,7 @@ const AkcruNetworkScreen = () => {
                         <View>
                             <Header />
                         </View>
-                        <TouchableOpacity
-                            style={{marginHorizontal: 15, marginBottom: 10}}
-                            onPress={() => navigation.pop()}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                         <View style={{justifyContent: 'center', marginTop: '10%'}}>
                             <View style={styles.textcontainer}>
                                 <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Akcru Network"</Text>

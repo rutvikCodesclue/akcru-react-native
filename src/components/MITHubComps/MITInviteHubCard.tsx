@@ -4,11 +4,10 @@ import {COLORS, FONTS} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './styles';
 import {IMovie, IUserProfile} from '../../../types';
-import AkcruLevels from '../akcruBadges';
 import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
 import HexAvatar from '../HexAvatar';
-
+import DisplayBadge from '../General/akcrubadge';
 type MITInviteHubCardProp = {
     MITInviteID: any;
     movie: IMovie;
@@ -53,27 +52,7 @@ const MITInviteHubCard = ({movie, creator, onPress, scheduleDate, scheduleTime, 
                         </View>
                         <View>
                             <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
-
-                            {creator.badge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {creator.badge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {creator.badge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {creator.badge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={creator.badge} />
                         </View>
                     </View>
 

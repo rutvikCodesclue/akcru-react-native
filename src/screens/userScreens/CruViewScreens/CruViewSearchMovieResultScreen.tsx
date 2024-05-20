@@ -11,6 +11,7 @@ import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../../contentScreens/PlayContentScreen/styles';
+import BackButton from '../../../components/General/backbutton';
 type CruViewSearchMovieResultScreenNavigationProp = StackNavigationProp<
     UserProfileStackParams,
     'CruViewSearchMovieResultScreen'
@@ -74,22 +75,8 @@ const CruViewSearchMovieResultScreen = ({navigation, route}: Props) => {
         <TabContainer>
             <View>
                 <SafeAreaView>
+                    <BackButton navigation={navigation} />
                     <View style={styles.backbutton}>
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{
-                                paddingHorizontal: 15,
-                                paddingVertical: 10,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
                         <CruViewSearchInput />
                         <View
                             style={{

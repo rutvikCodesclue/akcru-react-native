@@ -34,6 +34,7 @@ import MITReceived from '../UserMITHubTabs/MITReceived';
 import MITSent from '../UserMITHubTabs/MITSent';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
+import BackButton from '../../../components/General/backbutton';
 
 
 
@@ -161,16 +162,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                           }}
                       />
                       <View style={styles.topcontainer}>
-                          <TouchableOpacity onPress={() => navigation.pop()}>
-                              <View
-                                  style={{
-                                      flexDirection: 'row',
-                                      alignItems: 'center',
-                                  }}>
-                                  <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                  <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                              </View>
-                          </TouchableOpacity>
+                          <BackButton navigation={navigation} />
                           <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                   <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>

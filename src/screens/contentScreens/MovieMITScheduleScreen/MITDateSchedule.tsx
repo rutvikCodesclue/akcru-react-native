@@ -25,6 +25,7 @@ import {createAMITInvite} from '../../../lib/api/mit.lib';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import BackButton from '../../../components/General/backbutton';
 
 type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
@@ -294,18 +295,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                         <ScrollView stickyHeaderIndices={[0]}>
                             <View style={styles.backbutton}>
                                 <Header />
-                                <TouchableOpacity
-                                    style={{marginHorizontal: 15, marginBottom: 10}}
-                                    onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
+                            </View>
+
+                            <BackButton navigation={navigation} />
+
+                            <View style={styles.backbutton}>
                                 <View style={{alignItems: 'center'}}>
                                     <View style={styles.searchinput}>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -379,21 +373,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                 }}>
                                 <Header />
                                 <View style={styles.topcontainer}>
-                                    <TouchableOpacity onPress={() => navigation.pop()}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}>
-                                            <Icon
-                                                name="chevron-back"
-                                                type="ionicon"
-                                                size={20}
-                                                color={COLORS.LIGHTGREY}
-                                            />
-                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                        </View>
-                                    </TouchableOpacity>
+                                    <BackButton navigation={navigation} />
                                 </View>
                             </View>
 

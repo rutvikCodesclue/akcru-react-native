@@ -1,36 +1,26 @@
-import {
-  View,
-  Text,
-  ImageBackground,
-  TouchableOpacity,
-  Alert,
-  Modal,
-} from 'react-native';
-import AkcruButtons from '../../../components/akcruButtons'
-import Inputs from '../../../components/input'
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants'
+import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal} from 'react-native';
+import AkcruButtons from '../../../components/akcruButtons';
+import Inputs from '../../../components/input';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import { useNavigation} from '@react-navigation/native';
-import { AuthStackParams } from '../../../navigation/AuthNavigation';
+import {useNavigation} from '@react-navigation/native';
+import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import { AkcruLogo } from '../../../../assets/svg';
+import {AkcruLogo} from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
-import { appVersion } from '../../../../assets/constants/Data';
+import {appVersion} from '../../../../assets/constants/Data';
 import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
-import { getPushToken } from '../../../../lib/pushNotifications';
-
+import {getPushToken} from '../../../../lib/pushNotifications';
 
 const Signin = () => {
     useEffect(() => {
         const _checkPermissions = async () => {
-            
             if (Platform.OS === 'android') {
-                
                 const audioResult = await check(PERMISSIONS.ANDROID.RECORD_AUDIO);
                 if (audioResult !== RESULTS.GRANTED) {
                     const audioRequestResult = await request(PERMISSIONS.ANDROID.RECORD_AUDIO);
@@ -39,7 +29,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const cameraResult = await check(PERMISSIONS.ANDROID.CAMERA);
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.ANDROID.CAMERA);
@@ -48,7 +37,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const audioMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -67,7 +55,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const imagesMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -76,7 +63,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const videoMediaResult = await check(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
@@ -85,7 +71,7 @@ const Signin = () => {
                     }
                 }
             }
-            
+
             if (Platform.OS === 'android' && Platform.Version >= 33) {
                 const notificationPermission = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
                 if (notificationPermission !== RESULTS.GRANTED) {
@@ -96,9 +82,7 @@ const Signin = () => {
                 }
             }
 
-            
             if (Platform.OS === 'ios') {
-                
                 const cameraResult = await check(PERMISSIONS.IOS.CAMERA);
                 if (cameraResult !== RESULTS.GRANTED) {
                     const cameraRequestResult = await request(PERMISSIONS.IOS.CAMERA);
@@ -107,7 +91,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const micResult = await check(PERMISSIONS.IOS.MICROPHONE);
                 if (micResult !== RESULTS.GRANTED) {
                     const micRequestResult = await request(PERMISSIONS.IOS.MICROPHONE);
@@ -116,7 +99,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const audioMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (audioMediaResult !== RESULTS.GRANTED) {
                     const audioMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -125,7 +107,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const imagesMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (imagesMediaResult !== RESULTS.GRANTED) {
                     const imagesMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -134,7 +115,6 @@ const Signin = () => {
                     }
                 }
 
-                
                 const videoMediaResult = await check(PERMISSIONS.IOS.MEDIA_LIBRARY);
                 if (videoMediaResult !== RESULTS.GRANTED) {
                     const videoMediaRequestResult = await request(PERMISSIONS.IOS.MEDIA_LIBRARY);
@@ -145,49 +125,21 @@ const Signin = () => {
             }
         };
 
-        
         _checkPermissions();
     }, []);
-
 
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
-    
-    
-    
-    
-    
     const [showLoginError, setShowLoginError] = useState(false);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [errorMsg, setErrorMsg] = useState<string>('');
 
     const [loading, setLoading] = useState<boolean>(false);
 
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-    
-    
-    
-    
-
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-    
     useEffect(() => {
         const checkAuth = async () => {
             await authStore.hydrateAuth();
@@ -195,60 +147,58 @@ const Signin = () => {
 
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
-            
-            setIsLoggedIn(isLoggedInWithToken); 
+
+            setIsLoggedIn(isLoggedInWithToken);
         };
-;
         checkAuth().catch(err => {
             console.error('Error checking auth', err);
         });
     }, []);
 
-    
     async function attemptLogin() {
         try {
             setLoading(true);
             console.log('Attempting to LOGIN w/ Email/Password:', email, password);
-            
+
             const loginResponse = await authStore.loginWithEmail(email, password);
+            console.log(loginResponse);
             const session = loginResponse?.session;
             const user = loginResponse?.user;
 
             if (!session || !user) {
                 Alert.alert('Error Logging In');
-                setShowLoginError(true); 
+                setShowLoginError(true);
                 setLoading(false);
                 return;
             }
             if (!loginResponse) {
                 Alert.alert('Error Logging In. Please try again.');
-                setShowLoginError(true); 
+                setShowLoginError(true);
                 setLoading(false);
                 return;
             }
 
-            
             const accessToken = session.access_token;
             AsyncStorage.setItem('access_token', accessToken);
             console.log('LOGIN Successful. Access Token:', accessToken);
             console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
-            try{
-                await getPushToken(user.id); 
-
-            }catch(e){  
+            try {
+                await getPushToken(user.id);
+            } catch (e) {
                 console.log('Error getting push token:', e);
             }
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
-            setShowLoginError(true); 
-            //console.log('LOGIN Error:', error);
+            setShowLoginError(true);
+            console.log('LOGIN Error:', error.response.data);
             setLoading(false);
+            setErrorMsg(error.response.data.message);
         }
     }
 
     async function handleLogout() {
-        await AsyncStorage.removeItem('access_token'); 
+        await AsyncStorage.removeItem('access_token');
         await authStore.logout();
         setIsLoggedIn(false);
     }
@@ -257,7 +207,6 @@ const Signin = () => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -268,7 +217,7 @@ const Signin = () => {
                     }}
                 />
                 <View style={styles.container}>
-                    {isLoggedIn ? ( 
+                    {isLoggedIn ? (
                         <View style={styles.container2}>
                             <AkcruLogo width={200} height={60} />
                             <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
@@ -358,7 +307,7 @@ const Signin = () => {
                                     Forgot your password?
                                 </Text>
                             </TouchableOpacity>
-                            
+
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                                 <View
                                     style={{
@@ -411,7 +360,7 @@ const Signin = () => {
                                         marginBottom: 10,
                                         textAlign: 'center',
                                     }}>
-                                    {`Login error, Please try again.`}
+                                    {errorMsg}
                                 </Text>
                                 <TouchableOpacity
                                     onPress={() => {
@@ -424,7 +373,7 @@ const Signin = () => {
                                             textAlign: 'center',
                                             color: COLORS.PINK,
                                         }}>
-                                        {`Close`}
+                                        {'Close'}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -434,6 +383,6 @@ const Signin = () => {
             </ImageBackground>
         </View>
     );
-}
+};
 
 export default Signin;

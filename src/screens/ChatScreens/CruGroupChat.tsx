@@ -11,6 +11,7 @@ import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruGroupChatComponent from './CruGroupChatComponent';
 import {getMyCRU} from '../../lib/api/cru.lib';
 import {ICru, IUserProfile} from '../../../types';
+import BackButton from '../../components/General/backbutton';
 
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
 
@@ -49,16 +50,7 @@ const CruGroupChat = ({route}: Props) => {
                 <Header />
             </View>
             <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                <TouchableRipple onPress={() => navigation.pop()}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}>
-                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                    </View>
-                </TouchableRipple>
+                <BackButton navigation={navigation} />
             </View>
             {CRU ? <CruGroupChatComponent cru={CRU} members={members} /> : null}
         </SafeAreaView>

@@ -24,6 +24,7 @@ import AddMemberCard from '../../../components/AddMemberCard';
 import {addPotentialMemberToCRU, getMyCRU, removeAUserFromCRU, updateCRUInfo} from '../../../lib/api/cru.lib';
 import {ICru, IUserProfile} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import BackButton from '../../../components/General/backbutton';
 
 const EditCru = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -164,16 +165,7 @@ const EditCru = () => {
                     <View>
                         <Header />
                         <View style={styles.container}>
-                            <TouchableOpacity onPress={() => navigation.pop()}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <BackButton navigation={navigation} />
                             <View style={{alignItems: 'center', marginTop: 10}}>
                                 <TouchableWithoutFeedback
                                     onPress={() => {

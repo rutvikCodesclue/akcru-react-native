@@ -17,6 +17,7 @@ import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import { supabase } from '../../../../lib/supabase';
 import { API } from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
+import BackButton from '../../../components/General/backbutton';
 
 
 const OTPVerification = ({route}) => {
@@ -158,16 +159,7 @@ const OTPVerification = ({route}) => {
                     }}
                 />
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                     <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
                             <Svg

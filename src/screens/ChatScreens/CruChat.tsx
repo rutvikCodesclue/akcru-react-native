@@ -9,6 +9,7 @@ import {Text, TouchableRipple} from 'react-native-paper';
 import Header from '../../components/header';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruChatComponent from './CruChatComponent';
+import BackButton from '../../components/General/backbutton';
 
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
 
@@ -25,16 +26,7 @@ const CruChat = ({route}: Props) => {
                 <Header />
             </View>
             <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-                <TouchableRipple onPress={() => navigation.pop()}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}>
-                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                    </View>
-                </TouchableRipple>
+               <BackButton navigation={navigation} />
             </View>
             <CruChatComponent route={route} />
         </SafeAreaView>

@@ -9,6 +9,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getBlockedUsers, unblockUser} from '../../../lib/api/user.lib';
 import BlockedUserCard from '../../../components/BlockedUserCard';
+import BackButton from '../../../components/General/backbutton';
 
 const BlockedUsers = () => {
     const [blockedUsers, setBlockedUsers] = useState([]);
@@ -71,18 +72,7 @@ const BlockedUsers = () => {
                             }}
                         />
                         <View>
-                            <TouchableOpacity
-                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
-                                onPress={() => navigation.pop()}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <BackButton navigation={navigation} />
                             <Text
                                 style={{
                                     ...FONTS.Title2,

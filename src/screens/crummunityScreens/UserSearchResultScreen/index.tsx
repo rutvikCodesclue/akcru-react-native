@@ -13,6 +13,7 @@ import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+import BackButton from '../../../components/General/backbutton';
 
 const UserSearchResultScreen = () => {
     const [data, setData] = useState<IUserProfile[] | []>([]);
@@ -49,16 +50,7 @@ const UserSearchResultScreen = () => {
             <SafeAreaView>
                 <View>
                     <Header />
-                    <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                     <View style={{alignItems: 'center'}}>
                         <View style={styles.searchinput}>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>

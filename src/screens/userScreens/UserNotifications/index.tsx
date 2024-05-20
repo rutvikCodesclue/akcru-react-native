@@ -9,20 +9,20 @@ import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
 import {INotification} from '../../../../types';
-import { formatDatestamp, formatTimestampToAMPM } from '../../../util/util';
+import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
 import LoadingComponent from '../../../components/Loading';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
-import { getPost } from '../../../lib/api/post.lib';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {getPost} from '../../../lib/api/post.lib';
+import BackButton from '../../../components/General/backbutton';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
 
-    
     useEffect(() => {
         async function fetchNotifications() {
             try {
@@ -32,57 +32,54 @@ const UserNotifications = () => {
             } catch (error) {
                 console.error(error);
             } finally {
-                setIsLoading(false); 
+                setIsLoading(false);
             }
         }
 
         fetchNotifications();
     }, []);
 
-    
-  const navigateToContent = async (notification: INotification) => {
-      try {
-          switch (notification.type) {
-              case 'UserLikedComment':
-              case 'UserLikedPost':
-              case 'UserTaggedOnPost':
-              case 'UserCommentedOnPost':
-              case 'UserTaggedOnComment':
-              case 'ADReceived':
-                  
-                  const postId = notification.postId;
-                  if (postId) {
-                      const numericPostId = parseInt(postId, 10);
-                      const post = await getPost(numericPostId);
-                      if (post) {
-                          navigation.navigate('PostScreen', {post: post});
-                      } else {
-                          console.error('Post not found');
-                      }
-                  }
-                  break;
-              
-              default:
-                  console.warn('Unhandled notification type:', notification.type);
-                  break;
-              case 'UserFollowed':
-              case 'CruInviteReceived':
-              case 'CruInviteAccepted':
-              case 'CruInviteDeclined':
-                  
-                  const userId = notification.senderId; 
-                  //console.log('Notification Data:', notification)
-                  if (userId) {
-                      navigation.navigate('ViewUserScreen', {userID: userId});
-                  } else {
-                      console.error('User ID not found');
-                  }
-                  break;
-          }
-      } catch (error) {
-          console.error('Error navigating to content:', error);
-      }
-  };
+    const navigateToContent = async (notification: INotification) => {
+        try {
+            switch (notification.type) {
+                case 'UserLikedComment':
+                case 'UserLikedPost':
+                case 'UserTaggedOnPost':
+                case 'UserCommentedOnPost':
+                case 'UserTaggedOnComment':
+                case 'ADReceived':
+                    const postId = notification.postId;
+                    if (postId) {
+                        const numericPostId = parseInt(postId, 10);
+                        const post = await getPost(numericPostId);
+                        if (post) {
+                            navigation.navigate('PostScreen', {post: post});
+                        } else {
+                            console.error('Post not found');
+                        }
+                    }
+                    break;
+
+                default:
+                    console.warn('Unhandled notification type:', notification.type);
+                    break;
+                case 'UserFollowed':
+                case 'CruInviteReceived':
+                case 'CruInviteAccepted':
+                case 'CruInviteDeclined':
+                    const userId = notification.senderId;
+                    //console.log('Notification Data:', notification)
+                    if (userId) {
+                        navigation.navigate('ViewUserScreen', {userID: userId});
+                    } else {
+                        console.error('User ID not found');
+                    }
+                    break;
+            }
+        } catch (error) {
+            console.error('Error navigating to content:', error);
+        }
+    };
 
     const getNotificationDisplayName = (type: string) => {
         const typeDisplayNames: {[key: string]: string} = {
@@ -100,13 +97,11 @@ const UserNotifications = () => {
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
             ADReceived: 'You just received AD',
-            
         };
 
-        return typeDisplayNames[type] || type; 
+        return typeDisplayNames[type] || type;
     };
 
-    
     const filteredNotifications = notifications.filter(
         notification =>
             !notification.isRead &&
@@ -126,21 +121,16 @@ const UserNotifications = () => {
                 notification.type === 'ADReceived'),
     );
     const sortedNotifications: INotification[] = filteredNotifications.sort(
-        
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        
     );
-    
 
     const handleMarkAsRead = async (notificationId: string, index: number) => {
         try {
-            
             const updatedNotification = await markNotificationRead({id: notificationId});
 
             //console.log('API Response:', updatedNotification);
 
             if (updatedNotification) {
-                
                 setNotifications(prevNotifications =>
                     prevNotifications.map(notification =>
                         notification.id === notificationId ? {...notification, isRead: true} : notification,
@@ -159,7 +149,7 @@ const UserNotifications = () => {
 
         if (unreadNotificationIds.length > 0) {
             try {
-                const response = await batchMarkNotificationsRead(unreadNotificationIds); 
+                const response = await batchMarkNotificationsRead(unreadNotificationIds);
                 if (response.success) {
                     setNotifications(notifications.map(notif => ({...notif, isRead: true})));
                     //console.log('All notifications marked as read');
@@ -178,7 +168,6 @@ const UserNotifications = () => {
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
                 {isLoading ? (
-                    
                     <LoadingComponent />
                 ) : (
                     <ScrollView stickyHeaderIndices={[0]} style={{marginBottom: 60}}>
@@ -194,7 +183,6 @@ const UserNotifications = () => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
                                 <LinearGradient
-                                    
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -205,23 +193,7 @@ const UserNotifications = () => {
                                     }}
                                 />
                                 <View>
-                                    <TouchableOpacity
-                                        style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
-                                        onPress={() => navigation.pop()}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}>
-                                            <Icon
-                                                name="chevron-back"
-                                                type="ionicon"
-                                                size={20}
-                                                color={COLORS.LIGHTGREY}
-                                            />
-                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                        </View>
-                                    </TouchableOpacity>
+                                    <BackButton navigation={navigation} />
                                     <Text
                                         style={{
                                             ...FONTS.Title2,
@@ -238,24 +210,14 @@ const UserNotifications = () => {
                         </View>
 
                         <View style={{marginHorizontal: 15}}>
-                            
                             {sortedNotifications.map((notification, index) => {
                                 const {id, type, message, isRead, createdAt, user} = notification;
-
-                                
-                                //console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                                //console.log('User Data Notification:', notification);
-
-                                
                                 const displayName = getNotificationDisplayName(type);
 
                                 return (
-                                    <TouchableOpacity key={index} onPress={
-                                        () => navigateToContent (notification) }>
-                                        
+                                    <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
                                         <View key={index} style={styles.cardcontainer}>
                                             <LinearGradient
-                                                
                                                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
                                                 style={{
                                                     position: 'absolute',
@@ -277,7 +239,7 @@ const UserNotifications = () => {
                                             <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'right'}}>
                                                 {formatTimestampToAMPM(createdAt)}
                                             </Text>
-                                            
+
                                             <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
                                             <TouchableOpacity onPress={() => handleMarkAsRead(id, index)}>
                                                 <Text

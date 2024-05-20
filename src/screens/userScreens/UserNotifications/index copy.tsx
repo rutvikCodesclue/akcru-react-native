@@ -28,6 +28,7 @@ import Unread from '../UserNotificationTabs/Unread';
 import Read from '../UserNotificationTabs/Read';
 import LinearGradient from 'react-native-linear-gradient';
 import UserNotifications from '.';
+import BackButton from '../../../components/General/backbutton';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
 
@@ -190,18 +191,7 @@ const UserNotification = ({route}: Props) => {
                             }}
                         />
                         <View>
-                            <TouchableOpacity
-                                style={{marginHorizontal: 15, marginBottom: 10, paddingTop: 60}}
-                                onPress={() => navigation.pop()}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                </View>
-                            </TouchableOpacity>
+                            <BackButton navigation={navigation} />
                             <Text
                                 style={{
                                     ...FONTS.Title2,

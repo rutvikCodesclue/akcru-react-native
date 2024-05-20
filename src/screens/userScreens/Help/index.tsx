@@ -14,6 +14,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {IHelpVideo} from '../../../../types';
 import {getHelpVideos} from '../../../lib/api/helpvideo.lib';
 import HelpVideoList from '../../../components/HelpVideoList';
+import BackButton from '../../../components/General/backbutton';
 
 const Help = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -36,16 +37,7 @@ const Help = () => {
                         <Header />
                         <View style={styles.container}>
                             <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 5}}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                    </View>
-                                </TouchableOpacity>
+                                <BackButton navigation={navigation} />
                             </View>
                         </View>
                     </View>

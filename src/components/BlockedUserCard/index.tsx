@@ -1,11 +1,11 @@
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {Icon} from '@rneui/base';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
-import AkcruLevels from '../akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
+import DisplayBadge from '../General/akcrubadge';
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -79,26 +79,7 @@ const BlockedUserCard = ({
                                 )}
                             </View>
                             <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {akcruBadge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {akcruBadge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
                     </View>
                     <TouchableOpacity onPress={unblock}>

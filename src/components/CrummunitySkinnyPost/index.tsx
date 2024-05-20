@@ -10,18 +10,17 @@ import {
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
-import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
-import {deletePost} from '../../lib/api/post.lib';
 import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../assets/constants/theme';
+import DisplayBadge from '../General/akcrubadge';
 
 type FooterIconsProps = {
     iconname: string;
@@ -375,32 +374,10 @@ const SkinnyPostCard = ({
                     <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        {akcruBadge === 'AKCRUIT' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeAkcruit />
-                            </View>
-                        )}
-                        {akcruBadge === 'HERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeHero />
-                            </View>
-                        )}
-                        {akcruBadge === 'SUPERHERO' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeSuperHero />
-                            </View>
-                        )}
-                        {akcruBadge === 'GUARDIAN' && (
-                            <View>
-                                <AkcruLevels.AkcruBadgeGuardian />
-                            </View>
-                        )}
+                        <DisplayBadge akcruBadge={akcruBadge} />
                     </View>
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                        {timeSince(post.createdAt)}
-                    </Text> */}
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>
@@ -408,21 +385,6 @@ const SkinnyPostCard = ({
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
-                            {/* {renderNotInterested()} */}
-                            {/* <Pressable
-                                style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                                onPress={handleFollowPress}>
-                                <Icon
-                                    name="person"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={20}
-                                    style={{marginLeft: 5}}
-                                />
-                                <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                                    {isFollowing ? 'Unfollow' : 'Follow'} {post.author.username}
-                                </Text>
-                            </Pressable> */}
                             {renderFollowUser()}
                             {/* {renderMuteUser()} */}
                             {renderBlockUser()}

@@ -27,6 +27,7 @@ import {findAUser, sendAbuseReportToBackend, uploadImages} from '../../../lib/ap
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
+import BackButton from '../../../components/General/backbutton';
 
 const ReportUser = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -140,12 +141,7 @@ const ReportUser = ({route}) => {
                 <ScrollView style={{flex: 1}} stickyHeaderIndices={[0]}>
                     <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 10}}>
                         <Header />
-                        <TouchableOpacity
-                            onPress={() => navigation.pop()}
-                            style={{flexDirection: 'row', alignItems: 'center', padding: 10}}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </TouchableOpacity>
+                        <BackButton navigation={navigation} />
                     </View>
                     <View>
                         <View style={{alignItems: 'center'}}>

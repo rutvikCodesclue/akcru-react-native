@@ -27,6 +27,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
 import {Icon} from '@rneui/base';
+import BackButton from '../../../components/General/backbutton';
 
 const ContactList = () => {
     const [, setContacts] = useState<any>([]);
@@ -229,16 +230,7 @@ const ContactList = () => {
                 />
                 <Header />
                 <View style={{marginHorizontal: '5%'}}>
-                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                 </View>
 
                 {isContactPermission === true ? (
