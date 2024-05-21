@@ -14,7 +14,6 @@ import {capitalizeFirstLetterOfString} from '../../util/util';
 import ConfirmationModal from '../ConfirmationModal';
 import {API} from '../../clients/api.client';
 import {MULTISIZES} from '../../../assets/constants/theme';
-import BackButton from '../General/backbutton';
 
 type ReactionStat = {
     type: string;
@@ -196,7 +195,25 @@ const MovieDetailCard = ({
                             height: SIZES.ScreenHeight / 1.5,
                         }}
                     />
-                    <BackButton navigation={navigation} />
+                    <TouchableOpacity
+                        onPress={() => navigation.pop()}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+
+                            top: SIZES.ScreenHeight * -0.32,
+                            marginHorizontal: 15,
+                        }}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                     <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
                         <View
                             style={{
