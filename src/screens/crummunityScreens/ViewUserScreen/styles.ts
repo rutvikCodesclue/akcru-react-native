@@ -70,7 +70,7 @@ export default StyleSheet.create({
         marginTop: 20,
     },
     galleryImage: {
-        width: SIZES.ScreenWidth / 3.55,
+        width: SIZES.ScreenWidth / 3.56,
         height: SIZES.ScreenWidth / 2.35,
         margin: 5,
         borderRadius: 5,
