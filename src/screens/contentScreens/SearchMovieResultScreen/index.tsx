@@ -128,7 +128,9 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
             <View>
                 <View>
                     <View style={styles.backbutton}>
-                        <BackButton navigation={navigation} />
+                        <View style={{marginHorizontal: 15}}>
+                            <BackButton navigation={navigation} />
+                        </View>
                         <SearchInput />
                         <View
                             style={{

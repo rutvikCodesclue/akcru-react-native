@@ -50,7 +50,10 @@ const UserSearchResultScreen = () => {
             <SafeAreaView>
                 <View>
                     <Header />
-                    <BackButton navigation={navigation} />
+                    <View style={{marginHorizontal: 15}}>
+                        <BackButton navigation={navigation} />
+                    </View>
+
                     <View style={{alignItems: 'center'}}>
                         <View style={styles.searchinput}>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -108,6 +111,7 @@ const UserSearchResultScreen = () => {
                                             ownerStatus={item.ownerStatus}
                                             companyStatus={item.companyStatus}
                                             influencerStatus={item.influencerStatus}
+                                            blackCloakStatus={item.blackCloakStatus}
                                         />
                                     </View>
                                 )}
@@ -142,6 +146,7 @@ const UserSearchResultScreen = () => {
                                             ownerStatus={item.ownerStatus}
                                             companyStatus={item.companyStatus}
                                             influencerStatus={item.influencerStatus}
+                                            blackCloakStatus={item.blackCloakStatus}
                                         />
                                     </View>
                                 )}

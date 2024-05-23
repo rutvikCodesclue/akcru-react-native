@@ -77,8 +77,8 @@ export const COLORS = {
     CATBLUELGT: '#1207AD',
     PINK: '#FF00FF',
     TRANSPINK: '#FF00FF50',
-    AKCRUPINK: 'DB1DD0',
-    BLACKCLOAK: '504f57',
+    AKCRUPINK: '#DB1DD0',
+    BLACKCLOAK: '#504f57',
 };
 
 export const MULTISIZES = {

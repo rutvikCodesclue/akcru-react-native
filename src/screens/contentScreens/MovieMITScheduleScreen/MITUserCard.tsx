@@ -16,7 +16,7 @@ type MITUserSearchCardProps = {
     influencerStatus: boolean;
     ownerStatus: boolean;
     companyStatus: boolean;
-    blackCloakStatus: boolean;
+    blackCloakStatus?: boolean;
     akcruBadge: any;
     onPress: () => void;
     userID: any;

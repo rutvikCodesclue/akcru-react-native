@@ -297,7 +297,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                 <Header />
                             </View>
 
-                            <BackButton navigation={navigation} />
+                            <View style={{marginHorizontal: 15}}>
+                                <BackButton navigation={navigation} />
+                            </View>
 
                             <View style={styles.backbutton}>
                                 <View style={{alignItems: 'center'}}>
@@ -357,6 +359,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 influencerStatus={item.influencerStatus}
                                                 companyStatus={item.companyStatus}
                                                 ownerStatus={item.ownerStatus}
+                                                blackCloakStatus={item.blackCloakStatus}
                                                 firstName={item.firstName}
                                             />
                                         </View>

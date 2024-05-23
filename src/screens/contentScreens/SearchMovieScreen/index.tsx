@@ -38,7 +38,9 @@ const SearchMovieScreen = () => {
     return (
         <TabContainer>
             <View style={{flex: 1}}>
-                <BackButton navigation={navigation} />
+                <View style={{marginHorizontal: 15}}>
+                    <BackButton navigation={navigation} />
+                </View>
                 <View>
                     <Text
                         style={{

@@ -49,6 +49,7 @@ const ViewUserFollowingTab = ({userID}) => {
                             akcruBadge={item.badge}
                             userDesc={item.description}
                             firstName={item.firstName}
+                            blackCloakStatus={item.blackCloakStatus}
                         />
                     </View>
                 )}

@@ -67,7 +67,9 @@ const SendMITViewUser = ({route, navigation}: Props) => {
             <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]}>
                     <View>
-                       <BackButton navigation={navigation} />
+                        <View style={{marginHorizontal: 15}}>
+                            <BackButton navigation={navigation} />
+                        </View>
 
                         <SendMITSearchInput userid={userID} />
                     </View>
@@ -172,7 +174,6 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                                     </View>
                                 )}
                             </View>
-                          
                         </View>
                     </View>
                     <View style={{marginLeft: 10}}>
