@@ -361,6 +361,15 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
+                                            {user?.blackCloakStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.BLACKCLOAK}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
                                         </View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             {user?.badge === 'AKCRUIT' && (
@@ -383,7 +392,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     <AkcruLevels.AkcruBadgeSuperHero />
                                                 </View>
                                             )}
-
                                         </View>
                                     </View>
                                 </View>

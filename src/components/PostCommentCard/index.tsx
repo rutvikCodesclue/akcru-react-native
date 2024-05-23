@@ -362,6 +362,15 @@ const PostCommentCard = ({
                                 style={{marginRight: 5}}
                             />
                         )}
+                        {post?.author.blackCloakStatus && (
+                            <Icon
+                                name="ribbon"
+                                type="ionicon"
+                                color={COLORS.BLACKCLOAK}
+                                size={18}
+                                style={{marginRight: 5}}
+                            />
+                        )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
                     <DisplayBadge akcruBadge={akcruBadge} />

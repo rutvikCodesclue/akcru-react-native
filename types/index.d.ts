@@ -34,6 +34,7 @@ interface IUserProfile {
     watchlist?: IWatchlist[];
     watching?: IUserWatching;
     posts?: IPost[];
+    blackCloakStatus?: boolean;
 }
 
 interface IUserWatching {
@@ -206,6 +207,7 @@ export interface IUserProfile {
     promoUser: boolean;
     galleryLikes: IGalleryLike[];
     userGallery: IGallery[];
+    blackCloakStatus: boolean;
 }
 
 export interface IWatchlist {
@@ -257,6 +259,7 @@ export interface IMovie {
     createdAt: string;
     updatedAt: string;
     sponsored: boolean;
+    blackInTheDays: boolean;
 }
 
 export interface IGenreItem {

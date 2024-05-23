@@ -122,6 +122,7 @@ const UserWalletSearch = () => {
                                         ownerStatus={item.ownerStatus}
                                         companyStatus={item.companyStatus}
                                         influencerStatus={item.influencerStatus}
+                                        blackcloakStatus={item.blackCloakStatus}
                                     />
                                 </View>
                             )}

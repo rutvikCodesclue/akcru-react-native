@@ -370,6 +370,15 @@ const SkinnyPostCard = ({
                                 style={{marginRight: 5}}
                             />
                         )}
+                        {post?.author.blackCloakStatus && (
+                            <CustomIcon
+                                name="ribbon"
+                                type="ionicon"
+                                color={COLORS.BLACKCLOAK}
+                                baseSize={12}
+                                style={{marginRight: 5}}
+                            />
+                        )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 

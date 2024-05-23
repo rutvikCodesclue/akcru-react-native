@@ -112,7 +112,10 @@ const BlockedUsers = () => {
                                             userID: item.id,
                                         });
                                     }}
-                                    influencer={item.influencer}
+                                    influencerStatus={item.influencerStatus}
+                                    ownerStatus={item.ownerStatus}
+                                    companyStatus={item.companyStatus}
+                                    blackCloakStatus={item.blackCloakStatus}
                                     userID={item.id}
                                     akcruBadge={item.badge}
                                     userDesc={item.description}

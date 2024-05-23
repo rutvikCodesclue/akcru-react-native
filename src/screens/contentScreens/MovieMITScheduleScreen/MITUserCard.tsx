@@ -16,6 +16,7 @@ type MITUserSearchCardProps = {
     influencerStatus: boolean;
     ownerStatus: boolean;
     companyStatus: boolean;
+    blackCloakStatus: boolean;
     akcruBadge: any;
     onPress: () => void;
     userID: any;
@@ -30,6 +31,7 @@ const MITUserSearchCard = ({
     influencerStatus,
     ownerStatus,
     companyStatus,
+    blackCloakStatus,
     akcruBadge,
     onPress,
     onPressOut,
@@ -108,6 +110,15 @@ const MITUserSearchCard = ({
                                         name="ribbon"
                                         type="ionicon"
                                         color={COLORS.AKCRUBLUE}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {blackCloakStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.BLACKCLOAK}
                                         baseSize={12}
                                         style={{marginRight: 5}}
                                     />

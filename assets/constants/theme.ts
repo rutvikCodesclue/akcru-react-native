@@ -78,6 +78,7 @@ export const COLORS = {
     PINK: '#FF00FF',
     TRANSPINK: '#FF00FF50',
     AKCRUPINK: 'DB1DD0',
+    BLACKCLOAK: '504f57',
 };
 
 export const MULTISIZES = {

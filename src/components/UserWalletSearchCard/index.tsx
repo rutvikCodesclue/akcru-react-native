@@ -23,6 +23,7 @@ type UserWalletSearchCardProps = {
     ownerStatus?: boolean;
     companyStatus?: boolean;
     influencerStatus?: boolean;
+    blackcloakStatus?: boolean;
 };
 
 const UserSearchCard = ({
@@ -36,6 +37,7 @@ const UserSearchCard = ({
     ownerStatus,
     companyStatus,
     influencerStatus,
+    blackcloakStatus,
 }: UserWalletSearchCardProps) => {
     const truncateduserDesc =
         userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
@@ -98,6 +100,15 @@ const UserSearchCard = ({
                                         name="ribbon"
                                         type="ionicon"
                                         color={COLORS.AKCRUBLUE}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {blackcloakStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.BLACKCLOAK}
                                         baseSize={12}
                                         style={{marginRight: 5}}
                                     />

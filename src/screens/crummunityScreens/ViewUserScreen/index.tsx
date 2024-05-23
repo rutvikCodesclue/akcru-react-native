@@ -535,6 +535,15 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             style={{marginRight: 5}}
                                         />
                                     )}
+                                    {user?.blackCloakStatus && (
+                                        <CustomIcon
+                                            name="ribbon"
+                                            type="ionicon"
+                                            color={COLORS.BLACKCLOAK}
+                                            baseSize={12}
+                                            style={{marginRight: 5}}
+                                        />
+                                    )}
                                 </View>
 
                                 {user?.firstName && (

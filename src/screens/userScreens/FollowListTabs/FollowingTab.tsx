@@ -62,6 +62,7 @@ const FollowingTab = () => {
                             companyStatus={item?.companyStatus}
                             ownerStatus={item?.ownerStatus}
                             influencer={item.influencerStatus}
+                            blackCloakStatus={item.blackCloakStatus}
                             userID={item.id}
                             akcruBadge={item.badge}
                             userDesc={item.description}

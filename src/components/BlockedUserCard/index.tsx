@@ -6,13 +6,17 @@ import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
 import DisplayBadge from '../General/akcrubadge';
+import CustomIcon from '../CustomIcon/CustomIcon';
 
 const MAX_USERDESC_LENGTH = 50;
 
 type BlockedUserCardProps = {
     userPicture?: string;
     userName: string;
-    influencer?: boolean;
+    influencerStatus?: boolean;
+    ownerStatus?: boolean;
+    companyStatus?: boolean;
+    blackCloakStatus?: boolean;
     akcruBadge: any;
     onPress: () => void;
     userID: any;
@@ -24,7 +28,10 @@ type BlockedUserCardProps = {
 const BlockedUserCard = ({
     userPicture,
     userName,
-    influencer,
+    influencerStatus,
+    ownerStatus,
+    companyStatus,
+    blackCloakStatus,
     akcruBadge,
     onPress,
     userDesc,
@@ -68,13 +75,40 @@ const BlockedUserCard = ({
                         <View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title3, fontSize: 12}}>{userName}</Text>
-                                {influencer && (
-                                    <Icon
+                                {ownerStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.STARGOLD}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {companyStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.WHITE}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {influencerStatus && (
+                                    <CustomIcon
                                         name="ribbon"
                                         type="ionicon"
                                         color={COLORS.AKCRUBLUE}
-                                        size={18}
-                                        style={{marginLeft: 5}}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {blackCloakStatus && (
+                                    <CustomIcon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.BLACKCLOAK}
+                                        baseSize={12}
+                                        style={{marginRight: 5}}
                                     />
                                 )}
                             </View>
