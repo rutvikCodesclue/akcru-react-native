@@ -1,52 +1,52 @@
 import {COLORS, FONTS} from './theme';
 
 export const appVersion = [
-  {
-    version: '1.0.88'
-  }
-]
+    {
+        version: '1.0.88',
+    },
+];
 
 export const CATEGORIES = [
-  {
-    category: 'Movies',
-    color: COLORS.CATBLUELGT,
-    id: '0',
-  },
-  {
-    category: 'Series',
-    color: COLORS.CATPURPLGT,
-    id: '1',
-  },
-  {
-    category: 'Special Events',
-    color: COLORS.CATREDLGT,
-    id: '2',
-  },
-  {
-    category: 'Docu',
-    color: COLORS.CATGREENLGT,
-    id: '3',
-  },
-  {
-    category: 'Live TV',
-    color: COLORS.AKCRUBLUE,
-    id: '4',
-  },
+    {
+        category: 'Movies',
+        color: COLORS.CATBLUELGT,
+        id: '0',
+    },
+    {
+        category: 'Series',
+        color: COLORS.CATPURPLGT,
+        id: '1',
+    },
+    {
+        category: 'Special Events',
+        color: COLORS.CATREDLGT,
+        id: '2',
+    },
+    {
+        category: 'Docu',
+        color: COLORS.CATGREENLGT,
+        id: '3',
+    },
+    {
+        category: 'Live TV',
+        color: COLORS.AKCRUBLUE,
+        id: '4',
+    },
 ];
 
 export const GENDER = [
-  {
-    gender: 'Male',
-    id: '0',
-  },
-  {
-    gender: 'Female',
-    id: '1',
-  },
-  {
-    gender: 'Nonbinary',
-    id: '2',
-  },
+    {
+        gender: 'Male',
+        id: '0',
+    },
+    {
+        gender: 'Female',
+        id: '1',
+    },
+    {
+        gender: 'Nonbinary',
+        id: '2',
+    },
 ];
 
 export const MOVIE_GENRES = [
@@ -134,5 +134,28 @@ export const MOVIE_GENRES = [
         id: '13',
         color: COLORS.PURPLE,
     },
+    {
+        genre: 'Biography',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '14',
+        color: COLORS.GREEN,
+    },
+    {
+        genre: 'Western',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '15',
+        color: COLORS.TAGCOLOR,
+    },
+    {
+        genre: 'Foreign',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '16',
+        color: COLORS.PINK,
+    },
+    {
+        genre: 'Animation',
+        photo: 'https://priymuscontent.s3.amazonaws.com/App+Genre+Poster/shutterstock_2325235979.jpg',
+        id: '17',
+        color: COLORS.CATBLUEDRK,
+    },
 ];
-

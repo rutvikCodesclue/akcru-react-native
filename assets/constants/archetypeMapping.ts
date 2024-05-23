@@ -1,9 +1,9 @@
 export type ArchetypeMapping = {
     [key: string]: {
-    name:string;
-    image:string;
-    description:string;
-};
+        name: string;
+        image: string;
+        description: string;
+    };
 };
 
 export const archetypeMapping: ArchetypeMapping = {
@@ -79,6 +79,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They find joy in movies that blend the imaginative elements of science fiction with heartwarming romantic stories. Exploring cosmic love and futuristic relationships is where they find their cinematic bliss.',
     },
+    'SciFi, Biography': {
+        name: 'Futuristic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FuturisticHistorian.png',
+        description:
+            'They enjoy movies that combine real-life narratives with futuristic and imaginative science fiction elements.',
+    },
+    'SciFi, Western': {
+        name: 'Cosmic Cowboy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CosmicCowboy.png',
+        description:
+            'They appreciate films that combine the rugged adventure of Westerns with the imaginative possibilities of science fiction. Exploring futuristic frontiers fascinates them.',
+    },
+    'SciFi, Foreign': {
+        name: 'Global Voyager',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalVoyager.png',
+        description:
+            'They appreciate films that combine diverse cultural perspectives with the imaginative possibilities of science fiction. Exploring futuristic worlds through a global lens excites them.',
+    },
     'Fantasy, SciFi': {
         name: 'Realm Voyager',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RealmVoyager.png',
@@ -150,6 +168,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EnchantedDreamer.png',
         description:
             'They find joy in movies that blend the enchanting elements of fantasy with heartwarming romantic stories. Exploring magical realms and intricate love stories is where they find their cinematic bliss.',
+    },
+    'Fantasy, Biography': {
+        name: 'Legendary Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Legendary+Chronicler.png',
+        description:
+            'They appreciate films that blend real-life stories with fantastical elements, finding joy in legendary tales brought to life.',
+    },
+    'Fantasy, Western': {
+        name: 'Mythic Cowboy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/MythicCowboy.png',
+        description:
+            'They enjoy movies that blend the adventurous spirit of the Western genre with fantastical and mythical elements. Exploring mythical tales in a rugged setting excites them.',
+    },
+    'Fantasy, Foreign': {
+        name: 'Mystic Wanderer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/MysticWanderer.png',
+        description:
+            'They enjoy movies that blend diverse cultural perspectives with fantastical and mythical elements. Exploring mystical tales from around the world fascinates them.',
     },
     'Drama, Fantasy': {
         name: 'Whimsical Dreamer',
@@ -223,6 +259,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'The "Fantasy Parmour" find joy in movies that blend emotionally charged storytelling with heartwarming romantic stories. Exploring complex characters and intricate love stories is where they find their cinematic bliss.',
     },
+    'Drama, Biography': {
+        name: 'Life Dramatist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Life+Dramatist.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling that explores real-life experiences and dramatic themes. They find profound meaning in the portrayal of true stories.',
+    },
+    'Drama, Western': {
+        name: 'Gritty Outlaw',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GrittyOutlaw.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling set against the backdrop of the Western frontier. Exploring dramatic tales in a rugged setting captivates them.',
+    },
+    'Drama, Foreign': {
+        name: 'Cultural Dramatist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CulturalDramatist.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling set against diverse cultural backgrounds. Exploring dramatic tales from different cultures captivates them.',
+    },
     'Mystery, Fantasy': {
         name: 'Mystical Puzzler',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/MysticalPuzzler.png',
@@ -294,6 +348,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EvasiveEnigma.png',
         description:
             'These individuals find joy in movies that blend intriguing mysteries with heartwarming romantic stories. Exploring enigmatic plots while navigating intricate love stories is where they find their cinematic bliss.',
+    },
+    'Mystery, Biography': {
+        name: 'Enigma Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Enigma+Chronicler.png',
+        description:
+            'They relish films that weave together real-life stories with intriguing and mysterious plots. Unraveling enigmatic narratives is their cinematic preference.',
+    },
+    'Mystery, Western': {
+        name: 'Lone Marshal',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LoneMarshal.png',
+        description:
+            'They enjoy movies that blend the intrigue of mysterious plots with the adventurous elements of the Western genre. Solving enigmas in the frontier intrigues them.',
+    },
+    'Mystery, Foreign': {
+        name: 'International Sleuth',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/International+Sleuth.png',
+        description:
+            'They enjoy movies that blend the intrigue of mysterious plots with diverse cultural perspectives. Solving enigmas from around the world fascinates them.',
     },
     'Thriller, Fantasy': {
         name: 'Shadow Sleuth',
@@ -367,6 +439,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They find joy in movies that blend suspenseful and thrilling elements with heartwarming romantic stories. Experiencing intense suspense while navigating intricate love stories is where they find their cinematic bliss.',
     },
+    'Thriller, Biography': {
+        name: 'Suspense Scribe',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/SuspenseScribe.png',
+        description:
+            'They enjoy movies that combine real-life tales with suspenseful and thrilling elements. Exploring intense and gripping narratives captivates them.',
+    },
+    'Thriller, Western': {
+        name: 'Frontier Vigilante',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FrontierVigilante.png',
+        description:
+            'They relish films that combine the suspenseful and thrilling elements of storytelling with the ruggedness of the Western frontier. Seeking justice in a lawless land excites them.',
+    },
+    'Thriller, Foreign': {
+        name: 'Exotic Tension',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticTension.png',
+        description:
+            'They relish films that combine the suspenseful and thrilling elements of storytelling with diverse cultural perspectives. Exploring tension-filled tales from different cultures excites them.',
+    },
     'Comedy, Fantasy': {
         name: 'Fantasy Fun-seeker',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FantasyFunSeeker.png',
@@ -438,6 +528,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CharmingJester.png',
         description:
             'These individuals have a deep affection for both Comedy and Romance. They find joy in movies that combine humor and comedic elements with heartwarming romantic stories, where laughter plays a role in their enjoyment.',
+    },
+    'Comedy, Biography': {
+        name: 'Laughing Legacy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LaughingLegacy.png',
+        description:
+            'These individuals appreciate films that blend real-life stories with humor and wit. Finding joy in comedic biographical tales is their delight.',
+    },
+    'Comedy, Western': {
+        name: 'Rodeo Clown',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RodeoClown.png',
+        description:
+            'These individuals appreciate movies that blend the humor and wit of comedy with the adventurous spirit of Westerns. Finding laughter in the Wild West delights them.',
+    },
+    'Comedy, Foreign': {
+        name: 'Global Humorist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalHumorist.png',
+        description:
+            'These individuals appreciate movies that blend humor and wit with diverse cultural perspectives. Finding laughter in stories from around the world delights them.',
     },
     'Sports, Fantasy': {
         name: 'Realm Athlete',
@@ -511,6 +619,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'These individuals appreciate the blend of sports and romance, finding the combination captivating. Navigating the world of sports with a touch of romance is where they find their cinematic enjoyment.',
     },
+    'Sports, Biography': {
+        name: 'Athletic Storyteller',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AthleticStoryteller.png',
+        description:
+            "They enjoy movies that combine real-life narratives with the excitement and competitiveness of sports. Exploring athlete's journeys inspires them.",
+    },
+    'Sports, Western': {
+        name: 'Rodeo Champion',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RodeoChampion.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with the adventurous elements of the Western genre. Excelling in frontier sports fascinates them.',
+    },
+    'Sports, Foreign': {
+        name: 'Worldly Competitor',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/WorldlyCompetitor.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with diverse cultural perspectives. Competing on a global stage fascinates them.',
+    },
     'Family, Fantasy': {
         name: 'Tribe Seeker',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/TribeSeeker.png',
@@ -582,6 +708,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/KinshipLover.png',
         description:
             'The "Kinship Lover" find the combination of family narratives with heartwarming love stories to be captivating. Navigating the world of family with a touch of romance is where they find their enjoyment.',
+    },
+    'Family, Biography': {
+        name: 'Family Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FamilyHistorian.png',
+        description:
+            'They have a fondness for films that blend real-life stories with heartwarming family themes. Exploring familial bonds and experiences is where they find joy.',
+    },
+    'Family, Western': {
+        name: 'Homestead Keeper',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/HomesteadKeeper.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with the rugged and adventurous spirit of Westerns. Exploring family bonds on the frontier excites them.',
+    },
+    'Family, Foreign': {
+        name: 'Cultural Kin',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CulturalKin.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with diverse cultural perspectives. Exploring familial bonds across cultures excites them.',
     },
     'Horror, Fantasy': {
         name: 'Dark Explorer',
@@ -655,6 +799,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They find a combination of heartwarming romantic stories and elements of horror to be captivating. Navigating intricate love stories with a sense of suspense and dread is where they find their unique cinematic experience.',
     },
+    'Horror, Biography': {
+        name: 'Grim Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GrimChronicler.png',
+        description:
+            'They relish films that combine real-life stories with spine-chilling horror elements. Exploring dark and terrifying narratives is their thrill.',
+    },
+    'Horror, Western': {
+        name: 'Ghostly Gunslinger',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GhostlyGunslinger.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with the adventurous and rugged spirit of Westerns. Exploring eerie tales in a frontier setting thrills them.',
+    },
+    'Horror, Foreign': {
+        name: 'Terrifying Tourist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/TerrifyingTourist.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with diverse cultural perspectives. Exploring terrifying tales from different cultures thrills them.',
+    },
     'Action, Fantasy': {
         name: 'Sorcery Warrior',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/SorceryWarrior.png',
@@ -726,6 +888,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AdventurousLover+(1).png',
         description:
             'They find the combination of high-octane action sequences with heartwarming love stories to be captivating. Navigating thrilling action with a touch of romance is where they find their special enjoyment.',
+    },
+    'Action, Biography': {
+        name: 'Action Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ActionBiographer.png',
+        description:
+            'These enthusiasts enjoy movies that blend real-life tales with thrilling action sequences. Exploring high-energy biographical adventures excites them.',
+    },
+    'Action, Western': {
+        name: 'Gunslinger Hero',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GunslingerHero.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with the adventurous spirit of the Western frontier. Embarking on high-energy adventures excites them.',
+    },
+    'Action, Foreign': {
+        name: 'Action Nomad',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ActionNomad.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with diverse cultural perspectives. Embarking on high-energy adventures across the globe excites them.',
     },
     'Crime, Fantasy': {
         name: 'Fantasy Detective',
@@ -799,6 +979,24 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'These individuals appreciate movies that blend heartwarming love stories with intricate crime-solving narratives. Navigating the complexities of love while delving into the world of crime and investigation is where they find their special enjoyment.',
     },
+    'Crime, Biography': {
+        name: 'Investigative Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/InvestigativeChronicler.png',
+        description:
+            'They appreciate films that combine real-life stories with intricate crime-solving narratives. Delving into the world of crime and justice intrigues them.',
+    },
+    'Crime, Western': {
+        name: 'Lawless Sheriff',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LawlessSheriff.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with the adventurous and rugged elements of Westerns. Upholding justice in a lawless land fascinates them.',
+    },
+    'Crime, Foreign': {
+        name: 'Global Detective',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalDetective.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with diverse cultural perspectives. Solving crimes from around the world fascinates them.',
+    },
     'Adventure, Fantasy': {
         name: 'Adventurous Nior',
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AdventurousNoir+(1).png',
@@ -870,6 +1068,24 @@ export const archetypeMapping: ArchetypeMapping = {
         image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RiskyRomance+(1).png',
         description:
             'The "Risky Romantic" find the combination of thrilling adventures with heartwarming love stories to be captivating. Navigating exciting journeys with a touch of romance is where they find their special enjoyment.',
+    },
+    'Adventure, Biography': {
+        name: 'Epic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EpicHistorian.png',
+        description:
+            'They are drawn to movies that blend real-life stories with thrilling adventures. Exploring daring journeys and epic quests fascinates them.',
+    },
+    'Adventure, Western': {
+        name: 'Trailblazer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Trailblazer.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with the adventurous spirit of the Western frontier. Blazing new trails in a rugged landscape excites them.',
+    },
+    'Adventure, Foreign': {
+        name: 'Explorer Quest',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExplorerQuest.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with diverse cultural perspectives. Embarking on daring quests across different cultures excites them.',
     },
     'Romance, Fantasy': {
         name: 'Enchanted Dreamer',
@@ -943,7 +1159,487 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'The "Risky Romantic" find the combination of thrilling adventures with heartwarming love stories to be captivating. Navigating exciting journeys with a touch of romance is where they find their special enjoyment.',
     },
+    'Romance, Biography': {
+        name: 'Romantic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RomanticHistorian.png',
+        description:
+            'These individuals find joy in movies that blend real-life narratives with heartwarming romantic stories. Exploring intricate love tales captivates them.',
+    },
+    'Romance, Western': {
+        name: 'Western Heart',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/WesternHeart.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with the adventurous and rugged spirit of Westerns. Exploring love in a frontier setting captivates them.',
+    },
+    'Romance, Foreign': {
+        name: 'Exotic Love',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticLove.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with diverse cultural perspectives. Exploring love tales from around the world captivates them.',
+    },
+    'Animation, Romance': {
+        name: 'Romantic Renderer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RomanticRenderer.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with imaginative and artistic animation. Exploring animated love tales captivates them.',
+    },
+    'Biography, Fantasy': {
+        name: 'Legendary Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Legendary+Chronicler.png',
+        description:
+            'They appreciate films that blend real-life stories with fantastical elements, finding joy in legendary tales brought to life.',
+    },
+    'Biography, SciFi': {
+        name: 'Futuristic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FuturisticHistorian.png',
+        description:
+            'They enjoy movies that combine real-life narratives with futuristic and imaginative science fiction elements.',
+    },
+    'Biography, Drama': {
+        name: 'Life Dramatist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Life+Dramatist.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling that explores real-life experiences and dramatic themes. They find profound meaning in the portrayal of true stories.',
+    },
+    'Biography, Mystery': {
+        name: 'Enigma Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Enigma+Chronicler.png',
+        description:
+            'They relish films that weave together real-life stories with intriguing and mysterious plots. Unraveling enigmatic narratives is their cinematic preference.',
+    },
+    'Biography, Thriller': {
+        name: 'Suspense Scribe',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/SuspenseScribe.png',
+        description:
+            'They enjoy movies that combine real-life tales with suspenseful and thrilling elements. Exploring intense and gripping narratives captivates them.',
+    },
+    'Biography, Comedy': {
+        name: 'Laughing Legacy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LaughingLegacy.png',
+        description:
+            'These individuals appreciate films that blend real-life stories with humor and wit. Finding joy in comedic biographical tales is their delight.',
+    },
+    'Biography, Sports': {
+        name: 'Athletic Storyteller',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AthleticStoryteller.png',
+        description:
+            "They enjoy movies that combine real-life narratives with the excitement and competitiveness of sports. Exploring athlete's journeys inspires them.",
+    },
+    'Biography, Family': {
+        name: 'Family Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FamilyHistorian.png',
+        description:
+            'They have a fondness for films that blend real-life stories with heartwarming family themes. Exploring familial bonds and experiences is where they find joy.',
+    },
+    'Biography, Horror': {
+        name: 'Grim Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GrimChronicler.png',
+        description:
+            'They relish films that combine real-life stories with spine-chilling horror elements. Exploring dark and terrifying narratives is their thrill.',
+    },
+    'Biography, Action': {
+        name: 'Action Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ActionBiographer.png',
+        description:
+            'These enthusiasts enjoy movies that blend real-life tales with thrilling action sequences. Exploring high-energy biographical adventures excites them.',
+    },
+    'Biography, Crime': {
+        name: 'Investigative Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/InvestigativeChronicler.png',
+        description:
+            'They appreciate films that combine real-life stories with intricate crime-solving narratives. Delving into the world of crime and justice intrigues them.',
+    },
+    'Biography, Adventure': {
+        name: 'Epic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EpicHistorian.png',
+        description:
+            'They are drawn to movies that blend real-life stories with thrilling adventures. Exploring daring journeys and epic quests fascinates them.',
+    },
+    'Biography, Romance': {
+        name: 'Romantic Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RomanticHistorian.png',
+        description:
+            'These individuals find joy in movies that blend real-life narratives with heartwarming romantic stories. Exploring intricate love tales captivates them.',
+    },
+    'Biography, Western': {
+        name: 'Frontier Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FrontierBiographer.png',
+        description:
+            'They appreciate films that combine real-life stories with the adventurous and rugged elements of the Western genre. Exploring the frontier spirit excites them.',
+    },
+    'Biography, Foreign': {
+        name: 'Global Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalChronicler.png',
+        description:
+            'They enjoy movies that blend real-life narratives with diverse cultural perspectives. Exploring stories from around the world intrigues them.',
+    },
+    'Biography, Animation': {
+        name: 'Animated Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedBiographer.png',
+        description:
+            'They find delight in films that combine real-life stories with imaginative and artistic animation. Bringing biographies to life through animation excites them.',
+    },
+    'Western, Fantasy': {
+        name: 'Mythic Cowboy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/MythicCowboy.png',
+        description:
+            'They enjoy movies that blend the adventurous spirit of the Western genre with fantastical and mythical elements. Exploring mythical tales in a rugged setting excites them.',
+    },
+    'Western, SciFi': {
+        name: 'Cosmic Cowboy',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CosmicCowboy.png',
+        description:
+            'They appreciate films that combine the rugged adventure of Westerns with the imaginative possibilities of science fiction. Exploring futuristic frontiers fascinates them.',
+    },
+    'Western, Drama': {
+        name: 'Gritty Outlaw',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GrittyOutlaw.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling set against the backdrop of the Western frontier. Exploring dramatic tales in a rugged setting captivates them.',
+    },
+    'Western, Mystery': {
+        name: 'Lone Marshal',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LoneMarshal.png',
+        description:
+            'They enjoy movies that blend the intrigue of mysterious plots with the adventurous elements of the Western genre. Solving enigmas in the frontier intrigues them.',
+    },
+    'Western, Thriller': {
+        name: 'Frontier Vigilante',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FrontierVigilante.png',
+        description:
+            'They relish films that combine the suspenseful and thrilling elements of storytelling with the ruggedness of the Western frontier. Seeking justice in a lawless land excites them.',
+    },
+    'Western, Comedy': {
+        name: 'Rodeo Clown',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RodeoClown.png',
+        description:
+            'These individuals appreciate movies that blend the humor and wit of comedy with the adventurous spirit of Westerns. Finding laughter in the Wild West delights them.',
+    },
+    'Western, Sports': {
+        name: 'Rodeo Champion',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RodeoChampion.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with the adventurous elements of the Western genre. Excelling in frontier sports fascinates them.',
+    },
+    'Western, Family': {
+        name: 'Homestead Keeper',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/HomesteadKeeper.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with the rugged and adventurous spirit of Westerns. Exploring family bonds on the frontier excites them.',
+    },
+    'Western, Horror': {
+        name: 'Ghostly Gunslinger',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GhostlyGunslinger.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with the adventurous and rugged spirit of Westerns. Exploring eerie tales in a frontier setting thrills them.',
+    },
+    'Western, Action': {
+        name: 'Gunslinger Hero',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GunslingerHero.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with the adventurous spirit of the Western frontier. Embarking on high-energy adventures excites them.',
+    },
+    'Western, Crime': {
+        name: 'Lawless Sheriff',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/LawlessSheriff.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with the adventurous and rugged elements of Westerns. Upholding justice in a lawless land fascinates them.',
+    },
+    'Western, Adventure': {
+        name: 'Trailblazer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Trailblazer.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with the adventurous spirit of the Western frontier. Blazing new trails in a rugged landscape excites them.',
+    },
+    'Western, Romance': {
+        name: 'Western Heart',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/WesternHeart.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with the adventurous and rugged spirit of Westerns. Exploring love in a frontier setting captivates them.',
+    },
+    'Western, Biography': {
+        name: 'Frontier Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FrontierBiographer.png',
+        description:
+            'They appreciate films that combine real-life stories with the adventurous and rugged elements of the Western genre. Exploring the frontier spirit excites them.',
+    },
+    'Western, Foreign': {
+        name: 'Exotic Gunslinger',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticGunslinger.png',
+        description:
+            'They enjoy movies that blend diverse cultural perspectives with the adventurous and rugged spirit of Westerns. Exploring cross-cultural tales in a frontier setting fascinates them.',
+    },
+    'Western, Animation': {
+        name: 'Animated Outlaw',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedOutlaw.png',
+        description:
+            'They find delight in films that combine imaginative and artistic animation with the adventurous spirit of Westerns. Bringing frontier tales to life through animation excites them.',
+    },
+    'Foreign, Fantasy': {
+        name: 'Mystic Wanderer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/MysticWanderer.png',
+        description:
+            'They enjoy movies that blend diverse cultural perspectives with fantastical and mythical elements. Exploring mystical tales from around the world fascinates them.',
+    },
+    'Foreign, SciFi': {
+        name: 'Global Voyager',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalVoyager.png',
+        description:
+            'They appreciate films that combine diverse cultural perspectives with the imaginative possibilities of science fiction. Exploring futuristic worlds through a global lens excites them.',
+    },
+    'Foreign, Drama': {
+        name: 'Cultural Dramatist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CulturalDramatist.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling set against diverse cultural backgrounds. Exploring dramatic tales from different cultures captivates them.',
+    },
+    'Foreign, Mystery': {
+        name: 'International Sleuth',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/International+Sleuth.png',
+        description:
+            'They enjoy movies that blend the intrigue of mysterious plots with diverse cultural perspectives. Solving enigmas from around the world fascinates them.',
+    },
+    'Foreign, Thriller': {
+        name: 'Exotic Tension',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticTension.png',
+        description:
+            'They relish films that combine the suspenseful and thrilling elements of storytelling with diverse cultural perspectives. Exploring tension-filled tales from different cultures excites them.',
+    },
+    'Foreign, Comedy': {
+        name: 'Global Humorist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalHumorist.png',
+        description:
+            'These individuals appreciate movies that blend humor and wit with diverse cultural perspectives. Finding laughter in stories from around the world delights them.',
+    },
+    'Foreign, Sports': {
+        name: 'Worldly Competitor',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/WorldlyCompetitor.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with diverse cultural perspectives. Competing on a global stage fascinates them.',
+    },
+    'Foreign, Family': {
+        name: 'Cultural Kin',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CulturalKin.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with diverse cultural perspectives. Exploring familial bonds across cultures excites them.',
+    },
+    'Foreign, Horror': {
+        name: 'Terrifying Tourist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/TerrifyingTourist.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with diverse cultural perspectives. Exploring terrifying tales from different cultures thrills them.',
+    },
+    'Foreign, Action': {
+        name: 'Action Nomad',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ActionNomad.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with diverse cultural perspectives. Embarking on high-energy adventures across the globe excites them.',
+    },
+    'Foreign, Crime': {
+        name: 'Global Detective',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalDetective.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with diverse cultural perspectives. Solving crimes from around the world fascinates them.',
+    },
+    'Foreign, Adventure': {
+        name: 'Explorer Quest',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExplorerQuest.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with diverse cultural perspectives. Embarking on daring quests across different cultures excites them.',
+    },
+    'Foreign, Romance': {
+        name: 'Exotic Love',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticLove.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with diverse cultural perspectives. Exploring love tales from around the world captivates them.',
+    },
+    'Foreign, Biography': {
+        name: 'Global Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/GlobalChronicler.png',
+        description:
+            'They enjoy movies that blend real-life narratives with diverse cultural perspectives. Exploring biographies from different cultures fascinates them.',
+    },
+    'Foreign, Western': {
+        name: 'Exotic Gunslinger',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ExoticGunslinger.png',
+        description:
+            'They appreciate films that combine diverse cultural perspectives with the adventurous and rugged spirit of Westerns. Exploring cross-cultural tales in a frontier setting fascinates them.',
+    },
+    'Foreign, Animation': {
+        name: 'Animated Globetrotter',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedGlobetrotter.png',
+        description:
+            'They find delight in films that combine imaginative and artistic animation with diverse cultural perspectives. Bringing global tales to life through animation excites them.',
+    },
+    'Animation, Fantasy': {
+        name: 'Enchanted Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EnchantedAnimator.png',
+        description:
+            'They enjoy movies that blend imaginative and artistic animation with fantastical and mythical elements. Exploring enchanted tales through animation fascinates them.',
+    },
+    'Animation, SciFi': {
+        name: 'Cosmic Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CosmicAnimator.png',
+        description:
+            'They appreciate films that combine imaginative and artistic animation with the possibilities of science fiction. Exploring futuristic worlds through animation excites them.',
+    },
+    'Animation, Drama': {
+        name: 'Emotional Illustrator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EmotionalIllustrator.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling brought to life through imaginative and artistic animation. Exploring dramatic tales through animation captivates them.',
+    },
+    'Animation, Mystery': {
+        name: 'Animated Enigma',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedEnigma.png',
+        description:
+            'They enjoy movies that blend intriguing and mysterious plots with imaginative and artistic animation. Solving animated enigmas fascinates them.',
+    },
+    'Animation, Thriller': {
+        name: 'Thrilling Framer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ThrillingFramer.png',
+        description:
+            'They relish films that combine suspenseful and thrilling elements with imaginative and artistic animation. Exploring tension-filled tales through animation excites them.',
+    },
+    'Animation, Comedy': {
+        name: 'Comedic Canvas',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Comedic+Canvas.png',
+        description:
+            'These individuals appreciate movies that blend humor and wit with imaginative and artistic animation. Finding laughter in animated stories delights them.',
+    },
+    'Animation, Sports': {
+        name: 'Animated Athlete',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Animated+Athlete.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with imaginative and artistic animation. Competing in animated sports fascinates them.',
+    },
+    'Animation, Family': {
+        name: 'Family Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FamilyAnimator.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with imaginative and artistic animation. Exploring familial bonds through animation excites them.',
+    },
+    'Animation, Horror': {
+        name: 'Spooky Sketches',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/SpookySketches.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with imaginative and artistic animation. Exploring terrifying tales through animation thrills them.',
+    },
+    'Animation, Action': {
+        name: 'Action-Packed Artist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Action-PackedArtist.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with imaginative and artistic animation. Embarking on high-energy animated adventures excites them.',
+    },
+    'Animation, Crime': {
+        name: 'Noir Narrator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/NoirNarrator.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with imaginative and artistic animation. Solving animated crimes fascinates them.',
+    },
+    'Animation, Adventure': {
+        name: 'Epic Explorer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EpicExplorer.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with imaginative and artistic animation. Embarking on epic quests through animation excites them.',
+    },
+    'Romance, Animation': {
+        name: 'Romantic Renderer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/RomanticRenderer.png',
+        description:
+            'They find joy in movies that blend heartwarming romantic stories with imaginative and artistic animation. Exploring animated love tales captivates them.',
+    },
+    'Animation, Biography': {
+        name: 'Animated Biographer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedBiographer.png',
+        description:
+            'They enjoy movies that blend real-life narratives with imaginative and artistic animation. Bringing biographies to life through animation excites them.',
+    },
+    'Animation, Western': {
+        name: 'Animated Outlaw',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedOutlaw.png',
+        description:
+            'They find delight in films that combine imaginative and artistic animation with the adventurous spirit of Westerns. Bringing frontier tales to life through animation excites them.',
+    },
+    'Animation, Foreign': {
+        name: 'Animated Globetrotter',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedGlobetrotter.png',
+        description:
+            'They find delight in films that combine imaginative and artistic animation with diverse cultural perspectives. Bringing global tales to life through animation excites them.',
+    },
 
+    'Fantasy, Animation': {
+        name: 'Enchanted Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EnchantedAnimator.png',
+        description:
+            'They enjoy movies that blend imaginative and artistic animation with fantastical and mythical elements. Exploring enchanted tales through animation fascinates them.',
+    },
+    'SciFi, Animation': {
+        name: 'Cosmic Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/CosmicAnimator.png',
+        description:
+            'They appreciate films that combine imaginative and artistic animation with the possibilities of science fiction. Exploring futuristic worlds through animation excites them.',
+    },
+    'Drama, Animation': {
+        name: 'Emotional Illustrator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EmotionalIllustrator.png',
+        description:
+            'These individuals are drawn to emotionally charged storytelling brought to life through imaginative and artistic animation. Exploring dramatic tales through animation captivates them.',
+    },
+    'Mystery, Animation': {
+        name: 'Animated Enigma',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/AnimatedEnigma.png',
+        description:
+            'They enjoy movies that blend intriguing and mysterious plots with imaginative and artistic animation. Solving animated enigmas fascinates them.',
+    },
+    'Thriller, Animation': {
+        name: 'Thrilling Framer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/ThrillingFramer.png',
+        description:
+            'They relish films that combine suspenseful and thrilling elements with imaginative and artistic animation. Exploring tension-filled tales through animation excites them.',
+    },
+    'Comedy, Animation': {
+        name: 'Comedic Canvas',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Comedic+Canvas.png',
+        description:
+            'These individuals appreciate movies that blend humor and wit with imaginative and artistic animation. Finding laughter in animated stories delights them.',
+    },
+    'Sports, Animation': {
+        name: 'Animated Athlete',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Animated+Athlete.png',
+        description:
+            'They enjoy films that combine the excitement of athletic competitions with imaginative and artistic animation. Competing in animated sports fascinates them.',
+    },
+    'Family, Animation': {
+        name: 'Family Animator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/FamilyAnimator.png',
+        description:
+            'They have a fondness for movies that blend heartwarming family themes with imaginative and artistic animation. Exploring familial bonds through animation excites them.',
+    },
+    'Horror, Animation': {
+        name: 'Spooky Sketches',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/SpookySketches.png',
+        description:
+            'They relish films that combine the spine-chilling elements of horror with imaginative and artistic animation. Exploring terrifying tales through animation thrills them.',
+    },
+    'Action, Animation': {
+        name: 'Action-Packed Artist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Action-PackedArtist.png',
+        description:
+            'These enthusiasts enjoy movies that blend thrilling action sequences with imaginative and artistic animation. Embarking on high-energy animated adventures excites them.',
+    },
+    'Crime, Animation': {
+        name: 'Noir Narrator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/NoirNarrator.png',
+        description:
+            'They appreciate films that combine intriguing crime-solving narratives with imaginative and artistic animation. Solving animated crimes fascinates them.',
+    },
+    'Adventure, Animation': {
+        name: 'Epic Explorer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/EpicExplorer.png',
+        description:
+            'They are drawn to movies that blend thrilling adventures with imaginative and artistic animation. Embarking on epic quests through animation excites them.',
+    },
     // Define more mappings here...
 };
 
