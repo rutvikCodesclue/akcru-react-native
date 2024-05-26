@@ -518,3 +518,82 @@ export interface IGalleryLike {
     galleryId: string;
     dateCreated: string;
 }
+
+export interface ISeries {
+    id: string;
+    title: string;
+    description: string;
+    genres: string[];
+    duration: number;
+    year: number;
+    seriesURL: string;
+    trailerURL: string;
+    landscapeURL: string;
+    image: string;
+    price: number?;
+    portraitURL: string;
+    rating: number;
+    rated: string;
+    actors: Object[];
+    director: Object[];
+    published: boolean;
+    createdAt: string;
+    updatedAt: string;
+    sponsored: boolean;
+    blackInTheDays: boolean;
+    seasons: ISeason[];
+}
+
+export interface ISeason {
+    id: string;
+    title: string;
+    description: string;
+    genres: string[];
+    duration: number;
+    year: number;
+    seasonURL: string;
+    seasonNumber: number;
+    trailerURL: string;
+    landscapeURL: string;
+    image: string;
+    price: number?;
+    portraitURL: string;
+    actors: Object[];
+    director: Object[];
+    published: boolean;
+    createdAt: string;
+    updatedAt: string;
+    sponsored: boolean;
+    episodes: IEpisode[];
+    series: ISeries[];
+    seriesId: string;
+}
+
+export interface IEpisode {
+    id: string;
+    title: string;
+    description: string;
+    genres: string[];
+    duration: number;
+    year: number;
+    episodeURL: string;
+    episodeNumber: number;
+    trailerURL: string;
+    landscapeURL: string;
+    image: string;
+    price: number?;
+    portraitURL: string;
+    rating: number;
+    rated: string;
+    actors: Object[];
+    director: Object[];
+    published: boolean;
+    createdAt: string;
+    updatedAt: string;
+    sponsored: boolean;
+    season: ISeason[];
+    seasonId: string;
+    series: ISeries[];
+    seriesId: string;
+    seasonNumber: number;
+}

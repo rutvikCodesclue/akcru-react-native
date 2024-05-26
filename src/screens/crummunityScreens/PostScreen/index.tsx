@@ -7,6 +7,7 @@ import {
     FlatList,
     Pressable,
     ActivityIndicator,
+    Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
@@ -412,7 +413,9 @@ const PostScreen = ({navigation, route}: Props) => {
                                     top: 0,
                                     height: SIZES.ScreenHeight * 0.15,
                                 }}>
-                               <BackButton navigation={navigation} />
+                                <View style={{marginHorizontal: 15, marginTop: Platform.OS === 'android' ? '15%' : 0}}>
+                                    <BackButton navigation={navigation} />
+                                </View>
                             </LinearGradient>
                         </View>
                     </View>

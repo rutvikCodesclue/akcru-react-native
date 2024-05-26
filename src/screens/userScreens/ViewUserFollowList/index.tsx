@@ -165,10 +165,11 @@ const ViewUserFollowList = ({route}: Props) => {
     return (
         <View style={{flex: 1}}>
             <View>
-                <BackButton navigation={navigation} />
-
                 <View style={styles.backbutton}>
                     <Header />
+                </View>
+                <View style={{marginHorizontal: 15}}>
+                    <BackButton navigation={navigation} />
                 </View>
             </View>
             <TabView

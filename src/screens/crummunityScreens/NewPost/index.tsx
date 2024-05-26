@@ -283,7 +283,7 @@ const NewPost = () => {
                                 </TouchableOpacity>
                             </View>
                             <View>
-                                <Text style={{...FONTS.Title2, fontSize: 12}}>{user ? user?.username : 'Guest'}</Text>
+                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
                                 {user?.badge === 'AKCRUIT' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeAkcruit />
@@ -307,31 +307,31 @@ const NewPost = () => {
                             </View>
                         </View>
                         <View style={styles.input}>
-                            <TextInput
-                                placeholder={'Tell us the "skinny" in 200 characters or less'}
-                                placeholderTextColor={COLORS.DARKGREY}
+                                <TextInput
+                                    placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                    placeholderTextColor={COLORS.DARKGREY}
                                 style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => {
-                                    const parts = text.split(' ');
-                                    const lastPart = parts[parts.length - 1];
-                                    if (lastPart.startsWith('@')) {
-                                        setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1));
-                                    } else {
-                                        setIsTagging(false);
-                                        setCurrentTag('');
-                                    }
+                                    secureTextEntry={false}
+                                    onChangeText={text => {
+                                        const parts = text.split(' ');
+                                        const lastPart = parts[parts.length - 1];
+                                        if (lastPart.startsWith('@')) {
+                                            setIsTagging(true);
+                                            setCurrentTag(lastPart.slice(1));
+                                        } else {
+                                            setIsTagging(false);
+                                            setCurrentTag('');
+                                        }
 
-                                    if (text.length <= 200) {
-                                        setPostText(text);
-                                    }
-                                }}
-                                value={postText}
-                                multiline={true}
-                                maxLength={200}
-                                editable={true}
-                            />
+                                        if (text.length <= 200) {
+                                            setPostText(text);
+                                        }
+                                    }}
+                                    value={postText}
+                                    multiline={true}
+                                    maxLength={200}
+                                    editable={true}
+                                />
                         </View>
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
@@ -365,6 +365,10 @@ const NewPost = () => {
                                             userID={item.id}
                                             akcruBadge={item.badge}
                                             firstName={item.firstName}
+                                            blackCloakStatus={item.blackCloakStatus}
+                                            ownerStatus={item.ownerStatus}
+                                            companyStatus={item.companyStatus}
+                                            influencer={item.influencerStatus}
                                         />
                                     </Pressable>
                                 )}

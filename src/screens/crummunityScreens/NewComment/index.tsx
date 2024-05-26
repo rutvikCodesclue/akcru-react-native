@@ -389,6 +389,10 @@ const NewComment = ({navigation, route}: Props) => {
                                             userID={item.id}
                                             akcruBadge={item.badge}
                                             firstName={item.firstName}
+                                            blackCloakStatus={item.blackCloakStatus}
+                                            ownerStatus={item.ownerStatus}
+                                            companyStatus={item.companyStatus}
+                                            influencer={item.influencerStatus}
                                         />
                                     </Pressable>
                                 )}

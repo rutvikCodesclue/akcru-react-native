@@ -79,7 +79,7 @@ export default function ContentPlayer({navigation}: Props) {
                 });
             }
         };
-    }, [movieId, hasStartedWatching]);
+    }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -97,7 +97,7 @@ export default function ContentPlayer({navigation}: Props) {
                     pauseTimer();
                 }
             };
-        }, [isMoviePlaying, isFocused]),
+        }, [isMoviePlaying, pauseTimer, isFocused, resetTimer]),
     );
 
     const onLoad = () => {

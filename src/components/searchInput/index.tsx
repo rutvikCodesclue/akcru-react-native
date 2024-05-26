@@ -1,5 +1,4 @@
 import {View, Text, Modal, TextInput, TouchableWithoutFeedback, TouchableOpacity, Keyboard, Image} from 'react-native';
-
 import React, {useEffect, useRef, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -12,43 +11,47 @@ import filter from 'lodash/filter';
 import {findMovies} from '../../lib/api/movies.lib';
 import {IMovie} from '../../../types';
 import {FlashList} from '@shopify/flash-list';
+import debounce from 'lodash/debounce';
 
 const SearchInput = () => {
     //search input function
     const [data, setData] = useState<IMovie[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [textInputFocused, setTextInputFocused] = useState(false);
-    const textInputRef = useRef(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const textInputRef = useRef<TextInput>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     const contains = ({title}: {title: string}, query: string) => {
-        if (title.toLowerCase().includes(query.toLowerCase())) {
-            return true;
-        }
-        return false;
+        return title.toLowerCase().includes(query.toLowerCase());
     };
 
     const handleSearch = (text: string) => {
-        const dataSearch = filter(data, userSearch => {
-            return contains(userSearch, text.toLowerCase());
-        });
+        setSearchQuery(text);
 
-        setData([...dataSearch]);
+        if (text) {
+            const dataSearch = filter(data, movie => contains(movie, text));
+            setData([...dataSearch]);
+        } else {
+            fetchMovies('');
+        }
+    };
+
+    const fetchMovies = async (query: string) => {
+        try {
+            const fetchedMovies: IMovie[] = await findMovies(query);
+            setData(fetchedMovies);
+        } catch (error) {
+            console.error('Error fetching movies:', error);
+        }
     };
 
     useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                const fetchedMovies: IMovie[] = await findMovies();
-                setData(fetchedMovies);
-            } catch (error) {
-                console.error('Error fetching movies:', error);
-            }
-        };
-
-        fetchMovies();
-    }, []);
+        if (modalVisible) {
+            fetchMovies('');
+        }
+    }, [modalVisible]);
 
     return (
         <View>
@@ -131,20 +134,21 @@ const SearchInput = () => {
                                         setTextInputFocused(false);
                                     }}
                                     onChangeText={handleSearch}
+                                    value={searchQuery}
                                 />
-                                <TouchableWithoutFeedback onPress={() => {}}>
+                                <TouchableWithoutFeedback
+                                    onPress={() => {
+                                        textInputRef?.current?.clear();
+                                        handleSearch('');
+                                        setSearchQuery('');
+                                        setTextInputFocused(true);
+                                    }}>
                                     <Icon
                                         name="close-circle"
                                         type="material-community"
                                         size={25}
                                         color={COLORS.DARKGREY}
                                         style={{marginLeft: SIZES.ScreenWidth / 2.2}}
-                                        onPress={() => {
-                                            textInputRef?.current?.clear();
-                                            handleSearch('');
-
-                                            setTextInputFocused(true);
-                                        }}
                                     />
                                 </TouchableWithoutFeedback>
                             </View>

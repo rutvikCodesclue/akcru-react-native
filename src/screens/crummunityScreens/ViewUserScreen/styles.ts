@@ -61,20 +61,22 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     gallerycontainer: {
-        marginHorizontal: '4%',
+        marginHorizontal: '1%',
     },
 
     galleryImagesContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
+        justifyContent: 'center', // Align items at the start of each row
         marginTop: 20,
     },
     galleryImage: {
-        width: SIZES.ScreenWidth / 3.56,
-        height: SIZES.ScreenWidth / 2.35,
+        width: (SIZES.ScreenWidth - SIZES.marginhorizontal * 2 - 30) / 3, // Adjust width to fit 3 images per row with margins
+        height: ((SIZES.ScreenWidth - SIZES.marginhorizontal * 2 - 30) / 3) * 1.5, // Adjust height proportionally
         margin: 5,
         borderRadius: 5,
     },
+    
     selectedPhotoContainer: {
         position: 'absolute',
         top: 0,

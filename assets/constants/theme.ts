@@ -6,7 +6,7 @@ const fontScale = PixelRatio.getFontScale();
 const getFontSize = (size: number) => size / fontScale;
 
 // Get the device's screen dimensions
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
 // Based on the design's scale - Adjust these based on your design's base dimensions
 const BASE_WIDTH = 375; // Example base width of your design
