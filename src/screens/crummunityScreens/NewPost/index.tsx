@@ -166,7 +166,6 @@ const NewPost = () => {
             // Get the original file size
             const originalSize = await getFileSize(image);
             originalSizeList.push(originalSize);
-            console.log('original size', originalSize);
 
             // Compress the image
             const compressedImagePath = await CompressorImage.compress(image, {
@@ -176,7 +175,6 @@ const NewPost = () => {
             // Get the compressed file size
             const compressedSize = await getFileSize(compressedImagePath);
             compressedSizeList.push(compressedSize);
-            console.log('compressed size', compressedSize);
 
             compressedImages.push(compressedImagePath);
         }
@@ -197,15 +195,14 @@ const NewPost = () => {
                 content = content.join(', ');
             } else if (postType === 'VIDEO') {
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    console.log('Compression Progress: ', progress);
+                    // console.log('Compression Progress: ', progress);
                 });
-                console.log('compressedVideoPath', compressedVideoPath)
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
                 const compressedImages = await compressAndUploadImages(selectedImages);
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    console.log('Compression Progress: ', progress);
+                    // console.log('Compression Progress: ', progress);
                 });
                 const mediaUrls =
                     selectedImages.length > 0

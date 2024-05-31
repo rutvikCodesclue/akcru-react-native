@@ -31,6 +31,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
+import BackButton from '../../../components/General/backbutton';
 
 type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
 
@@ -339,16 +340,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                 </View>
 
                 <View style={styles.topcontainer}>
-                    <TouchableOpacity onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <BackButton navigation={navigation} />
                 </View>
 
                 <View>

@@ -9,6 +9,7 @@ import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import DisplayBadge from '../General/akcrubadge';
 
 type FooterIconsProps = {
     iconname: string;
@@ -334,43 +335,12 @@ const PostCard = ({
                                 style={{marginRight: 5}}
                             />
                         )}
-                        {post.author.blackCloakStatus && (
-                            <Icon
-                                name="ribbon"
-                                type="ionicon"
-                                color={COLORS.BLACKCLOAK}
-                                size={18}
-                                style={{marginRight: 5}}
-                            />
-                        )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
 
-                    {akcruBadge === 'AKCRUIT' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeAkcruit />
-                        </View>
-                    )}
-                    {akcruBadge === 'HERO' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeHero />
-                        </View>
-                    )}
-                    {akcruBadge === 'SUPERHERO' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeSuperHero />
-                        </View>
-                    )}
-                    {akcruBadge === 'GUARDIAN' && (
-                        <View>
-                            <AkcruLevels.AkcruBadgeGuardian />
-                        </View>
-                    )}
+                    <DisplayBadge akcruBadge={akcruBadge} />
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
-                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                        {timeSince(post.createdAt)}
-                    </Text> */}
                     <Pressable onPress={openPostOptions}>
                         <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                     </Pressable>

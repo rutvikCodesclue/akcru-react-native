@@ -31,6 +31,7 @@ import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../../util/playMessageSound';
 import {getUnread} from '../../../lib/api/rooms.lib';
+import {Image as CompressorImage} from 'react-native-compressor';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false);
@@ -171,12 +172,27 @@ const UserProfileDetailsTab = () => {
         }
     }, [user]);
 
-    const selectGalleryImage = async () => {
-        // if (userPics.length >= 6) {
-        //     setShowImageCountErrorModal(true);
-        //     return;
-        // }
+    const getFileSize = async filePath => {
+        try {
+            const response = await fetch(filePath, {method: 'HEAD'});
+            const contentLength = response._bodyBlob._data.size;
+            return contentLength ? parseInt(contentLength, 10) : 0;
+        } catch (error) {
+            console.error('Error getting file size: ', error);
+            Alert.alert('Error', 'Could not get file size.');
+            return 0;
+        }
+    };
 
+    const compressImage = async image => {
+        const compressedImagePath = await CompressorImage.compress(image, {
+            compressionMethod: 'auto',
+        });
+
+        return compressedImagePath;
+    };
+
+    const selectGalleryImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
             storageOptions: {
@@ -184,8 +200,6 @@ const UserProfileDetailsTab = () => {
             },
             selectionLimit: 6 - userPics.length,
         };
-
-        //console.log('select picture button');
 
         let callbackExecuted = false;
 
@@ -196,37 +210,32 @@ const UserProfileDetailsTab = () => {
                 }
 
                 callbackExecuted = true;
-                //console.log('Number of images selected:', response.assets.length);
 
                 let uploadedImages = [];
 
                 const maxSizeInBytes = 5 * 1024 * 1024;
 
                 for (const asset of response.assets) {
-                    //console.log('uri:', asset.uri);
-                    //console.log('filesize:', asset.fileSize);
                     const selectedImage = asset.uri;
                     const imageType = asset.type;
                     const imageName = asset.fileName;
+                    const compressedImage = await compressImage(selectedImage);
 
                     if (asset.fileSize > maxSizeInBytes) {
                         setShowSizeErrorModal(true);
                         return;
                     } else {
-                        if (selectedImage) {
+                        if (compressedImage) {
                             try {
                                 const updatedUser = await updateUserGallery({
-                                    uri: selectedImage,
+                                    uri: compressedImage,
                                     type: imageType,
                                     name: imageName,
                                 });
 
                                 if (updatedUser) {
-                                    //console.log('updatedUserProfileGallery:', updatedUser);
-                                    //console.log('Addedtogallery called with image:', selectedImage);
-                                    uploadedImages.push(selectedImage);
+                                    uploadedImages.push(compressedImage);
                                 } else {
-                                    //console.log('Failed to update profile Gallery');
                                 }
                             } catch (error) {
                                 console.error('Error updating gallery:', error);
@@ -700,7 +709,7 @@ const UserProfileDetailsTab = () => {
                         }
                         ListFooterComponent={
                             <View>
-                                <View style={{marginBottom: 75}}></View>
+                                <View style={{marginBottom: 75}} />
                                 <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
                                     <ErrorModal
                                         closeModal={() => setShowImageCountErrorModal(false)}
