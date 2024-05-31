@@ -35,6 +35,8 @@ interface IUserProfile {
     watching?: IUserWatching;
     posts?: IPost[];
     blackCloakStatus?: boolean;
+    seriesReactions?: IUserSeriesReaction[];
+    episodeReactions?: IUserEpisodeReaction[];
 }
 
 interface IUserWatching {
@@ -208,15 +210,19 @@ export interface IUserProfile {
     galleryLikes: IGalleryLike[];
     userGallery: IGallery[];
     blackCloakStatus: boolean;
+    seriesReactions?: IUserSeriesReaction[];
+    episodeReactions?: IUserEpisodeReaction[];
 }
 
 export interface IWatchlist {
     id: string;
     userId: string;
-    movieId: string;
+    movieId?: string;
+    seriesId?: string;
     createdAt: Date | string;
     updatedAt: Date | string;
     movie?: IMovie;
+    series?: ISeries;
 }
 
 export interface IUserBlock {
@@ -524,76 +530,81 @@ export interface ISeries {
     title: string;
     description: string;
     genres: string[];
-    duration: number;
-    year: number;
-    seriesURL: string;
-    trailerURL: string;
+    years: number;
+    yearsActive?: string;
+    seriesTrailerURL: string;
     landscapeURL: string;
-    image: string;
-    price: number?;
+    price?: number;
     portraitURL: string;
     rating: number;
     rated: string;
-    actors: Object[];
-    director: Object[];
+    seasons: ISeason[];
+    episodes: IEpisode[];
     published: boolean;
     createdAt: string;
     updatedAt: string;
+    viewCount: number;
+    loveCount: number;
+    likeCount: number;
+    dislikeCount: number;
     sponsored: boolean;
     blackInTheDays: boolean;
-    seasons: ISeason[];
+    actors: IActor[];
+    director: IDirector[];
 }
 
 export interface ISeason {
     id: string;
-    title: string;
-    description: string;
-    genres: string[];
-    duration: number;
-    year: number;
-    seasonURL: string;
     seasonNumber: number;
-    trailerURL: string;
-    landscapeURL: string;
-    image: string;
-    price: number?;
-    portraitURL: string;
-    actors: Object[];
-    director: Object[];
-    published: boolean;
+    seriesId: string;
+    series: ISeries;
+    episodes: IEpisode[];
     createdAt: string;
     updatedAt: string;
-    sponsored: boolean;
-    episodes: IEpisode[];
-    series: ISeries[];
-    seriesId: string;
+    seasonTrailerURL: string;
+    price?: number;
+    year: number;
+    actors: IActor[];
+    director: IDirector[];
 }
 
 export interface IEpisode {
     id: string;
     title: string;
     description: string;
-    genres: string[];
-    duration: number;
-    year: number;
-    episodeURL: string;
     episodeNumber: number;
-    trailerURL: string;
-    landscapeURL: string;
-    image: string;
-    price: number?;
-    portraitURL: string;
-    rating: number;
-    rated: string;
-    actors: Object[];
-    director: Object[];
-    published: boolean;
+    duration: number;
+    seasonId: string;
+    season: ISeason;
+    seriesId: string;
+    series: ISeries;
+    episodeURL: string;
     createdAt: string;
     updatedAt: string;
-    sponsored: boolean;
-    season: ISeason[];
-    seasonId: string;
-    series: ISeries[];
+    actors: IActor[];
+    director: IDirector[];
+    price?: number;
+    viewCount: number;
+    loveCount: number;
+    likeCount: number;
+    dislikeCount: number;
+    landscapeURL?: string;
+}
+
+interface IUserSeriesReaction {
+    id: string;
+    userId: string;
     seriesId: string;
-    seasonNumber: number;
+    type: 'LOVE' | 'LIKE' | 'DISLIKE';
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface IUserEpisodeReaction {
+    id: string;
+    userId: string;
+    episodeId: string;
+    type: 'LOVE' | 'LIKE' | 'DISLIKE';
+    createdAt: string;
+    updatedAt: string;
 }

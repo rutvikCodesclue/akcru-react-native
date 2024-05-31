@@ -14,13 +14,15 @@ import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
-import {IMovie} from '../../../../types';
+import {IMovie, ISeries} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {Icon} from '@rneui/base';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {fetchUnfinishedMovies} from '../../../lib/api/user.lib';
 import ContinueWatchingList from '../../../components/ContinueWatchingList';
+import BasicSeriesCarousel from '../../../components/BasicSeriesCarousel';
+import { findSeries } from '../../../lib/api/series.lib';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -33,6 +35,8 @@ const HomeScreen = () => {
     const [topBoxShouldAutoplay, setTopBoxShouldAutoplay] = useState(true);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [originalSeries, setOriginalSeries] = useState<ISeries[]>([]);
+    const [isSeriesDataLoaded, setIsSeriesDataLoaded] = useState(false);
 
     const [unfinishedMovies, setUnfinishedMovies] = useState<IMovie[]>([]);
 
@@ -185,6 +189,18 @@ const HomeScreen = () => {
                 console.error('Error fetching top rated movies:', error);
             }
         };
+
+        const fetchOriginalSeries = async () => {
+            try {
+                const series: ISeries[] = await findSeries();
+                setOriginalSeries(series);
+                setIsSeriesDataLoaded(true);
+            } catch (error) {
+                console.error('Error fetching original series:', error);
+            }
+        };
+
+        fetchOriginalSeries();
         fetchTopBoxMovie();
         fetchOldYearMovies();
         fetchTopRatedMovies();
@@ -394,7 +410,7 @@ const HomeScreen = () => {
                                 <ContinueWatchingList
                                     Akcru_Content={{
                                         id: 'unfinshedMovies',
-                                        title: 'Continue Watching',
+                                        title: 'Continue Watching Movie',
                                         movies: unfinishedMovies,
                                     }}
                                     updateUnfinishedMovies={updatedMovies => setUnfinishedMovies(updatedMovies)}
@@ -405,6 +421,13 @@ const HomeScreen = () => {
                                     id: 'recommendedForYou',
                                     title: 'Recommended by Akcru',
                                     movies: randomMovies,
+                                }}
+                            />
+                            <BasicSeriesCarousel
+                                Akcru_Content={{
+                                    id: 'OrginalSeries',
+                                    title: 'Original Series',
+                                    series: originalSeries,
                                 }}
                             />
                         </View>
