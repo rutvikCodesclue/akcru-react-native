@@ -24,6 +24,7 @@ import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
 import styles from '../../contentScreens/PlayContentScreen/styles';
+import BackButton from '../../../components/General/backbutton';
 
 const FirstRoute = () => (
     <View style={{marginBottom: '20%'}}>
@@ -170,18 +171,9 @@ const FollowList = () => {
     return (
         <View style={{flex: 1}}>
             <View>
+                <BackButton navigation={navigation} />
                 <View style={styles.backbutton}>
                     <Header />
-                    <TouchableOpacity style={{marginHorizontal: 15, marginBottom: 10}} onPress={() => navigation.pop()}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
             </View>
             <TabView

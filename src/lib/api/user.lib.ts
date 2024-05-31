@@ -243,6 +243,49 @@ export const updateUserWatchTime = async (params: {
     TODO: test these
 */
 
+export const getGalleryLikeCount = async (imageUrl: string): Promise<any> => {
+    try {
+        const response = await API.get(`/v1/user/gallery/like-count?imageUrl=${encodeURIComponent(imageUrl)}`);
+        if (response.data.success === false) {
+            return undefined;
+        }
+
+        return response.data;
+    } catch (error) {
+        console.error('Error getting gallery like count:', error);
+        return undefined;
+    }
+};
+
+export const likeGalleryItem = async (imageUrl: string): Promise<any> => {
+    try {
+        const response = await API.post(`/v1/user/gallery/like?imageUrl=${encodeURIComponent(imageUrl)}`);
+        if (response.data.success === false) {
+            return undefined;
+        }
+
+        return response.data.message;
+
+    } catch (error) {
+        console.error('Error liking gallery item:', error);
+        return undefined;
+    }
+};
+
+export const unlikeGalleryItem = async (imageUrl: string): Promise<any> => {
+    try {
+        const response = await API.post(`/v1/user/gallery/unlike?imageUrl=${encodeURIComponent(imageUrl)}`);
+        if (response.data.success === false) {
+            return undefined;
+        }
+        return response.data.message;
+
+    } catch (error) {
+        console.error('Error unliking gallery item:', error);
+        return undefined;
+    }
+};
+
 export const toggleFollow = async (
     targetUserId: string,
 ): Promise<{success: boolean; isFollowing: boolean; message?: string}> => {
