@@ -34,6 +34,7 @@ import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import UserTaggedCard from '../../../components/UserTaggedCard';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
+import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -53,6 +54,17 @@ const NewPost = () => {
     const [isPosting, setIsPosting] = useState(false);
     const videoRef = useRef(null);
 
+    const getFileSize = async filePath => {
+        try {
+            const response = await fetch(filePath, {method: 'HEAD'});
+            const contentLength = response._bodyBlob._data.size;
+            return contentLength ? parseInt(contentLength, 10) : 0;
+        } catch (error) {
+            console.error('Error getting file size: ', error);
+            Alert.alert('Error', 'Could not get file size.');
+            return 0;
+        }
+    };
     const selectPostImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
@@ -145,6 +157,31 @@ const NewPost = () => {
         }
     };
 
+    const compressAndUploadImages = async selectedImages => {
+        const originalSizeList = [];
+        const compressedSizeList = [];
+        const compressedImages = [];
+
+        for (let image of selectedImages) {
+            // Get the original file size
+            const originalSize = await getFileSize(image);
+            originalSizeList.push(originalSize);
+            console.log('original size', originalSize);
+
+            // Compress the image
+            const compressedImagePath = await CompressorImage.compress(image, {
+                compressionMethod: 'auto',
+            });
+
+            // Get the compressed file size
+            const compressedSize = await getFileSize(compressedImagePath);
+            compressedSizeList.push(compressedSize);
+            console.log('compressed size', compressedSize);
+
+            compressedImages.push(compressedImagePath);
+        }
+        return compressedImages;
+    };
     const OnPostPress = async () => {
         setIsPosting(true);
         try {
@@ -154,17 +191,26 @@ const NewPost = () => {
             if (postType === 'TEXT') {
                 content = [postText];
             } else if (postType === 'IMAGE') {
-                content = await uploadPictures(selectedImages);
+                const compressedImages = await compressAndUploadImages(selectedImages);
+
+                content = await uploadPictures(compressedImages);
                 content = content.join(', ');
             } else if (postType === 'VIDEO') {
-                const videoUrl = await uploadVideo(selectedVideo, 'video', videoDuration);
+                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
+                    console.log('Compression Progress: ', progress);
+                });
+                console.log('compressedVideoPath', compressedVideoPath)
+                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
-                content.push(postText);
+                const compressedImages = await compressAndUploadImages(selectedImages);
+                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
+                    console.log('Compression Progress: ', progress);
+                });
                 const mediaUrls =
                     selectedImages.length > 0
-                        ? await uploadPictures(selectedImages)
-                        : await uploadVideo(selectedVideo, 'YourUploadType', videoDuration);
+                        ? await uploadPictures(compressedImages)
+                        : await uploadVideo(compressedVideoPath, 'YourUploadType', videoDuration);
                 content = content.concat(mediaUrls);
             }
 
@@ -307,31 +353,31 @@ const NewPost = () => {
                             </View>
                         </View>
                         <View style={styles.input}>
-                                <TextInput
-                                    placeholder={'Tell us the "skinny" in 200 characters or less'}
-                                    placeholderTextColor={COLORS.DARKGREY}
+                            <TextInput
+                                placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                placeholderTextColor={COLORS.DARKGREY}
                                 style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => {
-                                        const parts = text.split(' ');
-                                        const lastPart = parts[parts.length - 1];
-                                        if (lastPart.startsWith('@')) {
-                                            setIsTagging(true);
-                                            setCurrentTag(lastPart.slice(1));
-                                        } else {
-                                            setIsTagging(false);
-                                            setCurrentTag('');
-                                        }
+                                secureTextEntry={false}
+                                onChangeText={text => {
+                                    const parts = text.split(' ');
+                                    const lastPart = parts[parts.length - 1];
+                                    if (lastPart.startsWith('@')) {
+                                        setIsTagging(true);
+                                        setCurrentTag(lastPart.slice(1));
+                                    } else {
+                                        setIsTagging(false);
+                                        setCurrentTag('');
+                                    }
 
-                                        if (text.length <= 200) {
-                                            setPostText(text);
-                                        }
-                                    }}
-                                    value={postText}
-                                    multiline={true}
-                                    maxLength={200}
-                                    editable={true}
-                                />
+                                    if (text.length <= 200) {
+                                        setPostText(text);
+                                    }
+                                }}
+                                value={postText}
+                                multiline={true}
+                                maxLength={200}
+                                editable={true}
+                            />
                         </View>
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
