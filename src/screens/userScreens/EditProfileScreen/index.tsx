@@ -26,6 +26,7 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImageModal';
 import HelpModal from '../../../components/HelpModal/HelpModal';
 import BackButton from '../../../components/General/backbutton';
+import {Image as CompressorImage} from 'react-native-compressor';
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -149,6 +150,14 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const [selectImage, setSelectImage] = useState(user?.profilePicture || '');
+    const compressImage = async image => {
+        const compressedImagePath = await CompressorImage.compress(image, {
+            compressionMethod: 'auto',
+        });
+
+        return compressedImagePath;
+    };
+
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
     const selectProfileImage = async () => {
@@ -169,7 +178,8 @@ export default function EditProfile({session}: {session: Session}) {
 
                 callbackExecuted = true;
 
-                const selectedImage = response.assets[0].uri;
+                const selectedImageUncomp = response.assets[0].uri;
+                const selectedImage = await compressImage(selectedImageUncomp);
 
                 const imageType = response.assets[0].type;
                 const imageName = response.assets[0].fileName;
