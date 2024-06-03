@@ -64,6 +64,7 @@ const UserNotifications = () => {
                     console.warn('Unhandled notification type:', notification.type);
                     break;
                 case 'UserFollowed':
+                case 'MsgRcvd':
                 case 'CruInviteReceived':
                 case 'CruInviteAccepted':
                 case 'CruInviteDeclined':
@@ -97,6 +98,7 @@ const UserNotifications = () => {
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
             ADReceived: 'You just received AD',
+            MsgRcvd: 'New Message',
         };
 
         return typeDisplayNames[type] || type;
