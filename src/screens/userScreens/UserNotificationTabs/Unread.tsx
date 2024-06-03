@@ -105,6 +105,7 @@ const Unread = () => {
             CruViewScheduled: 'A Cru View was scheduled',
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
+            MsgRcvd: 'New Message',
         };
 
         return typeDisplayNames[type] || type;

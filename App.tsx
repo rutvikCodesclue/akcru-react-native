@@ -43,13 +43,28 @@ const userId = useAuthStore(state => state.user?.id);
  useEffect(() => {
      // Subscribe to foreground message handling
      const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-         //console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
-         onDisplayNotification(remoteMessage);
+         console.log('A new FCM message arrived!', JSON.stringify(remoteMessage));
+         let notify = true
+         if(remoteMessage){
+            if(remoteMessage["notification"]){
+                const title = remoteMessage["notification"]["title"]
+                console.log('title', title)
+                if(title && title == "New Message"){
+                    notify = false
+                }
+
+            }
+            
+         }
+         
+        if(notify){
+            onDisplayNotification(remoteMessage);
+        }
      });
 
      // Handle background messages
      messaging().setBackgroundMessageHandler(async remoteMessage => {
-         //console.log('Message handled in the background!', remoteMessage);
+         console.log('Message handled in the background!', remoteMessage);
          
      });
 
