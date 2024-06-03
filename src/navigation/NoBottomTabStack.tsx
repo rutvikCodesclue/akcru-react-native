@@ -36,6 +36,7 @@ import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MI
 import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
 import SeriesDetailScreen from '../screens/contentScreens/SeriesDetailScreen';
 import SeriesTrailerPlayer from '../screens/contentScreens/PlaySeriesTrailer';
+import EpisodePlayer from '../screens/contentScreens/PlayEpisode';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -81,6 +82,7 @@ export type NoBottomTabStackParams = {
     SearchMovieScreen: any;
     SeriesDetailScreen: any;
     SeriesTrailerPlayer: any;
+    EpisodePlayer: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -112,6 +114,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="ContentPlayer"
                 component={ContentPlayer}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="EpisodePlayer"
+                component={EpisodePlayer}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

@@ -25,6 +25,26 @@ export default StyleSheet.create({
         textAlign: 'center',
         justifyContent: 'center',
     },
+
+    seasonfonttag: {
+        ...FONTS.Title2,
+        backgroundColor: COLORS.DARKERGREY,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+        marginHorizontal: 2,
+        marginVertical: 2,
+        borderRadius: 3,
+        textAlign: 'center',
+        justifyContent: 'center',
+    },
+    selectedSeasonButton: {
+        backgroundColor: COLORS.PURPLE,
+    },
+    seasonButtonText: {
+        ...FONTS.Title2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+    },
     bigTitle: {
         ...FONTS.Title3,
         fontSize: 25,

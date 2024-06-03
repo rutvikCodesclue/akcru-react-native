@@ -147,7 +147,6 @@ const UserNotification = ({route}: Props) => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
-                            
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                             style={{
                                 position: 'absolute',
@@ -158,7 +157,10 @@ const UserNotification = ({route}: Props) => {
                             }}
                         />
                         <View>
-                            <BackButton navigation={navigation} />
+                            <View style={{marginTop: Platform.OS === 'android' ? '13%' : 0, marginHorizontal: 15}}>
+                                <BackButton navigation={navigation} />
+                            </View>
+
                             <Text
                                 style={{
                                     ...FONTS.Title2,

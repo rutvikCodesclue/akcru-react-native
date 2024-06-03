@@ -551,6 +551,7 @@ export interface ISeries {
     blackInTheDays: boolean;
     actors: IActor[];
     director: IDirector[];
+    reactions: IUserSeriesReaction[];
 }
 
 export interface ISeason {

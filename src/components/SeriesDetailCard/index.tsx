@@ -1,19 +1,30 @@
-import {View, Text, TouchableOpacity, Image, Modal} from 'react-native';
+import {View, Text, TouchableOpacity, Image, FlatList} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
-import imageindex from '../../../assets/images/imageindex';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
-import {formatMovieDuration} from '../../util/util';
-import {capitalizeFirstLetterOfString} from '../../util/util';
-import ConfirmationModal from '../ConfirmationModal';
+import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../util/util';
 import {API} from '../../clients/api.client';
-import {MULTISIZES} from '../../../assets/constants/theme';
+import CustomIcon from '../CustomIcon/CustomIcon';
+import Orientation from 'react-native-orientation-locker';
+
+type Episode = {
+    id: string;
+    title: string;
+    episodeNumber: number;
+    description: string;
+    duration: number;
+    landscapeURL?: string;
+    seasonId: string;
+    episodeURL: string;
+    episodeActors: string;
+    actors: string;
+};
 
 type ReactionStat = {
     type: string;
@@ -51,7 +62,8 @@ type SeriesDetailCardProps = {
     reactions: any;
     contentButtonName: string;
     duration: number;
-    seasons: number;
+    seasons: {id: string; seasonNumber: number}[];
+    episodes: Episode[];
 };
 
 const SeriesDetailCard = ({
@@ -81,12 +93,91 @@ const SeriesDetailCard = ({
     contentButtonName,
     duration,
     seasons,
+    episodes,
 }: SeriesDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
+    const [selectedSeasonId, setSelectedSeasonId] = useState<string>(seasons[0]?.id);
+
+    const handleSeasonSelect = (seasonId: string) => {
+        setSelectedSeasonId(seasonId);
+    };
+
+    useEffect(() => {
+        console.log('Episodes:', episodes); // Check structure of episodes
+        console.log('Selected Season ID:', selectedSeasonId); // Check selected season ID
+    }, [episodes, selectedSeasonId]);
+
+    const filteredEpisodes = episodes ? episodes.filter(episode => episode.seasonId === selectedSeasonId) : [];
+
+    const renderSeasonButton = ({item}: {item: {id: string; seasonNumber: number}}) => (
+        <TouchableOpacity
+            style={[styles.seasonfonttag, selectedSeasonId === item.id && styles.selectedSeasonButton]}
+            onPress={() => handleSeasonSelect(item.id)}>
+            <Text style={styles.seasonButtonText}>{`Season ${item.seasonNumber}`}</Text>
+        </TouchableOpacity>
+    );
+
+    console.log('Filtered Episodes:', filteredEpisodes); // Check filtered episodes
+
+    const renderEpisode = ({item}: {item: Episode}) => (
+        <View style={{marginTop: 10}}>
+            <View style={{flexDirection: 'row'}}>
+                <View style={{marginRight: 10}}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log('Episode ID:', item.id);
+                            navigation.navigate('EpisodePlayer', {
+                                seriesId,
+                                seasonId: item.seasonId,
+                                episodeId: item.id,
+                            });
+                        }}>
+                        <View
+                            style={{
+                                position: 'absolute',
+                                zIndex: 20,
+                                top: -8,
+                                left: SIZES.ScreenWidth * 0.05,
+                            }}>
+                            <CustomIcon name="play-circle" color={COLORS.TRANSPINK} type={'ionicon'} baseSize={60} />
+                        </View>
+                        <Image
+                            source={{uri: item.landscapeURL}}
+                            style={{
+                                height: SIZES.ScreenWidth * 0.2,
+                                width: SIZES.ScreenWidth * 0.3,
+                                borderRadius: 5,
+                            }}
+                            resizeMode="cover"
+                        />
+                    </TouchableOpacity>
+                </View>
+                <View>
+                    <Text style={{...FONTS.Title2}}>{`Ep. ${item.episodeNumber}`}</Text>
+                    <Text style={{...FONTS.Title2}}>{item.title}</Text>
+                    <Text style={{...FONTS.paragraph1}}> {formatMovieDuration(item.duration)}</Text>
+                    {/* <View style={{flexDirection: 'row', marginBottom: 5}}>
+                        <Text
+                            style={{
+                                ...FONTS.Title2Orange,
+                                color: COLORS.AKCRUBLUE,
+                            }}>
+                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {item.actors}
+                        </Text>
+                    </View> */}
+                </View>
+            </View>
+            <View style={{marginTop: 10}}>
+                <Text style={{...FONTS.Title2}}>{item.description}</Text>
+            </View>
+        </View>
+    );
+
+    const renderSeparator = () => <View style={styles.lineSeperator} />;
 
     useEffect(() => {
         const fetchReactionStats = async () => {
@@ -200,12 +291,14 @@ const SeriesDetailCard = ({
                         }}
                     />
                     <TouchableOpacity
-                        onPress={() => navigation.pop()}
+                        onPress={() => {
+                            Orientation.lockToPortrait();
+                            navigation.pop();
+                        }}
                         style={{
                             position: 'absolute',
                             left: 0,
                             right: 0,
-
                             top: SIZES.ScreenHeight * -0.32,
                             marginHorizontal: 15,
                         }}>
@@ -218,39 +311,6 @@ const SeriesDetailCard = ({
                             <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                         </View>
                     </TouchableOpacity>
-                    {/* <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
-                        <View
-                            style={{
-                                justifyContent: 'center',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    textAlign: 'center',
-                                    marginRight: 10,
-                                }}>
-                                Add to Favorites
-                            </Text>
-                            <TouchableOpacity onPress={watchlistButton}>
-                                <Icon
-                                    name="add-circle-outline"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={MULTISIZES.Xlarge40}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    </View> */}
-
-                    {/* <Modal animationType="fade" transparent={true} visible={showAddToWatchListConfirmationModal}>
-                        <ConfirmationModal
-                            onPressYes={handleConfirmAddToWatchList}
-                            onPressNo={handleCancelAddToWatchList}
-                            confirmationText={`Are you sure you want to add "${title}" to your watchlist?`}
-                        />
-                    </Modal> */}
 
                     <View
                         style={{
@@ -301,7 +361,6 @@ const SeriesDetailCard = ({
                     style={{
                         marginHorizontal: 15,
                         flexDirection: 'row',
-
                         marginVertical: 5,
                         alignItems: 'center',
                     }}>
@@ -309,7 +368,7 @@ const SeriesDetailCard = ({
                         <Text style={{...FONTS.paragraph1}}>{yearsActive}</Text>
                     </View>
                     <View style={{marginRight: 10}}>
-                        <Text style={{...FONTS.paragraph1}}>Seasons {seasons}</Text>
+                        <Text style={{...FONTS.paragraph1}}>Seasons {seasons.length}</Text>
                     </View>
                     <View
                         style={{
@@ -344,30 +403,6 @@ const SeriesDetailCard = ({
                     ))}
                 </View>
 
-                {/* <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                    <TouchableOpacity onPress={onPress}>
-                        <View style={styles.MITbutton}>
-                            <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-
-                            <Text style={{...FONTS.Title2AkcruBlue}}>Send Series Invite Ticket</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View> */}
-                {/* <View
-                    style={{
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                    }}>
-                    <Image
-                        source={imageindex.AkcruHexLogo}
-                        style={{width: 26, height: 26, marginRight: 10}}
-                        resizeMode="contain"
-                    />
-                    <Text style={{...FONTS.Title2Orange}}>Earn up to 500 AKCRU dollars</Text>
-                </View> */}
-
                 <View style={{marginHorizontal: 15, marginTop: 15}}>
                     <Text
                         style={{
@@ -396,30 +431,23 @@ const SeriesDetailCard = ({
                             <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
                         </Text>
                     </View>
-                    <View style={{marginTop: 10}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{marginRight: 10}}>
-                                <Image
-                                    source={{uri: portraitURL}}
-                                    style={{
-                                        height: SIZES.ScreenWidth * 0.2,
-                                        width: SIZES.ScreenWidth * 0.3,
-                                        borderRadius: 5,
-                                    }}
-                                    resizeMode="cover"
-                                />
-                            </View>
-                            <View>
-                                <Text style={{...FONTS.Title2}}>Ep. 1</Text>
-                                <Text style={{...FONTS.Title2}}>{title}</Text>
-                                <Text style={{...FONTS.paragraph1}}>26 m</Text>
-                            </View>
-                        </View>
-                        <View style={{marginTop: 10}}>
-                            <Text style={{...FONTS.Title2}}>{description}</Text>
-                        </View>
-                        <View style={styles.lineSeperator} />
+                    <View style={{marginTop: 20}}>
+                        <FlatList
+                            data={seasons}
+                            renderItem={renderSeasonButton}
+                            keyExtractor={item => item.id}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={{marginTop: 10}}
+                        />
                     </View>
+                    <FlatList
+                        data={filteredEpisodes}
+                        renderItem={renderEpisode}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={{marginTop: 10}}
+                        ItemSeparatorComponent={renderSeparator}
+                    />
                 </View>
             </View>
         </View>

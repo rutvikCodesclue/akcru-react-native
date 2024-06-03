@@ -31,10 +31,12 @@ const BasicSeriesCarousel = (props: BasicSeriesCarouselProps) => {
                         <TouchableOpacity
                             onPress={() => {
                                 console.log('id:', item.id);
-                                console.log('series:', item.title);
+                                console.log('series:', item);
+                                console.log('Series Episodes:', item.episodes);
                                 navigation.navigate('SeriesDetailScreen', {
                                     id: item.id,
                                     series: item.title,
+                                    episodes: item.episodes,
                                 });
                             }}>
                             <Image source={{uri: item.portraitURL}} style={styles.poster} />
