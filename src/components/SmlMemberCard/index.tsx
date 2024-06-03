@@ -2,7 +2,6 @@ import {View, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {Avatar, Icon} from '@rneui/base';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
-import AkcruLevels from '../akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import DisplayBadge from '../General/akcrubadge';
 
@@ -80,7 +79,6 @@ const SmlMemberCard = ({userPicture, userName, influencer, akcruBadge, onPress, 
                     </View>
                 </View>
             </View>
-            
         </View>
     );
 };

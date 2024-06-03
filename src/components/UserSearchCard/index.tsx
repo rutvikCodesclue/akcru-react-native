@@ -1,11 +1,11 @@
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
+import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
-import AkcruLevels from '../akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
 import CustomIcon from '../CustomIcon/CustomIcon';
+import DisplayBadge from '../General/akcrubadge';
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -21,7 +21,6 @@ type UserSearchCardProps = {
     ownerStatus?: boolean;
     companyStatus?: boolean;
     influencerStatus?: boolean;
-    blackCloakStatus?: boolean;
 };
 
 const UserSearchCard = ({
@@ -34,8 +33,6 @@ const UserSearchCard = ({
     ownerStatus,
     companyStatus,
     influencerStatus,
-    blackCloakStatus,
-
 }: UserSearchCardProps) => {
     const truncateduserDesc =
         userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
@@ -100,38 +97,10 @@ const UserSearchCard = ({
                                     style={{marginRight: 5}}
                                 />
                             )}
-                            {blackCloakStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.BLACKCLOAK}
-                                    baseSize={12}
-                                    style={{marginRight: 5}}
-                                />
-                            )}
                         </View>
                         <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            {akcruBadge === 'AKCRUIT' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                </View>
-                            )}
-                            {akcruBadge === 'GUARDIAN' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeGuardian />
-                                </View>
-                            )}
-                            {akcruBadge === 'HERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeHero />
-                                </View>
-                            )}
-                            {akcruBadge === 'SUPERHERO' && (
-                                <View>
-                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                </View>
-                            )}
+                            <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
                     </View>
                 </View>
