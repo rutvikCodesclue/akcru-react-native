@@ -171,7 +171,7 @@ const NewComment = ({navigation, route}: Props) => {
                 const mediaUrls =
                     selectedImages.length > 0
                         ? await uploadPictures(selectedImages)
-                        : await uploadVideo(selectedVideo, 'YourUploadType', videoDuration);
+                        : await uploadVideo(selectedVideo, 'video', videoDuration);
                 content = content.concat(mediaUrls);
             }
 

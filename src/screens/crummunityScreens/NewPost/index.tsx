@@ -200,15 +200,17 @@ const NewPost = () => {
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
+                content = [postText];
                 const compressedImages = await compressAndUploadImages(selectedImages);
-                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
+                const compressedVideoPath =  selectedVideo ?  await VideoCompressor.compress(selectedVideo, {}, progress => {
                     // console.log('Compression Progress: ', progress);
-                });
+                }): null;
                 const mediaUrls =
                     selectedImages.length > 0
                         ? await uploadPictures(compressedImages)
-                        : await uploadVideo(compressedVideoPath, 'YourUploadType', videoDuration);
+                        : await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = content.concat(mediaUrls);
+             
             }
 
             const result = await createPost(postType, content);
