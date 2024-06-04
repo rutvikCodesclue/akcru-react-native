@@ -656,7 +656,7 @@ const AccountSettings = () => {
                                             flexDirection: 'row',
                                             justifyContent: 'space-between',
                                         }}>
-                                        <TouchableOpacity
+                                        <Pressable
                                             onPress={() => setShowUpdateLastNameConfirmation(false)}
                                             style={{
                                                 backgroundColor: COLORS.DARKAKCRUBLUE,
@@ -664,8 +664,8 @@ const AccountSettings = () => {
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
+                                        </Pressable>
+                                        <Pressable
                                             onPress={confirmLastNameUpdate}
                                             style={{
                                                 backgroundColor: COLORS.PURPLE,
@@ -673,7 +673,7 @@ const AccountSettings = () => {
                                                 borderRadius: 5,
                                             }}>
                                             <Text style={{...FONTS.Title3}}>Update</Text>
-                                        </TouchableOpacity>
+                                        </Pressable>
                                     </View>
                                 )}
                             </View>

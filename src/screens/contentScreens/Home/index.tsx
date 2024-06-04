@@ -22,7 +22,8 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {fetchUnfinishedMovies} from '../../../lib/api/user.lib';
 import ContinueWatchingList from '../../../components/ContinueWatchingList';
 import BasicSeriesCarousel from '../../../components/BasicSeriesCarousel';
-import { findSeries } from '../../../lib/api/series.lib';
+import {findSeries} from '../../../lib/api/series.lib';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -37,6 +38,7 @@ const HomeScreen = () => {
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
     const [originalSeries, setOriginalSeries] = useState<ISeries[]>([]);
     const [isSeriesDataLoaded, setIsSeriesDataLoaded] = useState(false);
+    const [blackInTheDaysMovies, setBlackInTheDaysMovies] = useState<IMovie[]>([]);
 
     const [unfinishedMovies, setUnfinishedMovies] = useState<IMovie[]>([]);
 
@@ -200,6 +202,19 @@ const HomeScreen = () => {
             }
         };
 
+        const fetchBlackInTheDaysMovies = async () => {
+            try {
+                const allMovies: IMovie[] = await findMovies();
+                const blackInTheDaysMovies = allMovies
+                    .filter(movie => movie.blackInTheDays)
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 10); // Limit to 10 movies
+                setBlackInTheDaysMovies(blackInTheDaysMovies);
+            } catch (error) {
+                console.error('Error fetching Black in the Days movies:', error);
+            }
+        };
+
         fetchOriginalSeries();
         fetchTopBoxMovie();
         fetchOldYearMovies();
@@ -207,6 +222,7 @@ const HomeScreen = () => {
         fetchNewOnAkcru();
         fetchRandomMovies();
         fetchNewerYearMovies();
+        fetchBlackInTheDaysMovies();
     }, []);
 
     const handleGenrePress = (genre: string) => {
@@ -416,6 +432,15 @@ const HomeScreen = () => {
                                     updateUnfinishedMovies={updatedMovies => setUnfinishedMovies(updatedMovies)}
                                 />
                             )}
+                            {blackInTheDaysMovies.length > 0 && (
+                                <LargeListCategories
+                                    Akcru_Content={{
+                                        id: 'blackinthedays',
+                                        title: 'Black in the Days',
+                                        movies: blackInTheDaysMovies,
+                                    }}
+                                />
+                            )}
                             <BasicListCategories
                                 Akcru_Content={{
                                     id: 'recommendedForYou',
@@ -423,13 +448,13 @@ const HomeScreen = () => {
                                     movies: randomMovies,
                                 }}
                             />
-                            <BasicSeriesCarousel
+                            {/* <BasicSeriesCarousel
                                 Akcru_Content={{
                                     id: 'OrginalSeries',
                                     title: 'Original Series',
                                     series: originalSeries,
                                 }}
-                            />
+                            /> */}
                         </View>
                     </ScrollView>
                 ) : (
