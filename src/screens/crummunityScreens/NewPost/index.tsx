@@ -201,15 +201,13 @@ const NewPost = () => {
                 content = content.join(', ');
             } else if (postType === 'VIDEO') {
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    console.log('Compression Progress: ', progress);
+                    // console.log('Compression Progress: ', progress);
                     setIsCompress(true)
                     setProgress(progress)
-                    if(progress > 0.98){
-                        setIsCompress(false)
-                    }
-
+                   
                 });
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
+                setIsCompress(false)
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
                 content = [postText];
@@ -218,14 +216,15 @@ const NewPost = () => {
                     // console.log('Compression Progress: ', progress);
                     setIsCompress(true)
                     setProgress(progress)
-                    if(progress > 0.98){
-                        setIsCompress(false)
-                    }
+                    
                 }): null;
                 const mediaUrls =
                     selectedImages.length > 0
                         ? await uploadPictures(compressedImages)
                         : await uploadVideo(compressedVideoPath, 'video', videoDuration);
+               
+                setIsCompress(false)
+                
                 content = content.concat(mediaUrls);
              
             }
@@ -545,7 +544,7 @@ const NewPost = () => {
                 <Modal visible={isCompress} transparent={true} animationType="fade">
       <View style={stylesProgress.modalBackground}>
         <View style={stylesProgress.modalContainer}>
-          <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(progressVal * 100)}%`}</Text>
+          <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(progressVal * 100)}% & Uploading`}</Text>
           {Platform.OS === 'android' ? (
             <ProgressBarAndroid
               styleAttr="Horizontal"
@@ -589,7 +588,7 @@ const stylesProgress = StyleSheet.create({
       },
       progressText: {
         marginBottom: 10,
-        fontSize: 20,
+        fontSize: 16,
       },
       progressBar: {
         width: '100%',
