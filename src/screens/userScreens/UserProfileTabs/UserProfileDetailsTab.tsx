@@ -32,6 +32,7 @@ import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../../util/playMessageSound';
 import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
+import GalleryPic from '../../../components/GalleryPic';
 
 const UserProfileDetailsTab = () => {
     const [isModalVisible, setModalVisible] = useState(false);
@@ -718,13 +719,24 @@ const UserProfileDetailsTab = () => {
                                         iconname={'alert-circle'}
                                     />
                                 </Modal>
-                                <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}>
-                                    <EnlargeGalleryModal
-                                        closeModal={toggleEnlargeModal}
-                                        image={selectedImage}
-                                        deleteImage={removeFromGallery}
-                                    />
-                                </Modal>
+                                {/* <Modal animationType="fade" transparent={true} visible={!!enlargeModalVisible}> */}
+                                {selectedImage ? (
+                                     <TouchableOpacity activeOpacity={1} style={{
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    }}>
+                                     <GalleryPic image={selectedImage} style={{
+                        borderRadius: 5,
+                        width: '90%',
+                        height: '75%',
+                    }} />
+                                     
+                                  
+                                 </TouchableOpacity>
+                                ) : null}
+                                {/* </Modal> */}
                                 <Modal animationType="fade" transparent={true} visible={!!confirmationModal}>
                                     <ConfirmationModal
                                         confirmationText={'Are you sure you want to leave this CRU?'}
