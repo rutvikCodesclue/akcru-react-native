@@ -39,7 +39,7 @@ const GalleryPic = ({image}: GalleryPicProps) => {
     };
 
     const likeUnlikeHandler = async () => {
-        if (likeImage == false) {
+        if (likeImage === false) {
             console.log('Liking the image.');
             if (likeCount != null){
                 let currLikeCount = likeCount + 1;

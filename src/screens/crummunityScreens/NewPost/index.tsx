@@ -9,6 +9,10 @@ import {
     Pressable,
     ScrollView,
     ActivityIndicator,
+    ProgressBarAndroid,
+    ProgressViewIOS,
+    Platform,
+    StyleSheet
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
@@ -52,6 +56,8 @@ const NewPost = () => {
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
 
     const [isPosting, setIsPosting] = useState(false);
+    const [isCompress, setIsCompress] = useState(false);
+    const [progressVal, setProgress] = useState(0);
     const videoRef = useRef(null);
 
     const getFileSize = async filePath => {
@@ -195,7 +201,13 @@ const NewPost = () => {
                 content = content.join(', ');
             } else if (postType === 'VIDEO') {
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    // console.log('Compression Progress: ', progress);
+                    console.log('Compression Progress: ', progress);
+                    setIsCompress(true)
+                    setProgress(progress)
+                    if(progress > 0.98){
+                        setIsCompress(false)
+                    }
+
                 });
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
@@ -204,6 +216,11 @@ const NewPost = () => {
                 const compressedImages = await compressAndUploadImages(selectedImages);
                 const compressedVideoPath =  selectedVideo ?  await VideoCompressor.compress(selectedVideo, {}, progress => {
                     // console.log('Compression Progress: ', progress);
+                    setIsCompress(true)
+                    setProgress(progress)
+                    if(progress > 0.98){
+                        setIsCompress(false)
+                    }
                 }): null;
                 const mediaUrls =
                     selectedImages.length > 0
@@ -525,9 +542,57 @@ const NewPost = () => {
                         </Modal>
                     )}
                 </ScrollView>
+                <Modal visible={isCompress} transparent={true} animationType="fade">
+      <View style={stylesProgress.modalBackground}>
+        <View style={stylesProgress.modalContainer}>
+          <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(progressVal * 100)}%`}</Text>
+          {Platform.OS === 'android' ? (
+            <ProgressBarAndroid
+              styleAttr="Horizontal"
+              indeterminate={false}
+              progress={progressVal}
+              color="blue"
+              style={stylesProgress.progressBar}
+            />
+          ) : (
+            <ProgressViewIOS
+              progress={progressVal}
+              progressTintColor="blue"
+              style={stylesProgress.progressBar}
+            />
+          )}
+        </View>
+      </View>
+    </Modal>
             </SafeAreaView>
+
         </TabContainer>
     );
 };
 
 export default NewPost;
+
+const stylesProgress = StyleSheet.create({
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContainer: {
+        width: '80%',
+        padding: 20,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      progressText: {
+        marginBottom: 10,
+        fontSize: 20,
+      },
+      progressBar: {
+        width: '100%',
+        height: 20,
+      },
+})
