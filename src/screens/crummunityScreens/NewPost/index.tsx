@@ -186,6 +186,91 @@ const NewPost = () => {
         }
         return compressedImages;
     };
+
+    //Orginal Code
+    // const OnPostPress = async () => {
+    //     setIsPosting(true);
+    //     try {
+    //         const postType = determinePostType();
+    //         let content = [];
+
+    //         if (postType === 'TEXT') {
+    //             content = [postText];
+    //         } else if (postType === 'IMAGE') {
+    //             const compressedImages = await compressAndUploadImages(selectedImages);
+
+    //             content = await uploadPictures(compressedImages);
+    //             content = content.join(', ');
+    //         } else if (postType === 'VIDEO') {
+    //             const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
+    //                 // console.log('Compression Progress: ', progress);
+    //                 setIsCompress(true)
+    //                 setProgress(progress)
+
+    //             });
+    //             const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
+    //             setIsCompress(false)
+    //             content = [videoUrl];
+    //         } else if (postType === 'HYBRID') {
+    //             content = [postText];
+    //             const compressedImages = await compressAndUploadImages(selectedImages);
+    //             const compressedVideoPath =  selectedVideo ?  await VideoCompressor.compress(selectedVideo, {}, progress => {
+    //                 // console.log('Compression Progress: ', progress);
+    //                 setIsCompress(true)
+    //                 setProgress(progress)
+
+    //             }): null;
+    //             const mediaUrls =
+    //                 selectedImages.length > 0
+    //                     ? await uploadPictures(compressedImages)
+    //                     : await uploadVideo(compressedVideoPath, 'video', videoDuration);
+
+    //             setIsCompress(false)
+
+    //             content = content.concat(mediaUrls);
+
+    //         }
+
+    //         const result = await createPost(postType, content);
+    //         if (result && result.id) {
+    //             const newPostId = result.id;
+
+    //             const taggedUsernames = extractUsernamesFromText(postText);
+
+    //             await Promise.all(
+    //                 taggedUsernames.map(async username => {
+    //                     try {
+    //                         const user = await findAUser({username});
+    //                         if (user && user.id) {
+    //                             const notificationType = 'UserTaggedOnPost';
+    //                             const success = await sendTagNotification(user.id, notificationType, newPostId);
+    //                             if (success) {
+    //                             } else {
+    //                                 console.error(`Failed to send notification to ${username}`);
+    //                             }
+    //                         } else {
+    //                             console.error(`User not found for username: ${username}`);
+    //                         }
+    //                     } catch (error) {
+    //                         console.error(`Error processing tag for username: ${username}`, error);
+    //                     }
+    //                 }),
+    //             );
+    //             setIsPosting(false);
+    //             navigation.goBack();
+    //         } else {
+    //         }
+    //     } catch (error) {
+    //         console.error('Error creating the post:', error);
+    //         setIsPosting(false);
+    //     }
+
+    //     setPostText('');
+    //     setSelectedImages([]);
+    //     setSelectedVideo('');
+    // };
+
+    //Updated Code adding GIF
     const OnPostPress = async () => {
         setIsPosting(true);
         try {
@@ -195,38 +280,71 @@ const NewPost = () => {
             if (postType === 'TEXT') {
                 content = [postText];
             } else if (postType === 'IMAGE') {
-                const compressedImages = await compressAndUploadImages(selectedImages);
+                // Separate GIFs from other images
+                const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
+                const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
 
-                content = await uploadPictures(compressedImages);
-                content = content.join(', ');
+                let imageUrls = [];
+                if (otherImages.length > 0) {
+                    // Compress and upload other images
+                    const compressedImages = await compressAndUploadImages(otherImages);
+                    imageUrls = await uploadPictures(compressedImages);
+                }
+
+                let gifUrls = [];
+                if (gifs.length > 0) {
+                    // Upload GIFs directly without compression
+                    gifUrls = await uploadPictures(gifs);
+                }
+
+                // Combine both URLs
+                content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    // console.log('Compression Progress: ', progress);
-                    setIsCompress(true)
-                    setProgress(progress)
-                   
+                    setIsCompress(true);
+                    setProgress(progress);
                 });
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-                setIsCompress(false)
+                setIsCompress(false);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
                 content = [postText];
-                const compressedImages = await compressAndUploadImages(selectedImages);
-                const compressedVideoPath =  selectedVideo ?  await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    // console.log('Compression Progress: ', progress);
-                    setIsCompress(true)
-                    setProgress(progress)
-                    
-                }): null;
-                const mediaUrls =
-                    selectedImages.length > 0
-                        ? await uploadPictures(compressedImages)
-                        : await uploadVideo(compressedVideoPath, 'video', videoDuration);
-               
-                setIsCompress(false)
-                
+
+                // Separate GIFs from other images
+                const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
+                const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
+
+                let imageUrls = [];
+                if (otherImages.length > 0) {
+                    // Compress and upload other images
+                    const compressedImages = await compressAndUploadImages(otherImages);
+                    imageUrls = await uploadPictures(compressedImages);
+                }
+
+                let gifUrls = [];
+                if (gifs.length > 0) {
+                    // Upload GIFs directly without compression
+                    gifUrls = await uploadPictures(gifs);
+                }
+
+                let videoUrl = null;
+                if (selectedVideo) {
+                    // Upload video if exists
+                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
+                        setIsCompress(true);
+                        setProgress(progress);
+                    });
+                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
+                    setIsCompress(false);
+                }
+
+                // Combine all media URLs
+                const mediaUrls = [...imageUrls, ...gifUrls];
+                if (videoUrl) {
+                    mediaUrls.push(videoUrl);
+                }
+
                 content = content.concat(mediaUrls);
-             
             }
 
             const result = await createPost(postType, content);
@@ -542,29 +660,30 @@ const NewPost = () => {
                     )}
                 </ScrollView>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
-      <View style={stylesProgress.modalBackground}>
-        <View style={stylesProgress.modalContainer}>
-          <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(progressVal * 100)}% & Uploading`}</Text>
-          {Platform.OS === 'android' ? (
-            <ProgressBarAndroid
-              styleAttr="Horizontal"
-              indeterminate={false}
-              progress={progressVal}
-              color="blue"
-              style={stylesProgress.progressBar}
-            />
-          ) : (
-            <ProgressViewIOS
-              progress={progressVal}
-              progressTintColor="blue"
-              style={stylesProgress.progressBar}
-            />
-          )}
-        </View>
-      </View>
-    </Modal>
+                    <View style={stylesProgress.modalBackground}>
+                        <View style={stylesProgress.modalContainer}>
+                            <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(
+                                progressVal * 100,
+                            )}% & Uploading`}</Text>
+                            {Platform.OS === 'android' ? (
+                                <ProgressBarAndroid
+                                    styleAttr="Horizontal"
+                                    indeterminate={false}
+                                    progress={progressVal}
+                                    color="blue"
+                                    style={stylesProgress.progressBar}
+                                />
+                            ) : (
+                                <ProgressViewIOS
+                                    progress={progressVal}
+                                    progressTintColor="blue"
+                                    style={stylesProgress.progressBar}
+                                />
+                            )}
+                        </View>
+                    </View>
+                </Modal>
             </SafeAreaView>
-
         </TabContainer>
     );
 };

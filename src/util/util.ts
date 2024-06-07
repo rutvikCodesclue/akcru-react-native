@@ -132,7 +132,7 @@ export function classifyPostContent(contentArray: string[]) {
     const textContentParts: string[] = [];
 
     contentArray.forEach(item => {
-        if (/^https?:\/\/.+\.(jpeg|jpg|png)$/i.test(item) && item.includes('user-pictures')) {
+        if (/^https?:\/\/.+\.(jpeg|jpg|png|gif)$/i.test(item) && item.includes('user-pictures')) {
             imageUrls.push(item);
         } else if (/^https?:\/\/.+\.(mov|mp4)$/i.test(item) && item.includes('user-videos')) {
             videoUrl = item;

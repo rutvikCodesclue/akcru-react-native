@@ -98,17 +98,63 @@ export async function commentOnPost(postId: number, postType: string, content: s
     }
 }
 
+// export async function uploadPictures(imageFiles: any[]) {
+//     console.log('uploadPictures');
+//     console.log('imageFiles:', imageFiles);
+//     let formData = new FormData();
+
+//     imageFiles.forEach((uri, index) => {
+//         const fileExtension = uri.match(/\.(jpeg|jpg|png)$/)[0];
+
+//         let mimeType = 'image/jpeg';
+//         if (fileExtension === '.png') {
+//             mimeType = 'image/png';
+//         }
+
+//         const file = {
+//             uri: uri,
+//             type: mimeType,
+//             name: `image-${index}${fileExtension}`,
+//         };
+
+//         formData.append('images', file);
+//         console.log('formData:', formData);
+//     });
+
+//     try {
+//         const response = await API.post('/v1/user/uploadPictures', formData, {
+//             headers: {
+//                 'Content-Type': 'multipart/form-data',
+//             },
+//         });
+//         console.log('response:', response.data.content);
+//         return response.data.content;
+//     } catch (error) {
+//         console.error('Error uploading pictures:', error);
+//         throw error;
+//     }
+// }
+
+
 export async function uploadPictures(imageFiles: any[]) {
     console.log('uploadPictures');
     console.log('imageFiles:', imageFiles);
     let formData = new FormData();
 
     imageFiles.forEach((uri, index) => {
-        const fileExtension = uri.match(/\.(jpeg|jpg|png)$/)[0];
+        let fileExtension = uri.match(/\.(jpeg|jpg|png|gif)$/i);
+        if (fileExtension) {
+            fileExtension = fileExtension[0];
+        } else {
+            console.error(`Unsupported file type for URI: ${uri}`);
+            return;
+        }
 
         let mimeType = 'image/jpeg';
         if (fileExtension === '.png') {
             mimeType = 'image/png';
+        } else if (fileExtension === '.gif') {
+            mimeType = 'image/gif';
         }
 
         const file = {
@@ -118,7 +164,7 @@ export async function uploadPictures(imageFiles: any[]) {
         };
 
         formData.append('images', file);
-        console.log('formData:', formData);
+        console.log('formData entry:', file);
     });
 
     try {
@@ -134,6 +180,7 @@ export async function uploadPictures(imageFiles: any[]) {
         throw error;
     }
 }
+
 
 export async function uploadVideo(videoFileUri: any, uploadType: any, durationInSeconds: any) {
     console.log('uploadVideo');
