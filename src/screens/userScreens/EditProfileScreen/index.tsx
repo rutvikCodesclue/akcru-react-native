@@ -27,6 +27,8 @@ import EnlargeImageModal from '../../../components/EnlargeImageModal/EnlargeImag
 import HelpModal from '../../../components/HelpModal/HelpModal';
 import BackButton from '../../../components/General/backbutton';
 import {Image as CompressorImage} from 'react-native-compressor';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import {MULTISIZES} from '../../../../assets/constants/theme';
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -158,8 +160,51 @@ export default function EditProfile({session}: {session: Session}) {
         return compressedImagePath;
     };
 
-
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    // const selectProfileImage = async () => {
+    //     let options = {
+    //         mediaType: 'photo' as MediaType,
+    //         storageOptions: {
+    //             path: 'image',
+    //         },
+    //     };
+
+    //     let callbackExecuted = false;
+
+    //     launchImageLibrary(options, async response => {
+    //         if (response && !response.didCancel && response.assets) {
+    //             if (callbackExecuted) {
+    //                 return;
+    //             }
+
+    //             callbackExecuted = true;
+
+    //             const selectedImageUncomp = response.assets[0].uri;
+    //             const selectedImage = await compressImage(selectedImageUncomp);
+
+    //             const imageType = response.assets[0].type;
+    //             const imageName = response.assets[0].fileName;
+
+    //             const imageSizeInBytes = response.assets[0].fileSize;
+    //             const maxSizeInBytes = 5 * 1024 * 1024;
+
+    //             if (imageSizeInBytes > maxSizeInBytes) {
+    //                 setShowSizeErrorModal(true);
+    //             } else {
+    //                 const updatedUserProfilePicture = await updateUserProfilePicture({
+    //                     uri: selectedImage,
+    //                     type: imageType,
+    //                     name: imageName,
+    //                 });
+
+    //                 if (updatedUserProfilePicture) {
+    //                     setSelectImage(updatedUserProfilePicture.profilePicture || '');
+    //                 }
+    //             }
+    //         }
+    //     });
+    // };
+
     const selectProfileImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
@@ -179,8 +224,6 @@ export default function EditProfile({session}: {session: Session}) {
                 callbackExecuted = true;
 
                 const selectedImageUncomp = response.assets[0].uri;
-                const selectedImage = await compressImage(selectedImageUncomp);
-
                 const imageType = response.assets[0].type;
                 const imageName = response.assets[0].fileName;
 
@@ -189,16 +232,24 @@ export default function EditProfile({session}: {session: Session}) {
 
                 if (imageSizeInBytes > maxSizeInBytes) {
                     setShowSizeErrorModal(true);
-                } else {
-                    const updatedUserProfilePicture = await updateUserProfilePicture({
-                        uri: selectedImage,
-                        type: imageType,
-                        name: imageName,
-                    });
+                    return;
+                }
 
-                    if (updatedUserProfilePicture) {
-                        setSelectImage(updatedUserProfilePicture.profilePicture || '');
-                    }
+                let selectedImage = selectedImageUncomp;
+
+                // Check if the image is not a GIF before compressing
+                if (imageType !== 'image/gif') {
+                    selectedImage = await compressImage(selectedImageUncomp);
+                }
+
+                const updatedUserProfilePicture = await updateUserProfilePicture({
+                    uri: selectedImage,
+                    type: imageType,
+                    name: imageName,
+                });
+
+                if (updatedUserProfilePicture) {
+                    setSelectImage(updatedUserProfilePicture.profilePicture || '');
                 }
             }
         });
@@ -288,20 +339,43 @@ export default function EditProfile({session}: {session: Session}) {
                                     size={140}
                                     bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                 />
-
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        selectProfileImage();
+                                <Text
+                                    style={{
+                                        ...FONTS.paragraph2,
+                                        color: COLORS.PINK,
+                                        marginTop: 10,
                                     }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.paragraph2,
-                                            marginTop: 10,
-                                            color: COLORS.PINK,
+                                    Select a photo or GIF
+                                </Text>
+                                <View>
+                                    <TouchableOpacity
+                                        style={{flexDirection: 'row', alignItems: 'center'}}
+                                        onPress={() => {
+                                            selectProfileImage();
                                         }}>
-                                        Edit profile photo
-                                    </Text>
-                                </TouchableOpacity>
+                                        <CustomIcon
+                                            name="image"
+                                            type="material-community"
+                                            color={COLORS.PINK}
+                                            baseSize={MULTISIZES.medium13}
+                                        />
+
+                                        <Text
+                                            style={{
+                                                ...FONTS.paragraph2,
+                                                color: COLORS.PINK,
+                                            }}>
+                                            {' / '}
+                                        </Text>
+
+                                        <CustomIcon
+                                            name="file-gif-box"
+                                            type="material-community"
+                                            color={COLORS.PINK}
+                                            baseSize={MULTISIZES.large15}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         </View>
 

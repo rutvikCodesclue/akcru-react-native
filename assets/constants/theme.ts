@@ -83,8 +83,13 @@ export const COLORS = {
 
 export const MULTISIZES = {
     small11: getAdaptiveSize(11),
+    medium13: getAdaptiveSize(13),
     medium14: getAdaptiveSize(14),
     large15: getAdaptiveSize(15),
+    Xlarge18: getAdaptiveSize(18),
+    Xlarge20: getAdaptiveSize(20),
+    Xlarge23: getAdaptiveSize(23),
+    Xlarge25: getAdaptiveSize(25),
     Xlarge28: getAdaptiveSize(28),
     Xlarge40: getAdaptiveSize(40),
     Xlarge43: getAdaptiveSize(43),
