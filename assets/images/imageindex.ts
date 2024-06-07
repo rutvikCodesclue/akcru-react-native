@@ -1,45 +1,41 @@
 const Splash = require('./splash.jpg');
-const BgImageSM = require('./BgImageSM.png')
-const AkcruLogo = require('./AkcruLogo.png')
-const AkcruHexLogo = require('./AkcruHexLogo.png')
-const MITticket = require('./MITticket.png')
-const EatingPopcorn = require('./WomanEatingPopCorn.png')
-const CruChew3 = require('./CruChewlogo3.png')
-const Action = require('./movieaction.jpg')
-const Adventure = require('./movieadventure.jpg')
-const Animation = require('./movieanimation.jpg')
-const Comedy = require('./moviecomedy.jpg')
-const Crime = require('./moviecrime.jpg')
-const Drama = require('./moviedrama.jpg')
-const Family = require('./moviefamily.jpg')
-const Graph1 = require('./graph1.png')
-const GraphPurp = require ('./GraphPurp.png')
-const GraphMetric = require('./GraphMetric.png')
-const GRAPHwallet2 = require('./GRAPHwallet2.png')
-const GRAPHwallet1 = require('./GRAPHWallet1.png')
+const BgImageSM = require('./BgImageSM.png');
+const AkcruLogo = require('./AkcruLogo.png');
+const AkcruHexLogo = require('./AkcruHexLogo.png');
+const MITticket = require('./MITticket.png');
+const EatingPopcorn = require('./WomanEatingPopCorn.png');
+const CruChew3 = require('./CruChewlogo3.png');
+const Action = require('./movieaction.jpg');
+const Adventure = require('./movieadventure.jpg');
+const Animation = require('./movieanimation.jpg');
+const Comedy = require('./moviecomedy.jpg');
+const Crime = require('./moviecrime.jpg');
+const Drama = require('./moviedrama.jpg');
+const Family = require('./moviefamily.jpg');
+const Graph1 = require('./graph1.png');
+const GraphPurp = require('./GraphPurp.png');
+const GraphMetric = require('./GraphMetric.png');
+const GRAPHwallet2 = require('./GRAPHwallet2.png');
+const GRAPHwallet1 = require('./GRAPHWallet1.png');
 const SpaceCrimePuzzler = require('./SpaceCrimePuzzler.png');
-const Cru = require('./Cru.png')
+const Cru = require('./Cru.png');
 const NewCru = require('./AkcruNewCru.png');
 const AkcruonboardBG = require('./AkcruonboardBG.png');
 const Akcruplaceholder = require('./akcruavatar.png');
-const CruLarge = require('./CruLarge.png')
-const Thriller = require('./moviethriller.jpg')
-const TurquoiseDog = require('./TurquoiseDog.png')
-const MIT1 = require('./MIT1.png')
-const MIT2 = require("./MIT2.png")
-const MIT3 = require("./MIT3.png")
-const MIT4 = require("./MIT4.png")
-const LrgMIT = require("./LrgMIT.png");
+const CruLarge = require('./CruLarge.png');
+const Thriller = require('./moviethriller.jpg');
+const TurquoiseDog = require('./TurquoiseDog.png');
+const MIT1 = require('./MIT1.png');
+const MIT2 = require('./MIT2.png');
+const MIT3 = require('./MIT3.png');
+const MIT4 = require('./MIT4.png');
+const LrgMIT = require('./LrgMIT.png');
 const hexbg = require('./hexbg.png');
 const Trinity = require('./Trinity.png');
 const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
-
-
-
-
 
 export default {
     Splash,

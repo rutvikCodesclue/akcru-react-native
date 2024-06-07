@@ -662,7 +662,7 @@ const NewPost = () => {
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>
-                            <Text style={stylesProgress.progressText}>{`Compressing:${Math.round(
+                            <Text style={stylesProgress.progressText}>{`Compressing: ${Math.round(
                                 progressVal * 100,
                             )}% & Uploading`}</Text>
                             {Platform.OS === 'android' ? (
@@ -670,13 +670,13 @@ const NewPost = () => {
                                     styleAttr="Horizontal"
                                     indeterminate={false}
                                     progress={progressVal}
-                                    color="blue"
+                                    color={COLORS.PINK}
                                     style={stylesProgress.progressBar}
                                 />
                             ) : (
                                 <ProgressViewIOS
                                     progress={progressVal}
-                                    progressTintColor="blue"
+                                    progressTintColor={COLORS.PINK}
                                     style={stylesProgress.progressBar}
                                 />
                             )}
@@ -700,14 +700,14 @@ const stylesProgress = StyleSheet.create({
       modalContainer: {
         width: '80%',
         padding: 20,
-        backgroundColor: 'white',
+        backgroundColor: COLORS.AKCRUBACKGROUND,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
       },
       progressText: {
         marginBottom: 10,
-        fontSize: 16,
+        ...FONTS.Title2,
       },
       progressBar: {
         width: '100%',
