@@ -148,8 +148,22 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         };
     }, [navigation, currentUserID]); // Depend on currentUserID to refetch if it changes
 
+    const handleScroll = ({ nativeEvent }) => {
+        if (isCloseToBottom(nativeEvent)) {
+            loadMorePosts();
+        }
+    };
+
+    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        // const paddingToBottom = 20; // You can adjust this value to trigger the load more earlier or later
+        const paddingToBottom = contentSize.height * 0.25;
+        return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
+    };
+
     const loadMorePosts = async () => {
-        if (!hasMore) return; // Do nothing if there are no more posts to load
+        if (!hasMore || isLoadingMore) {
+            return; // Do nothing if there are no more posts to load
+        }
 
         setIsLoadingMore(true);
         // Use the modified function to fetch more posts along with follow status
@@ -298,7 +312,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         <TabContainer>
             <SafeAreaView>
                 <View>
-                    <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight}}>
+                    <ScrollView
+                        stickyHeaderIndices={[0]}
+                        style={{height: SIZES.ScreenHeight}}
+                        onScroll={handleScroll}
+                        scrollEventThrottle={16}>
                         <View>
                             <View style={{zIndex: 100}}>
                                 <Header />
@@ -403,24 +421,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                         </Pressable>
                                     )}
                                     ListFooterComponent={() =>
-                                        hasMore ? (
-                                            <TouchableOpacity onPress={loadMorePosts}>
-                                                {isLoadingMore ? (
-                                                    <ActivityIndicator color={COLORS.PINK} />
-                                                ) : (
-                                                    <Text
-                                                        style={{
-                                                            textAlign: 'center',
-                                                            margin: 10,
-                                                            ...FONTS.Title2,
-                                                            color: COLORS.PINK,
-                                                            marginBottom: Platform.OS === 'ios' ? 130 : 30,
-                                                        }}>
-                                                        Load More
-                                                    </Text>
-                                                )}
-                                            </TouchableOpacity>
-                                        ) : null
+                                        hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
                                     }
                                 />
                             )}
