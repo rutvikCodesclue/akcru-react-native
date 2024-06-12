@@ -31,34 +31,6 @@ export const findSeries = async (genre?: string): Promise<ISeries[] | []> => {
     }
 };
 
-// export const findSeriesWithEpisodes = async (id: string): Promise<ISeries | null> => {
-//     await ensureAuthenticated();
-//     try {
-//         const {data} = await API.get(`/v1/series/series-with-episodes?id=${id}`);
-//         if (!data.success || !data.series) {
-//             return null;
-//         }
-//         return data.series;
-//     } catch (error) {
-//         console.error('Error fetching series with episodes:', error);
-//         return null;
-//     }
-// };
-
-// export const findSeriesWithEpisodes = async (id?: string): Promise<ISeries[] | null> => {
-//     await ensureAuthenticated();
-//     try {
-//         const {data} = await API.get(`/v1/series/series-with-episodes${id ? `?id=${id}` : ''}`);
-//         if (!data.success || !data.series) {
-//             return [];
-//         }
-//         return data.series;
-//     } catch (error) {
-//         console.error('Error fetching series with episodes:', error);
-//         return null;
-//     }
-// };
-
 export const findSeriesWithEpisodes = async (id: string): Promise<ISeries | null> => {
     await ensureAuthenticated();
     try {
@@ -161,5 +133,19 @@ export const findSponsoredSeries = async (): Promise<ISeries[] | []> => {
     } catch (error) {
         console.error('Error fetching sponsored series:', error);
         return [];
+    }
+};
+
+export const findEpisodeById = async (episodeId: string): Promise<IEpisode | null> => {
+    await ensureAuthenticated();
+    try {
+        const {data} = await API.get(`/v1/series/episodes/${episodeId}`);
+        if (!data.success || !data.episode) {
+            return null;
+        }
+        return data.episode;
+    } catch (error) {
+        console.error('Error fetching episode by ID:', error);
+        return null;
     }
 };

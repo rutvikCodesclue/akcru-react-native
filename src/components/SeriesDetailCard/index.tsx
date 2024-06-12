@@ -17,13 +17,15 @@ type Episode = {
     id: string;
     title: string;
     episodeNumber: number;
-    description: string;
     duration: number;
     landscapeURL?: string;
     seasonId: string;
     episodeURL: string;
-    episodeActors: string;
+    portraitURL: string;
+    description: string;
     actors: string;
+    directors: string;
+    reactions: any;
 };
 
 type ReactionStat = {
@@ -53,7 +55,7 @@ type SeriesDetailCardProps = {
     genre1: string;
     genre2: string;
     onPress: () => void;
-    playContent: () => void;
+    playSeries: () => void;
     showAddToWatchListConfirmationModal: boolean;
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
@@ -83,7 +85,7 @@ const SeriesDetailCard = ({
     genre1,
     genre2,
     onPress,
-    playContent,
+    playSeries,
     watchlistButton,
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
@@ -107,11 +109,15 @@ const SeriesDetailCard = ({
     };
 
     useEffect(() => {
-        console.log('Episodes:', episodes); // Check structure of episodes
+        // console.log('Episodes:', episodes); // Check structure of episodes
         console.log('Selected Season ID:', selectedSeasonId); // Check selected season ID
     }, [episodes, selectedSeasonId]);
 
-    const filteredEpisodes = episodes ? episodes.filter(episode => episode.seasonId === selectedSeasonId) : [];
+    const filteredEpisodes = episodes
+        ? episodes
+              .filter(episode => episode.seasonId === selectedSeasonId)
+              .sort((a, b) => a.episodeNumber - b.episodeNumber)
+        : [];
 
     const renderSeasonButton = ({item}: {item: {id: string; seasonNumber: number}}) => (
         <TouchableOpacity
@@ -121,7 +127,7 @@ const SeriesDetailCard = ({
         </TouchableOpacity>
     );
 
-    console.log('Filtered Episodes:', filteredEpisodes); // Check filtered episodes
+    // console.log('Filtered Episodes:', filteredEpisodes); // Check filtered episodes
 
     const renderEpisode = ({item}: {item: Episode}) => (
         <View style={{marginTop: 10}}>
@@ -160,6 +166,17 @@ const SeriesDetailCard = ({
                     <Text style={{...FONTS.Title2}}>{`Ep. ${item.episodeNumber}`}</Text>
                     <Text style={{...FONTS.Title2}}>{item.title}</Text>
                     <Text style={{...FONTS.paragraph1}}> {formatMovieDuration(item.duration)}</Text>
+                    <TouchableOpacity
+                        onPress={() => {
+                            console.log('Episode ID:', item.id);
+                            navigation.navigate('EpisodeDetailScreen', {
+                                seriesId,
+                                seasonId: item.seasonId,
+                                episodeId: item.id,
+                            });
+                        }}>
+                        <Text style={{...FONTS.Title2, color: COLORS.PINK, marginTop: 10}}>Details</Text>
+                    </TouchableOpacity>
                     {/* <View style={{flexDirection: 'row', marginBottom: 5}}>
                         <Text
                             style={{
@@ -172,7 +189,9 @@ const SeriesDetailCard = ({
                 </View>
             </View>
             <View style={{marginTop: 10}}>
-                <Text style={{...FONTS.Title2}}>{item.description}</Text>
+                <Text style={{...FONTS.Title2}}>
+                    {item.description.length > 150 ? `${item.description.substring(0, 150)}...` : item.description}
+                </Text>
             </View>
         </View>
     );
@@ -320,7 +339,7 @@ const SeriesDetailCard = ({
                         }}>
                         <AkcruButtons.MedButton
                             btnname={contentButtonName}
-                            onPress={playContent}
+                            onPress={playSeries}
                             color={COLORS.AKCRUBLUE}
                             disabled={false}
                         />

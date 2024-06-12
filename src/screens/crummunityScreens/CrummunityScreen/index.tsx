@@ -370,7 +370,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 </View>
                             </View>
                         </View>
-                        <View style={{marginBottom: '20%'}}>
+                        <View style={{marginBottom: '23%'}}>
                             {loadingPosts ? (
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />

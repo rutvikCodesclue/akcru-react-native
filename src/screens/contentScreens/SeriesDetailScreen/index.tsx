@@ -60,6 +60,19 @@ export default function SeriesDetailScreen({route}: Props) {
 
     const navigation = useNavigation();
 
+    const handlePlaySeries = () => {
+        if (series && series.seasons.length > 0 && series.seasons[0].episodes.length > 0) {
+            const firstEpisode = series.seasons[0].episodes[0];
+            navigation.navigate('EpisodePlayer', {
+                seriesId: series.id,
+                seasonId: firstEpisode.seasonId,
+                episodeId: firstEpisode.id,
+                episodeURL: firstEpisode.episodeURL,
+                landscapeURL: firstEpisode.landscapeURL,
+            });
+        }
+    };
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -90,13 +103,7 @@ export default function SeriesDetailScreen({route}: Props) {
                                     genre1={series.genres[0]}
                                     genre2={series.genres[1]}
                                     contentButtonName="Play Series"
-                                    // playContent={() => {
-                                    //     navigation.navigate('ContentPlayer', {
-                                    //         id: series.id,
-                                    //         seriesTrailerURL: series.seriesTrailerURL,
-                                    //         landscapeURL: series.landscapeURL,
-                                    //     });
-                                    // }}
+                                    playSeries={handlePlaySeries}
                                     PlayTrailer={() => {
                                         navigation.navigate('SeriesTrailerPlayer', {
                                             id: series.id,

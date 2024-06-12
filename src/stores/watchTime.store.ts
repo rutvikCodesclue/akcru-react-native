@@ -8,13 +8,12 @@ import {fetchWatchTime, updateWatchTime as syncWatchTimeWithBackend} from '../li
 interface IWatchTimeState {
     watchTime: number;
     timer: NodeJS.Timer | null;
-    lastPlaybackPositions: {[movieId: string]: number};
+    lastPlaybackPositions: {[id: string]: {position: number; isEpisode: boolean}};
     startTimer: () => void;
     pauseTimer: () => void;
     resetTimer: () => void;
-    setLastPlaybackPosition: (movieId: string, position: number) => void;
-    getLastPlaybackPosition: (movieId: string) => Promise<number>;
-
+    setLastPlaybackPosition: (id: string, position: number, isEpisode: boolean) => void;
+    getLastPlaybackPosition: (id: string, isEpisode: boolean) => Promise<number>;
     handleCountWatchTime: () => Promise<void>;
     syncWatchTime: () => Promise<void>;
 }
@@ -25,28 +24,37 @@ const useWatchTimeStore = create<IWatchTimeState>()(
             watchTime: 0,
             timer: null,
             lastPlaybackPositions: {},
-            setLastPlaybackPosition: (movieId: string, position: number) => {
+            setLastPlaybackPosition: (id: string, position: number, isEpisode: boolean) => {
                 set(state => ({
-                    lastPlaybackPositions: {...state.lastPlaybackPositions, [movieId]: position},
+                    lastPlaybackPositions: {
+                        ...state.lastPlaybackPositions,
+                        [id]: {position, isEpisode},
+                    },
                 }));
 
-                AsyncStorage.setItem(`watchTime_${movieId}`, JSON.stringify(position));
+                AsyncStorage.setItem(`watchTime_${id}`, JSON.stringify({position, isEpisode}));
             },
-            getLastPlaybackPosition: async (movieId: string): Promise<number> => {
-                const asyncStoragePosition = await AsyncStorage.getItem(`watchTime_${movieId}`);
-                let lastPlaybackPosition = asyncStoragePosition ? JSON.parse(asyncStoragePosition) : 0;
+            getLastPlaybackPosition: async (id: string, isEpisode: boolean): Promise<number> => {
+                const asyncStoragePosition = await AsyncStorage.getItem(`watchTime_${id}`);
+                let lastPlaybackPosition = asyncStoragePosition ? JSON.parse(asyncStoragePosition).position : 0;
 
                 if (lastPlaybackPosition === 0) {
-                    lastPlaybackPosition = await fetchWatchTime(movieId);
+                    lastPlaybackPosition = await fetchWatchTime(id, isEpisode);
                     console.log(
                         `getLastPlaybackPosition - log from store - Fetched position from backend: ${lastPlaybackPosition}`,
                     );
                     if (lastPlaybackPosition > 0) {
                         set(state => ({
-                            lastPlaybackPositions: {...state.lastPlaybackPositions, [movieId]: lastPlaybackPosition},
+                            lastPlaybackPositions: {
+                                ...state.lastPlaybackPositions,
+                                [id]: {position: lastPlaybackPosition, isEpisode},
+                            },
                         }));
 
-                        AsyncStorage.setItem(`watchTime_${movieId}`, JSON.stringify(lastPlaybackPosition));
+                        AsyncStorage.setItem(
+                            `watchTime_${id}`,
+                            JSON.stringify({position: lastPlaybackPosition, isEpisode}),
+                        );
                     }
                 }
                 return lastPlaybackPosition;
@@ -54,7 +62,14 @@ const useWatchTimeStore = create<IWatchTimeState>()(
             startTimer: () => {
                 const interval = setInterval(async () => {
                     set(state => ({watchTime: state.watchTime + 1}));
-                    await get().handleCountWatchTime();
+                    const {watchTime} = get();
+                    const POINTS_INTERVAL = 30;
+                    if (watchTime >= POINTS_INTERVAL) {
+                        set({watchTime: 0});
+                        console.log('<== send user AD for watch time ==>');
+                        await updateUserWatchTime({});
+                        await useAuthStore.getState().hydrateUser();
+                    }
                 }, 1000);
                 set({timer: interval});
             },
@@ -79,24 +94,23 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                     set({watchTime: 0});
                     console.log('<== send user AD for watch time ==>');
                     await updateUserWatchTime({});
-
                     await useAuthStore.getState().hydrateUser();
                 }
             },
             syncWatchTime: async () => {
                 const {lastPlaybackPositions} = get();
-                for (const [movieId, watchTime] of Object.entries(lastPlaybackPositions)) {
-                    const success = await syncWatchTimeWithBackend(movieId, watchTime);
+                for (const [id, {position, isEpisode}] of Object.entries(lastPlaybackPositions)) {
+                    const success = await syncWatchTimeWithBackend(id, position, isEpisode);
                     if (success) {
-                        console.log(`Watch time for movie ${movieId} synced successfully.`);
+                        console.log(`Watch time for ${isEpisode ? 'episode' : 'movie'} ${id} synced successfully.`);
 
                         set(state => {
                             const updatedPositions = {...state.lastPlaybackPositions};
-                            delete updatedPositions[movieId];
+                            delete updatedPositions[id];
                             return {lastPlaybackPositions: updatedPositions};
                         });
 
-                        AsyncStorage.removeItem(`watchTime_${movieId}`);
+                        AsyncStorage.removeItem(`watchTime_${id}`);
                     }
                 }
             },

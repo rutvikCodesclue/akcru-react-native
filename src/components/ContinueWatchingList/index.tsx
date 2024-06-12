@@ -4,10 +4,10 @@ import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {IMovie} from '../../../types';
+import {IEpisode, IMovie, ISeries} from '../../../types';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import CustomIcon from '../CustomIcon/CustomIcon';
-import {removeUnfinishedMovie} from '../../lib/api/user.lib';
+import {removeUnfinishedContent} from '../../lib/api/user.lib'; // Updated function
 import RemovalModal from '../RemovalModal/RemovalModal';
 import ConfirmationModal from '../ConfirmationModal';
 import {FlashList} from '@shopify/flash-list';
@@ -16,31 +16,31 @@ interface ContinueWatchingListProps {
     Akcru_Content: {
         id: string;
         title: string;
-        movies: IMovie[];
+        content: (IMovie | ISeries)[];
     };
-    updateUnfinishedMovies: (updatedUnfinishedMovies: IMovie[]) => void;
+    updateUnfinishedContent: (updatedUnfinishedContent: (IMovie | ISeries)[]) => void;
 }
 
-const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueWatchingListProps) => {
+const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: ContinueWatchingListProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [selectedMovie, setSelectedMovie] = useState<IMovie | null>(null);
+    const [selectedContent, setSelectedContent] = useState<IMovie | ISeries | null>(null);
 
-    const handleShowConfirmationModal = (movie: IMovie) => {
-        console.log('movie', movie);
-        setSelectedMovie(movie);
+    const handleShowConfirmationModal = (content: IMovie | ISeries) => {
+        console.log('content', content);
+        setSelectedContent(content);
         setShowConfirmationModal(true);
     };
 
     const handleConfirmRemoveFromWatchList = async () => {
         setShowConfirmationModal(false);
-        if (selectedMovie && selectedMovie.id) {
-            console.log('selectedMovie', selectedMovie.id);
-            const success = await removeUnfinishedMovie(selectedMovie.id);
+        if (selectedContent && selectedContent.id) {
+            console.log('selectedContent', selectedContent.id);
+            const success = await removeUnfinishedContent(selectedContent.id, 'episodeId' in selectedContent);
             if (success) {
-                const updatedMovies = Akcru_Content.movies.filter(movie => movie.id !== selectedMovie.id);
-                updateUnfinishedMovies(updatedMovies);
+                const updatedContent = Akcru_Content.content.filter(content => content.id !== selectedContent.id);
+                updateUnfinishedContent(updatedContent);
 
                 handleShowRemovalModal('success');
             } else {
@@ -71,7 +71,7 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueW
         <>
             <Text style={{...FONTS.Title2, marginTop: 10, marginLeft: '2%'}}>{Akcru_Content.title}</Text>
             <FlashList
-                data={Akcru_Content.movies}
+                data={Akcru_Content.content}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 estimatedItemSize={124}
@@ -80,10 +80,10 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueW
                         <TouchableOpacity
                             onPress={() => {
                                 console.log('id:', item.id);
-                                console.log('movie:', item.title);
+                                console.log('content:', item.title);
                                 navigation.navigate('ResumePlayer', {
                                     id: item.id,
-                                    movie: item.title,
+                                    title: item.title,
                                 });
                             }}>
                             <View
@@ -115,10 +115,24 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueW
                             }}>
                             <TouchableOpacity
                                 onPress={() => {
-                                    navigation.navigate('ResumeDetailScreen', {
-                                        id: item.id,
-                                        movie: item.title,
-                                    });
+                                    console.log('id:', item.id);
+                                    console.log('content:', item.title);
+                                    console.log('type:', item.type);
+                                    console.log('Season Id:', item.seasonId);
+                                    console.log('Episode Id:', item.episodeId);
+                                    if (item.type === 'episode') {
+                                        console.log('Navigating to EpisodeDetailScreen with id:', item.seriesId);
+                                        navigation.navigate('EpisodeDetailScreen', {
+                                            seriesId: item.seriesId,
+                                            seasonId: item.seasonId,
+                                            episodeId: item.id,
+                                        });
+                                    } else {
+                                        navigation.navigate('ResumeDetailScreen', {
+                                            id: item.id,
+                                            title: item.title,
+                                        });
+                                    }
                                 }}>
                                 <CustomIcon
                                     name={'information-circle'}
@@ -141,7 +155,7 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedMovies}: ContinueW
                 <ConfirmationModal
                     onPressYes={handleConfirmRemoveFromWatchList}
                     onPressNo={handleCancelRemoveFromWatchList}
-                    confirmationText={`Are you sure you want to remove ${selectedMovie?.title}?`}
+                    confirmationText={`Are you sure you want to remove ${selectedContent?.title}?`}
                 />
             </Modal>
         </>

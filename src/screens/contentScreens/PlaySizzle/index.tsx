@@ -5,8 +5,7 @@ import VideoPlayer from 'react-native-media-console';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import {IMovie} from '../../../../types';
-import {findMovieById} from '../../../lib/api/movies.lib';
+import {ITrailer} from '../../../../types';
 import {useRoute} from '@react-navigation/native';
 import {COLORS} from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
@@ -14,20 +13,21 @@ import {finishUserWatching} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import Video from 'react-native-video';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
+import {getTrailerById} from '../../../lib/api/sizzles.lib';
 
-type TrailerPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'TrailerPlayer'>;
+type SizzlePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'SizzlePlayer'>;
 
-type TrailerPlayerRouteProp = RouteProp<NoBottomTabStackParams, 'TrailerPlayer'>;
+type SizzlePlayerRouteProp = RouteProp<NoBottomTabStackParams, 'SizzlePlayer'>;
 
 type Props = {
-    navigation: TrailerPlayerNavigationProp;
-    route: TrailerPlayerRouteProp;
+    navigation: SizzlePlayerNavigationProp;
+    route: SizzlePlayerRouteProp;
 };
 
-export default function TrailerPlayer({navigation, route}: Props) {
-    const [movie, setMovie] = useState<IMovie | null>(null);
-    const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true);
-    const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'TrailerPlayer'>>();
+export default function SizzlePlayer({navigation}: Props) {
+    const [sizzle, setSizzle] = useState<ITrailer | null>(null);
+    const [isSizzlePlaying, setIsSizzlePlaying] = useState<boolean>(true);
+    const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'SizzlePlayer'>>();
     const [, setShouldAutoplay] = useState(true);
     const {user} = useAuthStore();
     const videoRef = useRef<Video>(null);
@@ -44,25 +44,25 @@ export default function TrailerPlayer({navigation, route}: Props) {
         }, []),
     );
 
-    const movieId = routeParams.params?.id;
+    const trailerId = routeParams.params?.id;
     const [hasStartedWatching] = useState(false);
     useEffect(() => {
-        const fetchMovie = async () => {
-            if (movieId) {
-                const fetchedMovie = await findMovieById(movieId);
-                setMovie(fetchedMovie);
+        const fetchSizzle = async () => {
+            if (trailerId) {
+                const fetchedTrailer = await getTrailerById(trailerId);
+                setSizzle(fetchedTrailer);
             }
         };
 
-        fetchMovie();
+        fetchSizzle();
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
 
         return () => {
             Orientation.lockToPortrait();
             StatusBar.setHidden(false);
-            if (hasStartedWatching && user?.id && movieId) {
-                finishUserWatching(user.id, movieId).then(finishedSuccessfully => {
+            if (hasStartedWatching && user?.id && trailerId) {
+                finishUserWatching(user.id, trailerId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
                         //console.log(`User finished watching movie: ${movieId}`);
                     } else {
@@ -71,45 +71,52 @@ export default function TrailerPlayer({navigation, route}: Props) {
                 });
             }
         };
-    }, [movieId, user?.id, hasStartedWatching]);
+    }, [trailerId, user?.id, hasStartedWatching]);
 
     const onPlay = () => {
-        setIsMoviePlaying(true);
+        setIsSizzlePlaying(true);
         StatusBar.setHidden(true);
     };
     const onPause = () => {
-        setIsMoviePlaying(false);
+        setIsSizzlePlaying(false);
         StatusBar.setHidden(false);
+    };
+
+    const onEnd = () => {
+        setIsSizzlePlaying(false);
+        Orientation.lockToPortrait();
+        StatusBar.setHidden(false);
+        navigation.pop();
     };
 
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-                {movie && movie?.trailerURL ? (
+                {sizzle && sizzle?.trailerURL ? (
                     <>
                         <VideoPlayer
                             videoRef={videoRef}
                             source={{
-                                uri: movie.trailerURL,
+                                uri: sizzle.trailerURL,
                             }}
                             resizeMode="cover"
                             posterResizeMode="cover"
                             tapAnywhereToPause={false}
                             preventsDisplaySleepDuringVideoPlayback={true}
                             toggleResizeModeOnFullscreen={false}
-                            poster={movie.landscapeURL}
+                            poster={sizzle.landscapeURL}
                             containerStyle={{zIndex: 100}}
-                            onBack={() => navigation.pop()}
-                            paused={!isMoviePlaying}
+                            onBack={onEnd}
+                            paused={!isSizzlePlaying}
                             onPlay={onPlay}
                             onPause={onPause}
-                            onEnd={() => navigation.pop()}
+                            onEnd={onEnd}
                             onError={error => console.log('Video error:', error)}
                         />
                     </>
                 ) : (
                     <>
-                        {console.log('Movie indicator')}
+                        {console.log('Sizzle indicator')}
                         <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
                     </>
                 )}

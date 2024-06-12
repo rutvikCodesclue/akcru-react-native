@@ -3,7 +3,6 @@ import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import styles from './styles';
 import {Icon} from '@rneui/base';
-import imageindex from '../../../assets/images/imageindex';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
@@ -11,9 +10,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import {formatMovieDuration} from '../../util/util';
 import {capitalizeFirstLetterOfString} from '../../util/util';
-import ConfirmationModal from '../ConfirmationModal';
 import {API} from '../../clients/api.client';
-import {MULTISIZES} from '../../../assets/constants/theme';
 import Orientation from 'react-native-orientation-locker';
 
 type ReactionStat = {
@@ -26,7 +23,7 @@ type CombinedReaction = {
     percentage: string;
 };
 
-type MovieDetailCardProps = {
+type SizzleDetailCardProps = {
     title: string;
     year: number;
     duration: number;
@@ -53,32 +50,20 @@ type MovieDetailCardProps = {
     contentButtonName: string;
 };
 
-const MovieDetailCard = ({
-    id: movieId,
+const SizzleDetailCard = ({
+    id: trailerId,
     title,
-    year,
     duration,
-    rated,
-    rating,
     description,
-    actors,
-    directors,
     portraitURL,
     trailerURL,
     landscapeURL,
-    movieURL,
-    genre1,
-    genre2,
     onPress,
     playContent,
-    watchlistButton,
-    showAddToWatchListConfirmationModal,
-    handleCancelAddToWatchList,
-    handleConfirmAddToWatchList,
     PlayTrailer,
     reactions,
     contentButtonName,
-}: MovieDetailCardProps) => {
+}: SizzleDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
@@ -88,7 +73,7 @@ const MovieDetailCard = ({
     useEffect(() => {
         const fetchReactionStats = async () => {
             try {
-                const response = await API.get(`/v1/movies/${movieId}/reaction-stats`);
+                const response = await API.get(`/v1/trailers/${trailerId}/reaction-stats`);
                 if (response.data && response.data.success) {
                     setReactionStats(response.data.reactionStats);
                     console.log('Reaction Stats:', response.data.reactionStats);
@@ -99,12 +84,12 @@ const MovieDetailCard = ({
         };
 
         fetchReactionStats();
-    }, [movieId]);
+    }, [trailerId]);
 
     useEffect(() => {
         const fetchUserReaction = async () => {
             try {
-                const response = await API.get(`/v1/movies/${movieId}/user-reaction`);
+                const response = await API.get(`/v1/trailers/${trailerId}/user-reaction`);
                 if (response.data && response.data.success) {
                     setSelectedReaction(response.data.reaction);
                 }
@@ -114,11 +99,11 @@ const MovieDetailCard = ({
         };
 
         fetchUserReaction();
-    }, [movieId]);
+    }, [trailerId]);
 
     const postReaction = async (reactionType: string | null) => {
         try {
-            const response = await API.post(`/v1/movies/${movieId}/reactions`, {reactionType});
+            const response = await API.post(`/v1/trailers/${trailerId}/reactions`, {reactionType});
             console.log('Reaction posted:', response.data);
 
             setSelectedReaction(reactionType);
@@ -218,63 +203,22 @@ const MovieDetailCard = ({
                             <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                         </View>
                     </TouchableOpacity>
-                    <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
-                        <View
-                            style={{
-                                justifyContent: 'center',
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    textAlign: 'center',
-                                    marginRight: 10,
-                                }}>
-                                Add to Favorites
-                            </Text>
-                            <TouchableOpacity onPress={watchlistButton}>
-                                <Icon
-                                    name="add-circle-outline"
-                                    type="ionicon"
-                                    color={COLORS.MIDORANGE}
-                                    size={MULTISIZES.Xlarge40}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    <Modal animationType="fade" transparent={true} visible={showAddToWatchListConfirmationModal}>
-                        <ConfirmationModal
-                            onPressYes={handleConfirmAddToWatchList}
-                            onPressNo={handleCancelAddToWatchList}
-                            confirmationText={`Are you sure you want to add "${title}" to your watchlist?`}
-                        />
-                    </Modal>
-
                     <View
                         style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
                             marginHorizontal: 10,
+                            alignItems: 'center'
                         }}>
-                        <AkcruButtons.MedButton
-                            btnname={contentButtonName}
-                            onPress={playContent}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={false}
-                        />
 
-                        <AkcruButtons.MedButton
+                        <AkcruButtons.LrgButton
                             btnname={'Watch Trailer'}
                             onPress={() => {
                                 console.log({
-                                    id: movieId,
+                                    id: trailerId,
                                     trailerURL: trailerURL,
                                     landscapeURL: landscapeURL,
                                 });
-                                navigation.navigate('TrailerPlayer', {
-                                    id: movieId,
+                                navigation.navigate('SizzlePlayer', {
+                                    id: trailerId,
                                     trailerURL: trailerURL,
                                     landscapeURL: landscapeURL,
                                 });
@@ -301,8 +245,6 @@ const MovieDetailCard = ({
                     style={{
                         marginHorizontal: 15,
                         flexDirection: 'row',
-
-                        marginVertical: 5,
                     }}>
                     <View
                         style={{
@@ -310,28 +252,17 @@ const MovieDetailCard = ({
                             alignSelf: 'center',
                             marginRight: 10,
                         }}>
-                        <Text
+                        {/* <Text
                             style={{
                                 ...FONTS.paragraph1,
                                 color: COLORS.LIGHTGREY,
                                 marginRight: 10,
                             }}>
                             {year}
-                        </Text>
+                        </Text> */}
                         <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
                             {formatMovieDuration(duration)}
                         </Text>
-                    </View>
-                    <View
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                        }}>
-                        <Text style={styles.drawfonttag}>{rated}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
-                        <Text style={styles.drawfonttag}>{rating}/10</Text>
                     </View>
                 </View>
                 <View
@@ -354,31 +285,6 @@ const MovieDetailCard = ({
                         </TouchableOpacity>
                     ))}
                 </View>
-
-                <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                    <TouchableOpacity onPress={onPress}>
-                        <View style={styles.MITbutton}>
-                            <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-
-                            <Text style={{...FONTS.Title2AkcruBlue}}>Send Movie Invite Ticket</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
-                <View
-                    style={{
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                    }}>
-                    <Image
-                        source={imageindex.AkcruHexLogo}
-                        style={{width: 26, height: 26, marginRight: 10}}
-                        resizeMode="contain"
-                    />
-                    <Text style={{...FONTS.Title2Orange}}>Earn up to 500 AKCRU dollars</Text>
-                </View>
-
                 <View style={{marginHorizontal: 15, marginTop: 15}}>
                     <Text
                         style={{
@@ -389,28 +295,10 @@ const MovieDetailCard = ({
                         }}>
                         {description}
                     </Text>
-                    <View style={{flexDirection: 'row', marginBottom: 5}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {actors}
-                        </Text>
-                    </View>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
-                        </Text>
-                    </View>
                 </View>
             </View>
         </View>
     );
 };
 
-export default MovieDetailCard;
+export default SizzleDetailCard;

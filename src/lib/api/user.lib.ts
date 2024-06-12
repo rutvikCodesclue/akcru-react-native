@@ -1,5 +1,6 @@
 import {IMovie, IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
+import useAuthStore from '../../stores/auth.store';
 
 export const getMe = async (): Promise<IUserProfile | undefined> => {
     try {
@@ -403,44 +404,77 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
         return undefined;
     }
 };
+//Original Code
+// export const startUserWatching = async (userId: string, movieId: string) => {
+//     if (typeof userId !== 'string' || typeof movieId !== 'string') {
+//         console.error('userId or movieId is not of type string.');
+//         return false;
+//     }
 
-export const startUserWatching = async (userId: string, movieId: string) => {
-    if (typeof userId !== 'string' || typeof movieId !== 'string') {
-        console.error('userId or movieId is not of type string.');
-        return false;
-    }
+//     try {
+//         const response = await API.post('/v1/user/currentWatching/start', {
+//             userId,
+//             movieId,
+//         });
 
+//         if (response.data && response.data.success) {
+//             //console.log('User started watching movie successfully:', response.data.userWatching);
+//             return true;
+//         } else {
+//             console.error('Failed to start watching movie:', response.data.message);
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error('Error starting user watching movie:', error);
+//         return false;
+//     }
+// };
+
+export const startUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    const userId = useAuthStore.getState().user?.id;
+    console.log('Starting user watching:', id, isEpisode ? 'episode' : 'movie');
     try {
         const response = await API.post('/v1/user/currentWatching/start', {
             userId,
-            movieId,
+            movieId: isEpisode ? undefined : id,
+            episodeId: isEpisode ? id : undefined,
         });
-
-        if (response.data && response.data.success) {
-            //console.log('User started watching movie successfully:', response.data.userWatching);
-            return true;
-        } else {
-            console.error('Failed to start watching movie:', response.data.message);
-            return false;
-        }
+        return response.data.success;
     } catch (error) {
-        console.error('Error starting user watching movie:', error);
+        console.error('Error starting user watching:', error);
         return false;
     }
 };
 
-export const finishUserWatching = async (movieId: string) => {
+//Original Code
+// export const finishUserWatching = async (movieId: string) => {
+//     try {
+//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
+//         if (response.data && response.data.success) {
+//             console.log('User finished watching movie successfully:', response.data.userWatching);
+//             return true;
+//         } else {
+//             console.error('Failed to finish watching movie:', response.data.message);
+//             return false;
+//         }
+//     } catch (error) {
+//         console.error('Error finishing watching movie:', error);
+//         return false;
+//     }
+// };
+
+export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    console.log('Finishing user watching:', id, isEpisode ? 'episode' : 'movie');
     try {
-        const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
-        if (response.data && response.data.success) {
-            console.log('User finished watching movie successfully:', response.data.userWatching);
-            return true;
-        } else {
-            console.error('Failed to finish watching movie:', response.data.message);
-            return false;
-        }
+        const response = await API.post('/v1/user/currentWatching/finish', {
+            movieId: isEpisode ? undefined : id,
+            episodeId: isEpisode ? id : undefined,
+        });
+        return response.data.success;
     } catch (error) {
-        console.error('Error finishing watching movie:', error);
+        console.error('Error finishing user watching:', error);
         return false;
     }
 };
@@ -470,6 +504,27 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
 
         if (response.data && response.data.success) {
             //console.log('Watch history logged successfully:', response.data.watchHistory);
+            return true;
+        } else {
+            console.error('Failed to log watch history:', response.data.message);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error logging watch history:', error);
+        return false;
+    }
+};
+
+export const logUserContentWatchHistory = async (userId: string, id: string, isEpisode: boolean) => {
+    try {
+        const response = await API.post('/v1/user/logContentWatch', {
+            userId,
+            movieId: isEpisode ? undefined : id,
+            episodeId: isEpisode ? id : undefined,
+        });
+
+        if (response.data && response.data.success) {
+            console.log('Watch history logged successfully:', response.data.watchHistory);
             return true;
         } else {
             console.error('Failed to log watch history:', response.data.message);
@@ -694,6 +749,32 @@ export const removeUnfinishedMovie = async (movieId: string): Promise<boolean> =
         }
     } catch (error) {
         console.error('Error removing movie from unfinished list:', error.response ? error.response.data : error);
+        return false;
+    }
+};
+
+export const fetchUnfinishedContent = async (): Promise<any[]> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.get('/v1/user/unfinished');
+        if (data.success) {
+            return data.unfinishedContent;
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching unfinished content:', error);
+        return [];
+    }
+};
+
+export const removeUnfinishedContent = async (id: string, isEpisode: boolean): Promise<boolean> => {
+    const endpoint = isEpisode ? `/v1/user/remove/episode/${id}` : `/v1/user/remove/movie/${id}`;
+    try {
+        const response = await API.put(endpoint);
+        return response.data.success;
+    } catch (error) {
+        console.error('Error removing unfinished content:', error);
         return false;
     }
 };

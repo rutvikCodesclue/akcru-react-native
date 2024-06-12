@@ -14,16 +14,18 @@ import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies} from '../../../lib/api/movies.lib';
-import {IMovie, ISeries} from '../../../../types';
+import {IMovie, ISeries, ITrailer} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {Icon} from '@rneui/base';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import {fetchUnfinishedMovies} from '../../../lib/api/user.lib';
+import {fetchUnfinishedContent, fetchUnfinishedMovies, removeUnfinishedContent} from '../../../lib/api/user.lib';
 import ContinueWatchingList from '../../../components/ContinueWatchingList';
 import BasicSeriesCarousel from '../../../components/BasicSeriesCarousel';
 import {findSeries} from '../../../lib/api/series.lib';
-import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import {black} from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+import {getTrailers} from '../../../lib/api/sizzles.lib';
+import BasicSizzleCarousel from '../../../components/BasicSizzleCarousel';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -39,8 +41,11 @@ const HomeScreen = () => {
     const [originalSeries, setOriginalSeries] = useState<ISeries[]>([]);
     const [isSeriesDataLoaded, setIsSeriesDataLoaded] = useState(false);
     const [blackInTheDaysMovies, setBlackInTheDaysMovies] = useState<IMovie[]>([]);
-
+    const [sizzles, setSizzles] = useState<ITrailer[]>([]);
+    const [isSizzleDataLoaded, setIsSizzleDataLoaded] = useState(false);
     const [unfinishedMovies, setUnfinishedMovies] = useState<IMovie[]>([]);
+
+    const [unfinishedContent, setUnfinishedContent] = useState<any[]>([]);
 
     const [elapsedTime, setElapsedTime] = useState(0);
 
@@ -215,6 +220,16 @@ const HomeScreen = () => {
             }
         };
 
+        const fetchSizzles = async () => {
+            try {
+                const sizzles: ITrailer[] = await getTrailers();
+                setSizzles(sizzles);
+                setIsSizzleDataLoaded(true);
+            } catch (error) {
+                console.error('Error fetching Sizzles:', error);
+            }
+        };
+
         fetchOriginalSeries();
         fetchTopBoxMovie();
         fetchOldYearMovies();
@@ -223,6 +238,7 @@ const HomeScreen = () => {
         fetchRandomMovies();
         fetchNewerYearMovies();
         fetchBlackInTheDaysMovies();
+        fetchSizzles();
     }, []);
 
     const handleGenrePress = (genre: string) => {
@@ -255,18 +271,32 @@ const HomeScreen = () => {
 
     const [isLoading, setIsLoading] = useState(true);
 
+    // useEffect(() => {
+    //     const loadUnfinishedMovies = async () => {
+    //         const movies = await fetchUnfinishedMovies();
+    //         setUnfinishedMovies(movies);
+    //         setIsLoading(false);
+    //     };
+
+    //     loadUnfinishedMovies();
+    // }, []);
+
+    // const updateUnfinishedMovies = (updatedMovies: React.SetStateAction<IMovie[]>) => {
+    //     setUnfinishedMovies(updatedMovies);
+    // };
+
     useEffect(() => {
-        const loadUnfinishedMovies = async () => {
-            const movies = await fetchUnfinishedMovies();
-            setUnfinishedMovies(movies);
+        const loadUnfinishedContent = async () => {
+            const content = await fetchUnfinishedContent();
+            setUnfinishedContent(content);
             setIsLoading(false);
         };
 
-        loadUnfinishedMovies();
+        loadUnfinishedContent();
     }, []);
 
-    const updateUnfinishedMovies = (updatedMovies: React.SetStateAction<IMovie[]>) => {
-        setUnfinishedMovies(updatedMovies);
+    const updateUnfinishedContent = (updatedContent: (IMovie | ISeries)[]) => {
+        setUnfinishedContent(updatedContent);
     };
 
     return (
@@ -277,47 +307,48 @@ const HomeScreen = () => {
                         <View>
                             <Header />
                         </View>
-                        <View
-                            style={{
-                                width: '100%',
-                                zIndex: 3,
-                                position: 'absolute',
-                                top: '5%',
-                                paddingHorizontal: 15,
-                                alignItems: 'flex-end',
-                            }}>
-                            <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
-                                <Icon
-                                    name={isMuted ? 'volume-mute' : 'volume-high'}
-                                    type="ionicon"
-                                    size={20}
-                                    color={COLORS.LIGHTGREY}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View
-                            style={{
-                                width: '100%',
-                                zIndex: 2,
-                                position: 'absolute',
-                                top: '16%',
-                                flexDirection: 'row-reverse',
-                                justifyContent: 'space-between',
-                                paddingHorizontal: 15,
-                            }}>
-                            <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
-                                <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            </TouchableOpacity>
-                        </View>
-                        <Pressable style={styles.videocontainer} onPress={handlePress}>
-                            <View style={{height: SIZES.ScreenHeight / 1.63}}>
-                                {!isVideoLoaded && (
-                                    <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
-                                )}
-                                {/* <VideoPlayer
+                        <View>
+                            <View
+                                style={{
+                                    width: '100%',
+                                    zIndex: 3,
+                                    position: 'absolute',
+                                    top: '5%',
+                                    paddingHorizontal: 15,
+                                    alignItems: 'flex-end',
+                                }}>
+                                <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
+                                    <Icon
+                                        name={isMuted ? 'volume-mute' : 'volume-high'}
+                                        type="ionicon"
+                                        size={20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                            <View
+                                style={{
+                                    width: '100%',
+                                    zIndex: 2,
+                                    position: 'absolute',
+                                    top: '65%',
+                                    flexDirection: 'row-reverse',
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: 15,
+                                }}>
+                                <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
+                                    <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
+                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                            </View>
+                            <Pressable style={styles.videocontainer} onPress={handlePress}>
+                                <View style={{height: SIZES.ScreenHeight / 1.63}}>
+                                    {!isVideoLoaded && (
+                                        <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
+                                    )}
+                                    {/* <VideoPlayer
                                     source={{
                                         uri: topBox[topBoxIndex]?.trailerURL,
                                     }}
@@ -337,58 +368,59 @@ const HomeScreen = () => {
                                     poster={topBox[topBoxIndex]?.portraitURL}
                                     onEnd={handleVideoEnd}
                                 /> */}
-                                <Video
-                                    style={{width: '100%', height: '100%'}}
-                                    source={{uri: topBox[topBoxIndex]?.trailerURL}}
-                                    resizeMode="cover"
-                                    onEnd={handleVideoEnd}
-                                    repeat={false}
-                                    onError={handleVideoError}
-                                    posterResizeMode="cover"
-                                    poster={topBox[topBoxIndex]?.portraitURL}
-                                    onLoad={handleVideoLoad}
-                                    paused={!topBoxShouldAutoplay}
-                                    muted={isMuted}
-                                />
-                            </View>
-                            <View>
-                                <LinearGradient
-                                    colors={['transparent', COLORS.AKCRUBACKGROUND]}
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        height: 200,
-                                    }}
-                                />
-                                <View
-                                    style={{
-                                        marginHorizontal: '2%',
-                                        marginBottom: 20,
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        right: 0,
-                                        left: 0,
-                                    }}>
-                                    <View>
-                                        <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
-                                        <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
-                                            </Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
-                                            </Text>
+                                    <Video
+                                        style={{width: '100%', height: '100%'}}
+                                        source={{uri: topBox[topBoxIndex]?.trailerURL}}
+                                        resizeMode="cover"
+                                        onEnd={handleVideoEnd}
+                                        repeat={false}
+                                        onError={handleVideoError}
+                                        posterResizeMode="cover"
+                                        poster={topBox[topBoxIndex]?.portraitURL}
+                                        onLoad={handleVideoLoad}
+                                        paused={!topBoxShouldAutoplay}
+                                        muted={isMuted}
+                                    />
+                                </View>
+                                <View>
+                                    <LinearGradient
+                                        colors={['transparent', COLORS.AKCRUBACKGROUND]}
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            right: 0,
+                                            bottom: 0,
+                                            height: 200,
+                                        }}
+                                    />
+                                    <View
+                                        style={{
+                                            marginHorizontal: '2%',
+                                            marginBottom: 20,
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            right: 0,
+                                            left: 0,
+                                        }}>
+                                        <View>
+                                            <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
+                                            <View style={{flexDirection: 'row', marginVertical: 10}}>
+                                                <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
+                                                <Text style={styles.drawfonttag}>
+                                                    {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
+                                                </Text>
+                                                <Text style={styles.drawfonttag}>
+                                                    {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
+                                                </Text>
 
-                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
+                                                <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
+                                            </View>
+                                            <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
                                         </View>
-                                        <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
                                     </View>
                                 </View>
-                            </View>
-                        </Pressable>
+                            </Pressable>
+                        </View>
                         <View style={{marginTop: 75, marginBottom: 75}}>
                             <View>
                                 <FlatList
@@ -422,14 +454,14 @@ const HomeScreen = () => {
                                     movies: olderYearMovies,
                                 }}
                             />
-                            {unfinishedMovies.length > 0 && (
+                            {unfinishedContent.length > 0 && (
                                 <ContinueWatchingList
                                     Akcru_Content={{
-                                        id: 'unfinshedMovies',
-                                        title: 'Continue Watching Movie',
-                                        movies: unfinishedMovies,
+                                        id: 'unfinshedContent',
+                                        title: 'Continue Watching',
+                                        content: unfinishedContent,
                                     }}
-                                    updateUnfinishedMovies={updatedMovies => setUnfinishedMovies(updatedMovies)}
+                                    updateUnfinishedContent={updateUnfinishedContent}
                                 />
                             )}
                             {blackInTheDaysMovies.length > 0 && (
@@ -448,13 +480,24 @@ const HomeScreen = () => {
                                     movies: randomMovies,
                                 }}
                             />
-                            {/* <BasicSeriesCarousel
-                                Akcru_Content={{
-                                    id: 'OrginalSeries',
-                                    title: 'Original Series',
-                                    series: originalSeries,
-                                }}
-                            /> */}
+                            {originalSeries.length > 0 && (
+                                <BasicSeriesCarousel
+                                    Akcru_Content={{
+                                        id: 'OrginalSeries',
+                                        title: 'Original Series',
+                                        series: originalSeries,
+                                    }}
+                                />
+                            )}
+                            {sizzles.length > 0 && (
+                                <BasicSizzleCarousel
+                                    Akcru_Content={{
+                                        id: 'ComingSoonTrailers',
+                                        title: 'Coming Soon Orginals',
+                                        sizzle: sizzles,
+                                    }}
+                                />
+                            )}
                         </View>
                     </ScrollView>
                 ) : (

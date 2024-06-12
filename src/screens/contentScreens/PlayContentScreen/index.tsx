@@ -13,9 +13,15 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import {finishUserWatching, startUserWatching, logUserMovieWatchHistory} from '../../../lib/api/user.lib';
+import {
+    finishUserWatching,
+    startUserWatching,
+    logUserMovieWatchHistory,
+    logUserContentWatchHistory,
+} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
+import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -39,12 +45,13 @@ export default function ContentPlayer({navigation}: Props) {
     const [hasStartedWatching, setHasStartedWatching] = useState(false);
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const movieId = routeParams.params?.id;
+    const isEpisode = routeParams.params?.isEpisode; // Add this line to get the isEpisode parameter
     let currentTime = 0;
 
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
-        console.log('useEffect123');
+        console.log('Play Movie');
 
         const fetchMovie = async () => {
             if (movieId) {
@@ -68,7 +75,7 @@ export default function ContentPlayer({navigation}: Props) {
 
         return () => {
             if (hasStartedWatching && movieId) {
-                finishUserWatching(movieId).then(finishedSuccessfully => {
+                finishUserWatching(movieId, false).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
                         resetTimer();
                         pauseTimer();
@@ -104,7 +111,7 @@ export default function ContentPlayer({navigation}: Props) {
         setIsMoviePlaying(true);
         StatusBar.setHidden(true);
         if (movieId) {
-            getLastPlaybackPosition(movieId).then(lastPlaybackPosition => {
+            getLastPlaybackPosition(movieId, isEpisode).then(lastPlaybackPosition => {
                 if (videoRef.current && lastPlaybackPosition > 0) {
                     videoRef.current.seek(lastPlaybackPosition);
                 }
@@ -115,13 +122,15 @@ export default function ContentPlayer({navigation}: Props) {
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
-            setLastPlaybackPosition(movieId, currentTime);
+            setLastPlaybackPosition(movieId, currentTime, isEpisode);
             setHasLoggedRecently(true);
         } else if (currentTime % 10 !== 0) {
             setHasLoggedRecently(false);
         }
         if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
             syncWatchTime();
+            // Update watch time
+            updateWatchTime(movieId, currentTime, isEpisode);
         }
     };
 
@@ -131,10 +140,10 @@ export default function ContentPlayer({navigation}: Props) {
         startTimer();
         console.log(user?.id && movieId && hasStartedWatching);
         if (user?.id && movieId && !hasStartedWatching) {
-            startUserWatching(user.id, movieId).then(startedSuccessfully => {
+            startUserWatching(movieId, isEpisode).then(startedSuccessfully => {
                 if (startedSuccessfully) {
                     setHasStartedWatching(true);
-                    logUserMovieWatchHistory(user.id, movieId);
+                    logUserContentWatchHistory(user.id, movieId, isEpisode);
                 }
             });
         }
@@ -146,9 +155,49 @@ export default function ContentPlayer({navigation}: Props) {
         if (movieId) {
             const pausedCurrentTime = currentTime;
 
-            setLastPlaybackPosition(movieId, pausedCurrentTime);
+            setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
         }
     };
+
+    // const onEnd = () => {
+    //     setIsMoviePlaying(false);
+    //     pauseTimer();
+    //     resetTimer();
+
+    //     if (movieId) {
+    //         const pausedCurrentTime = currentTime;
+
+    //         setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
+    //         setHasStartedWatching(false);
+    //         Orientation.lockToPortrait();
+    //         StatusBar.setHidden(false);
+    //         navigation.pop();
+
+    //         // Update watch time on end
+    //         updateWatchTime(movieId, pausedCurrentTime, isEpisode);
+    //     }
+    // };
+
+    // const onEnd = () => {
+    //     setIsMoviePlaying(false);
+    //     pauseTimer();
+    //     resetTimer();
+
+    //     if (movieId) {
+    //         finishUserWatching(movieId, false).then(finishedSuccessfully => {
+    //             if (finishedSuccessfully) {
+    //                 const pausedCurrentTime = currentTime;
+    //                 setLastPlaybackPosition(movieId, pausedCurrentTime, false);
+    //                 setHasStartedWatching(false);
+    //                 Orientation.lockToPortrait();
+    //                 StatusBar.setHidden(false);
+    //                 navigation.pop();
+    //             } else {
+    //                 console.error('Error finishing movie watching.');
+    //             }
+    //         });
+    //     }
+    // };
 
     const onEnd = () => {
         setIsMoviePlaying(false);
@@ -156,17 +205,40 @@ export default function ContentPlayer({navigation}: Props) {
         resetTimer();
 
         if (movieId) {
-            const pausedCurrentTime = currentTime;
+            finishUserWatching(movieId, isEpisode)
+                .then(finishedSuccessfully => {
+                    if (finishedSuccessfully) {
+                        const pausedCurrentTime = currentTime;
+                        setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
+                        setHasStartedWatching(false);
 
-            setLastPlaybackPosition(movieId, pausedCurrentTime);
-            setHasStartedWatching(false);
-            Orientation.lockToPortrait();
-            StatusBar.setHidden(false);
-            navigation.pop();
+                        if (user && user.id) {
+                            logUserContentWatchHistory(user.id, movieId, isEpisode)
+                                .then(() => {
+                                    Orientation.lockToPortrait();
+                                    StatusBar.setHidden(false);
+                                    navigation.pop();
+                                })
+                                .catch(error => {
+                                    console.error('Error logging user content watch history:', error);
+                                });
+                        } else {
+                            Orientation.lockToPortrait();
+                            StatusBar.setHidden(false);
+                            navigation.pop();
+                        }
+                    } else {
+                        console.error('Error finishing movie watching.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error finishing user watching:', error);
+                });
         }
     };
 
     const onBack = () => {
+        Orientation.lockToPortrait();
         navigation.pop();
     };
 

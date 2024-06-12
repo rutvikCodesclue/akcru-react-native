@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity} from 'react-native';
+import {ActivityIndicator, View, StatusBar, Text, TouchableOpacity} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -12,9 +12,10 @@ import {COLORS, FONTS} from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import {finishUserWatching, startUserWatching, logUserMovieWatchHistory} from '../../../lib/api/user.lib';
+import {finishUserWatching, startUserWatching, logUserContentWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
+import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 
 type ResumePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -25,10 +26,9 @@ type Props = {
     route: ResumePlayerRouteProp;
 };
 
-export default function ResumePlayer({navigation, route}: Props) {
+export default function ResumePlayer({navigation}: Props) {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true);
-    const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
     const {startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition, syncWatchTime} =
         useWatchTimeStore();
     const isFocused = useIsFocused();
@@ -39,11 +39,12 @@ export default function ResumePlayer({navigation, route}: Props) {
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const movieId = routeParams.params?.id;
     let currentTime = 0;
+    const isEpisode = routeParams.params?.isEpisode; // Add this line to get the isEpisode parameter
 
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
-        console.log('useEffect123');
+        console.log('Resume Content Screen');
 
         const fetchMovie = async () => {
             if (movieId) {
@@ -67,22 +68,18 @@ export default function ResumePlayer({navigation, route}: Props) {
 
         return () => {
             if (hasStartedWatching && movieId) {
-                finishUserWatching(movieId).then(finishedSuccessfully => {
+                finishUserWatching(movieId, false).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
                         resetTimer();
                         pauseTimer();
                         Orientation.lockToPortrait();
                         StatusBar.setHidden(false);
-                        //console.log(`User finished watching movie: ${movieId}`);
                     } else {
-                        //console.log(`Failed to mark movie as finished: ${movieId}`);
                     }
                 });
             }
         };
-    }, [movieId, hasStartedWatching]);
-
-    const [appState, setAppState] = useState(AppState.currentState);
+    }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -100,14 +97,14 @@ export default function ResumePlayer({navigation, route}: Props) {
                     pauseTimer();
                 }
             };
-        }, [isMoviePlaying, isFocused]),
+        }, [isMoviePlaying, pauseTimer, isFocused, resetTimer]),
     );
 
     const onLoad = () => {
         setIsMoviePlaying(true);
         StatusBar.setHidden(true);
         if (movieId) {
-            getLastPlaybackPosition(movieId).then(lastPlaybackPosition => {
+            getLastPlaybackPosition(movieId, isEpisode).then(lastPlaybackPosition => {
                 if (videoRef.current && lastPlaybackPosition > 0) {
                     videoRef.current.seek(lastPlaybackPosition);
                 }
@@ -118,13 +115,15 @@ export default function ResumePlayer({navigation, route}: Props) {
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
-            setLastPlaybackPosition(movieId, currentTime);
+            setLastPlaybackPosition(movieId, currentTime, isEpisode);
             setHasLoggedRecently(true);
         } else if (currentTime % 10 !== 0) {
             setHasLoggedRecently(false);
         }
         if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
             syncWatchTime();
+            // Update watch time
+            updateWatchTime(movieId, currentTime, isEpisode);
         }
     };
 
@@ -134,22 +133,21 @@ export default function ResumePlayer({navigation, route}: Props) {
         startTimer();
         console.log(user?.id && movieId && hasStartedWatching);
         if (user?.id && movieId && !hasStartedWatching) {
-            startUserWatching(user.id, movieId).then(startedSuccessfully => {
+            startUserWatching(movieId, isEpisode).then(startedSuccessfully => {
                 if (startedSuccessfully) {
                     setHasStartedWatching(true);
-                    logUserMovieWatchHistory(user.id, movieId);
+                    logUserContentWatchHistory(user.id, movieId, isEpisode);
                 }
             });
         }
     };
-
     const onPause = () => {
         setIsMoviePlaying(false);
         pauseTimer();
         if (movieId) {
             const pausedCurrentTime = currentTime;
-            //console.log('Paused at:', pausedCurrentTime);
-            setLastPlaybackPosition(movieId, pausedCurrentTime);
+
+            setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
         }
     };
 
@@ -159,21 +157,42 @@ export default function ResumePlayer({navigation, route}: Props) {
         resetTimer();
 
         if (movieId) {
-            const pausedCurrentTime = currentTime;
-            //console.log('Ended at:', endedCurrentTime);
-            setLastPlaybackPosition(movieId, pausedCurrentTime);
-            setHasStartedWatching(false);
-            Orientation.lockToPortrait();
-            StatusBar.setHidden(false);
-            navigation.pop();
+            finishUserWatching(movieId, isEpisode)
+                .then(finishedSuccessfully => {
+                    if (finishedSuccessfully) {
+                        const pausedCurrentTime = currentTime;
+                        setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
+                        setHasStartedWatching(false);
+
+                        if (user && user.id) {
+                            logUserContentWatchHistory(user.id, movieId, isEpisode)
+                                .then(() => {
+                                    Orientation.lockToPortrait();
+                                    StatusBar.setHidden(false);
+                                    navigation.pop();
+                                })
+                                .catch(error => {
+                                    console.error('Error logging user content watch history:', error);
+                                });
+                        } else {
+                            Orientation.lockToPortrait();
+                            StatusBar.setHidden(false);
+                            navigation.pop();
+                        }
+                    } else {
+                        console.error('Error finishing movie watching.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error finishing user watching:', error);
+                });
         }
     };
 
     const onBack = () => {
-        navigation.pop();
-
         Orientation.lockToPortrait();
         StatusBar.setHidden(false);
+        navigation.pop();
     };
 
     return (
@@ -182,7 +201,6 @@ export default function ResumePlayer({navigation, route}: Props) {
                 {!loadingError ? (
                     movie && movie.movieURL ? (
                         <>
-                            {console.log('movie url:', movie.movieURL)}
                             <VideoPlayer
                                 videoRef={videoRef}
                                 source={{

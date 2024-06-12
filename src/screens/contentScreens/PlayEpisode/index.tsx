@@ -13,9 +13,10 @@ import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import {finishUserWatching, startUserWatching} from '../../../lib/api/user.lib';
+import {finishUserWatching, logUserContentWatchHistory, startUserWatching} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
+import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 
 type EpisodePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'EpisodePlayer'>;
 
@@ -30,8 +31,8 @@ export default function EpisodePlayer({navigation}: Props) {
     const [episode, setEpisode] = useState<IEpisode | null>(null);
     const [isEpisodePlaying, setIsEpisodePlaying] = useState<boolean>(true);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    // const {startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition, syncWatchTime} =
-    //     useWatchTimeStore();
+    const {startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition, syncWatchTime} =
+        useWatchTimeStore();
     const isFocused = useIsFocused();
     const videoRef = useRef<Video>(null);
     const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
@@ -66,22 +67,21 @@ export default function EpisodePlayer({navigation}: Props) {
         fetchEpisode();
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
-    });
 
-    // return () => {
-    //     if (hasStartedWatching && episodeId) {
-    //         finishUserWatching(episodeId).then(finishedSuccessfully => {
-    //             if (finishedSuccessfully) {
-    //                 resetTimer();
-    //                 pauseTimer();
-    //                 Orientation.lockToPortrait();
-    //                 StatusBar.setHidden(false);
-    //             } else {
-    //             }
-    //         });
-    //     }
-    // };
-    // }, [seriesId, seasonId, episodeId, hasStartedWatching, resetTimer, pauseTimer]);
+        return () => {
+            if (hasStartedWatching && episodeId) {
+                finishUserWatching(episodeId, true).then(finishedSuccessfully => {
+                    if (finishedSuccessfully) {
+                        resetTimer();
+                        pauseTimer();
+                        Orientation.lockToPortrait();
+                        StatusBar.setHidden(false);
+                    } else {
+                    }
+                });
+            }
+        };
+    }, [seriesId, seasonId, episodeId, hasStartedWatching, resetTimer, pauseTimer]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -91,53 +91,52 @@ export default function EpisodePlayer({navigation}: Props) {
             }
 
             return () => {
-                // pauseTimer();
+                pauseTimer();
                 showNavigationBar();
 
                 if (!isFocused) {
-                    // resetTimer();
-                    // pauseTimer();
+                    resetTimer();
+                    pauseTimer();
                 }
             };
-        // }, [isEpisodePlaying, pauseTimer, isFocused, resetTimer]),
-        }),
+        }, [isEpisodePlaying, pauseTimer, isFocused, resetTimer]),
     );
 
     const onLoad = () => {
         setIsEpisodePlaying(true);
         StatusBar.setHidden(true);
-        // if (episodeId) {
-        //     getLastPlaybackPosition(episodeId).then(lastPlaybackPosition => {
-        //         if (videoRef.current && lastPlaybackPosition > 0) {
-        //             videoRef.current.seek(lastPlaybackPosition);
-        //         }
-        //     });
-        // }
+        if (episodeId) {
+            getLastPlaybackPosition(episodeId, true).then(lastPlaybackPosition => {
+                if (videoRef.current && lastPlaybackPosition > 0) {
+                    videoRef.current.seek(lastPlaybackPosition);
+                }
+            });
+        }
     };
 
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
         if (episodeId && currentTime % 10 === 0 && !hasLoggedRecently) {
-            // setLastPlaybackPosition(episodeId, currentTime);
+            setLastPlaybackPosition(episodeId, currentTime, true);
             setHasLoggedRecently(true);
         } else if (currentTime % 10 !== 0) {
             setHasLoggedRecently(false);
         }
         if (episodeId && currentTime % 60 === 0 && !hasLoggedRecently) {
-            // syncWatchTime();
+            syncWatchTime();
+            updateWatchTime(episodeId, currentTime, true);
         }
     };
 
     const onPlay = () => {
         console.log('onPlay');
         setIsEpisodePlaying(true);
-        // startTimer();
-        console.log(user?.id && episodeId && hasStartedWatching);
+        startTimer();
         if (user?.id && episodeId && !hasStartedWatching) {
-            startUserWatching(user.id, episodeId).then(startedSuccessfully => {
+            startUserWatching(episodeId, true).then(startedSuccessfully => {
                 if (startedSuccessfully) {
                     setHasStartedWatching(true);
-                    // logUserEpisodeWatchHistory(user.id, episodeId);
+                    logUserContentWatchHistory(user.id, episodeId, true); // Pass the correct parameters
                 }
             });
         }
@@ -145,32 +144,65 @@ export default function EpisodePlayer({navigation}: Props) {
 
     const onPause = () => {
         setIsEpisodePlaying(false);
-        // pauseTimer();
-        // if (episodeId) {
-        //     const pausedCurrentTime = currentTime;
-
-        //     setLastPlaybackPosition(episodeId, pausedCurrentTime);
-        // }
-    };
-
-    const onEnd = () => {
-        setIsEpisodePlaying(false);
-        // pauseTimer();
-        // resetTimer();
-
+        pauseTimer();
         if (episodeId) {
             const pausedCurrentTime = currentTime;
 
-            // setLastPlaybackPosition(episodeId, pausedCurrentTime);
-            setHasStartedWatching(false);
-            Orientation.lockToPortrait();
-            StatusBar.setHidden(false);
-            navigation.pop();
+            setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
+        }
+    };
+
+    // const onEnd = () => {
+    //     setIsEpisodePlaying(false);
+    //     pauseTimer();
+    //     resetTimer();
+
+    //     if (episodeId) {
+    //         finishUserWatching(episodeId, true).then(finishedSuccessfully => {
+    //             if (finishedSuccessfully) {
+    //                 const pausedCurrentTime = currentTime;
+    //                 setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
+    //                 setHasStartedWatching(false);
+    //                 Orientation.lockToPortrait();
+    //                 StatusBar.setHidden(false);
+    //                 navigation.pop();
+    //             } else {
+    //                 console.error('Error finishing episode watching.');
+    //             }
+    //         });
+    //     }
+    // };
+
+    const onEnd = () => {
+        setIsEpisodePlaying(false);
+        pauseTimer();
+        resetTimer();
+
+        if (user?.id && episodeId) {
+            finishUserWatching(episodeId, true).then(finishedSuccessfully => {
+                if (finishedSuccessfully) {
+                    logUserContentWatchHistory(user.id, episodeId, true)
+                        .then(() => {
+                            const pausedCurrentTime = currentTime;
+                            setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
+                            setHasStartedWatching(false);
+                            Orientation.lockToPortrait();
+                            StatusBar.setHidden(false);
+                            navigation.pop();
+                        })
+                        .catch(error => {
+                            console.error('Error logging watch history:', error);
+                        });
+                } else {
+                    console.error('Error finishing episode watching.');
+                }
+            });
         }
     };
 
     const onBack = () => {
         Orientation.lockToPortrait();
+        StatusBar.setHidden(false);
         navigation.pop();
     };
 

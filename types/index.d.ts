@@ -590,6 +590,7 @@ export interface IEpisode {
     likeCount: number;
     dislikeCount: number;
     landscapeURL?: string;
+    portraitURL?: string;
 }
 
 interface IUserSeriesReaction {
@@ -608,4 +609,34 @@ interface IUserEpisodeReaction {
     type: 'LOVE' | 'LIKE' | 'DISLIKE';
     createdAt: string;
     updatedAt: string;
+}
+
+interface ITrailer {
+    id: string;
+    title: string;
+    description: string;
+    duration: number;
+    trailerURL: string;
+    landscapeURL: string;
+    portraitURL: string;
+    createdAt: string;
+    updatedAt: string;
+    actors: IActor[];
+    director: IDirector[];
+    viewCount: number;
+    loveCount: number;
+    likeCount: number;
+    dislikeCount: number;
+    reactions: IUserTrailerReaction[];
+}
+
+interface IUserTrailerReaction {
+    id: string;
+    userId: string;
+    trailerId: string;
+    type: ReactionType;
+    createdAt: string;
+    updatedAt: string;
+    user: IUser;
+    trailer: ITrailer;
 }

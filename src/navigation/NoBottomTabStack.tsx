@@ -37,6 +37,9 @@ import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
 import SeriesDetailScreen from '../screens/contentScreens/SeriesDetailScreen';
 import SeriesTrailerPlayer from '../screens/contentScreens/PlaySeriesTrailer';
 import EpisodePlayer from '../screens/contentScreens/PlayEpisode';
+import SizzleDetailScreen from '../screens/contentScreens/SizzleDetailScreen';
+import SizzlePlayer from '../screens/contentScreens/PlaySizzle';
+import EpisodeDetailScreen from '../screens/contentScreens/EpisodeDetailScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -83,6 +86,9 @@ export type NoBottomTabStackParams = {
     SeriesDetailScreen: any;
     SeriesTrailerPlayer: any;
     EpisodePlayer: any;
+    SizzleDetailScreen: any;
+    SizzlePlayer: any;
+    EpisodeDetailScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -144,6 +150,14 @@ export default function NoBottomStack() {
                 }}
             />
             <NoBottom.Screen
+                name="SizzlePlayer"
+                component={SizzlePlayer}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
                 name="SeriesTrailerPlayer"
                 component={SeriesTrailerPlayer}
                 options={{
@@ -170,6 +184,22 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="ResumeDetailScreen"
                 component={ResumeDetailScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SizzleDetailScreen"
+                component={SizzleDetailScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="EpisodeDetailScreen"
+                component={EpisodeDetailScreen}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
