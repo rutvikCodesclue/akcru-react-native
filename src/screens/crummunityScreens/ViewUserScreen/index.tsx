@@ -679,7 +679,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                         ) : (
                             <View>
-                                {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
+                                {/* {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
                                     <View style={{marginHorizontal: 15, marginTop: '5%'}}>
                                         <Text
                                             style={{
@@ -691,7 +691,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             {user?.username} is watching "{currentlyWatching[0].movie.title}"
                                         </Text>
                                     </View>
-                                )}
+                                )} */}
                                 <View>
                                     <Text style={styles.desctext}>ARCHETYPE</Text>
 
