@@ -9,8 +9,6 @@ import {
     Pressable,
     ScrollView,
     ActivityIndicator,
-    ProgressBarAndroid,
-    ProgressViewIOS,
     Platform,
     StyleSheet
 } from 'react-native';
@@ -39,6 +37,8 @@ import {IUserProfile} from '../../../../types';
 import UserTaggedCard from '../../../components/UserTaggedCard';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
+import {ProgressView} from '@react-native-community/progress-view';
+import {ProgressBar} from '@react-native-community/progress-bar-android';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -187,99 +187,19 @@ const NewPost = () => {
         return compressedImages;
     };
 
-    //Orginal Code
-    // const OnPostPress = async () => {
-    //     setIsPosting(true);
-    //     try {
-    //         const postType = determinePostType();
-    //         let content = [];
-
-    //         if (postType === 'TEXT') {
-    //             content = [postText];
-    //         } else if (postType === 'IMAGE') {
-    //             const compressedImages = await compressAndUploadImages(selectedImages);
-
-    //             content = await uploadPictures(compressedImages);
-    //             content = content.join(', ');
-    //         } else if (postType === 'VIDEO') {
-    //             const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-    //                 // console.log('Compression Progress: ', progress);
-    //                 setIsCompress(true)
-    //                 setProgress(progress)
-
-    //             });
-    //             const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-    //             setIsCompress(false)
-    //             content = [videoUrl];
-    //         } else if (postType === 'HYBRID') {
-    //             content = [postText];
-    //             const compressedImages = await compressAndUploadImages(selectedImages);
-    //             const compressedVideoPath =  selectedVideo ?  await VideoCompressor.compress(selectedVideo, {}, progress => {
-    //                 // console.log('Compression Progress: ', progress);
-    //                 setIsCompress(true)
-    //                 setProgress(progress)
-
-    //             }): null;
-    //             const mediaUrls =
-    //                 selectedImages.length > 0
-    //                     ? await uploadPictures(compressedImages)
-    //                     : await uploadVideo(compressedVideoPath, 'video', videoDuration);
-
-    //             setIsCompress(false)
-
-    //             content = content.concat(mediaUrls);
-
-    //         }
-
-    //         const result = await createPost(postType, content);
-    //         if (result && result.id) {
-    //             const newPostId = result.id;
-
-    //             const taggedUsernames = extractUsernamesFromText(postText);
-
-    //             await Promise.all(
-    //                 taggedUsernames.map(async username => {
-    //                     try {
-    //                         const user = await findAUser({username});
-    //                         if (user && user.id) {
-    //                             const notificationType = 'UserTaggedOnPost';
-    //                             const success = await sendTagNotification(user.id, notificationType, newPostId);
-    //                             if (success) {
-    //                             } else {
-    //                                 console.error(`Failed to send notification to ${username}`);
-    //                             }
-    //                         } else {
-    //                             console.error(`User not found for username: ${username}`);
-    //                         }
-    //                     } catch (error) {
-    //                         console.error(`Error processing tag for username: ${username}`, error);
-    //                     }
-    //                 }),
-    //             );
-    //             setIsPosting(false);
-    //             navigation.goBack();
-    //         } else {
-    //         }
-    //     } catch (error) {
-    //         console.error('Error creating the post:', error);
-    //         setIsPosting(false);
-    //     }
-
-    //     setPostText('');
-    //     setSelectedImages([]);
-    //     setSelectedVideo('');
-    // };
-
     //Updated Code adding GIF
     const OnPostPress = async () => {
-        setIsPosting(true);
         try {
             const postType = determinePostType();
             let content = [];
 
             if (postType === 'TEXT') {
                 content = [postText];
+                setIsPosting(true);
+
             } else if (postType === 'IMAGE') {
+                setIsPosting(true);
+
                 // Separate GIFs from other images
                 const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
                 const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
@@ -300,14 +220,20 @@ const NewPost = () => {
                 // Combine both URLs
                 content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
+
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    setIsCompress(true);
+                setIsCompress(true);
+
                     setProgress(progress);
                 });
-                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 setIsCompress(false);
+                setIsPosting(true);
+                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
+                if(!selectedVideo){
+                    setIsPosting(true)
+                }
                 content = [postText];
 
                 // Separate GIFs from other images
@@ -331,11 +257,14 @@ const NewPost = () => {
                 if (selectedVideo) {
                     // Upload video if exists
                     const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                        setIsCompress(true);
+                    setIsCompress(true);
+
                         setProgress(progress);
                     });
-                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                     setIsCompress(false);
+                    setIsPosting(true);
+
+                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 }
 
                 // Combine all media URLs
@@ -651,22 +580,16 @@ const NewPost = () => {
                             </View>
                         </Modal>
                     </View>
-                    {isPosting && (
-                        <Modal transparent={true} visible={isPosting} animationType="fade">
-                            <View style={styles.loadingOverlay}>
-                                <ActivityIndicator size="large" color={COLORS.PINK} />
-                            </View>
-                        </Modal>
-                    )}
+                   
                 </ScrollView>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>
                             <Text style={stylesProgress.progressText}>{`Compressing: ${Math.round(
                                 progressVal * 100,
-                            )}% & Uploading`}</Text>
+                            )}%`}</Text>
                             {Platform.OS === 'android' ? (
-                                <ProgressBarAndroid
+                                <ProgressBar
                                     styleAttr="Horizontal"
                                     indeterminate={false}
                                     progress={progressVal}
@@ -674,7 +597,7 @@ const NewPost = () => {
                                     style={stylesProgress.progressBar}
                                 />
                             ) : (
-                                <ProgressViewIOS
+                                <ProgressView
                                     progress={progressVal}
                                     progressTintColor={COLORS.PINK}
                                     style={stylesProgress.progressBar}
@@ -683,6 +606,15 @@ const NewPost = () => {
                         </View>
                     </View>
                 </Modal>
+                
+                <Modal transparent={true} visible={isPosting} animationType="fade">
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color={COLORS.PINK} />
+                        {/* We are posting text in middle white */}
+                        <Text style={stylesProgress.loadingText}>We're Posting...</Text>
+                    </View>
+                </Modal>
+                
             </SafeAreaView>
         </TabContainer>
     );
@@ -712,5 +644,10 @@ const stylesProgress = StyleSheet.create({
       progressBar: {
         width: '100%',
         height: 20,
+      },
+      loadingText: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        marginTop: 10,
       },
 })

@@ -191,9 +191,14 @@ const Signin = () => {
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
             setShowLoginError(true);
-            console.log('LOGIN Error:', error.response.data);
             setLoading(false);
-            setErrorMsg(error.response.data.message);
+            if(error.response.data.message){
+
+                setErrorMsg(error.response.data.message);
+            }else{
+                setErrorMsg(error.response);
+                
+            }
         }
     }
 

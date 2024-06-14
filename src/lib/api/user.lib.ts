@@ -205,8 +205,9 @@ export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserPro
 
 export const fetchUserGallery = async (id: IUserProfile) => {
     try {
-        const response = await fetch('/api/user/profileGallery');
-        const data = await response.json();
+        const {data} = await API.get('/v1/user/profileGallery');
+        // const data = await response.json();
+        console.log('fetch user gallery: ', data)
 
         if (data.success) {
             return data.gallery;

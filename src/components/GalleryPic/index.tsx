@@ -22,11 +22,8 @@ const GalleryPic = ({image}: GalleryPicProps) => {
     }, []);
     
     const fetchLikeCount = async () => {
-        console.log('Checking like count...');
         const likeInfo = await getGalleryLikeCount(image);
-        console.log('Number of likes: ', likeInfo.count);
         if(likeInfo.likeExists){
-            console.log('Image already liked');
             setlikeImage(true);
         }
         else{

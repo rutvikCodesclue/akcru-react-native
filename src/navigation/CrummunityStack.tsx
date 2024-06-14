@@ -48,27 +48,7 @@ export function CrummunityStack() {
                     headerShown: false,
                 })}
             />
-            {/* <Crummunity.Screen
-              name="PostScreen"
-              component={PostScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
-            {/* <Crummunity.Screen
-              name="NewPost"
-              component={NewPost}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
-            {/* <Crummunity.Screen
-              name="NewComment"
-              component={NewComment}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
+           
             <Crummunity.Screen
                 name="UserSearchResultScreen"
                 component={UserSearchResultScreen}

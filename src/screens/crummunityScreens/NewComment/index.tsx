@@ -9,8 +9,6 @@ import {
     Pressable,
     ScrollView,
     ActivityIndicator,
-    ProgressBarAndroid,
-    ProgressViewIOS,
     Platform,
     StyleSheet,
 } from 'react-native';
@@ -40,7 +38,8 @@ import UserTaggedCard from '../../../components/UserTaggedCard';
 import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
-
+import {ProgressView} from '@react-native-community/progress-view';
+import {ProgressBar} from '@react-native-community/progress-bar-android';
 type NewCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'NewComment'>;
 
 type NewCommentRouteProp = RouteProp<CrummunityStackParams, 'NewComment'>;
@@ -195,14 +194,16 @@ const NewComment = ({navigation, route}: Props) => {
 
 
     const OnCommentPress = async () => {
-        setIsCommenting(true);
         try {
             const postType = determinePostType();
             let content = [];
 
             if (postType === 'TEXT') {
+                setIsCommenting(true);
                 content = [comment];
             } else if (postType === 'IMAGE') {
+                setIsCommenting(true);
+
                 // Separate GIFs from other images
                 const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
                 const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
@@ -225,12 +226,19 @@ const NewComment = ({navigation, route}: Props) => {
             } else if (postType === 'VIDEO') {
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
                     setIsCompress(true);
+
                     setProgress(progress);
                 });
-                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 setIsCompress(false);
+                setIsCommenting(true);
+                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
+                
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
+                if(!selectedVideo){
+                    setIsCommenting(true);
+
+                }
                 content.push(comment);
 
                 // Separate GIFs from other images
@@ -253,12 +261,17 @@ const NewComment = ({navigation, route}: Props) => {
                 let videoUrl = null;
                 if (selectedVideo) {
                     // Upload video if exists
+
                     const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
                         setIsCompress(true);
+
                         setProgress(progress);
                     });
-                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                     setIsCompress(false);
+
+                    setIsCommenting(true);
+
+                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 }
 
                 // Combine all media URLs
@@ -593,13 +606,7 @@ const NewComment = ({navigation, route}: Props) => {
                             </View>
                         </Modal>
                     </View>
-                    {isCommenting && (
-                        <Modal transparent={true} visible={isCommenting} animationType="fade">
-                            <View style={styles.loadingOverlay}>
-                                <ActivityIndicator size="large" color={COLORS.PINK} />
-                            </View>
-                        </Modal>
-                    )}
+                 
                 </ScrollView>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
@@ -608,7 +615,7 @@ const NewComment = ({navigation, route}: Props) => {
                                 progressVal * 100,
                             )}% & Uploading`}</Text>
                             {Platform.OS === 'android' ? (
-                                <ProgressBarAndroid
+                                <ProgressBar
                                     styleAttr="Horizontal"
                                     indeterminate={false}
                                     progress={progressVal}
@@ -616,13 +623,18 @@ const NewComment = ({navigation, route}: Props) => {
                                     style={stylesProgress.progressBar}
                                 />
                             ) : (
-                                <ProgressViewIOS
+                                <ProgressView
                                     progress={progressVal}
                                     progressTintColor={COLORS.PINK}
                                     style={stylesProgress.progressBar}
                                 />
                             )}
                         </View>
+                    </View>
+                </Modal>
+                <Modal transparent={true} visible={isCommenting} animationType="fade">
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color={COLORS.PINK} />
                     </View>
                 </Modal>
             </SafeAreaView>

@@ -14,7 +14,7 @@ import CruMemberPic from '../../../components/CruMemberPic';
 import {getMyCRU, removeAUserFromCRU} from '../../../lib/api/cru.lib';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import {supabase} from '../../../../lib/supabase';
-import {deleteUserGalleryImage, updateUserGallery} from '../../../lib/api/user.lib';
+import {deleteUserGalleryImage, updateUserGallery, fetchUserGallery} from '../../../lib/api/user.lib';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import WatchListCategory from '../../../components/WatchlistCategory';
@@ -169,8 +169,14 @@ const UserProfileDetailsTab = () => {
     useEffect(() => {
         if (user?.gallery) {
             setUserPics(user.gallery);
+        } else {
+            async function fetchData() {
+                const gallerydata = await fetchUserGallery(user.id);
+                setUserPics(gallerydata);
+            }
+            fetchData();
         }
-    }, [user]);
+    }, []);
 
     const getFileSize = async filePath => {
         try {

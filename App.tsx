@@ -125,6 +125,9 @@ const userId = useAuthStore(state => state.user?.id);
                  id: 'default',
              },
          },
+         ios:{
+            sound: 'default',
+         }
      });
  }
 
