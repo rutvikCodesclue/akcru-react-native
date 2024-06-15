@@ -7,6 +7,7 @@ import {API} from '../clients/api.client';
 import {IUserProfile} from '../../types';
 import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
+import * as RootNavigation from '../util/RootNavigation';
 
 interface IAuthStore {
     session: Session | null;
@@ -93,17 +94,18 @@ const useAuthStore = create<IAuthStore>()(
             hydrateAuth: async () => {
                 const currentSession = get().session;
                 const timeNow = Math.round(Date.now() / 1000);
-
                 if (currentSession && currentSession?.expires_at) {
                     const hasSessionExpired = timeNow > currentSession.expires_at;
-
                     if (currentSession !== null && !hasSessionExpired) {
                         const rereshedSession = await supabaseAuth.refreshSession(currentSession);
                         set({session: rereshedSession.data.session});
                     } else {
-                        console.log('session is expired, logging out...', currentSession);
                         await get().logout();
+                        RootNavigation.navigate('Signin', {});
+
                     }
+                }else{
+                    RootNavigation.navigate('Signin', {});
                 }
             },
             hydrateUser: async () => {

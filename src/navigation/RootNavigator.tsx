@@ -3,12 +3,14 @@ import {NavigationContainer, createNavigationContainerRef} from '@react-navigati
 import AuthStack from './AuthNavigation';
 import {TabContextProvider} from '../context/TabContext';
 
-export const navigationRef = createNavigationContainerRef();
+// export const navigationRef = createNavigationContainerRef();
+import { navigationRef } from '../util/RootNavigation';
+
 
 export default function RootNavigator() {
     return (
         <TabContextProvider>
-            <NavigationContainer>
+            <NavigationContainer ref={navigationRef}>
                 <AuthStack />
             </NavigationContainer>
         </TabContextProvider>
