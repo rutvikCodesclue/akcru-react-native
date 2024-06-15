@@ -117,7 +117,11 @@ const useWatchTimeStore = create<IWatchTimeState>()(
         }),
         {
             name: 'watchTime-store',
-            getStorage: () => AsyncStorage,
+            storage: {
+                getItem: name => localStorage.getItem(name),
+                setItem: (name, value) => localStorage.setItem(name, value),
+                removeItem: name => localStorage.removeItem(name),
+            },
         },
     ),
 );

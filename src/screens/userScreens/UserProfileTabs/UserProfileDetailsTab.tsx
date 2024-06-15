@@ -87,7 +87,6 @@ const UserProfileDetailsTab = () => {
     useEffect(() => {}, [unreadcruIds]);
     useEffect(() => {
         getUnread(membercruIds).then(res => {
-            console.log(res);
             if (res?.success && res.unread != null) {
                 setUnreadCruIds(res.unread);
             }

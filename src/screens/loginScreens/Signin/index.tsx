@@ -161,7 +161,6 @@ const Signin = () => {
             console.log('Attempting to LOGIN w/ Email/Password:', email, password);
 
             const loginResponse = await authStore.loginWithEmail(email, password);
-            console.log(loginResponse);
             const session = loginResponse?.session;
             const user = loginResponse?.user;
 
@@ -180,8 +179,6 @@ const Signin = () => {
 
             const accessToken = session.access_token;
             AsyncStorage.setItem('access_token', accessToken);
-            console.log('LOGIN Successful. Access Token:', accessToken);
-            console.log(`LOGIN Successful for user: ${authStore.getUser()?.email}`);
             try {
                 await getPushToken(user.id);
             } catch (e) {

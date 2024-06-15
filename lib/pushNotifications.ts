@@ -39,8 +39,6 @@ export async function getPushToken(userId: string) {
 
 // Example function to send the token to your server
 export const sendTokenToServer = async (userId: string, deviceToken: string): Promise<void> => {
-    console.log('FCM Token:', deviceToken);
-    console.log('User ID:', userId);
     try {
         const response = await API.post(`/v1/auth/storeDeviceToken`, {
             userId,

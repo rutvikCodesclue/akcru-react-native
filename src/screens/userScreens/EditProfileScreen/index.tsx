@@ -1,12 +1,11 @@
 import {useState} from 'react';
 import styles from './styles';
-import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform} from 'react-native';
+import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform, ActivityIndicator, StyleSheet} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import {FAKE_USER_PROFILES} from '../../../../assets/constants/Mockusers';
 import {Icon} from '@rneui/base';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -40,7 +39,7 @@ export default function EditProfile({session}: {session: Session}) {
     const logout = useAuthStore(state => state.logout);
     const {hydrateUser} = useAuthStore();
 
-    const [, setLoading] = useState(false);
+    const [_, setLoading] = useState(false);
 
     const [userName, setUserName] = useState('');
     const [, setModifiedUserName] = useState('');
@@ -83,6 +82,7 @@ export default function EditProfile({session}: {session: Session}) {
     const confirmDescriptionUpdate = async () => {
         try {
             setLoading(true);
+            setShowUpdateDescriptionConfirmation(false);
 
             const updatedUser = await updateUser({
                 description: description,
@@ -100,7 +100,6 @@ export default function EditProfile({session}: {session: Session}) {
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
-            setShowUpdateDescriptionConfirmation(false);
             setDescriptionModalVisible(false);
         }
     };
@@ -112,6 +111,8 @@ export default function EditProfile({session}: {session: Session}) {
     const confirmUsernameUpdate = async () => {
         try {
             setLoading(true);
+            setShowUpdateUsernameConfirmation(false);
+
 
             if (userName && userName !== user?.username) {
                 const usernameExists = await checkUsernameExists(userName, user?.username);
@@ -121,12 +122,14 @@ export default function EditProfile({session}: {session: Session}) {
                     setLoading(false);
                     return;
                 }
+                await updateUser({
+                    username: userName,
+                });
             }
         } catch (error) {
             console.error('Error updating profile:', error);
         } finally {
             setLoading(false);
-            setShowUpdateUsernameConfirmation(false);
             setUsernameModalVisible(false);
         }
     };
@@ -161,50 +164,7 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
-    // const selectProfileImage = async () => {
-    //     let options = {
-    //         mediaType: 'photo' as MediaType,
-    //         storageOptions: {
-    //             path: 'image',
-    //         },
-    //     };
-
-    //     let callbackExecuted = false;
-
-    //     launchImageLibrary(options, async response => {
-    //         if (response && !response.didCancel && response.assets) {
-    //             if (callbackExecuted) {
-    //                 return;
-    //             }
-
-    //             callbackExecuted = true;
-
-    //             const selectedImageUncomp = response.assets[0].uri;
-    //             const selectedImage = await compressImage(selectedImageUncomp);
-
-    //             const imageType = response.assets[0].type;
-    //             const imageName = response.assets[0].fileName;
-
-    //             const imageSizeInBytes = response.assets[0].fileSize;
-    //             const maxSizeInBytes = 5 * 1024 * 1024;
-
-    //             if (imageSizeInBytes > maxSizeInBytes) {
-    //                 setShowSizeErrorModal(true);
-    //             } else {
-    //                 const updatedUserProfilePicture = await updateUserProfilePicture({
-    //                     uri: selectedImage,
-    //                     type: imageType,
-    //                     name: imageName,
-    //                 });
-
-    //                 if (updatedUserProfilePicture) {
-    //                     setSelectImage(updatedUserProfilePicture.profilePicture || '');
-    //                 }
-    //             }
-    //         }
-    //     });
-    // };
-
+    
     const selectProfileImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
@@ -325,10 +285,12 @@ export default function EditProfile({session}: {session: Session}) {
     return (
         <TabContainer>
             <View>
+         
                 <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
+                    
                     <View style={styles.container}>
                         <BackButton navigation={navigation} />
                         <View>
@@ -897,20 +859,7 @@ export default function EditProfile({session}: {session: Session}) {
                             />
                         </Modal>
 
-                        {/* <View>
-                        <Text style={styles.inputlabel}>Email</Text>
-                        <View style={{alignItems: 'center'}}>
-                            <InputsLrg
-                                placeholdername={user?.email}
-                                iconname={'mail'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                value={session?.user?.email}
-                                editable={!loading}
-                            />
-                            {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                        </View>
-                    </View> */}
+                       
 
                         <View style={{alignItems: 'center', marginVertical: 20}}>
                             <TouchableOpacity onPress={() => navigation2.navigate('AccountSettings')}>
@@ -978,6 +927,38 @@ export default function EditProfile({session}: {session: Session}) {
                     </View>
                 </ScrollView>
             </View>
+            
         </TabContainer>
     );
 }
+
+const stylescustom = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#F5FCFF',
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background for modal
+    },
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        elevation: 5, // Android only: elevation for shadow effect
+        shadowColor: '#000', // iOS only: shadow color for shadow effect
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+    },
+    spinnerContainer: {
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1, // Ensure spinner is above modal content
+    },
+});

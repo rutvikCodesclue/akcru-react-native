@@ -44,7 +44,6 @@ export const findMovieById = async (id: string): Promise<IMovie | null> => {
 export const getWatchlist = async (userId: string): Promise<IMovie[] | []> => {
     await useAuthStore.getState().hydrateAuth();
     try {
-        console.log(`/v1/movies/watchlist/${userId}`);
         const {data} = await API.get(`/v1/movies/watchlist/${userId}`);
 
         if (data.success === false) {

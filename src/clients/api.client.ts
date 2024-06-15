@@ -18,7 +18,6 @@ const determineBaseURL = (): string => {
             return DEV_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
-console.log('Backend API Client Base URL:', determineBaseURL());
 
 const API = axios.create({
     baseURL: determineBaseURL(),
@@ -66,6 +65,5 @@ API.interceptors.request.use(
     },
 );
 
-console.log('Backend API Client Base URL:', determineBaseURL());
 
 export {API};
