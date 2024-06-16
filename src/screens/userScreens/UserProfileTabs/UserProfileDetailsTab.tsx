@@ -218,7 +218,7 @@ const UserProfileDetailsTab = () => {
 
                 let uploadedImages = [];
 
-                const maxSizeInBytes = 5 * 1024 * 1024;
+                const maxSizeInBytes = 10 * 1024 * 1024;
 
                 for (const asset of response.assets) {
                     const selectedImage = asset.uri;
@@ -264,9 +264,7 @@ const UserProfileDetailsTab = () => {
         try {
             const updatedUser = await deleteUserGalleryImage(image);
             if (updatedUser) {
-                console.log(image, updatedUser)
                 const filteredImages = userPics.filter(url => url !== image);
-                console.log('filteredImages',filteredImages)
                 setUserPics(filteredImages);
             } else {
                 //console.log('Failed to delete image from gallery');

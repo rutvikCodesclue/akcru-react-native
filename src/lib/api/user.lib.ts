@@ -403,31 +403,6 @@ export const getUserFollowingCount = async (userId: string): Promise<Object | un
         return undefined;
     }
 };
-//Original Code
-// export const startUserWatching = async (userId: string, movieId: string) => {
-//     if (typeof userId !== 'string' || typeof movieId !== 'string') {
-//         console.error('userId or movieId is not of type string.');
-//         return false;
-//     }
-
-//     try {
-//         const response = await API.post('/v1/user/currentWatching/start', {
-//             userId,
-//             movieId,
-//         });
-
-//         if (response.data && response.data.success) {
-//             //console.log('User started watching movie successfully:', response.data.userWatching);
-//             return true;
-//         } else {
-//             console.error('Failed to start watching movie:', response.data.message);
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error('Error starting user watching movie:', error);
-//         return false;
-//     }
-// };
 
 export const startUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
@@ -446,22 +421,6 @@ export const startUserWatching = async (id: string, isEpisode: boolean): Promise
     }
 };
 
-//Original Code
-// export const finishUserWatching = async (movieId: string) => {
-//     try {
-//         const response = await API.put(`/v1/user/currentWatching/finish/${movieId}`);
-//         if (response.data && response.data.success) {
-//             console.log('User finished watching movie successfully:', response.data.userWatching);
-//             return true;
-//         } else {
-//             console.error('Failed to finish watching movie:', response.data.message);
-//             return false;
-//         }
-//     } catch (error) {
-//         console.error('Error finishing watching movie:', error);
-//         return false;
-//     }
-// };
 
 export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
@@ -502,7 +461,6 @@ export const logUserMovieWatchHistory = async (userId: string, movieId: string) 
         });
 
         if (response.data && response.data.success) {
-            //console.log('Watch history logged successfully:', response.data.watchHistory);
             return true;
         } else {
             console.error('Failed to log watch history:', response.data.message);
