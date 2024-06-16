@@ -190,13 +190,13 @@ export const deleteUserGalleryImage = async (imageUrl: string): Promise<IUserPro
     try {
         const {data} = await API.delete(`/v1/user/profileGallery/delete?imageUrl=${encodeURIComponent(imageUrl)}`);
 
-        //console.log('data', data);
+        console.log('data', data);
 
         if (data.success === false) {
             return undefined;
         }
 
-        return data.updatedUser;
+        return data.gallery;
     } catch (error) {
         console.error('Error deleting image from gallery:', error);
         return undefined;

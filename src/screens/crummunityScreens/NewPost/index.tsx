@@ -90,7 +90,7 @@ const NewPost = () => {
 
                 callbackExecuted = true;
 
-                const maxSizeInBytes = 5 * 1024 * 1024;
+                const maxSizeInBytes = 10 * 1024 * 1024;
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
@@ -137,7 +137,7 @@ const NewPost = () => {
             } else if (response.assets) {
                 const video = response.assets[0];
 
-                const maxSizeInBytes = 100 * 1024 * 1024;
+                const maxSizeInBytes = 1000 * 1024 * 1024;
                 if (video.fileSize > maxSizeInBytes) {
                     return;
                 }
@@ -498,7 +498,6 @@ const NewPost = () => {
                                 </TouchableOpacity>
                             </View>
                         )}
-
                         {selectedVideo && (
                             <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
                         )}
@@ -537,6 +536,10 @@ const NewPost = () => {
                                 )}
                             </View>
                         )}
+                        <View>
+                            <Text style={{color: COLORS.DARKGREY}}>Limit of Image: 10 MB</Text>
+                            <Text style={{color: COLORS.DARKGREY}}>Limit of Video: 01 GB</Text>
+                        </View>
 
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View

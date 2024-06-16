@@ -239,7 +239,7 @@ const UserProfileDetailsTab = () => {
                                 });
 
                                 if (updatedUser) {
-                                    uploadedImages.push(compressedImage);
+                                    uploadedImages = updatedUser.gallery;
                                 } else {
                                 }
                             } catch (error) {
@@ -249,11 +249,11 @@ const UserProfileDetailsTab = () => {
                     }
                 }
 
-                const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
+                // const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
 
-                if (filteredUploadedImages.length > 0) {
-                    const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 30);
-                    setUserPics(newGallery);
+                if (uploadedImages.length > 0) {
+                    // const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 30);
+                    setUserPics(uploadedImages);
                 }
             }
         });
@@ -264,7 +264,10 @@ const UserProfileDetailsTab = () => {
         try {
             const updatedUser = await deleteUserGalleryImage(image);
             if (updatedUser) {
-                setUserPics(updatedUser.gallery);
+                console.log(image, updatedUser)
+                const filteredImages = userPics.filter(url => url !== image);
+                console.log('filteredImages',filteredImages)
+                setUserPics(filteredImages);
             } else {
                 //console.log('Failed to delete image from gallery');
             }
