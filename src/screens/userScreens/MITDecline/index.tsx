@@ -114,7 +114,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                         }}
                                     />
                                 </View>
-                                <View style={{width: SIZES.ScreenWidth / 2.5}}>
+                                <View>
                                     <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
                                     <DisplayBadge akcruBadge={akcruBadge} />
                                 </View>

@@ -22,7 +22,7 @@ const ViewUserFollowersTab = ({userID}) => {
         };
 
         fetchData();
-    }, []);
+    }, [userID]);
 
     return (
         <View style={{marginHorizontal: 15}}>

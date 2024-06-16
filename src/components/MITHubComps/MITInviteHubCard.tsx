@@ -8,6 +8,7 @@ import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
 import HexAvatar from '../HexAvatar';
 import DisplayBadge from '../General/akcrubadge';
+import { Icon } from '@rneui/themed';
 type MITInviteHubCardProp = {
     MITInviteID: any;
     movie: IMovie;
@@ -51,7 +52,46 @@ const MITInviteHubCard = ({movie, creator, onPress, scheduleDate, scheduleTime, 
                             />
                         </View>
                         <View>
-                            <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
+                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title2}}>{` ${creator.username}`}</Text>
+                                {creator.ownerStatus && (
+                                    <Icon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.STARGOLD}
+                                        size={18}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {creator.companyStatus && (
+                                    <Icon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.WHITE}
+                                        size={18}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {creator.blackCloakStatus && (
+                                    <Icon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.BLACKCLOAK}
+                                        size={18}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                                {creator.influencerStatus && (
+                                    <Icon
+                                        name="ribbon"
+                                        type="ionicon"
+                                        color={COLORS.AKCRUBLUE}
+                                        size={18}
+                                        style={{marginRight: 5}}
+                                    />
+                                )}
+                            </View>
+
                             <DisplayBadge akcruBadge={creator.badge} />
                         </View>
                     </View>

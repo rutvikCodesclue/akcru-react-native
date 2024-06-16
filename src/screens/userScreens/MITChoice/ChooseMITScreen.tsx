@@ -69,6 +69,8 @@ import {
     selectAvatarBorderColor,
 } from '../../../util/util';
 import FingerAnimation from '../../../components/FingerAnimation';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import { getFollowers } from '../../../lib/api/user.lib';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -214,6 +216,23 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         });
     };
 
+    const [data, setData] = useState<IUserProfile[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (creatorID) {
+                const result = await getFollowers(creatorID);
+                console.log('result:', result);
+
+                if (result && result.followers && Array.isArray(result.followers)) {
+                    setData(result.followers);
+                }
+            }
+        };
+
+        fetchData();
+    }, [creatorID]);
+
     return (
         <TabContainer>
             <View style={{flex: 1}}>
@@ -265,15 +284,17 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
                                             <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                         </View>
-                                        <TouchableOpacity onPress={() => sayhi()}>
-                                            <Icon
-                                                name="chatbox-ellipses"
-                                                type="ionicon"
-                                                size={30}
-                                                color={COLORS.PURPLE}
-                                                style={{marginRight: 20}}
-                                            />
-                                        </TouchableOpacity>
+                                        <View style={{justifyContent: 'center', marginRight: 20}}>
+                                            <TouchableOpacity onPress={() => sayhi()}>
+                                                <Icon
+                                                    name="chatbox-ellipses"
+                                                    type="ionicon"
+                                                    size={30}
+                                                    color={COLORS.PURPLE}
+                                                />
+                                            </TouchableOpacity>
+                                            <Text style={{...FONTS.paragraph1}}>Start Chat</Text>
+                                        </View>
                                     </View>
                                 </View>
                             </View>
@@ -298,20 +319,47 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             />
                                         </TouchableOpacity>
                                         <View />
-
-                                        {/* <View
-                                            style={{
-                                                backgroundColor: 'green',
-                                                height: 12,
-                                                width: 12,
-                                                borderRadius: 8,
-                                                position: 'absolute',
-                                                right: 8,
-                                            }}
-                                        /> */}
                                     </View>
                                     <View>
-                                        <Text style={{...FONTS.Username}}>{creator?.username}</Text>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{...FONTS.Username}}>{creator?.username}</Text>
+                                            {creator?.ownerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {creator?.companyStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {creator?.influencerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {creator?.blackCloakStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.BLACKCLOAK}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                        </View>
                                         <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
                                         {creator?.badge === 'AKCRUIT' && (
                                             <View>
@@ -351,7 +399,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                 alignItems: 'center',
                                             }}>
                                             <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
-                                                {formatNumber(creator?.followerCount)}
+                                                {formatNumber(data.length)}
                                             </Text>
                                             <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                         </View>

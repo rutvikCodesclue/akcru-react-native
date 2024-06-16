@@ -15,37 +15,25 @@ const MITReceived = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
-    
     const [inviteCount, setInviteCount] = React.useState<number>(0);
 
     useFocusEffect(
         React.useCallback(() => {
-            
             getMyMITs().then(res => {
                 if (res) {
                     setCurrentMITS(res);
                 }
             });
-            return () => {
-                
-            };
+            return () => {};
         }, []),
     );
 
     useFocusEffect(
         React.useCallback(() => {
-            
-            
-
-            
             getMyMITInvites({pending: true}).then(mitInvites => {
-                
-
                 if (mitInvites) {
-                    
                     const mitInviteCount = mitInvites.length;
 
-                    
                     setInvites(
                         mitInvites.sort((a, b) => {
                             if (a.createdAt < b.createdAt) {
@@ -59,72 +47,25 @@ const MITReceived = () => {
                     );
 
                     setIsLoaded(true);
-                    
+
                     setInviteCount(mitInviteCount);
                 } else {
-                    
                     setIsLoaded(true);
                     setInviteCount(0);
                 }
             });
 
-            return () => {
-                
-                
-            };
+            return () => {};
         }, []),
     );
 
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    
-
-    
-    
-    
-    
-    
-    
-
     useEffect(() => {
-        
         setInviteCount(invites.length);
     }, [invites]);
 
     return (
-        
         <View style={{marginTop: 10, marginBottom: 75}}>
-            
             <View>
-                
                 <Text style={{...FONTS.Title2, marginHorizontal: 15}}>
                     You have {inviteCount} Movie Invites waiting for your response.
                 </Text>
@@ -135,15 +76,12 @@ const MITReceived = () => {
                             invites.map(item => {
                                 if (item instanceof Object && 'cru' in item) {
                                 } else {
-                                    
                                     return (
                                         <View key={item.id} style={{marginHorizontal: 15, marginBottom: 10}}>
                                             <MITInviteHubCard
                                                 MITInviteID={item.id}
                                                 movie={item.movie}
                                                 creator={item.creator}
-                                                
-                                                
                                                 inviteDate={item.createdAt}
                                                 akcruBadge={item.invitee.badge}
                                                 scheduleDate={item.startDate}
@@ -158,7 +96,7 @@ const MITReceived = () => {
                                                         akcruBadge: item.invitee.badge,
                                                         schedule: item.startDate,
                                                         timezone: item.timezone,
-                                                        invitee: item.invitee
+                                                        invitee: item.invitee,
                                                     })
                                                 }
                                             />
@@ -167,8 +105,9 @@ const MITReceived = () => {
                                 }
                             })
                         ) : (
-                            
-                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>No Invites</Text>
+                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>
+                                No Invites
+                            </Text>
                         )}
                     </View>
                 )}
