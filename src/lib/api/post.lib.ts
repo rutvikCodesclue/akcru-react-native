@@ -306,3 +306,23 @@ export async function deleteComment(commentId: number) {
         throw new Error('Failed to delete the comment.');
     }
 }
+
+export async function getPostsByUser(userId: string, page = 1) {
+    try {
+        const {data} = await API.get(`/v1/post/${userId}/posts`, {
+            params: {
+                page: page - 1,
+            },
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+
+        return data.posts;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch posts by user');
+    }
+}
+
