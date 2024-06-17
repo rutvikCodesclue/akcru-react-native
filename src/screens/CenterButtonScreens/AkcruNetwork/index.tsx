@@ -108,7 +108,7 @@ const AkcruNetworkScreen = () => {
                             keyExtractor={item => item.id.toString()}
                             style={styles.postcontainer}
                             renderItem={({item}) => (
-                                <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
+                                <Pressable style={{marginBottom: 10}}>
                                     <AkcruNetworkPost
                                         post={item}
                                         openProfile={() =>

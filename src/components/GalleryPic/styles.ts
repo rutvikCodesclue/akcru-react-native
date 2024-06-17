@@ -3,8 +3,8 @@ import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 
 export default StyleSheet.create({
     pictureFrame: {
-        width: SIZES.ScreenWidth * 0.9,
-        height: SIZES.ScreenHeight * 0.5,
+        width: '90%',
+        height: '75%',
         overflow: 'hidden',
         backgroundColor: COLORS.PURPLE,
         alignItems: 'center',
@@ -30,6 +30,6 @@ export default StyleSheet.create({
     count: {
         ...FONTS.Title1,
         color: COLORS.AKCRUBLUE,
-        textAlign: 'center'
+        textAlign: 'center',
     },
 });

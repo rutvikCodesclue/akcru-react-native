@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, ScrollView, ImageBackground, Image, SafeAreaView} from 'react-native';
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -13,12 +13,16 @@ import {IMovie, IUserProfile} from '../../../../types';
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
+    formatNumber,
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
 import moment from 'moment';
 import HexAvatar from '../../../components/HexAvatar';
 import DisplayBadge from '../../../components/General/akcrubadge';
+import { getFollowers } from '../../../lib/api/user.lib';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import AkcruLevels from '../../../components/akcruBadges';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -39,6 +43,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
     const akcruBadge: any = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
     const timezone: string | undefined = route.params?.timezone ?? null;
+    const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -48,6 +53,23 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
         return () => clearTimeout(timer);
     }, []);
 
+    const [data, setData] = useState<IUserProfile[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (creatorID) {
+                const result = await getFollowers(creatorID);
+                console.log('result:', result);
+
+                if (result && result.followers && Array.isArray(result.followers)) {
+                    setData(result.followers);
+                }
+            }
+        };
+
+        fetchData();
+    }, [creatorID]);
+
     return (
         <SafeAreaView style={{flex: 1}}>
             <View style={styles.sheetcontainer}>
@@ -56,10 +78,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                         <Header />
                     </View>
                     <View>
-                        <ImageBackground
-                            source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                            resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                        <View style={{height: SIZES.ScreenHeight * 0.2, marginTop: -60}}>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
@@ -67,7 +86,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                     left: 0,
                                     right: 0,
                                     top: 0,
-                                    height: SIZES.ScreenHeight / 4,
+                                    height: SIZES.ScreenHeight * 0.2,
                                 }}
                             />
                             <View style={styles.topcontainer}>
@@ -78,13 +97,13 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                             color: COLORS.CATPURPLGT,
                                             fontSize: 16,
                                             textAlign: 'center',
-                                            paddingTop: '10%',
+                                            paddingTop: '3%',
                                         }}>
                                         NO DATE
                                     </Text>
                                 </View>
                             </View>
-                        </ImageBackground>
+                        </View>
 
                         <View
                             style={{
@@ -100,23 +119,71 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                     <HexAvatar
                                         source={{uri: creator?.profilePicture}}
                                         size={75}
-                                        bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
+                                        bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                                     />
                                     <View />
-                                    <View
-                                        style={{
-                                            backgroundColor: 'green',
-                                            height: 12,
-                                            width: 12,
-                                            borderRadius: 8,
-                                            position: 'absolute',
-                                            right: 8,
-                                        }}
-                                    />
                                 </View>
                                 <View>
-                                    <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
-                                    <DisplayBadge akcruBadge={akcruBadge} />
+                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <Text style={{...FONTS.Title2}}>{creator?.username}</Text>
+                                        {creator?.ownerStatus && (
+                                            <CustomIcon
+                                                name="ribbon"
+                                                type="ionicon"
+                                                color={COLORS.STARGOLD}
+                                                baseSize={12}
+                                                style={{marginRight: 5}}
+                                            />
+                                        )}
+                                        {creator?.companyStatus && (
+                                            <CustomIcon
+                                                name="ribbon"
+                                                type="ionicon"
+                                                color={COLORS.WHITE}
+                                                baseSize={12}
+                                                style={{marginRight: 5}}
+                                            />
+                                        )}
+                                        {creator?.influencerStatus && (
+                                            <CustomIcon
+                                                name="ribbon"
+                                                type="ionicon"
+                                                color={COLORS.AKCRUBLUE}
+                                                baseSize={12}
+                                                style={{marginRight: 5}}
+                                            />
+                                        )}
+                                        {creator?.blackCloakStatus && (
+                                            <CustomIcon
+                                                name="ribbon"
+                                                type="ionicon"
+                                                color={COLORS.BLACKCLOAK}
+                                                baseSize={12}
+                                                style={{marginRight: 5}}
+                                            />
+                                        )}
+                                    </View>
+                                    <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
+                                    {creator?.badge === 'AKCRUIT' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeAkcruit />
+                                        </View>
+                                    )}
+                                    {creator?.badge === 'GUARDIAN' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeGuardian />
+                                        </View>
+                                    )}
+                                    {creator?.badge === 'HERO' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeHero />
+                                        </View>
+                                    )}
+                                    {creator?.badge === 'SUPERHERO' && (
+                                        <View>
+                                            <AkcruLevels.AkcruBadgeSuperHero />
+                                        </View>
+                                    )}
                                 </View>
                             </View>
                             <View style={{marginVertical: 20}}>
@@ -134,8 +201,10 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title3, fontSize: 14}}>{creator?.followerCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Followers</Text>
+                                        <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                            {formatNumber(data.length)}
+                                        </Text>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                     </View>
                                 </View>
                             </View>
@@ -150,7 +219,7 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                             <Text
                                 style={{
                                     ...FONTS.Title3,
-                                    color: COLORS.CATREDLGT,
+                                    color: COLORS.CATPURPLGT,
                                     textAlign: 'center',
                                     fontSize: 16,
                                     marginLeft: 10,
@@ -167,15 +236,15 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                                 <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
                                             </View>
                                             <View style={{}}>
-                                                <Text style={{...FONTS.Title2}}>{movie?.title}</Text>
+                                                <Text style={{...FONTS.Username}}>{movie?.title}</Text>
                                                 <View
                                                     style={{
                                                         flexDirection: 'row',
                                                         marginBottom: 5,
                                                         alignItems: 'center',
                                                     }}>
-                                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                                    <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>
+                                                    <Text style={{...FONTS.paragraph1}}>{movie?.year}</Text>
+                                                    <Text style={{...FONTS.paragraph1, marginHorizontal: 10}}>
                                                         {formatMovieDuration(movie?.duration)}
                                                     </Text>
                                                 </View>
@@ -195,7 +264,6 @@ const DeclineMITScreen = ({navigation, route}: Props) => {
                                 <Text
                                     style={{
                                         ...FONTS.paragraph1,
-                                        fontSize: 12,
                                         textAlign: 'center',
                                     }}>
                                     We will notify "{creator?.firstName}" you have DECLINED to watch "{movie?.title}"

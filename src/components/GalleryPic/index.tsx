@@ -20,13 +20,12 @@ const GalleryPic = ({image}: GalleryPicProps) => {
         // Fetch the initial like count when the component mounts
         fetchLikeCount();
     }, []);
-    
+
     const fetchLikeCount = async () => {
         const likeInfo = await getGalleryLikeCount(image);
-        if(likeInfo.likeExists){
+        if (likeInfo.likeExists) {
             setlikeImage(true);
-        }
-        else{
+        } else {
             console.log('Image not liked');
             setlikeImage(false);
         }
@@ -38,7 +37,7 @@ const GalleryPic = ({image}: GalleryPicProps) => {
     const likeUnlikeHandler = async () => {
         if (likeImage === false) {
             console.log('Liking the image.');
-            if (likeCount != null){
+            if (likeCount != null) {
                 let currLikeCount = likeCount + 1;
                 setLikeCount(currLikeCount);
             }
@@ -46,11 +45,9 @@ const GalleryPic = ({image}: GalleryPicProps) => {
             setvisible(!visible);
             await likeGalleryItem(image);
             await fetchLikeCount();
-        }
-
-        else{
+        } else {
             console.log('Unliking the image.');
-            if (likeCount != null){
+            if (likeCount != null) {
                 let currLikeCount = likeCount - 1;
                 setLikeCount(currLikeCount);
             }
@@ -83,9 +80,9 @@ const GalleryPic = ({image}: GalleryPicProps) => {
             <View style={styles.floatingicon}>
                 <TouchableOpacity onPress={likeUnlikeHandler}>
                     <Icon
-                        type="material-community"
-                        name={likeImage ? 'heart' : 'heart-outline'}
-                        color={COLORS.PINK}
+                        type="ionicon"
+                        name={likeImage ? 'happy' : 'happy-outline'}
+                        color={COLORS.PURPLE}
                         size={30}
                     />
                 </TouchableOpacity>
@@ -96,16 +93,12 @@ const GalleryPic = ({image}: GalleryPicProps) => {
             <View style={styles.heartAnimation}>
                 {visible && (
                     <Animated.View style={{transform: [{scale: currentValue}]}}>
-                        <Icon name="heart" type="material-community" color={COLORS.PINK} size={60} />
+                        <Icon name="happy" type="ionicon" color={COLORS.PURPLE} size={60} />
                     </Animated.View>
                 )}
             </View>
 
-            <Image
-                source={{uri: image}}
-                style={{width: SIZES.ScreenWidth * 0.9, height: SIZES.ScreenHeight * 0.5}}
-                resizeMode="cover"
-            />
+            <Image source={{uri: image}} style={{width: '100%', height: '100%'}} resizeMode="cover" />
         </View>
     );
 };
