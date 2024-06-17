@@ -1,6 +1,16 @@
-import { Pressable, TouchableWithoutFeedback, Image, Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import {
+    Pressable,
+    TouchableWithoutFeedback,
+    Image,
+    Modal,
+    View,
+    Text,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
+import React, {useState} from 'react';
 import ConfirmationModal from '../ConfirmationModal';
+import { COLORS, FONTS } from '../../../assets/constants';
 
 type EnlargeGalleryProps = {
     closeModal: () => void;
@@ -8,7 +18,7 @@ type EnlargeGalleryProps = {
     image: string;
 };
 
-const EnlargeGalleryModal = ({ closeModal, image, deleteImage }: EnlargeGalleryProps) => {
+const EnlargeGalleryModal = ({closeModal, image, deleteImage}: EnlargeGalleryProps) => {
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -27,17 +37,10 @@ const EnlargeGalleryModal = ({ closeModal, image, deleteImage }: EnlargeGalleryP
     };
 
     return (
-        <Pressable
-            onPress={closeModal}
-            style={styles.overlay}
-        >
+        <Pressable onPress={closeModal} style={styles.overlay}>
             <TouchableWithoutFeedback onLongPress={handleDeletePress}>
                 <View style={styles.imageContainer}>
-                    <Image
-                        source={{ uri: image }}
-                        style={styles.image}
-                        resizeMode="cover"
-                    />
+                    <Image source={{uri: image}} style={styles.image} resizeMode="cover" />
                     <Pressable onPress={toggleDropdown} style={styles.ellipsisButton}>
                         <Text style={styles.ellipsis}>⋮</Text>
                     </Pressable>
@@ -48,8 +51,7 @@ const EnlargeGalleryModal = ({ closeModal, image, deleteImage }: EnlargeGalleryP
                                     setShowDropdown(false);
                                     handleDeletePress();
                                 }}
-                                style={styles.dropdownItem}
-                            >
+                                style={styles.dropdownItem}>
                                 <Text style={styles.dropdownText}>Delete</Text>
                             </TouchableOpacity>
                         </View>
@@ -89,22 +91,22 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         right: 10,
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backgroundColor: COLORS.PURPLE,
         borderRadius: 15,
-        padding: 5,
+        padding: 3,
     },
     ellipsis: {
-        fontSize: 24,
+        fontSize: 30,
         color: 'white',
     },
     dropdownMenu: {
         position: 'absolute',
         top: 40,
         right: 0,
-        backgroundColor: 'white',
+        backgroundColor: COLORS.PINK,
         borderRadius: 5,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.8,
         shadowRadius: 2,
         zIndex: 20,
@@ -113,8 +115,7 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     dropdownText: {
-        fontSize: 16,
-        color: 'black',
+        ...FONTS.Title2
     },
 });
 

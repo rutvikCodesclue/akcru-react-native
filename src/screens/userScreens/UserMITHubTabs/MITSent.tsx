@@ -124,6 +124,10 @@ const MITSent = () => {
                                     
                                     akcruBadge={item.invitee.badge}
                                     cancel={() => handleCancelMIT(item.id)}
+                                    influencerStatus={item.invitee.influencerStatus}
+                                    companyStatus={item.invitee.companyStatus}
+                                    ownerStatus={item.invitee.ownerStatus}
+                                    blackCloakStatus={item.invitee.blackCloakStatus}
                                 />
                             </View>
                         )}

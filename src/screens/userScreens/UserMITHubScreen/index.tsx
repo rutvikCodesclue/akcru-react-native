@@ -168,18 +168,15 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                   <Text style={styles.screenTitle}>Movie Invite Ticket Hub</Text>
                                   <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                               </View>
-                              <TouchableOpacity
-                                  onPress={() => {
-                                      navigation.navigate('ChatList');
-                                  }}>
-                                  <Icon
-                                      name="chatbox-ellipses"
-                                      type="ionicon"
-                                      size={30}
-                                      color={COLORS.AKCRUBLUE}
-                                      style={{marginRight: 20}}
-                                  />
-                              </TouchableOpacity>
+                              <View style={{marginRight: 20}}>
+                                  <TouchableOpacity
+                                      onPress={() => {
+                                          navigation.navigate('ChatList');
+                                      }}>
+                                      <Icon name="chatbox-ellipses" type="ionicon" size={30} color={COLORS.AKCRUBLUE} />
+                                  </TouchableOpacity>
+                                  <Text style={{...FONTS.Title2}}>MIT Chat</Text>
+                              </View>
                           </View>
                       </View>
 

@@ -1,17 +1,15 @@
-import {View, Text, FlatList, TouchableOpacity, Image, Platform} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image, Platform, ActivityIndicator} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
-import {Icon} from '@rneui/base';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
 import styles from '../PlayContentScreen/styles';
-
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
 
@@ -28,7 +26,10 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
     const [selectedGenre, setSelectedGenre] = useState('');
     const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
     const [displayMovies, setDisplayMovies] = useState<IMovie[]>([]);
-    const [pageIndex, setPageIndex] = useState(0);
+    const [page, setPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+
     const pageSize = 12;
 
     useEffect(() => {
@@ -43,6 +44,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
 
     const handleGenrePress = async (genre: string) => {
         setSelectedGenre(genre);
+        setPage(1);
 
         let movies: IMovie[] = [];
         if (genre === 'All') {
@@ -52,8 +54,6 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
         }
 
         if (movies.length === 0) {
-            //console.log('No movies found...');
-
             setFilteredMovies([]);
             return;
         }
@@ -65,44 +65,31 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
         });
 
         setFilteredMovies(sortedMovies);
-        return;
-    };
-
-    const renderFooterComponent = () => {
-        const moreItemsToLoad = displayMovies.length < filteredMovies.length;
-
-        if (moreItemsToLoad) {
-            return (
-                <View
-                    style={{
-                        marginBottom: Platform.OS == 'ios' ? SIZES.ScreenHeight * 0.7 : SIZES.ScreenHeight * 0.58,
-                        alignItems: 'center',
-                        marginTop: 10,
-                    }}>
-                    <AkcruButtons.XlLrgButton btnname="Load More" onPress={loadMoreMovies} color={COLORS.PURPLE} />
-                </View>
-            );
-        } else {
-            return <View style={{marginBottom: SIZES.ScreenHeight * 0.58}} />;
-        }
+        setDisplayMovies(sortedMovies.slice(0, pageSize));
+        setHasMore(sortedMovies.length > pageSize);
     };
 
     const loadMoreMovies = () => {
-        const nextSetStartIndex = displayMovies.length;
-        const nextSetEndIndex = nextSetStartIndex + pageSize;
+        if (isLoadingMore || !hasMore) return;
 
-        console.log(`Loading more from ${nextSetStartIndex} to ${nextSetEndIndex}`);
-
-        const nextSet = filteredMovies.slice(nextSetStartIndex, nextSetEndIndex);
-
-        console.log(`Found ${nextSet.length} items to load`);
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        const nextSet = filteredMovies.slice(page * pageSize, nextPage * pageSize);
 
         if (nextSet.length > 0) {
             setDisplayMovies([...displayMovies, ...nextSet]);
-            setPageIndex(prevPageIndex => prevPageIndex + 1);
-        } else {
-            console.log('No more movies to load');
+            setPage(nextPage);
+            setHasMore(nextSet.length === pageSize);
         }
+
+        setIsLoadingMore(false);
+    };
+
+    const renderFooterComponent = () => {
+        if (isLoadingMore) {
+            return <ActivityIndicator color={COLORS.PINK} style={{ marginVertical: 20 }} />;
+        }
+        return <View style={{ height: 10 }} />; // Add space at the bottom
     };
 
     const renderItem = ({item, index}: {item: any; index: number}) => {
@@ -144,7 +131,7 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                             <View>
                                 <FlatList
                                     data={MOVIE_GENRES}
-                                    horizontal={true}
+                                    horizontal
                                     showsHorizontalScrollIndicator={false}
                                     keyExtractor={item => item.id}
                                     renderItem={renderItem}
@@ -154,41 +141,39 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
                         </View>
                     </View>
 
-                    <View>
-                        <View style={{alignItems: 'center'}}>
-                            <FlatList
-                                data={displayMovies}
-                                horizontal={false}
-                                numColumns={3}
-                                initialNumToRender={filteredMovies.length}
-                                showsHorizontalScrollIndicator={false}
-                                renderItem={({item}: {item: IMovie}) => (
-                                    <View>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                //console.log('id:', item.id);
-                                                //console.log('movie:', item.title);
-                                                navigation.navigate('ContentDetailScreen', {
-                                                    id: item.id,
-                                                    movie: item.title,
-                                                });
-                                            }}>
-                                            <Image
-                                                source={{uri: item.portraitURL}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.5,
-                                                    height: SIZES.ScreenWidth / 2.35,
-                                                    borderRadius: 5,
-                                                    margin: 5,
-                                                    resizeMode: 'cover',
-                                                }}
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                                ListFooterComponent={renderFooterComponent}
-                            />
-                        </View>
+                    <View style={{alignItems: 'center', marginBottom: '100%'}}>
+                        <FlatList
+                            data={displayMovies}
+                            horizontal={false}
+                            numColumns={3}
+                            showsVerticalScrollIndicator={false}
+                            onEndReached={loadMoreMovies}
+                            onEndReachedThreshold={0.5}
+                            renderItem={({item}: {item: IMovie}) => (
+                                <View>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            navigation.navigate('ContentDetailScreen', {
+                                                id: item.id,
+                                                movie: item.title,
+                                            });
+                                        }}>
+                                        <Image
+                                            source={{uri: item.portraitURL}}
+                                            style={{
+                                                width: SIZES.ScreenWidth / 3.5,
+                                                height: SIZES.ScreenWidth / 2.35,
+                                                borderRadius: 5,
+                                                margin: 5,
+                                                resizeMode: 'cover',
+                                            }}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            ListFooterComponent={renderFooterComponent}
+                            contentContainerStyle={{paddingBottom: 20}}
+                        />
                     </View>
                 </View>
             </View>
