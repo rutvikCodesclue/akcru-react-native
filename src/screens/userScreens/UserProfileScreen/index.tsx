@@ -333,7 +333,15 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     </View>
                                     <View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
+                                            <View>
+                                                <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
+                                                {user?.firstName && (
+                                                    <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
+                                                        {user?.firstName ? user.firstName : ''}
+                                                    </Text>
+                                                )}
+                                            </View>
+
                                             {user?.ownerStatus && (
                                                 <CustomIcon
                                                     name="ribbon"

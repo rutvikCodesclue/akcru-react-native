@@ -470,7 +470,7 @@ const SkinnyPostCard = ({
                                 ref={topVideoRef}
                                 style={styles.videoStyle}
                                 source={{uri: videoUrl}}
-                                resizeMode="cover"
+                                resizeMode="contain"
                                 onEnd={handleVideoEnd}
                                 repeat={false}
                                 onError={handleVideoError}
@@ -494,10 +494,13 @@ const SkinnyPostCard = ({
                     <TouchableWithoutFeedback>
                         <Image
                             source={{uri: selectedImage}}
-                            style={{width: '95%', height: '70%'}}
+                            style={{width: '95%', height: '85%'}}
                             resizeMode="contain"
                         />
                     </TouchableWithoutFeedback>
+                    <TouchableOpacity onPress={closeModal}>
+                        <Text style={{...FONTS.Title2, color: COLORS.WHITE, padding: 10}}>Close</Text>
+                    </TouchableOpacity>
                 </Pressable>
             </Modal>
             {/* Video Modal */}
@@ -513,7 +516,7 @@ const SkinnyPostCard = ({
                         ref={modalVideoRef}
                         style={{width: '100%', height: '100%'}}
                         source={{uri: videoUrl}}
-                        resizeMode="cover"
+                        resizeMode="contain"
                         onEnd={handleVideoEnd}
                         repeat={false}
                         onError={handleVideoError}

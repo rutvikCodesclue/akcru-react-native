@@ -159,7 +159,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                     <View
                         //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                         //   resizeMode="cover"
-                        style={{height: SIZES.ScreenHeight / 3.7, marginTop: '-15%'}}>
+                        style={{height: SIZES.ScreenHeight * 0.27, marginTop: '-15%'}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -168,7 +168,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight / 3.7,
+                                height: SIZES.ScreenHeight * 0.27,
                             }}
                         />
                         <View style={styles.topcontainer}>

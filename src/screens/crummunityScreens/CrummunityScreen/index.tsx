@@ -84,6 +84,17 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         return unsubscribe;
     }, [navigation]);
 
+    //Updates points on new post
+    useFocusEffect(
+        React.useCallback(() => {
+
+            hydrateUser();
+            return () => {
+                hydrateUser();
+            };
+        }, []),
+    );
+
     const fetchPostsAndFollowStatus = async (pageNumber: number) => {
         setLoading(true);
         try {
