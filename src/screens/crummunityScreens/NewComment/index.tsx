@@ -97,7 +97,7 @@ const NewComment = ({navigation, route}: Props) => {
 
                 callbackExecuted = true;
 
-                const maxSizeInBytes = 5 * 1024 * 1024;
+                const maxSizeInBytes = 10 * 1024 * 1024;
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
@@ -142,7 +142,7 @@ const NewComment = ({navigation, route}: Props) => {
             } else if (response.assets) {
                 const video = response.assets[0];
 
-                const maxSizeInBytes = 100 * 1024 * 1024;
+                const maxSizeInBytes = 1000 * 1024 * 1024;
                 if (video.fileSize > maxSizeInBytes) {
                     return;
                 }
