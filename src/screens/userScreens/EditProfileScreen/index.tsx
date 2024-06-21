@@ -197,7 +197,7 @@ export default function EditProfile({session}: {session: Session}) {
 
                 let selectedImage = selectedImageUncomp;
 
-                // Check if the image is not a GIF before compressing
+                // Check if the image is not a GIF before Loading
                 if (imageType !== 'image/gif') {
                     selectedImage = await compressImage(selectedImageUncomp);
                 }

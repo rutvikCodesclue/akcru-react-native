@@ -589,7 +589,7 @@ const NewPost = () => {
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>
-                            <Text style={stylesProgress.progressText}>{`Compressing: ${Math.round(
+                            <Text style={stylesProgress.progressText}>{`Loading: ${Math.round(
                                 progressVal * 100,
                             )}%`}</Text>
                             {Platform.OS === 'android' ? (
