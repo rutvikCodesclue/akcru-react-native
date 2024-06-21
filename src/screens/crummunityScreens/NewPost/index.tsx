@@ -220,12 +220,13 @@ const NewPost = () => {
                 // Combine both URLs
                 content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
-
-                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                setIsCompress(true);
+                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
+                    compressionMethod: 'auto',
+                }, progress => {
+                    setIsCompress(true);
 
                     setProgress(progress);
-                });
+                })
                 setIsCompress(false);
                 setIsPosting(true);
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);

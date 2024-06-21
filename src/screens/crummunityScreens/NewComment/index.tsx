@@ -146,7 +146,6 @@ const NewComment = ({navigation, route}: Props) => {
                 if (video.fileSize > maxSizeInBytes) {
                     return;
                 }
-
                 setSelectedVideo(video.uri);
 
                 if (comment) {
