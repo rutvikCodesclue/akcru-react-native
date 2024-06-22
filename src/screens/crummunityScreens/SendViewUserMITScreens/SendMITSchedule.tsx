@@ -174,7 +174,6 @@ export default function SendMITSchedule({route}: Props) {
                     startDate: formattedSelectedDateTimeInISO,
                     timezone: selectedTimeZone,
                 });
-                console.log('response:', response);
 
                 if (response) {
                     setIsDateTimeSelected(true);

@@ -157,6 +157,7 @@ const UserProfileDetailsTab = () => {
     );
 
     const updateWatchlist = (updatedWatchlist: IMovie[]) => {
+        console.log('updatedWatchlist', updatedWatchlist)
         setWatchlist(updatedWatchlist);
     };
 
@@ -690,7 +691,7 @@ const UserProfileDetailsTab = () => {
                                     />
                                 </View>
                                 <View style={styles.lineDivider} />
-                                {watchlist.length > 0 && (
+                                {watchlist.length > 0 ? (
                                     <View>
                                         <WatchListCategory
                                             Akcru_Content={{
@@ -701,7 +702,9 @@ const UserProfileDetailsTab = () => {
                                             updateWatchlist={updateWatchlist}
                                         />
                                     </View>
-                                )}
+                                ):  (<View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
+                                    <Text style={{color:'gray'}}>Your Favorites will appear here</Text>
+                                    </View>)}
                                 <View style={styles.lineDivider} />
                                 <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
                                     <AkcruButtons.LrgButton

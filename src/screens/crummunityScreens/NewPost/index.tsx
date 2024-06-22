@@ -44,6 +44,7 @@ const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
     const {user} = useAuthStore();
     const [postText, setPostText] = useState('');
+    const [cancelidVideo, setcancelidVideo] = useState('');
 
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
 
@@ -188,8 +189,21 @@ const NewPost = () => {
     };
 
     //Updated Code adding GIF
+  
+    const onCancelVideo = async () => {
+        await VideoCompressor.cancelCompression(cancelidVideo);
+        setIsCompress(false)
+        setcancelidVideo('')
+        setProgress(0)
+
+
+
+    }
     const OnPostPress = async () => {
         try {
+            if(postText == '' && selectedImages.length==0 && selectedVideo == ''){
+                return
+            }
             const postType = determinePostType();
             let content = [];
 
@@ -220,11 +234,15 @@ const NewPost = () => {
                 // Combine both URLs
                 content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
+                setIsCompress(true);
                 const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
                     compressionMethod: 'auto',
+                    getCancellationId: (cancellationId) => {
+                        setcancelidVideo(cancellationId)
+                    },
+                    progressDivider: 10,
+                
                 }, progress => {
-                    setIsCompress(true);
-
                     setProgress(progress);
                 })
                 setIsCompress(false);
@@ -257,8 +275,14 @@ const NewPost = () => {
                 let videoUrl = null;
                 if (selectedVideo) {
                     // Upload video if exists
-                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
                     setIsCompress(true);
+                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
+                        compressionMethod: 'auto',
+                    getCancellationId: (cancellationId) => {
+                        setcancelidVideo(cancellationId)
+                    },
+                    progressDivider: 10,
+                    }, progress => {
 
                         setProgress(progress);
                     });
@@ -310,10 +334,15 @@ const NewPost = () => {
             console.error('Error creating the post:', error);
             setIsPosting(false);
         }
-
-        setPostText('');
-        setSelectedImages([]);
-        setSelectedVideo('');
+        if(!cancelidVideo){
+            setPostText('');
+            setSelectedImages([]);
+            setSelectedVideo('');
+        }else{
+            setSelectedImages([]);
+            setSelectedVideo('');
+        }
+        
     };
 
     useEffect(() => {
@@ -607,7 +636,14 @@ const NewPost = () => {
                                     style={stylesProgress.progressBar}
                                 />
                             )}
+                                <TouchableOpacity onPress={onCancelVideo} >
+                                    <View>
+                                        <Text style={styles.cancelButton}>Cancel</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            
                         </View>
+                    
                     </View>
                 </Modal>
                 

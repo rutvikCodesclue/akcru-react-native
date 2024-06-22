@@ -98,43 +98,6 @@ export async function commentOnPost(postId: number, postType: string, content: s
     }
 }
 
-// export async function uploadPictures(imageFiles: any[]) {
-//     console.log('uploadPictures');
-//     console.log('imageFiles:', imageFiles);
-//     let formData = new FormData();
-
-//     imageFiles.forEach((uri, index) => {
-//         const fileExtension = uri.match(/\.(jpeg|jpg|png)$/)[0];
-
-//         let mimeType = 'image/jpeg';
-//         if (fileExtension === '.png') {
-//             mimeType = 'image/png';
-//         }
-
-//         const file = {
-//             uri: uri,
-//             type: mimeType,
-//             name: `image-${index}${fileExtension}`,
-//         };
-
-//         formData.append('images', file);
-//         console.log('formData:', formData);
-//     });
-
-//     try {
-//         const response = await API.post('/v1/user/uploadPictures', formData, {
-//             headers: {
-//                 'Content-Type': 'multipart/form-data',
-//             },
-//         });
-//         console.log('response:', response.data.content);
-//         return response.data.content;
-//     } catch (error) {
-//         console.error('Error uploading pictures:', error);
-//         throw error;
-//     }
-// }
-
 
 export async function uploadPictures(imageFiles: any[]) {
     console.log('uploadPictures');
@@ -164,7 +127,6 @@ export async function uploadPictures(imageFiles: any[]) {
         };
 
         formData.append('images', file);
-        console.log('formData entry:', file);
     });
 
     try {
@@ -173,7 +135,6 @@ export async function uploadPictures(imageFiles: any[]) {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log('response:', response.data.content);
         return response.data.content;
     } catch (error) {
         console.error('Error uploading pictures:', error);
@@ -183,7 +144,6 @@ export async function uploadPictures(imageFiles: any[]) {
 
 
 export async function uploadVideo(videoFileUri: any, uploadType: any, durationInSeconds: any) {
-    console.log('uploadVideo');
     let formData = new FormData();
 
     const fileExtension = videoFileUri.match(/\.(mov|mp4)$/)[0];
@@ -209,7 +169,6 @@ export async function uploadVideo(videoFileUri: any, uploadType: any, durationIn
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log('response:', response.data.videoLink);
         return response.data.videoLink;
     } catch (error) {
         console.error('Error uploading video:', error);

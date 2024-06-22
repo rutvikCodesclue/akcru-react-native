@@ -16,6 +16,13 @@ export default StyleSheet.create({
     container: {
         marginHorizontal: 15,
     },
+    cancelButton: {
+        ...FONTS.paragraph1,
+        backgroundColor: COLORS.AKCRUPINK,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
+    },
     searchinput: {
         width: SIZES.ScreenWidth / 1.08,
         flexDirection: 'row',

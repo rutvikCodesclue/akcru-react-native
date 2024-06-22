@@ -64,8 +64,18 @@ const NewComment = ({navigation, route}: Props) => {
     const [isCompress, setIsCompress] = useState(false);
     const [progressVal, setProgress] = useState(0);
     const [isCommenting, setIsCommenting] = useState(false);
+    const [cancelidVideo, setcancelidVideo] = useState('');
 
     const videoRef = useRef(null);
+
+    const onCancelVideo = async () => {
+        await VideoCompressor.cancelCompression(cancelidVideo);
+        setIsCompress(false)
+        setcancelidVideo('')
+        setProgress(0)
+
+
+    }
 
     const getFileSize = async filePath => {
         try {
@@ -223,8 +233,16 @@ const NewComment = ({navigation, route}: Props) => {
                 // Combine both URLs
                 content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
-                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                    setIsCompress(true);
+                setIsCompress(true);
+
+                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
+                    compressionMethod: 'auto',
+                    getCancellationId: (cancellationId) => {
+                        setcancelidVideo(cancellationId)
+                    },
+                    progressDivider: 10,
+                
+                }, progress => {
 
                     setProgress(progress);
                 });
@@ -260,9 +278,16 @@ const NewComment = ({navigation, route}: Props) => {
                 let videoUrl = null;
                 if (selectedVideo) {
                     // Upload video if exists
+                    setIsCompress(true);
 
-                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {}, progress => {
-                        setIsCompress(true);
+                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
+                        compressionMethod: 'auto',
+                        getCancellationId: (cancellationId) => {
+                            setcancelidVideo(cancellationId)
+                        },
+                        progressDivider: 10,
+                    
+                    }, progress => {
 
                         setProgress(progress);
                     });
@@ -628,6 +653,11 @@ const NewComment = ({navigation, route}: Props) => {
                                     style={stylesProgress.progressBar}
                                 />
                             )}
+                             <TouchableOpacity onPress={onCancelVideo} >
+                                    <View>
+                                        <Text style={styles.cancelButton}>Cancel</Text>
+                                    </View>
+                                </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>

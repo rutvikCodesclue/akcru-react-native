@@ -195,14 +195,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-            //console.log('sending MIT');
-            //console.log('selectedDate:', selectedDate);
-            //console.log('selectedTime:', selectedTime);
-            //console.log('selectedMovie:', movie?.title);
-            //console.log('selectedTimeZone:', selectedTimeZone);
-            //console.log('selectedUser:', user);
-
-            //console.log('DATE SENT TO API:', selectedDate.toISOString());
 
             if (formattedSelectedDateTimeInISO) {
                 const response = await createAMITInvite({
@@ -211,7 +203,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     startDate: formattedSelectedDateTimeInISO,
                     timezone: selectedTimeZone,
                 });
-                //console.log('response:', response);
 
                 if (response) {
                     setIsDateTimeSelected(true);

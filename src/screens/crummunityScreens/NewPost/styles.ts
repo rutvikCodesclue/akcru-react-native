@@ -53,6 +53,13 @@ export default StyleSheet.create({
         color: COLORS.PINK,
         borderRadius: 5,
     },
+    cancelButton: {
+        ...FONTS.paragraph1,
+        backgroundColor: COLORS.AKCRUPINK,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
+    },
     postgallerycontainer: {
         marginBottom: 20,
         alignItems: 'center',
