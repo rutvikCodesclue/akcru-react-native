@@ -261,11 +261,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
         return url && url.trim() !== '';
     };
 
-    const [selectedPhotoUri, setSelectedPhotoUri] = useState<string | null>(null);
+    const [selectedPhotoUri, setSelectedPhotoUri] = useState(route.params?.imageURL || null);
     const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
-    const openPhoto = (photoUri: string) => {
-        setSelectedPhotoUri(photoUri);
+    const openPhoto = (photoItem: any) => {
+        setSelectedPhotoUri(photoItem.imageURL);
         Animated.timing(selectedPhotoAnimatedOpacity, {
             toValue: 1,
             duration: 300,
@@ -795,7 +795,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </View>
                                         </>
                                     )}
-                                    {user?.gallery && user.gallery.length > 0 && (
+                                    {user?.userGallery && user.userGallery.length > 0 && (
                                         <>
                                             <View style={styles.seperator} />
                                             <View
@@ -815,15 +815,15 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             </View>
                                             <View style={styles.gallerycontainer}>
                                                 <View style={styles.galleryImagesContainer}>
-                                                    {user?.gallery &&
-                                                        user.gallery.map((imageUri, index) => {
+                                                    {user?.userGallery &&
+                                                        user.userGallery.map((item, index) => {
                                                             return (
                                                                 <TouchableOpacity
                                                                     key={index.toString()}
-                                                                    onPress={() => openPhoto(imageUri)}
+                                                                    onPress={() => openPhoto(item)}
                                                                     activeOpacity={0.8}>
                                                                     <Image
-                                                                        source={{uri: imageUri}}
+                                                                        source={{uri: item.imageURL}}
                                                                         style={styles.galleryImage}
                                                                     />
                                                                 </TouchableOpacity>

@@ -258,7 +258,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     const layout = useWindowDimensions();
 
-    const [index, setIndex] = React.useState(0);
+    const [index, setIndex] = useState(route.params?.index || 0);
     const [routes] = React.useState([
         {key: 'first', title: 'Details'},
         {key: 'second', title: 'Dates'},

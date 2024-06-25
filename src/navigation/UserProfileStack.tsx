@@ -22,6 +22,8 @@ import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import {ChatList} from '../screens/ChatList';
+import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
+
 
 export type UserProfileStackParams = {
     UserCruChatScreen: any;
@@ -51,7 +53,7 @@ export type UserProfileStackParams = {
     PurchaseMITScreen: any;
     FlickFlirtScreen: any;
     ViewUserFollowList: any;
-
+    ViewUserScreen: any;
     ChatList: any;
 };
 
@@ -86,13 +88,13 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            {/* <UserProfile.Screen
+            <UserProfile.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
               options={() => ({
                   headerShown: false,
               })}
-          /> */}
+          />
             <UserProfile.Screen
                 name="ViewUserDetailScreen"
                 component={ViewUserDetailScreen}

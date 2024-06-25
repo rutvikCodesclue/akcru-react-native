@@ -34,18 +34,12 @@ export const markNotificationRead = async (params: {id: string}): Promise<INotif
     }
 };
 
-export const sendTagNotification = async (
-    tagUserId: any,
-    notificationType: any,
-    contentId: any,
-    postId: any,
-): Promise<boolean> => {
+export const sendTagNotification = async (tagUserId: any, notificationType: any, contentId: any): Promise<boolean> => {
     try {
         const {data} = await API.post('/v1/notify/sentTagNotification', {
             tagUserId,
             notificationType,
             contentId,
-            postId,
         });
 
         return data.success;

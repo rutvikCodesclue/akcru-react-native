@@ -40,6 +40,10 @@ import EpisodePlayer from '../screens/contentScreens/PlayEpisode';
 import SizzleDetailScreen from '../screens/contentScreens/SizzleDetailScreen';
 import SizzlePlayer from '../screens/contentScreens/PlaySizzle';
 import EpisodeDetailScreen from '../screens/contentScreens/EpisodeDetailScreen';
+import UserProfileScreen from '../screens/userScreens/UserProfileScreen';
+import ChooseMITScreen from '../screens/userScreens/MITChoice/ChooseMITScreen';
+import AcceptMITScreen from '../screens/userScreens/MITAccept';
+import DeclineMITScreen from '../screens/userScreens/MITDecline';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -74,7 +78,7 @@ export type NoBottomTabStackParams = {
     ViewGroupChat: any;
     NewPost: any;
     NewComment: any;
-    ViewUserScreen: {userId: string; profilePicture: string; username: string};
+    ViewUserScreen: any;
     UserMITHubScreen: any;
     ContactList: any;
     ResumeDetailScreen: any;
@@ -89,6 +93,10 @@ export type NoBottomTabStackParams = {
     SizzleDetailScreen: any;
     SizzlePlayer: any;
     EpisodeDetailScreen: any;
+    UserProfileScreen: any;
+    ChooseMITScreen: any;
+    AcceptMITScreen: any;
+    DeclineMITScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -412,6 +420,34 @@ export default function NoBottomStack() {
                     headerShown: false,
                     gestureDirection: 'horizontal',
                 }}
+            />
+            <NoBottom.Screen
+                name="UserProfileScreen"
+                component={UserProfileScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="ChooseMITScreen"
+                component={ChooseMITScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="AcceptMITScreen"
+                component={AcceptMITScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="DeclineMITScreen"
+                component={DeclineMITScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
             />
         </NoBottom.Navigator>
     );
