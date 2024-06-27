@@ -10,7 +10,7 @@ import moment from 'moment-timezone';
 import {getShortenedTimezone} from '../../util/util';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import AkcruButtons from '../akcruButtons';
-import {cancelCRUView} from '../../lib/api/cru.lib';
+import {cancelCRUView, startACRUViewNotification} from '../../lib/api/cru.lib';
 import ComfirmationModal from '../ConfirmationModal';
 import DateResultModal from '../MasterResultModal/MasterResultModal';
 import {UseTabMenu} from '../../context/TabContext';
@@ -113,6 +113,15 @@ const UserDatesCard = ({
             setDateIcon('md-alert-circle');
             setDateIconColor('red');
             console.error('Error cancelling CRU View:', error);
+        }
+    };
+
+    const handleStartCruViewNotification = async () => {
+        const success = await startACRUViewNotification(movieId);
+        if (success) {
+            console.log('CRU View Started Successfully', success);
+        } else {
+            console.error('Failed to send cru view started notification');
         }
     };
 
@@ -245,6 +254,11 @@ const UserDatesCard = ({
         }
     };
 
+    const handleStartCruViewPress = () => {
+        checkTimeGate(type, scheduleTime, timezone, scheduleDate);
+        handleStartCruViewNotification();
+    };
+
     return (
         <View
             style={{
@@ -374,7 +388,7 @@ const UserDatesCard = ({
 
                     {type === 'CRUView' && (
                         <AkcruButtons.SmallButton
-                            onPress={() => checkTimeGate(type, scheduleTime, timezone, scheduleDate)}
+                            onPress={() => handleStartCruViewPress()}
                             btnname="Start Cru View"
                             color={COLORS.PURPLE}
                             disabled={false}

@@ -16,6 +16,9 @@ import {getPost} from '../../../lib/api/post.lib';
 import {deleteReadNotification} from '../../../lib/api/notify.lib';
 
 import {UseTabMenu} from '../../../context/TabContext';
+import useAuthStore from '../../../stores/auth.store';
+import {findAUser} from '../../../lib/api/user.lib';
+import {listCrusForUser} from '../../../lib/api/cru.lib';
 
 const LOAD_MORE_COUNT = 10;
 
@@ -27,6 +30,7 @@ const Read = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     const {refetchReadNotifications, setRefetchReadNotifications} = UseTabMenu();
+    const userID = useAuthStore().user?.id;
 
     useEffect(() => {
         async function fetchNotifications() {
@@ -56,22 +60,32 @@ const Read = () => {
 
     const navigateToContent = async (notification: INotification) => {
         try {
+            let postId;
+            let userId;
+            let currentUser;
             switch (notification.type) {
                 case 'MITReceived':
-                    navigation.navigate('UserMITHubScreen');
+                    navigation.navigate('UserMITHubScreen', {index: 0});
                     break;
-
                 case 'MITAccepted':
+                    navigation.navigate('UserProfileScreen', {index: 1});
+                    break;
                 case 'MITDeclined':
+                    navigation.navigate('UserMITHubScreen', {index: 1});
+                    break;
                 case 'CruViewStarted':
-                    navigation.navigate('UserProfileScreen');
+                    navigation.navigate('UserProfileScreen', {index: 1});
+                    break;
+                case 'UserLikedGallery':
+                    const galleryId = notification.galleryId;
+                    await findAUser({id: userID}).then(user => {
+                        currentUser = user;
+                    });
+                    const galleryItem = currentUser.userGallery.find(item => item.id === galleryId);
+                    navigation.navigate('ViewUserScreen', {userID: userID, imageURL: galleryItem.imageURL});
                     break;
                 case 'UserLikedComment':
-                case 'UserLikedPost':
-                case 'UserTaggedOnPost':
-                case 'UserCommentedOnPost':
-                case 'UserTaggedOnComment':
-                    const postId = notification.postId;
+                    postId = notification.postId;
                     if (postId) {
                         const numericPostId = parseInt(postId, 10);
                         const post = await getPost(numericPostId);
@@ -82,22 +96,100 @@ const Read = () => {
                         }
                     }
                     break;
-
-                default:
-                    console.warn('Unhandled notification type:', notification.type);
+                case 'UserLikedPost':
+                    postId = notification.postId;
+                    if (postId) {
+                        const numericPostId = parseInt(postId, 10);
+                        const post = await getPost(numericPostId);
+                        if (post) {
+                            navigation.navigate('PostScreen', {post: post});
+                        } else {
+                            console.error('Post not found');
+                        }
+                    }
+                    break;
+                case 'UserTaggedOnPost':
+                    postId = notification.postId;
+                    if (postId) {
+                        const numericPostId = parseInt(postId, 10);
+                        const post = await getPost(numericPostId);
+                        if (post) {
+                            navigation.navigate('PostScreen', {post: post});
+                        } else {
+                            console.error('Post not found');
+                        }
+                    }
+                    break;
+                case 'UserCommentedOnPost':
+                    postId = notification.postId;
+                    if (postId) {
+                        const numericPostId = parseInt(postId, 10);
+                        const post = await getPost(numericPostId);
+                        if (post) {
+                            navigation.navigate('PostScreen', {post: post});
+                        } else {
+                            console.error('Post not found');
+                        }
+                    }
+                    break;
+                case 'UserTaggedOnComment':
+                    postId = notification.postId;
+                    if (postId) {
+                        const numericPostId = parseInt(postId, 10);
+                        const post = await getPost(numericPostId);
+                        if (post) {
+                            navigation.navigate('PostScreen', {post: post});
+                        } else {
+                            console.error('Post not found');
+                        }
+                    }
                     break;
                 case 'UserFollowed':
-                case 'CruInviteReceived':
-                case 'CruInviteAccepted':
-                case 'CruInviteDeclined':
-                case 'CruViewScheduled':
-                    const userId = notification.senderId;
-                    //console.log('Notification Data:', notification);
+                    userId = notification.senderId;
                     if (userId) {
                         navigation.navigate('ViewUserScreen', {userID: userId});
                     } else {
                         console.error('User ID not found');
                     }
+                    break;
+                case 'CruInviteReceived':
+                    navigation.navigate('UserProfileScreen', {index: 2});
+                    break;
+                case 'CruInviteAccepted':
+                    navigation.navigate('UserProfileScreen', {index: 0});
+                    break;
+                case 'CruInviteDeclined':
+                    navigation.navigate('UserProfileScreen', {index: 0});
+                    break;
+                case 'CruViewScheduled':
+                    navigation.navigate('UserProfileScreen', {index: 1});
+                    break;
+                case 'ADReceived':
+                    navigation.navigate('UserProfileScreen', {index: 3});
+                    break;
+                case 'GroupMessageReceived':
+                    let userCrus = await listCrusForUser(userID);
+                    let targetCruId = notification.cruId;
+                    let targetCru = userCrus.find(item => item.id === targetCruId);
+                    navigation.navigate('ViewGroupChat', {cru: targetCru});
+                    break;
+                case 'MsgRcvd':
+                    let senderId = notification.senderId;
+                    let mITId = notification.mITId;
+                    await findAUser({id: senderId}).then(user => {
+                        currentUser = user;
+                    });
+                    let senderProfilePicture = currentUser.profilePicture;
+                    let senderUsername = currentUser.username;
+                    navigation.navigate('ViewChat', {
+                        mItInviteId: mITId,
+                        userId: senderId,
+                        profilePicture: senderProfilePicture,
+                        username: senderUsername,
+                    });
+                    break;
+                default:
+                    console.warn('Unhandled notification type:', notification.type);
                     break;
             }
         } catch (error) {
@@ -121,7 +213,10 @@ const Read = () => {
             CruViewScheduled: 'A Cru View was scheduled',
             CruViewStarted: 'A Cru View was started',
             CruInviteReceived: 'A Cru Invite was received',
+            GroupMessageReceived: 'New Group Message',
             MsgRcvd: 'New Message',
+            ADReceived: 'You have received ACKRU Dollars',
+            UserLikedGallery: 'New like on your photo',
         };
 
         return typeDisplayNames[type] || type;
@@ -143,7 +238,11 @@ const Read = () => {
                 notification.type === 'UserLikedPost' ||
                 notification.type === 'CruViewScheduled' ||
                 notification.type === 'CruViewStarted' ||
-                notification.type === 'CruInviteReceived'),
+                notification.type === 'CruInviteReceived' ||
+                notification.type === 'ADReceived' ||
+                notification.type === 'UserLikedGallery' ||
+                notification.type === 'MsgRcvd' ||
+                notification.type === 'GroupMessageReceived'),
     );
     const sortedNotifications: INotification[] = filteredNotifications.sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

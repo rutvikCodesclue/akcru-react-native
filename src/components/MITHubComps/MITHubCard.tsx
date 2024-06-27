@@ -6,6 +6,7 @@ import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {getShortenedTimezone, selectAvatarBorderColor} from '../../util/util';
 import moment from 'moment';
+import 'moment-timezone';
 import HexAvatar from '../HexAvatar';
 import DisplayBadge from '../General/akcrubadge';
 import {Icon} from '@rneui/themed';

@@ -161,7 +161,10 @@ export type INotification = {
         | 'UserLikedPost'
         | 'UserTaggedOnPost'
         | 'UserTaggedOnComment'
-        | 'ADReceived';
+        | 'ADReceived'
+        | 'UserLikedGallery'
+        | 'MsgRcvd'
+        | 'GroupMessageReceived';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
@@ -170,6 +173,9 @@ export type INotification = {
     message?: string;
     postId: number;
     senderId: string;
+    cruId: any;
+    mITId: any;
+    galleryId: any;
 };
 export interface IUserProfile {
     message: string?;

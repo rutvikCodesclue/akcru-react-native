@@ -138,7 +138,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
 
     const layout = useWindowDimensions();
 
-    const [index, setIndex] = useState(0);
+    const [index, setIndex] = useState(route.params?.index || 0);
     const [routes] = useState([
         {key: 'first', title: `RECEIVED`},
         {key: 'second', title: `SENT`},

@@ -97,6 +97,16 @@ export const createACRUView = async (params: {movieId: string; startTime: string
     }
 };
 
+export const startACRUViewNotification = async (movieId: string) => {
+    try {
+        const {data} = await API.post('/v1/cru/start-cru-view-notification', {movieId});
+        return data.success;
+    } catch (error) {
+        console.error('Error sending cru view started notification:', error);
+        return false;
+    }
+};
+
 export const cancelCRUView = async (cruViewId: string): Promise<{success: boolean; message?: string}> => {
     try {
         const response = await API.post('/v1/cru/cancel-cru-view', {cruViewId});
