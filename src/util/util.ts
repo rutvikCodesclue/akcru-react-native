@@ -146,14 +146,13 @@ export function classifyPostContent(contentArray: string[]) {
 }
 
 export function extractUsernamesFromText(text: string) {
-    const usernamePattern = /@(\w+)/g;
+    const usernamePattern = /@[\w.]+(\S+)/g;
     let match;
     const usernames = [];
 
     while ((match = usernamePattern.exec(text)) !== null) {
-        usernames.push(match[1]);
+        usernames.push(match[0].split('@')[1]);
     }
-
     return usernames;
 }
 

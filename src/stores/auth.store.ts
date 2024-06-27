@@ -8,6 +8,7 @@ import {IUserProfile} from '../../types';
 import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
 import * as RootNavigation from '../util/RootNavigation';
+import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
 
 interface IAuthStore {
     session: Session | null;
@@ -70,12 +71,22 @@ const useAuthStore = create<IAuthStore>()(
             },
 
             logout: async () => {
-                const {error} = await supabase.auth.signOut();
+                
+                const deviceToken =  await messaging().getToken();
+
+                const user = await get().getUser()
+                console.log('token dereg: ',deviceToken, user.id)
+                const response = await API.post(`/v1/auth/device-token/deregister`, {
+                    "userId": user?.id,
+                    "deviceToken": deviceToken
+                });
+                const {error} = await supabase.auth.signOut({ scope: 'local' });
 
                 if (error) {
                     console.error('Error logging out:', error);
                     return false;
                 }
+
 
                 await AsyncStorage.removeItem('access_token');
 

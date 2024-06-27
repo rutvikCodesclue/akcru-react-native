@@ -26,7 +26,6 @@ const Unread = () => {
         async function fetchNotifications() {
             try {
                 const fetchedNotifications = await getMyNotifications();
-                //console.log('Fetched Notifications:', fetchedNotifications);
                 setNotifications(fetchedNotifications || []);
             } catch (error) {
                 console.error(error);
