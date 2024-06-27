@@ -10,7 +10,7 @@ import moment from 'moment-timezone';
 import {getShortenedTimezone} from '../../util/util';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import AkcruButtons from '../akcruButtons';
-import {cancelCRUView, startACRUView} from '../../lib/api/cru.lib';
+import {cancelCRUView, startACRUViewNotification} from '../../lib/api/cru.lib';
 import ComfirmationModal from '../ConfirmationModal';
 import DateResultModal from '../MasterResultModal/MasterResultModal';
 import {UseTabMenu} from '../../context/TabContext';
@@ -116,9 +116,8 @@ const UserDatesCard = ({
         }
     };
 
-    const handleStartCruView = async () => {
-        console.log('CRU View Started Successfully');
-        const success = await startACRUView(movieId);
+    const handleStartCruViewNotification = async () => {
+        const success = await startACRUViewNotification(movieId);
         if (success) {
             console.log('CRU View Started Successfully', success);
         } else {
@@ -257,7 +256,7 @@ const UserDatesCard = ({
 
     const handleStartCruViewPress = () => {
         checkTimeGate(type, scheduleTime, timezone, scheduleDate);
-        handleStartCruView();
+        handleStartCruViewNotification();
     };
 
     return (
