@@ -35,6 +35,13 @@ export default function ClientTabNavigator() {
 
     const {opened, toggleOpened} = UseTabMenu();
 
+    const closeCenterButtonIfOpen = (e: any) => {
+        if (opened) {
+            e.preventDefault();
+            toggleOpened();
+        }
+    };
+
     return (
         <ClientTabs.Navigator
             sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
@@ -58,7 +65,7 @@ export default function ClientTabNavigator() {
                     ),
                 }}
                 listeners={{
-                    tabPress: e => opened && e.preventDefault(),
+                    tabPress: closeCenterButtonIfOpen,
                 }}
             />
             <ClientTabs.Screen
@@ -74,7 +81,7 @@ export default function ClientTabNavigator() {
                     ),
                 }}
                 listeners={{
-                    tabPress: e => opened && e.preventDefault(),
+                    tabPress: closeCenterButtonIfOpen,
                 }}
             />
             <ClientTabs.Screen
@@ -108,7 +115,7 @@ export default function ClientTabNavigator() {
                     ),
                 }}
                 listeners={{
-                    tabPress: e => opened && e.preventDefault(),
+                    tabPress: closeCenterButtonIfOpen,
                 }}
             />
             <ClientTabs.Screen
@@ -124,7 +131,7 @@ export default function ClientTabNavigator() {
                     ),
                 }}
                 listeners={{
-                    tabPress: e => opened && e.preventDefault(),
+                    tabPress: closeCenterButtonIfOpen,
                 }}
             />
         </ClientTabs.Navigator>

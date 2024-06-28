@@ -44,6 +44,11 @@ import UserProfileScreen from '../screens/userScreens/UserProfileScreen';
 import ChooseMITScreen from '../screens/userScreens/MITChoice/ChooseMITScreen';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
 import DeclineMITScreen from '../screens/userScreens/MITDecline';
+import CruViewMovieDetailScreen from '../screens/userScreens/CruViewScreens/CruViewMovieDetailScreen';
+import CruViewSearchMovieResultScreen from '../screens/userScreens/CruViewScreens/CruViewSearchMovieResultScreen';
+import CruViewSearchMovieScreen from '../screens/userScreens/CruViewScreens/CruViewSearchMovieScreen';
+import EditCru from '../screens/userScreens/EditCru';
+import FollowList from '../screens/userScreens/FollowList';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -97,6 +102,10 @@ export type NoBottomTabStackParams = {
     ChooseMITScreen: any;
     AcceptMITScreen: any;
     DeclineMITScreen: any;
+    CruViewMovieDetailScreen: any;
+    CruViewSearchMovieResultScreen: any;
+    CruViewSearchMovieScreen: any;
+    EditCru: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -445,6 +454,41 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="DeclineMITScreen"
                 component={DeclineMITScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="CruViewMovieDetailScreen"
+                component={CruViewMovieDetailScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="CruViewSearchMovieResultScreen"
+                component={CruViewSearchMovieResultScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="CruViewSearchMovieScreen"
+                component={CruViewSearchMovieScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="EditCru"
+                component={EditCru}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FollowList"
+                component={FollowList}
                 options={() => ({
                     headerShown: false,
                 })}

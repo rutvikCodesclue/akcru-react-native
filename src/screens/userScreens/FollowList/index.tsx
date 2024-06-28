@@ -27,13 +27,13 @@ import styles from '../../contentScreens/PlayContentScreen/styles';
 import BackButton from '../../../components/General/backbutton';
 
 const FirstRoute = () => (
-    <View style={{marginBottom: '20%'}}>
+    <View style={{marginBottom: '3%'}}>
         <FollowersTab />
     </View>
 );
 
 const SecondRoute = () => (
-    <View style={{marginBottom: '20%'}}>
+    <View style={{marginBottom: '3%'}}>
         <FollowingTab />
     </View>
 );

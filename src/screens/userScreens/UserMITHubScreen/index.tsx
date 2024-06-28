@@ -159,7 +159,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                     <View
                         //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                         //   resizeMode="cover"
-                        style={{height: SIZES.ScreenHeight * 0.27, marginTop: '-15%'}}>
+                        style={{height: SIZES.ScreenHeight * 0.25, marginTop: '-15%'}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -168,7 +168,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight * 0.27,
+                                height: SIZES.ScreenHeight * 0.25,
                             }}
                         />
                         <View style={styles.topcontainer}>
@@ -219,11 +219,11 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                 </View>
                             </TouchableWithoutFeedback>
                         </View>
+                    </View>
+                    <View style={{}}>
                         <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
                             You have {user?.MITCount} Movie Invites Tickets left
                         </Text>
-                    </View>
-                    <View style={{}}>
                         <View style={{flex: 1}}>
                             <TabView
                                 navigationState={{index, routes}}

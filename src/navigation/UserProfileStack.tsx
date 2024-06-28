@@ -88,7 +88,7 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            <UserProfile.Screen
+            {/* <UserProfile.Screen
               name="ViewUserScreen"
               component={ViewUserScreen}
               options={() => ({
@@ -101,7 +101,7 @@ export function UserProfileStack() {
                 options={() => ({
                     headerShown: false,
                 })}
-            />
+            /> */}
             <UserProfile.Screen
                 name="ViewUserFollowList"
                 component={ViewUserFollowList}
@@ -116,7 +116,7 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            <UserProfile.Screen
+            {/* <UserProfile.Screen
                 name="CruViewMovieDetailScreen"
                 component={CruViewMovieDetailScreen}
                 options={() => ({
@@ -157,14 +157,14 @@ export function UserProfileStack() {
                 options={() => ({
                     headerShown: false,
                 })}
-            />
-            <UserProfile.Screen
+            /> */}
+            {/* <UserProfile.Screen
                 name="EditCru"
                 component={EditCru}
                 options={() => ({
                     headerShown: false,
                 })}
-            />
+            /> */}
             <UserProfile.Screen
                 name="StartMITDate"
                 component={StartMITDate}
@@ -180,13 +180,13 @@ export function UserProfileStack() {
                 })}
             />
 
-            <UserProfile.Screen
+            {/* <UserProfile.Screen
                 name="FollowList"
                 component={FollowList}
                 options={() => ({
                     headerShown: false,
                 })}
-            />
+            /> */}
             <UserProfile.Screen
                 name="UserNotifications"
                 component={UserNotifications}

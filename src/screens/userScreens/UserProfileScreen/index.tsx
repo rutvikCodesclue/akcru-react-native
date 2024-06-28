@@ -332,7 +332,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                        <View style={{flexDirection: 'row'}}>
                                             <View>
                                                 <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
                                                 {user?.firstName && (

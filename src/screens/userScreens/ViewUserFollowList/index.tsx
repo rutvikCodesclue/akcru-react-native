@@ -37,13 +37,13 @@ type Props = {
 };
 
 const FirstRoute = ({userID}) => (
-    <View style={{marginBottom: '20%'}}>
+    <View style={{marginBottom: '3%'}}>
         <ViewUserFollowersTab userID={userID} />
     </View>
 );
 
 const SecondRoute = ({userID}) => (
-    <View style={{marginBottom: '20%'}}>
+    <View style={{marginBottom: '3%'}}>
         <ViewUserFollowingTab userID={userID} />
     </View>
 );
