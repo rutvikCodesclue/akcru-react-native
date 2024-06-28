@@ -12,6 +12,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import {deletePost} from '../../lib/api/post.lib';
 import {IUserProfile} from '../../../types';
 import DisplayBadge from '../General/akcrubadge';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import {findAUser} from '../../lib/api/user.lib';
+import {useNavigation} from '@react-navigation/native';
 
 type FooterIconsProps = {
     iconname: string;
@@ -162,6 +166,8 @@ const PostCommentCard = ({
     // Check if the current user is the author of the post
     const isCurrentUserAuthor = post.author?.id === currentUserID;
 
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
         setImageModalVisible(true);
@@ -306,6 +312,30 @@ const PostCommentCard = ({
         return null;
     };
 
+    const openProfileForTag = async (username) => {
+        const taggedUser = await findAUser({username});
+        if (taggedUser) {
+            navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
+        } else {
+            return;
+        }
+    };
+
+    const renderPostText = (text) => {
+        const parts = text.split(/(@[\w._-]+)/g); // Split text by tags
+        return parts.map((part, index) => {
+            const username = part.substring(1);
+            if (part.startsWith('@')) {
+                return (
+                    <Text key={index} style={{color: COLORS.AKCRUBLUE}} onPress={() => openProfileForTag(username)}>
+                        {part}
+                    </Text>
+                );
+            }
+            return part;
+        });
+    };
+
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 
     return (
@@ -439,7 +469,7 @@ const PostCommentCard = ({
             {/* Render text if available */}
             {textContent && (
                 <View style={{marginTop: 10}}>
-                    <Text style={styles.post}>{textContent}</Text>
+                    <Text style={styles.post}>{renderPostText(textContent)}</Text>
                 </View>
             )}
 
