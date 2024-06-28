@@ -28,9 +28,14 @@ const OnboardUsername = ({route}) => {
         return userName.length > 2;
     };
 
-    const handleEmailChange = (text: string) => {
-        setUserName(text);
-        setUserNameError(!isUserNameValid(text));
+    const handleUserNameChange = (text: string) => {
+        // Convert text to lowercase, remove whitespace, and restrict input to allowed characters
+        const formattedText = text
+            .toLowerCase()
+            .replace(/\s/g, '')
+            .replace(/[^a-z0-9._]/g, '');
+        setUserName(formattedText);
+        setUserNameError(!isUserNameValid(formattedText));
     };
 
     const checkFormCompletion = () => {
@@ -141,7 +146,7 @@ const OnboardUsername = ({route}) => {
                                 iconname={'person'}
                                 iconcolor={COLORS.LIGHTGREY}
                                 secureTextEntry={false}
-                                onChangeText={handleEmailChange}
+                                onChangeText={handleUserNameChange}
                                 value={userName}
                                 editable={!loading}
                             />

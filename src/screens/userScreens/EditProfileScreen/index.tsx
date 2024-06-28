@@ -470,7 +470,11 @@ export default function EditProfile({session}: {session: Session}) {
                                         style={styles.textinput}
                                         secureTextEntry={false}
                                         onChangeText={text => {
-                                            const formattedText = text.replace(/\s/g, '');
+                                            // Convert text to lowercase, remove whitespace, and restrict input to allowed characters
+                                            const formattedText = text
+                                                .toLowerCase()
+                                                .replace(/\s/g, '')
+                                                .replace(/[^a-z0-9._]/g, '');
 
                                             if (formattedText.length <= 12) {
                                                 setUserName(formattedText);
