@@ -121,7 +121,9 @@ const Welcome = () => {
             const accessToken = await AsyncStorage.getItem('access_token');
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
             const isLoggedInWithToken = isAuthed && accessToken !== null;
-
+            if (isLoggedInWithToken) {
+                navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'});
+            }
             setIsLoggedIn(isLoggedInWithToken);
         };
         checkAuth().catch(err => {
@@ -160,7 +162,7 @@ const Welcome = () => {
                             <AkcruButtons.LrgButton
                                 color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
-                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
+                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'})}
                                 disabled={!loading}
                             />
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
