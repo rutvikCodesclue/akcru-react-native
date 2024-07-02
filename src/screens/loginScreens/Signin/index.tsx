@@ -147,7 +147,9 @@ const Signin = () => {
 
             const accessToken = await AsyncStorage.getItem('access_token');
             const isLoggedInWithToken = isAuthed && accessToken !== null;
-
+            if (isLoggedInWithToken) {
+                navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'});
+            }
             setIsLoggedIn(isLoggedInWithToken);
         };
         checkAuth().catch(err => {
@@ -185,7 +187,7 @@ const Signin = () => {
                 console.log('Error getting push token:', e);
             }
             setLoading(false);
-            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+            navigation.navigate('NoBottomStack', {screen: 'contentSwipe'});
         } catch (error) {
             setShowLoginError(true);
             setLoading(false);
@@ -229,7 +231,7 @@ const Signin = () => {
                             <AkcruButtons.LrgButton
                                 color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
-                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'})}
+                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'})}
                                 disabled={loading}
                             />
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
