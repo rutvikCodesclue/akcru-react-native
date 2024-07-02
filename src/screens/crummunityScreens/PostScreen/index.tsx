@@ -9,12 +9,12 @@ import {
     ActivityIndicator,
     Platform,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -52,245 +52,92 @@ type Props = {
 
 const PostScreen = ({navigation, route}: Props) => {
     const postId = route.params?.postId;
-    //console.log('PostScreen postId:', postId);
     const {user, hydrateUser} = useAuthStore();
-    const [posts, setPosts] = useState<IPost[]>([]);
-    const [likedPosts, setLikedPosts] = useState(new Set());
-    // console.log('user', user?.username);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
+    const [post, setPost] = useState<IPost | null>(route.params?.postId || null);
     const [comments, setComments] = useState<IComment[]>([]);
+    const [loading, setLoading] = useState(false);
     const [loadingComments, setLoadingComments] = useState(true);
+    const [error, setError] = useState('');
 
     const currentUserID = user?.id;
-    const author: IUserProfile | null = route.params?.author ?? null;
-    // const {post} = route.params;
-    const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
-    //console.log('PostScreen post:', post);
-    const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    if (!post) {
-        return (
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                <Text style={{...FONTS.Title2Orange}}>Error: Post not found</Text>
-            </View>
-        );
-    }
+    const fetchPostData = async () => {
+        try {
+            setLoading(true);
+            const fetchedPost = await getPost(+postId);
+            setPost(fetchedPost);
+            setLoading(false);
+        } catch (error) {
+            console.error('Failed to fetch post:', error);
+            setError(error.message || 'Failed to fetch post');
+            setLoading(false);
+        }
+    };
 
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            // Refresh posts or update state here
-        });
+    const fetchCommentsAndStatuses = async () => {
+        if (post && post.id) {
+            setLoadingComments(true);
+            try {
+                const fetchedComments = await getPostComments(+post.id);
+                let followingIds = new Set();
+                let blockedUserIds = new Set();
 
-        return unsubscribe;
-    }, [navigation]);
+                if (currentUserID) {
+                    const followingResponse = await getUserFollowing(currentUserID);
+                    followingIds = new Set(followingResponse?.following.map(user => user.id));
 
-    // useEffect(() => {
-    //     const fetchComments = async () => {
-    //         console.log('fetchComments function called');
-    //         if (post && post.id !== undefined) {
-    //             console.log('Post:', post);
-    //             try {
-    //                 const fetchedComments = await getPostComments(+post.id);
-    //                 console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
-    //                 if (fetchedComments && fetchedComments.success) {
-    //                     setComments(fetchedComments.comments); // Set only the comments array
-    //                 }
-    //                 setLoadingComments(false);
-    //             } catch (error) {
-    //                 console.error('Failed to fetch comments:', error);
-    //                 setError(error.message || 'Failed to fetch comments');
-    //                 setLoadingComments(false);
-    //             }
-    //         } else {
-    //             console.log('Post or post.id is not defined');
-    //         }
-    //     };
-
-    //     const handleFocus = () => {
-    //         if (post && post.id !== undefined) {
-    //             fetchComments();
-    //         }
-    //     };
-
-    //     // Add a listener for the focus event
-    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-    //     // Fetch data when the component mounts or when the post object changes
-    //     fetchComments();
-
-    //     // Cleanup the listener when the component unmounts
-    //     return () => {
-    //         unsubscribeFocus();
-    //     };
-    // }, [post, navigation]); // Include navigation in the dependency array
-
-    // useEffect(() => {
-    //     const fetchCommentsAndStatuses = async () => {
-    //         //console.log('Fetching comments and statuses');
-    //         if (post && post.id) {
-    //             setLoadingComments(true);
-    //             try {
-    //                 // Fetch comments
-    //                 const fetchedComments = await getPostComments(+post.id);
-    //                 //console.log('Fetched Comments:', JSON.stringify(fetchedComments, null, 2));
-
-    //                 // Initialize sets for following and blocked user IDs
-    //                 let followingIds = new Set();
-    //                 let blockedUserIds = new Set();
-
-    //                 if (currentUserID) {
-    //                     // Fetch following status
-    //                     const followingResponse = await getUserFollowing(currentUserID);
-    //                     followingIds = new Set(followingResponse?.following.map(user => user.id));
-
-    //                     // Fetch blocked users status
-    //                     const blockedResponse = await getBlockedUsers(); // Adjust as needed
-    //                     blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
-    //                 }
-    //                 // Sort comments by createdAt in descending order
-    //                 const sortedComments = fetchedComments?.comments.sort(
-    //                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-    //                 );
-    //                 // Update comments with follow and block statuses
-    //                 const updatedComments = sortedComments?.comments.map(comment => ({
-    //                     ...comment,
-    //                     author: {
-    //                         ...comment.author,
-    //                         isFollowed: followingIds.has(comment.author.id),
-    //                         isBlocked: blockedUserIds.has(comment.author.id),
-    //                     },
-    //                 }));
-
-    //                 if (fetchedComments && fetchedComments.success) {
-    //                     setComments(updatedComments); // Set updated comments with follow/block statuses
-    //                 }
-    //                 setLoadingComments(false);
-    //             } catch (error) {
-    //                 console.error('Failed to fetch comments or statuses:', error);
-    //                 setError(error.message || 'Failed to fetch comments');
-    //                 setLoadingComments(false);
-    //             }
-    //         } else {
-    //             //console.log('Post or post.id is not defined');
-    //         }
-    //     };
-
-    //     const handleFocus = () => {
-    //         if (post && post.id) {
-    //             fetchCommentsAndStatuses();
-    //         }
-    //     };
-
-    //     // Add a listener for the focus event
-    //     const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-    //     // Fetch data when the component mounts or when the post object changes
-    //     fetchCommentsAndStatuses();
-
-    //     // Cleanup the listener when the component unmounts
-    //     return () => unsubscribeFocus;
-    // }, [post, navigation, currentUserID]); // Include currentUserID in the dependency array
-
-    useEffect(() => {
-        const fetchCommentsAndStatuses = async () => {
-            if (post && post.id) {
-                setLoadingComments(true);
-                try {
-                    // Fetch comments
-                    const fetchedComments = await getPostComments(+post.id);
-
-                    if (!fetchedComments || !fetchedComments.comments) {
-                        console.error('No comments data received:', fetchedComments);
-                        setError('Failed to load comments. Please try again.');
-                        setLoadingComments(false);
-                        return;
-                    }
-
-                    // Initialize sets for following and blocked user IDs
-                    let followingIds = new Set();
-                    let blockedUserIds = new Set();
-
-                    if (currentUserID) {
-                        // Fetch following status
-                        const followingResponse = await getUserFollowing(currentUserID);
-                        followingIds = new Set(followingResponse?.following.map(user => user.id));
-
-                        // Fetch blocked users status
-                        const blockedResponse = await getBlockedUsers(); // Adjust as needed
-                        blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
-                    }
-
-                    // Sort comments by createdAt in descending order
-                    const sortedComments = fetchedComments.comments.sort(
-                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-                    );
-
-                    // Update comments with follow and block statuses
-                    const updatedComments = sortedComments.map(comment => ({
-                        ...comment,
-                        author: {
-                            ...comment.author,
-                            isFollowed: followingIds.has(comment.author.id),
-                            isBlocked: blockedUserIds.has(comment.author.id),
-                        },
-                    }));
-
-                    setComments(updatedComments); // Set updated comments with follow/block statuses
-                    setLoadingComments(false);
-                } catch (error) {
-                    console.error('Failed to fetch comments or statuses:', error);
-                    setError(error.message || 'Failed to fetch comments');
-                    setLoadingComments(false);
+                    const blockedResponse = await getBlockedUsers();
+                    blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
                 }
-            } else {
-                console.log('Post or post.id is not defined');
+
+                const sortedComments = fetchedComments?.comments.sort(
+                    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+                );
+
+                const updatedComments = sortedComments.map(comment => ({
+                    ...comment,
+                    author: {
+                        ...comment.author,
+                        isFollowed: followingIds.has(comment.author.id),
+                        isBlocked: blockedUserIds.has(comment.author.id),
+                    },
+                }));
+
+                setComments(updatedComments);
+                setLoadingComments(false);
+            } catch (error) {
+                console.error('Failed to fetch comments or statuses:', error);
+                setError(error.message || 'Failed to fetch comments');
+                setLoadingComments(false);
             }
-        };
+        } else {
+            console.log('Post or post.id is not defined');
+        }
+    };
 
-        // Add a listener for the focus event
-        const handleFocus = () => {
+    useFocusEffect(
+        useCallback(() => {
+            fetchPostData();
             fetchCommentsAndStatuses();
-        };
-
-        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-        // Fetch data when the component mounts or when the post object changes
-        fetchCommentsAndStatuses();
-
-        // Cleanup the listener when the component unmounts
-        return () => unsubscribeFocus;
-    }, [post, navigation, currentUserID]); // Include navigation and currentUserID in the dependency array
+            hydrateUser();
+        }, [navigation]),
+    );
 
     const handleDeletePost = async (postId: number) => {
         try {
-            // If the post is liked by the current user, unlike it first
             if (post.isLikedByCurrentUser) {
                 await unlikePost(postId);
             }
-
-            // Proceed to delete the post
             await deletePost(postId);
-
-            // Navigate back to CrummunityScreen
             navigation.navigate('CrummunityScreen');
         } catch (error) {
             console.error('Error in deleting post:', error);
-            // Handle error (e.g., show a message to the user)
         }
     };
 
     const handleDeleteComment = async (commentId: number) => {
         try {
-            // Check if the comment is liked by the current user and unlike it if necessary
-            // This step depends on your app's logic. If unliking before deleting is not needed, you can remove this part.
             const commentIndex = comments.findIndex(comment => +comment.id === commentId);
             if (commentIndex !== -1) {
                 const comment = comments[commentIndex];
@@ -298,31 +145,23 @@ const PostScreen = ({navigation, route}: Props) => {
                     await unlikeComment(commentId);
                 }
             }
-
-            // Proceed to delete the comment
             await deleteComment(commentId);
-
-            // Update local state to remove the comment from the UI
             setComments(prevComments => prevComments.filter(comment => +comment.id !== commentId));
         } catch (error) {
             console.error('Error in deleting comment:', error);
-            // Handle error (e.g., show a message to the user)
         }
     };
 
     const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        //console.log('handleFollow', authorId);
-        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+        const updatedStatus = await toggleFollow(authorId);
         if (updatedStatus !== undefined) {
-            setPosts(prevPosts =>
-                prevPosts.map(post => {
-                    if (post.author.id === authorId) {
-                        // Update the follow status
-                        return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
-                    }
-                    return post;
-                }),
-            );
+            setPost(prevPost => ({
+                ...prevPost,
+                author: {
+                    ...prevPost.author,
+                    isFollowed: !isCurrentlyFollowing,
+                },
+            }));
         } else {
             console.error('Failed to update follow status');
         }
@@ -332,14 +171,12 @@ const PostScreen = ({navigation, route}: Props) => {
         try {
             const isLiked = post.isLikedByCurrentUser;
 
-            // Perform the like or unlike action
             if (isLiked) {
                 await unlikePost(postId);
             } else {
                 await likePost(postId);
             }
 
-            // Optimistically update the UI
             setPost({
                 ...post,
                 isLikedByCurrentUser: !isLiked,
@@ -350,7 +187,6 @@ const PostScreen = ({navigation, route}: Props) => {
             });
         } catch (error) {
             console.error('Error changing like status:', error);
-            // Optionally handle reversion or user notification here
         }
     };
 
@@ -362,31 +198,32 @@ const PostScreen = ({navigation, route}: Props) => {
             const comment = comments[commentIndex];
             const isLiked = comment.isLikedByCurrentUser;
 
-            // Perform the like or unlike action
             if (isLiked) {
-                await unlikeComment(commentId); // Make sure this is awaited
+                await unlikeComment(commentId);
             } else {
-                await likeComment(commentId); // Make sure this is awaited
+                await likeComment(commentId);
             }
 
-            // Optimistically update the UI
             const updatedComments = [...comments];
             updatedComments[commentIndex] = {
                 ...comment,
                 isLikedByCurrentUser: !isLiked,
-                likeCount: comment.likeCount + (isLiked ? -1 : 1), // Assuming likeCount holds the number of likes
+                likeCount: comment.likeCount + (isLiked ? -1 : 1),
             };
 
             setComments(updatedComments);
         } catch (error) {
             console.error('Error changing like status for comment:', error);
-            // Optionally handle reversion or user notification here
         }
     };
 
     function handleToggleBlockUser(id: any, isCurrentlyBlocked: any) {
         throw new Error('Function not implemented.');
     }
+
+    const handleEditComment = (comment: IComment) => {
+        navigation.navigate('EditCommentScreen', {comment});
+    };
 
     return (
         <TabContainer>
@@ -404,7 +241,6 @@ const PostScreen = ({navigation, route}: Props) => {
                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                             }}>
                             <LinearGradient
-                                // Background Linear Gradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
@@ -426,8 +262,6 @@ const PostScreen = ({navigation, route}: Props) => {
                             openProfile={() => navigation.navigate('ViewUserScreen', {userID: post.author?.id})}
                             currentUserID={currentUserID ?? ''}
                             deleteThePost={() => handleDeletePost(+post.id)}
-                            // onFollow={() => handleFollow(item.author.id)}
-                            // onUnfollow={() => handleUnfollow(item.author.id)}
                             onDeletePost={handleDeletePost}
                             isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
@@ -436,6 +270,8 @@ const PostScreen = ({navigation, route}: Props) => {
                             onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
                             isFollowing={post.author.isFollowed}
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
+                            isEdited={post.edited}
+                            updatedAt={post.updatedAt}
                         />
                     </View>
                     <View style={{marginBottom: '5%'}}>
@@ -443,8 +279,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             <View style={{marginTop: '25%'}}>
                                 <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                             </View>
-                        ) : // You can customize the size and color
-                        comments.length === 0 ? (
+                        ) : comments.length === 0 ? (
                             <View>
                                 <Text style={styles.noCommentsText}>No comments yet</Text>
                             </View>
@@ -462,8 +297,6 @@ const PostScreen = ({navigation, route}: Props) => {
                                             }
                                             userName={item.author?.username}
                                             firstName={item.author?.firstName}
-                                            // onFollow={() => handleFollow(item.author.id)}
-                                            // onUnfollow={() => handleUnfollow(item.author.id)}
                                             isCommentLiked={item.isLikedByCurrentUser}
                                             onDeleteComment={() => handleDeleteComment(+item.id)}
                                             currentUserID={currentUserID || ''}
@@ -476,6 +309,7 @@ const PostScreen = ({navigation, route}: Props) => {
                                                 handleToggleBlockUser(item.author.id, item.author.isCurrentlyBlocked)
                                             }
                                             akcruBadgeColor={selectAvatarBorderColor(item.author.badge ?? 'AKCRUIT')}
+                                            onEditComment={() => handleEditComment(item)}
                                         />
                                     </View>
                                 )}
@@ -489,12 +323,6 @@ const PostScreen = ({navigation, route}: Props) => {
                     <View>
                         <PostButton />
                     </View>
-                    {/* <View style={{position: 'relative'}}>
-                        <HexShape size={55} color={COLORS.AKCRUBLUE} />
-                        <View style={{position: 'absolute', top: '5%', right: '6%'}}>
-                            <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
-                        </View>
-                    </View> */}
                 </Pressable>
             </SafeAreaView>
         </TabContainer>

@@ -21,13 +21,26 @@ export async function getPosts(page = 1) {
 
 export async function getPost(postId: number) {
     try {
+        console.log(`Making request to /v1/post/${postId}`);
         const {data} = await API.get(`/v1/post/${postId}`);
+        console.log('Received data:', data);
+
         if (data.success === false) {
             throw new Error(data.message);
         }
         return data.post;
-    } catch (error) {
-        console.error(error);
+    } catch (error: any) {
+        console.error('Error fetching post:', error);
+
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        } else if (error.request) {
+            console.error('Request:', error.request);
+        } else {
+            console.error('Error message:', error.message);
+        }
+
         throw new Error('Failed to fetch the post');
     }
 }
@@ -98,7 +111,6 @@ export async function commentOnPost(postId: number, postType: string, content: s
     }
 }
 
-
 export async function uploadPictures(imageFiles: any[]) {
     console.log('uploadPictures');
     console.log('imageFiles:', imageFiles);
@@ -141,7 +153,6 @@ export async function uploadPictures(imageFiles: any[]) {
         throw error;
     }
 }
-
 
 export async function uploadVideo(videoFileUri: any, uploadType: any, durationInSeconds: any) {
     let formData = new FormData();
@@ -285,3 +296,44 @@ export async function getPostsByUser(userId: string, page = 1) {
     }
 }
 
+export async function editPost(postId: number, editedText: string) {
+    try {
+        console.log('Request body:', {id: postId, editedText: editedText}); // Add this line for debugging
+        const response = await API.post('/v1/post/edit', {
+            id: postId,
+            editedText: editedText,
+        });
+
+        if (response.status === 200) {
+            console.log('Post edited successfully:', response.data.post);
+            return response.data.post;
+        } else {
+            console.error('Failed to edit post:', response.data.message);
+            throw new Error(response.data.message);
+        }
+    } catch (error: any) {
+        console.error('Error editing post:', error.message);
+        throw error;
+    }
+}
+
+// For editing a comment
+export async function editComment(commentId: number, editedText: string) {
+    try {
+        const response = await API.post('/v1/post/comment/edit', {
+            id: commentId,
+            editedText: editedText,
+        });
+
+        if (response.status === 200) {
+            console.log('Comment edited successfully:', response.data.comment);
+            return response.data.comment;
+        } else {
+            console.error('Failed to edit comment:', response.data.message);
+            throw new Error(response.data.message);
+        }
+    } catch (error: any) {
+        console.error('Error editing comment:', error.message);
+        throw new Error('Failed to edit the comment.');
+    }
+}

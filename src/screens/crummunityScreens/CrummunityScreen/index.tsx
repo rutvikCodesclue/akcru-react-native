@@ -2,7 +2,6 @@ import {
     Text,
     View,
     ScrollView,
-    TouchableOpacity,
     TouchableWithoutFeedback,
     Modal,
     FlatList,
@@ -10,7 +9,6 @@ import {
     Pressable,
     ActivityIndicator,
     Alert,
-    Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
@@ -37,7 +35,6 @@ import {
 import useAuthStore from '../../../stores/auth.store';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import HexShape from '../../../components/HexShape';
 import {toggleFollow} from '../../../lib/api/user.lib';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
@@ -165,7 +162,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
         // const paddingToBottom = 20; // You can adjust this value to trigger the load more earlier or later
         const paddingToBottom = contentSize.height * 0.25;
         return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
@@ -186,7 +183,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const selectedPost = posts.find(post => +post.id === postId);
 
         if (selectedPost) {
-            navigation2.navigate('PostScreen', {post: selectedPost});
+            navigation2.navigate('PostScreen', {postId: selectedPost});
         } else {
             // Handle the case when the post is not found
             console.error('Error: Post not found');

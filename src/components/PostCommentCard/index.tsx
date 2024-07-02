@@ -124,6 +124,7 @@ type PostProps = {
     userName: string;
     firstName: string;
     akcruBadgeColor: string;
+    onEditComment: () => void;
 };
 
 const PostCommentCard = ({
@@ -142,6 +143,7 @@ const PostCommentCard = ({
     userName,
     firstName,
     akcruBadgeColor,
+    onEditComment,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -156,6 +158,8 @@ const PostCommentCard = ({
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
+
+    // const {text} = comment; // Destructure the text field from the comment object
 
     // Determine the color for the "happy" icon based on whether the post is liked by the current user
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
@@ -229,14 +233,14 @@ const PostCommentCard = ({
     };
 
     // Conditional rendering of options in option modal
-    const renderDeleteSkinny = () => {
+    const renderDeleteComment = () => {
         if (isCurrentUserAuthor) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
                     onPress={onDeleteComment}>
                     <Icon name="trash" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Comment</Text>
                 </Pressable>
             );
         }
@@ -312,7 +316,7 @@ const PostCommentCard = ({
         return null;
     };
 
-    const openProfileForTag = async (username) => {
+    const openProfileForTag = async username => {
         const taggedUser = await findAUser({username});
         if (taggedUser) {
             navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
@@ -321,7 +325,7 @@ const PostCommentCard = ({
         }
     };
 
-    const renderPostText = (text) => {
+    const renderPostText = text => {
         const parts = text.split(/(@[\w._-]+)/g); // Split text by tags
         return parts.map((part, index) => {
             const username = part.substring(1);
@@ -334,6 +338,24 @@ const PostCommentCard = ({
             }
             return part;
         });
+    };
+
+    const renderEditCommentScreen = () => {
+        if (isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        // Close the post options modal and navigate to the edit screen
+                        closePostOptions();
+                        onEditComment();
+                    }}>
+                    <Icon name="create" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Edit Comment</Text>
+                </Pressable>
+            );
+        }
+        return null;
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
@@ -417,8 +439,9 @@ const PostCommentCard = ({
                     <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
                         <View style={styles.postoptionsmodal}>
                             {renderFollowUser()}
-                            {renderDeleteSkinny()}
+                            {renderDeleteComment()}
                             {renderReportSkinny()}
+                            {renderEditCommentScreen()}
                         </View>
                     </Pressable>
                 </Modal>
@@ -464,13 +487,26 @@ const PostCommentCard = ({
                 </Modal>
             </View>
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
-                {timeSince(post.createdAt)}
+                {/* {timeSince(post.createdAt)} */}
+                {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
+                {post.edited && <Text style={{...FONTS.Username, color: COLORS.PURPLE}}> (edited)</Text>}
             </Text>
             {/* Render text if available */}
-            {textContent && (
+            {/* {textContent && (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{renderPostText(textContent)}</Text>
                 </View>
+            )} */}
+            {post.edited && post.editedText ? (
+                <View style={{marginTop: 10}}>
+                    <Text style={styles.post}>{renderPostText(post.editedText)}</Text>
+                </View>
+            ) : (
+                textContent && (
+                    <View style={{marginTop: 10}}>
+                        <Text style={styles.post}>{renderPostText(textContent)}</Text>
+                    </View>
+                )
             )}
 
             <View>

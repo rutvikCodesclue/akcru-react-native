@@ -103,6 +103,9 @@ type PostType = {
     likes?: number;
     impressions?: number;
     _count?: PostStats;
+    updatedAt: string;
+    edited: boolean;
+    editedText: string;
 };
 
 type PostProps = {
@@ -344,6 +347,24 @@ const SkinnyPostCard = ({
         });
     };
 
+    const renderEditPostScreen = () => {
+        if (isCurrentUserAuthor) {
+            return (
+                <Pressable
+                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
+                    onPress={() => {
+                        // Navigate to the edit screen or open the edit modal
+                        navigation.navigate('EditPostScreen', {post});
+                        closePostOptions();
+                    }}>
+                    <Icon name="create" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Edit Post</Text>
+                </Pressable>
+            );
+        }
+        return null;
+    };
+
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 
     return (
@@ -429,6 +450,7 @@ const SkinnyPostCard = ({
                             {renderBlockUser()}
                             {renderDeleteSkinny()}
                             {renderReportSkinny()}
+                            {renderEditPostScreen()}
                         </View>
                     </Pressable>
                 </Modal>
@@ -474,13 +496,26 @@ const SkinnyPostCard = ({
                 </Modal>
             </View>
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
-                {timeSince(post.createdAt)}
+                {/* {timeSince(post.createdAt)} */}
+                {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
+                {post.edited && <Text style={{...FONTS.Username, color: COLORS.PURPLE}}> (edited)</Text>}
             </Text>
             {/* Render text if available */}
-            {textContent && (
+            {/* {textContent && (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{renderPostText(textContent)}</Text>
                 </View>
+            )} */}
+            {post.edited && post.editedText ? (
+                <View style={{marginTop: 10}}>
+                    <Text style={styles.post}>{renderPostText(post.editedText)}</Text>
+                </View>
+            ) : (
+                textContent && (
+                    <View style={{marginTop: 10}}>
+                        <Text style={styles.post}>{renderPostText(textContent)}</Text>
+                    </View>
+                )
             )}
 
             <View>

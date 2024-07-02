@@ -10,7 +10,7 @@ import {
     ScrollView,
     ActivityIndicator,
     Platform,
-    StyleSheet
+    StyleSheet,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
@@ -189,20 +189,17 @@ const NewPost = () => {
     };
 
     //Updated Code adding GIF
-  
+
     const onCancelVideo = async () => {
         await VideoCompressor.cancelCompression(cancelidVideo);
-        setIsCompress(false)
-        setcancelidVideo('')
-        setProgress(0)
-
-
-
-    }
+        setIsCompress(false);
+        setcancelidVideo('');
+        setProgress(0);
+    };
     const OnPostPress = async () => {
         try {
-            if(postText == '' && selectedImages.length==0 && selectedVideo == ''){
-                return
+            if (postText == '' && selectedImages.length == 0 && selectedVideo == '') {
+                return;
             }
             const postType = determinePostType();
             let content = [];
@@ -210,7 +207,6 @@ const NewPost = () => {
             if (postType === 'TEXT') {
                 content = [postText];
                 setIsPosting(true);
-
             } else if (postType === 'IMAGE') {
                 setIsPosting(true);
 
@@ -235,23 +231,26 @@ const NewPost = () => {
                 content = [...imageUrls, ...gifUrls].join(', ');
             } else if (postType === 'VIDEO') {
                 setIsCompress(true);
-                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
-                    compressionMethod: 'auto',
-                    getCancellationId: (cancellationId) => {
-                        setcancelidVideo(cancellationId)
+                const compressedVideoPath = await VideoCompressor.compress(
+                    selectedVideo,
+                    {
+                        compressionMethod: 'auto',
+                        getCancellationId: cancellationId => {
+                            setcancelidVideo(cancellationId);
+                        },
+                        progressDivider: 10,
                     },
-                    progressDivider: 10,
-                
-                }, progress => {
-                    setProgress(progress);
-                })
+                    progress => {
+                        setProgress(progress);
+                    },
+                );
                 setIsCompress(false);
                 setIsPosting(true);
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
-                if(!selectedVideo){
-                    setIsPosting(true)
+                if (!selectedVideo) {
+                    setIsPosting(true);
                 }
                 content = [postText];
 
@@ -276,16 +275,19 @@ const NewPost = () => {
                 if (selectedVideo) {
                     // Upload video if exists
                     setIsCompress(true);
-                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
-                        compressionMethod: 'auto',
-                    getCancellationId: (cancellationId) => {
-                        setcancelidVideo(cancellationId)
-                    },
-                    progressDivider: 10,
-                    }, progress => {
-
-                        setProgress(progress);
-                    });
+                    const compressedVideoPath = await VideoCompressor.compress(
+                        selectedVideo,
+                        {
+                            compressionMethod: 'auto',
+                            getCancellationId: cancellationId => {
+                                setcancelidVideo(cancellationId);
+                            },
+                            progressDivider: 10,
+                        },
+                        progress => {
+                            setProgress(progress);
+                        },
+                    );
                     setIsCompress(false);
                     setIsPosting(true);
 
@@ -334,15 +336,14 @@ const NewPost = () => {
             console.error('Error creating the post:', error);
             setIsPosting(false);
         }
-        if(!cancelidVideo){
+        if (!cancelidVideo) {
             setPostText('');
             setSelectedImages([]);
             setSelectedVideo('');
-        }else{
+        } else {
             setSelectedImages([]);
             setSelectedVideo('');
         }
-        
     };
 
     useEffect(() => {
@@ -613,7 +614,6 @@ const NewPost = () => {
                             </View>
                         </Modal>
                     </View>
-                   
                 </ScrollView>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
@@ -636,17 +636,15 @@ const NewPost = () => {
                                     style={stylesProgress.progressBar}
                                 />
                             )}
-                                <TouchableOpacity onPress={onCancelVideo} >
-                                    <View>
-                                        <Text style={styles.cancelButton}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            
+                            <TouchableOpacity onPress={onCancelVideo}>
+                                <View>
+                                    <Text style={styles.cancelButton}>Cancel</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
-                    
                     </View>
                 </Modal>
-                
+
                 <Modal transparent={true} visible={isPosting} animationType="fade">
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color={COLORS.PINK} />
@@ -654,7 +652,6 @@ const NewPost = () => {
                         <Text style={stylesProgress.loadingText}>We're Posting...</Text>
                     </View>
                 </Modal>
-                
             </SafeAreaView>
         </TabContainer>
     );
@@ -668,26 +665,26 @@ const stylesProgress = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      },
-      modalContainer: {
+    },
+    modalContainer: {
         width: '80%',
         padding: 20,
         backgroundColor: COLORS.AKCRUBACKGROUND,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
-      },
-      progressText: {
+    },
+    progressText: {
         marginBottom: 10,
         ...FONTS.Title2,
-      },
-      progressBar: {
+    },
+    progressBar: {
         width: '100%',
         height: 20,
-      },
-      loadingText: {
+    },
+    loadingText: {
         ...FONTS.Title2,
         color: COLORS.WHITE,
         marginTop: 10,
-      },
-})
+    },
+});

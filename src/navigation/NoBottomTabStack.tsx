@@ -49,6 +49,8 @@ import CruViewSearchMovieResultScreen from '../screens/userScreens/CruViewScreen
 import CruViewSearchMovieScreen from '../screens/userScreens/CruViewScreens/CruViewSearchMovieScreen';
 import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
+import EditPostScreen from '../screens/crummunityScreens/EditPost';
+import EditCommentScreen from '../screens/crummunityScreens/EditComment';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -106,6 +108,8 @@ export type NoBottomTabStackParams = {
     CruViewSearchMovieResultScreen: any;
     CruViewSearchMovieScreen: any;
     EditCru: any;
+    EditPostScreen: any;
+    EditCommentScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -489,6 +493,20 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FollowList"
                 component={FollowList}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="EditPostScreen"
+                component={EditPostScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="EditCommentScreen"
+                component={EditCommentScreen}
                 options={() => ({
                     headerShown: false,
                 })}

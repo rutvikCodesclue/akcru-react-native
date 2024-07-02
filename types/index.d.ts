@@ -379,6 +379,8 @@ export interface IPost {
         comments: number;
     };
     isLikedByCurrentUser?: boolean;
+    edited: boolean;
+    editedText: string?;
 }
 
 export interface ICreatePostData {
@@ -401,6 +403,7 @@ export interface IComment {
     content: string;
     createdAt: string;
     updatedAt: string;
+    text: string;
     likes?: number;
     author: string;
     authorId: string;
@@ -409,6 +412,8 @@ export interface IComment {
         comments: number;
     };
     isLikedByCurrentUser: boolean;
+    edited: boolean;
+    editedText: string?;
 }
 
 export interface ICommentLike {
