@@ -18,33 +18,28 @@ if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
 
-// export async function getPushToken() {
-//     let fcmToken = await messaging().getToken();
-//     if (fcmToken) {
-//         console.log('fcmToken log:', fcmToken);
-//     }
-// }
-
 // This function now expects `userId` to be passed in directly.
 export async function getPushToken(userId: string) {
     let deviceToken = await messaging().getToken();
     // console.log('deviceToken:', deviceToken);
     if (userId && deviceToken) {
         // Send the token to the server
-        sendTokenToServer(userId, deviceToken);
+        await sendTokenToServer(userId, deviceToken);
     } else {
         console.error('FCM Token or User ID is undefined', {userId, deviceToken});
     }
+    return 
 }
 
 // Example function to send the token to your server
 export const sendTokenToServer = async (userId: string, deviceToken: string): Promise<void> => {
+    
     try {
         const response = await API.post(`/v1/auth/storeDeviceToken`, {
             userId,
             deviceToken,
         });
-        // console.log('Device token sent to server:', response.data);
+        console.log('Device token sent to server:', response.data);
     } catch (error) {
         console.error('Error sending device token to server:', error);
     }
