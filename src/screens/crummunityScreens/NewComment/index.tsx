@@ -320,7 +320,7 @@ const NewComment = ({navigation, route}: Props) => {
                         try {
                             const user = await findAUser({username});
                             if (user && user.id) {
-                                const notificationType = 'UserTaggedOnPost';
+                                const notificationType = 'UserTaggedOnComment';
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
                                 } else {

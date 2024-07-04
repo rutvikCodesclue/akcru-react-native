@@ -2,8 +2,6 @@ import {View, Text, TouchableOpacity, ScrollView, SafeAreaView, Pressable} from 
 
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS} from '../../../../assets/constants';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
@@ -11,16 +9,11 @@ import {INotification} from '../../../../types';
 import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import AkcruButtons from '../../../components/akcruButtons';
 import LoadingComponent from '../../../components/Loading';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import {getPost} from '../../../lib/api/post.lib';
 import {UseTabMenu} from '../../../context/TabContext';
+import {NotificationNavigation} from './NotificationNavigation';
 import useAuthStore from '../../../stores/auth.store';
-import {findAUser} from '../../../lib/api/user.lib';
-import {listCrusForUser} from '../../../lib/api/cru.lib';
 
 const Unread = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const {setRefetchUnreadNotifications, setRefetchReadNotifications} = UseTabMenu();
@@ -40,145 +33,6 @@ const Unread = () => {
 
         fetchNotifications();
     }, []);
-
-    const navigateToContent = async (notification: INotification) => {
-        try {
-            let postId;
-            let userId;
-            let currentUser;
-            switch (notification.type) {
-                case 'MITReceived':
-                    navigation.navigate('UserMITHubScreen', {index: 0});
-                    break;
-                case 'MITAccepted':
-                    navigation.navigate('UserProfileScreen', {index: 1});
-                    break;
-                case 'MITDeclined':
-                    navigation.navigate('UserMITHubScreen', {index: 1});
-                    break;
-                case 'CruViewStarted':
-                    navigation.navigate('UserProfileScreen', {index: 1});
-                    break;
-                case 'UserLikedGallery':
-                    const galleryId = notification.galleryId;
-                    await findAUser({id: userID}).then(user => {
-                        currentUser = user;
-                    });
-                    const galleryItem = currentUser.userGallery.find(item => item.id === galleryId);
-                    navigation.navigate('ViewUserScreen', {userID: userID, imageURL: galleryItem.imageURL});
-                    break;
-                case 'UserLikedComment':
-                    postId = notification.postId;
-                    if (postId) {
-                        const numericPostId = parseInt(postId, 10);
-                        const post = await getPost(numericPostId);
-                        if (post) {
-                            navigation.navigate('PostScreen', {post: post});
-                        } else {
-                            console.error('Post not found');
-                        }
-                    }
-                    break;
-                case 'UserLikedPost':
-                    postId = notification.postId;
-                    if (postId) {
-                        const numericPostId = parseInt(postId, 10);
-                        const post = await getPost(numericPostId);
-                        if (post) {
-                            navigation.navigate('PostScreen', {post: post});
-                        } else {
-                            console.error('Post not found');
-                        }
-                    }
-                    break;
-                case 'UserTaggedOnPost':
-                    postId = notification.postId;
-                    if (postId) {
-                        const numericPostId = parseInt(postId, 10);
-                        const post = await getPost(numericPostId);
-                        if (post) {
-                            navigation.navigate('PostScreen', {post: post});
-                        } else {
-                            console.error('Post not found');
-                        }
-                    }
-                    break;
-                case 'UserCommentedOnPost':
-                    postId = notification.postId;
-                    if (postId) {
-                        const numericPostId = parseInt(postId, 10);
-                        const post = await getPost(numericPostId);
-                        if (post) {
-                            navigation.navigate('PostScreen', {post: post});
-                        } else {
-                            console.error('Post not found');
-                        }
-                    }
-                    break;
-                case 'UserTaggedOnComment':
-                    postId = notification.postId;
-                    if (postId) {
-                        const numericPostId = parseInt(postId, 10);
-                        const post = await getPost(numericPostId);
-                        if (post) {
-                            navigation.navigate('PostScreen', {post: post});
-                        } else {
-                            console.error('Post not found');
-                        }
-                    }
-                    break;
-                case 'UserFollowed':
-                    userId = notification.senderId;
-                    if (userId) {
-                        navigation.navigate('ViewUserScreen', {userID: userId});
-                    } else {
-                        console.error('User ID not found');
-                    }
-                    break;
-                case 'CruInviteReceived':
-                    navigation.navigate('UserProfileScreen', {index: 2});
-                    break;
-                case 'CruInviteAccepted':
-                    navigation.navigate('UserProfileScreen', {index: 0});
-                    break;
-                case 'CruInviteDeclined':
-                    navigation.navigate('UserProfileScreen', {index: 0});
-                    break;
-                case 'CruViewScheduled':
-                    navigation.navigate('UserProfileScreen', {index: 1});
-                    break;
-                case 'ADReceived':
-                    navigation.navigate('UserProfileScreen', {index: 3});
-                    break;
-                case 'GroupMessageReceived':
-                    let userCrus = await listCrusForUser(userID);
-                    let targetCruId = notification.cruId;
-                    let targetCru = userCrus.find(item => item.id === targetCruId);
-                    navigation.navigate('ViewGroupChat', {cru: targetCru});
-                    break;
-                case 'MsgRcvd':
-                    let senderId = notification.senderId;
-                    let mITId = notification.mITId;
-                    await findAUser({id: senderId}).then(user => {
-                        currentUser = user;
-                    });
-                    let senderProfilePicture = currentUser.profilePicture;
-                    let senderUsername = currentUser.username;
-                    navigation.navigate('ViewChat', {
-                        mItInviteId: mITId,
-                        userId: senderId,
-                        profilePicture: senderProfilePicture,
-                        username: senderUsername,
-                    });
-                    break;
-                default:
-                    console.warn('Unhandled notification type:', notification.type);
-                    break;
-            }
-        } catch (error) {
-            console.error('Error navigating to content:', error);
-        }
-    };
 
     const getNotificationDisplayName = (type: string) => {
         const typeDisplayNames: {[key: string]: string} = {
@@ -290,7 +144,7 @@ const Unread = () => {
                             const displayName = getNotificationDisplayName(type);
 
                             return (
-                                <Pressable key={index} onPress={() => navigateToContent(notification)}>
+                                <Pressable key={index} onPress={() => NotificationNavigation(notification, userID)}>
                                     <View key={index} style={styles.cardcontainer}>
                                         <LinearGradient
                                             colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
