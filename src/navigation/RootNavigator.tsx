@@ -4,8 +4,7 @@ import AuthStack from './AuthNavigation';
 import {TabContextProvider} from '../context/TabContext';
 
 // export const navigationRef = createNavigationContainerRef();
-import { navigationRef } from '../util/RootNavigation';
-
+import {navigationRef} from '../util/RootNavigation';
 
 export default function RootNavigator() {
     return (

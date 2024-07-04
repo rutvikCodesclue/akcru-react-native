@@ -1,17 +1,16 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useRef} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
 
 import RootNavigator from './src/navigation/RootNavigator';
 import {COLORS} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
-import notifee from '@notifee/react-native';
+import notifee, {EventType} from '@notifee/react-native';
 import {getPushToken} from './lib/pushNotifications';
 import useAuthStore from './src/stores/auth.store';
 import Castle from '@castleio/react-native-castle';
 import {CASTLE_API_PK} from '@env';
 import {LogBox} from 'react-native';
-
-
+import {NotificationNavigation} from './src/screens/userScreens/UserNotificationTabs/NotificationNavigation';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -19,23 +18,12 @@ Castle.configureWithPublishableKey(CASTLE_API_PK);
 
 function App(): JSX.Element {
     const userId = useAuthStore(state => state.user?.id);
+    const initialNotificationHandled = useRef(false);
 
     useEffect(() => {
         // Subscribe to foreground message handling
         const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
-            let notify = true;
-            if (remoteMessage) {
-                if (remoteMessage.notification) {
-                    const title = remoteMessage.notification.title;
-                    if (title && title === 'New Message') {
-                        notify = false;
-                    }
-                }
-            }
-
-            if (notify) {
-                onDisplayNotification(remoteMessage);
-            }
+            onDisplayNotification(remoteMessage);
         });
 
         // Handle background messages
@@ -46,14 +34,17 @@ function App(): JSX.Element {
         // Handle notification clicks
         messaging().onNotificationOpenedApp(remoteMessage => {
             console.log('Notification caused app to open from background state:', remoteMessage.data);
+            NotificationNavigation(remoteMessage.data, userId);
         });
 
         // Handle the initial notification when the app is opened from a quit state
         messaging()
             .getInitialNotification()
             .then(remoteMessage => {
-                if (remoteMessage) {
+                if (remoteMessage && !initialNotificationHandled.current) {
                     console.log('Notification caused app to open from quit state:', remoteMessage.data);
+                    NotificationNavigation(remoteMessage.data, userId);
+                    initialNotificationHandled.current = true;
                 }
             });
 
@@ -103,6 +94,12 @@ function App(): JSX.Element {
             ios: {
                 sound: 'default',
             },
+        });
+
+        notifee.onForegroundEvent(({type, detail}) => {
+            if (type === EventType.PRESS && detail.pressAction.id === 'default') {
+                NotificationNavigation(remoteMessage.data, userId);
+            }
         });
     }
 
