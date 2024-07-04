@@ -187,7 +187,7 @@ const Signin = () => {
                 console.log('Error getting push token:', e);
             }
             setLoading(false);
-            navigation.navigate('NoBottomStack', {screen: 'contentSwipe'});
+            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
         } catch (error) {
             setShowLoginError(true);
             setLoading(false);

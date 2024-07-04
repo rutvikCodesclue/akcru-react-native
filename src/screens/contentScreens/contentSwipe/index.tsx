@@ -299,7 +299,7 @@ export default function ContentSwipe({navigation}: Props) {
 
                 <Pagination
                     scrollX={_scrollX}
-                    onPress2={() => navigation.navigate('ClientTabNavigator')}
+                    onPress2={() => navigation.navigate('HomeScreen')}
                     movies={movies}
                 />
             </View>
