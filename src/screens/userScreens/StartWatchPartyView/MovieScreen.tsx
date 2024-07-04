@@ -7,6 +7,7 @@ import VideoPlayer from 'react-native-media-console';
 import {capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
 import LottieView from 'lottie-react-native';
 import Video from 'react-native-video';
+import Orientation from 'react-native-orientation-locker';
 
 interface Props {
     onPress: () => void;
@@ -22,12 +23,13 @@ interface Props {
     onPlay: any;
     onPause: any;
     onSeek: any;
-    onEnterFullScreen: any; 
-    onExitFullScreen: any; 
+    onEnterFullScreen: () => void; 
+    onExitFullScreen: () => void; 
     setHasLottieFirstLoopCompleted: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasLottieFirstLoopCompleted, isFullscreen, videoPlayerRef, isMoviePlaying, onProgress, onPlay, onPause, onSeek, onEnterFullscreen, onExitFullScreen, setHasLottieFirstLoopCompleted}: Props) => {
+const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasLottieFirstLoopCompleted, isFullscreen, videoPlayerRef, isMoviePlaying, onProgress, onPlay, onPause, onSeek, onEnterFullScreen, onExitFullScreen, setHasLottieFirstLoopCompleted}: Props) => {
+    
     return (
         <View style={{flex: 1, zIndex: 100}}>
             {isStreamOpen ? (
@@ -152,7 +154,7 @@ const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasL
                                             onPlay={onPlay}
                                             onPause={onPause}
                                             onSeek={onSeek}
-                                            onEnterFullscreen={onEnterFullscreen}
+                                            onEnterFullscreen={onEnterFullScreen}
                                             onExitFullscreen={onExitFullScreen}
                                         />
                                     </View>
