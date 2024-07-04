@@ -1,20 +1,9 @@
-import {
-    View,
-    Text,
-    SafeAreaView,
-    TouchableOpacity,
-    ScrollView,
-    FlatList,
-    Pressable,
-    ActivityIndicator,
-    Platform,
-} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Text, SafeAreaView, ScrollView, FlatList, Pressable, ActivityIndicator, Platform} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
-import {Icon} from '@rneui/base';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -26,7 +15,6 @@ import {
     deleteComment,
     deletePost,
     getPost,
-    getPosts,
     likeComment,
     likePost,
     unlikeComment,
@@ -51,12 +39,12 @@ type Props = {
 };
 
 const PostScreen = ({navigation, route}: Props) => {
-    const postId = route.params?.postId;
-    //console.log('PostScreen postId:', postId);
+    const postId = route.params?.post.id;
+    console.log('PostScreen postId:', postId);
+    const isLikedByCurrentUser = route.params?.isLikedByCurrentUser;
     const {user, hydrateUser} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
-    // console.log('user', user?.username);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [comments, setComments] = useState<IComment[]>([]);
@@ -64,104 +52,85 @@ const PostScreen = ({navigation, route}: Props) => {
 
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
-    // const {post} = route.params;
-    const [post, setPost] = useState<IPost>(route.params?.post); // Use state for the specific post
-    //console.log('PostScreen post:', post);
-    const [comment, setComment] = useState<IComment>(route.params?.comment); // Use state for the specific post
+    const [post, setPost] = useState<IPost>({...route.params?.post, isLikedByCurrentUser});
+    console.log('PostScreen post:', post);
+    const [comment, setComment] = useState<IComment>(route.params?.comment);
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    if (!post) {
-        return (
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                <Text style={{...FONTS.Title2Orange}}>Error: Post not found</Text>
-            </View>
-        );
-    }
-
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            // Refresh posts or update state here
-        });
-
-        return unsubscribe;
-    }, [navigation]);
-
-
-    useEffect(() => {
-        const fetchCommentsAndStatuses = async () => {
-            if (post && post.id) {
-                setLoadingComments(true);
-                try {
-                    // Fetch comments
-                    const fetchedComments = await getPostComments(+post.id);
-
-                    if (!fetchedComments || !fetchedComments.comments) {
-                        console.error('No comments data received:', fetchedComments);
-                        setError('Failed to load comments. Please try again.');
-                        setLoadingComments(false);
-                        return;
-                    }
-
-                    // Initialize sets for following and blocked user IDs
-                    let followingIds = new Set();
-                    let blockedUserIds = new Set();
-
-                    if (currentUserID) {
-                        // Fetch following status
-                        const followingResponse = await getUserFollowing(currentUserID);
-                        followingIds = new Set(followingResponse?.following.map(user => user.id));
-
-                        // Fetch blocked users status
-                        const blockedResponse = await getBlockedUsers(); // Adjust as needed
-                        blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
-                    }
-
-                    // Sort comments by createdAt in descending order
-                    const sortedComments = fetchedComments.comments.sort(
-                        (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
-                    );
-
-                    // Update comments with follow and block statuses
-                    const updatedComments = sortedComments.map(comment => ({
-                        ...comment,
-                        author: {
-                            ...comment.author,
-                            isFollowed: followingIds.has(comment.author.id),
-                            isBlocked: blockedUserIds.has(comment.author.id),
-                        },
-                    }));
-
-                    setComments(updatedComments); // Set updated comments with follow/block statuses
-                    setLoadingComments(false);
-                } catch (error) {
-                    console.error('Failed to fetch comments or statuses:', error);
-                    setError(error.message || 'Failed to fetch comments');
-                    setLoadingComments(false);
-                }
-            } else {
-                console.log('Post or post.id is not defined');
+    const fetchPostData = useCallback(async () => {
+        if (postId) {
+            setLoading(true);
+            try {
+                const fetchedPost = await getPost(postId);
+                console.log('Fetched post:', fetchedPost);
+                fetchedPost.isLikedByCurrentUser = isLikedByCurrentUser;
+                setPost(fetchedPost);
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch post:', error);
+                setError(error.message || 'Failed to fetch post');
+                setLoading(false);
             }
-        };
+        } else {
+            console.log('Post ID is not defined');
+        }
+    }, [postId, isLikedByCurrentUser]);
 
-        // Add a listener for the focus event
-        const handleFocus = () => {
+    const fetchCommentsAndStatuses = useCallback(async () => {
+        if (post?.id) {
+            setLoadingComments(true);
+            try {
+                const fetchedComments = await getPostComments(post.id);
+
+                if (!fetchedComments || !fetchedComments.comments) {
+                    console.error('No comments data received:', fetchedComments);
+                    setError('Failed to load comments. Please try again.');
+                    setLoadingComments(false);
+                    return;
+                }
+
+                let followingIds = new Set();
+                let blockedUserIds = new Set();
+
+                if (currentUserID) {
+                    const followingResponse = await getUserFollowing(currentUserID);
+                    followingIds = new Set(followingResponse?.following.map(user => user.id));
+
+                    const blockedResponse = await getBlockedUsers();
+                    blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+                }
+
+                const sortedComments = fetchedComments.comments.sort(
+                    (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+                );
+
+                const updatedComments = sortedComments.map(comment => ({
+                    ...comment,
+                    author: {
+                        ...comment.author,
+                        isFollowed: followingIds.has(comment.author.id),
+                        isBlocked: blockedUserIds.has(comment.author.id),
+                    },
+                }));
+
+                setComments(updatedComments);
+                setLoadingComments(false);
+            } catch (error) {
+                console.error('Failed to fetch comments or statuses:', error);
+                setError(error.message || 'Failed to fetch comments');
+                setLoadingComments(false);
+            }
+        } else {
+            console.log('Post or post.id is not defined');
+        }
+    }, [post?.id, currentUserID]);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchPostData();
             fetchCommentsAndStatuses();
-        };
-
-        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-        // Fetch data when the component mounts or when the post object changes
-        fetchCommentsAndStatuses();
-
-        // Cleanup the listener when the component unmounts
-        return () => unsubscribeFocus;
-    }, [post, navigation, currentUserID]); // Include navigation and currentUserID in the dependency array
+        }, [fetchPostData, fetchCommentsAndStatuses]),
+    );
 
     const handleDeletePost = async (postId: number) => {
         try {
@@ -224,27 +193,31 @@ const PostScreen = ({navigation, route}: Props) => {
 
     const onLikeOrUnlikePost = async (postId: number) => {
         try {
-            const isLiked = post.isLikedByCurrentUser;
+            const isLiked = post?.isLikedByCurrentUser;
+            console.log('Before like/unlike:', isLiked);
 
-            // Perform the like or unlike action
             if (isLiked) {
                 await unlikePost(postId);
+                console.log('Unlike request sent');
             } else {
                 await likePost(postId);
+                console.log('Like request sent');
             }
 
-            // Optimistically update the UI
-            setPost({
-                ...post,
-                isLikedByCurrentUser: !isLiked,
-                _count: {
-                    ...post._count,
-                    likes: post._count.likes + (isLiked ? -1 : 1),
-                },
-            });
+            if (post) {
+                setPost(prevPost => ({
+                    ...prevPost,
+                    isLikedByCurrentUser: !isLiked,
+                    _count: {
+                        ...prevPost._count,
+                        likes: prevPost._count.likes + (isLiked ? -1 : 1),
+                    },
+                }));
+                console.log('Updated post after like/unlike:', post);
+            }
         } catch (error) {
             console.error('Error changing like status:', error);
-            // Optionally handle reversion or user notification here
+            setError(error.message || 'Failed to like/unlike the post');
         }
     };
 
@@ -283,8 +256,22 @@ const PostScreen = ({navigation, route}: Props) => {
     }
 
     const handleEditComment = (comment: IComment) => {
-        navigation.navigate('EditCommentScreen', {comment});
+        navigation2.navigate('EditCommentScreen', {comment});
     };
+
+    if (!post) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                <Text style={{...FONTS.Title2Orange}}>Error: Post not found</Text>
+            </View>
+        );
+    }
 
     return (
         <TabContainer>
@@ -321,7 +308,7 @@ const PostScreen = ({navigation, route}: Props) => {
                     <View style={styles.postcontainer}>
                         <PostCard
                             post={post}
-                            openProfile={() => navigation.navigate('ViewUserScreen', {userID: post.author?.id})}
+                            openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
                             currentUserID={currentUserID ?? ''}
                             deleteThePost={() => handleDeletePost(+post.id)}
                             // onFollow={() => handleFollow(item.author.id)}
@@ -384,16 +371,10 @@ const PostScreen = ({navigation, route}: Props) => {
                 </ScrollView>
                 <Pressable
                     style={styles.floatingbuttonContainer}
-                    onPress={() => navigation.navigate('NewComment', {postId: post.id})}>
+                    onPress={() => navigation2.navigate('NewComment', {postId: post.id})}>
                     <View>
                         <PostButton />
                     </View>
-                    {/* <View style={{position: 'relative'}}>
-                        <HexShape size={55} color={COLORS.AKCRUBLUE} />
-                        <View style={{position: 'absolute', top: '5%', right: '6%'}}>
-                            <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
-                        </View>
-                    </View> */}
                 </Pressable>
             </SafeAreaView>
         </TabContainer>

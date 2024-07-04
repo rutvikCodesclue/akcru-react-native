@@ -93,6 +93,7 @@ type PostType = {
     edited: boolean;
     editedText: string;
     updatedAt: string;
+    isLikedByCurrentUser: boolean;
 };
 
 type PostProps = {
@@ -462,12 +463,6 @@ const PostCard = ({
                 {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
                 {post.edited && <Text style={{...FONTS.Username, color: COLORS.PURPLE}}> (edited)</Text>}
             </Text>
-
-            {/* {textContent && (
-                <View style={{marginTop: 10}}>
-                    <Text style={styles.post}>{renderPostText(textContent)}</Text>
-                </View>
-            )} */}
             {post.edited && post.editedText ? (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{renderPostText(post.editedText)}</Text>

@@ -23,7 +23,7 @@ export async function getPost(postId: number) {
     try {
         console.log(`Making request to /v1/post/${postId}`);
         const {data} = await API.get(`/v1/post/${postId}`);
-        console.log('Received data:', data);
+        // console.log('Received data:', data);
 
         if (data.success === false) {
             throw new Error(data.message);
@@ -49,7 +49,7 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
     console.log(`Making request to /v1/post/comments with postId: ${postId}`);
     try {
         const {data} = await API.get('/v1/post/comments', {params: {id: postId}});
-        console.log('Received data:', data);
+        // console.log('Received data:', data);
         return data;
     } catch (error) {
         console.error('Error fetching post comments:', error);
