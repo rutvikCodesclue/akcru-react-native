@@ -76,7 +76,7 @@ export default StyleSheet.create({
         margin: 5,
         borderRadius: 5,
     },
-    
+
     selectedPhotoContainer: {
         position: 'absolute',
         top: 0,

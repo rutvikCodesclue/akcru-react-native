@@ -47,7 +47,6 @@ const OnboardContactList = () => {
         let allPhoneNumbers: any = [];
 
         contacts.forEach(contact => {
-
             const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
 
             allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
@@ -56,7 +55,6 @@ const OnboardContactList = () => {
         const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
         setContacts(cleanedPhoneNumbers);
         getKnownUsers(cleanedPhoneNumbers);
-
     };
 
     async function cleanPhoneNumbersAsync(phoneNumbers) {
@@ -71,7 +69,6 @@ const OnboardContactList = () => {
                     cleanedNumber += char;
                 }
             }
-
 
             const finalNumber = cleanedNumber.slice(-11);
             if (finalNumber.length === 11) {
@@ -102,7 +99,6 @@ const OnboardContactList = () => {
     };
 
     const sections = React.useMemo(() => {
-
         const sectionsMap = knowContacts.reduce((acc, contact) => {
             if (contact.username !== null) {
                 const firstLetter = contact.username?.trim().charAt(0).toUpperCase();
@@ -125,7 +121,6 @@ const OnboardContactList = () => {
             }
         }, {});
 
-
         const sortedSections = Object.entries(sectionsMap)
             .sort(([letterA], [letterB]) => letterA.localeCompare(letterB))
             .map(([letter, items]) => ({letter, items}));
@@ -134,7 +129,6 @@ const OnboardContactList = () => {
 
     const checkContactPermission = async () => {
         if (Platform.OS === 'android') {
-
             let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
             if (contactResult === RESULTS.GRANTED) {
                 setIsContactPermission(true);
@@ -165,7 +159,7 @@ const OnboardContactList = () => {
 
     const checkAlreadyFollow = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if (selectedObject.isFollowed){
+        if (selectedObject.isFollowed) {
             return true;
         } else {
             return false;
@@ -201,7 +195,6 @@ const OnboardContactList = () => {
     };
 
     const handleInvite = (contact_id: string) => {
-
         const updatedArray = knowContacts.map(obj => (obj.id === contact_id ? {...obj, isSendInvite: true} : obj));
 
         setKnowContacts(updatedArray);
@@ -209,7 +202,7 @@ const OnboardContactList = () => {
 
     const checkAlreadySendInvite = async (contact_id: string) => {
         const selectedObject = knowContacts.find(obj => obj.id === contact_id);
-        if (selectedObject.isSendInvite){
+        if (selectedObject.isSendInvite) {
             return true;
         } else {
             return false;
@@ -224,7 +217,6 @@ const OnboardContactList = () => {
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -243,12 +235,13 @@ const OnboardContactList = () => {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 justifyContent: 'space-between',
+                                paddingTop: 10,
                             }}>
                             <View style={style.header}>
-                                <Text style={style.title}>Contacts</Text>
+                                <Text style={{...FONTS.Title1}}>Contacts</Text>
                             </View>
                             <TouchableOpacity onPress={() => navigation.navigate('OnboardName')}>
-                                <Text style={style.skipTopBtn}> Next </Text>
+                                <Text style={{...FONTS.Title1, paddingRight: 20, color: COLORS.AKCRUPINK}}> Next </Text>
                             </TouchableOpacity>
                         </View>
                         <>
@@ -356,12 +349,9 @@ const OnboardContactList = () => {
                                                                                         onPress={() =>
                                                                                             FollowContact(id)
                                                                                         }
-                                                                                        width={
-                                                                                            90
-                                                                                        } />
-
-
-                                                                                        style={{marginTop: 10}} />
+                                                                                        width={90}
+                                                                                        // style={{marginTop: 10}}
+                                                                                    />
                                                                                     <AkcruButtons.AutoButton
                                                                                         color={
                                                                                             isSendInvite
@@ -377,9 +367,8 @@ const OnboardContactList = () => {
                                                                                         onPress={() =>
                                                                                             sendCRUInvite(id, username)
                                                                                         }
-                                                                                        width={
-                                                                                            90
-                                                                                        } />
+                                                                                        width={90}
+                                                                                    />
                                                                                 </View>
                                                                             </View>
                                                                         </View>
@@ -392,8 +381,8 @@ const OnboardContactList = () => {
                                             ))}
                                         </ScrollView>
                                     ) : (
-                                        <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '23%'}}>
-                                            <Text style={style.noContactHeading}>No Records Found</Text>
+                                        <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '35%'}}>
+                                            <Text style={{...FONTS.Title1, color: COLORS.DARKGREY}}>No Records Found</Text>
                                         </View>
                                     )}
                                 </>
@@ -403,7 +392,6 @@ const OnboardContactList = () => {
                 ) : (
                     <View style={style.noContactContainer}>
                         <View style={style.noContactDetailContainer}>
-
                             <Text style={style.noContactHeading}>Need Contact Access</Text>
                             <Text style={style.noContactPara}>
                                 Uh Oh! seems like you didn't given the access of your contacts{' '}
@@ -606,7 +594,6 @@ const style = StyleSheet.create({
         color: COLORS.DARKORANGE,
     },
     skipTopBtn: {
-        paddingVertical: 10,
         paddingHorizontal: 20,
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 17,

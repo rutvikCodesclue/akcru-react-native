@@ -117,14 +117,14 @@ const OnboardArchetype = () => {
         setTrinityModal(false);
 
         if (!videoError) {
-            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+            navigation.navigate('OnboardBuildCru');
         } else {
         }
     };
 
     const handleVideoError = () => {
         setVideoError(true);
-        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+        navigation.navigate('OnboardBuildCru');
     };
 
     const handleSkipVideo = () => {
@@ -134,7 +134,7 @@ const OnboardArchetype = () => {
 
         setSkipVideo(true);
         setTrinityModal(false);
-        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+        navigation.navigate('OnboardBuildCru');
     };
     const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
 
@@ -254,7 +254,7 @@ const OnboardArchetype = () => {
                                     textAlign: 'center',
                                     marginVertical: 10,
                                     marginHorizontal: 15,
-                                    color: COLORS.MIDORANGE,
+                                    color: COLORS.LIGHTGREY,
                                 }}>
                                 {archetypeDescription}
                             </Text>
@@ -270,7 +270,7 @@ const OnboardArchetype = () => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                             width: '100%',
                         }}>
-                        {showSkipButton && (
+                        {/* {showSkipButton && (
                             <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
                                 <AkcruButtons.SmallButton
                                     color={COLORS.PURPLE}
@@ -279,7 +279,7 @@ const OnboardArchetype = () => {
                                     disabled={false}
                                 />
                             </View>
-                        )}
+                        )} */}
 
                         {!isVideoLoaded && (
                             <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>

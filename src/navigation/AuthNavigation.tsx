@@ -23,6 +23,9 @@ import OnboardEmailOrPassword from '../screens/loginScreens/Onboard/OnboardEmail
 import OnboardDescription from '../screens/loginScreens/Onboard/OnboardDescription';
 import OnboardContactList from '../screens/loginScreens/Onboard/OnboardContactList';
 import OnboardCruName from '../screens/loginScreens/Onboard/OnboardCruName';
+import OnboardBuildCru from '../screens/loginScreens/Onboard/OnboardBuildCru';
+import OnboardCruBuilder from '../screens/loginScreens/Onboard/OnboardCruBuilder';
+import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 
 export type AuthStackParams = {
     Welcome: any;
@@ -54,6 +57,9 @@ export type AuthStackParams = {
     OnboardEmailOrPassword: any;
     OnboardDescription: any;
     OnboardCruName: any;
+    OnboardBuildCru: any;
+    OnboardCruBuilder: any;
+    ViewUserScreen: any;
 };
 
 const Auth = createStackNavigator<AuthStackParams>();
@@ -243,7 +249,30 @@ export default function AuthStack() {
                     gestureDirection: 'horizontal',
                 }}
             />
-
+            <Auth.Screen
+                name="OnboardBuildCru"
+                component={OnboardBuildCru}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="OnboardCruBuilder"
+                component={OnboardCruBuilder}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="ViewUserScreen"
+                component={ViewUserScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
         </Auth.Navigator>
     );
 }
