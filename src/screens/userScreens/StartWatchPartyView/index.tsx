@@ -704,7 +704,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         console.log('=== 100ms Error ===:', data);
     };
     const __onJoinListener = (data: {room: HMSRoom}) => {
-        const {localPeer} = data.room;
+        const {localPeer, peers} = data.room;
 
         if (localPeer) {
             console.log(`OWN video track Added [__onJoin]: ${localPeer.videoTrack?.trackId}`);
@@ -719,6 +719,28 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         } else {
             console.log('localPeer is null');
         }
+
+        peers.forEach(peer => {
+            if (peer.peerID !== localPeer.peerID) {
+                setPeerTrackNodes(prevPeerTrackNodes =>
+                    _updateNode({
+                        nodes: prevPeerTrackNodes,
+                        peer: peer,
+                        track: peer.videoTrack,
+                        createNew: true,
+                    }),
+                );
+
+                setPeerTrackNodes(prevPeerTrackNodes =>
+                    _updateNode({
+                        nodes: prevPeerTrackNodes,
+                        peer: peer,
+                        track: peer.audioTrack,
+                        createNew: true,
+                    }),
+                );
+            }
+        });
     };
 
     const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
@@ -1138,6 +1160,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 expandedVideo={expandedVideo}
                 setExpandedVideo={setExpandedVideo}
                 peersMuteStatus={peersMuteStatus}
+                username={user?.username}
                 />
 
                 <UserControls 
