@@ -129,7 +129,7 @@ const OnboardDOB = () => {
             const updatedUser = await updateUser({dob: dob});
             if (updatedUser) {
                 useAuthStore.setState({user: updatedUser});
-                navigation.navigate('OnboardContactList');
+                navigation.navigate('OnboardName');
             } else {
                 Alert.alert('Update Failed', 'Failed to update date of birth.');
             }

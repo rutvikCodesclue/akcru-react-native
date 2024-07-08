@@ -62,7 +62,7 @@ const EditCommentScreen = ({navigation, route}: Props) => {
     const [currentTag, setCurrentTag] = useState('');
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
     const [isCommenting, setIsCommenting] = useState(false);
-
+    const videoRef = useRef(null);
 
     const onCommentPress = async () => {
         try {

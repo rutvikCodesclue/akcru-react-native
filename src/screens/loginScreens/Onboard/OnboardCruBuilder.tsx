@@ -1,203 +1,147 @@
-import {View, Text, ImageBackground, KeyboardAvoidingView, TextInput, FlatList, ScrollView} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    PressableAndroidRippleConfig,
+    StyleProp,
+    useWindowDimensions,
+    ViewStyle,
+    TextStyle,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
-import imageindex from '../../../../assets/images/imageindex';
-import {AuthStackParams} from '../../../navigation/AuthNavigation';
+import {Icon} from '@rneui/base';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AkcruButtons from '../../../components/akcruButtons';
-import {appVersion} from '../../../../assets/constants/Data';
-import LinearGradient from 'react-native-linear-gradient';
-import {Icon} from '@rneui/themed';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
+import {Route} from 'react-native';
+import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
+import OnboardCruSuggestions from './OnboardCruSuggestions';
+import OnboardContactList from './OnboardContactList';
 import {IUserProfile} from '../../../../types';
-import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
-import UserCruBuilderCard from '../../../components/UserCruBuilderCard';
 import useAuthStore from '../../../stores/auth.store';
-import {getCruInviteStatus, createACRUInvite} from '../../../lib/api/cru.lib';
+import styles from '../../contentScreens/PlayContentScreen/styles';
 import BackButton from '../../../components/General/backbutton';
+import {AuthStackParams} from '../../../navigation/AuthNavigation';
+
+const FirstRoute = () => (
+    <View style={{marginBottom: '3%'}}>
+        <OnboardCruSuggestions />
+    </View>
+);
+
+const SecondRoute = () => (
+    <View style={{marginBottom: '3%'}}>
+        <OnboardContactList />
+    </View>
+);
 
 const OnboardCruBuilder = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const {user: currentUser} = useAuthStore();
 
-    const [data, setData] = useState<IUserProfile[] | []>([]);
-    const [, setTextInputFocused] = useState(false);
-    const textInputRef = useRef(null);
-    const [searchInput, setSearchInput] = useState('');
-    const [randomUsers, setRandomUsers] = useState<IUserProfile[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [inviteStatuses, setInviteStatuses] = useState<{[key: string]: {status: string; isMember: boolean}}>({});
+    const {user, hydrateUser} = useAuthStore();
 
-    const handleSearch = (text: any) => {
-        setSearchInput(text);
-        if (text.length > 1) {
-            searchForUsers(text).then(res => {
-                if (res.length > 0) {
-                    setData(res);
-                }
-            });
-        }
-    };
+    useFocusEffect(
+        React.useCallback(() => {
+            hydrateUser();
+            return () => {
+                hydrateUser();
+            };
+        }, []),
+    );
+
+    const renderTabBar = (
+        props: JSX.IntrinsicAttributes &
+            SceneRendererProps & {
+                navigationState: NavigationState<Route>;
+                scrollEnabled?: boolean | undefined;
+                bounces?: boolean | undefined;
+                activeColor?: string | undefined;
+                inactiveColor?: string | undefined;
+                pressColor?: string | undefined;
+                pressOpacity?: number | undefined;
+                getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined;
+                getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined;
+                getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined;
+                getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined;
+                renderLabel?:
+                    | ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode)
+                    | undefined;
+                renderIcon?: ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode) | undefined;
+                renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined;
+                renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined;
+                renderTabBarItem?:
+                    | ((
+                          props: TabBarItemProps<Route> & {key: string},
+                      ) => React.ReactElement<any, string | React.JSXElementConstructor<any>>)
+                    | undefined;
+                onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined;
+                onTabLongPress?: ((scene: Scene<Route>) => void) | undefined;
+                tabStyle?: StyleProp<ViewStyle>;
+                indicatorStyle?: StyleProp<ViewStyle>;
+                indicatorContainerStyle?: StyleProp<ViewStyle>;
+                labelStyle?: StyleProp<TextStyle>;
+                contentContainerStyle?: StyleProp<ViewStyle>;
+                style?: StyleProp<ViewStyle>;
+                gap?: number | undefined;
+                testID?: string | undefined;
+                android_ripple?: PressableAndroidRippleConfig | undefined;
+            },
+    ) => (
+        <TabBar
+            {...props}
+            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
+            scrollEnabled={false}
+            tabStyle={{width: SIZES.ScreenWidth / 2}}
+            labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
+            style={{
+                backgroundColor: COLORS.AKCRUBACKGROUND,
+                justifyContent: 'space-between',
+            }}
+            contentContainerStyle={{
+                alignItems: 'center',
+                alignContent: 'center',
+                justifyContent: 'center',
+            }}
+            activeColor={COLORS.PURPLE}
+        />
+    );
+
+    const layout = useWindowDimensions();
+
+    const [index, setIndex] = useState(0);
+    const [routes, setRoutes] = useState([
+        {key: 'first', title: 'Suggestions'},
+        {key: 'second', title: 'Contact List'},
+    ]);
 
     useEffect(() => {
-        const loadRandomUsers = async () => {
-            const fetchedUsers = await fetchRandomUsers();
-            setRandomUsers(fetchedUsers);
-        };
-
-        loadRandomUsers().catch(console.error);
+        setRoutes([
+            {key: 'first', title: 'Suggestions'},
+            {key: 'second', title: 'Contact List'},
+        ]);
     }, []);
 
-    const handleSendCruInvite = async (username: string, userID: string) => {
-        try {
-            const senderId = currentUser?.id as string;
-            const response = await createACRUInvite({username, senderId});
-
-            if (response) {
-                const status = await getCruInviteStatus(userID);
-                setInviteStatuses(prevStatuses => ({
-                    ...prevStatuses,
-                    [userID]: {status, isMember: prevStatuses[userID]?.isMember ?? false},
-                }));
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleNavigateToSwipe = () => {
-        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-    };
+    const renderScene = SceneMap({
+        first: FirstRoute,
+        second: SecondRoute,
+    });
 
     return (
-        <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
-                <View style={{flex: 1}}>
-                    <View style={styles.container}>
-                        <BackButton navigation={navigation} />
-                        <View>
-                            <View style={{alignItems: 'center'}}>
-                                <View style={styles.searchinput}>
-                                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                        <Icon
-                                            name="magnify"
-                                            type="material-community"
-                                            color={COLORS.AKCRUBLUE}
-                                            size={28}
-                                            style={{marginRight: 10}}
-                                        />
-                                        <TextInput
-                                            placeholder="Search for user"
-                                            placeholderTextColor={COLORS.DARKGREY}
-                                            autoCorrect={false}
-                                            autoFocus={false}
-                                            ref={textInputRef}
-                                            onFocus={() => {
-                                                setTextInputFocused(true);
-                                            }}
-                                            onBlur={() => {
-                                                setTextInputFocused(false);
-                                            }}
-                                            onChangeText={handleSearch}
-                                            style={{color: COLORS.LIGHTGREY, width: '100%'}}
-                                        />
-                                    </View>
-                                </View>
-                            </View>
-                        </View>
-                        <ScrollView>
-                            {searchInput.length === 0 && (
-                                <View style={{marginBottom: '15%'}}>
-                                    <FlatList
-                                        data={randomUsers}
-                                        horizontal={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        scrollEnabled={false}
-                                        keyExtractor={item => item.id}
-                                        renderItem={({item, index}) => (
-                                            <View style={{marginVertical: 5}}>
-                                                <UserCruBuilderCard
-                                                    userPicture={item.profilePicture}
-                                                    userName={item.username}
-                                                    onPress={() => {
-                                                        navigation.navigate('ViewUserScreen', {
-                                                            userID: item.id,
-                                                        });
-                                                        setTextInputFocused(true);
-                                                    }}
-                                                    userID={item.id}
-                                                    akcruBadge={item.badge}
-                                                    userDesc={item.description}
-                                                    firstName={item.firstName}
-                                                    ownerStatus={item.ownerStatus}
-                                                    companyStatus={item.companyStatus}
-                                                    influencerStatus={item.influencerStatus}
-                                                    blackCloakStatus={item.blackCloakStatus}
-                                                    handleSendCruInvite={handleSendCruInvite}
-                                                />
-                                            </View>
-                                        )}
-                                    />
-                                </View>
-                            )}
-
-                            {searchInput.length > 0 && (
-                                <View style={{marginBottom: '15%'}}>
-                                    <FlatList
-                                        data={data}
-                                        horizontal={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        scrollEnabled={false}
-                                        keyExtractor={item => item.id}
-                                        renderItem={({item, index}) => (
-                                            <View style={{marginVertical: 5}}>
-                                                <UserCruBuilderCard
-                                                    userPicture={item.profilePicture}
-                                                    userName={item.username}
-                                                    onPress={() => {
-                                                        navigation.navigate('ViewUserScreen', {
-                                                            userID: item.id,
-                                                        });
-                                                        setTextInputFocused(true);
-                                                    }}
-                                                    userID={item.id}
-                                                    akcruBadge={item.badge}
-                                                    userDesc={item.description}
-                                                    firstName={item.firstName}
-                                                    ownerStatus={item.ownerStatus}
-                                                    companyStatus={item.companyStatus}
-                                                    influencerStatus={item.influencerStatus}
-                                                    blackCloakStatus={item.blackCloakStatus}
-                                                    handleSendCruInvite={handleSendCruInvite}
-                                                />
-                                            </View>
-                                        )}
-                                    />
-                                </View>
-                            )}
-                        </ScrollView>
-                        <View style={{position: 'relative', bottom: 50, left: '8%'}}>
-                            <AkcruButtons.XlLrgButton
-                                color={COLORS.PURPLE}
-                                btnname={'Watch Content'}
-                                onPress={handleNavigateToSwipe}
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </ImageBackground>
+        <View style={{flex: 1}}>
+            <View>
+                <BackButton navigation={navigation} />
+            </View>
+            <TabView
+                navigationState={{index, routes}}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={{width: layout.width}}
+                swipeEnabled={true}
+                renderTabBar={renderTabBar}
+            />
         </View>
     );
 };

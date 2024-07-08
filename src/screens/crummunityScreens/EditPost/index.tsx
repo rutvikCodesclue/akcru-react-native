@@ -12,7 +12,7 @@ import {
     StyleSheet,
     Image,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
@@ -48,6 +48,7 @@ const EditPostScreen = () => {
     const [currentTag, setCurrentTag] = useState('');
     const [suggestions, setSuggestions] = useState<IUserProfile[]>([]);
     const [isPosting, setIsPosting] = useState(false);
+    const videoRef = useRef(null);
 
     const OnPostPress = async () => {
         try {

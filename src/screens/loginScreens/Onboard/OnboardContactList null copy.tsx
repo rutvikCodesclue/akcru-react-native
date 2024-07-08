@@ -229,6 +229,21 @@ const OnboardContactList = () => {
 
                 {isContactPermission === true ? (
                     <>
+                        <View
+                            style={{
+                                display: 'flex',
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                paddingTop: 10,
+                            }}>
+                            <View style={style.header}>
+                                <Text style={{...FONTS.Title1}}>Contacts</Text>
+                            </View>
+                            <TouchableOpacity onPress={() => navigation.navigate('OnboardName')}>
+                                <Text style={{...FONTS.Title1, paddingRight: 20, color: COLORS.AKCRUPINK}}> Next </Text>
+                            </TouchableOpacity>
+                        </View>
                         <>
                             {isLoading === true && sections.length == 0 ? (
                                 <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '45%'}}>

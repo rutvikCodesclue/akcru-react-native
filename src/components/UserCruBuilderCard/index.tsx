@@ -26,6 +26,8 @@ type UserCruBuilderCardProps = {
     influencerStatus?: boolean;
     blackCloakStatus?: boolean;
     handleSendCruInvite: (username: string, userID: string) => void;
+    inviteStatus: string;
+    isMember: boolean;
 };
 
 const UserCruBuilderCard = ({
@@ -41,35 +43,11 @@ const UserCruBuilderCard = ({
     blackCloakStatus,
     handleSendCruInvite,
     userID,
+    inviteStatus,
+    isMember,
 }: UserCruBuilderCardProps) => {
-    const [cruInviteStatus, setCruInviteStatus] = useState('');
-    const [isMember, setIsMember] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showCruInviteSent, setShowCruInviteSent] = useState(false);
-
-    useEffect(() => {
-        const fetchCruInviteStatus = async () => {
-            const status = await getCruInviteStatus(userID);
-            setCruInviteStatus(status);
-        };
-
-        fetchCruInviteStatus();
-    }, [userID]);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (userID) {
-                try {
-                    const membershipStatus = await checkUserMembership(userID);
-                    setIsMember(membershipStatus);
-                } catch (error) {
-                    console.error('Failed to fetch membership status:', error);
-                }
-            }
-        };
-
-        fetchData();
-    }, [userID]);
 
     useEffect(() => {
         if (showCruInviteSent) {
@@ -87,9 +65,9 @@ const UserCruBuilderCard = ({
 
     let btnName = 'CRU Invite';
     let btnDisabled = false;
-    let btnColor = COLORS.PURPLE;
+    let btnColor = COLORS.AKCRUBLUE;
 
-    if (cruInviteStatus === 'PENDING') {
+    if (inviteStatus === 'PENDING') {
         btnName = 'PENDING';
         btnDisabled = true;
         btnColor = COLORS.DARKGREY;
