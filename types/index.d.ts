@@ -37,6 +37,8 @@ interface IUserProfile {
     blackCloakStatus?: boolean;
     seriesReactions?: IUserSeriesReaction[];
     episodeReactions?: IUserEpisodeReaction[];
+    polls?: IPoll[];
+    votes?: IVote[];
 }
 
 interface IUserWatching {
@@ -218,6 +220,8 @@ export interface IUserProfile {
     blackCloakStatus: boolean;
     seriesReactions?: IUserSeriesReaction[];
     episodeReactions?: IUserEpisodeReaction[];
+    polls?: IPoll[];
+    votes?: IVote[];
 }
 
 export interface IWatchlist {
@@ -650,4 +654,33 @@ interface IUserTrailerReaction {
     updatedAt: string;
     user: IUser;
     trailer: ITrailer;
+}
+
+interface IPoll {
+    id: string;
+    question: string;
+    imageUrl?: string;
+    createdAt: string;
+    updatedAt: string;
+    userId: string;
+    user: IUserProfile;
+    choices: IChoice[];
+}
+
+interface IChoice {
+    id: string;
+    text: string;
+    imageUrl?: string;
+    pollId: string;
+    poll: IPoll;
+    votes: IVote[];
+}
+
+interface IVote {
+    id: string;
+    choiceId: string;
+    userId: string;
+    choice: IChoice;
+    user: IUserProfile;
+    createdAt: string;
 }

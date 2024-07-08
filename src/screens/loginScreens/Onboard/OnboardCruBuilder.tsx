@@ -129,10 +129,22 @@ const OnboardCruBuilder = () => {
         second: SecondRoute,
     });
 
+    const handleNavigateToSwipe = () => {
+        navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+    };
+
     return (
         <View style={{flex: 1}}>
-            <View>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                 <BackButton navigation={navigation} />
+                <View>
+                    <TouchableOpacity
+                        style={{flexDirection: 'row', alignItems: 'center'}}
+                        onPress={handleNavigateToSwipe}>
+                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>Watch Content</Text>
+                        <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.AKCRUPINK} />
+                    </TouchableOpacity>
+                </View>
             </View>
             <TabView
                 navigationState={{index, routes}}

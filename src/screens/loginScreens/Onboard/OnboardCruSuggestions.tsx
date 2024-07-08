@@ -14,7 +14,7 @@ import {IUserProfile} from '../../../../types';
 import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
 import UserCruBuilderCard from '../../../components/UserCruBuilderCard';
 import useAuthStore from '../../../stores/auth.store';
-import {getCruInviteStatus, createACRUInvite} from '../../../lib/api/cru.lib';
+import {getCruInviteStatus, createACRUInvite, checkUserMembership} from '../../../lib/api/cru.lib';
 import BackButton from '../../../components/General/backbutton';
 
 const OnboardCruSuggestions = () => {
@@ -199,14 +199,14 @@ const OnboardCruSuggestions = () => {
                                 </View>
                             )}
                         </ScrollView>
-                        <View style={{position: 'relative', bottom: '15%', left: '8%'}}>
+                        {/* <View style={{position: 'relative', bottom: '15%', left: '8%'}}>
                             <AkcruButtons.XlLrgButton
                                 color={COLORS.PURPLE}
                                 btnname={'Watch Content'}
                                 onPress={handleNavigateToSwipe}
                                 disabled={false}
                             />
-                        </View>
+                        </View> */}
                     </View>
                 </View>
             </ImageBackground>

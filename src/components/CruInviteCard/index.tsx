@@ -48,8 +48,8 @@ const CruInviteCard = ({inviteeName, inviteDate, invitee, onPress, decline, acce
                             />
                         </TouchableOpacity>
                     </View>
-                    <View>
-                        <View style={{flexDirection: 'row', flexWrap: 'wrap', width: 280}}>
+                    <View style={{flex: 1}}>
+                        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
                             <View>
                                 <Text style={styles.paragraphText2}>{inviteeName}</Text>
                             </View>

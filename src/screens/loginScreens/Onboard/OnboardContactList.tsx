@@ -310,33 +310,36 @@ const OnboardContactList = () => {
                                                                                     </Text>
 
                                                                                     <Text
-                                                                                        style={
-                                                                                            (style.cardPhone,
-                                                                                            {maxWidth: 170})
-                                                                                        }>
+                                                                                        style={{
+                                                                                            ...FONTS.paragraph2,
+                                                                                            width: '45%',
+                                                                                        }}>
                                                                                         {description}
                                                                                     </Text>
                                                                                 </View>
 
                                                                                 <View style={style.cardAction}>
-                                                                                    <AkcruButtons.AutoButton
-                                                                                        color={
-                                                                                            isFollowed
-                                                                                                ? COLORS.MIDORANGE
-                                                                                                : COLORS.AKCRUBLUE
-                                                                                        }
-                                                                                        disabled={isBtnLoading}
-                                                                                        btnname={
-                                                                                            isFollowed
-                                                                                                ? 'Followed'
-                                                                                                : 'Follow'
-                                                                                        }
-                                                                                        onPress={() =>
-                                                                                            FollowContact(id)
-                                                                                        }
-                                                                                        width={90}
-                                                                                        // style={{marginTop: 10}}
-                                                                                    />
+                                                                                    <View style={{marginBottom: 10}}>
+                                                                                        <AkcruButtons.AutoButton
+                                                                                            color={
+                                                                                                isFollowed
+                                                                                                    ? COLORS.MIDORANGE
+                                                                                                    : COLORS.AKCRUBLUE
+                                                                                            }
+                                                                                            disabled={isBtnLoading}
+                                                                                            btnname={
+                                                                                                isFollowed
+                                                                                                    ? 'Followed'
+                                                                                                    : 'Follow'
+                                                                                            }
+                                                                                            onPress={() =>
+                                                                                                FollowContact(id)
+                                                                                            }
+                                                                                            width={90}
+                                                                                            // style={{marginTop: 10}}
+                                                                                        />
+                                                                                    </View>
+
                                                                                     <AkcruButtons.AutoButton
                                                                                         color={
                                                                                             isSendInvite
@@ -367,7 +370,9 @@ const OnboardContactList = () => {
                                         </ScrollView>
                                     ) : (
                                         <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '35%'}}>
-                                            <Text style={{...FONTS.Title1, color: COLORS.DARKGREY}}>No Records Found</Text>
+                                            <Text style={{...FONTS.Title1, color: COLORS.DARKGREY}}>
+                                                No Records Found
+                                            </Text>
                                         </View>
                                     )}
                                 </>
@@ -500,10 +505,8 @@ const style = StyleSheet.create({
         paddingLeft: 24,
     },
     sectionTitle: {
-        fontSize: 20,
-        fontWeight: '700',
-        color: '#fff',
-        marginTop: 20,
+        ...FONTS.ContentTitle,
+        marginTop: 10,
     },
     sectionItems: {
         marginTop: 8,
@@ -532,9 +535,7 @@ const style = StyleSheet.create({
         backgroundColor: '#9ca1ac',
     },
     cardAvatarText: {
-        fontSize: 19,
-        fontWeight: 'bold',
-        color: '#fff',
+        ...FONTS.Title2,
     },
     cardBody: {
         marginRight: 'auto',
@@ -546,10 +547,7 @@ const style = StyleSheet.create({
         color: '#fff',
     },
     cardPhone: {
-        fontSize: 15,
-        lineHeight: 20,
-        fontWeight: '500',
-        color: '#fff',
+        ...FONTS.paragraph1,
         marginTop: 3,
         width: '20%',
     },
