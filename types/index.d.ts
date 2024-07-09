@@ -665,6 +665,8 @@ interface IPoll {
     userId: string;
     user: IUserProfile;
     choices: IChoice[];
+    totalVotes: number;
+    expiresAt: string;
 }
 
 interface IChoice {
@@ -674,6 +676,8 @@ interface IChoice {
     pollId: string;
     poll: IPoll;
     votes: IVote[];
+    voteCount: number;
+    percentage: number;
 }
 
 interface IVote {

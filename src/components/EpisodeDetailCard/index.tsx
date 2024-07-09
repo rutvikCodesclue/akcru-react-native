@@ -87,7 +87,7 @@ const EpisodeDetailCard = ({
     useEffect(() => {
         const fetchReactionStats = async () => {
             try {
-                const response = await API.get(`/v1/series/${episodeId}/reaction-stats`);
+                const response = await API.get(`/v1/series/episodes/${episodeId}/reaction-stats`);
                 if (response.data && response.data.success) {
                     setReactionStats(response.data.reactionStats);
                     console.log('Reaction Stats:', response.data.reactionStats);
@@ -103,7 +103,7 @@ const EpisodeDetailCard = ({
     useEffect(() => {
         const fetchUserReaction = async () => {
             try {
-                const response = await API.get(`/v1/series/${episodeId}/user-reaction`);
+                const response = await API.get(`/v1/series/episodes/${episodeId}/user-reaction`);
                 if (response.data && response.data.success) {
                     setSelectedReaction(response.data.reaction);
                 }
@@ -117,11 +117,13 @@ const EpisodeDetailCard = ({
 
     const postReaction = async (reactionType: string | null) => {
         try {
-            const response = await API.post(`/v1/series/${episodeId}/reactions`, {reactionType});
-            console.log('Reaction posted:', response.data);
+            console.log('Posting reaction:', {episodeId, reactionType});
+            const response = await API.post(`/v1/series/episodes/${episodeId}/reactions`, {reactionType});
+            console.log('Reaction response:', response.data);
 
-            setSelectedReaction(reactionType);
-            console.log('Selected Reaction State:', selectedReaction);
+            if (response.data && response.data.success) {
+                setSelectedReaction(reactionType);
+            }
         } catch (error) {
             console.error('Error posting reaction:', error);
         }
@@ -129,6 +131,7 @@ const EpisodeDetailCard = ({
 
     const handleReactionClick = (reactionType: string | null) => {
         if (selectedReaction !== reactionType) {
+            setSelectedReaction(reactionType);
             postReaction(reactionType);
         }
     };

@@ -39,23 +39,30 @@ const OnboardContactList = () => {
     const user = useAuthStore(state => state.user);
 
     const getContactList = async () => {
-        setLoading(true);
+        try {
+            setLoading(true);
+            const contacts = await Contacts.getAll();
+            console.log('Total contacts on phone:', contacts.length);
 
-        const contacts = await Contacts.getAll();
-        console.log('length', contacts.length);
-        setIsContactPermission(true);
-        let allPhoneNumbers: any = [];
+            let allPhoneNumbers: any[] = [];
 
-        contacts.forEach(contact => {
-            const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
+            contacts.forEach(contact => {
+                const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
+                allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
+            });
 
-            allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
-        });
+            const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
+            console.log('Cleaned phone numbers:', cleanedPhoneNumbers);
 
-        const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
-        setContacts(cleanedPhoneNumbers);
-        getKnownUsers(cleanedPhoneNumbers);
+            setContacts(cleanedPhoneNumbers);
+            await getKnownUsers(cleanedPhoneNumbers);
+        } catch (error) {
+            console.error('Error fetching contacts:', error);
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     async function cleanPhoneNumbersAsync(phoneNumbers) {
         const cleanedNumbers = [];
@@ -79,22 +86,26 @@ const OnboardContactList = () => {
         return cleanedNumbers;
     }
 
-    const getKnownUsers = async allPhoneNumbers => {
+    const getKnownUsers = async (allPhoneNumbers: string[]) => {
         try {
-            const user_known_contacts: any = await API.post('/v1/user/find-known-users', {
+            const user_known_contacts = await API.post('/v1/user/find-known-users', {
                 phoneNumbers: allPhoneNumbers,
             });
             if (user_known_contacts.data.success) {
-                const clonedArray = user_known_contacts.data.users.map(obj => ({
+                console.log('Known users from API:', user_known_contacts.data.users);
+
+                const clonedArray = user_known_contacts.data.users.map((obj: any) => ({
                     ...obj,
                     isFollowed: false,
                     isSendInvite: false,
                 }));
+
                 setKnowContacts(clonedArray);
+            } else {
+                console.log('No known users found.');
             }
         } catch (error) {
-            console.log('error =>', error);
-            setLoading(false);
+            console.error('Error fetching known users:', error);
         }
     };
 
@@ -128,16 +139,28 @@ const OnboardContactList = () => {
     }, [knowContacts]);
 
     const checkContactPermission = async () => {
-        if (Platform.OS === 'android') {
-            let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
-            if (contactResult === RESULTS.GRANTED) {
-                setIsContactPermission(true);
-                getContactList();
-            } else if (contactResult === RESULTS.DENIED) {
-                setIsContactPermission(false);
+        try {
+            if (Platform.OS === 'android') {
+                let contactResult = await check(PERMISSIONS.ANDROID.READ_CONTACTS);
+                if (contactResult === RESULTS.GRANTED) {
+                    setIsContactPermission(true);
+                    await getContactList();
+                } else if (contactResult === RESULTS.DENIED) {
+                    setIsContactPermission(false);
+                    const requestResult = await request(PERMISSIONS.ANDROID.READ_CONTACTS);
+                    if (requestResult === RESULTS.GRANTED) {
+                        setIsContactPermission(true);
+                        await getContactList();
+                    } else {
+                        console.log('Contact permission denied');
+                    }
+                }
             }
+        } catch (error) {
+            console.error('Error checking or requesting contact permission:', error);
         }
     };
+
 
     const FollowContact = async (contact_id: string) => {
         try {

@@ -42,7 +42,7 @@ const CruInviteCard = ({inviteeName, inviteDate, invitee, onPress, decline, acce
                     <View style={{marginRight: 10}}>
                         <TouchableOpacity onPress={onPress}>
                             <HexAvatar
-                                source={{uri: invitee.profilePicture}}
+                                source={{uri: invitee?.profilePicture}}
                                 size={55}
                                 bordercolor={selectAvatarBorderColor(invitee?.badge ?? 'AKCRUIT')}
                             />

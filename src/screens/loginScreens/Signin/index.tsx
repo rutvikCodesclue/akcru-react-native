@@ -146,6 +146,7 @@ const Signin = () => {
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
 
             const accessToken = await AsyncStorage.getItem('access_token');
+            console.log('AccessToken:', accessToken);
             const isLoggedInWithToken = isAuthed && accessToken !== null;
             if (isLoggedInWithToken) {
                 navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'});

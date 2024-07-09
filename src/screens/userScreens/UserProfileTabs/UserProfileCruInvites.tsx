@@ -128,8 +128,8 @@ const UserProfileCruInvites = () => {
                         <View style={{marginHorizontal: 15, marginBottom: 10}}>
                             <CruInviteCard
                                 cruInviteID={item.id}
-                                inviteeName={`${item.cru.creator.username}`}
-                                inviteePicture={item.cru.creator.profilePicture ?? undefined}
+                                inviteeName={`${item.cru.creator?.username}`}
+                                inviteePicture={item.cru.creator?.profilePicture ?? undefined}
                                 inviteDate={item.createdAt}
                                 invitee={item.cru.creator}
                                 onPress={() => handleCruInviteCardPress(item.cru.creatorId)}

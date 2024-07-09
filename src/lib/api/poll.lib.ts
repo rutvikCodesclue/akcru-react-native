@@ -1,4 +1,4 @@
-import {IPoll, IVote} from '../../../types';
+import {IPoll, IChoice, IVote} from '../../../types';
 import {API} from '../../clients/api.client';
 
 // Function to create a poll
@@ -26,9 +26,9 @@ export async function createPoll(
 }
 
 // Function to vote on a poll choice
-export async function voteOnPoll(pollId: string, choiceId: string): Promise<IVote> {
+export async function voteOnPoll(choiceId: string): Promise<IVote> {
     try {
-        const {data} = await API.post('/v1/poll/vote', {pollId, choiceId});
+        const {data} = await API.post('/v1/poll/vote', {choiceId});
 
         if (data.success === false) {
             throw new Error(data.message);
@@ -90,24 +90,5 @@ export async function deletePoll(pollId: string): Promise<string> {
     } catch (error) {
         console.error('Error deleting poll:', error);
         throw new Error('Failed to delete poll');
-    }
-}
-
-export async function getPollsByPagination(page = 1): Promise<IPoll[]> {
-    try {
-        const {data} = await API.get('/v1/poll', {
-            params: {
-                page: page - 1,
-            },
-        });
-
-        if (data.success === false) {
-            throw new Error(data.message);
-        }
-
-        return data.polls;
-    } catch (error) {
-        console.error(error);
-        throw new Error('Failed to fetch polls');
     }
 }
