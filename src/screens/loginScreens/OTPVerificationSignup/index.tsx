@@ -194,7 +194,7 @@ const OTPVerificationSignup = ({route}) => {
                             </View>
                         </View>
                     </View>
-                    <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>
+                    <Modal animationType="fade" transparent={true} visible={false}>
                         <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} />
                     </Modal>
                 </View>

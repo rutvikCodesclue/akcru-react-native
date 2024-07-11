@@ -33,29 +33,6 @@ const OTPVerification = ({route}) => {
 
     const [otp, setOTP] = useState<string>('');
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            await authStore.hydrateAuth();
-            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
-
-            const accessToken = await AsyncStorage.getItem('access_token');
-            const isLoggedInWithToken = isAuthed && accessToken !== null;
-
-            setTimeout(() => {
-                if (accessToken) {
-                    setIsLoggedIn(true);
-                    
-                } else {
-                    setIsLoggedIn(false);
-                }
-            }, 1000); 
-        };
-
-        checkAuth().catch(err => {
-            console.error('Error checking auth', err);
-        });
-    }, []);
-
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
     //code length
     const MAX_CODE_LENGTH = 6;
