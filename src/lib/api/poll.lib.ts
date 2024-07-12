@@ -1,4 +1,4 @@
-import {IPoll, IChoice, IVote} from '../../../types';
+import {IPoll, IChoice, IVote, IPollType} from '../../../types';
 import {API} from '../../clients/api.client';
 
 // Function to create a poll
@@ -6,12 +6,16 @@ export async function createPoll(
     question: string,
     imageUrl: string | null,
     choices: {text: string; imageUrl?: string}[],
+    expiresAt: string,
+    type: IPollType, // Add type parameter
 ): Promise<IPoll> {
     try {
         const {data} = await API.post('/v1/poll/create', {
             question,
             imageUrl,
             choices,
+            expiresAt,
+            type, // Include type in the request body
         });
 
         if (data.success === false) {
@@ -26,9 +30,9 @@ export async function createPoll(
 }
 
 // Function to vote on a poll choice
-export async function voteOnPoll(choiceId: string): Promise<IVote> {
+export async function voteOnPoll(pollId: string, choiceId: string): Promise<IVote> {
     try {
-        const {data} = await API.post('/v1/poll/vote', {choiceId});
+        const {data} = await API.post('/v1/poll/vote', {pollId, choiceId});
 
         if (data.success === false) {
             throw new Error(data.message);

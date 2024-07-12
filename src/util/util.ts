@@ -145,6 +145,25 @@ export function classifyPostContent(contentArray: string[]) {
     return {textContent, imageUrls, videoUrl};
 }
 
+export function classifyPollContent(contentArray: string[]) {
+    const imageUrls: string[] = [];
+    let videoUrl = '';
+    const textContentParts: string[] = [];
+
+    contentArray.forEach(item => {
+        if (/^https?:\/\/.+\.(jpeg|jpg|png|gif)$/i.test(item) && item.includes('user-pictures')) {
+            imageUrls.push(item);
+        } else if (/^https?:\/\/.+\.(mov|mp4)$/i.test(item) && item.includes('user-videos')) {
+            videoUrl = item;
+        } else {
+            textContentParts.push(item);
+        }
+    });
+
+    const textContent = textContentParts.join(' ');
+    return {textContent, imageUrls, videoUrl};
+}
+
 export function extractUsernamesFromText(text: string) {
     const usernamePattern = /@[\w.]+(\S+)/g;
     let match;

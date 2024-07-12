@@ -39,6 +39,7 @@ interface IUserProfile {
     episodeReactions?: IUserEpisodeReaction[];
     polls?: IPoll[];
     votes?: IVote[];
+    pollCreator: boolean;
 }
 
 interface IUserWatching {
@@ -222,6 +223,7 @@ export interface IUserProfile {
     episodeReactions?: IUserEpisodeReaction[];
     polls?: IPoll[];
     votes?: IVote[];
+    pollCreator: boolean;
 }
 
 export interface IWatchlist {
@@ -656,7 +658,17 @@ interface IUserTrailerReaction {
     trailer: ITrailer;
 }
 
-interface IPoll {
+// export enum IPollType {
+//     TEXT = 'TEXT',
+//     IMAGE = 'IMAGE',
+//     VIDEO = 'VIDEO',
+//     REEL = 'REEL',
+//     HYBRID = 'HYBRID',
+// }
+
+export type IPollType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
+
+export interface IPoll {
     id: string;
     question: string;
     imageUrl?: string;
@@ -667,9 +679,11 @@ interface IPoll {
     choices: IChoice[];
     totalVotes: number;
     expiresAt: string;
+    type: IPollType; // Update to use PollType enum
+    totalVotes: number;
 }
 
-interface IChoice {
+export interface IChoice {
     id: string;
     text: string;
     imageUrl?: string;
@@ -678,9 +692,10 @@ interface IChoice {
     votes: IVote[];
     voteCount: number;
     percentage: number;
+    voteCount: number;
 }
 
-interface IVote {
+export interface IVote {
     id: string;
     choiceId: string;
     userId: string;

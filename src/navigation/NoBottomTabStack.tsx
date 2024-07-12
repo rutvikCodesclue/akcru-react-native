@@ -51,6 +51,7 @@ import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
 import EditPostScreen from '../screens/crummunityScreens/EditPost';
 import EditCommentScreen from '../screens/crummunityScreens/EditComment';
+import NewPoll from '../screens/crummunityScreens/NewPoll';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -110,6 +111,7 @@ export type NoBottomTabStackParams = {
     EditCru: any;
     EditPostScreen: any;
     EditCommentScreen: any;
+    NewPoll: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -510,6 +512,14 @@ export default function NoBottomStack() {
                 options={() => ({
                     headerShown: false,
                 })}
+            />
+            <NoBottom.Screen
+                name="NewPoll"
+                component={NewPoll}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
             />
         </NoBottom.Navigator>
     );

@@ -21,7 +21,8 @@ import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
-import {IPost, IUserProfile} from '../../../../types';
+import {deletePoll, getPolls, voteOnPoll} from '../../../lib/api/poll.lib';
+import {IPost, IUserProfile, IPoll} from '../../../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {
     blockUser,
@@ -40,6 +41,8 @@ import BlockUserResultModal from '../../../components/BlockUserResultModal/Block
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {selectAvatarBorderColor} from '../../../util/util';
 import PostButton from '../../../components/AkcruPostButton';
+import PollButton from '../../../components/AkcruPollButton';
+import PollCard from '../../../components/CrummunityPoll';
 
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -52,15 +55,15 @@ type Props = {
 
 const CrummunityScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
-    // console.log('user', user?.username);
     const currentUserID = user?.id;
+    const pollCreator = user?.pollCreator;
     const author: IPost | null = route.params?.author ?? null;
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
-    const [posts, setPosts] = useState<IPost[]>([]);
+    const [posts, setPosts] = useState<(IPost | IPoll)[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [error, setError] = useState('');
@@ -75,16 +78,14 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-            // Refresh posts or update state here
+            fetchPostsAndPolls(1);
         });
 
         return unsubscribe;
     }, [navigation]);
 
-    //Updates points on new post
     useFocusEffect(
         React.useCallback(() => {
-
             hydrateUser();
             return () => {
                 hydrateUser();
@@ -92,43 +93,52 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }, []),
     );
 
-    const fetchPostsAndFollowStatus = async (pageNumber: number) => {
+    const fetchPostsAndPolls = async (pageNumber: number) => {
         setLoading(true);
         try {
-            // Fetch posts
-            const fetchedPosts = await getPosts(pageNumber);
+            const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber), getPolls(pageNumber)]);
 
-            // Initialize sets for following and blocked user IDs
             let followingIds = new Set();
             let blockedUserIds = new Set();
 
             if (currentUserID) {
-                // Fetch following status
                 const followingResponse = await getUserFollowing(currentUserID);
                 followingIds = new Set(followingResponse?.following.map((user: {id: any}) => user.id));
 
-                // Fetch blocked users status
-                const blockedResponse = await getBlockedUsers(); // Assuming this function exists and returns a list of blocked user IDs
+                const blockedResponse = await getBlockedUsers();
                 blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
             }
 
-            // Update posts with isFollowed and isBlocked status
             const updatedPosts = fetchedPosts.map((post: {author: {id: unknown}}) => ({
                 ...post,
                 author: {
                     ...post.author,
                     isFollowed: followingIds.has(post.author.id),
-                    isBlocked: blockedUserIds.has(post.author.id), // Add blocked status
+                    isBlocked: blockedUserIds.has(post.author.id),
                 },
             }));
 
+            const updatedPolls = fetchedPolls.map((poll: {user: {id: unknown}}) => ({
+                ...poll,
+                user: {
+                    ...poll.user,
+                    isFollowed: followingIds.has(poll.user.id),
+                    isBlocked: blockedUserIds.has(poll.user.id),
+                },
+                type: 'poll',
+            }));
+
+            const combinedItems = [...updatedPosts, ...updatedPolls].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            );
+
             if (pageNumber === 1) {
-                setPosts(updatedPosts);
+                setPosts(combinedItems);
             } else {
-                setPosts(prevPosts => [...prevPosts, ...updatedPosts]);
+                setPosts(prevPosts => [...prevPosts, ...combinedItems]);
             }
 
-            setHasMore(fetchedPosts.length === 10);
+            setHasMore(fetchedPosts.length === 10 || fetchedPolls.length === 10);
             setPage(pageNumber);
         } catch (error) {
             console.error('Failed to fetch posts or follow/block status:', error);
@@ -139,43 +149,24 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    useEffect(() => {
-        const handleFocus = () => {
-            //console.log('Screen gained focus');
-            fetchPostsAndFollowStatus(1); // Fetch the first page of posts along with follow status
-        };
-
-        const unsubscribeFocus = navigation.addListener('focus', handleFocus);
-
-        // Initial fetch
-        fetchPostsAndFollowStatus(1);
-
-        return () => {
-            unsubscribeFocus();
-            //console.log('Screen lost focus');
-        };
-    }, [navigation, currentUserID]); // Depend on currentUserID to refetch if it changes
-
-    const handleScroll = ({ nativeEvent }) => {
+    const handleScroll = ({nativeEvent}) => {
         if (isCloseToBottom(nativeEvent)) {
             loadMorePosts();
         }
     };
 
     const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
-        // const paddingToBottom = 20; // You can adjust this value to trigger the load more earlier or later
         const paddingToBottom = contentSize.height * 0.25;
         return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
     };
 
     const loadMorePosts = async () => {
         if (!hasMore || isLoadingMore) {
-            return; // Do nothing if there are no more posts to load
+            return;
         }
 
         setIsLoadingMore(true);
-        // Use the modified function to fetch more posts along with follow status
-        await fetchPostsAndFollowStatus(page + 1);
+        await fetchPostsAndPolls(page + 1);
         setIsLoadingMore(false);
     };
 
@@ -188,28 +179,24 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                 isLikedByCurrentUser: selectedPost.isLikedByCurrentUser,
             });
         } else {
-            // Handle the case when the post is not found
             console.error('Error: Post not found');
         }
     };
 
     const onLikeOrUnlike = async (postId: number) => {
         try {
-            // Find the post in the current state
             const postIndex = posts.findIndex(post => +post.id === postId);
             if (postIndex === -1) return;
 
             const post = posts[postIndex];
             const isLiked = post.isLikedByCurrentUser;
 
-            // Perform the like or unlike action
             if (isLiked) {
                 await unlikePost(postId);
             } else {
                 await likePost(postId);
             }
 
-            // Optimistically update the UI
             const updatedPosts = [...posts];
             updatedPosts[postIndex] = {
                 ...post,
@@ -222,42 +209,52 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(updatedPosts);
         } catch (error) {
             console.error('Error changing like status:', error);
-            // Optionally handle reversion or user notification here
         }
     };
 
     const handleDeletePost = async (postId: number) => {
-        // Find the post in the current state
         const postIndex = posts.findIndex(post => +post.id === postId);
         if (postIndex === -1) return;
 
         const post = posts[postIndex];
 
         try {
-            // If the post is liked by the current user, unlike it first
             if (post.isLikedByCurrentUser) {
                 await unlikePost(postId);
             }
 
-            // Proceed to delete the post
             await deletePost(postId);
 
-            // Update the local state to remove the post
             setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
         } catch (error) {
             console.error('Error in deleting post:', error);
-            // Handle error (e.g., show a message to the user)
+        }
+    };
+
+    const handleDeletePoll = async (pollId: string) => {
+        try {
+            await deletePoll(pollId);
+            setPosts(prevPosts => prevPosts.filter(post => post.id !== pollId));
+        } catch (error) {
+            console.error('Error in deleting poll:', error);
+        }
+    };
+
+    const handleVote = async (pollId: string, choiceId: string) => {
+        try {
+            await voteOnPoll(pollId, choiceId);
+            fetchPostsAndPolls(1);
+        } catch (error) {
+            console.error('Error voting on poll:', error);
         }
     };
 
     const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        //console.log('handleFollow', authorId);
-        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
+        const updatedStatus = await toggleFollow(authorId);
         if (updatedStatus !== undefined) {
             setPosts(prevPosts =>
                 prevPosts.map(post => {
                     if (post.author.id === authorId) {
-                        // Update the follow status
                         return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
                     }
                     return post;
@@ -269,7 +266,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleReportUser = (author: IUserProfile) => {
-        // Navigate to the report screen, passing the authorId
         navigation2.navigate('ReportUser', {
             authorId: author.id,
             authorUsername: author.username,
@@ -277,7 +273,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             authorProfilePicture: author.profilePicture,
             authorBadge: author.badge,
         });
-        //console.log('Report user screen opened:', author);
     };
 
     const [blockUserModal, setBlockUserModal] = useState(false);
@@ -290,32 +285,25 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleToggleBlockUser = async authorId => {
-        // Since you won't need to check for unblocking on this screen,
-        // we directly proceed with the blocking logic
         let response = await blockUser(authorId);
 
         if (response.success) {
-            // Update the blockedUsers state by adding the newly blocked user
-            // Note: You might need to adjust this part depending on the structure of your `response`
             setBlockedUsers(prev => [...prev, {id: authorId}]);
 
-            // Optionally, remove the blocked user's posts from the view
             setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
 
-            // Alert.alert('Success', 'User blocked successfully.');
             setModalType('success');
             setBlockUserMessage('User successfully blocked');
             setBlockUserModal(true);
             setIconName('hand-back-left');
         } else {
-            // Handle the error case
             Alert.alert('Error', 'Failed to block user.');
         }
     };
 
     const handleRefresh = () => {
         setRefreshing(true);
-        fetchPostsAndFollowStatus(1);
+        fetchPostsAndPolls(1);
         setRefreshing(false);
     };
 
@@ -339,7 +327,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
                                 <LinearGradient
-                                    // Background Linear Gradient
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                     style={{
                                         position: 'absolute',
@@ -386,8 +373,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 <View style={{marginTop: '25%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PINK} />
                                 </View>
-                            ) : // You can customize the size and color
-                            posts.length === 0 ? (
+                            ) : posts.length === 0 ? (
                                 <View>
                                     <Text style={styles.noPostText}>No Post yet</Text>
                                 </View>
@@ -398,39 +384,64 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     keyExtractor={item => item.id}
                                     refreshing={refreshing}
                                     onRefresh={handleRefresh}
-                                    renderItem={({item}) => (
-                                        <Pressable onPress={() => handlePostPress(+item.id)} style={{marginBottom: 10}}>
-                                            <SkinnyPostCard
-                                                post={item}
-                                                openProfile={() =>
-                                                    navigation2.navigate('ViewUserScreen', {userID: item.author?.id})
-                                                }
-                                                // onFollow={() => handleFollow(item.author)}
-                                                reportUser={() => handleReportUser(item.author)}
-                                                onDeletePost={handleDeletePost}
-                                                currentUserID={currentUserID || ''}
-                                                akcruBadge={item.author?.badge}
-                                                isPostLiked={item.isLikedByCurrentUser}
-                                                onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
-                                                CommentOnPostButton={() =>
-                                                    navigation2.navigate('NewComment', {postId: item.id})
-                                                }
-                                                isFollowing={item.author.isFollowed}
-                                                onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
-                                                akcruBadgeColor={selectAvatarBorderColor(
-                                                    item.author.badge ?? 'AKCRUIT',
-                                                )}
-                                                onBlockUser={() =>
-                                                    handleToggleBlockUser(
-                                                        item.author.id,
-                                                        item.author.isCurrentlyBlocked,
-                                                    )
-                                                }
-                                                isOwner={item.author.ownerStatus}
-                                                isPromo={item.author.promoUser}
-                                            />
-                                        </Pressable>
-                                    )}
+                                    renderItem={({item}) =>
+                                        item.type === 'poll' ? (
+                                            <View style={{marginBottom: 10}}>
+                                                <PollCard
+                                                    poll={item}
+                                                    onVote={handleVote}
+                                                    onDeletePoll={handleDeletePoll}
+                                                    currentUserID={currentUserID || ''}
+                                                    akcruBadge={item.user?.badge}
+                                                    akcruBadgeColor={selectAvatarBorderColor(
+                                                        item.user.badge ?? 'AKCRUIT',
+                                                    )}
+                                                    openProfile={() =>
+                                                        navigation2.navigate('ViewUserScreen', {
+                                                            userID: item.user?.id,
+                                                        })
+                                                    }
+                                                />
+                                            </View>
+                                        ) : (
+                                            <Pressable
+                                                onPress={() => handlePostPress(+item.id)}
+                                                style={{marginBottom: 10}}>
+                                                <SkinnyPostCard
+                                                    post={item}
+                                                    openProfile={() =>
+                                                        navigation2.navigate('ViewUserScreen', {
+                                                            userID: item.author?.id,
+                                                        })
+                                                    }
+                                                    reportUser={() => handleReportUser(item.author)}
+                                                    onDeletePost={handleDeletePost}
+                                                    currentUserID={currentUserID || ''}
+                                                    akcruBadge={item.author?.badge}
+                                                    isPostLiked={item.isLikedByCurrentUser}
+                                                    onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
+                                                    CommentOnPostButton={() =>
+                                                        navigation2.navigate('NewComment', {postId: item.id})
+                                                    }
+                                                    isFollowing={item.author.isFollowed}
+                                                    onFollow={() =>
+                                                        handleFollow(item.author.id, item.author.isFollowed)
+                                                    }
+                                                    akcruBadgeColor={selectAvatarBorderColor(
+                                                        item.author.badge ?? 'AKCRUIT',
+                                                    )}
+                                                    onBlockUser={() =>
+                                                        handleToggleBlockUser(
+                                                            item.author.id,
+                                                            item.author.isCurrentlyBlocked,
+                                                        )
+                                                    }
+                                                    isOwner={item.author.ownerStatus}
+                                                    isPromo={item.author.promoUser}
+                                                />
+                                            </Pressable>
+                                        )
+                                    }
                                     ListFooterComponent={() =>
                                         hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
                                     }
@@ -438,17 +449,21 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             )}
                         </View>
                     </ScrollView>
-                    <Pressable style={styles.floatingbutton} onPress={() => navigation2.navigate('NewPost')}>
-                        <View>
-                            <PostButton />
-                        </View>
-                        {/* <View style={{position: 'relative'}}>
-                            <HexShape size={55} color={COLORS.AKCRUBLUE} />
-                            <View style={{position: 'absolute', top: '5%', right: '6%'}}>
-                                <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
+                    <View style={styles.floatingbutton}>
+                        {pollCreator && (
+                            <Pressable onPress={() => navigation2.navigate('NewPoll')}>
+                                <View>
+                                    <PollButton />
+                                </View>
+                            </Pressable>
+                        )}
+
+                        <Pressable onPress={() => navigation2.navigate('NewPost')}>
+                            <View>
+                                <PostButton />
                             </View>
-                        </View> */}
-                    </Pressable>
+                        </Pressable>
+                    </View>
                 </View>
                 <Modal
                     animationType="fade"

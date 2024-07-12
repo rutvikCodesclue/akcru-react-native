@@ -10,10 +10,10 @@ const PollButton = () => {
             <Image
                 source={imageindex.AkcruHexBlank}
                 resizeMode="contain"
-                style={{width: MULTISIZES.Xlarge75, height: MULTISIZES.Xlarge75}}
+                style={{width: MULTISIZES.Xlarge75, height: MULTISIZES.Xlarge43}}
             />
-            <View style={{position: 'absolute', top: '16%', right: '20%'}}>
-                <Icon name="stats-chart" type="ionicon" color={COLORS.LIGHTGREY} size={45} />
+            <View style={{position: 'absolute', top: '20%', right: '37%'}}>
+                <Icon name="stats-chart" type="ionicon" color={COLORS.LIGHTGREY} size={20} />
             </View>
         </View>
     );
