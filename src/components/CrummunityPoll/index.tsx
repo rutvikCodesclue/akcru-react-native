@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {View, Text, TouchableOpacity, Image, FlatList, Pressable, Modal, TouchableWithoutFeedback} from 'react-native';
 import styles from './styles';
 import {IUserProfile, IChoice, IPollType} from '../../../types';
@@ -13,11 +13,14 @@ import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import Video from 'react-native-video';
+import AkcruButtons from '../akcruButtons';
 
 type IPoll = {
     id: string;
     question: string;
     imageUrl?: string;
+    videoUrl?: string;
     createdAt: string;
     updatedAt: string;
     userId: string;
@@ -60,6 +63,18 @@ const PollCard = ({
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
+     const [debounce, setDebounce] = useState(false);
+
+    const [isVideoModalVisible, setVideoModalVisible] = useState(false);
+    const [selectedVideo, setSelectedVideo] = useState('');
+
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+
+    const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const topVideoRef = useRef(null);
+    const modalVideoRef = useRef(null);
+
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
         setImageModalVisible(true);
@@ -68,6 +83,38 @@ const PollCard = ({
     const closeModal = () => {
         setImageModalVisible(false);
     };
+
+    const openVideoModal = (video: React.SetStateAction<string>) => {
+        setSelectedVideo(video);
+        setVideoModalVisible(true);
+    };
+
+    const handleVideoEnd = () => {
+        // Logic for when the video ends
+        setVideoModalVisible(false);
+    };
+
+    const handleVideoError = () => {
+        // Logic for handling video errors
+        setVideoModalVisible(false);
+    };
+
+    const handleVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
+    };
+
+    const handleModalVideoLoad = () => {
+        // Logic for when the video is loaded
+        setIsVideoLoaded(true);
+        setShowSkipButton(true);
+    };
+
+    const handleSkipVideo = () => {
+        // Logic for skipping the video
+        setVideoModalVisible(false);
+    };
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -94,6 +141,9 @@ const PollCard = ({
         if (isPollExpired) {
             return;
         }
+
+        setDebounce(true);
+        setTimeout(() => setDebounce(false), 5000); // 1 second debounce
 
         const now = new Date();
         const expiresAt = new Date(poll.expiresAt);
@@ -234,11 +284,13 @@ const PollCard = ({
                         <DisplayBadge akcruBadge={akcruBadge} />
                     </View>
                 </View>
-                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    <Pressable onPress={openPollOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
-                    </Pressable>
-                </View>
+                {isCurrentUserAuthor && (
+                    <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
+                        <Pressable onPress={openPollOptions}>
+                            <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                        </Pressable>
+                    </View>
+                )}
             </View>
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
                 Poll started {timeSince(poll.createdAt)}
@@ -253,6 +305,27 @@ const PollCard = ({
                     </TouchableOpacity>
                 )}
             </View>
+            <View>
+                {/* Render video if available */}
+                {poll.videoUrl && (
+                    <TouchableOpacity onPress={() => openVideoModal(poll.videoUrl)}>
+                        <View style={styles.postvideo}>
+                            <Video
+                                ref={topVideoRef}
+                                style={styles.videoStyle}
+                                source={{uri: poll.videoUrl}}
+                                resizeMode="contain"
+                                onEnd={handleVideoEnd}
+                                repeat={false}
+                                onError={handleVideoError}
+                                onLoad={handleVideoLoad}
+                                muted={true}
+                            />
+                        </View>
+                    </TouchableOpacity>
+                )}
+            </View>
+
             <View style={{marginTop: 10}}>
                 <FlatList
                     data={poll.choices}
@@ -262,7 +335,7 @@ const PollCard = ({
                             <TouchableOpacity
                                 style={[styles.pollChoice, selectedChoice === choice.id && styles.selectedPollChoice]}
                                 onPress={() => handleVote(choice.id)}
-                                disabled={poll.votedByCurrentUser || isPollExpired}>
+                                disabled={poll.votedByCurrentUser || isPollExpired || debounce}>
                                 {choice.imageUrl && (
                                     <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />
                                 )}
@@ -319,6 +392,38 @@ const PollCard = ({
                         <Text style={{...FONTS.Title2, color: COLORS.WHITE, padding: 10}}>Close</Text>
                     </TouchableOpacity>
                 </Pressable>
+            </Modal>
+            {/* Video Modal */}
+            <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    }}>
+                    <Video
+                        ref={modalVideoRef}
+                        style={{width: '100%', height: '100%'}}
+                        source={{uri: poll.videoUrl}}
+                        resizeMode="contain"
+                        onEnd={handleVideoEnd}
+                        repeat={false}
+                        onError={handleVideoError}
+                        onLoad={handleModalVideoLoad}
+                        muted={false}
+                    />
+                    {showSkipButton && (
+                        <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
+                            <AkcruButtons.SmallButton
+                                color={COLORS.PINK}
+                                btnname={'Skip'}
+                                onPress={handleSkipVideo}
+                                disabled={false}
+                            />
+                        </View>
+                    )}
+                </View>
             </Modal>
         </View>
     );

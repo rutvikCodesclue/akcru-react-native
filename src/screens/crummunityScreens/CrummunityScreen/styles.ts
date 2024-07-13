@@ -49,13 +49,13 @@ export default StyleSheet.create({
         marginBottom: 5,
     },
     floatingbutton: {
-        width: 55,
-        height: 55,
-        borderRadius: 25,
         position: 'relative',
         bottom: Platform.OS === 'ios' ? '30%' : '25%',
-        left: '80%',
-        alignItems: 'center',
+        left: '0%',
+        alignItems: 'flex-end',
+        width: '100%',
+        justifyContent: 'flex-end',
+        paddingRight: '5%',
     },
     floatingbutton2: {
         width: 55,

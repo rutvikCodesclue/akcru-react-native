@@ -13,7 +13,7 @@ const PostButton = () => {
                 resizeMode="contain"
                 style={{width: MULTISIZES.Xlarge75, height: MULTISIZES.Xlarge75}}
             />
-            <View style={{position: 'absolute', top: '7%', right: '12%'}}>
+            <View style={{position: 'absolute', top: '11%', right: '16%'}}>
                 {/* <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} /> */}
                 <CustomIcon name="add" type="ionicon" baseSize={35} color={COLORS.LIGHTGREY} />
             </View>

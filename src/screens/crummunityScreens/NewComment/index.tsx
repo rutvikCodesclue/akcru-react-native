@@ -70,12 +70,10 @@ const NewComment = ({navigation, route}: Props) => {
 
     const onCancelVideo = async () => {
         await VideoCompressor.cancelCompression(cancelidVideo);
-        setIsCompress(false)
-        setcancelidVideo('')
-        setProgress(0)
-
-
-    }
+        setIsCompress(false);
+        setcancelidVideo('');
+        setProgress(0);
+    };
 
     const getFileSize = async filePath => {
         try {
@@ -201,7 +199,6 @@ const NewComment = ({navigation, route}: Props) => {
         return compressedImages;
     };
 
-
     const OnCommentPress = async () => {
         try {
             const postType = determinePostType();
@@ -235,26 +232,27 @@ const NewComment = ({navigation, route}: Props) => {
             } else if (postType === 'VIDEO') {
                 setIsCompress(true);
 
-                const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
-                    compressionMethod: 'auto',
-                    getCancellationId: (cancellationId) => {
-                        setcancelidVideo(cancellationId)
+                const compressedVideoPath = await VideoCompressor.compress(
+                    selectedVideo,
+                    {
+                        compressionMethod: 'auto',
+                        getCancellationId: cancellationId => {
+                            setcancelidVideo(cancellationId);
+                        },
+                        progressDivider: 10,
                     },
-                    progressDivider: 10,
-                
-                }, progress => {
-
-                    setProgress(progress);
-                });
+                    progress => {
+                        setProgress(progress);
+                    },
+                );
                 setIsCompress(false);
                 setIsCommenting(true);
                 const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-                
+
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
-                if(!selectedVideo){
+                if (!selectedVideo) {
                     setIsCommenting(true);
-
                 }
                 content.push(comment);
 
@@ -280,17 +278,19 @@ const NewComment = ({navigation, route}: Props) => {
                     // Upload video if exists
                     setIsCompress(true);
 
-                    const compressedVideoPath = await VideoCompressor.compress(selectedVideo, {
-                        compressionMethod: 'auto',
-                        getCancellationId: (cancellationId) => {
-                            setcancelidVideo(cancellationId)
+                    const compressedVideoPath = await VideoCompressor.compress(
+                        selectedVideo,
+                        {
+                            compressionMethod: 'auto',
+                            getCancellationId: cancellationId => {
+                                setcancelidVideo(cancellationId);
+                            },
+                            progressDivider: 10,
                         },
-                        progressDivider: 10,
-                    
-                    }, progress => {
-
-                        setProgress(progress);
-                    });
+                        progress => {
+                            setProgress(progress);
+                        },
+                    );
                     setIsCompress(false);
 
                     setIsCommenting(true);
@@ -630,7 +630,6 @@ const NewComment = ({navigation, route}: Props) => {
                             </View>
                         </Modal>
                     </View>
-                 
                 </ScrollView>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
@@ -653,11 +652,11 @@ const NewComment = ({navigation, route}: Props) => {
                                     style={stylesProgress.progressBar}
                                 />
                             )}
-                             <TouchableOpacity onPress={onCancelVideo} >
-                                    <View>
-                                        <Text style={styles.cancelButton}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
+                            <TouchableOpacity onPress={onCancelVideo}>
+                                <View>
+                                    <Text style={styles.cancelButton}>Cancel</Text>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </Modal>

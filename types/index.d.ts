@@ -672,6 +672,7 @@ export interface IPoll {
     id: string;
     question: string;
     imageUrl?: string;
+    videoUrl?: string;
     createdAt: string;
     updatedAt: string;
     userId: string;

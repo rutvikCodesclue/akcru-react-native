@@ -67,14 +67,11 @@ export default StyleSheet.create({
         justifyContent: 'center',
     },
     floatingbuttonContainer: {
-        width: 55,
-        height: 55,
-        borderRadius: 25,
         position: 'relative',
+        paddingRight: '5%',
         bottom: '20%',
-        left: '80%',
-        alignItems: 'center',
+        left: '0%',
+        alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    
 });
