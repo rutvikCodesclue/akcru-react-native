@@ -17,6 +17,7 @@ export const getTotalSupplyOfAD = async (): Promise<Number | undefined> => {
 };
 
 export const purchaseMIT = async (params: {amount: number}): Promise<boolean> => {
+    console.log('purchaseMIT', params);
     try {
         const {data} = await API.post('/v1/wallet/purchase/mit', {
             amount: params.amount,

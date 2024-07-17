@@ -67,6 +67,13 @@ const NewPoll = () => {
 
     const [hours, setHours] = useState<string>('');
     const [minutes, setMinutes] = useState<string>('');
+
+    // Function to ensure only numeric input
+    const handleNumericInput = (text, setter) => {
+        const numericText = text.replace(/[^0-9]/g, '');
+        setter(numericText);
+    };
+
     const [isPollButtonEnabled, setIsPollButtonEnabled] = useState(false);
 
     useEffect(() => {
@@ -77,7 +84,11 @@ const NewPoll = () => {
     }, [pollText, pollChoices, hours, minutes]);
 
     const addChoice = () => {
-        setPollChoices([...pollChoices, {text: ''}]);
+        if (pollChoices.length < 8) {
+            setPollChoices([...pollChoices, {text: ''}]);
+        } else {
+            Alert.alert('Limit Reached', 'You can only add up to 8 choices.');
+        }
     };
 
     const removeChoice = (index: number) => {
@@ -244,183 +255,6 @@ const NewPoll = () => {
         setcancelidVideo('');
         setProgress(0);
     };
-
-    // const OnPostPress = async () => {
-    //     try {
-    //         if (pollText === '' || pollChoices.length === 0) {
-    //             return;
-    //         }
-
-    //         const pollType = determinePostType();
-    //         let content = [];
-
-    //         if (pollType === 'TEXT') {
-    //             content = [pollText];
-    //             setIsPosting(true);
-    //         } else if (pollType === 'IMAGE') {
-    //             setIsPosting(true);
-
-    //             // Separate GIFs from other images
-    //             const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
-    //             const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
-
-    //             let imageUrls = [];
-    //             if (otherImages.length > 0) {
-    //                 // Compress and upload other images
-    //                 const compressedImages = await compressAndUploadImages(otherImages);
-    //                 imageUrls = await uploadPictures(compressedImages);
-    //             }
-
-    //             let gifUrls = [];
-    //             if (gifs.length > 0) {
-    //                 // Upload GIFs directly without compression
-    //                 gifUrls = await uploadPictures(gifs);
-    //             }
-
-    //             // Combine both URLs
-    //             content = [...imageUrls, ...gifUrls];
-    //         } else if (pollType === 'VIDEO') {
-    //             setIsCompress(true);
-    //             const compressedVideoPath = await VideoCompressor.compress(
-    //                 selectedVideo,
-    //                 {
-    //                     compressionMethod: 'auto',
-    //                     getCancellationId: cancellationId => {
-    //                         setcancelidVideo(cancellationId);
-    //                     },
-    //                     progressDivider: 10,
-    //                 },
-    //                 progress => {
-    //                     setProgress(progress);
-    //                 },
-    //             );
-    //             setIsCompress(false);
-    //             setIsPosting(true);
-    //             const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-    //             content = [videoUrl];
-    //         } else if (pollType === 'HYBRID') {
-    //             if (!selectedVideo) {
-    //                 setIsPosting(true);
-    //             }
-    //             content = [pollText];
-
-    //             // Separate GIFs from other images
-    //             const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
-    //             const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
-
-    //             let imageUrls = [];
-    //             if (otherImages.length > 0) {
-    //                 // Compress and upload other images
-    //                 const compressedImages = await compressAndUploadImages(otherImages);
-    //                 imageUrls = await uploadPictures(compressedImages);
-    //             }
-
-    //             let gifUrls = [];
-    //             if (gifs.length > 0) {
-    //                 // Upload GIFs directly without compression
-    //                 gifUrls = await uploadPictures(gifs);
-    //             }
-
-    //             let videoUrl = null;
-    //             if (selectedVideo) {
-    //                 // Upload video if exists
-    //                 setIsCompress(true);
-    //                 const compressedVideoPath = await VideoCompressor.compress(
-    //                     selectedVideo,
-    //                     {
-    //                         compressionMethod: 'auto',
-    //                         getCancellationId: cancellationId => {
-    //                             setcancelidVideo(cancellationId);
-    //                         },
-    //                         progressDivider: 10,
-    //                     },
-    //                     progress => {
-    //                         setProgress(progress);
-    //                     },
-    //                 );
-    //                 setIsCompress(false);
-    //                 setIsPosting(true);
-
-    //                 videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-    //             }
-
-    //             // Combine all media URLs
-    //             const mediaUrls = [...imageUrls, ...gifUrls];
-    //             if (videoUrl) {
-    //                 mediaUrls.push(videoUrl);
-    //             }
-
-    //             content = content.concat(mediaUrls);
-    //         }
-
-    //         const choicesWithImageUrls = await Promise.all(
-    //             pollChoices.map(async choice => {
-    //                 if (choice.imageUrl) {
-    //                     const compressedImages = await compressAndUploadImages([choice.imageUrl]);
-    //                     const imageUrl = await uploadPictures(compressedImages);
-    //                     return {...choice, imageUrl: imageUrl[0]};
-    //                 }
-    //                 return choice;
-    //             }),
-    //         );
-
-    //         const durationHours = parseInt(hours) || 0;
-    //         const durationMinutes = parseInt(minutes) || 0;
-    //         const expirationDate = new Date();
-    //         expirationDate.setHours(expirationDate.getHours() + durationHours);
-    //         expirationDate.setMinutes(expirationDate.getMinutes() + durationMinutes);
-
-    //         const result = await createPoll(
-    //             pollText,
-    //             null,
-    //             choicesWithImageUrls,
-    //             expirationDate.toISOString(),
-    //             pollType,
-    //         );
-
-    //         if (result && result.id) {
-    //             const newPollId = result.id;
-
-    //             const taggedUsernames = extractUsernamesFromText(pollText);
-
-    //             await Promise.all(
-    //                 taggedUsernames.map(async username => {
-    //                     try {
-    //                         const user = await findAUser({username});
-    //                         if (user && user.id) {
-    //                             const notificationType = 'UserTaggedOnPoll';
-    //                             const success = await sendTagNotification(user.id, notificationType, newPollId);
-    //                             if (success) {
-    //                             } else {
-    //                                 console.error(`Failed to send notification to ${username}`);
-    //                             }
-    //                         } else {
-    //                             console.error(`User not found for username: ${username}`);
-    //                         }
-    //                     } catch (error) {
-    //                         console.error(`Error processing tag for username: ${username}`, error);
-    //                     }
-    //                 }),
-    //             );
-    //             setIsPosting(false);
-    //             navigation.goBack();
-    //         } else {
-    //             console.error('Error creating the poll');
-    //         }
-    //     } catch (error) {
-    //         console.error('Error creating the poll:', error);
-    //         setIsPosting(false);
-    //     }
-    //     if (!cancelidVideo) {
-    //         setPollText('');
-    //         setPollChoices([{text: ''}]);
-    //         setSelectedImages([]);
-    //         setSelectedVideo('');
-    //     } else {
-    //         setSelectedImages([]);
-    //         setSelectedVideo('');
-    //     }
-    // };
 
     const OnPostPress = async () => {
         try {
@@ -609,7 +443,6 @@ const NewPoll = () => {
             setSelectedVideo('');
         }
     };
-
 
     useEffect(() => {
         const fetchUserSuggestions = async () => {
@@ -841,7 +674,11 @@ const NewPoll = () => {
                                 )}
                             </View>
                         )}
-
+                        <View>
+                            <Text style={{...FONTS.paragraph1, textAlign: 'center', color: COLORS.DARKGREY}}>
+                                (Must have at least 2 choices and at most 8 choices.)
+                            </Text>
+                        </View>
                         <View style={styles.choicesContainer}>
                             {pollChoices.map((choice, index) => (
                                 <View key={index} style={styles.choice}>
@@ -876,16 +713,29 @@ const NewPoll = () => {
                         </View>
                         <TouchableOpacity onPress={addChoice} style={styles.addChoiceButton}>
                             <Text style={styles.addChoiceButtonText}>Add Choice</Text>
+                            <Icon name="plus-circle" type="material-community" color={COLORS.AKCRUPINK} size={25} />
                         </TouchableOpacity>
                         <View style={styles.durationContainer}>
-                            <Text style={styles.durationLabel}>Poll Duration</Text>
+                            <View style={{marginBottom: 10}}>
+                                <Text style={{...FONTS.paragraph1, textAlign: 'center', color: COLORS.DARKGREY}}>
+                                    (Must enter the amount of time the poll will run.)
+                                </Text>
+                            </View>
+                            <View style={{marginBottom: 10}}>
+                                <Text style={styles.durationLabel}>Poll Duration</Text>
+                            </View>
+
+                            <View>
+                                <Icon name="timer" type="material-community" color={COLORS.PINK} size={25} />
+                            </View>
+
                             <View style={styles.durationInputs}>
                                 <TextInput
                                     style={styles.durationInput}
                                     placeholder="Hours"
                                     keyboardType="numeric"
                                     value={hours}
-                                    onChangeText={setHours}
+                                    onChangeText={text => handleNumericInput(text, setHours)}
                                     placeholderTextColor={COLORS.DARKGREY}
                                 />
                                 <Text style={styles.durationSeparator}>:</Text>
@@ -894,7 +744,7 @@ const NewPoll = () => {
                                     placeholder="Minutes"
                                     keyboardType="numeric"
                                     value={minutes}
-                                    onChangeText={setMinutes}
+                                    onChangeText={text => handleNumericInput(text, setMinutes)}
                                     placeholderTextColor={COLORS.DARKGREY}
                                 />
                             </View>

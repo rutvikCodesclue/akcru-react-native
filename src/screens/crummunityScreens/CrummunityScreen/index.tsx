@@ -21,7 +21,7 @@ import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
-import {deletePoll, getPolls, voteOnPoll} from '../../../lib/api/poll.lib';
+import {deletePoll, getPollById, getPolls, voteOnPoll} from '../../../lib/api/poll.lib';
 import {IPost, IUserProfile, IPoll} from '../../../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {
@@ -93,6 +93,62 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }, []),
     );
 
+    // const fetchPostsAndPolls = async (pageNumber: number) => {
+    //     setLoading(true);
+    //     try {
+    //         const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber), getPolls(pageNumber)]);
+
+    //         let followingIds = new Set();
+    //         let blockedUserIds = new Set();
+
+    //         if (currentUserID) {
+    //             const followingResponse = await getUserFollowing(currentUserID);
+    //             followingIds = new Set(followingResponse?.following.map((user: {id: any}) => user.id));
+
+    //             const blockedResponse = await getBlockedUsers();
+    //             blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+    //         }
+
+    //         const updatedPosts = fetchedPosts.map((post: {author: {id: unknown}}) => ({
+    //             ...post,
+    //             author: {
+    //                 ...post.author,
+    //                 isFollowed: followingIds.has(post.author.id),
+    //                 isBlocked: blockedUserIds.has(post.author.id),
+    //             },
+    //         }));
+
+    //         const updatedPolls = fetchedPolls.map((poll: {user: {id: unknown}}) => ({
+    //             ...poll,
+    //             user: {
+    //                 ...poll.user,
+    //                 isFollowed: followingIds.has(poll.user.id),
+    //                 isBlocked: blockedUserIds.has(poll.user.id),
+    //             },
+    //             type: 'poll',
+    //         }));
+
+    //         const combinedItems = [...updatedPosts, ...updatedPolls].sort(
+    //             (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    //         );
+
+    //         if (pageNumber === 1) {
+    //             setPosts(combinedItems);
+    //         } else {
+    //             setPosts(prevPosts => [...prevPosts, ...combinedItems]);
+    //         }
+
+    //         setHasMore(fetchedPosts.length === 10 || fetchedPolls.length === 10);
+    //         setPage(pageNumber);
+    //     } catch (error) {
+    //         console.error('Failed to fetch posts or follow/block status:', error);
+    //         setError(error.message || 'Failed to fetch data');
+    //     } finally {
+    //         setLoading(false);
+    //         setLoadingPosts(false);
+    //     }
+    // };
+
     const fetchPostsAndPolls = async (pageNumber: number) => {
         setLoading(true);
         try {
@@ -118,17 +174,24 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                 },
             }));
 
-            const updatedPolls = fetchedPolls.map((poll: {user: {id: unknown}}) => ({
-                ...poll,
-                user: {
-                    ...poll.user,
-                    isFollowed: followingIds.has(poll.user.id),
-                    isBlocked: blockedUserIds.has(poll.user.id),
-                },
-                type: 'poll',
-            }));
+            // Fetch additional poll details for each poll
+            const pollsWithDetails = await Promise.all(
+                fetchedPolls.map(async poll => {
+                    const pollDetails = await getPollById(poll.id);
+                    return {
+                        ...poll,
+                        ...pollDetails,
+                        user: {
+                            ...poll.user,
+                            isFollowed: followingIds.has(poll.user.id),
+                            isBlocked: blockedUserIds.has(poll.user.id),
+                        },
+                        type: 'poll',
+                    };
+                }),
+            );
 
-            const combinedItems = [...updatedPosts, ...updatedPolls].sort(
+            const combinedItems = [...updatedPosts, ...pollsWithDetails].sort(
                 (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
             );
 
@@ -180,6 +243,19 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             });
         } else {
             console.error('Error: Post not found');
+        }
+    };
+
+    const handlePollPress = (pollId: string) => {
+        const selectedPoll = posts.find(poll => poll.id === pollId);
+
+        if (selectedPoll) {
+            navigation2.navigate('PollScreen', {
+                poll: selectedPoll,
+                isLikedByCurrentUser: selectedPoll.isLikedByCurrentUser,
+            });
+        } else {
+            console.error('Error: Poll not found');
         }
     };
 

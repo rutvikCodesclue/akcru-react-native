@@ -112,10 +112,13 @@ export default StyleSheet.create({
     addChoiceButton: {
         marginTop: 10,
         alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
     },
     addChoiceButtonText: {
         ...FONTS.Title2,
-        color: COLORS.AKCRUPINK,
+        color: COLORS.PINK,
+        marginRight: 5,
     },
     durationContainer: {
         marginTop: 20,
@@ -123,7 +126,7 @@ export default StyleSheet.create({
     },
     durationLabel: {
         ...FONTS.Title2,
-        color: COLORS.AKCRUBLUE,
+        color: COLORS.PINK,
     },
     durationInputs: {
         flexDirection: 'row',
@@ -133,7 +136,7 @@ export default StyleSheet.create({
     durationInput: {
         ...FONTS.paragraph1,
         borderWidth: 1,
-        borderColor: COLORS.AKCRUBLUE,
+        borderColor: COLORS.PINK,
         borderRadius: 5,
         paddingHorizontal: 10,
         width: '30%',
@@ -141,7 +144,7 @@ export default StyleSheet.create({
     },
     durationSeparator: {
         ...FONTS.Title3,
-        color: COLORS.AKCRUBLUE,
+        color: COLORS.PINK,
         marginHorizontal: 10,
     },
 });

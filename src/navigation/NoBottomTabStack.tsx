@@ -15,7 +15,7 @@ import PostScreen from '../screens/crummunityScreens/PostScreen';
 import {CruChat, CruGroupChat} from '../screens/ChatScreens';
 import NewPost from '../screens/crummunityScreens/NewPost';
 import NewComment from '../screens/crummunityScreens/NewComment';
-import {IComment, ICru, IPost} from '../../types';
+import {IComment, ICru, IPoll, IPollComment, IPost} from '../../types';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import BugReport from '../screens/userScreens/BugReport';
 import Help from '../screens/userScreens/Help';
@@ -52,6 +52,7 @@ import FollowList from '../screens/userScreens/FollowList';
 import EditPostScreen from '../screens/crummunityScreens/EditPost';
 import EditCommentScreen from '../screens/crummunityScreens/EditComment';
 import NewPoll from '../screens/crummunityScreens/NewPoll';
+import PollScreen from '../screens/crummunityScreens/PollScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -112,6 +113,11 @@ export type NoBottomTabStackParams = {
     EditPostScreen: any;
     EditCommentScreen: any;
     NewPoll: any;
+    PollScreen: {
+        poll?: IPoll;
+        comment?: IPollComment;
+        pollId: string;
+    };
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -519,6 +525,14 @@ export default function NoBottomStack() {
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="PollScreen"
+                component={PollScreen}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
                 }}
             />
         </NoBottom.Navigator>

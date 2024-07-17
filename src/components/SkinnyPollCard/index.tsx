@@ -29,7 +29,7 @@ type IPoll = {
     totalVotes: number;
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
-    selectedChoice?: string; // Add this property to keep track of the selected choice
+    votedByCurrentUser: boolean;
 };
 
 type PollCardProps = {
@@ -43,7 +43,7 @@ type PollCardProps = {
     profilePicture?: string;
 };
 
-const PollCard = ({
+const PollScreenCard = ({
     poll,
     onVote,
     currentUserID,
@@ -51,13 +51,14 @@ const PollCard = ({
     akcruBadge,
     openProfile,
     onDeletePoll,
+    profilePicture,
 }: PollCardProps) => {
-    const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
+    const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
     const [isPollExpired, setIsPollExpired] = useState(new Date() > new Date(poll.expiresAt));
     const [timeRemaining, setTimeRemaining] = useState<string>('');
 
-    const isCurrentUserAuthor = poll.user.id === currentUserID;
+    const isCurrentUserAuthor = poll.user?.id === currentUserID;
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -75,6 +76,10 @@ const PollCard = ({
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
+    useEffect(() => {
+        console.log('PollScreenCard mount:', poll);
+    }, []);
+
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
         setImageModalVisible(true);
@@ -90,28 +95,23 @@ const PollCard = ({
     };
 
     const handleVideoEnd = () => {
-        // Logic for when the video ends
         setVideoModalVisible(false);
     };
 
     const handleVideoError = () => {
-        // Logic for handling video errors
         setVideoModalVisible(false);
     };
 
     const handleVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
     };
 
     const handleModalVideoLoad = () => {
-        // Logic for when the video is loaded
         setIsVideoLoaded(true);
         setShowSkipButton(true);
     };
 
     const handleSkipVideo = () => {
-        // Logic for skipping the video
         setVideoModalVisible(false);
     };
 
@@ -231,7 +231,7 @@ const PollCard = ({
                 <View style={{marginRight: 8}}>
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
-                            source={{uri: poll.user?.profilePicture}}
+                            source={{uri: profilePicture}}
                             size={MULTISIZES.Xlarge60}
                             bordercolor={akcruBadgeColor}
                         />
@@ -334,16 +334,14 @@ const PollCard = ({
                             <TouchableOpacity
                                 style={[styles.pollChoice, selectedChoice === choice.id && styles.selectedPollChoice]}
                                 onPress={() => handleVote(choice.id)}
-                                disabled={selectedChoice !== null || isPollExpired || debounce}>
+                                disabled={poll.votedByCurrentUser || isPollExpired || debounce}>
                                 {choice.imageUrl && (
                                     <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />
                                 )}
                                 <Text style={styles.choiceText}>{choice.text}</Text>
-                                {selectedChoice && (
-                                    <Text style={styles.choiceText}>
-                                        {calculatePercentage(choice.voteCount, poll.totalVotes)}
-                                    </Text>
-                                )}
+                                <Text style={styles.choiceText}>
+                                    {calculatePercentage(choice.voteCount, poll.totalVotes)}
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -353,7 +351,7 @@ const PollCard = ({
                 <Text style={{...FONTS.paragraph1, color: COLORS.AKCRUBLUE}}>
                     {poll.totalVotes} voters have participated in this poll
                 </Text>
-                {selectedChoice && (
+                {poll.votedByCurrentUser && (
                     <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>You have already voted on this poll</Text>
                 )}
                 {!isPollExpired && (
@@ -430,4 +428,4 @@ const PollCard = ({
     );
 };
 
-export default PollCard;
+export default PollScreenCard;

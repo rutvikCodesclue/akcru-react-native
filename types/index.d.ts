@@ -40,6 +40,9 @@ interface IUserProfile {
     polls?: IPoll[];
     votes?: IVote[];
     pollCreator: boolean;
+    pollComments: IPollComment[];
+    pollCommentLikes: IPollCommentLike[];
+    pollLikes: IPollLike[];
 }
 
 interface IUserWatching {
@@ -160,8 +163,11 @@ export type INotification = {
         | 'CruViewStarted'
         | 'UserFollowed'
         | 'UserCommentedOnPost'
+        | 'UserCommentedOnPoll'
         | 'UserLikedComment'
         | 'UserLikedPost'
+        | 'UserLikedPoll'
+        | 'UserLikedPollComment'
         | 'UserTaggedOnPost'
         | 'UserTaggedOnComment'
         | 'ADReceived'
@@ -224,6 +230,9 @@ export interface IUserProfile {
     polls?: IPoll[];
     votes?: IVote[];
     pollCreator: boolean;
+    pollComments: PollComment[];
+    pollCommentLikes: PollCommentLike[];
+    pollLikes: PollLike[];
 }
 
 export interface IWatchlist {
@@ -682,6 +691,10 @@ export interface IPoll {
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
     totalVotes: number;
+    notifications: INotification[];
+    comments: IPollComment[];
+    pollLikes: IPollLike[];
+    selectedChoice: string | null; // Add this line
 }
 
 export interface IChoice {
@@ -703,4 +716,39 @@ export interface IVote {
     choice: IChoice;
     user: IUserProfile;
     createdAt: string;
+}
+
+export interface IPollComment {
+    id: string;
+    content: string[];
+    text: string;
+    createdAt: Date;
+    pollId: string;
+    poll: IPoll;
+    userId: string;
+    user: IUserProfile;
+    notifications: INotification[];
+    dateCreated: Date;
+    edited: boolean;
+    editedText?: string | null;
+    updatedAt: Date;
+    pollCommentLikes: IPollCommentLike[];
+}
+
+export interface IPollLike {
+    id: string;
+    userId: string;
+    user: IUserProfile;
+    pollId: string;
+    poll: IPoll;
+    dateCreated: Date;
+}
+
+export interface IPollCommentLike {
+    id: string;
+    userId: string;
+    pollCommentId: string;
+    user: IUserProfile;
+    pollComment: IPollComment;
+    dateCreated: Date;
 }
