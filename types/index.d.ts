@@ -43,6 +43,7 @@ interface IUserProfile {
     pollComments: IPollComment[];
     pollCommentLikes: IPollCommentLike[];
     pollLikes: IPollLike[];
+    isAdmin: boolean;
 }
 
 interface IUserWatching {
@@ -233,6 +234,7 @@ export interface IUserProfile {
     pollComments: PollComment[];
     pollCommentLikes: PollCommentLike[];
     pollLikes: PollLike[];
+    isAdmin: boolean;
 }
 
 export interface IWatchlist {

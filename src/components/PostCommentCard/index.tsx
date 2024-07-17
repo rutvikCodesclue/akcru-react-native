@@ -125,6 +125,7 @@ type PostProps = {
     firstName: string;
     akcruBadgeColor: string;
     onEditComment: () => void;
+    isAdmin: boolean;
 };
 
 const PostCommentCard = ({
@@ -144,6 +145,7 @@ const PostCommentCard = ({
     firstName,
     akcruBadgeColor,
     onEditComment,
+    isAdmin,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -234,7 +236,7 @@ const PostCommentCard = ({
 
     // Conditional rendering of options in option modal
     const renderDeleteComment = () => {
-        if (isCurrentUserAuthor) {
+        if (isCurrentUserAuthor || isAdmin) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}

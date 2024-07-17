@@ -127,6 +127,7 @@ type PostProps = {
     isOwner: boolean;
     onBlockUser: () => void;
     akcruBadgeColor: string;
+    isAdmin: boolean; // Add this to check if the user is an admin
 };
 
 const SkinnyPostCard = ({
@@ -146,6 +147,7 @@ const SkinnyPostCard = ({
     isOwner,
     onBlockUser,
     akcruBadgeColor,
+    isAdmin,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -237,7 +239,7 @@ const SkinnyPostCard = ({
 
     // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
-        if (isCurrentUserAuthor) {
+        if (isCurrentUserAuthor || isAdmin) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}

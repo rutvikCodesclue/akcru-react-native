@@ -41,6 +41,7 @@ type PollCardProps = {
     openProfile: () => void;
     onDeletePoll: (postId: string) => void;
     profilePicture?: string;
+    isAdmin: boolean;
 };
 
 const PollCard = ({
@@ -51,6 +52,7 @@ const PollCard = ({
     akcruBadge,
     openProfile,
     onDeletePoll,
+    isAdmin,
 }: PollCardProps) => {
     const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
@@ -169,7 +171,7 @@ const PollCard = ({
     };
 
     const renderDeletePoll = () => {
-        if (isCurrentUserAuthor) {
+        if (isCurrentUserAuthor || isAdmin) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}

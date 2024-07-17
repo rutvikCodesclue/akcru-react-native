@@ -110,6 +110,7 @@ type PostProps = {
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean;
     akcruBadgeColor: string;
+    isAdmin: boolean;
 };
 
 const PostCard = ({
@@ -124,6 +125,7 @@ const PostCard = ({
     onLikeOrUnlike,
     CommentOnPostButton,
     akcruBadgeColor,
+    isAdmin,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -208,7 +210,7 @@ const PostCard = ({
     };
 
     const renderDeleteSkinny = () => {
-        if (isCurrentUserAuthor) {
+        if (isCurrentUserAuthor || isAdmin) {
             return (
                 <Pressable
                     style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}

@@ -477,6 +477,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                             userID: item.user?.id,
                                                         })
                                                     }
+                                                    isAdmin={user.isAdmin}
                                                 />
                                             </View>
                                         ) : (
@@ -514,6 +515,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                     }
                                                     isOwner={item.author.ownerStatus}
                                                     isPromo={item.author.promoUser}
+                                                    isAdmin={user.isAdmin}
                                                 />
                                             </Pressable>
                                         )

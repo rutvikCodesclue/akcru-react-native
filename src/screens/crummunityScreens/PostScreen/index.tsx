@@ -321,6 +321,7 @@ const PostScreen = ({navigation, route}: Props) => {
                             onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
                             isFollowing={post.author.isFollowed}
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
+                            isAdmin={user?.isAdmin}
                         />
                     </View>
                     <View style={{marginBottom: '5%'}}>
@@ -362,6 +363,7 @@ const PostScreen = ({navigation, route}: Props) => {
                                             }
                                             akcruBadgeColor={selectAvatarBorderColor(item.author.badge ?? 'AKCRUIT')}
                                             onEditComment={() => handleEditComment(item)}
+                                            isAdmin={user?.isAdmin}
                                         />
                                     </View>
                                 )}
