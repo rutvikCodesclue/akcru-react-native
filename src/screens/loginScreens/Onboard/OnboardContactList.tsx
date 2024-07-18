@@ -253,13 +253,13 @@ const OnboardContactList = () => {
                 {isContactPermission === true ? (
                     <>
                         <>
-                            {isLoading === true && sections.length == 0 ? (
+                            {isLoading === true && sections.length === 0 ? (
                                 <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '45%'}}>
                                     <ActivityIndicator size="large" color={COLORS.PURPLE} />
                                 </View>
                             ) : (
                                 <>
-                                    {sections.length >= 1 && isLoading === true ? (
+                                    {sections.length >= 1 ? (
                                         <ScrollView contentContainerStyle={style.container}>
                                             {sections.map(({letter, items}) => (
                                                 <View style={style.section} key={letter}>
