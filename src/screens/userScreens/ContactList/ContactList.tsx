@@ -44,7 +44,7 @@ const ContactList = () => {
         setLoading(true);
 
         const contacts = await Contacts.getAll();
-        console.log('length', contacts.length);
+        console.log('length:', contacts.length);
         setIsContactPermission(true);
         let allPhoneNumbers: any = [];
 
@@ -53,7 +53,7 @@ const ContactList = () => {
 
             allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
         });
-
+        console.log('allPhoneNumbers:', allPhoneNumbers);
         const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
         setContacts(cleanedPhoneNumbers);
         getKnownUsers(cleanedPhoneNumbers);
