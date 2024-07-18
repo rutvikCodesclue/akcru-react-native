@@ -325,7 +325,7 @@ const SkinnyPostCard = ({
         return null;
     };
 
-    const openProfileForTag = async (username) => {
+    const openProfileForTag = async username => {
         const taggedUser = await findAUser({username});
         if (taggedUser) {
             navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
@@ -334,7 +334,7 @@ const SkinnyPostCard = ({
         }
     };
 
-    const renderPostText = (text) => {
+    const renderPostText = text => {
         const parts = text.split(/(@[\w._-]+)/g); // Split text by tags
         return parts.map((part, index) => {
             const username = part.substring(1);
@@ -395,14 +395,14 @@ const SkinnyPostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Username, marginRight: 2}}>{post.author?.username}</Text>
                         {post?.author.ownerStatus && (
                             <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post?.author.companyStatus && (
@@ -411,7 +411,7 @@ const SkinnyPostCard = ({
                                 type="ionicon"
                                 color={COLORS.WHITE}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post?.author.influencerStatus && (
@@ -420,7 +420,7 @@ const SkinnyPostCard = ({
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post?.author.blackCloakStatus && (
@@ -429,7 +429,16 @@ const SkinnyPostCard = ({
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {post?.author.isAdmin && (
+                            <CustomIcon
+                                name="shield-sword"
+                                type="material-community"
+                                color={COLORS.STARGOLD}
+                                baseSize={12}
+                                style={{marginRight: 0}}
                             />
                         )}
                     </View>

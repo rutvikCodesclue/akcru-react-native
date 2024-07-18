@@ -507,14 +507,14 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                             <View style={{width: SIZES.ScreenWidth, marginHorizontal: 15}}>
                                 <View style={{flexDirection: 'row'}}>
-                                    <Text style={{...FONTS.Title2}}>{user?.username}</Text>
+                                    <Text style={{...FONTS.Title2, marginRight: 2}}>{user?.username}</Text>
                                     {user?.ownerStatus && (
                                         <CustomIcon
                                             name="ribbon"
                                             type="ionicon"
                                             color={COLORS.STARGOLD}
                                             baseSize={MULTISIZES.small11}
-                                            style={{marginRight: 5}}
+                                            style={{marginRight: 0}}
                                         />
                                     )}
                                     {user?.companyStatus && (
@@ -523,7 +523,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             type="ionicon"
                                             color={COLORS.WHITE}
                                             baseSize={12}
-                                            style={{marginRight: 5}}
+                                            style={{marginRight: 0}}
                                         />
                                     )}
                                     {user?.influencerStatus && (
@@ -532,7 +532,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             type="ionicon"
                                             color={COLORS.AKCRUBLUE}
                                             baseSize={12}
-                                            style={{marginRight: 5}}
+                                            style={{marginRight: 0}}
                                         />
                                     )}
                                     {user?.blackCloakStatus && (
@@ -541,7 +541,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             type="ionicon"
                                             color={COLORS.BLACKCLOAK}
                                             baseSize={12}
-                                            style={{marginRight: 5}}
+                                            style={{marginRight: 0}}
+                                        />
+                                    )}
+                                    {user?.isAdmin && (
+                                        <CustomIcon
+                                            name="shield-sword"
+                                            type="material-community"
+                                            color={COLORS.STARGOLD}
+                                            baseSize={12}
+                                            style={{marginRight: 0}}
                                         />
                                     )}
                                 </View>
