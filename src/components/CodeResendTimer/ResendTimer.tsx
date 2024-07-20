@@ -63,7 +63,7 @@ const ResendTimer = ({
     return (
         <View style={{alignItems: 'center', marginTop: 10}}>
             <View style={{flexDirection: 'row'}}>
-                <Text style={{...FONTS.Title2Orange, color: COLORS.PINK}}>Didn't receive an email? </Text>
+                <Text style={{...FONTS.Title2Orange, color: COLORS.PINK}}>Didn't receive a code? </Text>
                 <Pressable
                     onPress={() => resendEmail(triggerTimer)}
                     disabled={!activeResend}
