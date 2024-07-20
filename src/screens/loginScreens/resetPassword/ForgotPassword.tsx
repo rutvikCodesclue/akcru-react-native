@@ -82,6 +82,8 @@ const ForgotPassword = () => {
                     iconname: 'alert-circle',
                     iconcolor: COLORS.CATREDLGT,
                 });
+                setShowPasswordResetModal(true);
+
             } else {
                 setResetResultType({
                     messageheader: 'Success',
@@ -97,7 +99,6 @@ const ForgotPassword = () => {
                 }, 3000); 
             }
 
-            setShowPasswordResetModal(true);
         } catch (error) {
             setResetResultType({
                 messageheader: 'Error',
