@@ -50,7 +50,6 @@ const OnboardContactList = () => {
                 const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
                 allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
             });
-            console.log('allPhoneNumbers:', allPhoneNumbers);
 
             const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
             console.log('Cleaned phone numbers:', cleanedPhoneNumbers);
@@ -77,7 +76,8 @@ const OnboardContactList = () => {
                 }
             }
 
-            let finalNumber = cleanedNumber.slice(-11);
+            let finalNumber = cleanedNumber.slice(-10);
+        
             if (finalNumber.length >= 10) {
                 cleanedNumbers.push(finalNumber);
             }
