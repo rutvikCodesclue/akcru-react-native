@@ -8,8 +8,6 @@ export function navigateToScreen(screenname: string, params?: object) {
 }
 
 export const NotificationNavigation = async (notification: any, userID: any) => {
-    console.log('NotificationNavigation called: ', notification);
-
     try {
         let postId;
         let userId;

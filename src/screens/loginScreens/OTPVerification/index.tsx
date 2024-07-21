@@ -156,7 +156,7 @@ const OTPVerification = ({route}) => {
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
                             <Text style={{...FONTS.Title1, textAlign: 'center'}}>
-                                Enter the 6-digit code sent to your email
+                                Enter the 6-digit code sent to your email/phone
                             </Text>
                         </View>
                         <View style={{marginVertical: '15%'}}>

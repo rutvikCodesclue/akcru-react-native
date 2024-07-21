@@ -137,10 +137,6 @@ const Unread = () => {
                     <View style={{marginHorizontal: 15}}>
                         {sortedNotifications.map((notification, index) => {
                             const {id, type, message, isRead, createdAt, user} = notification;
-
-                            //console.log(`Notification ID: ${id}, isRead: ${isRead}`);
-                            //console.log('User Data Notification:', notification);
-
                             const displayName = getNotificationDisplayName(type);
 
                             return (
