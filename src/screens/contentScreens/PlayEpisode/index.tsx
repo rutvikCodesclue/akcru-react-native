@@ -17,6 +17,7 @@ import {finishUserWatching, logUserContentWatchHistory, startUserWatching} from 
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
+import AkcruOpener from '../../../components/AkcruOpener';
 
 type EpisodePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'EpisodePlayer'>;
 
@@ -250,21 +251,14 @@ export default function EpisodePlayer({navigation}: Props) {
                         </View>
                     )
                 ) : (
-                    <View style={styles.activitycontainer}>
-                        <Video source={require('../../../../assets/sounds/akcrusound1.mp3')} repeat={false} />
-                        <LottieView
-                            source={require('../../../../assets/lottie/Akcruopener1.json')}
-                            autoPlay
-                            loop={false}
-                            style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
-                            onAnimationFinish={() => {
-                                if (!hasLottieFirstLoopCompleted) {
-                                    console.log('here');
-                                    setHasLottieFirstLoopCompleted(true);
-                                }
-                            }}
-                        />
-                    </View>
+                    <AkcruOpener
+                        onAnimationFinish={() => {
+                            if (!hasLottieFirstLoopCompleted) {
+                                console.log('here');
+                                setHasLottieFirstLoopCompleted(true);
+                            }
+                        }}
+                    />
                 )}
             </View>
         </View>

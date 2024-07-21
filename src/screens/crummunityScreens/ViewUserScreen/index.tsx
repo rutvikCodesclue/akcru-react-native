@@ -546,7 +546,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     )}
                                     {user?.isAdmin && (
                                         <CustomIcon
-                                            name="shield-sword"
+                                            name="police-badge"
                                             type="material-community"
                                             color={COLORS.STARGOLD}
                                             baseSize={12}

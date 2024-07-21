@@ -1,5 +1,5 @@
 import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, FlatList, Image} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
@@ -15,6 +15,7 @@ import Video from 'react-native-video';
 import {updateUser} from '../../../lib/api/user.lib';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import LinearGradient from 'react-native-linear-gradient';
+import { getHelpVideoById } from '../../../lib/api/helpvideo.lib';
 
 const OnboardArchetype = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -137,6 +138,19 @@ const OnboardArchetype = () => {
         navigation.navigate('OnboardBuildCru');
     };
     const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const [videoURL, setVideoURL] = useState('');
+
+    useEffect(() => {
+        const fetchHelpVideo = async () => {
+            const video = await getHelpVideoById('a5e441f8-89b1-4e9a-ab70-66a8b5971513'); // Replace 'your_video_id' with the actual ID
+            if (video) {
+                setVideoURL(video.videoURL);
+            }
+        };
+
+        fetchHelpVideo();
+    }, []);
 
     return (
         <View>
@@ -292,7 +306,7 @@ const OnboardArchetype = () => {
                                 height: '100%',
                             }}
                             source={{
-                                uri: 'https://d17ybuhl825fg.cloudfront.net/TrinityFAQ/Trinity%2Bintro%2Bvideo%2Bfor%2Bsite.mp4',
+                                uri: videoURL,
                             }}
                             resizeMode="cover"
                             onEnd={handleVideoEnd}

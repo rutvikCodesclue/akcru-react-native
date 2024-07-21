@@ -4,7 +4,7 @@ import {COLORS} from '../../assets/constants';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
-
+import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 
 export type AkcruButtonStackParams = {
@@ -12,7 +12,7 @@ export type AkcruButtonStackParams = {
     FlickFlirtScreen: any;
     AkcruNetworkScreen: any;
     ClientTabNavigator: any;
-
+    AwardScreen: any;
     AkcruCenterButton: any;
 };
 
@@ -50,6 +50,13 @@ export default function AkcruButtonStack() {
             <AkcruBtn.Screen
                 name="AkcruNetworkScreen"
                 component={AkcruNetworkScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AkcruBtn.Screen
+                name="AwardScreen"
+                component={AwardScreen}
                 options={{
                     headerShown: false,
                 }}

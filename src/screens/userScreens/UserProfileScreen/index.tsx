@@ -348,7 +348,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     type="ionicon"
                                                     color={COLORS.STARGOLD}
                                                     baseSize={12}
-                                                    style={{marginRight: 5}}
+                                                    style={{marginRight: 0}}
                                                 />
                                             )}
                                             {user?.companyStatus && (
@@ -357,7 +357,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     type="ionicon"
                                                     color={COLORS.WHITE}
                                                     baseSize={12}
-                                                    style={{marginRight: 5}}
+                                                    style={{marginRight: 0}}
                                                 />
                                             )}
                                             {user?.influencerStatus && (
@@ -366,7 +366,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     type="ionicon"
                                                     color={COLORS.AKCRUBLUE}
                                                     baseSize={12}
-                                                    style={{marginRight: 5}}
+                                                    style={{marginRight: 0}}
                                                 />
                                             )}
                                             {user?.blackCloakStatus && (
@@ -375,7 +375,16 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     type="ionicon"
                                                     color={COLORS.BLACKCLOAK}
                                                     baseSize={12}
-                                                    style={{marginRight: 5}}
+                                                    style={{marginRight: 0}}
+                                                />
+                                            )}
+                                            {user?.isAdmin && (
+                                                <CustomIcon
+                                                    name="police-badge"
+                                                    type="material-community"
+                                                    color={COLORS.STARGOLD}
+                                                    baseSize={12}
+                                                    style={{marginRight: 0}}
                                                 />
                                             )}
                                         </View>

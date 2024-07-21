@@ -434,7 +434,7 @@ const SkinnyPostCard = ({
                         )}
                         {post?.author.isAdmin && (
                             <CustomIcon
-                                name="shield-sword"
+                                name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
                                 baseSize={12}

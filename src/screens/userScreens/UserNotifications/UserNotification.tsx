@@ -1,189 +1,337 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    FlatList,
-    PressableAndroidRippleConfig,
-    StyleProp,
-    useWindowDimensions,
-    ViewStyle,
-    TextStyle,
-} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity, SafeAreaView, Pressable, Platform} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import {RouteProp} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {Route} from 'react-native';
-import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
-import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
-import {IUserProfile} from '../../../../types';
-import Unread from '../UserNotificationTabs/Unread';
-import Read from '../UserNotificationTabs/Read';
+import {INotification} from '../../../../types';
 import LinearGradient from 'react-native-linear-gradient';
-import UserNotifications from '.';
 import styles from './styles';
 import BackButton from '../../../components/General/backbutton';
+import LoadingComponent from '../../../components/Loading';
+import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
+import AkcruButtons from '../../../components/akcruButtons';
+import {
+    batchMarkNotificationsRead,
+    getMyNotifications,
+    markNotificationRead,
+    deleteAllReadNotifications,
+    deleteNotification,
+} from '../../../lib/api/notify.lib';
+import useAuthStore from '../../../stores/auth.store';
+import {UseTabMenu} from '../../../context/TabContext';
+import {NotificationNavigation} from '../UserNotificationTabs/NotificationNavigation';
+import {StackNavigationProp} from '@react-navigation/stack';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
-
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewUserFollowList'>;
-
 type Props = {
     navigation: ViewUserFollowListNavigationProp;
     route: ViewUserFollowListRouteProp;
 };
 
-const FirstRoute = () => (
-    <View >
-        <Unread />
-    </View>
-);
-
-const SecondRoute = () => (
-    <View >
-        <Read />
-    </View>
-);
+const LOAD_MORE_COUNT = 10;
 
 const UserNotification = ({route}: Props) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    const userID: string | undefined = route.params?.userID ?? null;
+    const userID = useAuthStore().user?.id;
+    const [notifications, setNotifications] = useState<INotification[]>([]);
+    const [displayedNotifications, setDisplayedNotifications] = useState<INotification[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const {setRefetchUnreadNotifications, setRefetchReadNotifications} = UseTabMenu();
 
-    const renderTabBar = (
-        props: JSX.IntrinsicAttributes &
-            SceneRendererProps & {
-                navigationState: NavigationState<Route>;
-                scrollEnabled?: boolean | undefined;
-                bounces?: boolean | undefined;
-                activeColor?: string | undefined;
-                inactiveColor?: string | undefined;
-                pressColor?: string | undefined;
-                pressOpacity?: number | undefined;
-                getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined;
-                getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                renderLabel?:
-                    | ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode)
-                    | undefined;
-                renderIcon?: ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode) | undefined;
-                renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined;
-                renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined;
-                renderTabBarItem?:
-                    | ((
-                          props: TabBarItemProps<Route> & {key: string},
-                      ) => React.ReactElement<any, string | React.JSXElementConstructor<any>>)
-                    | undefined;
-                onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined;
-                onTabLongPress?: ((scene: Scene<Route>) => void) | undefined;
-                tabStyle?: StyleProp<ViewStyle>;
-                indicatorStyle?: StyleProp<ViewStyle>;
-                indicatorContainerStyle?: StyleProp<ViewStyle>;
-                labelStyle?: StyleProp<TextStyle>;
-                contentContainerStyle?: StyleProp<ViewStyle>;
-                style?: StyleProp<ViewStyle>;
-                gap?: number | undefined;
-                testID?: string | undefined;
-                android_ripple?: PressableAndroidRippleConfig | undefined;
-            },
-    ) => (
-        <TabBar
-            {...props}
-            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
-            scrollEnabled={false}
-            tabStyle={{width: SIZES.ScreenWidth / 2}}
-            labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
-            style={{
-                backgroundColor: COLORS.AKCRUBACKGROUND,
-                justifyContent: 'space-between',
-            }}
-            contentContainerStyle={{
-                alignItems: 'center',
-                alignContent: 'center',
-                justifyContent: 'center',
-            }}
-            activeColor={COLORS.PURPLE}
-        />
+    useEffect(() => {
+        async function fetchNotifications() {
+            try {
+                const fetchedNotifications = await getMyNotifications();
+                setNotifications(fetchedNotifications || []);
+                setDisplayedNotifications(fetchedNotifications.slice(0, LOAD_MORE_COUNT));
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchNotifications();
+    }, []);
+
+    const handleLoadMore = () => {
+        const nextNotifications = notifications.slice(
+            displayedNotifications.length,
+            displayedNotifications.length + LOAD_MORE_COUNT,
+        );
+        setDisplayedNotifications(prevNotifications => [...prevNotifications, ...nextNotifications]);
+    };
+
+    const getNotificationDisplayName = (type: string) => {
+        const typeDisplayNames: {[key: string]: string} = {
+            MITReceived: 'You have received a MIT',
+            MITAccepted: 'Your MIT was Accepted',
+            MITDeclined: 'Your MIT was Declined',
+            CruInviteAccepted: 'Your Cru Invite was Accepted',
+            CruInviteDeclined: 'Your Cru Invite was Declined',
+            UserFollowed: 'New follower',
+            UserCommentedOnPost: 'New comment on your post',
+            UserLikedComment: 'New like on your comment',
+            UserLikedPost: 'New like on your post',
+            UserTaggedOnPost: 'You were tagged in post',
+            UserTaggedOnComment: 'You were tagged in comment',
+            CruViewScheduled: 'A Cru View was scheduled',
+            CruViewStarted: 'A Cru View was started',
+            CruInviteReceived: 'A Cru Invite was received',
+            GroupMessageReceived: 'New Group Message',
+            MsgRcvd: 'New Message',
+            ADReceived: 'You have received ACKRU Dollars',
+            UserLikedGallery: 'New like on your photo',
+        };
+        return typeDisplayNames[type] || type;
+    };
+
+    const sortedNotifications: INotification[] = notifications.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    const layout = useWindowDimensions();
-
-
-    const [index, setIndex] = useState(0);
-    const [routes, setRoutes] = useState([
-        {key: 'first', title: 'Unread'},
-        {key: 'second', title: 'Read'},
-    ]);
-
-    const renderScene = ({route}) => {
-        switch (route.key) {
-            case 'first':
-                return <FirstRoute  />;
-            case 'second':
-                return <SecondRoute />;
-            default:
-                return null;
+    const handleMarkAsRead = async (notificationId: string) => {
+        try {
+            const updatedNotification = await markNotificationRead({id: notificationId});
+            if (updatedNotification) {
+                setRefetchReadNotifications(true);
+                setRefetchUnreadNotifications(true);
+                setNotifications(prevNotifications =>
+                    prevNotifications.map(notification =>
+                        notification.id === notificationId ? {...notification, isRead: true} : notification,
+                    ),
+                );
+            } else {
+                console.error(`Failed to mark notification ${notificationId} as read.`);
+            }
+        } catch (error) {
+            console.error(`Error marking notification ${notificationId} as read:`, error);
         }
+    };
+
+    const handleMarkAllAsRead = async () => {
+        setIsLoading(true);
+        const unreadNotificationIds = notifications.filter(notif => !notif.isRead).map(notif => notif.id);
+        if (unreadNotificationIds.length > 0) {
+            try {
+                const response = await batchMarkNotificationsRead(unreadNotificationIds);
+                if (response.success) {
+                    setRefetchReadNotifications(prevState => !prevState);
+                    setRefetchUnreadNotifications(prevState => !prevState);
+                    setNotifications(notifications.map(notif => ({...notif, isRead: true})));
+                } else {
+                    console.error('Failed to mark all notifications as read');
+                }
+            } catch (error) {
+                console.error('Error marking all notifications as read:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
+    const handleDeleteAllReadNotifications = async () => {
+        setIsLoading(true);
+        try {
+            const {success, message} = await deleteAllReadNotifications();
+            if (success) {
+                const remainingNotifications = notifications.filter(notif => !notif.isRead);
+                setNotifications(remainingNotifications);
+                setDisplayedNotifications(remainingNotifications.slice(0, LOAD_MORE_COUNT));
+                console.log('All read notifications deleted successfully:', message);
+                setRefetchReadNotifications(prevState => !prevState);
+            } else {
+                console.error('Failed to delete all read notifications:', message);
+            }
+        } catch (error) {
+            console.error('Error deleting all read notifications:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDeleteNotification = async (notificationId: string) => {
+        try {
+            const response = await deleteNotification(notificationId);
+            if (response.success) {
+                setNotifications(prevNotifications =>
+                    prevNotifications.filter(notification => notification.id !== notificationId),
+                );
+                setRefetchReadNotifications(prevState => !prevState);
+                setRefetchUnreadNotifications(prevState => !prevState);
+            } else {
+                console.error(`Failed to delete notification ${notificationId}: ${response.message}`);
+            }
+        } catch (error) {
+            console.error(`Error deleting notification ${notificationId}:`, error);
+        }
+    };
+
+    const hasUnreadNotifications = notifications.some(notif => !notif.isRead);
+    const hasReadNotifications = notifications.some(notif => notif.isRead);
+
+    const handleNotificationPress = async (notification: INotification) => {
+        await handleMarkAsRead(notification.id);
+        NotificationNavigation(notification, userID);
     };
 
     return (
         <View style={{flex: 1, ...styles.backbutton}}>
             <View>
-                <View>
-                    <View style={{zIndex: 100}}>
-                        <Header />
-                    </View>
-                    <View
+                <View style={{zIndex: 100}}>
+                    <Header />
+                </View>
+                <View
+                    style={{
+                        marginTop: -60,
+                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                    }}>
+                    <LinearGradient
+                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                         style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
                             height: SIZES.ScreenHeight / 5,
-                            marginTop: -60,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
-                        <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                        }}
+                    />
+                    <View>
+                        <View
                             style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: SIZES.ScreenHeight / 5,
-                            }}
-                        />
-                        <View>
-                            <View style={{marginTop: Platform.OS === 'android' ? '13%' : 0, marginHorizontal: 15}}>
-                                <BackButton navigation={navigation} />
-                            </View>
-
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    marginTop: 10,
-
-                                    textAlign: 'center',
-                                    fontSize: 13,
-                                    textDecorationLine: 'underline',
-                                }}>
-                                NOTIFICATIONS
-                            </Text>
+                                marginTop: Platform.OS === 'android' ? '13%' : 0,
+                                marginHorizontal: 15,
+                            }}>
+                            <BackButton navigation={navigation} />
                         </View>
+                        <Text
+                            style={{
+                                ...FONTS.Title2,
+                                marginVertical: 15,
+                                textAlign: 'center',
+                                fontSize: 13,
+                                textDecorationLine: 'underline',
+                            }}>
+                            NOTIFICATIONS
+                        </Text>
                     </View>
+                    <SafeAreaView>
+                        {isLoading ? (
+                            <LoadingComponent />
+                        ) : (
+                            <ScrollView>
+                                <View style={{marginHorizontal: 15, marginTop: 10, marginBottom: '95%'}}>
+                                    {sortedNotifications.map((notification, index) => {
+                                        const {id, type, message, isRead, createdAt} = notification;
+                                        const displayName = getNotificationDisplayName(type);
+
+                                        return (
+                                            <Pressable
+                                                key={index}
+                                                onPress={() => handleNotificationPress(notification)}>
+                                                <View key={index} style={styles.cardcontainer}>
+                                                    <LinearGradient
+                                                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                                        style={{
+                                                            position: 'absolute',
+                                                            left: 0,
+                                                            right: 0,
+                                                            top: 0,
+                                                            bottom: 0,
+                                                            borderRadius: 5,
+                                                        }}
+                                                    />
+                                                    <View
+                                                        style={{
+                                                            flexDirection: 'row',
+                                                            justifyContent: 'space-between',
+                                                        }}>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                            {displayName}
+                                                        </Text>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
+                                                            {formatDatestamp(createdAt)}
+                                                        </Text>
+                                                    </View>
+                                                    <Text
+                                                        style={{
+                                                            ...FONTS.Title2,
+                                                            color: COLORS.DARKGREY,
+                                                            textAlign: 'right',
+                                                        }}>
+                                                        {formatTimestampToAMPM(createdAt)}
+                                                    </Text>
+
+                                                    <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
+                                                    <View
+                                                        style={{
+                                                            marginTop: '5%',
+                                                            flexDirection: 'row',
+                                                            justifyContent: 'space-between',
+                                                        }}>
+                                                        <View>
+                                                            <Text
+                                                                style={{
+                                                                    ...FONTS.Title2,
+                                                                    color: isRead ? COLORS.PURPLE : COLORS.PINK, // Different color for read/unread
+                                                                }}>
+                                                                {isRead ? 'Read' : 'Unread'}
+                                                            </Text>
+                                                        </View>
+                                                        <TouchableOpacity onPress={() => handleDeleteNotification(id)}>
+                                                            <Text style={{...FONTS.Title2, color: COLORS.PINK}}>
+                                                                Delete Notification
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                            </Pressable>
+                                        );
+                                    })}
+                                </View>
+                                {hasUnreadNotifications && (
+                                    <View style={{alignItems: 'center', marginVertical: 10}}>
+                                        <AkcruButtons.LrgButton
+                                            btnname={'Mark All As Read'}
+                                            onPress={handleMarkAllAsRead}
+                                            color={COLORS.PURPLE}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                )}
+                                {hasReadNotifications && (
+                                    <View style={{alignItems: 'center', marginVertical: 10}}>
+                                        <AkcruButtons.LrgButton
+                                            btnname={'Delete All Read'}
+                                            onPress={handleDeleteAllReadNotifications}
+                                            color={COLORS.PURPLE}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                )}
+                                {displayedNotifications.length < notifications.length && (
+                                    <View
+                                        style={{
+                                            alignItems: 'center',
+                                            marginVertical: 10,
+                                            marginBottom: Platform.OS == 'ios' ? 50 : 0,
+                                        }}>
+                                        <AkcruButtons.LrgButton
+                                            btnname={'Load More'}
+                                            onPress={handleLoadMore}
+                                            color={COLORS.PURPLE}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                )}
+                            </ScrollView>
+                        )}
+                    </SafeAreaView>
                 </View>
             </View>
-            <TabView
-                navigationState={{index, routes}}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{width: layout.width}}
-                swipeEnabled={true}
-                renderTabBar={renderTabBar}
-            />
         </View>
     );
 };

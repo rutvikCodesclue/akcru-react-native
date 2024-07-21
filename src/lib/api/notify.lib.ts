@@ -1,5 +1,6 @@
 import {API} from '../../clients/api.client';
 import {INotification} from '../../../types';
+import useAuthStore from '../../stores/auth.store';
 
 export const getMyNotifications = async (): Promise<INotification[] | undefined> => {
     try {
@@ -81,6 +82,23 @@ export const deleteAllReadNotifications = async (): Promise<{success: boolean; m
     } catch (error) {
         console.error('Error deleting all read notifications:', error);
         return {success: false, message: 'An error occurred while deleting read notifications.'};
+    }
+};
+
+export const deleteNotification = async (notificationId: string) => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.delete(`/v1/notify/deleteNotification/${notificationId}`);
+
+        if (data.success === false) {
+            console.log(data.message);
+            return {success: false, message: data.message};
+        }
+
+        return {success: true, message: 'Notification deleted successfully'};
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+        return {success: false, message: 'An error occurred while deleting the notification.'};
     }
 };
 

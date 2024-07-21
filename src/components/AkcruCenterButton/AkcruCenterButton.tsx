@@ -33,6 +33,11 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         toggleOpened();
         console.log('handlePressCenterButton');
     };
+    const handlePressAwards = () => {
+        navigation.navigate('AwardScreen');
+        toggleOpened();
+        console.log('handlePressAwards');
+    };
 
     React.useEffect(() => {
         Animated.timing(animation, {
@@ -53,6 +58,38 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     return (
         <View style={styles.container}>
             <View style={styles.box}>
+                <Pressable onPressIn={handlePressAwards}>
+                    <Animated.View
+                        style={[
+                            styles.item,
+                            opacity,
+                            {
+                                transform: [
+                                    {
+                                        translateX: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -40],
+                                        }),
+                                    },
+                                    {
+                                        translateY: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -140],
+                                        }),
+                                    },
+                                ],
+                            },
+                        ]}>
+                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
+                        <Icon
+                            name="shield-crown"
+                            type="material-community"
+                            color={COLORS.WHITE}
+                            size={25}
+                            style={styles.itemIcon}
+                        />
+                    </Animated.View>
+                </Pressable>
                 <Pressable onPressIn={handlePressRobot}>
                     <Animated.View
                         style={[
@@ -63,13 +100,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 5],
+                                            outputRange: [0, 50],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -200],
+                                            outputRange: [0, -140],
                                         }),
                                     },
                                 ],
@@ -95,7 +132,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 5],
+                                            outputRange: [0, -90],
                                         }),
                                     },
                                     {
@@ -127,13 +164,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 5],
+                                            outputRange: [0, 100],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -140],
+                                            outputRange: [0, -85],
                                         }),
                                     },
                                 ],

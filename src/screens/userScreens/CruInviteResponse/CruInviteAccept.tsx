@@ -10,6 +10,9 @@ import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IUserProfile} from '../../../../types';
 import {ClientStackParams} from '../../../navigation/ClientStack';
+import HexAvatar from '../../../components/HexAvatar';
+import { MULTISIZES } from '../../../../assets/constants/theme';
+import { selectAvatarBorderColor } from '../../../util/util';
 
 type CruInviteAcceptNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
 
@@ -64,7 +67,7 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                                     <Text
                                         style={{
                                             ...FONTS.Title3,
-                                            color: COLORS.MIDORANGE,
+                                            color: COLORS.LIGHTGREY,
                                             fontSize: 16,
                                             textAlign: 'center',
                                         }}>
@@ -83,20 +86,11 @@ const CruInviteAccept = ({navigation, route}: Props) => {
                             }}>
                             <View>
                                 <View>
-                                    <Avatar
-                                        rounded
-                                        size={150}
-                                        source={
-                                            creator?.profilePicture
-                                                ? {uri: creator.profilePicture}
-                                                : imageindex.Akcruplaceholder
-                                        }
-                                        avatarStyle={{
-                                            borderWidth: 2,
-                                            borderColor: COLORS.AKCRUBLUE,
-                                        }}
+                                    <HexAvatar
+                                        source={{uri: creator?.profilePicture}}
+                                        size={MULTISIZES.Xlarge150}
+                                        bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
                                     />
-                                    <View />
                                 </View>
                             </View>
                         </View>

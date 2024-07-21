@@ -17,3 +17,20 @@ export const getHelpVideos = async () => {
         return [];
     }
 };
+
+export const getHelpVideoById = async (id: string) => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.get(`/v1/helpvideo/helpVideos/${id}`);
+
+        if (data.success === false) {
+            console.log(data.message);
+            return null;
+        }
+
+        return data.helpVideo;
+    } catch (error) {
+        console.error('Error fetching help video:', error);
+        return null;
+    }
+};
