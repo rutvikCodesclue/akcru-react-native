@@ -50,7 +50,7 @@ const OnboardContactList = () => {
                 const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
                 allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
             });
-
+            console.log('All Phone Nums: ', allPhoneNumbers);
             const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
             console.log('Cleaned phone numbers:', cleanedPhoneNumbers);
 
@@ -65,7 +65,6 @@ const OnboardContactList = () => {
 
 
     async function cleanPhoneNumbersAsync(phoneNumbers) {
-        const countryCode = '1';
         const cleanedNumbers = [];
         
         for (const phoneNumber of phoneNumbers) {
@@ -78,13 +77,9 @@ const OnboardContactList = () => {
                 }
             }
 
-            let finalNumber = cleanedNumber.slice(-11);
-            if (finalNumber.length === 10) {
-                // If the phone number is 10 digits long, prepend the country code
-                finalNumber = countryCode + finalNumber;
-            }
+            let finalNumber = cleanedNumber.slice(-10);
 
-            if (finalNumber.length === 11) {
+            if (finalNumber.length >= 10) {
                 cleanedNumbers.push(finalNumber);
             }
         }
