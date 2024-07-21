@@ -14,6 +14,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
+import CustomIcon from '../CustomIcon/CustomIcon';
 
 type FooterIconsProps = {
     iconname: string;
@@ -361,14 +362,14 @@ const PostCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Username}}>{post.author?.username}</Text>
+                        <Text style={{...FONTS.Username, marginRight: 2}}>{post.author?.username}</Text>
                         {post?.author.ownerStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
                                 size={18}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post?.author.companyStatus && (
@@ -377,7 +378,7 @@ const PostCard = ({
                                 type="ionicon"
                                 color={COLORS.WHITE}
                                 size={18}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post.author.influencerStatus && (
@@ -386,7 +387,7 @@ const PostCard = ({
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
                                 size={18}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {post?.author.blackCloakStatus && (
@@ -395,7 +396,16 @@ const PostCard = ({
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
                                 size={18}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {post?.author.isAdmin && (
+                            <CustomIcon
+                                name="shield-sword"
+                                type="material-community"
+                                color={COLORS.STARGOLD}
+                                baseSize={12}
+                                style={{marginRight: 0}}
                             />
                         )}
                     </View>

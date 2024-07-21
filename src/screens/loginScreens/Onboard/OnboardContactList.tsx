@@ -50,7 +50,7 @@ const OnboardContactList = () => {
                 const phoneNumbers = contact.phoneNumbers.map(phone => phone.number);
                 allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
             });
-            console.log('All Phone Nums: ', allPhoneNumbers);
+
             const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
             console.log('Cleaned phone numbers:', cleanedPhoneNumbers);
 
@@ -63,10 +63,9 @@ const OnboardContactList = () => {
         }
     };
 
-
     async function cleanPhoneNumbersAsync(phoneNumbers) {
         const cleanedNumbers = [];
-        
+
         for (const phoneNumber of phoneNumbers) {
             let cleanedNumber = '';
 
@@ -78,7 +77,7 @@ const OnboardContactList = () => {
             }
 
             let finalNumber = cleanedNumber.slice(-10);
-
+        
             if (finalNumber.length >= 10) {
                 cleanedNumbers.push(finalNumber);
             }
@@ -161,7 +160,6 @@ const OnboardContactList = () => {
             console.error('Error checking or requesting contact permission:', error);
         }
     };
-
 
     const FollowContact = async (contact_id: string) => {
         try {

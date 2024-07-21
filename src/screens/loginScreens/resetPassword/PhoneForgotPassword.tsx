@@ -77,7 +77,6 @@ const PhoneForgotPassword = () => {
                      iconname: 'send',
                      iconcolor: COLORS.CATGREENLGT,
                  });
-                 setShowPasswordResetModal(true);
                 
                 setTimeout(() => {
                     navigation.navigate('OTPVerification', {phoneNumber: phone});

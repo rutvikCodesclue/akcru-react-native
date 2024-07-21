@@ -152,6 +152,7 @@ const OnboardCruSuggestions = () => {
                                                     companyStatus={item.companyStatus}
                                                     influencerStatus={item.influencerStatus}
                                                     blackCloakStatus={item.blackCloakStatus}
+                                                    isAdmin={item.isAdmin}
                                                     handleSendCruInvite={handleSendCruInvite}
                                                     inviteStatus={inviteStatuses[item.id]?.status || ''}
                                                     isMember={inviteStatuses[item.id]?.isMember || false}

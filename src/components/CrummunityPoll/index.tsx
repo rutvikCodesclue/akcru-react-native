@@ -241,14 +241,14 @@ const PollCard = ({
                 </View>
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Username}}>{poll.user?.username}</Text>
+                        <Text style={{...FONTS.Username, marginRight: 2}}>{poll.user?.username}</Text>
                         {poll.user?.ownerStatus && (
                             <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {poll.user?.companyStatus && (
@@ -257,7 +257,7 @@ const PollCard = ({
                                 type="ionicon"
                                 color={COLORS.WHITE}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {poll.user?.influencerStatus && (
@@ -266,7 +266,7 @@ const PollCard = ({
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
                             />
                         )}
                         {poll.user?.blackCloakStatus && (
@@ -275,7 +275,16 @@ const PollCard = ({
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
                                 baseSize={12}
-                                style={{marginRight: 5}}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {poll.user?.isAdmin && (
+                            <CustomIcon
+                                name="shield-sword"
+                                type="material-community"
+                                color={COLORS.STARGOLD}
+                                baseSize={12}
+                                style={{marginRight: 0}}
                             />
                         )}
                     </View>

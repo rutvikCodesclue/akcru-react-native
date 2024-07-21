@@ -114,6 +114,7 @@ const OnboardEmail = () => {
                     iconname: 'alert-circle',
                     iconcolor: COLORS.CATREDLGT,
                 });
+                setShowEmailModal(true);
             } else {
                 setResetResultType({
                     messageheader: 'Success',
@@ -128,7 +129,7 @@ const OnboardEmail = () => {
                 }, 3000);
             }
 
-            setShowEmailModal(true);
+           
         } catch (error) {
             setResetResultType({
                 messageheader: 'Error',

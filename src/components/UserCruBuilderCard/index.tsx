@@ -28,6 +28,7 @@ type UserCruBuilderCardProps = {
     handleSendCruInvite: (username: string, userID: string) => void;
     inviteStatus: string;
     isMember: boolean;
+    isAdmin: boolean;
 };
 
 const UserCruBuilderCard = ({
@@ -45,6 +46,7 @@ const UserCruBuilderCard = ({
     userID,
     inviteStatus,
     isMember,
+    isAdmin,
 }: UserCruBuilderCardProps) => {
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showCruInviteSent, setShowCruInviteSent] = useState(false);
@@ -115,14 +117,14 @@ const UserCruBuilderCard = ({
                         </View>
                         <View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Text style={{...FONTS.Username}}>{userName}</Text>
+                                <Text style={{...FONTS.Username, marginRight: 2}}>{userName}</Text>
                                 {ownerStatus && (
                                     <CustomIcon
                                         name="ribbon"
                                         type="ionicon"
                                         color={COLORS.STARGOLD}
                                         baseSize={12}
-                                        style={{marginRight: 5}}
+                                        style={{marginRight: 0}}
                                     />
                                 )}
                                 {companyStatus && (
@@ -131,7 +133,7 @@ const UserCruBuilderCard = ({
                                         type="ionicon"
                                         color={COLORS.WHITE}
                                         baseSize={12}
-                                        style={{marginRight: 5}}
+                                        style={{marginRight: 0}}
                                     />
                                 )}
                                 {influencerStatus && (
@@ -140,7 +142,7 @@ const UserCruBuilderCard = ({
                                         type="ionicon"
                                         color={COLORS.AKCRUBLUE}
                                         baseSize={12}
-                                        style={{marginRight: 5}}
+                                        style={{marginRight: 0}}
                                     />
                                 )}
                                 {blackCloakStatus && (
@@ -149,7 +151,16 @@ const UserCruBuilderCard = ({
                                         type="ionicon"
                                         color={COLORS.BLACKCLOAK}
                                         baseSize={12}
-                                        style={{marginRight: 5}}
+                                        style={{marginRight: 0}}
+                                    />
+                                )}
+                                {isAdmin && (
+                                    <CustomIcon
+                                        name="shield-sword"
+                                        type="material-community"
+                                        color={COLORS.STARGOLD}
+                                        baseSize={12}
+                                        style={{marginRight: 0}}
                                     />
                                 )}
                             </View>
