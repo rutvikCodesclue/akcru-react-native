@@ -115,7 +115,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                     ...post.author,
                     isFollowed: followingIds.has(post.author.id),
                     isBlocked: blockedUserIds.has(post.author.id),
-                    isAdmin: post.author.isAdmin || false, // Ensure isAdmin is set
                 },
             }));
 
@@ -422,7 +421,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                             userID: item.user?.id,
                                                         })
                                                     }
-                                                    isAdmin={item.user.isAdmin}
+                                                    isAdmin={user?.isAdmin}
                                                 />
                                             </View>
                                         ) : (
@@ -460,7 +459,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                     }
                                                     isOwner={item.author.ownerStatus}
                                                     isPromo={item.author.promoUser}
-                                                    isAdmin={item.author.isAdmin}
+                                                    isAdmin={user?.isAdmin} // Pass isAdmin prop
                                                 />
                                             </Pressable>
                                         )

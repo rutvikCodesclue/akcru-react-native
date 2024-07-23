@@ -459,9 +459,10 @@ const SkinnyPostCard = ({
                             {renderFollowUser()}
                             {/* {renderMuteUser()} */}
                             {renderBlockUser()}
-                            {renderDeleteSkinny()}
+
                             {renderReportSkinny()}
                             {renderEditPostScreen()}
+                            {renderDeleteSkinny()}
                         </View>
                     </Pressable>
                 </Modal>
