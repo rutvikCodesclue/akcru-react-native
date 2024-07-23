@@ -294,13 +294,14 @@ const PollCard = ({
                         <DisplayBadge akcruBadge={akcruBadge} />
                     </View>
                 </View>
-                {isCurrentUserAuthor && (
-                    <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                        <Pressable onPress={openPollOptions}>
-                            <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
-                        </Pressable>
-                    </View>
-                )}
+                {isCurrentUserAuthor ||
+                    (isAdmin && (
+                        <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
+                            <Pressable onPress={openPollOptions}>
+                                <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                            </Pressable>
+                        </View>
+                    ))}
             </View>
             <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
                 Poll started {timeSince(poll.createdAt)}

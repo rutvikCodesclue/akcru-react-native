@@ -112,6 +112,7 @@ const UserSearchResultScreen = () => {
                                             companyStatus={item.companyStatus}
                                             influencerStatus={item.influencerStatus}
                                             blackCloakStatus={item.blackCloakStatus}
+                                            isAdmin={item?.isAdmin}
                                         />
                                     </View>
                                 )}
@@ -147,6 +148,7 @@ const UserSearchResultScreen = () => {
                                             companyStatus={item.companyStatus}
                                             influencerStatus={item.influencerStatus}
                                             blackCloakStatus={item.blackCloakStatus}
+                                            isAdmin={item?.isAdmin}
                                         />
                                     </View>
                                 )}

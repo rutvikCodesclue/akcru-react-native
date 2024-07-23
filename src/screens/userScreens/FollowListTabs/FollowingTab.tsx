@@ -67,6 +67,7 @@ const FollowingTab = () => {
                             akcruBadge={item.badge}
                             userDesc={item.description}
                             firstName={item.firstName}
+                            isAdmin={item?.isAdmin}
                         />
                     </View>
                 )}

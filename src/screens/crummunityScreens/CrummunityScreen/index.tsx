@@ -93,62 +93,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }, []),
     );
 
-    // const fetchPostsAndPolls = async (pageNumber: number) => {
-    //     setLoading(true);
-    //     try {
-    //         const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber), getPolls(pageNumber)]);
-
-    //         let followingIds = new Set();
-    //         let blockedUserIds = new Set();
-
-    //         if (currentUserID) {
-    //             const followingResponse = await getUserFollowing(currentUserID);
-    //             followingIds = new Set(followingResponse?.following.map((user: {id: any}) => user.id));
-
-    //             const blockedResponse = await getBlockedUsers();
-    //             blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
-    //         }
-
-    //         const updatedPosts = fetchedPosts.map((post: {author: {id: unknown}}) => ({
-    //             ...post,
-    //             author: {
-    //                 ...post.author,
-    //                 isFollowed: followingIds.has(post.author.id),
-    //                 isBlocked: blockedUserIds.has(post.author.id),
-    //             },
-    //         }));
-
-    //         const updatedPolls = fetchedPolls.map((poll: {user: {id: unknown}}) => ({
-    //             ...poll,
-    //             user: {
-    //                 ...poll.user,
-    //                 isFollowed: followingIds.has(poll.user.id),
-    //                 isBlocked: blockedUserIds.has(poll.user.id),
-    //             },
-    //             type: 'poll',
-    //         }));
-
-    //         const combinedItems = [...updatedPosts, ...updatedPolls].sort(
-    //             (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    //         );
-
-    //         if (pageNumber === 1) {
-    //             setPosts(combinedItems);
-    //         } else {
-    //             setPosts(prevPosts => [...prevPosts, ...combinedItems]);
-    //         }
-
-    //         setHasMore(fetchedPosts.length === 10 || fetchedPolls.length === 10);
-    //         setPage(pageNumber);
-    //     } catch (error) {
-    //         console.error('Failed to fetch posts or follow/block status:', error);
-    //         setError(error.message || 'Failed to fetch data');
-    //     } finally {
-    //         setLoading(false);
-    //         setLoadingPosts(false);
-    //     }
-    // };
-
     const fetchPostsAndPolls = async (pageNumber: number) => {
         setLoading(true);
         try {
@@ -171,6 +115,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                     ...post.author,
                     isFollowed: followingIds.has(post.author.id),
                     isBlocked: blockedUserIds.has(post.author.id),
+                    isAdmin: post.author.isAdmin || false, // Ensure isAdmin is set
                 },
             }));
 

@@ -22,6 +22,7 @@ type UserSearchCardProps = {
     companyStatus?: boolean;
     influencerStatus?: boolean;
     blackCloakStatus?: boolean;
+    isAdmin?: boolean;
 };
 
 const UserSearchCard = ({
@@ -35,6 +36,7 @@ const UserSearchCard = ({
     companyStatus,
     influencerStatus,
     blackCloakStatus,
+    isAdmin,
 }: UserSearchCardProps) => {
     const truncateduserDesc =
         userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
@@ -71,14 +73,14 @@ const UserSearchCard = ({
                     </View>
                     <View>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{...FONTS.Username}}>{userName}</Text>
+                            <Text style={{...FONTS.Username, marginRight: 2}}>{userName}</Text>
                             {ownerStatus && (
                                 <CustomIcon
                                     name="ribbon"
                                     type="ionicon"
                                     color={COLORS.STARGOLD}
                                     baseSize={12}
-                                    style={{marginRight: 5}}
+                                    style={{marginRight: 0}}
                                 />
                             )}
                             {companyStatus && (
@@ -87,7 +89,7 @@ const UserSearchCard = ({
                                     type="ionicon"
                                     color={COLORS.WHITE}
                                     baseSize={12}
-                                    style={{marginRight: 5}}
+                                    style={{marginRight: 0}}
                                 />
                             )}
                             {influencerStatus && (
@@ -96,7 +98,7 @@ const UserSearchCard = ({
                                     type="ionicon"
                                     color={COLORS.AKCRUBLUE}
                                     baseSize={12}
-                                    style={{marginRight: 5}}
+                                    style={{marginRight: 0}}
                                 />
                             )}
                             {blackCloakStatus && (
@@ -105,7 +107,16 @@ const UserSearchCard = ({
                                     type="ionicon"
                                     color={COLORS.BLACKCLOAK}
                                     baseSize={12}
-                                    style={{marginRight: 5}}
+                                    style={{marginRight: 0}}
+                                />
+                            )}
+                            {isAdmin && (
+                                <CustomIcon
+                                    name="police-badge"
+                                    type="material-community"
+                                    color={COLORS.STARGOLD}
+                                    baseSize={12}
+                                    style={{marginRight: 0}}
                                 />
                             )}
                         </View>
