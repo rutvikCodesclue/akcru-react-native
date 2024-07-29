@@ -106,6 +106,7 @@ type PostType = {
     updatedAt: string;
     edited: boolean;
     editedText: string;
+    isLikedByCurrentUser?: boolean;
 };
 
 type PostProps = {
@@ -148,6 +149,7 @@ const SkinnyPostCard = ({
     onBlockUser,
     akcruBadgeColor,
     isAdmin,
+    isLikedByCurrentUser,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
@@ -366,6 +368,9 @@ const SkinnyPostCard = ({
         }
         return null;
     };
+
+    // console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
+
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 

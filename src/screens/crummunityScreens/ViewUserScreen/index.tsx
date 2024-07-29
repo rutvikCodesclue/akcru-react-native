@@ -21,7 +21,6 @@ import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {
     blockUser,
     findAUser,
@@ -380,10 +379,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         <Header />
                     </View>
                     <View style={{marginBottom: '5%'}}>
-                        <ImageBackground
-                            source={{uri: undefined}}
-                            resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 2.3, marginTop: -60}}>
+                        <View style={{ marginTop: -60}}>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
@@ -592,10 +588,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     {user?.description}
                                 </Text>
                             </View>
-                        </ImageBackground>
+                        </View>
                         <View
                             style={{
-                                marginTop: -30,
+                                marginTop: 10,
                                 marginHorizontal: 15,
                                 flexDirection: 'row',
                                 alignItems: 'center',

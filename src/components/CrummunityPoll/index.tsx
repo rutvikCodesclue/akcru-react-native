@@ -216,8 +216,8 @@ const PollCard = ({
     };
 
     // Debugging logs
-    console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
-    console.log('isAdmin:', isAdmin);
+    // console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
+    // console.log('isAdmin:', isAdmin);
 
     return (
         <View style={styles.cardcontainer}>

@@ -116,6 +116,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                     isFollowed: followingIds.has(post.author.id),
                     isBlocked: blockedUserIds.has(post.author.id),
                 },
+                isLikedByCurrentUser: post.isLikedByCurrentUser ?? false,
             }));
 
             // Fetch additional poll details for each poll
@@ -480,11 +481,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             </Pressable>
                         )}
 
-                        <Pressable onPress={() => navigation2.navigate('NewPost')}>
+                        <View>
                             <View>
-                                <PostButton />
+                                <PostButton onPress={() => navigation2.navigate('NewPost')} />
                             </View>
-                        </Pressable>
+                        </View>
                     </View>
                 </View>
                 <Modal
