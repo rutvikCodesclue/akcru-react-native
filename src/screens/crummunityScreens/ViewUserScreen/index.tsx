@@ -105,6 +105,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
         const fetchCruInviteStatus = async () => {
             const status = await getCruInviteStatus(userID);
             setCruInviteStatus(status);
+            if (status === 'PENDING') {
+                setbtnName('PENDING')
+                setbtnDisabled(true)
+                setbtnColor(COLORS.DARKGREY)
+            } 
         };
 
         fetchCruInviteStatus();
@@ -118,6 +123,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 try {
                     const membershipStatus = await checkUserMembership(userID);
                     setIsMember(membershipStatus);
+                    if (membershipStatus) {
+                        setbtnName('CRU MEMBER')
+                        setbtnDisabled(true)
+                        setbtnColor(COLORS.PINK)
+                    }
                 } catch (error) {
                     console.error('Failed to fetch membership status:', error);
                 }
@@ -126,20 +136,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
         fetchData();
     }, [userID]);
+    const [btnName, setbtnName] = useState('CRU INVITE');
+    const [btnDisabled, setbtnDisabled] = useState(false);
+    const [btnColor, setbtnColor] = useState(COLORS.AKCRUBLUE);
 
-    let btnName = 'CRU INVITE';
-    let btnDisabled = false;
-    let btnColor = COLORS.AKCRUBLUE;
 
-    if (cruInviteStatus === 'PENDING') {
-        btnName = 'PENDING';
-        btnDisabled = true;
-        btnColor = COLORS.DARKGREY;
-    } else if (isMember) {
-        btnName = 'CRU MEMBER';
-        btnDisabled = true;
-        btnColor = COLORS.PINK;
-    }
+   
 
     useFocusEffect(
         React.useCallback(() => {
@@ -196,6 +198,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
             if (response) {
                 setShowCruInviteSent(true);
                 setShowConfirmationModal(false);
+                setbtnName('PENDING')
+                setbtnDisabled(true)
+                setbtnColor(COLORS.DARKGREY)
 
                 setTimeout(() => {
                     setShowCruInviteSent(false);

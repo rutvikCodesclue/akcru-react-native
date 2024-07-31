@@ -124,6 +124,7 @@ export const createACRUInvite = async (params: {
 }): Promise<ICruInvite | undefined> => {
     try {
         const {username, senderId} = params;
+        console.log('username', username, senderId)
         const {data} = await API.post('/v1/cru/invite/create', {username, senderId});
 
         return data.invite;
