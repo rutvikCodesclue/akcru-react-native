@@ -437,7 +437,9 @@ const PostCommentCard = ({
                         )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-                    <DisplayBadge akcruBadge={akcruBadge} />
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <DisplayBadge akcruBadge={akcruBadge} />
+                    </View>
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>

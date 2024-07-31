@@ -293,7 +293,7 @@ const PostCard = ({
         return null;
     };
 
-    const openProfileForTag = async (username) => {
+    const openProfileForTag = async username => {
         const taggedUser = await findAUser({username});
         if (taggedUser) {
             navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
@@ -302,7 +302,7 @@ const PostCard = ({
         }
     };
 
-    const renderPostText = (text) => {
+    const renderPostText = text => {
         const parts = text.split(/(@[\w._-]+)/g); // Split text by tags
         return parts.map((part, index) => {
             const username = part.substring(1);
@@ -410,8 +410,9 @@ const PostCard = ({
                         )}
                     </View>
                     <Text style={{...FONTS.paragraph1}}>{post.author?.firstName}</Text>
-
-                    <DisplayBadge akcruBadge={akcruBadge} />
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                        <DisplayBadge akcruBadge={akcruBadge} />
+                    </View>
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
                     <Pressable onPress={openPostOptions}>

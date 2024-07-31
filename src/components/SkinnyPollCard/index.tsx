@@ -30,6 +30,7 @@ type IPoll = {
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
     votedByCurrentUser: boolean;
+    selectedChoice?: string; // Add this property to keep track of the selected choice
 };
 
 type PollCardProps = {
@@ -41,6 +42,7 @@ type PollCardProps = {
     openProfile: () => void;
     onDeletePoll: (postId: string) => void;
     profilePicture?: string;
+    isAdmin: boolean;
 };
 
 const PollScreenCard = ({
@@ -52,8 +54,9 @@ const PollScreenCard = ({
     openProfile,
     onDeletePoll,
     profilePicture,
+    isAdmin,
 }: PollCardProps) => {
-    const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+    const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
     const [isPollExpired, setIsPollExpired] = useState(new Date() > new Date(poll.expiresAt));
     const [timeRemaining, setTimeRemaining] = useState<string>('');
@@ -343,14 +346,16 @@ const PollScreenCard = ({
                             <TouchableOpacity
                                 style={[styles.pollChoice, selectedChoice === choice.id && styles.selectedPollChoice]}
                                 onPress={() => handleVote(choice.id)}
-                                disabled={poll.votedByCurrentUser || isPollExpired || debounce}>
+                                disabled={selectedChoice !== null || isPollExpired || debounce}>
                                 {choice.imageUrl && (
                                     <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />
                                 )}
                                 <Text style={styles.choiceText}>{choice.text}</Text>
-                                <Text style={styles.choiceText}>
-                                    {calculatePercentage(choice.voteCount, poll.totalVotes)}
-                                </Text>
+                                {selectedChoice && (
+                                    <Text style={styles.choiceText}>
+                                        {calculatePercentage(choice.voteCount, poll.totalVotes)}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     )}
@@ -360,7 +365,7 @@ const PollScreenCard = ({
                 <Text style={{...FONTS.paragraph1, color: COLORS.AKCRUBLUE}}>
                     {poll.totalVotes} voters have participated in this poll
                 </Text>
-                {poll.votedByCurrentUser && (
+                {selectedChoice && (
                     <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>You have already voted on this poll</Text>
                 )}
                 {!isPollExpired && (

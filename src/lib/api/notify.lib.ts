@@ -35,13 +35,39 @@ export const markNotificationRead = async (params: {id: string}): Promise<INotif
     }
 };
 
-export const sendTagNotification = async (tagUserId: any, notificationType: any, contentId: any): Promise<boolean> => {
+// export const sendTagNotification = async (
+//     tagUserId: any,
+//     notificationType: any,
+//     contentId: any,
+//     followersTag?: string,
+// ): Promise<boolean> => {
+//     try {
+//         const {data} = await API.post('/v1/notify/sentTagNotification', {
+//             tagUserId,
+//             notificationType,
+//             contentId,
+//             followersTag,
+//         });
+
+//         return data.success;
+//     } catch (error) {
+//         console.error('Error sending tag notification:', error);
+//         return false;
+//     }
+// };
+
+export const sendTagNotification = async (
+    tagUserId: any,
+    notificationType: any,
+    contentId: any,
+    followersTag = null,
+) => {
     try {
-        const {data} = await API.post('/v1/notify/sentTagNotification', {
-            tagUserId,
-            notificationType,
-            contentId,
-        });
+        const payload = followersTag
+            ? {tagUserId, notificationType, contentId, followersTag}
+            : {tagUserId, notificationType, contentId};
+
+        const {data} = await API.post('/v1/notify/sentTagNotification', payload);
 
         return data.success;
     } catch (error) {
@@ -49,6 +75,7 @@ export const sendTagNotification = async (tagUserId: any, notificationType: any,
         return false;
     }
 };
+
 
 export const batchMarkNotificationsRead = async (
     notificationIds: string[],

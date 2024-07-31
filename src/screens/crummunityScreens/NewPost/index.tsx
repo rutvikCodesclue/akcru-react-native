@@ -308,9 +308,17 @@ const NewPost = () => {
                 const newPostId = result.id;
 
                 const taggedUsernames = extractUsernamesFromText(postText);
+                if (taggedUsernames.includes('followers')) {
+                    const notificationType = 'UserTaggedOnPost';
+                    const success = await sendTagNotification(user?.id, notificationType, newPostId, '@followers');
+                    if (!success) {
+                        console.error(`Failed to send notification to followers`);
+                    }
+                }
 
                 await Promise.all(
                     taggedUsernames.map(async username => {
+                        if (username === 'followers') return; // Skip the followers tag here
                         try {
                             const user = await findAUser({username});
                             if (user && user.id) {

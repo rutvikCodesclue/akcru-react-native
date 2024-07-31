@@ -407,7 +407,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     onRefresh={handleRefresh}
                                     renderItem={({item}) =>
                                         item.type === 'poll' ? (
-                                            <View style={{marginBottom: 10}}>
+                                            <View
+                                                // onPress={() => handlePollPress(item.id)}
+                                                style={{marginBottom: 10}}>
                                                 <PollCard
                                                     poll={item}
                                                     onVote={handleVote}

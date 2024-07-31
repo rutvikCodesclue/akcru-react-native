@@ -373,9 +373,7 @@ const PostScreen = ({navigation, route}: Props) => {
                 </ScrollView>
 
                 <View style={styles.floatingbuttonContainer}>
-                    
-                        <PostButton onPress={() => navigation2.navigate('NewComment', {postId: post.id})} />
-                    
+                    <PostButton onPress={() => navigation2.navigate('NewComment', {postId: post.id})} />
                 </View>
             </SafeAreaView>
         </TabContainer>

@@ -16,6 +16,22 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 
+type FooterIconsProps = {
+    iconname: string;
+    onPress: () => void;
+    color: string;
+};
+
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
+    return (
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={onPress}>
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 type IPoll = {
     id: string;
     question: string;
@@ -441,6 +457,25 @@ const PollCard = ({
                     )}
                 </View>
             </Modal>
+            <View style={styles.postfooter}>
+                {/* <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} />
+                <FooterIcons iconname={'happy'} /> */}
+                {/* <FooterIcons
+                    iconname={'sync'}
+                    onPress={() => {
+                        ('');
+                    }}
+                    color={COLORS.AKCRUBLUE}
+                /> */}
+                {/* <FooterIcons
+                    iconname={'stats-chart'}
+                    text={post.impressions || 0}
+                    onPress={() => {
+                        ('');
+                    }}
+                /> */}
+                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
+            </View>
         </View>
     );
 };
