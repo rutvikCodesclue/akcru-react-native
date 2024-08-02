@@ -16,6 +16,7 @@ import LoadingComponent from '../../../components/Loading';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getPost} from '../../../lib/api/post.lib';
 import BackButton from '../../../components/General/backbutton';
+import { getPollById } from '../../../lib/api/poll.lib';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -63,6 +64,21 @@ const UserNotifications = () => {
                 default:
                     console.warn('Unhandled notification type:', notification.type);
                     break;
+                case 'UserTaggedOnPoll': // Handle poll navigation
+                case 'UserTaggedOnPollComment': // Handle poll comment navigation
+                case 'UserLikedPollComment':
+                case 'UserLikedPoll':
+                case 'UserCommentedOnPoll':
+                    const pollId = notification.pollId;
+                    if (pollId) {
+                        const poll = await getPollById(pollId);
+                        if (poll) {
+                            navigation.navigate('PollScreen', {poll: poll});
+                        } else {
+                            console.error('Poll not found');
+                        }
+                    }
+                    break;
                 case 'UserFollowed':
                 case 'MsgRcvd':
                 case 'CruInviteReceived':
@@ -99,6 +115,11 @@ const UserNotifications = () => {
             CruInviteReceived: 'A Cru Invite was received',
             ADReceived: 'You just received AD',
             MsgRcvd: 'New Message',
+            UserCommentedOnPoll: 'New comment on your poll',
+            UserLikedPollComment: 'New like on your poll comment',
+            UserLikedPoll: 'New like on your poll',
+            UserTaggedOnPoll: 'You were tagged in poll',
+            UserTaggedOnPollComment: 'You were tagged in poll comment',
         };
 
         return typeDisplayNames[type] || type;
@@ -117,6 +138,11 @@ const UserNotifications = () => {
                 notification.type === 'UserTaggedOnPost' ||
                 notification.type === 'UserTaggedOnComment' ||
                 notification.type === 'UserLikedPost' ||
+                notification.type === 'UserCommentedOnPoll' ||
+                notification.type === 'UserLikedPollComment' ||
+                notification.type === 'UserTaggedOnPoll' ||
+                notification.type === 'UserTaggedOnPollComment' ||
+                notification.type === 'UserLikedPoll' ||
                 notification.type === 'CruViewScheduled' ||
                 notification.type === 'CruViewStarted' ||
                 notification.type === 'CruInviteReceived' ||

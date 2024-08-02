@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import {View, Text, SafeAreaView, ScrollView, Pressable, ActivityIndicator, FlatList} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
@@ -8,13 +8,14 @@ import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {IComment, IPoll} from '../../../../types';
+import {IComment, IPoll, IPollComment} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import {deletePoll, getPollById} from '../../../lib/api/poll.lib';
+import {deletePoll, getPollById, getPollComments} from '../../../lib/api/poll.lib';
 import PollCard from '../../../components/SkinnyPollCard';
 import {selectAvatarBorderColor} from '../../../util/util';
 import BackButton from '../../../components/General/backbutton';
 import PollScreenCard from '../../../components/SkinnyPollCard';
+import PollCommentCard from '../../../components/PollCommentCard';
 
 type PollScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PollScreen'>;
 type PollScreenRouteProp = RouteProp<CrummunityStackParams, 'PollScreen'>;
@@ -34,6 +35,8 @@ const PollScreen = ({navigation, route}: Props) => {
     console.log('PollScreen poll:', poll);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [comments, setComments] = useState<IPollComment[]>([]);
+    const [loadingComments, setLoadingComments] = useState(true);
 
     const currentUserID = user?.id;
 
@@ -60,11 +63,27 @@ const PollScreen = ({navigation, route}: Props) => {
         }
     }, [pollId, isLikedByCurrentUser]);
 
+    const fetchComments = useCallback(async () => {
+        if (pollId) {
+            setLoadingComments(true);
+            try {
+                const fetchedComments = await getPollComments(pollId);
+                setComments(fetchedComments);
+            } catch (error) {
+                console.error('Failed to fetch comments:', error);
+                setError(error.message || 'Failed to fetch comments');
+            } finally {
+                setLoadingComments(false);
+            }
+        }
+    }, [pollId]);
+
 
     useFocusEffect(
         useCallback(() => {
             fetchPollData();
-        }, [fetchPollData]),
+            fetchComments();
+        }, [fetchPollData, fetchComments]),
     );
 
     const handleDeletePoll = async (pollId: string) => {
@@ -146,6 +165,52 @@ const PollScreen = ({navigation, route}: Props) => {
                     ) : (
                         <Text style={{...FONTS.Title2Orange}}>Error: Poll not found</Text>
                     )}
+                    <View style={{marginBottom: '5%'}}>
+                        {loadingComments ? (
+                            <View style={{marginTop: '25%'}}>
+                                <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                            </View>
+                        ) : // You can customize the size and color
+                        comments.length === 0 ? (
+                            <View>
+                                <Text style={styles.noCommentsText}>No comments yet</Text>
+                            </View>
+                        ) : (
+                            <FlatList
+                                data={comments}
+                                style={styles.postcontainer}
+                                keyExtractor={item => item.id}
+                                renderItem={({item}) => (
+                                    <View style={{marginBottom: 10}}>
+                                        <PollCommentCard
+                                            post={item}
+                                            openProfile={() =>
+                                                navigation.navigate('ViewUserScreen', {userID: item.user?.id})
+                                            }
+                                            userName={item.user?.username}
+                                            firstName={item.user?.firstName}
+                                            // onFollow={() => handleFollow(item.author.id)}
+                                            // onUnfollow={() => handleUnfollow(item.author.id)}
+                                            isCommentLiked={item.isLikedByCurrentUser}
+                                            // onDeleteComment={() => handleDeleteComment(+item.id)}
+                                            currentUserID={currentUserID || ''}
+                                            akcruBadge={item.user?.badge}
+                                            // onLikeOrUnlike={() => onLikeOrUnlikeComment(+item.id)}
+                                            likeCount={item.likeCount || 0}
+                                            // onFollow={() => handleFollow(item.user.id, item.user.isFollowed)}
+                                            isFollowing={item.user.isFollowed}
+                                            // onBlockUser={() =>
+                                            //     handleToggleBlockUser(item.user.id, item.user.isCurrentlyBlocked)
+                                            // }
+                                            akcruBadgeColor={selectAvatarBorderColor(item.user.badge ?? 'AKCRUIT')}
+                                            // onEditComment={() => handleEditComment(item)}
+                                            isAdmin={user?.isAdmin}
+                                        />
+                                    </View>
+                                )}
+                            />
+                        )}
+                    </View>
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>

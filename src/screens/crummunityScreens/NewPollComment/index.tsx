@@ -40,17 +40,18 @@ import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
 import {ProgressView} from '@react-native-community/progress-view';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
-type NewCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'NewComment'>;
+import { commentOnPoll } from '../../../lib/api/poll.lib';
+type NewPollCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'NewPollComment'>;
 
-type NewCommentRouteProp = RouteProp<CrummunityStackParams, 'NewComment'>;
+type NewPollCommentRouteProp = RouteProp<CrummunityStackParams, 'NewPollComment'>;
 
 type Props = {
-    navigation: NewCommentNavigationProp;
-    route: NewCommentRouteProp;
+    navigation: NewPollCommentNavigationProp;
+    route: NewPollCommentRouteProp;
 };
 
-const NewComment = ({navigation, route}: Props) => {
-    const postId = route.params;
+const NewPollComment = ({navigation, route}: Props) => {
+    const pollId = route.params;
 
     const {user} = useAuthStore();
     const [comment, setComment] = useState('');
@@ -199,7 +200,7 @@ const NewComment = ({navigation, route}: Props) => {
         return compressedImages;
     };
 
-    const OnCommentPress = async () => {
+    const OnPollCommentPress = async () => {
         try {
             const postType = determinePostType();
             let content = [];
@@ -307,15 +308,15 @@ const NewComment = ({navigation, route}: Props) => {
                 content = content.concat(mediaUrls);
             }
 
-            const postId = route.params.postId;
+            const pollId = route.params.pollId;
 
-            const result = await commentOnPost(postId, postType, content);
+            const result = await commentOnPoll(pollId, postType, content);
             if (result && result.id) {
                 const newPostId = result.id;
 
                 const taggedUsernames = extractUsernamesFromText(comment);
                 if (taggedUsernames.includes('followers')) {
-                    const notificationType = 'UserTaggedOnComment';
+                    const notificationType = 'UserTaggedOnPollComment';
                     const success = await sendTagNotification(user?.id, notificationType, newPostId, '@followers');
                     if (!success) {
                         console.error(`Failed to send notification to followers`);
@@ -328,7 +329,7 @@ const NewComment = ({navigation, route}: Props) => {
                         try {
                             const user = await findAUser({username});
                             if (user && user.id) {
-                                const notificationType = 'UserTaggedOnComment';
+                                const notificationType = 'UserTaggedOnPollComment';
                                 const success = await sendTagNotification(user.id, notificationType, newPostId);
                                 if (success) {
                                 } else {
@@ -408,7 +409,7 @@ const NewComment = ({navigation, route}: Props) => {
                                         <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
                                     </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={OnCommentPress} style={{marginLeft: 'auto'}}>
+                                <TouchableOpacity onPress={OnPollCommentPress} style={{marginLeft: 'auto'}}>
                                     <View>
                                         <Text style={styles.postButton}>Comment</Text>
                                     </View>
@@ -678,7 +679,7 @@ const NewComment = ({navigation, route}: Props) => {
     );
 };
 
-export default NewComment;
+export default NewPollComment;
 
 const stylesProgress = StyleSheet.create({
     modalBackground: {

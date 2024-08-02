@@ -407,8 +407,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     onRefresh={handleRefresh}
                                     renderItem={({item}) =>
                                         item.type === 'poll' ? (
-                                            <View
-                                                // onPress={() => handlePollPress(item.id)}
+                                            <Pressable
+                                                onPress={() => handlePollPress(item.id)}
                                                 style={{marginBottom: 10}}>
                                                 <PollCard
                                                     poll={item}
@@ -419,6 +419,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                     akcruBadgeColor={selectAvatarBorderColor(
                                                         item.user.badge ?? 'AKCRUIT',
                                                     )}
+                                                    CommentOnPollButton={() =>
+                                                        navigation2.navigate('NewPollComment', {pollId: item.id})
+                                                    }
                                                     openProfile={() =>
                                                         navigation2.navigate('ViewUserScreen', {
                                                             userID: item.user?.id,
@@ -426,7 +429,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                     }
                                                     isAdmin={user?.isAdmin}
                                                 />
-                                            </View>
+                                            </Pressable>
                                         ) : (
                                             <Pressable
                                                 onPress={() => handlePostPress(+item.id)}

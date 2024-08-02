@@ -3,7 +3,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 import {Session} from '@supabase/supabase-js';
 import {supabase, supabaseAuth} from '../../lib/supabase';
-import {API} from '../clients/auth.client';
+import {API} from '../clients/api.client';
 import {IUserProfile} from '../../types';
 import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
