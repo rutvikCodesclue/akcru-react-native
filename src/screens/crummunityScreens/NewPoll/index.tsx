@@ -256,7 +256,7 @@ const NewPoll = () => {
         setProgress(0);
     };
 
-    const OnPostPress = async () => {
+    const OnPollPress = async () => {
         try {
             if (pollText === '' || pollChoices.length === 0) {
                 return;
@@ -405,8 +405,17 @@ const NewPoll = () => {
 
                 const taggedUsernames = extractUsernamesFromText(pollText);
 
+                if (taggedUsernames.includes('followers')) {
+                    const notificationType = 'UserTaggedOnPoll';
+                    const success = await sendTagNotification(user?.id, notificationType, newPollId, '@followers');
+                    if (!success) {
+                        console.error(`Failed to send notification to followers`);
+                    }
+                }
+
                 await Promise.all(
                     taggedUsernames.map(async username => {
+                        if (username === 'followers') return; // Skip the followers tag here
                         try {
                             const user = await findAUser({username});
                             if (user && user.id) {
@@ -497,7 +506,7 @@ const NewPoll = () => {
                                     </View>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    onPress={OnPostPress}
+                                    onPress={OnPollPress}
                                     style={{marginLeft: 'auto'}}
                                     disabled={!isPollButtonEnabled}>
                                     <View>

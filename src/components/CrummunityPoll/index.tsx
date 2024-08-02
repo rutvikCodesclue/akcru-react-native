@@ -32,10 +32,17 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     );
 };
 
+type PollStats = {
+    comments: number;
+    likes: number;
+    reposts: number;
+};
+
 type IPoll = {
     id: string;
     question: string;
     imageUrl?: string;
+    _count?: PollStats;
     videoUrl?: string;
     createdAt: string;
     updatedAt: string;
@@ -58,6 +65,7 @@ type PollCardProps = {
     onDeletePoll: (postId: string) => void;
     profilePicture?: string;
     isAdmin: boolean;
+    CommentOnPollButton: any;
 };
 
 const PollCard = ({
@@ -69,6 +77,7 @@ const PollCard = ({
     openProfile,
     onDeletePoll,
     isAdmin,
+    CommentOnPollButton,
 }: PollCardProps) => {
     const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
@@ -458,8 +467,8 @@ const PollCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                {/* <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} />
-                <FooterIcons iconname={'happy'} /> */}
+                {/* <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} onPress={CommentOnPollButton} /> */}
+                {/* <FooterIcons iconname={'happy'} /> */}
                 {/* <FooterIcons
                     iconname={'sync'}
                     onPress={() => {
@@ -475,6 +484,12 @@ const PollCard = ({
                     }}
                 /> */}
                 {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Text style={styles.footStats}>
+                    {/* {poll._count?.comments || 0} Comments • {poll._count?.likes || 0} Likes */}
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
+                </Text>
             </View>
         </View>
     );

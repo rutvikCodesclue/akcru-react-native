@@ -53,6 +53,7 @@ import EditPostScreen from '../screens/crummunityScreens/EditPost';
 import EditCommentScreen from '../screens/crummunityScreens/EditComment';
 import NewPoll from '../screens/crummunityScreens/NewPoll';
 import PollScreen from '../screens/crummunityScreens/PollScreen';
+import NewPollComment from '../screens/crummunityScreens/NewPollComment';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -87,6 +88,7 @@ export type NoBottomTabStackParams = {
     ViewGroupChat: {cru: ICru};
     NewPost: any;
     NewComment: any;
+    NewPollComment: any;
     ViewUserScreen: {userID: string; imageURL: string};
     UserMITHubScreen: {index: number};
     ContactList: any;
@@ -333,6 +335,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="NewComment"
                 component={NewComment}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="NewPollComment"
+                component={NewPollComment}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
