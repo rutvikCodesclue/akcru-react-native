@@ -244,3 +244,34 @@ export const searchCRUs = async (searchTerm: string): Promise<SearchCRUsResponse
         return undefined;
     }
 };
+
+export const getCruViewHostId = async (cruViewId: string | null): Promise<string | undefined> => {
+    try {
+        const {data} = await API.post('/v1/cru/get-cru-view-host', {cruViewId});
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data.hostId;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const updateCruViewHostId = async (
+    cruViewId: string | null,
+    newHostId: string | null,
+): Promise<boolean | undefined> => {
+    try {
+        const {data} = await API.post('/v1/cru/update-cru-view-host', {cruViewId, newHostId});
+        if (data.success === false) {
+            console.log(data.message);
+            return data.success;
+        }
+
+        console.log(data.message);
+        return data.success;
+    } catch (error) {
+        console.error(error);
+    }
+};

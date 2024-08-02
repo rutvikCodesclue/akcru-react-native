@@ -39,6 +39,7 @@ type UserDatesCardProps = {
     onPress: () => void;
     cru: any;
     creator: any;
+    creatorId: any;
     invitee: any;
 };
 
@@ -64,6 +65,7 @@ const UserDatesCard = ({
     timezone,
     onPress,
     creator,
+    creatorId,
     invitee,
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -179,6 +181,7 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
+                            creatorId,
                             invitee,
                         });
                     } else if (type == 'CRUView') {
@@ -191,6 +194,7 @@ const UserDatesCard = ({
                             scheduleTime,
                             timezone,
                             creator,
+                            creatorId,
                             invitee,
                             cru,
                         });
@@ -207,6 +211,7 @@ const UserDatesCard = ({
                         scheduleTime,
                         timezone,
                         creator,
+                        creatorId,
                         invitee,
                     });
                 } else if (type == 'CRUView') {
@@ -219,6 +224,7 @@ const UserDatesCard = ({
                         scheduleTime,
                         timezone,
                         creator,
+                        creatorId,
                         invitee,
                         cru,
                     });
@@ -235,6 +241,7 @@ const UserDatesCard = ({
                     scheduleTime,
                     timezone,
                     creator,
+                    creatorId,
                     invitee,
                 });
             } else if (type == 'CRUView') {
@@ -247,6 +254,7 @@ const UserDatesCard = ({
                     scheduleTime,
                     timezone,
                     creator,
+                    creatorId,
                     invitee,
                     cru,
                 });
