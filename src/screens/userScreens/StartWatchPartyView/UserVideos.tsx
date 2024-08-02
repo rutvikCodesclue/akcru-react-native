@@ -10,9 +10,19 @@ interface Props {
     expandedVideo: any;
     setExpandedVideo: any;
     peersMuteStatus: any;
+    currentRoomHost: any;
+    members: any;
 }
 
-const UserVideos = ({hmsInstanceRef, peerTrackNodes, expandedVideo, setExpandedVideo, peersMuteStatus}: Props) => {
+const UserVideos = ({
+    hmsInstanceRef,
+    peerTrackNodes,
+    expandedVideo,
+    setExpandedVideo,
+    peersMuteStatus,
+    currentRoomHost,
+    members,
+}: Props) => {
     return (
         <View
             style={{
@@ -34,16 +44,22 @@ const UserVideos = ({hmsInstanceRef, peerTrackNodes, expandedVideo, setExpandedV
                     keyExtractor={node => node.id}
                     contentContainerStyle={{flexGrow: 1}}
                     renderItem={({item}) => {
-                        const isRoomHost = item.peer.role?.name === 'host';
                         const isExpanded = expandedVideo === item;
+                        let showHostBadge = false;
+                        if (members.length > 0) {
+                            const target = members ? members.find(member => member.user.id === currentRoomHost) : undefined;
+                            if (target) {
+                                if (target.peerID === item.peer.peerID) {
+                                    showHostBadge = true;
+                                }
+                            }
+                        }
 
                         return hmsInstanceRef.current ? (
                             <View
                                 style={{
                                     width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
-                                    height: isExpanded
-                                        ? (SIZES.ScreenWidth / 3) * 2.6
-                                        : SIZES.ScreenWidth / 2.5,
+                                    height: isExpanded ? (SIZES.ScreenWidth / 3) * 2.6 : SIZES.ScreenWidth / 2.5,
                                     backgroundColor: 'red',
                                     flex: isExpanded ? 1 : 0,
                                     position: isExpanded ? 'absolute' : 'relative',
@@ -67,7 +83,7 @@ const UserVideos = ({hmsInstanceRef, peerTrackNodes, expandedVideo, setExpandedV
                                     />
                                 ) : null}
 
-                                {isRoomHost ? (
+                                {showHostBadge ? (
                                     <View style={{position: 'absolute', top: 0, right: 0}}>
                                         <Text
                                             style={{

@@ -182,6 +182,7 @@ const UserProfileDatesTab = () => {
                                 scheduleWith={scheduleWith}
                                 timezone={item.timezone}
                                 type="CRUView"
+                                creatorId={item.cru.creatorId}
                                 onPressin={() =>
                                     navigation.navigate('ContentDetailScreen', {
                                         id: item.movie.id,
@@ -225,6 +226,7 @@ const UserProfileDatesTab = () => {
                                     })
                                 }
                                 creator={item.creator}
+                                creatorId={item.creator.id}
                                 invitee={item.invitee}
                                 onPress={() => handleInviterPress(item.creatorId)}
                             />

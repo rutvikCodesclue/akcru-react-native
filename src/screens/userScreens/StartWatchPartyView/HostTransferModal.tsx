@@ -4,12 +4,12 @@ import {FONTS, COLORS} from '../../../../assets/constants';
 
 interface Props {
     showTransferConfirmation: any;
-    selectedMemeberForHost: any;
+    selectedMemberForHost: any;
     handleCancelTransfer: any;
     handleTransfer: any;
 }
 
-const HostTransferModal = ({showTransferConfirmation, selectedMemeberForHost, handleCancelTransfer, handleTransfer}: Props) => {
+const HostTransferModal = ({showTransferConfirmation, selectedMemberForHost, handleCancelTransfer, handleTransfer}: Props) => {
     return (
         <Modal animationType="fade" transparent={true} visible={showTransferConfirmation}>
             <View
@@ -29,7 +29,7 @@ const HostTransferModal = ({showTransferConfirmation, selectedMemeberForHost, ha
                     <View style={{alignItems: 'center'}}>
                         <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Host Transfer</Text>
                         <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                            {`Are you sure you want to transfer hosting privileges to "${selectedMemeberForHost?.user.username}"`}
+                            {`Are you sure you want to transfer hosting privileges to "${selectedMemberForHost?.user.username}"`}
                         </Text>
                     </View>
 
