@@ -136,7 +136,7 @@ const HostOptionsModal = ({
                                 btnname="Terminate"
                                 color={COLORS.CATREDLGT}
                                 disabled={false}
-                                onPress={isHost && handleRoomTermination}
+                                onPress={handleRoomTermination}
                             />
                         </View>
                     </View>
