@@ -184,6 +184,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             .on('broadcast', {event: 'movie_room'}, payload => askForPermission(payload))
             .on('broadcast', {event: 'host-change'}, payload => syncHost(payload))
             .on('broadcast', {event: 'mute-all'}, payload => muteLocalPeer(payload))
+            .on('broadcast', {event: 'terminate-room'}, payload => leaveTheRoom(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
                     setChannel(channelA);
@@ -508,6 +509,25 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
+    const leaveTheRoom = async (payload: any) => {
+        if (payload.payload.terminate) {
+            await _handleRoomLeave();
+        }
+    };
+
+    const sendRoomTermination = () => {
+        if (channelll === null) {
+            console.log('Channel not found');
+            return;
+        }
+
+        channelll.send({
+            type: 'broadcast',
+            event: 'terminate-room',
+            payload: {terminate: true},
+        });
+    };
+
     const _handleTerminateRoom = async () => {
         if (hmsInstanceRef.current) {
             try {
@@ -517,9 +537,13 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
             console.log('End Room Success');
 
+            // this condition caters to host users who are not the host according to 100ms (original)
             if (currentRoomHostRef.current !== creatorID) {
                 const hostUpdateSuccess = await updateHostId(creatorID);
-                console.log('Reset OG host success: ', hostUpdateSuccess);
+
+                if (hostUpdateSuccess) {
+                    sendRoomTermination();
+                }
             }
 
             await _handleRoomLeave();
@@ -851,14 +875,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
-            const hostInRoom = members ? members.find(member => member.user.id === currentRoomHostRef.current) : undefined;
-            if (currentRoomHostRef.current !== user?.id) {
-                if (!hostInRoom) {
-                    console.log('Host has terminated the room, leaving the room...');
-                    await _handleRoomLeave();
-                }
-            }
-
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
             return;
         }
@@ -1163,6 +1179,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const handleLeaveRoom = () => {
+        console.log('Members: ');
+        members.map(element => console.log(element.user.username));
         setLeaveRoom(true);
     };
 
@@ -1259,7 +1277,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     members={members} 
                     setShowTransferConfirmation={setShowTransferConfirmation} 
                     isHost={isStreamHost} 
-                    handleRoomTermination={handleCancelRoomTermination}
+                    handleRoomTermination={handleRoomTermination}
                     confirmOptions={confirmOptions}
                     setSelectedMemberForHost={setSelectedMemberForHost}
                     currentRoomHost={currentRoomHost}
