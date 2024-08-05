@@ -165,52 +165,6 @@ const PollScreen = ({navigation, route}: Props) => {
                     ) : (
                         <Text style={{...FONTS.Title2Orange}}>Error: Poll not found</Text>
                     )}
-                    <View style={{marginBottom: '5%'}}>
-                        {loadingComments ? (
-                            <View style={{marginTop: '25%'}}>
-                                <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
-                            </View>
-                        ) : // You can customize the size and color
-                        comments.length === 0 ? (
-                            <View>
-                                <Text style={styles.noCommentsText}>No comments yet</Text>
-                            </View>
-                        ) : (
-                            <FlatList
-                                data={comments}
-                                style={styles.postcontainer}
-                                keyExtractor={item => item.id}
-                                renderItem={({item}) => (
-                                    <View style={{marginBottom: 10}}>
-                                        <PollCommentCard
-                                            post={item}
-                                            openProfile={() =>
-                                                navigation.navigate('ViewUserScreen', {userID: item.user?.id})
-                                            }
-                                            userName={item.user?.username}
-                                            firstName={item.user?.firstName}
-                                            // onFollow={() => handleFollow(item.author.id)}
-                                            // onUnfollow={() => handleUnfollow(item.author.id)}
-                                            isCommentLiked={item.isLikedByCurrentUser}
-                                            // onDeleteComment={() => handleDeleteComment(+item.id)}
-                                            currentUserID={currentUserID || ''}
-                                            akcruBadge={item.user?.badge}
-                                            // onLikeOrUnlike={() => onLikeOrUnlikeComment(+item.id)}
-                                            likeCount={item.likeCount || 0}
-                                            // onFollow={() => handleFollow(item.user.id, item.user.isFollowed)}
-                                            isFollowing={item.user.isFollowed}
-                                            // onBlockUser={() =>
-                                            //     handleToggleBlockUser(item.user.id, item.user.isCurrentlyBlocked)
-                                            // }
-                                            akcruBadgeColor={selectAvatarBorderColor(item.user.badge ?? 'AKCRUIT')}
-                                            // onEditComment={() => handleEditComment(item)}
-                                            isAdmin={user?.isAdmin}
-                                        />
-                                    </View>
-                                )}
-                            />
-                        )}
-                    </View>
                 </ScrollView>
             </SafeAreaView>
         </TabContainer>

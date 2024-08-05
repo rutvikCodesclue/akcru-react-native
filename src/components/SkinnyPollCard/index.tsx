@@ -79,9 +79,9 @@ const PollScreenCard = ({
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
-    useEffect(() => {
-        console.log('PollScreenCard mount:', poll);
-    }, []);
+    // useEffect(() => {
+    //     console.log('PollScreenCard mount:', poll);
+    // }, []);
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
