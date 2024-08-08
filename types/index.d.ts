@@ -702,6 +702,10 @@ export interface IPoll {
     comments: IPollComment[];
     pollLikes: IPollLike[];
     selectedChoice: string | null; // Add this line
+    _count?: {
+        pollLikes: number;
+        comments: number;
+    };
 }
 
 export interface IChoice {

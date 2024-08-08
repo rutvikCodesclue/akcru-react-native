@@ -114,7 +114,9 @@ export async function likePoll(pollId: string): Promise<string> {
 // Function to unlike a poll
 export async function unlikePoll(pollId: string): Promise<string> {
     try {
-        const {data} = await API.post('/v1/poll/unlike', {pollId});
+        const {data} = await API.delete('/v1/poll/unlike', {
+            data: {pollId},
+        });
         if (data.success === false) {
             throw new Error(data.message);
         }
@@ -160,6 +162,7 @@ export async function commentOnPoll(pollId: string, postType: string, content: s
 // Function to get comments for a poll
 export async function getPollComments(pollId: string, page: number = 0): Promise<any> {
     try {
+        console.log('Fetching comments for pollId:', pollId, 'on page:', page); // Debug log
         const {data} = await API.get(`/v1/poll/${pollId}/comments`, {params: {page}});
         console.log('API Response:', data); // Add this line for debugging
         if (data.success === false) {
@@ -203,7 +206,9 @@ export async function likePollComment(pollCommentId: string): Promise<any> {
 // Function to unlike a poll comment
 export async function unlikePollComment(pollCommentId: string): Promise<string> {
     try {
-        const {data} = await API.post('/v1/poll/comment/unlike', {pollCommentId});
+        const {data} = await API.delete('/v1/poll/comment/unlike', {
+            data: {pollCommentId},
+        });
         if (data.success === false) {
             throw new Error(data.message);
         }

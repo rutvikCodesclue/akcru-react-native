@@ -34,7 +34,7 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
 
 type PollStats = {
     comments: number;
-    likes: number;
+    pollLikes: number;
     reposts: number;
 };
 
@@ -53,6 +53,8 @@ type IPoll = {
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
     selectedChoice?: string; // Add this property to keep track of the selected choice
+    isLikedByCurrentUser?: boolean;
+    likeCount: number; // Add this line to include likeCount
 };
 
 type PollCardProps = {
@@ -62,10 +64,11 @@ type PollCardProps = {
     akcruBadgeColor: string;
     akcruBadge?: string;
     openProfile: () => void;
-    onDeletePoll: (postId: string) => void;
+    onDeletePoll: (pollId: string) => void;
     profilePicture?: string;
     isAdmin: boolean;
     CommentOnPollButton: any;
+    onLikeOrUnlike: (pollId: string) => void;
 };
 
 const PollCard = ({
@@ -78,6 +81,7 @@ const PollCard = ({
     onDeletePoll,
     isAdmin,
     CommentOnPollButton,
+    onLikeOrUnlike,
 }: PollCardProps) => {
     const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
@@ -98,6 +102,8 @@ const PollCard = ({
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
     const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const likeIconColor = poll.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -467,27 +473,12 @@ const PollCard = ({
                 </View>
             </Modal>
             <View style={styles.postfooter}>
-                {/* <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} onPress={CommentOnPollButton} /> */}
-                {/* <FooterIcons iconname={'happy'} /> */}
-                {/* <FooterIcons
-                    iconname={'sync'}
-                    onPress={() => {
-                        ('');
-                    }}
-                    color={COLORS.AKCRUBLUE}
-                /> */}
-                {/* <FooterIcons
-                    iconname={'stats-chart'}
-                    text={post.impressions || 0}
-                    onPress={() => {
-                        ('');
-                    }}
-                /> */}
-                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
+                <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} onPress={CommentOnPollButton} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(poll.id)} color={likeIconColor} />
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
-                    {/* {poll._count?.comments || 0} Comments • {poll._count?.likes || 0} Likes */}
+                    {poll._count?.comments || 0} Comments • {poll.likeCount || 0} Likes
                     {/* •{' '}{post.numberOfReposts || 0} Repost */}
                 </Text>
             </View>

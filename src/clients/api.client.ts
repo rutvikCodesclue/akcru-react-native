@@ -39,8 +39,8 @@ API.interceptors.request.use(
         }
         const endpoints = [
             '/v1/user',
-            '/v1/auth/signup',
-            '/v1/auth/login',
+            // '/v1/auth/signup',
+            // '/v1/auth/login',
             '/v1/wallet/purchase/mit',
             '/v1/wallet/send-ad',
             '/v1/user/resetPassword',
