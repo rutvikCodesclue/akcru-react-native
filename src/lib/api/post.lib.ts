@@ -337,3 +337,20 @@ export async function editComment(commentId: number, editedText: string) {
         throw new Error('Failed to edit the comment.');
     }
 }
+
+export async function newVisitCrum() {
+    const response = await API.post('/v1/post/isNewUser');
+
+    if (response) {
+        console.log('data come successfully', response.data.isNewVisitCrum);
+        return response.data.isNewVisitCrum;
+    }
+}
+export async function newUserUpdate() {
+    const response = await API.post('/v1/post/newUserUpdate');
+
+    if (response) {
+        console.log('data come update successfully', response.data);
+        return response.data;
+    }
+}

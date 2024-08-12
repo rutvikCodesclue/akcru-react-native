@@ -9,6 +9,7 @@ import {useNavigation} from '@react-navigation/native';
 
 import {ClientStack} from './ClientStack';
 import {CrummunityStack} from './CrummunityStack';
+import {ShowTestScreen} from './TestScreen';
 import CruChewStack from './CruChewStack';
 import {UserProfileStack} from './UserProfileStack';
 
@@ -16,6 +17,9 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import {UseTabMenu} from '../context/TabContext';
 import AkcruButtonStack from './AkcruButtonStack';
+import {FinalCrummunityScreen} from '../screens/crummunityScreens/FinalCrummunityScreen';
+import {TestScreen} from '../screens/crummunityScreens/testScreen';
+import CrummunityScreen from '../screens/crummunityScreens/CrummunityScreen';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -26,6 +30,7 @@ export type ClientTabsParams = {
     AkcruButtonStack: any;
     TabContainer: any;
     AkcruCenterButton: any;
+    ShowTestScreen: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -68,9 +73,25 @@ export default function ClientTabNavigator() {
                     tabPress: closeCenterButtonIfOpen,
                 }}
             />
-            <ClientTabs.Screen
+            {/* <ClientTabs.Screen
                 name="CrummunityStack"
                 component={CrummunityStack}
+                options={{
+                    tabBarItemStyle: {},
+                    headerShown: false,
+                    tabBarIcon: ({color}) => (
+                        <View style={styles.tabIconContainer}>
+                            <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                        </View>
+                    ),
+                }}
+                listeners={{
+                    tabPress: closeCenterButtonIfOpen,
+                }}
+            /> */}
+            <ClientTabs.Screen
+                name="CrummunityScreen"
+                component={CrummunityScreen}
                 options={{
                     tabBarItemStyle: {},
                     headerShown: false,
