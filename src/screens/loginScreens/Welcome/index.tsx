@@ -15,8 +15,10 @@ import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
+import {HomeScreen} from '../../contentScreens/Home'
 
-const Welcome = () => {
+
+const Welcome = (params) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const authStore = useAuthStore();
 
@@ -32,7 +34,7 @@ const Welcome = () => {
                     PERMISSIONS.ANDROID.RECORD_AUDIO,
                     PERMISSIONS.ANDROID.READ_CONTACTS,
                     PERMISSIONS.ANDROID.CAMERA,
-                    PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE
+                    PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
                 ];
 
                 for (let permission of permissions) {
@@ -44,11 +46,7 @@ const Welcome = () => {
             }
 
             if (Platform.OS === 'ios') {
-                const permissions = [
-                    PERMISSIONS.IOS.CAMERA,
-                    PERMISSIONS.IOS.MICROPHONE,
-                    PERMISSIONS.IOS.MEDIA_LIBRARY
-                ];
+                const permissions = [PERMISSIONS.IOS.CAMERA, PERMISSIONS.IOS.MICROPHONE, PERMISSIONS.IOS.MEDIA_LIBRARY];
 
                 for (let permission of permissions) {
                     const result = await check(permission);
@@ -62,57 +60,57 @@ const Welcome = () => {
         _checkPermissions();
     }, []);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-          await authStore.hydrateAuth();
-          const accessToken = await AsyncStorage.getItem('access_token');
-          const isAuthed = authStore.getUser()!== null && authStore.getSession()!== null;
-          const isLoggedInWithToken = isAuthed && accessToken!== null;
-      
-          if (isLoggedInWithToken) {
-            await new Promise(resolve => {
-              const onAnimationFinish = () => {
+
+    const checkAuth = async () => {
+        try {
+            await authStore.hydrateAuth();
+            const accessToken = await AsyncStorage.getItem('access_token');
+            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
+            const isLoggedInWithToken = isAuthed && accessToken !== null;
+
+            const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';            
+            await handleAnimation();
+
+            if(isLoggedInWithToken) {navigation.navigate('NoBottomStack', {screen: params.route.params.params.screenName, params: params.route.params.params.paramsval, isLoggedIn});}
+
+            
+        } catch (err) {
+            console.error('Error checking auth', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAnimation = () => {
+        return new Promise(resolve => {
+            setShowOpener(true);
+            setTimeout(() => {
+                setLoading(false)
+                setShowOpener(false);
                 resolve();
-              };
-              setShowOpener(true);
-              setTimeout(onAnimationFinish, 3400);
-            });
-            navigation.navigate('NoBottomStack', { screen: 'ClientTabNavigator' });
-          } else {
-            await new Promise(resolve => {
-              const onAnimationFinish = () => {
-                resolve();
-              };
-              setShowOpener(true);
-              setTimeout(onAnimationFinish, 3400);
-            });
-            navigation.navigate('NoBottomStack', { screen: 'Signin' });
-          }
-        };
-        checkAuth().catch(err => {
-          console.error('Error checking auth', err);
-          setLoading(false);
-          setShowOpener(false);
+            }, 3400);
         });
-      }, []);
+    };
 
-    
+    useEffect(() => {
+        checkAuth();
+    }, []);
 
-    async function handleLogout() {
-        await AsyncStorage.removeItem('access_token');
-        await authStore.logout();
-        navigation.navigate('Signin');
-        setIsLoggedIn(false);
-    }
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('access_token');
+            await authStore.logout();
+            navigation.navigate('Signin');
+        } catch (err) {
+            console.error('Error during logout', err);
+        } finally {
+            setIsLoggedIn(false);
+        }
+    };
 
     if (loading) {
-        return (
-            <View>
-                {showOpener && (
-                    <AkcruAppOpener onAnimationFinish={() => setShowOpener(false)} />
-                )}
-            </View>
-        );
+        return <View>{showOpener && <AkcruAppOpener onAnimationFinish={() => {
+            setShowOpener(false)}} />}</View>;
     }
 
     return (
@@ -130,12 +128,12 @@ const Welcome = () => {
                 />
                 <View style={styles.container}>
                     <View>
-                        <View style={{ alignItems: 'center' }}>
+                        <View style={{alignItems: 'center'}}>
                             <AkcruLogo width={200} height={60} />
                         </View>
-                        <View style={{ flex: 1, justifyContent: 'flex-end', marginBottom: 50 }}>
-                            <View style={{ marginBottom: '15%' }}>
-                                <View style={{ marginVertical: 15 }}>
+                        <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
+                            <View style={{marginBottom: '15%'}}>
+                                <View style={{marginVertical: 15}}>
                                     <AkcruButtons.LrgButton
                                         color={COLORS.AKCRUBLUE}
                                         btnname={'Sign in'}
@@ -152,88 +150,12 @@ const Welcome = () => {
                                     />
                                 </View>
                             </View>
-                            <Text style={{ ...FONTS.Title2White, textAlign: 'center' }}>
+                            <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
                                 version {appVersion[0].version}
                             </Text>
                         </View>
                     </View>
-                    {/* {isLoggedIn ? (
-                        <View style={styles.container2}>
-                            <AkcruLogo width={200} height={60} />
-                            <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
-                                authStore.user?.username || 'User'
-                            }`}</Text>
-
-                            <AkcruButtons.LrgButton
-                                color={COLORS.PURPLE}
-                                btnname="Enter Akcru"
-                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'})}
-                                disabled={!loading}
-                            />
-                            <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
-                                <View
-                                    style={{
-                                        marginBottom: 25,
-                                        flexDirection: 'row',
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2White,
-                                            marginRight: 5,
-                                        }}>
-                                        {`You're not ${authStore.user?.username || 'User'}?`}
-                                    </Text>
-
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            handleLogout();
-                                        }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2Orange,
-                                                color: COLORS.PINK,
-                                            }}>
-                                            Sign in here
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
-                                    version {appVersion[0].version}
-                                </Text>
-                            </View>
-                        </View>
-                    ) : (
-                        <View>
-                            <View style={{alignItems: 'center'}}>
-                                <AkcruLogo width={200} height={60} />
-                            </View>
-                            <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
-                                <View style={{marginBottom: '15%'}}>
-                                    <View style={{marginVertical: 15}}>
-                                        <AkcruButtons.LrgButton
-                                            color={COLORS.AKCRUBLUE}
-                                            btnname={'Sign in'}
-                                            onPress={() => navigation.navigate('Signin')}
-                                            disabled={false}
-                                        />
-                                    </View>
-                                    <View>
-                                        <AkcruButtons.LrgButton
-                                            color={COLORS.PURPLE}
-                                            btnname={'Create Account'}
-                                            onPress={() => navigation.navigate('OnboardEmail')}
-                                            disabled={false}
-                                        />
-                                    </View>
-                                </View>
-
-                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
-                                    version {appVersion[0].version}
-                                </Text>
-                            </View>
-                        </View>
-                    )} */}
+                  
                     <Modal animationType="fade" transparent={true} visible={showLoginError}>
                         <View
                             style={{
@@ -241,8 +163,7 @@ const Welcome = () => {
                                 backgroundColor: 'rgba(0, 0, 0, 0.5)',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                            }}
-                        >
+                            }}>
                             <View
                                 style={{
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -250,13 +171,18 @@ const Welcome = () => {
                                     borderRadius: 10,
                                     alignItems: 'center',
                                     marginHorizontal: 15,
-                                }}
-                            >
-                                <Text style={{ ...FONTS.Title3, marginBottom: 10, textAlign: 'center' }}>
+                                }}>
+                                <Text style={{...FONTS.Title3, marginBottom: 10, textAlign: 'center'}}>
                                     {'Login error, Please try again.'}
                                 </Text>
                                 <TouchableOpacity onPress={() => setShowLoginError(false)}>
-                                    <Text style={{ ...FONTS.Title2, marginBottom: 10, textAlign: 'center', color: COLORS.MIDORANGE }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
+                                        }}>
                                         {'Close'}
                                     </Text>
                                 </TouchableOpacity>

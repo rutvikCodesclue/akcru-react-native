@@ -7,7 +7,13 @@ import styles from './styles';
 const BackButton = ({navigation}: Props) => {
     return (
         <View style={styles.backbutton}>
-            <TouchableOpacity onPress={() => navigation.pop()} style={styles.box}>
+            <TouchableOpacity onPress={() => {
+                if(navigation.getState().routes.length > 1){
+                    navigation.pop()
+                }else{
+                    navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'})
+                }
+                }} style={styles.box}>
                 <View style={styles.flexCenter}>
                     <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
                     <Text style={styles.fontstyle}>Back</Text>

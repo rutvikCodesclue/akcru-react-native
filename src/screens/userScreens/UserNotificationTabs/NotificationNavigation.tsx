@@ -3,33 +3,35 @@ import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
 import {navigate} from '../../../util/RootNavigation';
 
-export function navigateToScreen(screenname: string, params?: object) {
-    navigate('NoBottomStack', {screen: screenname, params: params});
-}
+
 
 export const NotificationNavigation = async (notification: any, userID: any) => {
     try {
-        let postId;
-        let userId;
-        let currentUser;
+        let postId, userId, currentUser, screename, params;
         switch (notification.type) {
             case 'MITReceived':
-                navigateToScreen('UserMITHubScreen', {index: 0});
+                screename = 'UserMITHubScreen'
+                params= {index: 0};
                 break;
             case 'MITAccepted':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                screename = 'UserProfileScreen'
+                params= {index: 1};
                 break;
             case 'MITDeclined':
-                navigateToScreen('UserMITHubScreen', {index: 1});
+                screename = 'UserMITHubScreen'
+                params= {index: 1};
                 break;
             case 'MITCanceled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                screename = 'UserProfileScreen'
+                params= {index: 1};
                 break;
             case 'CruViewStarted':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                screename = 'UserProfileScreen'
+                params= {index: 1};
                 break;
             case 'CRUViewCanceled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                screename = 'UserProfileScreen'
+                params= {index: 1};
                 break;
             case 'UserLikedGallery':
                 const galleryId = notification.galleryId;
@@ -37,7 +39,8 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     currentUser = user;
                 });
                 const galleryItem = currentUser.userGallery.find(item => item.id === galleryId);
-                navigateToScreen('ViewUserScreen', {userID: userID, imageURL: galleryItem.imageURL});
+                screenname = 'ViewUserScreen';
+                params = {userID: userID, imageURL: galleryItem.imageURL}
                 break;
             case 'UserLikedComment':
                 postId = notification.postId;
@@ -45,7 +48,8 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        screenname = 'PostScreen';
+                        params = {post: post}
                     } else {
                         console.error('Post not found');
                     }
@@ -57,7 +61,9 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        screenname = 'PostScreen';
+                        params = {post: post}
+
                     } else {
                         console.error('Post not found');
                     }
@@ -69,7 +75,9 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        screenname = 'PostScreen';
+                        params = {post: post}
+                        
                     } else {
                         console.error('Post not found');
                     }
@@ -81,7 +89,9 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        screenname = 'PostScreen';
+                        params = {post: post}
+                        
                     } else {
                         console.error('Post not found');
                     }
@@ -93,7 +103,8 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        screename = 'PostScreen';
+                        params = {post: post}
                     } else {
                         console.error('Post not found');
                     }
@@ -102,31 +113,40 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
             case 'UserFollowed':
                 userId = notification.senderId;
                 if (userId) {
-                    navigateToScreen('ViewUserScreen', {userID: userId});
+                    screename = 'ViewUserScreen'
+                    params = {userID: userId}
+                    
+                    
                 } else {
                     console.error('User ID not found');
                 }
                 break;
             case 'CruInviteReceived':
-                navigateToScreen('UserProfileScreen', {index: 2});
+                screename = 'UserProfileScreen';
+                params = {index: 2}
                 break;
             case 'CruInviteAccepted':
-                navigateToScreen('UserProfileScreen', {index: 0});
+                screename = 'UserProfileScreen';
+                params = {index: 0}
                 break;
             case 'CruInviteDeclined':
-                navigateToScreen('UserProfileScreen', {index: 0});
+                screename = 'UserProfileScreen';
+                params = {index: 0}
                 break;
             case 'CruViewScheduled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                screename = 'UserProfileScreen';
+                params = {index: 1}
                 break;
             case 'ADReceived':
-                navigateToScreen('UserProfileScreen', {index: 3});
+                screename = 'UserProfileScreen';
+                params = {index: 3}
                 break;
             case 'GroupMessageReceived':
                 let userCrus = await listCrusForUser(userID);
                 let targetCruId = notification.cruId;
                 let targetCru = userCrus.find(item => item.id === targetCruId);
-                navigateToScreen('ViewGroupChat', {cru: targetCru});
+                screename = 'ViewGroupChat'
+                params = {cru: targetCru}
                 break;
             case 'MsgRcvd':
                 let senderId = notification.senderId;
@@ -136,17 +156,21 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                 });
                 let senderProfilePicture = currentUser.profilePicture;
                 let senderUsername = currentUser.username;
-                navigateToScreen('ViewChat', {
+                screename = 'ViewChat'
+                params  = {
                     mItInviteId: mITId,
                     userId: senderId,
                     profilePicture: senderProfilePicture,
                     username: senderUsername,
-                });
+                }
+                
                 break;
             default:
                 console.warn('Unhandled notification type:', notification.type);
                 break;
         }
+        return {screenName: screename, params: params}
+
     } catch (error) {
         console.error('Error navigating to content:', error);
     }
