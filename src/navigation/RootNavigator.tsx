@@ -6,11 +6,11 @@ import {TabContextProvider} from '../context/TabContext';
 // export const navigationRef = createNavigationContainerRef();
 import {navigationRef} from '../util/RootNavigation';
 
-export default function RootNavigator() {
+export default function RootNavigator(params) {
     return (
         <TabContextProvider>
             <NavigationContainer ref={navigationRef}>
-                <AuthStack />
+                <AuthStack params={params}/>
             </NavigationContainer>
         </TabContextProvider>
     );

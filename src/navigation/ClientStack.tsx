@@ -68,27 +68,7 @@ export function ClientStack() {
                     headerShown: false,
                 })}
             />
-            {/* <ClientSearch.Screen
-              name="SearchMovieResultScreen"
-              component={SearchMovieResultScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
-            {/* <ClientSearch.Screen
-              name="ContentDetailScreen"
-              component={ContentDetailScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
-            {/* <ClientSearch.Screen
-              name="MITDateSchedule"
-              component={MITDateSchedule}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
+           
             <ClientSearch.Screen
                 name="ViewUserScreen"
                 component={ViewUserScreen}
