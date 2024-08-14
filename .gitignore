@@ -69,7 +69,7 @@ yarn-error.log
 .env
 __MACOSX
 
-#android/
+android/
 ios/
-#gradle.properties
-#android
+gradle.properties
+android
