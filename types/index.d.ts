@@ -174,7 +174,11 @@ export type INotification = {
         | 'ADReceived'
         | 'UserLikedGallery'
         | 'MsgRcvd'
-        | 'GroupMessageReceived';
+        | 'GroupMessageReceived'
+        | 'UserTaggedOnPoll'
+        | 'UserTaggedOnPollComment'
+        | 'UserLikedPollComment'
+        | 'UserLikedPoll';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
@@ -186,6 +190,7 @@ export type INotification = {
     cruId: any;
     mITId: any;
     galleryId: any;
+    pollId: any;
 };
 export interface IUserProfile {
     message: string?;
@@ -697,6 +702,10 @@ export interface IPoll {
     comments: IPollComment[];
     pollLikes: IPollLike[];
     selectedChoice: string | null; // Add this line
+    _count?: {
+        pollLikes: number;
+        comments: number;
+    };
 }
 
 export interface IChoice {

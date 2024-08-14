@@ -124,6 +124,7 @@ export const createACRUInvite = async (params: {
 }): Promise<ICruInvite | undefined> => {
     try {
         const {username, senderId} = params;
+        console.log('username', username, senderId)
         const {data} = await API.post('/v1/cru/invite/create', {username, senderId});
 
         return data.invite;
@@ -242,5 +243,36 @@ export const searchCRUs = async (searchTerm: string): Promise<SearchCRUsResponse
     } catch (error) {
         console.error('Error fetching CRUs:', error);
         return undefined;
+    }
+};
+
+export const getCruViewHostId = async (cruViewId: string | null): Promise<string | undefined> => {
+    try {
+        const {data} = await API.post('/v1/cru/get-cru-view-host', {cruViewId});
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data.hostId;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const updateCruViewHostId = async (
+    cruViewId: string | null,
+    newHostId: string | null,
+): Promise<boolean | undefined> => {
+    try {
+        const {data} = await API.post('/v1/cru/update-cru-view-host', {cruViewId, newHostId});
+        if (data.success === false) {
+            console.log(data.message);
+            return data.success;
+        }
+
+        console.log(data.message);
+        return data.success;
+    } catch (error) {
+        console.error(error);
     }
 };

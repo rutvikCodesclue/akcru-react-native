@@ -139,3 +139,34 @@ export const declineAMITInvite = async (params: {inviteId: string}): Promise<IMI
         console.error(error);
     }
 };
+
+export const getMITHostId = async (mITInviteId: string | null): Promise<string | undefined> => {
+    try {
+        const {data} = await API.post('/v1/mit/get-mit-host', {mITInviteId});
+        if (data.success === false) {
+            return undefined;
+        }
+
+        return data.hostId;
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const updateMITHostId = async (
+    mITInviteId: string | null,
+    newHostId: string | null,
+): Promise<boolean | undefined> => {
+    try {
+        const {data} = await API.post('/v1/mit/update-mit-host', {mITInviteId, newHostId});
+        if (data.success === false) {
+            console.log(data.message);
+            return data.success;
+        }
+
+        console.log(data.message);
+        return data.success;
+    } catch (error) {
+        console.error(error);
+    }
+};

@@ -16,10 +16,33 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 
+type FooterIconsProps = {
+    iconname: string;
+    onPress: () => void;
+    color: string;
+};
+
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
+    return (
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={onPress}>
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
+            </TouchableOpacity>
+        </View>
+    );
+};
+
+type PollStats = {
+    comments: number;
+    pollLikes: number;
+    reposts: number;
+};
+
 type IPoll = {
     id: string;
     question: string;
     imageUrl?: string;
+    _count?: PollStats;
     videoUrl?: string;
     createdAt: string;
     updatedAt: string;
@@ -30,6 +53,8 @@ type IPoll = {
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
     selectedChoice?: string; // Add this property to keep track of the selected choice
+    isLikedByCurrentUser?: boolean;
+    likeCount: number; // Add this line to include likeCount
 };
 
 type PollCardProps = {
@@ -39,9 +64,11 @@ type PollCardProps = {
     akcruBadgeColor: string;
     akcruBadge?: string;
     openProfile: () => void;
-    onDeletePoll: (postId: string) => void;
+    onDeletePoll: (pollId: string) => void;
     profilePicture?: string;
     isAdmin: boolean;
+    CommentOnPollButton: any;
+    onLikeOrUnlike: (pollId: string) => void;
 };
 
 const PollCard = ({
@@ -53,6 +80,8 @@ const PollCard = ({
     openProfile,
     onDeletePoll,
     isAdmin,
+    CommentOnPollButton,
+    onLikeOrUnlike,
 }: PollCardProps) => {
     const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
@@ -73,6 +102,8 @@ const PollCard = ({
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
     const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const likeIconColor = poll.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -216,8 +247,8 @@ const PollCard = ({
     };
 
     // Debugging logs
-    console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
-    console.log('isAdmin:', isAdmin);
+    // console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
+    // console.log('isAdmin:', isAdmin);
 
     return (
         <View style={styles.cardcontainer}>
@@ -441,6 +472,16 @@ const PollCard = ({
                     )}
                 </View>
             </Modal>
+            <View style={styles.postfooter}>
+                <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} onPress={CommentOnPollButton} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(poll.id)} color={likeIconColor} />
+            </View>
+            <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
+                <Text style={styles.footStats}>
+                    {poll._count?.comments || 0} Comments • {poll.likeCount || 0} Likes
+                    {/* •{' '}{post.numberOfReposts || 0} Repost */}
+                </Text>
+            </View>
         </View>
     );
 };

@@ -3,21 +3,25 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     input: {
-        flexDirection: 'row',
-        borderWidth: 0.8,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
-        justifyContent: 'space-between',
-        marginVertical: 10,
-        paddingLeft: 10,
-        alignItems: 'flex-start',
-        height: 150,
+        width: SIZES.ScreenWidth * 0.92,
+
+        borderColor: COLORS.LIGHTGREY,
+        marginTop: 10,
+        alignSelf: 'center',
+        height: 100,
     },
     textinput: {
         color: COLORS.LIGHTGREY,
     },
     container: {
         marginHorizontal: 15,
+    },
+    cancelButton: {
+        ...FONTS.paragraph1,
+        backgroundColor: COLORS.AKCRUPINK,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
     },
     searchinput: {
         width: SIZES.ScreenWidth / 1.08,
@@ -43,36 +47,30 @@ export default StyleSheet.create({
         marginTop: '2%',
         textAlign: 'center',
     },
-    noCommentsText: {
-        ...FONTS.Title3,
-        marginHorizontal: 15,
-        marginBottom: 10,
-        marginTop: '25%',
-        textAlign: 'center',
-    },
     postcontainer: {
         width: SIZES.ScreenWidth * 0.93,
         alignSelf: 'center',
         marginBottom: 5,
     },
-    floatingbutton: {
+    postButton: {
+        ...FONTS.Title3,
+        marginLeft: 5,
         backgroundColor: COLORS.AKCRUBLUE,
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        position: 'relative',
-        bottom: '20%',
-        left: '80%',
-        alignItems: 'center',
-        justifyContent: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        color: COLORS.LIGHTGREY,
+        borderRadius: 5,
     },
-    floatingbuttonContainer: {
-        position: 'relative',
-        paddingRight: '5%',
-        bottom: '20%',
-        left: '80%',
-        alignItems: 'flex-end',
+    postvideo: {
+        width: '100%',
+        aspectRatio: 16 / 9,
+        borderRadius: 10,
+        marginTop: 10,
+    },
+    loadingOverlay: {
+        flex: 1,
         justifyContent: 'center',
-        width: '20%',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
 });

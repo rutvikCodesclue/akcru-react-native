@@ -4,6 +4,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import SmlMemberCard from '../../../components/SmlMemberCard';
+import {selectAvatarBorderColor} from '../../../util/util';
 
 interface Props {
     optionModalVisible: any;
@@ -12,9 +13,20 @@ interface Props {
     isHost: any;
     handleRoomTermination: any;
     confirmOptions: any;
+    setSelectedMemberForHost: any;
+    currentRoomHost: any;
 }
 
-const HostOptionsModal = ({optionModalVisible, members, setShowTransferConfirmation, isHost, handleRoomTermination, confirmOptions}: Props) => {
+const HostOptionsModal = ({
+    optionModalVisible,
+    members,
+    setShowTransferConfirmation,
+    isHost,
+    handleRoomTermination,
+    confirmOptions,
+    setSelectedMemberForHost,
+    currentRoomHost,
+}: Props) => {
     return (
         <Modal animationType="fade" transparent={true} visible={optionModalVisible}>
             <SafeAreaView
@@ -63,7 +75,7 @@ const HostOptionsModal = ({optionModalVisible, members, setShowTransferConfirmat
                     </Text>
                     <View>
                         <FlatList
-                            data={members.filter(member => member.role !== 'host')}
+                            data={members.filter(member => member.user.id !== currentRoomHost)}
                             horizontal={false}
                             showsHorizontalScrollIndicator={false}
                             numColumns={2}
@@ -76,15 +88,13 @@ const HostOptionsModal = ({optionModalVisible, members, setShowTransferConfirmat
                                         userName={item.user.username ?? 'Anonymous'}
                                         onPress={() => {
                                             console.log('onPress FIRED');
-
+                                            setSelectedMemberForHost(item);
                                             setShowTransferConfirmation(true);
                                         }}
                                         userID={item.user.id}
                                         akcruBadge={item.user.badge}
                                         userDesc={item.user.description ?? ''}
-                                        avatarbordercolor={selectAvatarBorderColor(
-                                            item.user.badge ?? 'AKCRUIT',
-                                        )}
+                                        avatarbordercolor={selectAvatarBorderColor(item.user.badge ?? 'AKCRUIT')}
                                     />
                                 </View>
                             )}
@@ -126,7 +136,7 @@ const HostOptionsModal = ({optionModalVisible, members, setShowTransferConfirmat
                                 btnname="Terminate"
                                 color={COLORS.CATREDLGT}
                                 disabled={false}
-                                onPress={isHost && handleRoomTermination}
+                                onPress={handleRoomTermination}
                             />
                         </View>
                     </View>

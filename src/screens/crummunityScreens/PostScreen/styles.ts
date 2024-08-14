@@ -70,8 +70,9 @@ export default StyleSheet.create({
         position: 'relative',
         paddingRight: '5%',
         bottom: '20%',
-        left: '0%',
+        left: '80%',
         alignItems: 'flex-end',
-        justifyContent: 'center',
+        justifyContent: 'center',  
+        width: '20%'
     },
 });

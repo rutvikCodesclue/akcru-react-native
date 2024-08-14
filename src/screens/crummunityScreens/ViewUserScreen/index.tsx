@@ -21,7 +21,6 @@ import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import {Akcru_Content} from '../../../../assets/constants/ListData';
 import {
     blockUser,
     findAUser,
@@ -106,6 +105,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
         const fetchCruInviteStatus = async () => {
             const status = await getCruInviteStatus(userID);
             setCruInviteStatus(status);
+            if (status === 'PENDING') {
+                setbtnName('PENDING')
+                setbtnDisabled(true)
+                setbtnColor(COLORS.DARKGREY)
+            } 
         };
 
         fetchCruInviteStatus();
@@ -119,6 +123,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 try {
                     const membershipStatus = await checkUserMembership(userID);
                     setIsMember(membershipStatus);
+                    if (membershipStatus) {
+                        setbtnName('CRU MEMBER')
+                        setbtnDisabled(true)
+                        setbtnColor(COLORS.PINK)
+                    }
                 } catch (error) {
                     console.error('Failed to fetch membership status:', error);
                 }
@@ -127,20 +136,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
         fetchData();
     }, [userID]);
+    const [btnName, setbtnName] = useState('CRU INVITE');
+    const [btnDisabled, setbtnDisabled] = useState(false);
+    const [btnColor, setbtnColor] = useState(COLORS.AKCRUBLUE);
 
-    let btnName = 'CRU INVITE';
-    let btnDisabled = false;
-    let btnColor = COLORS.AKCRUBLUE;
 
-    if (cruInviteStatus === 'PENDING') {
-        btnName = 'PENDING';
-        btnDisabled = true;
-        btnColor = COLORS.DARKGREY;
-    } else if (isMember) {
-        btnName = 'CRU MEMBER';
-        btnDisabled = true;
-        btnColor = COLORS.PINK;
-    }
+   
 
     useFocusEffect(
         React.useCallback(() => {
@@ -197,6 +198,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
             if (response) {
                 setShowCruInviteSent(true);
                 setShowConfirmationModal(false);
+                setbtnName('PENDING')
+                setbtnDisabled(true)
+                setbtnColor(COLORS.DARKGREY)
 
                 setTimeout(() => {
                     setShowCruInviteSent(false);
@@ -380,10 +384,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         <Header />
                     </View>
                     <View style={{marginBottom: '5%'}}>
-                        <ImageBackground
-                            source={{uri: undefined}}
-                            resizeMode="cover"
-                            style={{height: SIZES.ScreenHeight / 2.3, marginTop: -60}}>
+                        <View style={{ marginTop: -60}}>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
@@ -592,10 +593,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     {user?.description}
                                 </Text>
                             </View>
-                        </ImageBackground>
+                        </View>
                         <View
                             style={{
-                                marginTop: -30,
+                                marginTop: 10,
                                 marginHorizontal: 15,
                                 flexDirection: 'row',
                                 alignItems: 'center',

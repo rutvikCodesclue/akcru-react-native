@@ -1,9 +1,9 @@
 import axios from 'axios';
 export const isProduction = process.env.NODE_ENV === 'production';
-import {DEV_API_URL} from '@env';
+import {AUTH_API_URL} from '@env';
 import authStore from '../stores/auth.store';
 import Castle from '@castleio/react-native-castle';
-console.log('DEV_API_URL:', DEV_API_URL);
+console.log('AUTH_API_URL:', AUTH_API_URL);
 
 const addRequestTokenHeader = async () => {
     const requestToken = await Castle.createRequestToken();
@@ -13,9 +13,9 @@ const addRequestTokenHeader = async () => {
 const determineBaseURL = (): string => {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return DEV_API_URL;
+            return AUTH_API_URL;
         default:
-            return DEV_API_URL ?? 'http://10.0.2.2:3000';
+            return AUTH_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
 
@@ -37,15 +37,7 @@ API.interceptors.request.use(
         if (session) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
-        const endpoints = [
-            '/v1/user',
-            // '/v1/auth/signup',
-            // '/v1/auth/login',
-            '/v1/wallet/purchase/mit',
-            '/v1/wallet/send-ad',
-            '/v1/user/resetPassword',
-            undefined,
-        ];
+        const endpoints = ['/v1/auth/signup', '/v1/auth/login', undefined];
 
         if (
             (config.method?.toLowerCase() === 'post' || config.method?.toLowerCase() === 'put') &&

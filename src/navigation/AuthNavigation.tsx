@@ -64,7 +64,7 @@ export type AuthStackParams = {
 
 const Auth = createStackNavigator<AuthStackParams>();
 
-export default function AuthStack() {
+export default function AuthStack(params) {
     return (
         <Auth.Navigator
             screenOptions={{
@@ -79,6 +79,7 @@ export default function AuthStack() {
                     headerShown: false,
                     gestureDirection: 'horizontal',
                 }}
+                initialParams={params}
             />
             <Auth.Screen
                 name="Signin"

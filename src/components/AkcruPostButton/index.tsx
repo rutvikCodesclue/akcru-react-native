@@ -1,13 +1,17 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import imageindex from '../../../assets/images/imageindex';
 import {Icon} from '@rneui/base';
 import {COLORS, MULTISIZES} from '../../../assets/constants/theme';
 import CustomIcon from '../CustomIcon/CustomIcon';
 
-const PostButton = () => {
+type PostButtonProps = {
+    onPress: () => void;
+};
+
+const PostButton = ({onPress}: PostButtonProps) => {
     return (
-        <View>
+        <Pressable onPress={onPress}>
             <Image
                 source={imageindex.AkcruHexBlank}
                 resizeMode="contain"
@@ -17,7 +21,7 @@ const PostButton = () => {
                 {/* <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} /> */}
                 <CustomIcon name="add" type="ionicon" baseSize={35} color={COLORS.LIGHTGREY} />
             </View>
-        </View>
+        </Pressable>
     );
 };
 

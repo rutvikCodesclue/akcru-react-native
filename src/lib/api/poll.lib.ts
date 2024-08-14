@@ -114,7 +114,9 @@ export async function likePoll(pollId: string): Promise<string> {
 // Function to unlike a poll
 export async function unlikePoll(pollId: string): Promise<string> {
     try {
-        const {data} = await API.post('/v1/poll/unlike', {pollId});
+        const {data} = await API.delete('/v1/poll/unlike', {
+            data: {pollId},
+        });
         if (data.success === false) {
             throw new Error(data.message);
         }
@@ -140,9 +142,13 @@ export async function getPollLikes(pollId: string): Promise<any[]> {
 }
 
 // Function to comment on a poll
-export async function commentOnPoll(pollId: string, content: string[]): Promise<any> {
+export async function commentOnPoll(pollId: string, postType: string, content: string[]): Promise<any> {
     try {
-        const {data} = await API.post('/v1/poll/comment', {pollId, content});
+        const commentData = {
+            pollId,
+            content,
+        };
+        const {data} = await API.post(`/v1/poll/${pollId}/comment`, commentData);
         if (data.success === false) {
             throw new Error(data.message);
         }
@@ -154,16 +160,18 @@ export async function commentOnPoll(pollId: string, content: string[]): Promise<
 }
 
 // Function to get comments for a poll
-export async function getPollComments(pollId: string, page: number = 0): Promise<any[]> {
+export async function getPollComments(pollId: string, page: number = 0): Promise<any> {
     try {
-        const {data} = await API.get('/v1/poll/comments', {params: {pollId, page}});
+        console.log('Fetching comments for pollId:', pollId, 'on page:', page); // Debug log
+        const {data} = await API.get(`/v1/poll/${pollId}/comments`, {params: {page}});
+        console.log('API Response:', data); // Add this line for debugging
         if (data.success === false) {
             throw new Error(data.message);
         }
         return data.comments;
     } catch (error) {
-        console.error('Error fetching poll comments:', error);
-        throw new Error('Failed to fetch poll comments');
+        console.error('Error fetching comments for poll:', error);
+        throw new Error('Failed to fetch comments for poll');
     }
 }
 
@@ -198,7 +206,9 @@ export async function likePollComment(pollCommentId: string): Promise<any> {
 // Function to unlike a poll comment
 export async function unlikePollComment(pollCommentId: string): Promise<string> {
     try {
-        const {data} = await API.post('/v1/poll/comment/unlike', {pollCommentId});
+        const {data} = await API.delete('/v1/poll/comment/unlike', {
+            data: {pollCommentId},
+        });
         if (data.success === false) {
             throw new Error(data.message);
         }

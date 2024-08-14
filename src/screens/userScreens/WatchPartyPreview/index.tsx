@@ -50,6 +50,7 @@ type Props = {
     timezone?: any;
     type: 'MITInvite' | 'CRUView';
     creator: any;
+    creatorId: any;
     invitee: any;
     cru: any;
 };
@@ -57,6 +58,7 @@ type Props = {
 const WatchPartyPreview = ({navigation, route}: Props) => {
     const inviteId = route.params?.id;
     const creator: IUserProfile | null = route.params?.creator ?? null;
+    const creatorId = route.params?.creatorId ?? null;
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
     const cruId = route.params?.cruId;
     const cru = route.params?.cru;
@@ -284,6 +286,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                     isHost,
                     inviteId,
                     creator,
+                    creatorId,
                     invitee,
                     Timezone,
                     Movietime,

@@ -371,13 +371,10 @@ const PostScreen = ({navigation, route}: Props) => {
                         )}
                     </View>
                 </ScrollView>
-                <Pressable
-                    style={styles.floatingbuttonContainer}
-                    onPress={() => navigation2.navigate('NewComment', {postId: post.id})}>
-                    <View>
-                        <PostButton />
-                    </View>
-                </Pressable>
+
+                <View style={styles.floatingbuttonContainer}>
+                    <PostButton onPress={() => navigation2.navigate('NewComment', {postId: post.id})} />
+                </View>
             </SafeAreaView>
         </TabContainer>
     );

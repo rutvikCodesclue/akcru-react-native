@@ -92,9 +92,9 @@ const UserControls = ({toggleVideo, isUserVideoOn, toggleMic, isMicOn, isHost, m
                                 <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
                             )}
                         </Pressable>
-                        <Pressable onPress={() => sayhi()}>
+                        {/* <Pressable onPress={() => sayhi()}>
                             <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        </Pressable>
+                        </Pressable> */}
                         <Pressable onPress={toggleMic}>
                             {isMicOn ? (
                                 <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />

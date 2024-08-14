@@ -6,4 +6,5 @@ declare module '@env' {
     export const FB_APP_ID: string;
     export const FB_MESSAGING_SENDER_ID: string;
     export const CASTLE_API_PK: string;
+    export const AUTH_API_URL: string;
 }

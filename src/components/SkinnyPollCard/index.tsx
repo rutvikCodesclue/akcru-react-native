@@ -16,6 +16,28 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
 
+type FooterIconsProps = {
+    iconname: string;
+    onPress: () => void;
+    color: string;
+};
+
+const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
+    return (
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity onPress={onPress}>
+                <Icon name={iconname} type="ionicon" color={color} size={18} />
+            </TouchableOpacity>
+        </View>
+    );
+};
+
+type PollStats = {
+    comments: number;
+    pollLikes: number;
+    reposts: number;
+};
+
 type IPoll = {
     id: string;
     question: string;
@@ -30,6 +52,10 @@ type IPoll = {
     expiresAt: string;
     type: IPollType; // Update to use PollType enum
     votedByCurrentUser: boolean;
+    selectedChoice?: string; // Add this property to keep track of the selected choice
+    isLikedByCurrentUser: boolean;
+    _count?: PollStats;
+    likeCount: number; // Add this line to include likeCount
 };
 
 type PollCardProps = {
@@ -41,6 +67,10 @@ type PollCardProps = {
     openProfile: () => void;
     onDeletePoll: (postId: string) => void;
     profilePicture?: string;
+    isAdmin: boolean;
+    CommentOnPollButton: any;
+    isLikedByCurrentUser?: boolean;
+    onLikeOrUnlike: (pollId: string) => void;
 };
 
 const PollScreenCard = ({
@@ -52,11 +82,17 @@ const PollScreenCard = ({
     openProfile,
     onDeletePoll,
     profilePicture,
+    isAdmin,
+    CommentOnPollButton,
+    isLikedByCurrentUser,
+    onLikeOrUnlike,
 }: PollCardProps) => {
-    const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+    const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
     const [isPollExpired, setIsPollExpired] = useState(new Date() > new Date(poll.expiresAt));
     const [timeRemaining, setTimeRemaining] = useState<string>('');
+    const [choices, setChoices] = useState<IChoice[]>(poll.choices);
+    const [totalVotes, setTotalVotes] = useState<number>(poll.totalVotes);
 
     const isCurrentUserAuthor = poll.user?.id === currentUserID;
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -76,9 +112,7 @@ const PollScreenCard = ({
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
 
-    useEffect(() => {
-        console.log('PollScreenCard mount:', poll);
-    }, []);
+    const likeIconColor = poll.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
     const openModal = (image: React.SetStateAction<string>) => {
         setSelectedImage(image);
@@ -153,6 +187,10 @@ const PollScreenCard = ({
         }
 
         setSelectedChoice(choiceId);
+        setChoices(prevChoices =>
+            prevChoices.map(choice => (choice.id === choiceId ? {...choice, voteCount: choice.voteCount + 1} : choice)),
+        );
+        setTotalVotes(prevTotalVotes => prevTotalVotes + 1);
         onVote(poll.id, choiceId);
     };
 
@@ -211,6 +249,24 @@ const PollScreenCard = ({
             return '0%';
         }
         return ((choiceVotes / totalVotes) * 100).toFixed(2) + '%';
+    };
+
+    const [likeCount, setLikeCount] = useState<number>(poll.likeCount);
+    const [likedByCurrentUser, setLikedByCurrentUser] = useState<boolean>(poll.isLikedByCurrentUser);
+
+    const handleLikeOrUnlike = async () => {
+        if (debounce) return;
+
+        setDebounce(true);
+        try {
+            await onLikeOrUnlike(poll.id);
+            setLikedByCurrentUser(!likedByCurrentUser);
+            setLikeCount(likedByCurrentUser ? likeCount - 1 : likeCount + 1);
+        } catch (error) {
+            console.error('Failed to like/unlike poll:', error);
+        } finally {
+            setDebounce(false);
+        }
     };
 
     return (
@@ -336,21 +392,23 @@ const PollScreenCard = ({
 
             <View style={{marginTop: 10}}>
                 <FlatList
-                    data={poll.choices}
+                    data={choices}
                     keyExtractor={choice => choice.id}
                     renderItem={({item: choice}) => (
                         <View style={{marginTop: 10}}>
                             <TouchableOpacity
                                 style={[styles.pollChoice, selectedChoice === choice.id && styles.selectedPollChoice]}
                                 onPress={() => handleVote(choice.id)}
-                                disabled={poll.votedByCurrentUser || isPollExpired || debounce}>
+                                disabled={selectedChoice !== null || isPollExpired || debounce}>
                                 {choice.imageUrl && (
                                     <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />
                                 )}
                                 <Text style={styles.choiceText}>{choice.text}</Text>
-                                <Text style={styles.choiceText}>
-                                    {calculatePercentage(choice.voteCount, poll.totalVotes)}
-                                </Text>
+                                {selectedChoice && (
+                                    <Text style={styles.choiceText}>
+                                        {calculatePercentage(choice.voteCount, totalVotes)}
+                                    </Text>
+                                )}
                             </TouchableOpacity>
                         </View>
                     )}
@@ -358,9 +416,9 @@ const PollScreenCard = ({
             </View>
             <View style={{marginTop: 10}}>
                 <Text style={{...FONTS.paragraph1, color: COLORS.AKCRUBLUE}}>
-                    {poll.totalVotes} voters have participated in this poll
+                    {totalVotes} voters have participated in this poll
                 </Text>
-                {poll.votedByCurrentUser && (
+                {selectedChoice && (
                     <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>You have already voted on this poll</Text>
                 )}
                 {!isPollExpired && (
@@ -373,6 +431,15 @@ const PollScreenCard = ({
                         Sorry, this poll has expired
                     </Text>
                 )}
+            </View>
+            <View style={styles.postfooter}>
+                <FooterIcons iconname={'chatbox'} onPress={CommentOnPollButton} color={COLORS.AKCRUBLUE} />
+                <FooterIcons iconname={'happy'} onPress={handleLikeOrUnlike} color={likeIconColor} />
+            </View>
+            <View>
+                <Text style={styles.footStats}>
+                    {poll._count?.comments || 0} Comments • {poll._count?.pollLikes || 0} Likes
+                </Text>
             </View>
             <Modal visible={pollOptionsVisible} transparent={true} animationType="fade">
                 <Pressable style={styles.postoptioncontainer} onPress={closePollOptions}>

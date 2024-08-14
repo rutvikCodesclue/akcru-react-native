@@ -41,6 +41,7 @@ const SearchMovieScreen = () => {
                 <View style={{marginHorizontal: 15}}>
                     <BackButton navigation={navigation} />
                 </View>
+                <SearchInput />
                 <View>
                     <Text
                         style={{
