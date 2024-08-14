@@ -158,6 +158,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [currentRoomHost, setCurrentRoomHost] = useState<string | undefined>(undefined);
     const isStreamHostRef = useRef(isStreamHost);
     const currentRoomHostRef = useRef(currentRoomHost);
+    const currentTimeRef = useRef(currentTime);
 
     route.params = {
         ...route.params,
@@ -175,6 +176,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     useEffect(() => {
         isStreamHostRef.current = isStreamHost;
     }, [isStreamHost]);
+
+    useEffect(() => {
+        currentTimeRef.current = currentTime;
+    }, [currentTime]);
 
     useEffect(() => {
         console.log('Channel UseEffect triggered');
@@ -596,7 +601,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const __handleRoomChannelEventsAndSubscribe = () => {
         type ISyncObject = {
-            currentTime: number;
+            newCurrentTime: number;
             timestamp: string;
             isMoviePlaying: boolean;
         };
@@ -610,17 +615,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                             let syncObject: any = Object.values(newSyncState)[0];
                             if (syncObject) {
                                 syncObject = syncObject as [ISyncObject];
-                                const currentTime = syncObject[0].currentTime;
+                                const newCurrentTime = syncObject[0].currentTime;
                                 const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
-                                if (!isStreamHost && !isSyncedWithHost.current) {
+                                if (!isStreamHostRef.current) {
                                     if (videoPlayerRef.current) {
-                                        console.log(
-                                            `SYNC State [${isSyncedWithHost.current}]: Syncing video player to ${currentTime} seconds... host play status[${isMoviePlayingFromHost}]`,
-                                        );
-                                        videoPlayerRef.current.seek(currentTime);
-                                        setCurrentTime(currentTime);
-                                        setIsMoviePlaying(isMoviePlayingFromHost);
-                                        isSyncedWithHost.current = true;
+                                        // console.log('New Current Time: ', newCurrentTime);
+                                        // console.log('My current time: ', currentTimeRef.current);
+                                        const timeDifference = Math.abs(newCurrentTime - currentTimeRef.current);
+                                        if (timeDifference > 1.5 || !currentTimeRef.current) { // Sync if the difference is greater than 5 seconds
+                                            console.log(
+                                                `SYNC State [${isSyncedWithHost.current}]: Guest is out of sync by ${timeDifference} seconds. Syncing video player to ${newCurrentTime} seconds... host play status [${isMoviePlayingFromHost}]`,
+                                            );
+                                            videoPlayerRef.current?.seek(newCurrentTime); // Seek guest's player to host's time
+                                            setCurrentTime(newCurrentTime);
+                                            setIsMoviePlaying(isMoviePlayingFromHost);
+                                            isSyncedWithHost.current = true;
+                                        } else {
+                                            console.log(`Guest is in sync. No action needed. Time difference: ${timeDifference} seconds.`);
+                                        }
                                     }
                                 }
                             }
@@ -1049,15 +1061,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const ___onProgress = async (data: OnProgressData) => {
-        if (isStreamHost && Number(data.currentTime.toFixed(1)) % 2 === 0) {
+        if (isStreamHostRef.current && Number(data.currentTime.toFixed(1)) % 2 === 0) {
             await syncChannelRef.current?.track({
                 isMoviePlaying: true,
                 currentTime: data.currentTime,
                 timestamp: new Date().toISOString(),
             });
-
-            setCurrentTime(data.currentTime);
         }
+
+        setCurrentTime(data.currentTime);
     };
 
     const ___onEnterFullscreen = () => {
@@ -1077,12 +1089,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
 
-        setTimeout(() => {
-            if (videoPlayerRef.current && currentTime) {
-                console.log(' you clicked enter FS... seeking to:', currentTime);
-                videoPlayerRef.current.seek(currentTime);
-            }
-        }, 2000);
+        // setTimeout(() => {
+        //     if (videoPlayerRef.current && currentTime) {
+        //         console.log(' you clicked enter FS... seeking to:', currentTime);
+        //         videoPlayerRef.current.seek(currentTime);
+        //     }
+        // }, 2000);
     };
 
     const ___onExitFullScreen = () => {
@@ -1091,12 +1103,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         Orientation.lockToPortrait();
 
         showNavigationBar();
-        setTimeout(() => {
-            if (videoPlayerRef.current && currentTime) {
-                console.log(' you clicked exit FS... seeking to:', currentTime);
-                videoPlayerRef.current.seek(currentTime);
-            }
-        }, 2000);
+        // setTimeout(() => {
+        //     if (videoPlayerRef.current && currentTime) {
+        //         console.log(' you clicked exit FS... seeking to:', currentTime);
+        //         videoPlayerRef.current.seek(currentTime);
+        //     }
+        // }, 2000);
 
         if (videoPlayerRef.current && !isMoviePlaying) {
             if (isStreamHost) {
