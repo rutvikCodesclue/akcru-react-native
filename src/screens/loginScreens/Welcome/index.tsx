@@ -143,15 +143,13 @@ const Welcome = () => {
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={
-                        {
-                            // position: 'absolute',
-                            // left: 0,
-                            // right: 0,
-                            // top: 0,
-                            // height: SIZES.ScreenHeight,
-                        }
-                    }
+                    style={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        height: SIZES.ScreenHeight,
+                    }}
                 />
                 <View style={styles.container}>
                     {isLoggedIn ? (

@@ -213,7 +213,7 @@ const HomeScreen = () => {
                 const blackInTheDaysMovies = allMovies
                     .filter(movie => movie.blackInTheDays)
                     .sort((a, b) => b.rating - a.rating)
-                    .slice(0, 1); // Limit to 10 movies
+                    .slice(0, 10); // Limit to 10 movies
                 setBlackInTheDaysMovies(blackInTheDaysMovies);
             } catch (error) {
                 console.error('Error fetching Black in the Days movies:', error);
