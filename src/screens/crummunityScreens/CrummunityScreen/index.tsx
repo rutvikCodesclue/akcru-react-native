@@ -10,6 +10,8 @@ import {
     ActivityIndicator,
     Alert,
 } from 'react-native';
+import Video from 'react-native-video';
+
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
@@ -43,7 +45,11 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import PostButton from '../../../components/AkcruPostButton';
 import PollButton from '../../../components/AkcruPollButton';
 import PollCard from '../../../components/CrummunityPoll';
-
+import axios from 'axios';
+import {err} from 'react-native-svg/lib/typescript/xml';
+import {newVisitCrum} from '../../../lib/api/post.lib';
+import {newUserUpdate} from '../../../lib/api/post.lib';
+import LoadingComponent from '../../../components/Loading';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -390,6 +396,41 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [modalType, setModalType] = useState('');
     const [blockUserMessage, setBlockUserMessage] = useState('');
     const [iconName, setIconName] = useState('');
+    const [firstTimeUser, setFirstTimeUser] = useState<any>(null);
+
+    useEffect(() => {
+        async function checkFirstTimeUser() {
+            try {
+                const isNewVisitCrum = await newVisitCrum();
+                if (isNewVisitCrum) {
+                    console.log('First time user', isNewVisitCrum);
+                    setFirstTimeUser(isNewVisitCrum);
+                } else {
+                    console.log('Not a first time user');
+                    setFirstTimeUser(false);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        checkFirstTimeUser();
+    }, []);
+
+    const handleVideoEnd = async () => {
+        try {
+            const updateResponse = await newUserUpdate();
+            if (updateResponse.success) {
+                setFirstTimeUser(false);
+                console.log('User status updated to not a first time user');
+            } else {
+                console.log('Failed to update user status');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    console.log('firstTimeUser', firstTimeUser);
 
     const closeModal = () => {
         setBlockUserModal(false);
@@ -418,157 +459,183 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         setRefreshing(false);
     };
 
-    return (
-        <TabContainer>
-            <SafeAreaView>
-                <View>
-                    <ScrollView
-                        stickyHeaderIndices={[0]}
-                        style={{height: SIZES.ScreenHeight}}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}>
-                        <View>
-                            <View style={{zIndex: 100}}>
-                                <Header />
-                            </View>
-                            <View
-                                style={{
-                                    height: SIZES.ScreenHeight * 0.24,
-                                    marginTop: -68,
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                }}>
-                                <LinearGradient
-                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+    if (firstTimeUser === null) {
+        return <LoadingComponent />;
+    } else if (firstTimeUser) {
+        return (
+            <TabContainer>
+                <SafeAreaView>
+                    <Video
+                        // onVideoEnd={() => navigation.navigate('CrummunityScreen')}
+                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide.mp4'}}
+                        style={{height: SIZES.ScreenHeight, width: SIZES.ScreenWidth}}
+                        paused={false} // make it start
+                        repeat={false}
+                        onEnd={handleVideoEnd}
+                    />
+                </SafeAreaView>
+            </TabContainer>
+        );
+    } else {
+        return (
+            <TabContainer>
+                <SafeAreaView>
+                    <View>
+                        <ScrollView
+                            stickyHeaderIndices={[0]}
+                            style={{height: SIZES.ScreenHeight}}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}>
+                            <View>
+                                <View style={{zIndex: 100}}>
+                                    <Header />
+                                </View>
+                                <View
                                     style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        top: 0,
                                         height: SIZES.ScreenHeight * 0.24,
-                                    }}
-                                />
-                                <Text style={styles.screenTitle}>What's the Skinny?</Text>
-
-                                <View style={{alignItems: 'center'}}>
-                                    <TouchableWithoutFeedback
-                                        onPress={() => {
-                                            navigation.navigate('UserSearchResultScreen');
-                                        }}>
-                                        <View style={styles.searchinput}>
-                                            <Icon
-                                                name="magnify"
-                                                type="material-community"
-                                                color={COLORS.AKCRUBLUE}
-                                                size={25}
-                                                style={{marginRight: '2%'}}
-                                            />
-                                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Search users</Text>
-                                        </View>
-                                    </TouchableWithoutFeedback>
-                                </View>
-                                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                                        Crummunity Feed
-                                    </Text>
-                                    <CustomIcon
-                                        name="account-group"
-                                        type="material-community"
-                                        color={COLORS.AKCRUBLUE}
-                                        baseSize={15}
+                                        marginTop: -68,
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    }}>
+                                    <LinearGradient
+                                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            right: 0,
+                                            top: 0,
+                                            height: SIZES.ScreenHeight * 0.24,
+                                        }}
                                     />
+                                    <Text style={styles.screenTitle}>What's the Skinny?</Text>
+
+                                    <View style={{alignItems: 'center'}}>
+                                        <TouchableWithoutFeedback
+                                            onPress={() => {
+                                                navigation.navigate('UserSearchResultScreen');
+                                            }}>
+                                            <View style={styles.searchinput}>
+                                                <Icon
+                                                    name="magnify"
+                                                    type="material-community"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    size={25}
+                                                    style={{marginRight: '2%'}}
+                                                />
+                                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                                    Search users
+                                                </Text>
+                                            </View>
+                                        </TouchableWithoutFeedback>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                                            Crummunity Feed
+                                        </Text>
+                                        <CustomIcon
+                                            name="account-group"
+                                            type="material-community"
+                                            color={COLORS.AKCRUBLUE}
+                                            baseSize={15}
+                                        />
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                        <View style={{marginBottom: '23%'}}>
-                            {loadingPosts ? (
-                                <View style={{marginTop: '25%'}}>
-                                    <ActivityIndicator size="large" color={COLORS.PINK} />
-                                </View>
-                            ) : posts.length === 0 ? (
-                                <View>
-                                    <Text style={styles.noPostText}>No Post yet</Text>
-                                </View>
-                            ) : (
-                                <FlatList
-                                    data={posts}
-                                    style={styles.postcontainer}
-                                    keyExtractor={item => item.id}
-                                    refreshing={refreshing}
-                                    onRefresh={handleRefresh}
-                                    renderItem={({item}) =>
-                                        item.type === 'poll' ? (
-                                            <Pressable
-                                                onPress={() => handlePollPress(item.id)}
-                                                style={{marginBottom: 10}}>
-                                                <PollCard
-                                                    poll={item}
-                                                    onVote={handleVote}
-                                                    onDeletePoll={handleDeletePoll}
-                                                    currentUserID={currentUserID || ''}
-                                                    akcruBadge={item.user?.badge}
-                                                    akcruBadgeColor={selectAvatarBorderColor(
-                                                        item.user.badge ?? 'AKCRUIT',
-                                                    )}
-                                                    CommentOnPollButton={() =>
-                                                        navigation2.navigate('NewPollComment', {pollId: item.id})
-                                                    }
-                                                    openProfile={() =>
-                                                        navigation2.navigate('ViewUserScreen', {
-                                                            userID: item.user?.id,
-                                                        })
-                                                    }
-                                                    isAdmin={user?.isAdmin}
-                                                    onLikeOrUnlike={() => onLikeOrUnlikePoll(item.id)}
-                                                    isPollLiked={item.isLikedByCurrentUser}
-                                                />
-                                            </Pressable>
-                                        ) : (
-                                            <Pressable
-                                                onPress={() => handlePostPress(+item.id)}
-                                                style={{marginBottom: 10}}>
-                                                <SkinnyPostCard
-                                                    post={item}
-                                                    openProfile={() =>
-                                                        navigation2.navigate('ViewUserScreen', {
-                                                            userID: item.author?.id,
-                                                        })
-                                                    }
-                                                    reportUser={() => handleReportUser(item.author)}
-                                                    onDeletePost={handleDeletePost}
-                                                    currentUserID={currentUserID || ''}
-                                                    akcruBadge={item.author?.badge}
-                                                    isPostLiked={item.isLikedByCurrentUser}
-                                                    onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
-                                                    CommentOnPostButton={() =>
-                                                        navigation2.navigate('NewComment', {postId: item.id})
-                                                    }
-                                                    isFollowing={item.author.isFollowed}
-                                                    onFollow={() =>
-                                                        handleFollow(item.author.id, item.author.isFollowed)
-                                                    }
-                                                    akcruBadgeColor={selectAvatarBorderColor(
-                                                        item.author.badge ?? 'AKCRUIT',
-                                                    )}
-                                                    onBlockUser={() =>
-                                                        handleToggleBlockUser(
-                                                            item.author.id,
-                                                            item.author.isCurrentlyBlocked,
-                                                        )
-                                                    }
-                                                    isOwner={item.author.ownerStatus}
-                                                    isPromo={item.author.promoUser}
-                                                    isAdmin={user?.isAdmin} // Pass isAdmin prop
-                                                />
-                                            </Pressable>
-                                        )
-                                    }
-                                    ListFooterComponent={() =>
-                                        hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
-                                    }
-                                />
-                            )}
-                        </View>
-                    </ScrollView>
+                            <View style={{marginBottom: '23%'}}>
+                                {loadingPosts ? (
+                                    <View style={{marginTop: '25%'}}>
+                                        <ActivityIndicator size="large" color={COLORS.PINK} />
+                                    </View>
+                                ) : posts.length === 0 ? (
+                                    <View>
+                                        <Text style={styles.noPostText}>No Post yet</Text>
+                                    </View>
+                                ) : (
+                                    <FlatList
+                                        data={posts}
+                                        style={styles.postcontainer}
+                                        keyExtractor={item => item.id}
+                                        refreshing={refreshing}
+                                        onRefresh={handleRefresh}
+                                        renderItem={({item}) =>
+                                            item.type === 'poll' ? (
+                                                <Pressable
+                                                    onPress={() => handlePollPress(item.id)}
+                                                    style={{marginBottom: 10}}>
+                                                    <PollCard
+                                                        poll={item}
+                                                        onVote={handleVote}
+                                                        onDeletePoll={handleDeletePoll}
+                                                        currentUserID={currentUserID || ''}
+                                                        akcruBadge={item.user?.badge}
+                                                        akcruBadgeColor={selectAvatarBorderColor(
+                                                            item.user.badge ?? 'AKCRUIT',
+                                                        )}
+                                                        CommentOnPollButton={() =>
+                                                            navigation2.navigate('NewPollComment', {
+                                                                pollId: item.id,
+                                                            })
+                                                        }
+                                                        openProfile={() =>
+                                                            navigation2.navigate('ViewUserScreen', {
+                                                                userID: item.user?.id,
+                                                            })
+                                                        }
+                                                        isAdmin={user?.isAdmin}
+                                                    />
+                                                </Pressable>
+                                            ) : (
+                                                <Pressable
+                                                    onPress={() => handlePostPress(+item.id)}
+                                                    style={{marginBottom: 10}}>
+                                                    <SkinnyPostCard
+                                                        post={item}
+                                                        openProfile={() =>
+                                                            navigation2.navigate('ViewUserScreen', {
+                                                                userID: item.author?.id,
+                                                            })
+                                                        }
+                                                        reportUser={() => handleReportUser(item.author)}
+                                                        onDeletePost={handleDeletePost}
+                                                        currentUserID={currentUserID || ''}
+                                                        akcruBadge={item.author?.badge}
+                                                        isPostLiked={item.isLikedByCurrentUser}
+                                                        onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
+                                                        CommentOnPostButton={() =>
+                                                            navigation2.navigate('NewComment', {postId: item.id})
+                                                        }
+                                                        isFollowing={item.author.isFollowed}
+                                                        onFollow={() =>
+                                                            handleFollow(item.author.id, item.author.isFollowed)
+                                                        }
+                                                        akcruBadgeColor={selectAvatarBorderColor(
+                                                            item.author.badge ?? 'AKCRUIT',
+                                                        )}
+                                                        onBlockUser={() =>
+                                                            handleToggleBlockUser(
+                                                                item.author.id,
+                                                                item.author.isCurrentlyBlocked,
+                                                            )
+                                                        }
+                                                        isOwner={item.author.ownerStatus}
+                                                        isPromo={item.author.promoUser}
+                                                        isAdmin={user?.isAdmin} // Pass isAdmin prop
+                                                    />
+                                                </Pressable>
+                                            )
+                                        }
+                                        ListFooterComponent={() =>
+                                            hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
+                                        }
+                                    />
+                                )}
+                            </View>
+
+                        </ScrollView>
                     <View style={styles.floatingbutton}>
                         {pollCreator && (
                             <Pressable onPress={() => navigation2.navigate('NewPoll')}>
@@ -585,23 +652,23 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                         </View>
                     </View>
                 </View>
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={blockUserModal}
-                    onRequestClose={() => {
-                        setBlockUserModal(!blockUserModal);
-                    }}>
-                    <BlockUserResultModal
-                        closeModal={closeModal}
-                        type={modalType}
-                        resultMessage={blockUserMessage}
-                        iconName={iconName}
-                    />
-                </Modal>
-            </SafeAreaView>
-        </TabContainer>
-    );
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={blockUserModal}
+                        onRequestClose={() => {
+                            setBlockUserModal(!blockUserModal);
+                        }}>
+                        <BlockUserResultModal
+                            closeModal={closeModal}
+                            type={modalType}
+                            resultMessage={blockUserMessage}
+                            iconName={iconName}
+                        />
+                    </Modal>
+                </SafeAreaView>
+            </TabContainer>
+        );
+    }
 };
-
 export default CrummunityScreen;

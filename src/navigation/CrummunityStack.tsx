@@ -48,7 +48,7 @@ export function CrummunityStack() {
                     headerShown: false,
                 })}
             />
-           
+
             <Crummunity.Screen
                 name="UserSearchResultScreen"
                 component={UserSearchResultScreen}
