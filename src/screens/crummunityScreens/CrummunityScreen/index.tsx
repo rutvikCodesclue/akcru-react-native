@@ -468,9 +468,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                     <Video
                         // onVideoEnd={() => navigation.navigate('CrummunityScreen')}
                         source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide.mp4'}}
-                        style={{height: SIZES.ScreenHeight, width: SIZES.ScreenWidth}}
+                        style={{height: "100%", width: "100%"}}
                         paused={false} // make it start
                         repeat={false}
+                        resizeMode="cover"
                         onEnd={handleVideoEnd}
                     />
                 </SafeAreaView>
