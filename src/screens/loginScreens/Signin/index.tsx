@@ -140,23 +140,23 @@ const Signin = () => {
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            await authStore.hydrateAuth();
-            const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
+    // useEffect(() => {
+    //     const checkAuth = async () => {
+    //         await authStore.hydrateAuth();
+    //         const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
 
-            const accessToken = await AsyncStorage.getItem('access_token');
-            console.log('AccessToken:', accessToken);
-            const isLoggedInWithToken = isAuthed && accessToken !== null;
-            if (isLoggedInWithToken) {
-                navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'});
-            }
-            setIsLoggedIn(isLoggedInWithToken);
-        };
-        checkAuth().catch(err => {
-            console.error('Error checking auth', err);
-        });
-    }, []);
+    //         const accessToken = await AsyncStorage.getItem('access_token');
+    //         console.log('AccessToken:', accessToken);
+    //         const isLoggedInWithToken = isAuthed && accessToken !== null;
+    //         if (isLoggedInWithToken) {
+    //             navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'});
+    //         }
+    //         setIsLoggedIn(isLoggedInWithToken);
+    //     };
+    //     checkAuth().catch(err => {
+    //         console.error('Error checking auth', err);
+    //     });
+    // }, []);
 
     async function attemptLogin() {
         try {

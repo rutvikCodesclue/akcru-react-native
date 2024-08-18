@@ -22,16 +22,16 @@ function App(): JSX.Element {
     const [isNotifee, setIsNotifee] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
     const [screenName, setScreenName] = useState('ClientTabNavigator');
-    const [paramsVal, setParams] = useState(undefined);
+    const [params, setParams] = useState(undefined);
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-      }
+    }
     useEffect(() => {
         async function fetchData() {
-            await sleep(1000);
-            setIsVisible(true)
-          }
-          fetchData()
+            await sleep(5000);
+            setIsVisible(true);
+        }
+        fetchData();
         // Subscribe to foreground message handling
         const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
             onDisplayNotification(remoteMessage);
@@ -45,20 +45,20 @@ function App(): JSX.Element {
         // Handle notification clicks
         messaging().onNotificationOpenedApp(remoteMessage => {
             console.log('Notification caused app to open from background state:', remoteMessage.data);
-            setIsNotifee(true)
+            setIsNotifee(true);
             NotificationNavigation(remoteMessage.data, userId);
         });
 
         // Handle the initial notification when the app is opened from a quit state
         messaging()
             .getInitialNotification()
-            .then(remoteMessage => {
+            .then(async remoteMessage => {
                 if (remoteMessage && !initialNotificationHandled.current) {
                     console.log('Notification caused app to open from quit state:', remoteMessage.data);
-                    let notife = NotificationNavigation(remoteMessage.data, userId);
-                    setScreenName(notife._j['screenName'])
-                    setParams(notife._j['params'])
-                    setIsNotifee(true)
+                    let notife = await NotificationNavigation(remoteMessage.data, userId, params);
+                    setIsNotifee(true);
+                    setScreenName(notife.screenName);
+                    setParams(notife.params);
 
                     initialNotificationHandled.current = true;
                 }
@@ -114,9 +114,10 @@ function App(): JSX.Element {
 
         notifee.onForegroundEvent(({type, detail}) => {
             if (type === EventType.PRESS && detail.pressAction.id === 'default') {
-                let screenName, paramsScreen = NotificationNavigation(remoteMessage.data, userId);
-                setIsNotifee(true)
-                console.log('screenName, paramsScreen', screenName, paramsScreen)
+                let screenName,
+                    paramsScreen = NotificationNavigation(remoteMessage.data, userId);
+                setIsNotifee(true);
+                console.log('screenName, paramsScreen', screenName, paramsScreen);
             }
         });
     }
@@ -125,10 +126,11 @@ function App(): JSX.Element {
         <View style={styles.container}>
             {isVisible ? (
                 <>
-            <StatusBar barStyle={'light-content'} backgroundColor={COLORS.AKCRUBACKGROUND} />
+                    <StatusBar barStyle={'light-content'} backgroundColor={COLORS.AKCRUBACKGROUND} />
 
-            <RootNavigator isnotifee={isNotifee} screenName={screenName} paramsval={paramsVal}/></>): null
-                }
+                    <RootNavigator isnotifee={isNotifee} screenName={screenName} params={params} />
+                </>
+            ) : null}
         </View>
     );
 }
