@@ -15,10 +15,9 @@ import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
-import {HomeScreen} from '../../contentScreens/Home'
+import {HomeScreen} from '../../contentScreens/Home';
 
-
-const Welcome = (params) => {
+const Welcome = params => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const authStore = useAuthStore();
 
@@ -60,7 +59,6 @@ const Welcome = (params) => {
         _checkPermissions();
     }, []);
 
-
     const checkAuth = async () => {
         try {
             await authStore.hydrateAuth();
@@ -68,12 +66,17 @@ const Welcome = (params) => {
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
             const isLoggedInWithToken = isAuthed && accessToken !== null;
 
-            const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';            
+          //  const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';
             await handleAnimation();
 
-            if(isLoggedInWithToken) {navigation.navigate('NoBottomStack', {screen: params.route.params.params.screenName, params: params.route.params.params.paramsval, isLoggedIn});}
+            if (isLoggedInWithToken) {
+                navigation.navigate('NoBottomStack', {
+                    screen: params.route.params.params.screenName,
+                    params: params.route.params.params.params,
+                    isLoggedIn,
+                });
 
-            
+            }
         } catch (err) {
             console.error('Error checking auth', err);
         } finally {
@@ -85,7 +88,7 @@ const Welcome = (params) => {
         return new Promise(resolve => {
             setShowOpener(true);
             setTimeout(() => {
-                setLoading(false)
+                setLoading(false);
                 setShowOpener(false);
                 resolve();
             }, 3400);
@@ -109,8 +112,17 @@ const Welcome = (params) => {
     };
 
     if (loading) {
-        return <View>{showOpener && <AkcruAppOpener onAnimationFinish={() => {
-            setShowOpener(false)}} />}</View>;
+        return (
+            <View>
+                {showOpener && (
+                    <AkcruAppOpener
+                        onAnimationFinish={() => {
+                            setShowOpener(false);
+                        }}
+                    />
+                )}
+            </View>
+        );
     }
 
     return (
@@ -155,7 +167,7 @@ const Welcome = (params) => {
                             </Text>
                         </View>
                     </View>
-                  
+
                     <Modal animationType="fade" transparent={true} visible={showLoginError}>
                         <View
                             style={{
