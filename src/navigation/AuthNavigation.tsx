@@ -64,7 +64,7 @@ export type AuthStackParams = {
 
 const Auth = createStackNavigator<AuthStackParams>();
 
-export default function AuthStack(params) {
+export default function AuthStack(params: any) {
     return (
         <Auth.Navigator
             screenOptions={{
