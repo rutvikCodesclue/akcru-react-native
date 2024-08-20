@@ -53,9 +53,12 @@ import TerminateRoomModal from './TerminateRoomModal';
 import HostLeaveRoomModal from './HostLeaveRoomModal';
 import LeaveRoomModal from './LeaveRoomModal';
 import TopContainer from './TopContainer';
+import HostNotFoundModal from './HostNotFoundModal';
+import AwaitingMicPermModal from './AwaitingMicPermModal';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {getMITHostId, updateMITHostId} from '../../../lib/api/mit.lib';
 import {getCruViewHostId, updateCruViewHostId} from '../../../lib/api/cru.lib';
+import { attempt } from 'lodash';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -155,6 +158,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [userRequest, setUserRequest] = useState(null);
     const [popupErr, setPopupErr] = useState(false);
     const [popupErrMsg, setPopupErrMsg] = useState('');
+    const [hostNotFound, setHostNotFound] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [currentRoomHost, setCurrentRoomHost] = useState<string | undefined>(undefined);
     const isStreamHostRef = useRef(isStreamHost);
     const currentRoomHostRef = useRef(currentRoomHost);
@@ -214,10 +219,18 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 if (localPeer) {
                     localPeer?.localAudioTrack()?.setMute(!perm);
                     setIsMicOn(perm);
+                    setModalVisible(false);
                 }
             }
         }
     }
+
+    const showAwaitingMicPermModal = () => {
+        setModalVisible(true);
+        setTimeout(() => {
+            setModalVisible(false);
+        }, 3000); // Modal will disappear after 3 seconds
+    };
 
     const onSend = (permGrant, userid, permtype, userReq) => {
         if (channelll === null) {
@@ -404,6 +417,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     const isHostAva = isHostAvailable();
                     if (isHostAva) {
                         onSend(null, null, 'request', user);
+                        showAwaitingMicPermModal();
                     } else {
                         setPopupErr(true);
                         setPopupErrMsg('Host not available. Please wait for the host to join!');
@@ -780,6 +794,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const __onErrorListener = (data: HMSException) => {
         console.log('=== 100ms Error ===:', data);
+
+        if (data.code === 1003 || data.code === 4005) {
+            console.log('User failed to reconnect...');
+            _handleRoomLeave();
+        }
     };
     const __onJoinListener = async (data: {room: HMSRoom}) => {
         const {localPeer, peers} = data.room;
@@ -835,20 +854,29 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
-    const updateHost = async () => {
-        const hostId = await getHostId();
+    const updateHost = async (maxRetries = 3) => {
+        let attempts = 0;
 
-        if (hostId) {
-            setCurrentRoomHost(hostId);
+        while (attempts < maxRetries) {
+            const hostId = await getHostId();
+    
+            if (hostId) {
+                setCurrentRoomHost(hostId);
+    
+                if (hostId === user?.id) {
+                    setIsStreamHost(true);
+                } else {
+                    setIsStreamHost(false);
+                }
 
-            if (hostId === user?.id) {
-                setIsStreamHost(true);
+                return;
             } else {
-                setIsStreamHost(false);
+                console.log('No host ID was found. Retrying...');
+                attempts++;
             }
-        } else {
-            console.log('No host ID was found');
         }
+
+        setHostNotFound(true);
     };
 
     const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
@@ -1285,7 +1313,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 />
 
                 <HostOptionsModal
-                    optionModalVisible={optionModalVisible} 
+                    optionModalVisible={optionModalVisible}
                     members={members} 
                     setShowTransferConfirmation={setShowTransferConfirmation} 
                     isHost={isStreamHost} 
@@ -1322,6 +1350,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                         handleCancelLeaveRoom={handleCancelLeaveRoom}
                     />
                 )}
+
+                {hostNotFound ? <HostNotFoundModal setHostNotFound={setHostNotFound} /> : null}
+
+                {modalVisible ? <AwaitingMicPermModal /> : null}
 
                 {unmutePermPopup ? (
                     <UnmutePermissionPopup
