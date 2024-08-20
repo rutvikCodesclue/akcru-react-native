@@ -452,13 +452,13 @@ export default function NoBottomStack() {
                     gestureDirection: 'horizontal',
                 }}
             />
-            {/* <NoBottom.Screen
+            <NoBottom.Screen
                 name="UserProfileScreen"
                 component={UserProfileScreen}
                 options={() => ({
                     headerShown: false,
                 })}
-            /> */}
+            />
             <NoBottom.Screen
                 name="ChooseMITScreen"
                 component={ChooseMITScreen}

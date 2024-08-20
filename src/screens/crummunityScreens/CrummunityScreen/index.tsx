@@ -50,13 +50,20 @@ import {err} from 'react-native-svg/lib/typescript/xml';
 import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
+import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type Props = {
-    navigation: CrummunityScreenNavigationProp;
-    route: CrummunityScreenRouteProp;
+    navigation: [
+    	route: CrummunityScreenNavigationProp,
+        // , CrummunitySearchNavigationProp
+        ];
+        route: [
+        	CrummunityScreenRouteProp,
+    	// , CrummunitySearchRouteProp
+        	];
 };
 
 const CrummunityScreen = ({navigation, route}: Props) => {
@@ -514,7 +521,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                             onPress={() => {
                                                 navigation.navigate('UserProfileStack', {
                                                     screen: 'UserSearchResultScreen',
-                                                });
+                                                	});
                                             }}>
                                             <View style={styles.searchinput}>
                                                 <Icon
