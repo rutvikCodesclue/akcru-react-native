@@ -85,6 +85,8 @@ const UserNotification = ({route}: Props) => {
             MsgRcvd: 'New Message',
             ADReceived: 'You have received ACKRU Dollars',
             UserLikedGallery: 'New like on your photo',
+            UserTaggedOnPoll: 'You were tagged in poll',
+            UserTaggedOnPollComment: 'You were tagged in poll comment',
         };
         return typeDisplayNames[type] || type;
     };

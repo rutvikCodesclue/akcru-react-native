@@ -377,15 +377,35 @@ export type INotification = {
         | 'CruViewScheduled'
         | 'CruViewStarted'
         | 'UserFollowed'
-        | 'ADReceived';
+        | 'UserCommentedOnPost'
+        | 'UserCommentedOnPoll'
+        | 'UserLikedComment'
+        | 'UserLikedPost'
+        | 'UserLikedPoll'
+        | 'UserLikedPollComment'
+        | 'UserTaggedOnPost'
+        | 'UserTaggedOnComment'
+        | 'ADReceived'
+        | 'UserLikedGallery'
+        | 'MsgRcvd'
+        | 'GroupMessageReceived'
+        | 'UserTaggedOnPoll'
+        | 'UserTaggedOnPollComment'
+        | 'UserLikedPollComment'
+        | 'UserLikedPoll';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
-    message: string?;
     createdAt: string;
     updatedAt?: string;
+    message?: string;
+    postId: number;
+    senderId: string;
+    cruId: any;
+    mITId: any;
+    galleryId: any;
+    pollId: any;
 };
-
 export interface IPost {
     id: string;
     type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';

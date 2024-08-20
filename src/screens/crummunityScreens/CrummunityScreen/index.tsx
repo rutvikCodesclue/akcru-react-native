@@ -519,7 +519,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     <View style={{alignItems: 'center'}}>
                                         <TouchableWithoutFeedback
                                             onPress={() => {
-                                                navigation.navigate('UserProfileStack', {
+                                                navigation.navigate('CrummunityStack', {
                                                     screen: 'UserSearchResultScreen',
                                                 	});
                                             }}>
