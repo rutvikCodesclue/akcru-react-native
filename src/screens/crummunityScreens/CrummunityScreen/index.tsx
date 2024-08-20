@@ -512,7 +512,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     <View style={{alignItems: 'center'}}>
                                         <TouchableWithoutFeedback
                                             onPress={() => {
-                                                navigation.navigate('UserSearchResultScreen');
+                                                navigation.navigate('UserProfileStack', {
+                                                    screen: 'UserSearchResultScreen',
+                                                });
                                             }}>
                                             <View style={styles.searchinput}>
                                                 <Icon
@@ -635,24 +637,23 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     />
                                 )}
                             </View>
-
                         </ScrollView>
-                    <View style={styles.floatingbutton}>
-                        {pollCreator && (
-                            <Pressable onPress={() => navigation2.navigate('NewPoll')}>
-                                <View>
-                                    <PollButton />
-                                </View>
-                            </Pressable>
-                        )}
+                        <View style={styles.floatingbutton}>
+                            {pollCreator && (
+                                <Pressable onPress={() => navigation2.navigate('NewPoll')}>
+                                    <View>
+                                        <PollButton />
+                                    </View>
+                                </Pressable>
+                            )}
 
-                        <View>
                             <View>
-                                <PostButton onPress={() => navigation2.navigate('NewPost')} />
+                                <View>
+                                    <PostButton onPress={() => navigation2.navigate('NewPost')} />
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
                     <Modal
                         animationType="fade"
                         transparent={true}
