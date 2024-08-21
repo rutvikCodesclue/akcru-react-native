@@ -164,6 +164,8 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const isStreamHostRef = useRef(isStreamHost);
     const currentRoomHostRef = useRef(currentRoomHost);
     const currentTimeRef = useRef(currentTime);
+    const membersRef = useRef(members);
+    const channelllRef = useRef(channelll);
 
     route.params = {
         ...route.params,
@@ -185,6 +187,14 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     useEffect(() => {
         currentTimeRef.current = currentTime;
     }, [currentTime]);
+
+    useEffect(() => {
+        membersRef.current = members;
+    }, [members]);
+
+    useEffect(() => {
+        channelllRef.current = channelll;
+    }, [channelll]);
 
     useEffect(() => {
         console.log('Channel UseEffect triggered');
@@ -268,28 +278,28 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         if (hostChangeSuccess) {
             // inform everyone that you changed the host and everyone should update their host
-            if (channelll === null) {
+            if (channelllRef.current === null) {
                 console.log('Channel not found');
                 return;
             }
 
-            channelll.send({
+            channelllRef.current.send({
                 type: 'broadcast',
                 event: 'host-change',
                 payload: {hostChanged: true},
             });
 
             // update who the host is on your end
-            updateHost();
+            await updateHost();
         }
 
         setOptionModalVisible(false);
     };
 
-    const syncHost = (payload: any) => {
+    const syncHost = async (payload: any) => {
         if (payload.payload.hostChanged) {
             console.log('Broadcast received to change the host!');
-            updateHost();
+            await updateHost();
         } else {
             return;
         }
@@ -637,15 +647,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                         // console.log('My current time: ', currentTimeRef.current);
                                         const timeDifference = Math.abs(newCurrentTime - currentTimeRef.current);
                                         if (timeDifference > 1.5 || !currentTimeRef.current) { // Sync if the difference is greater than 5 seconds
-                                            console.log(
-                                                `SYNC State [${isSyncedWithHost.current}]: Guest is out of sync by ${timeDifference} seconds. Syncing video player to ${newCurrentTime} seconds... host play status [${isMoviePlayingFromHost}]`,
-                                            );
+                                            // console.log(
+                                            //     `SYNC State [${isSyncedWithHost.current}]: Guest is out of sync by ${timeDifference} seconds. Syncing video player to ${newCurrentTime} seconds... host play status [${isMoviePlayingFromHost}]`,
+                                            // );
                                             videoPlayerRef.current?.seek(newCurrentTime); // Seek guest's player to host's time
                                             setCurrentTime(newCurrentTime);
                                             setIsMoviePlaying(isMoviePlayingFromHost);
                                             isSyncedWithHost.current = true;
                                         } else {
-                                            console.log(`Guest is in sync. No action needed. Time difference: ${timeDifference} seconds.`);
+                                            // console.log(`Guest is in sync. No action needed. Time difference: ${timeDifference} seconds.`);
                                         }
                                     }
                                 }
@@ -661,24 +671,24 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         if (roomChannelRef.current) {
             roomChannelRef.current
                 .on('broadcast', {event: 'start-movie'}, payload => {
-                    if (!isStreamHost && videoPlayerRef.current) {
+                    if (!isStreamHostRef.current && videoPlayerRef.current) {
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
                 .on('broadcast', {event: 'play-movie'}, payload => {
-                    if (!isStreamHost && videoPlayerRef.current) {
+                    if (!isStreamHostRef.current && videoPlayerRef.current) {
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
                 .on('broadcast', {event: 'pause-movie'}, payload => {
-                    if (!isStreamHost && videoPlayerRef.current) {
+                    if (!isStreamHostRef.current && videoPlayerRef.current) {
                         setIsMoviePlaying(false);
                     }
                 })
                 .on('broadcast', {event: 'seek-movie'}, payload => {
-                    if (!isStreamHost && videoPlayerRef.current) {
+                    if (!isStreamHostRef.current && videoPlayerRef.current) {
                         videoPlayerRef.current.seek(Number(payload.payload.seekTime));
                     }
                 })
@@ -686,7 +696,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     console.log(payload);
                 })
                 .on('broadcast', {event: 'exit-movie'}, payload => {
-                    if (!isStreamHost && videoPlayerRef.current) {
+                    if (!isStreamHostRef.current && videoPlayerRef.current) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait();
                     }
@@ -800,6 +810,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             _handleRoomLeave();
         }
     };
+
     const __onJoinListener = async (data: {room: HMSRoom}) => {
         const {localPeer, peers} = data.room;
 
@@ -859,10 +870,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         while (attempts < maxRetries) {
             const hostId = await getHostId();
-    
+
             if (hostId) {
                 setCurrentRoomHost(hostId);
-    
+
                 if (hostId === user?.id) {
                     setIsStreamHost(true);
                 } else {
@@ -916,6 +927,14 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         if (type === HMSPeerUpdate.PEER_LEFT) {
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
+            const userThatLeft = membersRef.current.find(member => member.peerID === peer.peerID);
+            if (userThatLeft.user.id === currentRoomHostRef.current) {
+                const peersInRoom = (await hmsInstanceRef.current?.getRoom()).peers;
+                const newHost = membersRef.current.find(member => member.peerID === peersInRoom[0].peerID);
+                if (newHost?.user.id === user?.id) {
+                    onHostSelect(user?.id);
+                }
+            }
             return;
         }
 
@@ -1089,7 +1108,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     };
 
     const ___onProgress = async (data: OnProgressData) => {
-        if (isStreamHostRef.current && Number(data.currentTime.toFixed(1)) % 2 === 0) {
+        if (isStreamHostRef.current && Number(data.currentTime.toFixed(1)) % 5 === 0) {
             await syncChannelRef.current?.track({
                 isMoviePlaying: true,
                 currentTime: data.currentTime,
@@ -1218,9 +1237,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         setLeaveRoom(false);
     };
 
-    const handleLeaveRoom = () => {
-        console.log('Members: ');
-        members.map(element => console.log(element.user.username));
+    const handleLeaveRoom = async () => {
         setLeaveRoom(true);
     };
 
