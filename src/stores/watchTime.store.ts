@@ -66,7 +66,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                     const POINTS_INTERVAL = 30;
                     if (watchTime >= POINTS_INTERVAL) {
                         set({watchTime: 0});
-                        console.log('<== send user AD for watch time ==>');
+                        // console.log('<== send user AD for watch time ==>');
                         await updateUserWatchTime({});
                         await useAuthStore.getState().hydrateUser();
                     }
@@ -92,7 +92,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                 const POINTS_INTERVAL = 30;
                 if (watchTime >= POINTS_INTERVAL) {
                     set({watchTime: 0});
-                    console.log('<== send user AD for watch time ==>');
+                    // console.log('<== send user AD for watch time ==>');
                     await updateUserWatchTime({});
                     await useAuthStore.getState().hydrateUser();
                 }
