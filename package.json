@@ -76,6 +76,7 @@
     "react-native-uuid": "2.0.2",
     "react-native-vector-icons": "9.2.0",
     "react-native-video": "5.2.1",
+    "react-native-volume-manager": "^1.10.0",
     "react-native-webview": "13.8.1",
     "react-native-youtube-iframe": "2.3.0",
     "skia-canvas": "1.0.1",

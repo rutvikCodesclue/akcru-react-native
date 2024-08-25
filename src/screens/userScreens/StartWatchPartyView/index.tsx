@@ -58,7 +58,7 @@ import AwaitingMicPermModal from './AwaitingMicPermModal';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {getMITHostId, updateMITHostId} from '../../../lib/api/mit.lib';
 import {getCruViewHostId, updateCruViewHostId} from '../../../lib/api/cru.lib';
-import { attempt } from 'lodash';
+import {VolumeManager} from 'react-native-volume-manager';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -195,6 +195,16 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     useEffect(() => {
         channelllRef.current = channelll;
     }, [channelll]);
+
+    useEffect(() => {
+        const getTheVolume = async () => {
+            await VolumeManager.setVolume(1.0);
+            const {volume} = await VolumeManager.getVolume();
+            console.log('VOLUME MANAGER: ', volume);
+        };
+
+        getTheVolume();
+    }, []);
 
     useEffect(() => {
         console.log('Channel UseEffect triggered');
