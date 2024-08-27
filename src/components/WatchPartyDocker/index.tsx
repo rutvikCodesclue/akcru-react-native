@@ -2,16 +2,17 @@ import {Icon} from '@rneui/base';
 import React, {useEffect, useState} from 'react';
 import {View, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Text, Pressable} from 'react-native';
 import {FONTS, COLORS} from '../../../assets/constants';
+import {HMSVideoViewMode} from '@100mslive/react-native-hms';
 
 interface DockerProps {
     members: any;
     hmsInstanceRef: any;
-    isExpanded: any;
-    HMSVideoViewMode: any;
     peersMuteStatus: any;
+    currentRoomHost: any;
+    peerTrackNodes: any;
 }
 
-const WatchPartyDocker = ({members, hmsInstanceRef, isExpanded, HMSVideoViewMode, peersMuteStatus}: DockerProps) => {
+const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoomHost, peerTrackNodes}: DockerProps) => {
     const {width} = Dimensions.get('window');
     const [isDrawer, setIsDrawer] = useState(false);
     const [screenWidth, setScreenWidth] = useState(width);
@@ -34,95 +35,105 @@ const WatchPartyDocker = ({members, hmsInstanceRef, isExpanded, HMSVideoViewMode
 
     const membersList = (
         <ScrollView showsVerticalScrollIndicator={false}>
-            {members.map((item: any) => (
-                <View
-                    style={{
-                        width: screenWidth / 3.2,
-                        height: screenWidth / 2.5,
-                        backgroundColor: 'red',
-                        flex: 0,
-                        position: 'relative',
-                        zIndex: 0,
-                        bottom: 0,
-                        top: 0,
-                        borderColor: COLORS.CATPURPLGT,
-                        borderWidth: 4,
-                    }}>
-                    {item.peer.videoTrack?.trackId ? (
-                        <hmsInstanceRef.current.HmsView
-                            key={item.peer.peerID}
-                            trackId={item.peer.videoTrack.trackId}
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                backgroundColor: 'black',
-                            }}
-                            scaleType={HMSVideoViewMode.ASPECT_BALANCED}
-                            mirror={true}
-                        />
-                    ) : null}
+            {peerTrackNodes.map((item: any) => {
+                // Determine whether to show the Host badge
+                let showHostBadge = false;
+                if (members.length > 0) {
+                    const target = members.find(member => member.user.id === currentRoomHost);
+                    if (target && target.peerID === item.peer.peerID) {
+                        showHostBadge = true;
+                    }
+                }
 
-                    {item.peer.role?.name === 'host' ? (
-                        <View style={{position: 'absolute', top: 0, right: 0}}>
-                            <Text
-                                style={{
-                                    ...FONTS.paragraph1,
-                                    backgroundColor: COLORS.AKCRUBLUE,
-                                    paddingHorizontal: 5,
-                                    paddingVertical: 2,
-                                    borderBottomLeftRadius: 4,
-                                }}>
-                                {'Host'}
-                            </Text>
-                        </View>
-                    ) : null}
-
+                return (
                     <View
+                        key={item.peer.peerID} // Make sure to add a key prop for each item
                         style={{
-                            position: 'absolute',
+                            width: screenWidth / 3.2,
+                            height: screenWidth / 2.5,
+                            backgroundColor: 'red',
+                            flex: 0,
+                            position: 'relative',
+                            zIndex: 0,
                             bottom: 0,
-                            left: 0,
-                            backgroundColor: COLORS.TRANSDARKGREY,
-                            width: '100%',
-                            borderTopLeftRadius: 5,
-                            borderTopRightRadius: 5,
+                            top: 0,
+                            borderColor: COLORS.CATPURPLGT,
+                            borderWidth: 4,
                         }}>
+                        {item.peer.videoTrack?.trackId ? (
+                            <hmsInstanceRef.current.HmsView
+                                key={item.peer.peerID}
+                                trackId={item.peer.videoTrack.trackId}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    backgroundColor: 'black',
+                                }}
+                                scaleType={HMSVideoViewMode.ASPECT_BALANCED}
+                                mirror={true}
+                            />
+                        ) : null}
+
+                        {showHostBadge ? (
+                            <View style={{position: 'absolute', top: 0, right: 0}}>
+                                <Text
+                                    style={{
+                                        ...FONTS.paragraph1,
+                                        backgroundColor: COLORS.AKCRUBLUE,
+                                        paddingHorizontal: 5,
+                                        paddingVertical: 2,
+                                        borderBottomLeftRadius: 4,
+                                    }}>
+                                    {'Host'}
+                                </Text>
+                            </View>
+                        ) : null}
+
                         <View
                             style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                paddingHorizontal: 3,
-                                paddingVertical: 5,
+                                position: 'absolute',
+                                bottom: 0,
+                                left: 0,
+                                backgroundColor: COLORS.TRANSDARKGREY,
+                                width: '100%',
+                                borderTopLeftRadius: 5,
+                                borderTopRightRadius: 5,
                             }}>
-                            <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
-                                {isExpanded
-                                    ? item.peer.name
-                                    : item.peer.name.length > 8
-                                    ? item.peer.name.substring(0, 8) + '...'
-                                    : item.peer.name}
-                            </Text>
-                            <Pressable>
-                                <Icon
-                                    name={
-                                        peersMuteStatus[item.peer.peerID] === undefined ||
-                                        peersMuteStatus[item.peer.peerID] == true
-                                            ? 'mic-off-circle'
-                                            : 'mic-circle'
-                                    }
-                                    type="ionicon"
-                                    size={25}
-                                    color={
-                                        peersMuteStatus[item.peer.peerID] === undefined ||
-                                        peersMuteStatus[item.peer.peerID] == true
-                                            ? COLORS.CATREDLGT
-                                            : COLORS.GREEN
-                                    }
-                                />
-                            </Pressable>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: 3,
+                                    paddingVertical: 5,
+                                }}>
+                                <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
+                                    {item.peer.name.length <= 8
+                                        ? item.peer.name
+                                        : item.peer.name.substring(0, 8) + '...'}
+                                </Text>
+                                <Pressable>
+                                    <Icon
+                                        name={
+                                            peersMuteStatus[item.peer.peerID] === undefined ||
+                                            peersMuteStatus[item.peer.peerID] === true
+                                                ? 'mic-off-circle'
+                                                : 'mic-circle'
+                                        }
+                                        type="ionicon"
+                                        size={25}
+                                        color={
+                                            peersMuteStatus[item.peer.peerID] === undefined ||
+                                            peersMuteStatus[item.peer.peerID] === true
+                                                ? COLORS.CATREDLGT
+                                                : COLORS.GREEN
+                                        }
+                                    />
+                                </Pressable>
+                            </View>
                         </View>
                     </View>
-                </View>
-            ))}
+                );
+            })}
         </ScrollView>
     );
 
