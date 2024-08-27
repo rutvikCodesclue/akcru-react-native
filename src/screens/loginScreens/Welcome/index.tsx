@@ -15,7 +15,6 @@ import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
-import {HomeScreen} from '../../contentScreens/Home';
 
 const Welcome = params => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -66,7 +65,7 @@ const Welcome = params => {
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
             const isLoggedInWithToken = isAuthed && accessToken !== null;
 
-          //  const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';
+            //  const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';
             await handleAnimation();
 
             if (isLoggedInWithToken) {
@@ -75,7 +74,6 @@ const Welcome = params => {
                     params: params.route.params.params.params,
                     isLoggedIn,
                 });
-
             }
         } catch (err) {
             console.error('Error checking auth', err);

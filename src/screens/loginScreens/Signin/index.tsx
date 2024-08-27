@@ -189,15 +189,13 @@ const Signin = () => {
             }
             setLoading(false);
             navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
-        } catch (error) {
+        } catch (error: any) {
             setShowLoginError(true);
             setLoading(false);
-            if(error.response.data.message){
-
+            if (error.response.data.message) {
                 setErrorMsg(error.response.data.message);
-            }else{
+            } else {
                 setErrorMsg(error.response);
-                
             }
         }
     }

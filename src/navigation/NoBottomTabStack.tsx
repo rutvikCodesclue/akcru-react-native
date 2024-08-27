@@ -133,6 +133,14 @@ export default function NoBottomStack() {
                 cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
             }}>
             <NoBottom.Screen
+                name="ClientTabNavigator"
+                component={ClientTabNavigator}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
                 name="ContentSwipe"
                 component={ContentSwipe}
                 options={{
@@ -255,14 +263,6 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="SearchMovieScreen"
                 component={SearchMovieScreen}
-                options={{
-                    headerShown: false,
-                    gestureDirection: 'horizontal',
-                }}
-            />
-            <NoBottom.Screen
-                name="ClientTabNavigator"
-                component={ClientTabNavigator}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
