@@ -606,9 +606,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             index: 0,
             routes: [{name: 'UserProfileScreen'}],
         });
-        navigation.navigate('UserProfileStack', {
-            screen: 'UserProfileScreen',
-        });
     };
 
     const _handleCloseMovie = async () => {
@@ -1325,11 +1322,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     expandedVideo={expandedVideo}
                     setExpandedVideo={setExpandedVideo}
                     peersMuteStatus={peersMuteStatus}
-                    currentRoomHost={currentRoomHost}
+                    currentRoomHost={currentRoomHostRef.current}
                     members={members}
                 />
 
-                <UserControls 
+                <UserControls
                     toggleVideo={toggleVideo}
                     isUserVideoOn={isUserVideoOn} 
                     toggleMic={toggleMic} 
@@ -1398,11 +1395,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         <View>
             {watchPartyView()}
             <WatchPartyDocker
-                members={peerTrackNodes}
                 hmsInstanceRef={hmsInstanceRef}
-                isExpanded={expandedVideo}
-                HMSVideoViewMode={HMSVideoViewMode}
                 peersMuteStatus={peersMuteStatus}
+                currentRoomHost={currentRoomHostRef.current}
+                members={membersRef.current}
+                peerTrackNodes={peerTrackNodes}
             />
         </View>
     ) : (

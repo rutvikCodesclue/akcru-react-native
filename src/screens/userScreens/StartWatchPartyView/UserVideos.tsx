@@ -36,7 +36,7 @@ const UserVideos = ({
             }}>
             {hmsInstanceRef.current ? (
                 <FlatList
-                    scrollEnabled={false}
+                    scrollEnabled={true}
                     style={{height: '100%', width: '100%'}}
                     key={peerTrackNodes.length}
                     numColumns={3}
@@ -47,7 +47,9 @@ const UserVideos = ({
                         const isExpanded = expandedVideo === item;
                         let showHostBadge = false;
                         if (members.length > 0) {
-                            const target = members ? members.find(member => member.user.id === currentRoomHost) : undefined;
+                            const target = members
+                                ? members.find(member => member.user.id === currentRoomHost)
+                                : undefined;
                             if (target) {
                                 if (target.peerID === item.peer.peerID) {
                                     showHostBadge = true;
@@ -111,19 +113,9 @@ const UserVideos = ({
                                             }
                                         }}>
                                         {isExpanded ? (
-                                            <Icon
-                                                name="contract"
-                                                type="ionicon"
-                                                size={30}
-                                                color={COLORS.AKCRUBLUE}
-                                            />
+                                            <Icon name="contract" type="ionicon" size={30} color={COLORS.AKCRUBLUE} />
                                         ) : (
-                                            <Icon
-                                                name="expand"
-                                                type="ionicon"
-                                                size={23}
-                                                color={COLORS.AKCRUBLUE}
-                                            />
+                                            <Icon name="expand" type="ionicon" size={23} color={COLORS.AKCRUBLUE} />
                                         )}
                                     </TouchableOpacity>
                                 </View>
@@ -182,7 +174,7 @@ const UserVideos = ({
                 </View>
             )}
         </View>
-    )
+    );
 };
 
 export default UserVideos;
