@@ -36,6 +36,7 @@ const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
+const barcode = require('./barcode.png');
 
 export default {
     Splash,
@@ -76,4 +77,5 @@ export default {
     FLickFlirt,
     Akcrunetwork,
     Akcrunetwork2,
+    barcode,
 };
