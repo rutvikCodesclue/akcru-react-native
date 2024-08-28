@@ -203,7 +203,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const setTheVolume = async () => {
-            await VolumeManager.setVolume(1.0);
+            await VolumeManager.setVolume(1.0, {showUI: true});
         };
 
         setTheVolume();
