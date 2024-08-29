@@ -29,6 +29,8 @@ import {
     HMSAudioTrackSettings,
     HMSVideoTrackSettings,
     HMSTrackSettingsInitState,
+    HMSAudioDevice,
+    HMSAudioMode,
 } from '@100mslive/react-native-hms';
 import useAuthStore from '../../../stores/auth.store';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
@@ -203,7 +205,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const setTheVolume = async () => {
-            await VolumeManager.setVolume(1.0);
+            await VolumeManager.setVolume(1.0, {showUI: true});
         };
 
         setTheVolume();
@@ -230,13 +232,17 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, []);
 
     async function askForPermission(payload: any) {
-        if (isStreamHostRef.current == true && payload.payload.permtype! === 'request') {
+        if (isStreamHostRef.current === true && payload.payload.permtype! === 'request') {
             setUserRequest(payload.payload.userReq!);
             setUnmutePermissionPopup(true);
         }
-        if (isStreamHostRef.current != true && payload.payload.permtype! == 'reqans' && payload.payload.userReq.id! == user.id) {
+        if (
+            isStreamHostRef.current !== true &&
+            payload.payload.permtype! === 'reqans' &&
+            payload.payload.userReq.id! === user.id
+        ) {
             const perm = payload.payload.micunmuteperm;
-            if (perm == true) {
+            if (perm === true) {
                 const localPeer = await hmsInstanceRef.current?.getLocalPeer();
                 if (localPeer) {
                     localPeer?.localAudioTrack()?.setMute(!perm);
@@ -519,6 +525,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         hmsInstance = hmsInstanceRef.current;
 
         if (roomId && roomAuthToken) {
+            await hmsInstance.switchAudioOutput(HMSAudioDevice.SPEAKER_PHONE);
+            await hmsInstance?.setAudioMode(HMSAudioMode.MODE_NORMAL);
+
             if (hmsInstance) {
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ERROR, __onErrorListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, __onJoinListener);
