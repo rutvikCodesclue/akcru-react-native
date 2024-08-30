@@ -44,6 +44,9 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                         `getLastPlaybackPosition - log from store - Fetched position from backend: ${lastPlaybackPosition}`,
                     );
                     if (lastPlaybackPosition > 0) {
+                        console.log(
+                            `getLastPlaybackPosition: ${lastPlaybackPosition}`,
+                        );
                         set(state => ({
                             lastPlaybackPositions: {
                                 ...state.lastPlaybackPositions,

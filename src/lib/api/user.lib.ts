@@ -421,21 +421,45 @@ export const startUserWatching = async (id: string, isEpisode: boolean): Promise
     }
 };
 
-
 export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     console.log('Finishing user watching:', id, isEpisode ? 'episode' : 'movie');
+    
     try {
-        const response = await API.post('/v1/user/currentWatching/finish', {
+        const requestData = {
             movieId: isEpisode ? undefined : id,
             episodeId: isEpisode ? id : undefined,
-        });
+        };
+        console.log('Request data:', requestData);
+        console.log('Making request to URL:', API.defaults.baseURL + '/v1/user/currentWatching/finish');
+
+        const response = await API.post('/v1/user/currentWatching/finish', requestData);
         return response.data.success;
     } catch (error) {
-        console.error('Error finishing user watching:', error);
+        console.log("userLib Finish Error");
+        console.error('Error finishing user watching:', error.response?.data || error.message);
+        console.error('Request failed with status code', error.response?.status || 'unknown');
         return false;
     }
 };
+
+
+// export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
+//     await useAuthStore.getState().hydrateAuth();
+//     console.log('Finishing user watching:', id, isEpisode ? 'episode' : 'movie');
+//     try {
+//         const response = await API.post('/v1/user/currentWatching/finish', {
+//             movieId: isEpisode ? undefined : id,
+//             episodeId: isEpisode ? id : undefined,
+//         });
+//         return response.data.success;
+//     } catch (error) {
+//         console.log("userLib Finish Error");
+        
+//         console.error('Error finishing user watching:', error);
+//         return false;
+//     }
+// };
 
 export const getUserCurrentWatching = async (userId: string): Promise<any | undefined> => {
     try {

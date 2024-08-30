@@ -324,17 +324,28 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     useEffect(() => {
         RestrictPartyRoom();
-
-        _join100msRoom().then(() => {
-            _setupRoomChannels();
-        });
-
+        const joinRoom = () => {
+            _join100msRoom().then(() => {
+                console.log('Join room');
+                _setupRoomChannels();
+            });
+        };
+    
+        joinRoom(); // Initial room join
+    
+        const rejoinTimeout = setTimeout(() => {
+            joinRoom(); // Rejoin after 5 seconds
+        }, 5000);
+    
         findMovieById(movieId).then(res => {
             if (res) {
                 setMovie(res);
                 setIsLoading(false);
             }
         });
+    
+        // Clean up the timeout on component unmount
+        return () => clearTimeout(rejoinTimeout);
     }, []);
 
     useFocusEffect(

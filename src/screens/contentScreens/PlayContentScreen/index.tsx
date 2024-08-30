@@ -23,6 +23,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 import AkcruOpener from '../../../components/AkcruOpener';
+import { has } from 'lodash';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -75,14 +76,20 @@ export default function ContentPlayer({navigation}: Props) {
         StatusBar.setHidden(true);
 
         return () => {
+            console.log("Has Started Movie:", hasStartedWatching);
+            console.log("movieId:", movieId);
+            
+            
             if (hasStartedWatching && movieId) {
                 finishUserWatching(movieId, false).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        resetTimer();
+                        // resetTimer();
                         pauseTimer();
                         Orientation.lockToPortrait();
                         StatusBar.setHidden(false);
                     } else {
+                        console.log("In Else");
+                        
                     }
                 });
             }
@@ -109,6 +116,8 @@ export default function ContentPlayer({navigation}: Props) {
     );
 
     const onLoad = () => {
+        console.log("On Load");
+        
         setIsMoviePlaying(true);
         StatusBar.setHidden(true);
         if (movieId) {
@@ -122,6 +131,8 @@ export default function ContentPlayer({navigation}: Props) {
 
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
+        console.log(`MovierId ${movieId} Current TIme ${currentTime} Has Logged Recently ${hasLoggedRecently}`);
+        
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(movieId, currentTime, isEpisode);
             setHasLoggedRecently(true);
@@ -153,6 +164,8 @@ export default function ContentPlayer({navigation}: Props) {
     const onPause = () => {
         setIsMoviePlaying(false);
         pauseTimer();
+        console.log("Paused");
+        console.log("On Pause Current TIme:", currentTime);
         if (movieId) {
             const pausedCurrentTime = currentTime;
 
@@ -160,45 +173,6 @@ export default function ContentPlayer({navigation}: Props) {
         }
     };
 
-    // const onEnd = () => {
-    //     setIsMoviePlaying(false);
-    //     pauseTimer();
-    //     resetTimer();
-
-    //     if (movieId) {
-    //         const pausedCurrentTime = currentTime;
-
-    //         setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
-    //         setHasStartedWatching(false);
-    //         Orientation.lockToPortrait();
-    //         StatusBar.setHidden(false);
-    //         navigation.pop();
-
-    //         // Update watch time on end
-    //         updateWatchTime(movieId, pausedCurrentTime, isEpisode);
-    //     }
-    // };
-
-    // const onEnd = () => {
-    //     setIsMoviePlaying(false);
-    //     pauseTimer();
-    //     resetTimer();
-
-    //     if (movieId) {
-    //         finishUserWatching(movieId, false).then(finishedSuccessfully => {
-    //             if (finishedSuccessfully) {
-    //                 const pausedCurrentTime = currentTime;
-    //                 setLastPlaybackPosition(movieId, pausedCurrentTime, false);
-    //                 setHasStartedWatching(false);
-    //                 Orientation.lockToPortrait();
-    //                 StatusBar.setHidden(false);
-    //                 navigation.pop();
-    //             } else {
-    //                 console.error('Error finishing movie watching.');
-    //             }
-    //         });
-    //     }
-    // };
 
     const onEnd = () => {
         setIsMoviePlaying(false);
@@ -233,6 +207,8 @@ export default function ContentPlayer({navigation}: Props) {
                     }
                 })
                 .catch(error => {
+                    console.log("This Finish error");
+                    
                     console.error('Error finishing user watching:', error);
                 });
         }

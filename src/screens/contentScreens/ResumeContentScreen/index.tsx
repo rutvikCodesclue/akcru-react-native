@@ -184,6 +184,8 @@ export default function ResumePlayer({navigation}: Props) {
                     }
                 })
                 .catch(error => {
+                    console.log("resume Content Screen Finsh error");
+                    
                     console.error('Error finishing user watching:', error);
                 });
         }
