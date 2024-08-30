@@ -68,7 +68,7 @@ export function ClientStack() {
                     headerShown: false,
                 })}
             />
-           
+
             <ClientSearch.Screen
                 name="ViewUserScreen"
                 component={ViewUserScreen}
