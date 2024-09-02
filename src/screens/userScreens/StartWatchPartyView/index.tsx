@@ -2,7 +2,7 @@ import {View, SafeAreaView, StatusBar} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {SIZES} from '../../../../assets/constants';
-import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
 import {useState, useRef, useEffect} from 'react';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {findMovieById} from '../../../lib/api/movies.lib';
@@ -61,6 +61,9 @@ import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-
 import {getMITHostId, updateMITHostId} from '../../../lib/api/mit.lib';
 import {getCruViewHostId, updateCruViewHostId} from '../../../lib/api/cru.lib';
 import {VolumeManager} from 'react-native-volume-manager';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
 
 type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
 
@@ -100,6 +103,7 @@ type MemberInfo = {
 };
 
 const StartWatchPartyView = ({navigation, route}: Props) => {
+    const navigationToProfile = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     const viewId: string | null = route.params?.inviteId ?? null;
@@ -391,7 +395,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         const room_time_limit = checkRoomTime(Timezone, Movietime);
         if (room_time_limit) {
             AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
-            navigation.navigate('UserProfileScreen');
+            navigationToProfile.navigate('UserProfileStack');
         } else {
             setTimeout(() => {
                 RestrictPartyRoom();
@@ -622,10 +626,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         resetTimer();
 
-        navigation.reset({
+        navigationToProfile.reset({
             index: 0,
-            routes: [{name: 'UserProfileScreen'}],
+            routes: [{name: 'UserProfileStack'}],
         });
+        navigationToProfile.navigate('UserProfileStack');
     };
 
     const _handleCloseMovie = async () => {
