@@ -27,7 +27,7 @@ export default StyleSheet.create({
     },
     datetext: {
         ...FONTS.Title2,
-        marginVertical: 3,
+        
         color: COLORS.AKCRUBLUE,
     },
     sheetcontainer: {
@@ -35,7 +35,7 @@ export default StyleSheet.create({
     },
     sheetview: {},
     opensheet: {
-        height: SIZES.ScreenHeight * .20,
+        height: SIZES.ScreenHeight * 0.2,
         backgroundColor: COLORS.TAGCOLOR,
         padding: 10,
     },
@@ -78,5 +78,45 @@ export default StyleSheet.create({
         width: SIZES.ScreenWidth * 0.93,
         alignSelf: 'center',
         marginBottom: 5,
+    },
+    //Ticket styles
+    ticketContainer: {
+        width: SIZES.ScreenWidth / 4.3,
+        height: SIZES.ScreenWidth / 2.7,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        borderStyle: 'dashed',
+        borderColor: '#000000',
+        borderBottomWidth: 2,
+    },
+    ticketImage: {
+        overflow: 'hidden',
+        alignSelf: 'center',
+        width: SIZES.ScreenWidth / 4.3,
+        height: SIZES.ScreenWidth / 2.7,
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+        justifyContent: 'flex-end',
+    },
+    ticketFooter: {
+        padding: 10,
+        backgroundColor: COLORS.AKCRUBLUE,
+        width: SIZES.ScreenWidth / 4.3,
+        height: SIZES.ScreenWidth / 7.3,
+        borderBottomLeftRadius: 5,
+        borderBottomRightRadius: 5,
+        borderStyle: 'dashed',
+        borderColor: COLORS.AKCRUBACKGROUND,
+        borderTopWidth: 2,
+        overflow: 'hidden',
+    },
+    linearGradient: {
+        height: '70%',
+    },
+    ticketCircle: {
+        height: 20,
+        width: 20,
+        borderRadius: 20,
+        backgroundColor: COLORS.AKCRUBACKGROUND,
     },
 });

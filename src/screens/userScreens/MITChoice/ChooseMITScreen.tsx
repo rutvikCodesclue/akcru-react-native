@@ -412,7 +412,53 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         <View style={{marginTop: 10}}>
                                             <View style={{flexDirection: 'row', width: '75%'}}>
                                                 <View style={{marginRight: 10}}>
-                                                    <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
+                                                    {/* <Image source={{uri: movie?.portraitURL}} style={styles.poster} /> */}
+                                                    <View style={styles.ticketContainer}>
+                                                        <ImageBackground
+                                                            source={{uri: movie?.portraitURL}}
+                                                            style={styles.ticketImage}
+                                                            resizeMode="cover">
+                                                            <LinearGradient
+                                                                colors={['transparent', COLORS.AKCRUBLUE]}
+                                                                style={styles.linearGradient}>
+                                                                <View
+                                                                    style={[
+                                                                        styles.ticketCircle,
+                                                                        {position: 'absolute', bottom: -10, left: -10},
+                                                                    ]}
+                                                                />
+                                                                <View
+                                                                    style={[
+                                                                        styles.ticketCircle,
+                                                                        {position: 'absolute', bottom: -10, right: -10},
+                                                                    ]}
+                                                                />
+                                                            </LinearGradient>
+                                                        </ImageBackground>
+                                                    </View>
+                                                    <View style={styles.ticketFooter}>
+                                                        <View
+                                                            style={[
+                                                                styles.ticketCircle,
+                                                                {position: 'absolute', top: -10, left: -10},
+                                                            ]}
+                                                        />
+                                                        <View
+                                                            style={[
+                                                                styles.ticketCircle,
+                                                                {position: 'absolute', top: -10, right: -10},
+                                                            ]}
+                                                        />
+                                                        <View style={{alignItems: 'center', marginVertical: 10}}>
+                                                            <Image
+                                                                source={imageindex.barcode}
+                                                                style={{
+                                                                    width: '75%',
+                                                                    height: '100%',
+                                                                }}
+                                                            />
+                                                        </View>
+                                                    </View>
                                                 </View>
                                                 <View style={{}}>
                                                     <Text style={{...FONTS.Username}}>{movie?.title}</Text>
@@ -451,28 +497,24 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                         }}
                                                         color={COLORS.PURPLE}
                                                     />
-                                                    {/* <TouchableOpacity
-                                                        onPressOut={() => {
-                                                            navigation.navigate('TrailerPlayer', {
-                                                                id: movie?.id,
-                                                                trailerURL: movie?.trailerURL,
-                                                                landscapeURL: movie?.landscapeURL,
-                                                            });
-                                                        }}
-                                                        disabled={false}
-                                                        style={{marginTop: 10}}>
-                                                        <View
-                                                            style={{
-                                                                width: 125,
-                                                                height: 30,
-                                                                backgroundColor: COLORS.CATPURPDRK,
-                                                                justifyContent: 'center',
-                                                                alignItems: 'center',
-                                                                borderRadius: 3,
-                                                            }}>
-                                                            <Text style={styles.playButton}>Play Trailer</Text>
+                                                    <View style={{marginVertical: 10}}>
+                                                        <View style={styles.datebox}>
+                                                            <Text style={styles.datetext}>
+                                                                {' '}
+                                                                {moment(schedule)
+                                                                    .tz(timezone)
+                                                                    .format('ddd, MMM Do')}{' '}
+                                                            </Text>
+                                                            <Text style={styles.datetext}>@ </Text>
+                                                            <Text style={styles.datetext}>
+                                                                {/* render UTC Time w/ moment */}
+                                                                {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                                                {getShortenedTimezone(timezone)}
+                                                            </Text>
+
+                                                            {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                                         </View>
-                                                    </TouchableOpacity> */}
+                                                    </View>
                                                 </View>
                                             </View>
                                         </View>
@@ -480,15 +522,15 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
                                     <Text
                                         style={{
-                                            ...FONTS.Title2AkcruBlue,
+                                            ...FONTS.Title2,
+                                            color: COLORS.PINK,
 
                                             textAlign: 'center',
-                                            color: COLORS.PURPLE,
                                         }}>
-                                        "{creator?.firstName}" wants to watch "{movie?.title}" with you on:
+                                        "{creator?.firstName}" wants to watch "{movie?.title}" with you
                                     </Text>
                                 </View>
-                                <View style={{alignItems: 'center', marginVertical: 10}}>
+                                {/* <View style={{alignItems: 'center', marginVertical: 10}}>
                                     <View style={styles.datebox}>
                                         <Text style={styles.datetext}>
                                             {' '}
@@ -496,14 +538,11 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         </Text>
                                         <Text style={styles.datetext}>@ </Text>
                                         <Text style={styles.datetext}>
-                                            {/* render UTC Time w/ moment */}
                                             {moment(schedule).tz(timezone).format('h:mm A')}{' '}
                                             {getShortenedTimezone(timezone)}
                                         </Text>
-
-                                        {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
                                     </View>
-                                </View>
+                                </View> */}
                                 <View style={{marginTop: 25}}>
                                     <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
                                 </View>

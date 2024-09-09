@@ -263,7 +263,14 @@ export default function SendMITSchedule({route}: Props) {
                                 <View style={[styles.ticketCircle, {position: 'absolute', top: -40, left: -40}]} />
                                 <View style={[styles.ticketCircle, {position: 'absolute', top: -40, right: -40}]} />
                                 <View>
-                                    <Text style={{...FONTS.Title1, textAlign: 'center', marginBottom: 10}}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title1,
+                                            textAlign: 'center',
+                                            marginBottom: 10,
+                                            width: '75%',
+                                            alignSelf: 'center',
+                                        }}>
                                         {title}
                                     </Text>
                                 </View>

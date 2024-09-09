@@ -23,10 +23,11 @@ import DisplayBadge from '../../../components/General/akcrubadge';
 import { getFollowers } from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import AkcruLevels from '../../../components/akcruBadges';
+import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 
-type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
+type ChooseMITScreenNavigationProp = StackNavigationProp<ClientTabsParams, 'UserProfileStack'>;
 
-type ChooseMITScreenRouteProp = RouteProp<UserProfileStackParams, 'ChooseMITScreen'>;
+type ChooseMITScreenRouteProp = RouteProp<ClientTabsParams, 'UserProfileStack'>;
 
 type Props = {
     navigation: ChooseMITScreenNavigationProp;
@@ -44,7 +45,7 @@ const AcceptMITScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigation.navigate('UserProfileScreen');
+            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileStack'});
         }, 4000);
 
         return () => clearTimeout(timer);

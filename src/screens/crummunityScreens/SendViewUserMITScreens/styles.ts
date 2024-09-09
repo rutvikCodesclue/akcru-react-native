@@ -209,7 +209,7 @@ export default StyleSheet.create({
         padding: 10,
         backgroundColor: COLORS.AKCRUBLUE,
         width: SIZES.ScreenWidth / 1.4,
-        height: SIZES.ScreenWidth / 3,
+        height: SIZES.ScreenWidth / 2.5,
         borderBottomLeftRadius: 10,
         borderBottomRightRadius: 10,
         borderStyle: 'dashed',

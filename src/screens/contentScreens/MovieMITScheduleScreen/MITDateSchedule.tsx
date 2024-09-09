@@ -232,53 +232,94 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     return (
         <View>
             {showSendMIT ? (
-                <View style={{flex: 1}}>
-                    <ImageBackground
-                        source={{
-                            uri: 'https://akcru.com/wp-content/uploads/2023/05/creepymit.png',
-                        }}
-                        resizeMode="cover"
-                        style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                <View
+                    style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                        marginTop: '10%',
+                    }}>
+                    <Text
+                        style={{
+                            ...FONTS.Title3,
+                            textAlign: 'center',
+                            paddingVertical: 20,
+                        }}>
+                        Your Movie Invite Ticket was sent successfully!
+                    </Text>
+                    <View style={styles.ticketContainer}>
+                        <ImageBackground
+                            source={{uri: movie?.portraitURL}}
+                            style={styles.ticketImage}
+                            resizeMode="cover">
+                            <LinearGradient colors={['transparent', COLORS.AKCRUBLUE]} style={styles.linearGradient}>
+                                <View style={[styles.ticketCircle, {position: 'absolute', bottom: -40, left: -40}]} />
+                                <View style={[styles.ticketCircle, {position: 'absolute', bottom: -40, right: -40}]} />
+                            </LinearGradient>
+                        </ImageBackground>
+                    </View>
+
+                    <View style={styles.ticketFooter}>
+                        <View style={[styles.ticketCircle, {position: 'absolute', top: -40, left: -40}]} />
+                        <View style={[styles.ticketCircle, {position: 'absolute', top: -40, right: -40}]} />
+                        <View>
+                            <Text
+                                style={{
+                                    ...FONTS.Title1,
+                                    textAlign: 'center',
+                                    marginBottom: 10,
+                                    width: '75%',
+                                    alignSelf: 'center',
+                                }}>
+                                {movie?.title}
+                            </Text>
+                        </View>
                         <View
                             style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                width: '75%',
+                                alignSelf: 'center',
                             }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    width: 200,
-                                    textAlign: 'center',
-                                    paddingBottom: 20,
-                                }}>
-                                Your Movie Invite Ticket was sent
-                            </Text>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3}}>{selectedDate.toLocaleDateString()}</Text>
+                                <Text style={{...FONTS.paragraph2}}>DATE</Text>
+                            </View>
+                            <View style={{alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title3}}>
+                                    {selectedTime.toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    })}
+                                </Text>
+                                <Text style={{...FONTS.paragraph2}}>TIME</Text>
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center', marginTop: 20}}>
                             <Image
-                                source={imageindex.LrgMIT}
+                                source={imageindex.barcode}
                                 style={{
-                                    width: 140,
-                                    height: 75,
-                                }}
-                            />
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    width: 200,
-                                    textAlign: 'center',
-                                    paddingTop: 20,
-                                }}>
-                                Don't forget to grab a bite while you watch at CRU Chew
-                            </Text>
-                            <Image
-                                source={imageindex.CruChew3}
-                                style={{
-                                    width: 120,
-                                    height: 120,
+                                    width: '75%',
+                                    height: '50%',
                                 }}
                             />
                         </View>
-                    </ImageBackground>
+                    </View>
+                    <Text
+                        style={{
+                            ...FONTS.Title3,
+                            textAlign: 'center',
+                            paddingTop: 20,
+                        }}>
+                        Don't forget to grab a bite while you watch at CRU Chew
+                    </Text>
+                    <Image
+                        source={imageindex.CruChew3}
+                        style={{
+                            width: 120,
+                            height: 120,
+                        }}
+                    />
                 </View>
             ) : (
                 <View>
