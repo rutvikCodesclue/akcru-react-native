@@ -1,3 +1,4 @@
+import NetInfo from '@react-native-community/netinfo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
@@ -101,13 +102,24 @@ const useAuthStore = create<IAuthStore>()(
                 return get().session;
             },
             hydrateAuth: async () => {
+                // Check network connectivity
+                const networkState = await NetInfo.fetch();
+
+                if (!networkState.isConnected) {
+                    console.log('No internet connection. Sticking to the current screen.');
+                    // Don't navigate to sign-in, return early
+                    return;
+                }
+
                 const currentSession = get().session;
                 const timeNow = Math.round(Date.now() / 1000);
+
                 if (currentSession && currentSession?.expires_at) {
                     const hasSessionExpired = timeNow > currentSession.expires_at;
+
                     if (currentSession !== null && !hasSessionExpired) {
-                        const rereshedSession = await supabaseAuth.refreshSession(currentSession);
-                        set({session: rereshedSession.data.session});
+                        const refreshedSession = await supabaseAuth.refreshSession(currentSession);
+                        set({session: refreshedSession.data.session});
                     } else {
                         await get().logout();
                         RootNavigation.navigate('Signin', {});
