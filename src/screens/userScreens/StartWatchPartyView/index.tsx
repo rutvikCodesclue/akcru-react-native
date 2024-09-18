@@ -277,28 +277,36 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     useEffect(() => {
         RestrictPartyRoom();
-        const joinRoom = () => {
-            _join100msRoom().then(() => {
-                // console.log('Join room');
-                _setupRoomChannels();
-            });
+        const joinRoom = async () => {
+            await _join100msRoom();
+            console.log('Join room');
+            await _setupRoomChannels();
+            if (Platform.OS === 'ios') {
+                await VolumeManager.setMode('MoviePlayback');
+                await VolumeManager.setCategory('Playback');
+            }
+            await VolumeManager.setVolume(1);
+            await VolumeManager.showNativeVolumeUI({enabled: true});
         };
-    
-        joinRoom(); // Initial room join
-    
-        const rejoinTimeout = setTimeout(() => {
-            joinRoom(); // Rejoin after 5 seconds
-        }, 5000);
-    
-        findMovieById(movieId).then(res => {
+
+        async function onMount() {
+            await joinRoom(); // Initial room join
+
+            const res = await findMovieById(movieId);
             if (res) {
                 setMovie(res);
                 setIsLoading(false);
             }
-        });
-    
-        // Clean up the timeout on component unmount
-        return () => clearTimeout(rejoinTimeout);
+        }
+        onMount();
+
+        return () => {
+            if (Platform.OS === 'ios') {
+                VolumeManager.setCategory('Ambient', false);
+                VolumeManager.setMode('Default');
+            }
+        };
+
     }, []);
 
     useFocusEffect(
