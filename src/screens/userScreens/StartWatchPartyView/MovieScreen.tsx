@@ -1,122 +1,183 @@
-import {StyleSheet, Text, View, Image, TouchableWithoutFeedback, ActivityIndicator} from 'react-native';
+import {StyleSheet, Text, View, Image, TouchableWithoutFeedback, ActivityIndicator, StatusBar} from 'react-native';
 import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import VideoPlayer from 'react-native-media-console';
-import {capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
+import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 import LottieView from 'lottie-react-native';
-import Video from 'react-native-video';
+import Video, {OnProgressData, OnSeekData} from 'react-native-video';
+import {MovieScreenProps} from './WatchPartyProps';
 import Orientation from 'react-native-orientation-locker';
+import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
+import useWatchTimeStore from '../../../stores/watchTime.store';
 
-interface Props {
-    onPress: () => void;
-    isHost: boolean;
-    isStreamOpen: boolean;
-    movie: any;
-    roomChannelRef: any;
-    hasLottieFirstLoopCompleted: any;
-    isFullscreen: boolean;
-    videoPlayerRef: any;
-    isMoviePlaying: boolean; 
-    onProgress: any; 
-    onPlay: any;
-    onPause: any;
-    onSeek: any;
-    onEnterFullScreen: () => void; 
-    onExitFullScreen: () => void; 
-    setHasLottieFirstLoopCompleted: React.Dispatch<React.SetStateAction<boolean>>;
-}
+const MovieScreen = ({
+    currentRoomHost,
+    user,
+    isStreamOpen,
+    movie,
+    isSyncedWithHost,
+    isFullscreen,
+    setIsFullscreen,
+    isMoviePlaying,
+    setIsMoviePlaying,
+    hasLottieFirstLoopCompleted,
+    setHasLottieFirstLoopCompleted,
+    setCurrentTime,
+    roomChannelRef,
+    syncChannelRef,
+    videoPlayerRef,
+}: MovieScreenProps) => {
+    const {startTimer, resetTimer} = useWatchTimeStore();
 
-const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasLottieFirstLoopCompleted, isFullscreen, videoPlayerRef, isMoviePlaying, onProgress, onPlay, onPause, onSeek, onEnterFullScreen, onExitFullScreen, setHasLottieFirstLoopCompleted}: Props) => {
-    
+    const _handleStartMovie = async () => {
+        // console.log('Starting the movie...');
+
+        if (currentRoomHost === user?.id && videoPlayerRef.current) {
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'start-movie',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                },
+            });
+        }
+    };
+
+    const ___onPlay = () => {
+        if (currentRoomHost === user?.id && videoPlayerRef.current) {
+            setIsMoviePlaying(true);
+
+            StatusBar.setHidden(true);
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'play-movie',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                },
+            });
+        }
+    };
+
+    const ___onPause = () => {
+        if (currentRoomHost === user?.id && videoPlayerRef.current) {
+            setIsMoviePlaying(false);
+
+            StatusBar.setHidden(false);
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'pause-movie',
+                payload: {
+                    timestamp: new Date().toISOString(),
+                },
+            });
+        }
+    };
+
+    const ___onSeek = (data: OnSeekData) => {
+        if (currentRoomHost === user?.id && videoPlayerRef.current) {
+            roomChannelRef.current?.send({
+                type: 'broadcast',
+                event: 'seek-movie',
+                payload: {
+                    currentTime: data.currentTime,
+                    seekTime: data.seekTime,
+                    timestamp: new Date().toISOString(),
+                },
+            });
+        }
+
+        resetTimer();
+        startTimer();
+    };
+
+    const ___onProgress = async (data: OnProgressData) => {
+        if (currentRoomHost === user?.id && Number(data.currentTime.toFixed(1)) % 5 === 0) {
+            await syncChannelRef.current?.track({
+                isMoviePlaying: true,
+                currentTime: data.currentTime,
+                timestamp: new Date().toISOString(),
+            });
+        }
+
+        setCurrentTime(data.currentTime);
+    };
+
+    const ___onEnterFullscreen = () => {
+        setIsFullscreen(true);
+
+        StatusBar.setHidden(true);
+        Orientation.lockToLandscape();
+
+        hideNavigationBar();
+        if (videoPlayerRef.current && !isMoviePlaying) {
+            if (currentRoomHost === user?.id) {
+                setIsMoviePlaying(true);
+            } else {
+                if (isSyncedWithHost.current) {
+                    setIsMoviePlaying(true);
+                }
+            }
+        }
+    };
+
+    const ___onExitFullScreen = () => {
+        setIsFullscreen(false);
+        StatusBar.setHidden(false);
+        Orientation.lockToPortrait();
+
+        showNavigationBar();
+
+        if (videoPlayerRef.current && !isMoviePlaying) {
+            if (currentRoomHost === user?.id) {
+                setIsMoviePlaying(true);
+            } else {
+                if (isSyncedWithHost.current) {
+                    setIsMoviePlaying(true);
+                }
+            }
+        }
+    };
+
     return (
-        <View style={{flex: 1, zIndex: 100}}>
+        <View style={styles.container}>
             {isStreamOpen ? (
                 <View style={styles.moviecontainer}>
                     <LinearGradient
                         colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: 0,
-
-                            borderRadius: 5,
-                            height: SIZES.ScreenHeight * 0.18,
-                        }}
+                        style={styles.gradient}
                     />
-                    <View style={{marginRight: 10}}>
+                    <View style={styles.movieDetailsContainer}>
                         <Image source={{uri: movie?.portraitURL ?? undefined}} style={styles.poster} />
                     </View>
                     <View>
                         <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                marginVertical: 4,
-                                alignItems: 'center',
-                            }}>
-                            <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    fontSize: 12,
-                                    marginHorizontal: 10,
-                                }}>
+                        <View style={styles.movieInfoRow}>
+                            <Text style={styles.movieYear}>{movie?.year}</Text>
+                            <Text style={styles.movieDuration}>
                                 {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
                             </Text>
                         </View>
-                        <View style={{flexDirection: 'row', marginBottom: 8}}>
+                        <View style={styles.movieTagsRow}>
                             <Text style={styles.drawfonttag}>{movie?.rated}</Text>
                             <Text style={styles.drawfonttag}>
                                 {movie?.genres[0] ? capitalizeFirstLetterOfString(movie?.genres[0]) : '...'}
                             </Text>
                             <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
                         </View>
-                        <View style={{flexDirection: 'row'}}>
+                        <View style={styles.tagButtonsContainer}>
                             <TouchableWithoutFeedback>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        backgroundColor: COLORS.TAGCOLOR,
-                                        marginRight: 5,
-                                        paddingHorizontal: 5,
-                                        paddingVertical: 5,
-                                        borderRadius: 5,
-                                        alignItems: 'center',
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.paragraph1,
-                                            marginRight: 5,
-                                            fontSize: 12,
-                                        }}>
-                                        Link Device
-                                    </Text>
+                                <View style={styles.tagButton}>
+                                    <Text style={styles.movieTag}>Link Device</Text>
                                     <Icon name="tv-outline" type="ionicon" size={20} color={COLORS.MIDORANGE} />
                                 </View>
                             </TouchableWithoutFeedback>
 
-                            {isHost && roomChannelRef.current && (
-                                <TouchableWithoutFeedback onPress={onPress}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            backgroundColor: COLORS.TAGCOLOR,
-                                            paddingHorizontal: 5,
-                                            paddingVertical: 5,
-                                            borderRadius: 5,
-                                            alignItems: 'center',
-                                        }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.paragraph1,
-                                                marginRight: 5,
-                                                fontSize: 12,
-                                            }}>
-                                            Play Stream
-                                        </Text>
+                            {currentRoomHost === user?.id && roomChannelRef.current && (
+                                <TouchableWithoutFeedback onPress={_handleStartMovie}>
+                                    <View style={styles.playStreamButton}>
+                                        <Text style={styles.movieTag}>Play Stream</Text>
                                         <Icon name="play" type="ionicon" size={20} color={COLORS.CATREDLGT} />
                                     </View>
                                 </TouchableWithoutFeedback>
@@ -127,7 +188,7 @@ const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasL
             ) : (
                 <View>
                     <View style={styles.videocontain}>
-                        <View style={{flex: 1}}>
+                        <View style={styles.flexContainer}>
                             {hasLottieFirstLoopCompleted ? (
                                 movie?.movieURL ? (
                                     <View style={!isFullscreen ? styles.movieview : styles.fullscreenmovie}>
@@ -147,15 +208,15 @@ const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasL
                                             isFullscreen={isFullscreen}
                                             fullscreenAutorotate={false}
                                             disableBack={true}
-                                            disablePlayPause={isHost ? false : true}
-                                            disableSeekButtons={isHost ? false : true}
-                                            disableSeekbar={isHost ? false : true}
-                                            onProgress={onProgress}
-                                            onPlay={onPlay}
-                                            onPause={onPause}
-                                            onSeek={onSeek}
-                                            onEnterFullscreen={onEnterFullScreen}
-                                            onExitFullscreen={onExitFullScreen}
+                                            disablePlayPause={currentRoomHost === user?.id ? false : true}
+                                            disableSeekButtons={currentRoomHost === user?.id ? false : true}
+                                            disableSeekbar={currentRoomHost === user?.id ? false : true}
+                                            onProgress={___onProgress}
+                                            onPlay={___onPlay}
+                                            onPause={___onPause}
+                                            onSeek={___onSeek}
+                                            onEnterFullscreen={___onEnterFullscreen}
+                                            onExitFullscreen={___onExitFullScreen}
                                         />
                                     </View>
                                 ) : (
@@ -185,7 +246,7 @@ const MovieScreen = ({onPress, isStreamOpen, isHost, movie, roomChannelRef, hasL
                 </View>
             )}
         </View>
-    )
+    );
 };
 
 export default MovieScreen;
@@ -195,6 +256,64 @@ const styles = StyleSheet.create({
         width: 70,
         height: 110,
         borderRadius: 5,
+    },
+    container: {
+        flex: 1,
+        zIndex: 100,
+    },
+    gradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        borderRadius: 5,
+        height: SIZES.ScreenHeight * 0.18,
+    },
+    movieDetailsContainer: {
+        marginRight: 10,
+    },
+    movieTitle: {
+        ...FONTS.Title3,
+    },
+    movieInfoRow: {
+        flexDirection: 'row',
+        marginVertical: 4,
+        alignItems: 'center',
+    },
+    movieYear: {
+        ...FONTS.Title2,
+        fontSize: 12,
+    },
+    movieDuration: {
+        ...FONTS.Title2,
+        fontSize: 12,
+        marginHorizontal: 10,
+    },
+    movieTagsRow: {
+        flexDirection: 'row',
+        marginBottom: 8,
+    },
+    movieTag: {
+        ...FONTS.paragraph1,
+        marginRight: 5,
+        fontSize: 12,
+    },
+    tagButton: {
+        flexDirection: 'row',
+        backgroundColor: COLORS.TAGCOLOR,
+        marginRight: 5,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    playStreamButton: {
+        flexDirection: 'row',
+        backgroundColor: COLORS.TAGCOLOR,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
+        alignItems: 'center',
     },
     moviecontainer: {
         marginHorizontal: 15,
@@ -227,5 +346,10 @@ const styles = StyleSheet.create({
     movieview: {
         height: SIZES.ScreenHeight / 3.5,
     },
-
+    tagButtonsContainer: {
+        flexDirection: 'row', // Moved from inline
+    },
+    flexContainer: {
+        flex: 1, // Moved from inline
+    },
 });
