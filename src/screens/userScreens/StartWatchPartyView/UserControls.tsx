@@ -1,79 +1,28 @@
 import {StyleSheet, Text, View, Pressable} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {COLORS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {UserControlsProps} from './WatchPartyProps';
 import DecisionModal from './DecisionModal';
 import FeedBackModal from './FeedbackModal';
-import {supabase} from '../../../../lib/supabase';
-import {RealtimeChannel} from '@supabase/supabase-js';
 import {IUserProfile} from '../../../../types';
 
 const UserControls = ({
-    roomId,
+    channel,
     currentRoomHost,
     members,
     user,
+    requestingUser,
+    showUnmuteModal,
+    setShowUnmuteModal,
     isUserVideoOn,
     setIsUserVideoOn,
     isMicOn,
     setIsMicOn,
-    isStreamHost,
     currentHmsInstance,
 }: UserControlsProps) => {
-    const [userControlsChannel, setUserControlsChannel] = useState<RealtimeChannel | null>(null);
-    const [requestingUser, setRequestingUser] = useState<IUserProfile | undefined>(undefined);
-    const [showDecisionModal, setShowDecisionModal] = useState(false);
     const [showRequestSentModal, setShowRequestSentModal] = useState(false);
     const [showHostErrorModal, setShowHostErrorModal] = useState(false);
-
-    useEffect(() => {
-        const initialChannel = supabase.channel(roomId);
-        initialChannel
-            .on('broadcast', {event: 'guest-mic-unmute'}, payload => handleUnmuteRequest(payload))
-            .on('broadcast', {event: 'mute-all'}, payload => muteLocalPeer(payload))
-            .subscribe(status => {
-                if (status === 'SUBSCRIBED') {
-                    setUserControlsChannel(initialChannel);
-                    console.log('Subscribed to the User Controls Channel - ', user?.username);
-                }
-            });
-
-        return () => {
-            initialChannel.unsubscribe();
-            setUserControlsChannel(null);
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const muteLocalPeer = async (payload: any) => {
-        if (payload.payload.muteAll) {
-            const localPeer = await currentHmsInstance?.getLocalPeer();
-            console.log('muting personal audio track...');
-            localPeer?.localAudioTrack()?.setMute(true);
-            setIsMicOn((prevState: boolean) => !prevState);
-        }
-    };
-
-    const handleUnmuteRequest = async (payload: any) => {
-        if (currentRoomHost === user?.id && payload.payload.permissionType! === 'request') {
-            setRequestingUser(payload.payload.requestedBy);
-            setShowDecisionModal(true);
-        }
-        if (
-            currentRoomHost !== user?.id &&
-            payload.payload.permissionType === 'reqans' &&
-            payload.payload.requestedBy.id === user?.id
-        ) {
-            if (payload.payload.unmutePermissionGiven) {
-                const localPeer = await currentHmsInstance?.getLocalPeer();
-                if (localPeer) {
-                    localPeer?.localAudioTrack()?.setMute(false);
-                    setIsMicOn(true);
-                }
-            }
-        }
-    };
 
     const requestMicUnmute = (
         permissionGranted: boolean,
@@ -81,16 +30,16 @@ const UserControls = ({
         permissionType: string,
         requestedBy: IUserProfile | null,
     ) => {
-        if (userControlsChannel === null) {
+        if (channel === null) {
             console.log('User Controls channel not found');
             return;
         }
 
-        if (permissionType === 'request' && isStreamHost) {
+        if (permissionType === 'request' && currentRoomHost === user?.id) {
             return;
         }
 
-        userControlsChannel.send({
+        channel.send({
             type: 'broadcast',
             event: 'guest-mic-unmute',
             payload: {
@@ -110,7 +59,7 @@ const UserControls = ({
                 localPeer?.localAudioTrack()?.setMute(true);
                 setIsMicOn((prevState: boolean) => !prevState);
             } else {
-                if (isStreamHost) {
+                if (currentRoomHost === user?.id) {
                     console.log('unmuting personal audio track...');
                     localPeer?.localAudioTrack()?.setMute(false);
                     setIsMicOn((prevState: boolean) => !prevState);
@@ -153,15 +102,15 @@ const UserControls = ({
     };
 
     const muteAllPeers = async () => {
-        if (isStreamHost) {
+        if (currentRoomHost === user?.id) {
             try {
                 await currentHmsInstance?.remoteMuteAllAudio();
-                if (userControlsChannel === null) {
+                if (channel === null) {
                     console.log('User Controls channel not found');
                     return;
                 }
 
-                userControlsChannel.send({
+                channel.send({
                     type: 'broadcast',
                     event: 'mute-all',
                     payload: {muteAll: true},
@@ -190,7 +139,7 @@ const UserControls = ({
                             <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
                         )}
                     </Pressable>
-                    {isStreamHost ? (
+                    {currentRoomHost === user?.id ? (
                         <Pressable onPress={muteAllPeers} style={styles.button}>
                             <Text style={styles.buttonText}>Mute All</Text>
                         </Pressable>
@@ -202,13 +151,12 @@ const UserControls = ({
 
             {showHostErrorModal ? <FeedBackModal modalType="hostNotInRoom" /> : null}
 
-            {showDecisionModal && requestingUser ? (
+            {showUnmuteModal && requestingUser ? (
                 <DecisionModal
                     modalType="unmuteRequest"
                     username={requestingUser.username}
-                    setShowDecisionModal={setShowDecisionModal}
+                    setShowDecisionModal={setShowUnmuteModal}
                     handleAccept={() => requestMicUnmute(true, user?.id, 'reqans', requestingUser)}
-                    showDecisionModal={showDecisionModal}
                 />
             ) : null}
         </View>

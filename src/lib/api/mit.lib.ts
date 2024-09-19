@@ -155,7 +155,7 @@ export const getMITHostId = async (mITInviteId: string | null): Promise<string |
 
 export const updateMITHostId = async (
     mITInviteId: string | null,
-    newHostId: string | null,
+    newHostId: string | undefined,
 ): Promise<boolean | undefined> => {
     try {
         const {data} = await API.post('/v1/mit/update-mit-host', {mITInviteId, newHostId});

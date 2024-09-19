@@ -12,27 +12,23 @@ const modalContent = (type: string, username: string | undefined) => {
         description = `${username} is requesting to unmute themselves. Do you accept the request?`;
     } else if (type === 'confirmHostTransfer') {
         title = 'Confirm Host Transfer';
-        description = `Are you sure you want to transfer hosting privileges to ${username}}`;
+        description = `Are you sure you want to make ${username}} the watch party host?`;
     } else if (type === 'leaveRoom') {
         title = 'Confirm Leaving Watch Party';
         description = 'Are you sure that you want to leave this watch party session?';
-    } else if (type === 'terminateRoom') {
+    } else if (type === 'hostLeaveRoom') {
+        title = 'Confirm Leaving Watch Party';
+        description =
+            'Leaving the watch party session as host will end the session for everyone. Assign another guest as the watch party host.';
+    } else if (type === 'endRoom') {
         title = 'Confirm Leave And End Watch Party';
-        description = 'Are you sure you want to leave and end this watch party session?';
+        description = 'Are you sure you want to leave and end this watch party session for everyone?';
     }
-
     return [title, description];
 };
 
-const DecisionModal = ({
-    modalType,
-    username,
-    setShowDecisionModal,
-    showDecisionModal,
-    handleAccept,
-}: DecisionModalProps) => {
+const DecisionModal = ({modalType, username, setShowDecisionModal, handleAccept}: DecisionModalProps) => {
     let [title, description] = modalContent(modalType, username);
-    console.log('Show Decision Modal: ', showDecisionModal);
 
     return (
         <Modal animationType="fade" transparent={true} visible={true}>
@@ -90,7 +86,8 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     description: {
-        ...FONTS.Title3,
+        ...FONTS.paragraph1,
+        textAlign: 'center',
         marginBottom: 20,
     },
     buttonContainer: {

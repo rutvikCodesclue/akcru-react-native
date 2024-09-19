@@ -261,7 +261,7 @@ export const getCruViewHostId = async (cruViewId: string | null): Promise<string
 
 export const updateCruViewHostId = async (
     cruViewId: string | null,
-    newHostId: string | null,
+    newHostId: string | undefined,
 ): Promise<boolean | undefined> => {
     try {
         const {data} = await API.post('/v1/cru/update-cru-view-host', {cruViewId, newHostId});

@@ -1,9 +1,51 @@
-import {HMSSDK} from '@100mslive/react-native-hms';
+import {HMSPeer, HMSSDK, HMSTrack} from '@100mslive/react-native-hms';
 import {Dispatch, MutableRefObject, SetStateAction} from 'react';
 import {IMovie, IUserProfile} from '../../../../types';
-import {MemberInfo} from '.';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import Video from 'react-native-video';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RouteProp} from '@react-navigation/native';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+
+type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
+
+type StartWatchPartyViewRouteProp = RouteProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
+
+export interface WatchPartyViewProps {
+    navigation: StartWatchPartyViewNavigationProp;
+    route: StartWatchPartyViewRouteProp;
+    movieName: string;
+    movieId: string;
+    roomId: string;
+    roomAuthToken: string;
+    micInitialState: boolean;
+    cameraInitialState: boolean;
+    isHost: boolean;
+    inviteId: any;
+    creator: any;
+    invitee: any;
+    Timezone: string;
+    Movietime: string;
+    cru: any;
+    type: any;
+}
+
+export interface TopContainerProps {
+    currentRoomHost: string | undefined;
+    user: IUserProfile | null;
+    members: MemberInfo[] | [];
+    handleRoomLeaving: () => void;
+    handleEndRoom: () => void;
+    handleChangeHost: (newHostId: string | undefined) => Promise<void>;
+}
+
+export interface ChangeHostProps {
+    currentRoomHost: string | undefined;
+    members: MemberInfo[] | [];
+    showChangeHost: boolean;
+    setShowChangeHost: Dispatch<SetStateAction<boolean>>;
+    handleChangeHost: (newHostId: string | undefined) => Promise<void>;
+}
 
 export interface MovieScreenProps {
     currentRoomHost: string | undefined;
@@ -23,13 +65,25 @@ export interface MovieScreenProps {
     videoPlayerRef: MutableRefObject<Video | null>;
 }
 
+export interface UserVideosProps {
+    currentHmsInstance: HMSSDK | null;
+    peerTrackNodes: PeerTrackNode[] | [];
+    expandedVideo: PeerTrackNode | null;
+    setExpandedVideo: Dispatch<SetStateAction<PeerTrackNode | null>>;
+    peersMuteStatus: {[key: string]: boolean | undefined};
+    currentRoomHost: string | undefined;
+    members: MemberInfo[] | [];
+}
+
 export interface UserControlsProps {
+    channel: RealtimeChannel | null;
     currentRoomHost: string | undefined;
     user: IUserProfile | null;
-    roomId: string;
-    isStreamHost: boolean;
     currentHmsInstance: HMSSDK | null;
     members: MemberInfo[] | [];
+    requestingUser: IUserProfile | undefined;
+    showUnmuteModal: boolean;
+    setShowUnmuteModal: Dispatch<SetStateAction<boolean>>;
     isUserVideoOn: boolean;
     setIsUserVideoOn: Dispatch<SetStateAction<boolean>>;
     isMicOn: boolean;
@@ -43,7 +97,20 @@ export interface FeedBackModalProps {
 export interface DecisionModalProps {
     modalType: string;
     username: string | undefined;
-    showDecisionModal: boolean;
     setShowDecisionModal: Dispatch<SetStateAction<boolean>>;
     handleAccept: () => void;
 }
+
+export type PeerTrackNode = {
+    id: string;
+    peer: HMSPeer;
+    track: HMSTrack | undefined;
+};
+
+export type MemberInfo = {
+    peerID: string | undefined;
+    role: string | undefined;
+    name: string | undefined;
+    isLocal: boolean | undefined;
+    user: IUserProfile;
+};
