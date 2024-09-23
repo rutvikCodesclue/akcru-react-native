@@ -1,115 +1,166 @@
-import {
-    StyleSheet,
-    Text,
-    View,
-    SafeAreaView,
-    TouchableOpacity,
-    Image,
-    TouchableWithoutFeedback,
-    Pressable,
-    FlatList,
-    ActivityIndicator,
-    Modal,
-    StatusBar,
-} from 'react-native';
-import React from 'react';
-import AkcruButtons from '../../../components/akcruButtons';
-import Header from '../../../components/header';
-import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
-import LinearGradient from 'react-native-linear-gradient';
+import {StyleSheet, Text, View, Pressable} from 'react-native';
+import React, {useState} from 'react';
+import {COLORS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
-import {RouteProp, useFocusEffect, useIsFocused} from '@react-navigation/native';
-import {useState, useRef, useEffect, useCallback} from 'react';
-import BottomSheet from '@gorhom/bottom-sheet';
-import {StackNavigationProp} from '@react-navigation/stack';
-import VideoPlayer from 'react-native-media-console';
-import {findMovieById} from '../../../lib/api/movies.lib';
-import {IMovie} from '../../../../types';
-import {capitalizeFirstLetterOfString, formatMovieDuration, selectAvatarBorderColor} from '../../../util/util';
-import {supabaseRealtime} from '../../../../lib/supabase';
-import {RealtimeChannel} from '@supabase/supabase-js';
-import {
-    HMSConfig,
-    HMSException,
-    HMSPeer,
-    HMSPeerUpdate,
-    HMSRoom,
-    HMSRoomUpdate,
-    HMSSDK,
-    HMSTrack,
-    HMSTrackSource,
-    HMSTrackType,
-    HMSTrackUpdate,
-    HMSUpdateListenerActions,
-    HMSVideoViewMode,
-    HMSSpeaker,
-    HMSMessage,
-    HMSTrackSettings,
-    HMSAudioTrackSettings,
-    HMSVideoTrackSettings,
-    HMSTrackSettingsInitState,
-} from '@100mslive/react-native-hms';
-import useAuthStore from '../../../stores/auth.store';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import LottieView from 'lottie-react-native';
-import Orientation from 'react-native-orientation-locker';
-import Video, {LoadError, OnBufferData, OnProgressData, OnSeekData} from 'react-native-video';
+import {UserControlsProps} from './WatchPartyProps';
+import DecisionModal from './DecisionModal';
+import FeedBackModal from './FeedbackModal';
 import {IUserProfile} from '../../../../types';
-import SmlMemberCard from '../../../components/SmlMemberCard';
-import {findAUser} from '../../../lib/api/user.lib';
-import useWatchTimeStore from '../../../stores/watchTime.store';
-import {checkRoomTime} from '../../../util/checkRoomTime';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
-import {supabase} from '../../../../lib/supabase';
-import UnmutePermissionPopup from './unmutepermpopup';
-import ErrorModal from './ErrorModal';
-import WatchPartyDocker from '../../../components/WatchPartyDocker';
-import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 
-interface Props {
-    toggleVideo: any; 
-    isUserVideoOn: any; 
-    toggleMic: any; 
-    isMicOn: any; 
-    isHost: any; 
-    muteAllPeers: any; 
-    sayhi: any; 
-}
+const UserControls = ({
+    channel,
+    currentRoomHost,
+    members,
+    user,
+    requestingUser,
+    showUnmuteModal,
+    setShowUnmuteModal,
+    isUserVideoOn,
+    setIsUserVideoOn,
+    isMicOn,
+    setIsMicOn,
+    currentHmsInstance,
+}: UserControlsProps) => {
+    const [showRequestSentModal, setShowRequestSentModal] = useState(false);
+    const [showHostErrorModal, setShowHostErrorModal] = useState(false);
 
-const UserControls = ({toggleVideo, isUserVideoOn, toggleMic, isMicOn, isHost, muteAllPeers, sayhi}: Props) => {
+    const requestMicUnmute = (
+        permissionGranted: boolean,
+        userId: string | undefined,
+        permissionType: string,
+        requestedBy: IUserProfile | null,
+    ) => {
+        if (channel === null) {
+            console.log('User Controls channel not found');
+            return;
+        }
+
+        if (permissionType === 'request' && currentRoomHost === user?.id) {
+            return;
+        }
+
+        channel.send({
+            type: 'broadcast',
+            event: 'guest-mic-unmute',
+            payload: {
+                unmutePermissionGiven: permissionGranted,
+                senderId: userId,
+                permissionType: permissionType,
+                requestedBy: requestedBy,
+            },
+        });
+    };
+
+    const toggleMic = async () => {
+        const localPeer = await currentHmsInstance?.getLocalPeer();
+        if (localPeer) {
+            if (isMicOn) {
+                console.log('muting personal audio track...');
+                localPeer?.localAudioTrack()?.setMute(true);
+                setIsMicOn((prevState: boolean) => !prevState);
+            } else {
+                if (currentRoomHost === user?.id) {
+                    console.log('unmuting personal audio track...');
+                    localPeer?.localAudioTrack()?.setMute(false);
+                    setIsMicOn((prevState: boolean) => !prevState);
+                } else {
+                    const hostInRoom = members ? members.find(member => member.user.id === currentRoomHost) : undefined;
+                    if (hostInRoom) {
+                        requestMicUnmute(false, user?.id, 'request', user);
+                        setShowRequestSentModal(true);
+
+                        setTimeout(() => {
+                            setShowRequestSentModal(false);
+                        }, 2000);
+                    } else {
+                        setShowHostErrorModal(true);
+
+                        setTimeout(() => {
+                            setShowHostErrorModal(false);
+                        }, 2000);
+                    }
+                }
+            }
+        }
+    };
+
+    const toggleVideo = async () => {
+        const localPeer = await currentHmsInstance?.getLocalPeer();
+        if (localPeer) {
+            if (isUserVideoOn) {
+                console.log('muting personal video track...');
+                localPeer?.localVideoTrack()?.setMute(true);
+                setIsUserVideoOn(true);
+            } else {
+                console.log('unmuting personal video track...');
+                localPeer?.localVideoTrack()?.setMute(false);
+                setIsUserVideoOn(false);
+            }
+        }
+
+        setIsUserVideoOn((prevState: boolean) => !prevState);
+    };
+
+    const muteAllPeers = async () => {
+        if (currentRoomHost === user?.id) {
+            try {
+                await currentHmsInstance?.remoteMuteAllAudio();
+                if (channel === null) {
+                    console.log('User Controls channel not found');
+                    return;
+                }
+
+                channel.send({
+                    type: 'broadcast',
+                    event: 'mute-all',
+                    payload: {muteAll: true},
+                });
+            } catch (error) {
+                console.error('Failed to mute all peers or broadcast: ', error);
+            }
+        }
+    };
+
     return (
-        <View style={styles.bottombtn}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-around',
-                        }}>
-                        <Pressable onPress={toggleVideo}>
-                            {isUserVideoOn ? (
-                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                            ) : (
-                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                            )}
+        <View>
+            <View style={styles.bottombtn}>
+                <View style={styles.rowContainer}>
+                    <Pressable onPress={toggleVideo}>
+                        {isUserVideoOn ? (
+                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                        ) : (
+                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                        )}
+                    </Pressable>
+                    <Pressable onPress={toggleMic}>
+                        {isMicOn ? (
+                            <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />
+                        ) : (
+                            <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
+                        )}
+                    </Pressable>
+                    {currentRoomHost === user?.id ? (
+                        <Pressable onPress={muteAllPeers} style={styles.button}>
+                            <Text style={styles.buttonText}>Mute All</Text>
                         </Pressable>
-                        {/* <Pressable onPress={() => sayhi()}>
-                            <Icon name="chatbox-ellipses" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        </Pressable> */}
-                        <Pressable onPress={toggleMic}>
-                            {isMicOn ? (
-                                <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />
-                            ) : (
-                                <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                            )}
-                        </Pressable>
-                        {isHost ? (
-                            <Pressable onPress={muteAllPeers} style={styles.button}>
-                                <Text style={styles.buttonText}>Mute All</Text>
-                            </Pressable>
-                        ) : null}
-                    </View>
+                    ) : null}
                 </View>
-    )
+            </View>
+
+            {showRequestSentModal ? <FeedBackModal modalType="unmuteRequestSent" /> : null}
+
+            {showHostErrorModal ? <FeedBackModal modalType="hostNotInRoom" /> : null}
+
+            {showUnmuteModal && requestingUser ? (
+                <DecisionModal
+                    modalType="unmuteRequest"
+                    username={requestingUser.username}
+                    setShowDecisionModal={setShowUnmuteModal}
+                    handleAccept={() => requestMicUnmute(true, user?.id, 'reqans', requestingUser)}
+                />
+            ) : null}
+        </View>
+    );
 };
 
 export default UserControls;
@@ -130,5 +181,9 @@ const styles = StyleSheet.create({
     bottombtn: {
         paddingTop: 10,
         position: 'relative',
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
     },
 });

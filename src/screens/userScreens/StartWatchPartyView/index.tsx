@@ -1,10 +1,9 @@
-import {View, SafeAreaView, StatusBar} from 'react-native';
+import {View, SafeAreaView, Platform} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {SIZES} from '../../../../assets/constants';
-import {RouteProp, useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
 import {useState, useRef, useEffect} from 'react';
-import {StackNavigationProp} from '@react-navigation/stack';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import {supabaseRealtime} from '../../../../lib/supabase';
@@ -15,16 +14,11 @@ import {
     HMSPeer,
     HMSPeerUpdate,
     HMSRoom,
-    HMSRoomUpdate,
     HMSSDK,
     HMSTrack,
-    HMSTrackSource,
     HMSTrackType,
     HMSTrackUpdate,
     HMSUpdateListenerActions,
-    HMSVideoViewMode,
-    HMSSpeaker,
-    HMSMessage,
     HMSTrackSettings,
     HMSAudioTrackSettings,
     HMSVideoTrackSettings,
@@ -33,76 +27,34 @@ import {
     HMSAudioMode,
 } from '@100mslive/react-native-hms';
 import useAuthStore from '../../../stores/auth.store';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import Orientation from 'react-native-orientation-locker';
-import Video, {OnProgressData, OnSeekData} from 'react-native-video';
+import Video from 'react-native-video';
 import {IUserProfile} from '../../../../types';
-import {findAUser} from '../../../lib/api/user.lib';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import {supabase} from '../../../../lib/supabase';
-import UnmutePermissionPopup from './unmutepermpopup';
-import ErrorModal from './ErrorModal';
 import WatchPartyDocker from '../../../components/WatchPartyDocker';
 import MovieScreen from './MovieScreen';
 import UserVideos from './UserVideos';
 import UserControls from './UserControls';
-import HostOptionsModal from './HostOptionsModal';
-import HostTransferModal from './HostTransferModal';
-import TerminateRoomModal from './TerminateRoomModal';
-import HostLeaveRoomModal from './HostLeaveRoomModal';
-import LeaveRoomModal from './LeaveRoomModal';
 import TopContainer from './TopContainer';
-import HostNotFoundModal from './HostNotFoundModal';
-import AwaitingMicPermModal from './AwaitingMicPermModal';
-import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {getMITHostId, updateMITHostId} from '../../../lib/api/mit.lib';
-import {getCruViewHostId, updateCruViewHostId} from '../../../lib/api/cru.lib';
+import {updateMITHostId} from '../../../lib/api/mit.lib';
+import {updateCruViewHostId} from '../../../lib/api/cru.lib';
 import {VolumeManager} from 'react-native-volume-manager';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
-import { ClientTabsParams } from '../../../navigation/ClientTabNavigator';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
+import {MemberInfo, PeerTrackNode, WatchPartyViewProps} from './WatchPartyProps';
+import {
+    _updateNode,
+    _updateNodeWithPeer,
+    removeNodeWithPeerId,
+    updateHost,
+    updateMembersList,
+} from './PeersAndUserManagement';
 
-type StartWatchPartyViewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
-
-type StartWatchPartyViewRouteProp = RouteProp<NoBottomTabStackParams, 'StartWatchPartyView'>;
-
-type Props = {
-    navigation: StartWatchPartyViewNavigationProp;
-    route: StartWatchPartyViewRouteProp;
-    movieName: string;
-    movieId: string;
-    roomId: string;
-    roomAuthToken: string;
-    micInitialState: boolean;
-    cameraInitialState: boolean;
-    isHost: boolean;
-    inviteId: any;
-    creator: any;
-    invitee: any;
-    Timezone: string;
-    Movietime: string;
-    cru: any;
-    type: any;
-};
-
-type PeerTrackNode = {
-    id: string;
-    peer: HMSPeer;
-    track: HMSTrack | undefined;
-};
-
-type MemberInfo = {
-    peerID: string | undefined;
-    role: string | undefined;
-    name: string | undefined;
-    isLocal: boolean | undefined;
-    user: IUserProfile;
-};
-
-const StartWatchPartyView = ({navigation, route}: Props) => {
+const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
     const navigationToProfile = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
@@ -112,7 +64,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const creatorID = route.params?.creatorId ?? null;
     const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
 
-    let isHost = route.params?.isHost;
     const movieId = route.params?.movieId;
     const roomId = route.params?.roomId;
     const roomAuthToken = route.params?.roomAuthToken;
@@ -120,7 +71,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const cameraInitialState = route.params?.cameraInitialState;
     const timezone = route.params?.Timezone;
     const movieTime = route.params?.Movietime;
-    const cru = route.params?.cru;
     const viewtype = route.params?.type;
 
     const [movie, setMovie] = useState<IMovie | null>(null);
@@ -133,19 +83,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
-    const [expandedVideo, setExpandedVideo] = useState<Video | null>(null);
+    const [expandedVideo, setExpandedVideo] = useState<PeerTrackNode | null>(null);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
-    const [terminateRoom, setTerminateRoom] = useState(false);
-    const [leaveRoom, setLeaveRoom] = useState(false);
     const [members, setMembers] = useState<MemberInfo[] | []>([]);
-    const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
-    const [peersMuteStatus, setPeersMuteStatus] = useState({});
-    const [isStreamHost, setIsStreamHost] = useState(false);
-    const [selectedMemberForHost, setSelectedMemberForHost] = useState<any>();
+    const [peersMuteStatus, setPeersMuteStatus] = useState<{[key: string]: boolean | undefined}>({});
     const [Timezone] = useState<string>(timezone);
     const [Movietime] = useState<string>(movieTime);
-    const [showDockerToHost, setShowDockerToHost] = useState(false);
-    const [optionModalVisible, setOptionModalVisible] = useState(false);
 
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
@@ -160,14 +103,9 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
     const receiverProfilePicture = isCurrentUserCreator ? user?.profilePicture : creator?.profilePicture;
     const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
-    const [unmutePermPopup, setUnmutePermissionPopup] = useState(false);
-    const [userRequest, setUserRequest] = useState(null);
-    const [popupErr, setPopupErr] = useState(false);
-    const [popupErrMsg, setPopupErrMsg] = useState('');
-    const [hostNotFound, setHostNotFound] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [requestingUser, setRequestingUser] = useState<IUserProfile | undefined>(undefined);
+    const [showUnmuteModal, setShowUnmuteModal] = useState(false);
     const [currentRoomHost, setCurrentRoomHost] = useState<string | undefined>(undefined);
-    const isStreamHostRef = useRef(isStreamHost);
     const currentRoomHostRef = useRef(currentRoomHost);
     const currentTimeRef = useRef(currentTime);
     const membersRef = useRef(members);
@@ -188,10 +126,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, [currentRoomHost]);
 
     useEffect(() => {
-        isStreamHostRef.current = isStreamHost;
-    }, [isStreamHost]);
-
-    useEffect(() => {
         currentTimeRef.current = currentTime;
     }, [currentTime]);
 
@@ -208,23 +142,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     }, [isMoviePlaying]);
 
     useEffect(() => {
-        const setTheVolume = async () => {
-            await VolumeManager.setVolume(1.0, {showUI: true});
-        };
-
-        setTheVolume();
-    }, []);
-
-    useEffect(() => {
-        setShowDockerToHost(isStreamHostRef.current);
         const channelA = supabase.channel(roomId);
         channelA
-            .on('broadcast', {event: 'movie_room'}, payload => askForPermission(payload))
-            .on('broadcast', {event: 'host-change'}, payload => syncHost(payload))
             .on('broadcast', {event: 'mute-all'}, payload => muteLocalPeer(payload))
+            .on('broadcast', {event: 'guest-mic-unmute'}, payload => handleUnmuteRequest(payload))
+            .on('broadcast', {event: 'host-change'}, payload => syncHost(payload))
             .on('broadcast', {event: 'terminate-room'}, payload => leaveTheRoom(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
+                    console.log('Subscribed to channelll - ', user?.username);
                     setChannel(channelA);
                 }
             });
@@ -233,57 +159,47 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             channelA.unsubscribe();
             setChannel(null);
         };
-    }, []);
+    }, [roomId, currentRoomHost]);
 
-    async function askForPermission(payload: any) {
-        if (isStreamHostRef.current === true && payload.payload.permtype! === 'request') {
-            setUserRequest(payload.payload.userReq!);
-            setUnmutePermissionPopup(true);
+    const muteLocalPeer = async (payload: any) => {
+        if (payload.payload.muteAll) {
+            const localPeer = await hmsInstanceRef.current?.getLocalPeer();
+            console.log('muting personal audio track...');
+            localPeer?.localAudioTrack()?.setMute(true);
+            setIsMicOn((prevState: boolean) => !prevState);
+        }
+    };
+
+    const handleUnmuteRequest = async (payload: any) => {
+        console.log(currentRoomHost === user?.id);
+        if (currentRoomHost === user?.id && payload.payload.permissionType! === 'request') {
+            setRequestingUser(payload.payload.requestedBy);
+            setShowUnmuteModal(true);
         }
         if (
-            isStreamHostRef.current !== true &&
-            payload.payload.permtype! === 'reqans' &&
-            payload.payload.userReq.id! === user.id
+            currentRoomHost !== user?.id &&
+            payload.payload.permissionType === 'reqans' &&
+            payload.payload.requestedBy.id === user?.id
         ) {
-            const perm = payload.payload.micunmuteperm;
-            if (perm === true) {
+            if (payload.payload.unmutePermissionGiven) {
                 const localPeer = await hmsInstanceRef.current?.getLocalPeer();
                 if (localPeer) {
-                    localPeer?.localAudioTrack()?.setMute(!perm);
-                    setIsMicOn(perm);
-                    setModalVisible(false);
+                    localPeer?.localAudioTrack()?.setMute(false);
+                    setIsMicOn(true);
                 }
             }
         }
-    }
-
-    const showAwaitingMicPermModal = () => {
-        setModalVisible(true);
-        setTimeout(() => {
-            setModalVisible(false);
-        }, 3000); // Modal will disappear after 3 seconds
     };
 
-    const onSend = (permGrant, userid, permtype, userReq) => {
-        if (channelll === null) {
-            console.log('Channel not found');
+    const syncHost = async (payload: any) => {
+        if (payload.payload.hostChanged) {
+            await updateHost(3, viewtype, viewId, setCurrentRoomHost);
+        } else {
             return;
-        }
-
-        if (permtype === 'request' && isStreamHostRef.current === true) {
-            return;
-        }
-        channelll.send({
-            type: 'broadcast',
-            event: 'movie_room',
-            payload: {micunmuteperm: permGrant, senderId: userid, permtype: permtype, userReq: userReq},
-        });
-        if (permtype === 'reqans' && isStreamHostRef.current === true) {
-            setUnmutePermissionPopup(false);
         }
     };
 
-    const updateHostId = async (newHostId: string) => {
+    const updateHostId = async (newHostId: string | undefined) => {
         if (viewtype === 'CRUView') {
             const hostChangeSuccess = await updateCruViewHostId(viewId, newHostId);
             return hostChangeSuccess;
@@ -295,34 +211,25 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
-    const onHostSelect = async (newHostId: string) => {
+    const onHostSelect = async (newHostId: string | undefined) => {
         const hostChangeSuccess = await updateHostId(newHostId);
 
         if (hostChangeSuccess) {
             // inform everyone that you changed the host and everyone should update their host
-            if (channelllRef.current === null) {
-                console.log('Channel not found');
+            if (channelll === null) {
+                console.log('Channel not found: ', user?.username);
                 return;
             }
 
-            channelllRef.current.send({
+            channelll.send({
                 type: 'broadcast',
                 event: 'host-change',
                 payload: {hostChanged: true},
             });
+            console.log('Broadcast sent for host change by: ', user?.username);
 
             // update who the host is on your end
-            await updateHost();
-        }
-
-        setOptionModalVisible(false);
-    };
-
-    const syncHost = async (payload: any) => {
-        if (payload.payload.hostChanged) {
-            await updateHost();
-        } else {
-            return;
+            await updateHost(3, viewtype, viewId, setCurrentRoomHost);
         }
     };
 
@@ -350,6 +257,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         }
         onMount();
+        updateHost(3, viewtype, viewId, setCurrentRoomHost);
 
         return () => {
             if (Platform.OS === 'ios') {
@@ -357,12 +265,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 VolumeManager.setMode('Default');
             }
         };
-
-    }, []);
+    }, [movieId, viewId, viewtype, currentRoomHost]);
 
     useFocusEffect(
         React.useCallback(() => {
-            if (isMoviePlayingRef.current) {
+            if (isMoviePlaying) {
                 startTimer();
             }
 
@@ -376,28 +283,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     resetTimer();
                 }
             };
-        }, [isMoviePlayingRef.current]),
+        }, [isMoviePlaying, isFocused, pauseTimer, resetTimer, startTimer]),
     );
 
     useEffect(() => {
-        // console.log('peerTrackNodes changed...');
-        // console.log(
-        //     'Current track ids:',
-        //     peerTrackNodes.map(node => node.track?.trackId),
-        // );
-
-        const updateMembersList = async () => {
-            const membersWithInfo = await getAvailableMembers();
-
-            setMembers(membersWithInfo);
-        };
-
-        updateMembersList();
+        updateMembersList(peerTrackNodes, setMembers);
     }, [peerTrackNodes]);
-
-    /*
-        ROOM HANDLERS
-    */
 
     const RestrictPartyRoom = () => {
         const room_time_limit = checkRoomTime(Timezone, Movietime);
@@ -410,92 +301,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }, Number(ROOM_VALIDATION_CHECK_TIME));
         }
     };
-
-    const muteLocalPeer = async (payload: any) => {
-        if (payload.payload.muteAll) {
-            const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-            // console.log('muting personal audio track...');
-            localPeer?.localAudioTrack()?.setMute(true);
-            setIsMicOn((prevState: boolean) => !prevState);
-        }
-    };
-
-    const muteAllPeers = async () => {
-        if (isStreamHostRef.current) {
-            try {
-                await hmsInstanceRef.current?.remoteMuteAllAudio();
-                if (channelll === null) {
-                    console.log('Channel not found');
-                    return;
-                }
-
-                channelll.send({
-                    type: 'broadcast',
-                    event: 'mute-all',
-                    payload: {muteAll: true},
-                });
-                // console.log('Broadcasted mute-all event');
-            } catch (error) {
-                console.error('Failed to mute all peers or broadcast: ', error);
-            }
-        }
-    };
-
-    function isHostAvailable() {
-        const hostInRoom = members ? members.find(member => member.user.id === currentRoomHost) : undefined;
-        if (hostInRoom) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    const toggleMic = async () => {
-        const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-        if (localPeer) {
-            if (isMicOn) {
-                // console.log('muting personal audio track...');
-                localPeer?.localAudioTrack()?.setMute(true);
-                setIsMicOn((prevState: boolean) => !prevState);
-            } else {
-                if (isStreamHostRef.current) {
-                    // console.log('unmuting personal audio track...');
-                    localPeer?.localAudioTrack()?.setMute(false);
-                    setIsMicOn((prevState: boolean) => !prevState);
-                } else {
-                    const isHostAva = isHostAvailable();
-                    if (isHostAva) {
-                        onSend(null, null, 'request', user);
-                        showAwaitingMicPermModal();
-                    } else {
-                        setPopupErr(true);
-                        setPopupErrMsg('Host not available. Please wait for the host to join!');
-                    }
-                }
-            }
-        }
-    };
-
-    const toggleVideo = async () => {
-        const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-        if (localPeer) {
-            if (isUserVideoOn) {
-                // console.log('muting personal video track...');
-                localPeer?.localVideoTrack()?.setMute(true);
-                setIsUserVideoOn(true);
-            } else {
-                // console.log('unmuting personal video track...');
-                localPeer?.localVideoTrack()?.setMute(false);
-                setIsUserVideoOn(false);
-            }
-        }
-
-        setIsUserVideoOn((prevState: boolean) => !prevState);
-    };
-
-    /**
-     * ADDITIONAL METHODS
-     */
 
     const _setupRoomChannels = async () => {
         let roomChannel: RealtimeChannel | null = null;
@@ -515,7 +320,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
             roomChannelRef.current = roomChannel;
             syncChannelRef.current = syncChannel;
-            // console.log('Created room and sync channels');
 
             __handleRoomChannelEventsAndSubscribe();
         }
@@ -556,23 +360,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_JOIN, __onJoinListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_PEER_UPDATE, __onPeerListener);
                 hmsInstance.addEventListener(HMSUpdateListenerActions.ON_TRACK_UPDATE, __onTrackListener);
-                hmsInstance.addEventListener(HMSUpdateListenerActions.ON_ROOM_UPDATE, __onRoomListener);
-                hmsInstance.addEventListener(
-                    HMSUpdateListenerActions.ON_REMOVED_FROM_ROOM,
-                    __onRemovedFromRoomListener,
-                );
-                hmsInstance.addEventListener(HMSUpdateListenerActions.ON_SPEAKER, __onSpeakerListener);
-                hmsInstance.addEventListener(HMSUpdateListenerActions.ON_MESSAGE, __onMessageListener);
-                hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTED, __onReconnectedListener);
-                hmsInstance.addEventListener(HMSUpdateListenerActions.RECONNECTING, __onReconnectingListener);
 
                 if (roomAuthToken && user) {
                     let config = new HMSConfig({
                         authToken: roomAuthToken,
                         username: user.username,
                     });
-
-                    // console.log('Joining the call...');
 
                     hmsInstance.join(config);
                 }
@@ -582,7 +375,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
     const leaveTheRoom = async (payload: any) => {
         if (payload.payload.terminate) {
-            await _handleRoomLeave();
+            await handleRoomLeaving();
         }
     };
 
@@ -599,7 +392,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         });
     };
 
-    const _handleTerminateRoom = async () => {
+    const handleEndRoom = async () => {
         if (hmsInstanceRef.current) {
             try {
                 await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
@@ -617,11 +410,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
 
-            await _handleRoomLeave();
+            await handleRoomLeaving();
         }
     };
 
-    const _handleRoomLeave = async () => {
+    const handleRoomLeaving = async () => {
         if (hmsInstanceRef.current) {
             console.log('Leaving the watchparty room [StartWatchPartyView]...');
             hmsInstanceRef.current.leave();
@@ -634,33 +427,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         resetTimer();
 
-        navigationToProfile.reset({
-            index: 0,
-            routes: [{name: 'UserProfileStack'}],
-        });
+        // navigationToProfile.reset({
+        //     index: 0,
+        //     routes: [{name: 'UserProfileStack'}],
+        // });
         navigationToProfile.navigate('UserProfileStack');
-    };
-
-    const _handleCloseMovie = async () => {
-        if (videoPlayerRef.current) {
-            videoPlayerRef.current.dismissFullscreenPlayer();
-            setIsFullscreen(false);
-        }
-        setIsStreamOpen(true);
-    };
-
-    const _handleStartMovie = async () => {
-        // console.log('Starting the movie...');
-
-        if (isStreamHostRef.current && videoPlayerRef.current) {
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'start-movie',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-        }
     };
 
     const __handleRoomChannelEventsAndSubscribe = () => {
@@ -681,15 +452,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                                 syncObject = syncObject as [ISyncObject];
                                 const newCurrentTime = syncObject[0].currentTime;
                                 const isMoviePlayingFromHost = syncObject[0].isMoviePlaying;
-                                if (!isStreamHostRef.current) {
+                                if (currentRoomHost !== user?.id) {
                                     if (videoPlayerRef.current) {
-                                        // console.log('New Current Time: ', newCurrentTime);
-                                        // console.log('My current time: ', currentTimeRef.current);
-                                        const timeDifference = Math.abs(newCurrentTime - currentTimeRef.current);
-                                        if (timeDifference > 1.5 || !currentTimeRef.current) { // Sync if the difference is greater than 5 seconds
-                                            // console.log(
-                                            //     `SYNC State [${isSyncedWithHost.current}]: Guest is out of sync by ${timeDifference} seconds. Syncing video player to ${newCurrentTime} seconds... host play status [${isMoviePlayingFromHost}]`,
-                                            // );
+                                        const currentPlayBackTime = currentTimeRef.current ?? 0;
+                                        const timeDifference = Math.abs(newCurrentTime - currentPlayBackTime);
+                                        if (timeDifference > 1.5 || !currentTimeRef.current) {
+                                            // Sync if the difference is greater than 5 seconds
                                             videoPlayerRef.current?.seek(newCurrentTime); // Seek guest's player to host's time
                                             setCurrentTime(newCurrentTime);
                                             setIsMoviePlaying(isMoviePlayingFromHost);
@@ -710,33 +478,33 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
 
         if (roomChannelRef.current) {
             roomChannelRef.current
-                .on('broadcast', {event: 'start-movie'}, payload => {
-                    if (!isStreamHostRef.current && videoPlayerRef.current) {
+                .on('broadcast', {event: 'start-movie'}, () => {
+                    if (currentRoomHost !== user?.id && videoPlayerRef.current) {
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
-                .on('broadcast', {event: 'play-movie'}, payload => {
-                    if (!isStreamHostRef.current && videoPlayerRef.current) {
+                .on('broadcast', {event: 'play-movie'}, () => {
+                    if (currentRoomHost !== user?.id && videoPlayerRef.current) {
                         setIsStreamOpen(false);
                         setIsMoviePlaying(true);
                     }
                 })
-                .on('broadcast', {event: 'pause-movie'}, payload => {
-                    if (!isStreamHostRef.current && videoPlayerRef.current) {
+                .on('broadcast', {event: 'pause-movie'}, () => {
+                    if (currentRoomHost !== user?.id && videoPlayerRef.current) {
                         setIsMoviePlaying(false);
                     }
                 })
                 .on('broadcast', {event: 'seek-movie'}, payload => {
-                    if (!isStreamHostRef.current && videoPlayerRef.current) {
+                    if (currentRoomHost !== user?.id && videoPlayerRef.current) {
                         videoPlayerRef.current.seek(Number(payload.payload.seekTime));
                     }
                 })
                 .on('broadcast', {event: 'close-movie'}, payload => {
                     console.log(payload);
                 })
-                .on('broadcast', {event: 'exit-movie'}, payload => {
-                    if (!isStreamHostRef.current && videoPlayerRef.current) {
+                .on('broadcast', {event: 'exit-movie'}, () => {
+                    if (currentRoomHost !== user?.id && videoPlayerRef.current) {
                         setIsFullscreen(false);
                         Orientation.lockToPortrait();
                     }
@@ -755,87 +523,7 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                     }
                 })
                 .subscribe();
-
-            console.log('Subscribed to room channel');
         }
-    };
-
-    const getPeerTrackNodeId = (peer: HMSPeer, track: HMSTrack | undefined) => {
-        return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
-    };
-
-    const createPeerTrackNode = (peer: HMSPeer, track?: HMSTrack | undefined): PeerTrackNode => {
-        let isVideoTrack = false;
-        if (track && track?.type === HMSTrackType.VIDEO) {
-            isVideoTrack = true;
-        }
-        const videoTrack = isVideoTrack ? track : undefined;
-        return {
-            id: getPeerTrackNodeId(peer, track),
-            peer: peer,
-            track: videoTrack,
-        };
-    };
-
-    const removeNodeWithPeerId = (nodes: PeerTrackNode[], peerID: string) => {
-        return nodes.filter(node => node.peer.peerID !== peerID);
-    };
-
-    const _updateNode = (data: {
-        nodes: PeerTrackNode[];
-        peer: HMSPeer;
-        track: HMSTrack | undefined;
-        createNew?: boolean;
-    }): PeerTrackNode[] => {
-        const {nodes, peer, track, createNew = false} = data;
-
-        const uniqueId = getPeerTrackNodeId(peer, track);
-
-        const nodeExists = nodes.some(node => node.id === uniqueId);
-
-        if (nodeExists) {
-            return nodes.map(node => {
-                if (node.id === uniqueId) {
-                    return {...node, peer, track};
-                }
-                return node;
-            });
-        }
-
-        if (!createNew) {
-            return nodes;
-        }
-
-        if (peer.isLocal) {
-            return [createPeerTrackNode(peer, track), ...nodes];
-        }
-
-        return [...nodes, createPeerTrackNode(peer, track)];
-    };
-
-    const _updateNodeWithPeer = (data: {nodes: PeerTrackNode[]; peer: HMSPeer; createNew?: boolean}) => {
-        const {nodes, peer, createNew = false} = data;
-
-        const peerExists = nodes.some(node => node.peer.peerID === peer.peerID);
-
-        if (peerExists) {
-            return nodes.map(node => {
-                if (node.peer.peerID === peer.peerID) {
-                    return {...node, peer};
-                }
-                return node;
-            });
-        }
-
-        if (!createNew) {
-            return nodes;
-        }
-
-        if (peer.isLocal) {
-            return [createPeerTrackNode(peer), ...nodes];
-        }
-
-        return [...nodes, createPeerTrackNode(peer)];
     };
 
     /*
@@ -843,11 +531,11 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
     */
 
     const __onErrorListener = (data: HMSException) => {
-        console.log('=== 100ms Error ===:', data);
+        // console.log('=== 100ms Error ===:', data);
 
         if (data.code === 1003 || data.code === 4005) {
             console.log('User failed to reconnect...');
-            _handleRoomLeave();
+            handleRoomLeaving();
         }
     };
 
@@ -855,7 +543,6 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         const {localPeer, peers} = data.room;
 
         if (localPeer) {
-            // console.log(`OWN video track Added [__onJoin]: ${localPeer.videoTrack?.trackId}`);
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
                     nodes: prevPeerTrackNodes,
@@ -890,59 +577,10 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
             }
         });
 
-        await updateHost();
-    };
-
-    const getHostId = async () => {
-        if (viewtype === 'CRUView') {
-            const hostId = await getCruViewHostId(viewId);
-            return hostId;
-        }
-
-        if (viewtype === 'MITInvite') {
-            const hostId = await getMITHostId(viewId);
-            return hostId;
-        }
-    };
-
-    const updateHost = async (maxRetries = 3) => {
-        let attempts = 0;
-
-        while (attempts < maxRetries) {
-            const hostId = await getHostId();
-
-            if (hostId) {
-                setCurrentRoomHost(hostId);
-
-                if (hostId === user?.id) {
-                    setIsStreamHost(true);
-                } else {
-                    setIsStreamHost(false);
-                }
-
-                return;
-            } else {
-                console.log('No host ID was found. Retrying...');
-                attempts++;
-            }
-        }
-
-        setHostNotFound(true);
+        await updateHost(3, viewtype, viewId, setCurrentRoomHost);
     };
 
     const __onPeerListener = async ({peer, type}: {peer: HMSPeer; type: HMSPeerUpdate}) => {
-        // console.log('HMS Peer Update: ', type);
-
-        if (type === HMSPeerUpdate.ROLE_CHANGED) {
-            // console.log(`Peer ${peer.name} role changed to ${peer.role.name}`);
-            // Update your state management to reflect the new role
-            setMembers(prevMembers =>
-                prevMembers.map(member => (member.peerID === peer.peerID ? {...member, role: peer.role.name} : member)),
-            );
-
-            return;
-        }
-
         if (type === HMSPeerUpdate.PEER_JOINED) {
             setPeerTrackNodes(prevPeerTrackNodes =>
                 _updateNode({
@@ -968,24 +606,16 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         if (type === HMSPeerUpdate.PEER_LEFT) {
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
             const userThatLeft = membersRef.current.find(member => member.peerID === peer.peerID);
-            if (userThatLeft.user.id === currentRoomHostRef.current) {
-                const peersInRoom = (await hmsInstanceRef.current?.getRoom()).peers;
-                const newHost = membersRef.current.find(member => member.peerID === peersInRoom[0].peerID);
-                if (newHost?.user.id === user?.id) {
-                    onHostSelect(user?.id);
+            console.log('currentRoomHost - ', user?.username, currentRoomHost);
+            if (userThatLeft?.user.id === currentRoomHost) {
+                const peersInRoom = (await hmsInstanceRef.current?.getRoom())?.peers;
+                if (peersInRoom && peersInRoom.length > 0) {
+                    const newHost = membersRef.current.find(member => member.peerID === peersInRoom[0].peerID);
+                    if (newHost?.user.id === user?.id) {
+                        onHostSelect(user?.id);
+                    }
                 }
             }
-            return;
-        }
-
-        if (
-            type === HMSPeerUpdate.ROLE_CHANGED ||
-            type === HMSPeerUpdate.METADATA_CHANGED ||
-            type === HMSPeerUpdate.NAME_CHANGED ||
-            type === HMSPeerUpdate.NETWORK_QUALITY_UPDATED
-        ) {
-            // console.log('Peer Role, Metadata, Name or Network Quality changed for peer:', peer.name);
-
             return;
         }
 
@@ -1012,18 +642,12 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
 
-            if (type === HMSTrackUpdate.TRACK_REMOVED) {
-                // console.log(`${peer.name}s' video track Removed: ${track.trackId}`);
-                // console.log(`Remove HMSView rendering trackId: ${track.trackId}`);
-            }
-
             if (
                 type === HMSTrackUpdate.TRACK_MUTED ||
                 type === HMSTrackUpdate.TRACK_UNMUTED ||
                 type === HMSTrackUpdate.TRACK_RESTORED ||
                 type === HMSTrackUpdate.TRACK_DEGRADED
             ) {
-                // console.log(`Update UI to show Muted/Unmuted/Degraded/Restored updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
@@ -1041,26 +665,15 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
                 }
             }
 
-            if (type === HMSTrackUpdate.TRACK_REMOVED) {
-                // console.log(`${peer.name}s' audio track Removed: ${track.trackId}`);
-                // console.log(`Remove Audio Track playing trackId: ${track.trackId}`);
-            }
-
             if (type === HMSTrackUpdate.TRACK_MUTED) {
-                // console.log(`Update UI to show Audio Muted updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
             }
             if (type === HMSTrackUpdate.TRACK_UNMUTED) {
-                // console.log(`Update UI to show Audio Unmuted updates: ${track.trackId}`);
                 setPeerTrackNodes(prevPeerTrackNodes =>
                     _updateNodeWithPeer({nodes: prevPeerTrackNodes, peer, createNew: true}),
                 );
-            }
-
-            if (type === HMSTrackUpdate.TRACK_RESTORED || type === HMSTrackUpdate.TRACK_DEGRADED) {
-                // console.log(`Update UI to show Audio Muted/Unmuted updates: ${track.trackId}`);
             }
 
             if (type === HMSTrackUpdate.TRACK_MUTED || type === HMSTrackUpdate.TRACK_UNMUTED) {
@@ -1078,365 +691,83 @@ const StartWatchPartyView = ({navigation, route}: Props) => {
         }
     };
 
-    const __onRoomListener = ({room, type}: {room: HMSRoom; type: HMSRoomUpdate}) => {};
-    const __onRemovedFromRoomListener = async (data: any) => {
-        console.log('onRemovedFromRoomListener triggered');
+    return (
+        <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
+            {!isFullscreen && (
+                // eslint-disable-next-line react-native/no-inline-styles
+                <View style={{zIndex: 20}}>
+                    <WatchPartyHeader />
+                </View>
+            )}
 
-        if (data?.roomEnded) {
-            await setIsMoviePlaying(false);
-
-            await _handleCloseMovie();
-
-            await _handleRoomLeave();
-        }
-    };
-
-    const __onMessageListener = (data: HMSMessage) => {};
-    const __onSpeakerListener = (data: HMSSpeaker[]) => {};
-    const __onReconnectedListener = (data: any) => {};
-    const __onReconnectingListener = (data: any) => {};
-
-    /*
-        WatchParty Video Player Sync Methods
-    */
-
-    const ___onPlay = () => {
-        if (isStreamHostRef.current && videoPlayerRef.current) {
-            setIsMoviePlaying(true);
-
-            StatusBar.setHidden(true);
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'play-movie',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-        }
-    };
-
-    const ___onPause = () => {
-        if (isStreamHostRef.current && videoPlayerRef.current) {
-            setIsMoviePlaying(false);
-
-            StatusBar.setHidden(false);
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'pause-movie',
-                payload: {
-                    timestamp: new Date().toISOString(),
-                },
-            });
-        }
-    };
-
-    const ___onSeek = (data: OnSeekData) => {
-        if (isStreamHostRef.current && videoPlayerRef.current) {
-            roomChannelRef.current?.send({
-                type: 'broadcast',
-                event: 'seek-movie',
-                payload: {
-                    currentTime: data.currentTime,
-                    seekTime: data.seekTime,
-                    timestamp: new Date().toISOString(),
-                },
-            });
-        }
-
-        resetTimer();
-        startTimer();
-    };
-
-    const ___onProgress = async (data: OnProgressData) => {
-        if (isStreamHostRef.current && Number(data.currentTime.toFixed(1)) % 5 === 0) {
-            await syncChannelRef.current?.track({
-                isMoviePlaying: true,
-                currentTime: data.currentTime,
-                timestamp: new Date().toISOString(),
-            });
-        }
-
-        setCurrentTime(data.currentTime);
-    };
-
-    const ___onEnterFullscreen = () => {
-        setIsFullscreen(true);
-
-        StatusBar.setHidden(true);
-        Orientation.lockToLandscape();
-
-        hideNavigationBar();
-        if (videoPlayerRef.current && !isMoviePlayingRef.current) {
-            if (isStreamHostRef.current) {
-                setIsMoviePlaying(true);
-            } else {
-                if (isSyncedWithHost.current) {
-                    setIsMoviePlaying(true);
-                }
-            }
-        }
-
-        // setTimeout(() => {
-        //     if (videoPlayerRef.current && currentTime) {
-        //         console.log(' you clicked enter FS... seeking to:', currentTime);
-        //         videoPlayerRef.current.seek(currentTime);
-        //     }
-        // }, 2000);
-    };
-
-    const ___onExitFullScreen = () => {
-        setIsFullscreen(false);
-        StatusBar.setHidden(false);
-        Orientation.lockToPortrait();
-
-        showNavigationBar();
-        // setTimeout(() => {
-        //     if (videoPlayerRef.current && currentTime) {
-        //         console.log(' you clicked exit FS... seeking to:', currentTime);
-        //         videoPlayerRef.current.seek(currentTime);
-        //     }
-        // }, 2000);
-
-        if (videoPlayerRef.current && !isMoviePlayingRef.current) {
-            if (isStreamHostRef.current) {
-                setIsMoviePlaying(true);
-            } else {
-                if (isSyncedWithHost.current) {
-                    setIsMoviePlaying(true);
-                }
-            }
-        }
-    };
-    
-    //open options Modal
-    const handleOptionModal = () => {
-        setOptionModalVisible(true);
-    };
-
-    const confirmOptions = () => {
-        setOptionModalVisible(false);
-        setLeaveRoom(false);
-    };
-
-    const getAvailableMembers = async () => {
-        let membersWithInfo: MemberInfo[] = [];
-        const memberUserNames: {name: string; peer: HMSPeer}[] = [];
-        await Promise.all(
-            peerTrackNodes.map(async ({id, peer, track}) => {
-                if (!memberUserNames.includes({name: peer.name, peer})) {
-                    memberUserNames.push({name: peer.name, peer});
-                }
-            }),
-        );
-
-        await Promise.all(
-            memberUserNames.map(async ({name, peer}) => {
-                const userInfoFromDB = await findAUser({username: name});
-
-                if (userInfoFromDB) {
-                    membersWithInfo.push({
-                        peerID: peer.peerID,
-                        role: peer.role?.name,
-                        name: peer.name,
-                        isLocal: peer.isLocal,
-                        user: userInfoFromDB,
-                    });
-                }
-            }),
-        );
-
-        return membersWithInfo;
-    };
-
-    const handleCancelTransfer = () => {
-        setShowTransferConfirmation(false);
-    };
-
-    const handleTransfer = async () => {
-        setShowTransferConfirmation(false);
-        if (isStreamHostRef.current) {
-            const newHostId = selectedMemberForHost.user.id;
-            onHostSelect(newHostId);
-        }
-    };
-
-    const handleCancelRoomTermination = () => {
-        setTerminateRoom(false);
-    };
-    const handleRoomTermination = async () => {
-        if (hmsInstanceRef.current) {
-            console.log('CLOSE ROOM AS HOST');
-            confirmOptions();
-
-            setTerminateRoom(true);
-            setIsMoviePlaying(false);
-        }
-    };
-
-    const handleCancelLeaveRoom = () => {
-        setLeaveRoom(false);
-    };
-
-    const handleLeaveRoom = async () => {
-        setLeaveRoom(true);
-    };
-
-    const sayhi = () => {
-        if (viewtype == 'CRUView') {
-            navigation.navigate('ViewGroupChat', {
-                isMyCruChat: false,
-                cru: cru,
-            });
-        } else {
-            const isCurrentUserCreator = user?.id === creatorID;
-            const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-            const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
-            const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
-            console.log('Watch Party', {
-                mItInviteId: mitId,
-                userId: receiverUserId,
-                profilePicture: receiverProfilePicture,
-                username: receiverUsername,
-            });
-            navigation.navigate('ViewChat', {
-                mItInviteId: mitId,
-                userId: receiverUserId,
-                profilePicture: receiverProfilePicture,
-                username: receiverUsername,
-            });
-        }
-    };
-
-    const handleCloseError = () => {
-        setPopupErrMsg('');
-        setPopupErr(false);
-    };
-
-    const watchPartyView = () => {
-        return (
-            <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
-                {!isFullscreen && (
-                    <View style={{zIndex: 20}}>
-                        <WatchPartyHeader />
-                    </View>
-                )}
-
-                {!isFullscreen && (
-                    <TopContainer
-                        handleLeaveRoom={handleLeaveRoom} 
-                        isStreamOpen={isStreamOpen} 
-                        isHost={isStreamHostRef.current} 
-                        handleOptionModal={handleOptionModal}
-                    />
-                )}
-
-                <MovieScreen
-                    onPress={_handleStartMovie}
-                    isStreamOpen={isStreamOpen}
-                    isHost={isStreamHostRef.current}
-                    movie={movie}
-                    roomChannelRef={roomChannelRef}
-                    hasLottieFirstLoopCompleted={hasLottieFirstLoopCompleted}
-                    isFullscreen={isFullscreen}
-                    videoPlayerRef={videoPlayerRef}
-                    isMoviePlaying={isMoviePlaying}
-                    onProgress={___onProgress}
-                    onPlay={___onPlay}
-                    onPause={___onPause}
-                    onSeek={___onSeek}
-                    onEnterFullScreen={___onEnterFullscreen}
-                    onExitFullScreen={___onExitFullScreen}
-                    setHasLottieFirstLoopCompleted={setHasLottieFirstLoopCompleted}
-                />
-
-                <UserVideos
-                    hmsInstanceRef={hmsInstanceRef}
-                    peerTrackNodes={peerTrackNodes}
-                    expandedVideo={expandedVideo}
-                    setExpandedVideo={setExpandedVideo}
-                    peersMuteStatus={peersMuteStatus}
-                    currentRoomHost={currentRoomHostRef.current}
-                    members={members}
-                />
-
-                <UserControls
-                    toggleVideo={toggleVideo}
-                    isUserVideoOn={isUserVideoOn} 
-                    toggleMic={toggleMic} 
-                    isMicOn={isMicOn} 
-                    isHost={isStreamHostRef.current}
-                    muteAllPeers={muteAllPeers} 
-                    sayhi={sayhi}
-                />
-
-                <HostOptionsModal
-                    optionModalVisible={optionModalVisible}
-                    members={members} 
-                    setShowTransferConfirmation={setShowTransferConfirmation} 
-                    isHost={isStreamHostRef.current} 
-                    handleRoomTermination={handleRoomTermination}
-                    confirmOptions={confirmOptions}
-                    setSelectedMemberForHost={setSelectedMemberForHost}
+            {!isFullscreen && (
+                <TopContainer
                     currentRoomHost={currentRoomHost}
+                    user={user}
+                    members={members}
+                    handleRoomLeaving={handleRoomLeaving}
+                    handleEndRoom={handleEndRoom}
+                    handleChangeHost={onHostSelect}
                 />
+            )}
 
-                <HostTransferModal
-                    showTransferConfirmation={showTransferConfirmation}
-                    selectedMemberForHost={selectedMemberForHost} 
-                    handleCancelTransfer={handleCancelTransfer} 
-                    handleTransfer={handleTransfer}
-                />
+            <MovieScreen
+                currentRoomHost={currentRoomHost}
+                user={user}
+                isStreamOpen={isStreamOpen}
+                movie={movie}
+                isSyncedWithHost={isSyncedWithHost}
+                isFullscreen={isFullscreen}
+                setIsFullscreen={setIsFullscreen}
+                isMoviePlaying={isMoviePlaying}
+                setIsMoviePlaying={setIsMoviePlaying}
+                hasLottieFirstLoopCompleted={hasLottieFirstLoopCompleted}
+                setHasLottieFirstLoopCompleted={setHasLottieFirstLoopCompleted}
+                setCurrentTime={setCurrentTime}
+                roomChannelRef={roomChannelRef}
+                videoPlayerRef={videoPlayerRef}
+                syncChannelRef={syncChannelRef}
+            />
 
-                <TerminateRoomModal
-                    terminateRoom={terminateRoom} 
-                    _handleTerminateRoom={_handleTerminateRoom} 
-                    handleCancelRoomTermination={handleCancelRoomTermination}
-                />
-
-                {isStreamHostRef.current ? (
-                    <HostLeaveRoomModal
-                        leaveRoom={leaveRoom} 
-                        handleOptionModal={handleOptionModal}
-                        handleRoomTermination={handleRoomTermination} 
-                        handleCancelLeaveRoom={handleCancelLeaveRoom}
+            {currentRoomHost ? (
+                !isFullscreen ? (
+                    <UserVideos
+                        currentHmsInstance={hmsInstanceRef.current}
+                        peerTrackNodes={peerTrackNodes}
+                        expandedVideo={expandedVideo}
+                        setExpandedVideo={setExpandedVideo}
+                        peersMuteStatus={peersMuteStatus}
+                        currentRoomHost={currentRoomHost}
+                        members={members}
                     />
                 ) : (
-                    <LeaveRoomModal
-                        leaveRoom={leaveRoom} 
-                        _handleRoomLeave={_handleRoomLeave} 
-                        handleCancelLeaveRoom={handleCancelLeaveRoom}
+                    <WatchPartyDocker
+                        members={members}
+                        hmsInstanceRef={hmsInstanceRef}
+                        peersMuteStatus={peersMuteStatus}
+                        currentRoomHost={currentRoomHost}
+                        peerTrackNodes={peerTrackNodes}
                     />
-                )}
+                )
+            ) : null}
 
-                {hostNotFound ? <HostNotFoundModal setHostNotFound={setHostNotFound} /> : null}
-
-                {modalVisible ? <AwaitingMicPermModal /> : null}
-
-                {unmutePermPopup ? (
-                    <UnmutePermissionPopup
-                        handleCancel={() => onSend(false, userRequest.id, 'reqans', userRequest)}
-                        handleUnmute={() => onSend(true, userRequest.id, 'reqans', userRequest)}
-                        userdata={userRequest}
-                    />
-                ) : null}
-                {popupErr ? <ErrorModal errorMessage={popupErrMsg} onClose={handleCloseError} /> : null}
-            </View>
-        );
-    };
-
-    return isFullscreen ? (
-        <View>
-            {watchPartyView()}
-            <WatchPartyDocker
-                hmsInstanceRef={hmsInstanceRef}
-                peersMuteStatus={peersMuteStatus}
-                currentRoomHost={currentRoomHostRef.current}
-                members={membersRef.current}
-                peerTrackNodes={peerTrackNodes}
-            />
+            {currentRoomHost && !isFullscreen ? (
+                <UserControls
+                    channel={channelll}
+                    currentRoomHost={currentRoomHost}
+                    members={members}
+                    user={user}
+                    requestingUser={requestingUser}
+                    showUnmuteModal={showUnmuteModal}
+                    setShowUnmuteModal={setShowUnmuteModal}
+                    isUserVideoOn={isUserVideoOn}
+                    setIsUserVideoOn={setIsUserVideoOn}
+                    isMicOn={isMicOn}
+                    setIsMicOn={setIsMicOn}
+                    currentHmsInstance={hmsInstanceRef.current}
+                />
+            ) : null}
         </View>
-    ) : (
-        <SafeAreaView>{isLoading ? null : watchPartyView()}</SafeAreaView>
     );
 };
 

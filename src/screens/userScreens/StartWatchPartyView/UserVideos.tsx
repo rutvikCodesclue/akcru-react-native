@@ -1,48 +1,30 @@
-import {Text, View, TouchableOpacity, Pressable, FlatList} from 'react-native';
+import {Text, View, TouchableOpacity, Pressable, FlatList, StyleSheet} from 'react-native';
 import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {HMSVideoViewMode} from '@100mslive/react-native-hms';
-
-interface Props {
-    hmsInstanceRef: any;
-    peerTrackNodes: any;
-    expandedVideo: any;
-    setExpandedVideo: any;
-    peersMuteStatus: any;
-    currentRoomHost: any;
-    members: any;
-}
+import {UserVideosProps} from './WatchPartyProps';
 
 const UserVideos = ({
-    hmsInstanceRef,
+    currentHmsInstance,
     peerTrackNodes,
     expandedVideo,
     setExpandedVideo,
     peersMuteStatus,
     currentRoomHost,
     members,
-}: Props) => {
+}: UserVideosProps) => {
     return (
-        <View
-            style={{
-                width: SIZES.ScreenWidth * 0.95,
-                height: (SIZES.ScreenWidth / 3) * 2.6,
-                marginTop: SIZES.ScreenHeight * 0.3,
-
-                alignSelf: 'center',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
-            {hmsInstanceRef.current ? (
+        <View style={styles.container}>
+            {currentHmsInstance ? (
                 <FlatList
                     scrollEnabled={true}
-                    style={{height: '100%', width: '100%'}}
+                    style={styles.flatList}
                     key={peerTrackNodes.length}
                     numColumns={3}
                     data={peerTrackNodes}
                     keyExtractor={node => node.id}
-                    contentContainerStyle={{flexGrow: 1}}
+                    contentContainerStyle={styles.contentContainer}
                     renderItem={({item}) => {
                         const isExpanded = expandedVideo === item;
                         let showHostBadge = false;
@@ -57,50 +39,29 @@ const UserVideos = ({
                             }
                         }
 
-                        return hmsInstanceRef.current ? (
+                        return currentHmsInstance ? (
                             <View
-                                style={{
-                                    width: isExpanded ? SIZES.ScreenWidth * 0.95 : SIZES.ScreenWidth / 3.2,
-                                    height: isExpanded ? (SIZES.ScreenWidth / 3) * 2.6 : SIZES.ScreenWidth / 2.5,
-                                    backgroundColor: 'red',
-                                    flex: isExpanded ? 1 : 0,
-                                    position: isExpanded ? 'absolute' : 'relative',
-                                    zIndex: isExpanded ? 99 : 0,
-                                    bottom: 0,
-                                    top: 0,
-                                    borderColor: COLORS.CATPURPLGT,
-                                    borderWidth: 4,
-                                }}>
+                                style={[
+                                    styles.videoContainer,
+                                    isExpanded ? styles.expandedVideoContainer : styles.collapsedVideoContainer,
+                                ]}>
                                 {item.peer.videoTrack?.trackId ? (
-                                    <hmsInstanceRef.current.HmsView
+                                    <currentHmsInstance.HmsView
                                         key={item.peer.peerID}
                                         trackId={item.peer.videoTrack.trackId}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            backgroundColor: 'black',
-                                        }}
+                                        style={styles.hmsView}
                                         scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                                         mirror={true}
                                     />
                                 ) : null}
 
                                 {showHostBadge ? (
-                                    <View style={{position: 'absolute', top: 0, right: 0}}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.paragraph1,
-                                                backgroundColor: COLORS.AKCRUBLUE,
-                                                paddingHorizontal: 5,
-                                                paddingVertical: 2,
-                                                borderBottomLeftRadius: 4,
-                                            }}>
-                                            {'Host'}
-                                        </Text>
+                                    <View style={styles.hostBadge}>
+                                        <Text style={styles.hostBadgeText}>{'Host'}</Text>
                                     </View>
                                 ) : null}
 
-                                <View style={{position: 'absolute', top: 0, left: 0}}>
+                                <View style={styles.expandIconContainer}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             if (isExpanded) {
@@ -120,24 +81,9 @@ const UserVideos = ({
                                     </TouchableOpacity>
                                 </View>
 
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        left: 0,
-                                        backgroundColor: COLORS.TRANSDARKGREY,
-                                        width: '100%',
-                                        borderTopLeftRadius: 5,
-                                        borderTopRightRadius: 5,
-                                    }}>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-between',
-                                            paddingHorizontal: 3,
-                                            paddingVertical: 5,
-                                        }}>
-                                        <Text style={{...FONTS.paragraph1, paddingVertical: 4}}>
+                                <View style={styles.muteStatusContainer}>
+                                    <View style={styles.muteStatusContent}>
+                                        <Text style={styles.peerName}>
                                             {isExpanded
                                                 ? item.peer.name
                                                 : item.peer.name.length > 8
@@ -148,7 +94,7 @@ const UserVideos = ({
                                             <Icon
                                                 name={
                                                     peersMuteStatus[item.peer.peerID] === undefined ||
-                                                    peersMuteStatus[item.peer.peerID] == true
+                                                    peersMuteStatus[item.peer.peerID] === true
                                                         ? 'mic-off-circle'
                                                         : 'mic-circle'
                                                 }
@@ -156,7 +102,7 @@ const UserVideos = ({
                                                 size={25}
                                                 color={
                                                     peersMuteStatus[item.peer.peerID] === undefined ||
-                                                    peersMuteStatus[item.peer.peerID] == true
+                                                    peersMuteStatus[item.peer.peerID] === true
                                                         ? COLORS.CATREDLGT
                                                         : COLORS.GREEN
                                                 }
@@ -169,12 +115,97 @@ const UserVideos = ({
                     }}
                 />
             ) : (
-                <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                <View style={styles.loadingContainer}>
                     <Text>Loading...</Text>
                 </View>
             )}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    container: {
+        width: SIZES.ScreenWidth * 0.95,
+        height: (SIZES.ScreenWidth / 3) * 2.6,
+        marginTop: SIZES.ScreenHeight * 0.3,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    flatList: {
+        height: '100%',
+        width: '100%',
+    },
+    contentContainer: {
+        flexGrow: 1,
+    },
+    videoContainer: {
+        backgroundColor: 'red',
+        borderColor: COLORS.CATPURPLGT,
+        borderWidth: 4,
+    },
+    expandedVideoContainer: {
+        width: SIZES.ScreenWidth * 0.95,
+        height: (SIZES.ScreenWidth / 3) * 2.6,
+        flex: 1,
+        position: 'absolute',
+        zIndex: 99,
+        bottom: 0,
+        top: 0,
+    },
+    collapsedVideoContainer: {
+        width: SIZES.ScreenWidth / 3.2,
+        height: SIZES.ScreenWidth / 2.5,
+        flex: 0,
+        position: 'relative',
+        zIndex: 0,
+    },
+    hmsView: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'black',
+    },
+    hostBadge: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+    },
+    hostBadgeText: {
+        ...FONTS.paragraph1,
+        backgroundColor: COLORS.AKCRUBLUE,
+        paddingHorizontal: 5,
+        paddingVertical: 2,
+        borderBottomLeftRadius: 4,
+    },
+    expandIconContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+    },
+    muteStatusContainer: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        backgroundColor: COLORS.TRANSDARKGREY,
+        width: '100%',
+        borderTopLeftRadius: 5,
+        borderTopRightRadius: 5,
+    },
+    muteStatusContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingHorizontal: 3,
+        paddingVertical: 5,
+    },
+    peerName: {
+        ...FONTS.paragraph1,
+        paddingVertical: 4,
+    },
+    loadingContainer: {
+        backgroundColor: '#fff',
+        width: 200,
+        height: 200,
+    },
+});
 
 export default UserVideos;
