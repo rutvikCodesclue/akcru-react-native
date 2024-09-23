@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity} from 'react-native';
+import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity, BackHandler} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -95,6 +95,22 @@ export default function ContentPlayer({navigation}: Props) {
             }
         };
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
+    useEffect(() => {
+        const backAction = () => {
+          // Unlock the orientation or reset to portrait
+          Orientation.lockToPortrait();  // Or use Orientation.unlockAllOrientations();
+    
+          if (onBack) {
+            onBack();
+          }
+    
+          return true; // Prevent default back behavior (exiting the app)
+        };
+    
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    
+        return () => backHandler.remove(); // Clean up back handler on component unmount
+      }, [onBack]);
 
     useFocusEffect(
         React.useCallback(() => {

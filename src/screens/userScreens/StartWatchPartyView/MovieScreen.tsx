@@ -205,7 +205,6 @@ const MovieScreen = ({
                                             ignoreSilentSwitch="ignore"
                                             muted={false}
                                             volume={1.0}
-                                            audioOutput="speaker"
                                             showOnStart={true}
                                             tapAnywhereToPause={false}
                                             preventsDisplaySleepDuringVideoPlayback={true}
