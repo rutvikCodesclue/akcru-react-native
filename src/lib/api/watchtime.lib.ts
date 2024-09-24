@@ -26,7 +26,6 @@ import useAuthStore from '../../stores/auth.store';
 export const updateWatchTime = async (id: string, watchTime: number, isEpisode: boolean = false): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     const endpoint = isEpisode ? `/v1/watchtime/episode/${id}` : `/v1/watchtime/movie/${id}`;
-    console.log('Updating watch time:', id, watchTime, isEpisode ? 'episode' : 'movie');
     try {
         const response = await API.put(endpoint, {watchTime});
         return response.data.success;

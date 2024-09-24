@@ -443,24 +443,6 @@ export const finishUserWatching = async (id: string, isEpisode: boolean): Promis
     }
 };
 
-
-// export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
-//     await useAuthStore.getState().hydrateAuth();
-//     console.log('Finishing user watching:', id, isEpisode ? 'episode' : 'movie');
-//     try {
-//         const response = await API.post('/v1/user/currentWatching/finish', {
-//             movieId: isEpisode ? undefined : id,
-//             episodeId: isEpisode ? id : undefined,
-//         });
-//         return response.data.success;
-//     } catch (error) {
-//         console.log("userLib Finish Error");
-        
-//         console.error('Error finishing user watching:', error);
-//         return false;
-//     }
-// };
-
 export const getUserCurrentWatching = async (userId: string): Promise<any | undefined> => {
     try {
         const {data} = await API.get(`/v1/user/currentWatching/${encodeURIComponent(userId)}`);
