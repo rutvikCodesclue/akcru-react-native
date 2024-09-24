@@ -285,15 +285,20 @@ const HomeScreen = () => {
     //     setUnfinishedMovies(updatedMovies);
     // };
 
-    useEffect(() => {
-        const loadUnfinishedContent = async () => {
-            const content = await fetchUnfinishedContent();
-            setUnfinishedContent(content);
-            setIsLoading(false);
-        };
+    useFocusEffect(
+        React.useCallback(() => {
+            console.log('Getting unfinished content');
 
-        loadUnfinishedContent();
-    }, []);
+            const loadUnfinishedContent = async () => {
+                const content = await fetchUnfinishedContent();
+                console.log('Content: ', content);
+                setUnfinishedContent(content);
+                setIsLoading(false);
+            };
+
+            loadUnfinishedContent();
+        }, []),
+    );
 
     const updateUnfinishedContent = (updatedContent: (IMovie | ISeries)[]) => {
         setUnfinishedContent(updatedContent);

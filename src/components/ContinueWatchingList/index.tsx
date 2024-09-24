@@ -81,16 +81,9 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
                             onPress={() => {
                                 console.log('id:', item.id);
                                 console.log('content:', item.title);
-                                if (item.type === 'episode') {
-                                    navigation.navigate('EpisodePlayer', {
-                                        seriesId: item.seriesId,
-                                        seasonId: item.seasonId,
-                                        episodeId: item.id,
-                                    });
-                                } else {
-                                    navigation.navigate('ResumePlayer', {
+                                if (item.type === 'movie') {
+                                    navigation.navigate('ContentPlayer', {
                                         id: item.id,
-                                        title: item.title,
                                     });
                                 }
                             }}>

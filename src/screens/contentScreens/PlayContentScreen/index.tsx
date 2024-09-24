@@ -53,7 +53,7 @@ export default function ContentPlayer({navigation}: Props) {
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
-        console.log('Play Movie');
+        console.log('Fetching the movie');
 
         const fetchMovie = async () => {
             if (movieId) {
@@ -75,25 +75,25 @@ export default function ContentPlayer({navigation}: Props) {
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
 
-        return () => {
-            console.log("Has Started Movie:", hasStartedWatching);
-            console.log("movieId:", movieId);
+        // return () => {
+        //     console.log("Has Started Movie:", hasStartedWatching);
+        //     console.log("movieId:", movieId);
             
             
-            if (hasStartedWatching && movieId) {
-                finishUserWatching(movieId, false).then(finishedSuccessfully => {
-                    if (finishedSuccessfully) {
-                        // resetTimer();
-                        pauseTimer();
-                        Orientation.lockToPortrait();
-                        StatusBar.setHidden(false);
-                    } else {
-                        console.log("In Else");
+        //     if (hasStartedWatching && movieId) {
+        //         finishUserWatching(movieId, false).then(finishedSuccessfully => {
+        //             if (finishedSuccessfully) {
+        //                 // resetTimer();
+        //                 pauseTimer();
+        //                 Orientation.lockToPortrait();
+        //                 StatusBar.setHidden(false);
+        //             } else {
+        //                 console.log("In Else");
                         
-                    }
-                });
-            }
-        };
+        //             }
+        //         });
+        //     }
+        // };
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
 
     useFocusEffect(
@@ -116,41 +116,42 @@ export default function ContentPlayer({navigation}: Props) {
     );
 
     const onLoad = () => {
-        console.log("On Load");
-        
-        setIsMoviePlaying(true);
+        console.log('Loading last playback position');
+
         StatusBar.setHidden(true);
         if (movieId) {
             getLastPlaybackPosition(movieId, isEpisode).then(lastPlaybackPosition => {
+                console.log('The last playback position is: ', lastPlaybackPosition);
                 if (videoRef.current && lastPlaybackPosition > 0) {
                     videoRef.current.seek(lastPlaybackPosition);
                 }
             });
         }
+
+        setIsMoviePlaying(true);
     };
 
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
-        console.log(`MovierId ${movieId} Current TIme ${currentTime} Has Logged Recently ${hasLoggedRecently}`);
-        
-        if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
-            setLastPlaybackPosition(movieId, currentTime, isEpisode);
-            setHasLoggedRecently(true);
-        } else if (currentTime % 10 !== 0) {
-            setHasLoggedRecently(false);
-        }
-        if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
-            syncWatchTime();
-            // Update watch time
-            updateWatchTime(movieId, currentTime, isEpisode);
+        if (currentTime) {
+            if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
+                setLastPlaybackPosition(movieId, currentTime, isEpisode);
+                setHasLoggedRecently(true);
+            } else if (currentTime % 10 !== 0) {
+                setHasLoggedRecently(false);
+            }
+            if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
+                console.log('Syncing watch time with backend');
+                syncWatchTime();
+                // Update watch time
+                updateWatchTime(movieId, currentTime, isEpisode);
+            }
         }
     };
 
     const onPlay = () => {
-        console.log('onPlay');
         setIsMoviePlaying(true);
         startTimer();
-        console.log(user?.id && movieId && hasStartedWatching);
         if (user?.id && movieId && !hasStartedWatching) {
             startUserWatching(movieId, isEpisode).then(startedSuccessfully => {
                 if (startedSuccessfully) {
@@ -164,8 +165,6 @@ export default function ContentPlayer({navigation}: Props) {
     const onPause = () => {
         setIsMoviePlaying(false);
         pauseTimer();
-        console.log("Paused");
-        console.log("On Pause Current TIme:", currentTime);
         if (movieId) {
             const pausedCurrentTime = currentTime;
 
@@ -207,16 +206,21 @@ export default function ContentPlayer({navigation}: Props) {
                     }
                 })
                 .catch(error => {
-                    console.log("This Finish error");
-                    
                     console.error('Error finishing user watching:', error);
                 });
         }
     };
 
     const onBack = () => {
+        onPause();
+
+        syncWatchTime();
+        // Update watch time
+        updateWatchTime(movieId, currentTime, isEpisode);
+        // navigation.pop();
+
         Orientation.lockToPortrait();
-        navigation.pop();
+        navigation.navigate('ClientTabNavigator', {screen: 'ClientStack'});
     };
 
     return (
@@ -266,7 +270,6 @@ export default function ContentPlayer({navigation}: Props) {
                     <AkcruOpener
                         onAnimationFinish={() => {
                             if (!hasLottieFirstLoopCompleted) {
-                                console.log('here');
                                 setHasLottieFirstLoopCompleted(true);
                             }
                         }}
