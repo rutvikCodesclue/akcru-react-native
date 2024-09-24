@@ -73,6 +73,23 @@ export const getMoreMITs = async (params: {count: number}): Promise<number | und
     }
 };
 
+// export const createAMITInvite = async (params: {
+//     movieId: string;
+//     username: string;
+//     startDate: string;
+//     timezone: string;
+// }): Promise<IMITInvite | undefined> => {
+//     try {
+//         const {movieId, username, startDate, timezone} = params;
+//         const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
+//         console.log('data', data);
+
+//         return data.invite;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
 export const createAMITInvite = async (params: {
     movieId: string;
     username: string;
@@ -81,10 +98,26 @@ export const createAMITInvite = async (params: {
 }): Promise<IMITInvite | undefined> => {
     try {
         const {movieId, username, startDate, timezone} = params;
-        const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
+
+        const dateObject = new Date(startDate);
+        const now = new Date();
+
+        if (dateObject.getTime() <= now.getTime()) {
+            dateObject.setHours(now.getHours() + 1);
+        }
+
+        const formattedStartDate = dateObject.toISOString();
+
+        // Make the API call
+        const {data} = await API.post('/v1/mit/invite/create', {
+            movieId,
+            username,
+            startDate: formattedStartDate,
+            timezone,
+        });
 
         return data.invite;
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
     }
 };
