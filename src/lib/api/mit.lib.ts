@@ -106,7 +106,7 @@ export const createAMITInvite = async (params: {
             dateObject.setHours(now.getHours() + 1);
         }
 
-        const formattedStartDate = dateObject.toISOString(); // Ensure ISO format
+        const formattedStartDate = dateObject.toISOString();
 
         // Make the API call
         const {data} = await API.post('/v1/mit/invite/create', {

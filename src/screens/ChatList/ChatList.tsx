@@ -7,7 +7,6 @@ import Header from '../../components/header';
 import UserCruChatCard from '../../components/UserCruChatCard';
 import {getUsers} from '../../lib/api/rooms.lib'; // Ensure this fetches your chat users
 import {IChatUser} from '../../../types';
-
 import {COLORS, SIZES} from '../../../assets/constants';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import BackButton from '../../components/General/backbutton';
@@ -30,12 +29,13 @@ const ChatList = () => {
                         const movieScheduledTime = new Date(item.startDate).getTime();
                         const currentTime = new Date().getTime();
 
-                        const timeRemaining = movieScheduledTime - currentTime;
+                        const threeHoursInMs = 3 * 60 * 60 * 1000;
+                        const timeToRemove = movieScheduledTime + threeHoursInMs - currentTime;
 
-                        if (timeRemaining > 0) {
+                        if (timeToRemove > 0) {
                             const timeoutId = setTimeout(() => {
                                 setChatUsersData(prevChatUsersData => prevChatUsersData.filter(u => u.id !== item.id));
-                            }, timeRemaining);
+                            }, timeToRemove);
 
                             return () => clearTimeout(timeoutId);
                         }
