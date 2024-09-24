@@ -23,7 +23,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 import AkcruOpener from '../../../components/AkcruOpener';
-import { has } from 'lodash';
+import {has} from 'lodash';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -79,19 +79,21 @@ export default function ContentPlayer({navigation}: Props) {
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
     useEffect(() => {
         const backAction = () => {
-          Orientation.lockToPortrait();  // Or use Orientation.unlockAllOrientations();
-    
-          if (onBack) {
-            onBack();
-          }
-    
-          return true; // Prevent default back behavior (exiting the app)
+            // Unlock the orientation or reset to portrait
+            Orientation.lockToPortrait(); // Or use Orientation.unlockAllOrientations();
+
+            if (onBack) {
+                onBack();
+            }
+
+            return true; // Prevent default back behavior (exiting the app)
+
         };
-    
+
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
-    
+
         return () => backHandler.remove(); // Clean up back handler on component unmount
-      }, [onBack]);
+    }, [onBack]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -169,7 +171,6 @@ export default function ContentPlayer({navigation}: Props) {
         }
     };
 
-
     const onEnd = () => {
         setIsMoviePlaying(false);
         pauseTimer();
@@ -239,6 +240,7 @@ export default function ContentPlayer({navigation}: Props) {
                                     toggleResizeModeOnFullscreen={false}
                                     poster={movie.landscapeURL}
                                     containerStyle={{zIndex: 100}}
+                                    disableFullscreen={true}
                                     onBack={onBack}
                                     paused={!isMoviePlaying}
                                     onPlay={onPlay}
@@ -271,21 +273,7 @@ export default function ContentPlayer({navigation}: Props) {
                             }
                         }}
                     />
-                    // <View style={styles.activitycontainer}>
-                    // <Video source={require('../../../../assets/sounds/akcrusound1.mp3')} repeat={false} />
-                    // <LottieView
-                    //     source={require('../../../../assets/lottie/Akcruopener1.json')}
-                    //     autoPlay
-                    //     loop={false}
-                    //     style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
-                    //     onAnimationFinish={() => {
-                    //         if (!hasLottieFirstLoopCompleted) {
-                    //             console.log('here');
-                    //             setHasLottieFirstLoopCompleted(true);
-                    //         }
-                    //     }}
-                    // />
-                    // </View>
+                  
                 )}
             </View>
         </View>
