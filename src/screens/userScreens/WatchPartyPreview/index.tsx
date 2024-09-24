@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image, Pressable, Platform} from 'react-native';
+import {StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image, Pressable, Platform, Alert, Linking} from 'react-native';
 import React, {useRef} from 'react';
 import Header from '../../../components/header';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
@@ -126,24 +126,104 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         //check permissions for camera and microphone on android
         if (Platform.OS === 'android') {
             check(PERMISSIONS.ANDROID.RECORD_AUDIO)
-                .then(audioResult => {
-                    if (audioResult === RESULTS.GRANTED) {
-                        console.log('Microphone permission granted');
-                    }
-                })
-                .catch(audioError => {
-                    console.log('Microphone permission request error:', audioError);
-                });
-
+            .then(audioResult => {
+                if (audioResult === RESULTS.GRANTED) {
+                    console.log('Microphone permission granted');
+                } else if (audioResult === RESULTS.DENIED) {
+                    // If permission is denied, request it again
+                    request(PERMISSIONS.ANDROID.RECORD_AUDIO)
+                        .then(audioRequestResult => {
+                            if (audioRequestResult === RESULTS.GRANTED) {
+                                console.log('Microphone permission granted after request');
+                            } else {
+                                Alert.alert(
+                                    'Microphone Permission Blocked',
+                                    'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
+                                    [
+                                        {
+                                            text: 'Open Settings',
+                                            onPress: () => {
+                                                Linking.openSettings(); // Opens the app settings
+                                            },
+                                        },
+                                    ],
+                                );
+                                console.log('Microphone permission denied again');
+                            }
+                        })
+                        .catch(audioError => {
+                            console.log('Error requesting microphone permission:', audioError);
+                        });
+                } else if (audioResult === RESULTS.BLOCKED) {
+                    // Permission is blocked; show an alert to open app settings
+                    Alert.alert(
+                        'Microphone Permission Blocked',
+                        'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
+                        [
+                            {
+                                text: 'Open Settings',
+                                onPress: () => {
+                                    Linking.openSettings(); // Opens the app settings
+                                },
+                            },
+                        ],
+                    );
+                }
+            })
+            .catch(audioError => {
+                console.log('Error checking microphone permission:', audioError);
+            });
+         
             check(PERMISSIONS.ANDROID.CAMERA)
-                .then(cameraResult => {
-                    if (cameraResult === RESULTS.GRANTED) {
-                        console.log('Camera permission granted');
-                    }
-                })
-                .catch(cameraError => {
-                    console.log('Camera permission request error:', cameraError);
-                });
+            .then(cameraResult => {
+                if (cameraResult === RESULTS.GRANTED) {
+                    console.log('Camera permission granted');
+                } else if (cameraResult === RESULTS.DENIED) {
+                    // If permission is denied, request it again
+                    request(PERMISSIONS.ANDROID.CAMERA)
+                        .then(cameraRequestResult => {
+                            if (cameraRequestResult === RESULTS.GRANTED) {
+                                console.log('Camera permission granted after request');
+                            } else {
+                                Alert.alert(
+                                    'Camera Permission Blocked',
+                                    'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
+                                    [
+                                        {
+                                            text: 'Open Settings',
+                                            onPress: () => {
+                                                Linking.openSettings(); // Opens the app settings
+                                            },
+                                        },
+                                    ],
+                                );
+                                console.log('Camera permission denied again');
+                            }
+                        })
+                        .catch(cameraError => {
+                            console.log('Error requesting camera permission:', cameraError);
+                        });
+                } else if (cameraResult === RESULTS.BLOCKED) {
+                    // Permission is blocked; show an alert to open app settings
+                    Alert.alert(
+                        'Camera Permission Blocked',
+                        'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
+                        [
+                            {
+                                text: 'Open Settings',
+                                onPress: () => {
+                                    Linking.openSettings(); // Opens the app settings
+                                },
+                            },
+                        ],
+                    );
+                }
+            })
+            .catch(cameraError => {
+                console.log('Error checking camera permission:', cameraError);
+            });
+    
+    
         }
 
         if (Platform.OS === 'ios') {

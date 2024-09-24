@@ -75,24 +75,7 @@ export default function ContentPlayer({navigation}: Props) {
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
 
-        // return () => {
-        //     console.log("Has Started Movie:", hasStartedWatching);
-        //     console.log("movieId:", movieId);
 
-        //     if (hasStartedWatching && movieId) {
-        //         finishUserWatching(movieId, false).then(finishedSuccessfully => {
-        //             if (finishedSuccessfully) {
-        //                 // resetTimer();
-        //                 pauseTimer();
-        //                 Orientation.lockToPortrait();
-        //                 StatusBar.setHidden(false);
-        //             } else {
-        //                 console.log("In Else");
-
-        //             }
-        //         });
-        //     }
-        // };
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
     useEffect(() => {
         const backAction = () => {
@@ -104,6 +87,7 @@ export default function ContentPlayer({navigation}: Props) {
             }
 
             return true; // Prevent default back behavior (exiting the app)
+
         };
 
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -289,21 +273,7 @@ export default function ContentPlayer({navigation}: Props) {
                             }
                         }}
                     />
-                    // <View style={styles.activitycontainer}>
-                    // <Video source={require('../../../../assets/sounds/akcrusound1.mp3')} repeat={false} />
-                    // <LottieView
-                    //     source={require('../../../../assets/lottie/Akcruopener1.json')}
-                    //     autoPlay
-                    //     loop={false}
-                    //     style={{width: SIZES.ScreenHeight, height: SIZES.ScreenWidth}}
-                    //     onAnimationFinish={() => {
-                    //         if (!hasLottieFirstLoopCompleted) {
-                    //             console.log('here');
-                    //             setHasLottieFirstLoopCompleted(true);
-                    //         }
-                    //     }}
-                    // />
-                    // </View>
+                  
                 )}
             </View>
         </View>

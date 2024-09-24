@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, useWindowDimensions, Text, TouchableOpacity, Image, SafeAreaView, Modal} from 'react-native';
+import {View, useWindowDimensions, Text, TouchableOpacity, Image, SafeAreaView, Modal, ActivityIndicator } from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import {
     UserProfileCruInvites,
@@ -22,7 +22,7 @@ import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import useAuthStore from '../../../stores/auth.store';
 import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, ICruView, IMITInvite, IUserProfile} from '../../../../types';
@@ -77,7 +77,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     const [inviteCount, setInviteCount] = React.useState<number>(0);
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
-
+    const [loading, setLoading] = useState(true); // Loading state
     useFocusEffect(
         React.useCallback(() => {
             getRoomLimitRouteParam();
@@ -290,8 +290,27 @@ export default function UserProfileScreen({navigation, route}: Props) {
     );
 
     const followersCount = formatNumber(followersData.length);
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } catch (error) {
+                console.error('Error loading data:', error);
+            } finally {
+                setLoading(false); // Data has loaded, set loading to false
+            }
+        };
 
-    //console.log('User Id:', user?.id);
+        loadData();
+    }, []); 
+    if (loading) {
+        // Display a spinner while loading
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#0000ff" />
+            </View>
+        );
+    }
 
     return (
         <TabContainer>
@@ -457,14 +476,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             </View>
                                         </View>
                                     </TouchableOpacity>
-                                    {/* <View style={{marginTop: '30%'}}>
-                                        <AkcruButtons.XSmallButton
-                                            btnname="Contacts"
-                                            onPress={() => navigation.navigate('ContactList')}
-                                            color={COLORS.PURPLE}
-                                            disabled={false}
-                                        />
-                                    </View> */}
+                                 
                                     <View style={{marginTop: '30%'}}>
                                         <AkcruButtons.XSmallButton
                                             btnname="Edit Profile"
