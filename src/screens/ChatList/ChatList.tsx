@@ -1,34 +1,53 @@
 import React, {useState, useEffect} from 'react';
 import {ActivityIndicator, FlatList, SafeAreaView, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/base';
-import {Text, TouchableRipple} from 'react-native-paper';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../stores/auth.store';
 import Header from '../../components/header';
 import UserCruChatCard from '../../components/UserCruChatCard';
-import {getUsers} from '../../lib/api/rooms.lib';
+import {getUsers} from '../../lib/api/rooms.lib'; // Ensure this fetches your chat users
 import {IChatUser} from '../../../types';
 
-import {COLORS, FONTS, SIZES} from '../../../assets/constants';
+import {COLORS, SIZES} from '../../../assets/constants';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import BackButton from '../../components/General/backbutton';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
-
     const {user} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-    useEffect(() => {
-        getTextMessage();
-    }, []);
 
-    const getTextMessage = async () => {
-        const response = await getUsers();
-        setChatUsersData(response!);
-        setIsListLoaded(true);
-    };
+    useEffect(() => {
+        const fetchChatUsers = async () => {
+            try {
+                const response = await getUsers();
+                if (response) {
+                    setChatUsersData(response);
+                    setIsListLoaded(true);
+
+                    response.forEach(item => {
+                        const movieScheduledTime = new Date(item.startDate).getTime();
+                        const currentTime = new Date().getTime();
+
+                        const timeRemaining = movieScheduledTime - currentTime;
+
+                        if (timeRemaining > 0) {
+                            const timeoutId = setTimeout(() => {
+                                setChatUsersData(prevChatUsersData => prevChatUsersData.filter(u => u.id !== item.id));
+                            }, timeRemaining);
+
+                            return () => clearTimeout(timeoutId);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching chat users:', error);
+            }
+        };
+
+        fetchChatUsers();
+    }, []);
 
     const renderItem = ({item}: {item: IChatUser}) => {
         const isCurrentUserCreator = user?.id === item.creatorId;

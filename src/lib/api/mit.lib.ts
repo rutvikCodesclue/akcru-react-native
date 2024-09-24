@@ -73,6 +73,23 @@ export const getMoreMITs = async (params: {count: number}): Promise<number | und
     }
 };
 
+// export const createAMITInvite = async (params: {
+//     movieId: string;
+//     username: string;
+//     startDate: string;
+//     timezone: string;
+// }): Promise<IMITInvite | undefined> => {
+//     try {
+//         const {movieId, username, startDate, timezone} = params;
+//         const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
+//         console.log('data', data);
+
+//         return data.invite;
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
 export const createAMITInvite = async (params: {
     movieId: string;
     username: string;
@@ -81,11 +98,44 @@ export const createAMITInvite = async (params: {
 }): Promise<IMITInvite | undefined> => {
     try {
         const {movieId, username, startDate, timezone} = params;
-        const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
+
+        // Log the request payload for debugging purposes
+        console.log('Request Payload:', {movieId, username, startDate, timezone});
+
+        // Convert startDate to a Date object and check if it's in the future
+        const dateObject = new Date(startDate);
+        const now = new Date();
+
+        if (dateObject.getTime() <= now.getTime()) {
+            // If the startDate is not in the future, set it to one hour in the future for testing
+            dateObject.setHours(now.getHours() + 1);
+        }
+
+        const formattedStartDate = dateObject.toISOString(); // Ensure ISO format
+        console.log('Formatted Start Date (Adjusted if necessary):', formattedStartDate);
+
+        // Make the API call
+        const {data} = await API.post('/v1/mit/invite/create', {
+            movieId,
+            username,
+            startDate: formattedStartDate, // Use the future start date
+            timezone,
+        });
+
+        // Log the API response for debugging purposes
+        console.log('API Response:', data);
 
         return data.invite;
-    } catch (error) {
-        console.error(error);
+    } catch (error: any) {
+        // Enhanced error handling
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+        } else if (error.request) {
+            console.error('Request error:', error.request);
+        } else {
+            console.error('Error:', error.message);
+        }
     }
 };
 
