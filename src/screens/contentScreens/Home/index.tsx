@@ -291,7 +291,6 @@ const HomeScreen = () => {
 
             const loadUnfinishedContent = async () => {
                 const content = await fetchUnfinishedContent();
-                console.log('Content: ', content);
                 setUnfinishedContent(content);
                 setIsLoading(false);
             };

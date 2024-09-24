@@ -75,29 +75,10 @@ export default function ContentPlayer({navigation}: Props) {
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
 
-        // return () => {
-        //     console.log("Has Started Movie:", hasStartedWatching);
-        //     console.log("movieId:", movieId);
-            
-            
-        //     if (hasStartedWatching && movieId) {
-        //         finishUserWatching(movieId, false).then(finishedSuccessfully => {
-        //             if (finishedSuccessfully) {
-        //                 // resetTimer();
-        //                 pauseTimer();
-        //                 Orientation.lockToPortrait();
-        //                 StatusBar.setHidden(false);
-        //             } else {
-        //                 console.log("In Else");
-                        
-        //             }
-        //         });
-        //     }
-        // };
+
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
     useEffect(() => {
         const backAction = () => {
-          // Unlock the orientation or reset to portrait
           Orientation.lockToPortrait();  // Or use Orientation.unlockAllOrientations();
     
           if (onBack) {
