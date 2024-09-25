@@ -9,16 +9,10 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import LottieView from 'lottie-react-native';
 import Orientation from 'react-native-orientation-locker';
 import Video from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
-import {
-    finishUserWatching,
-    startUserWatching,
-    logUserMovieWatchHistory,
-    logUserContentWatchHistory,
-} from '../../../lib/api/user.lib';
+import {finishUserWatching, startUserWatching, logUserContentWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';

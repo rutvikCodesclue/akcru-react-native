@@ -1,11 +1,7 @@
 import {RouteProp, useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/base';
 import React from 'react';
 import {SafeAreaView, View} from 'react-native';
-import {COLORS, FONTS} from '../../../assets/constants';
-
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Text, TouchableRipple} from 'react-native-paper';
 import Header from '../../components/header';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruChatComponent from './CruChatComponent';
@@ -26,7 +22,7 @@ const CruChat = ({route}: Props) => {
                 <Header />
             </View>
             <View style={{marginHorizontal: 15, marginBottom: 10, zIndex: 21}}>
-               <BackButton navigation={navigation} />
+                <BackButton navigation={navigation} />
             </View>
             <CruChatComponent route={route} />
         </SafeAreaView>

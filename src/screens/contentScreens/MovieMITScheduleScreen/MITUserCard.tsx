@@ -1,7 +1,6 @@
 import {Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
-import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
 import {selectAvatarBorderColor} from '../../../util/util';
@@ -67,16 +66,6 @@ const MITUserSearchCard = ({
                     <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 8}}>
                             <TouchableOpacity onPress={onPress}>
-                                {/* <Avatar
-                                    rounded
-                                    size={40}
-                                    source={userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder}
-                                    avatarStyle={{
-                                        borderWidth: 2,
-                                        borderColor: selectAvatarBorderColor(akcruBadge),
-                                    }}
-                                /> */}
-
                                 <HexAvatar
                                     source={userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder}
                                     size={MULTISIZES.Xlarge60}

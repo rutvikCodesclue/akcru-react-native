@@ -1,6 +1,5 @@
-import {HMSSDK} from '@100mslive/react-native-hms';
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS} from '../../../assets/constants';

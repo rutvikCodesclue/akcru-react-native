@@ -19,11 +19,10 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {Icon} from '@rneui/base';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import {fetchUnfinishedContent, fetchUnfinishedMovies, removeUnfinishedContent} from '../../../lib/api/user.lib';
+import {fetchUnfinishedContent} from '../../../lib/api/user.lib';
 import ContinueWatchingList from '../../../components/ContinueWatchingList';
 import BasicSeriesCarousel from '../../../components/BasicSeriesCarousel';
 import {findSeries} from '../../../lib/api/series.lib';
-import {black} from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 import {getTrailers} from '../../../lib/api/sizzles.lib';
 import BasicSizzleCarousel from '../../../components/BasicSizzleCarousel';
 
@@ -352,26 +351,6 @@ const HomeScreen = () => {
                                     {!isVideoLoaded && (
                                         <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
                                     )}
-                                    {/* <VideoPlayer
-                                    source={{
-                                        uri: topBox[topBoxIndex]?.trailerURL,
-                                    }}
-                                    muted={true}
-                                    tapAnywhereToPause={true}
-                                    disablePlayPause
-                                    disableSeekButtons
-                                    disableSeekbar
-                                    disableVolume
-                                    disableBack
-                                    disableFullscreen
-                                    disableTimer
-                                    paused={!topBoxShouldAutoplay}
-                                    toggleResizeModeOnFullscreen={true}
-                                    isFullscreen={true}
-                                    posterResizeMode="cover"
-                                    poster={topBox[topBoxIndex]?.portraitURL}
-                                    onEnd={handleVideoEnd}
-                                /> */}
                                     <Video
                                         style={{width: '100%', height: '100%'}}
                                         source={{uri: topBox[topBoxIndex]?.trailerURL}}

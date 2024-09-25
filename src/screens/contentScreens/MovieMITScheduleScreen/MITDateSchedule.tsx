@@ -95,9 +95,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
     };
 
-    //console.log('Movie title:', movie?.title);
-    //console.log('Movie title:', movie?.year);
-
     const [scheduleIsShown, setScheduleIsShown] = useState(false);
 
     const [selectedUserName, setSelectedUserName] = useState('');

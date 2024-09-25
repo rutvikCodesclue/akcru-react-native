@@ -1,11 +1,7 @@
 import {RouteProp, useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/base';
 import React, {useEffect, useState} from 'react';
 import {SafeAreaView, View} from 'react-native';
-import {COLORS, FONTS} from '../../../assets/constants';
-
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {Text, TouchableRipple} from 'react-native-paper';
 import Header from '../../components/header';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruGroupChatComponent from './CruGroupChatComponent';

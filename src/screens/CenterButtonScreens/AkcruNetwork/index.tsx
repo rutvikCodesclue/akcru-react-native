@@ -1,24 +1,12 @@
-import {
-    ImageBackground,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    ActivityIndicator,
-    Pressable,
-} from 'react-native';
+import {SafeAreaView, StyleSheet, Text, View, FlatList, ActivityIndicator, Pressable} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import imageindex from '../../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import {getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
-import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
-import BackButton from '../../../components/General/backbutton';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import AkcruNetworkPost from '../../../components/AkcruNetworkPost';
 

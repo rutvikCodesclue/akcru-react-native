@@ -3,10 +3,10 @@ import React, {useState, useEffect} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import {COLORS} from '../../../../assets/constants';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {getUserReactions} from '../../../lib/api/movies.lib';
-import {IEpisode, ISeries} from '../../../../types';
+import {IEpisode} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
 import {findEpisodeById} from '../../../lib/api/series.lib';
@@ -112,12 +112,6 @@ export default function EpisodeDetailScreen({route}: Props) {
                                             year: year,
                                         });
                                     }}
-                                    // watchlistButton={() => {
-                                    //     setShowAddToWatchListConfirmationModal(true);
-                                    // }}
-                                    // showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
-                                    // handleCancelAddToWatchList={handleCancelAddToWatchList}
-                                    // handleConfirmAddToWatchList={handleConfirmAddToWatchList}
                                 />
                             </View>
                         </View>
