@@ -359,8 +359,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    console.log('firstTimeUser', firstTimeUser);
-
     const closeModal = () => {
         setBlockUserModal(false);
     };
