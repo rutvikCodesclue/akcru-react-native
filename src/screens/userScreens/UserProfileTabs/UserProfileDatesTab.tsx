@@ -30,22 +30,16 @@ const UserProfileDatesTab = () => {
             check(PERMISSIONS.ANDROID.RECORD_AUDIO)
                 .then(audioResult => {
                     if (audioResult === RESULTS.GRANTED) {
-                        //console.log('Microphone permission granted');
                     }
                 })
-                .catch(audioError => {
-                    //console.log('Microphone permission request error:', audioError);
-                });
+                .catch(audioError => {});
 
             check(PERMISSIONS.ANDROID.CAMERA)
                 .then(cameraResult => {
                     if (cameraResult === RESULTS.GRANTED) {
-                        //console.log('Camera permission granted');
                     }
                 })
-                .catch(cameraError => {
-                    //console.log('Camera permission request error:', cameraError);
-                });
+                .catch(cameraError => {});
         }
 
         if (Platform.OS === 'ios') {
@@ -53,26 +47,24 @@ const UserProfileDatesTab = () => {
                 .then(result => {
                     switch (result) {
                         case RESULTS.UNAVAILABLE:
-                            //console.log('The camera is not available (on this device / in this context)');
                             break;
                         case RESULTS.DENIED:
-                            //console.log('The camera permission has not been requested / is denied but requestable');
+
                             request(PERMISSIONS.IOS.CAMERA).then(result => {
-                                //console.log('Requested camera permission', result);
                                 if (result === RESULTS.GRANTED) {
                                     setCameraPermission(true);
                                 }
                             });
                             break;
                         case RESULTS.LIMITED:
-                            //console.log('The camera permission is limited: some actions are possible');
+
                             break;
                         case RESULTS.GRANTED:
-                            //console.log('The camera permission is granted', result);
+
                             setCameraPermission(true);
                             break;
                         case RESULTS.BLOCKED:
-                            //console.log('The camera permission is denied and not requestable anymore');
+
                             break;
                     }
                 })
@@ -82,26 +74,24 @@ const UserProfileDatesTab = () => {
                 .then(result => {
                     switch (result) {
                         case RESULTS.UNAVAILABLE:
-                            //console.log('The microphone is not available (on this device / in this context)');
+
                             break;
                         case RESULTS.DENIED:
-                            //console.log('The microphone permission has not been requested / is denied but requestable');
                             request(PERMISSIONS.IOS.MICROPHONE).then(result => {
-                                //console.log('Requested microphone permission');
                                 if (result === RESULTS.GRANTED) {
                                     setMicPermission(true);
                                 }
                             });
                             break;
                         case RESULTS.LIMITED:
-                            //console.log('The microphone permission is limited: some actions are possible');
+
                             break;
                         case RESULTS.GRANTED:
-                            //console.log('The microphone permission is granted');
+
                             setMicPermission(true);
                             break;
                         case RESULTS.BLOCKED:
-                            //console.log('The microphone permission is denied and not requestable anymore');
+
                             break;
                     }
                 })

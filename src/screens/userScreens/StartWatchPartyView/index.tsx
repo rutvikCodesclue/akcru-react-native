@@ -1,4 +1,4 @@
-import {View, SafeAreaView, Platform} from 'react-native';
+import {View, Platform} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {SIZES} from '../../../../assets/constants';
@@ -150,7 +150,6 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
             .on('broadcast', {event: 'terminate-room'}, payload => leaveTheRoom(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
-                    console.log('Subscribed to channelll - ', user?.username);
                     setChannel(channelA);
                 }
             });
@@ -164,14 +163,12 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
     const muteLocalPeer = async (payload: any) => {
         if (payload.payload.muteAll) {
             const localPeer = await hmsInstanceRef.current?.getLocalPeer();
-            console.log('muting personal audio track...');
             localPeer?.localAudioTrack()?.setMute(true);
             setIsMicOn((prevState: boolean) => !prevState);
         }
     };
 
     const handleUnmuteRequest = async (payload: any) => {
-        console.log(currentRoomHost === user?.id);
         if (currentRoomHost === user?.id && payload.payload.permissionType! === 'request') {
             setRequestingUser(payload.payload.requestedBy);
             setShowUnmuteModal(true);

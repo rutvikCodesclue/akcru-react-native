@@ -1,4 +1,15 @@
-import {StyleSheet, Text, View, SafeAreaView, TouchableOpacity, Image, Pressable, Platform, Alert, Linking} from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    SafeAreaView,
+    TouchableOpacity,
+    Image,
+    Pressable,
+    Platform,
+    Alert,
+    Linking,
+} from 'react-native';
 import React, {useRef} from 'react';
 import Header from '../../../components/header';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
@@ -534,13 +545,6 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                                 <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
                             )}
                         </Pressable>
-                        {/* <Pressable onPress={toggleMic}>
-                        {isMicOn ? (
-                            <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.CATPURPLGT} />
-                        ) : (
-                            <Icon name="mic-off-circle" type="ionicon" size={40} color={COLORS.CATREDLGT} />
-                        )}
-                    </Pressable> */}
                     </View>
                 </View>
             </View>

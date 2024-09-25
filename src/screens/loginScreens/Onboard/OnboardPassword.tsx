@@ -23,9 +23,6 @@ const OnboardPassword = ({route}) => {
 
     const phoneNumber = route.params?.phoneNumber;
 
-    const user = useAuthStore(state => state.user);
-    const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
-
     const [loading, setLoading] = useState<boolean>(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
     const [password, setPassword] = useState('');

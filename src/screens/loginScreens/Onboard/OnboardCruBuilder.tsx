@@ -9,20 +9,16 @@ import {
     TextStyle,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import {Route} from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import OnboardCruSuggestions from './OnboardCruSuggestions';
 import OnboardContactList from './OnboardContactList';
-import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import styles from '../../contentScreens/PlayContentScreen/styles';
 import BackButton from '../../../components/General/backbutton';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 

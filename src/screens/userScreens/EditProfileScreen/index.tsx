@@ -1,6 +1,18 @@
 import {useState} from 'react';
 import styles from './styles';
-import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform, ActivityIndicator, StyleSheet} from 'react-native';
+import {
+    View,
+    Alert,
+    Text,
+    ScrollView,
+    Image,
+    SafeAreaView,
+    TextInput,
+    Modal,
+    Pressable,
+    Platform,
+    StyleSheet,
+} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -800,15 +812,6 @@ export default function EditProfile({session}: {session: Session}) {
                                     </View>
                                 ))}
                             </View>
-                            {/* <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    textAlign: 'center',
-                                    marginVertical: 10,
-                                    color: COLORS.PURPLE,
-                                }}>
-                                "{archetype && archetype.genres ? archetype.genres.join(', ') : 'No Genres Selected'}"
-                            </Text> */}
 
                             {archetype && (
                                 <Text
@@ -931,7 +934,6 @@ export default function EditProfile({session}: {session: Session}) {
                     </View>
                 </ScrollView>
             </View>
-            
         </TabContainer>
     );
 }
@@ -955,7 +957,7 @@ const stylescustom = StyleSheet.create({
         borderRadius: 10,
         elevation: 5, // Android only: elevation for shadow effect
         shadowColor: '#000', // iOS only: shadow color for shadow effect
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.8,
         shadowRadius: 2,
     },

@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, ScrollView, ImageBackground, Image, SafeAreaView} from 'react-native';
+import {View, Text, ScrollView, Image, SafeAreaView} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import styles from './styles';
 import {RouteProp} from '@react-navigation/native';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
 import imageindex from '../../../../assets/images/imageindex';
-import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IMovie, IUserProfile} from '../../../../types';
 import {
@@ -19,8 +17,7 @@ import {
 } from '../../../util/util';
 import moment from 'moment';
 import HexAvatar from '../../../components/HexAvatar';
-import DisplayBadge from '../../../components/General/akcrubadge';
-import { getFollowers } from '../../../lib/api/user.lib';
+import {getFollowers} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import AkcruLevels from '../../../components/akcruBadges';
 import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
@@ -57,7 +54,6 @@ const AcceptMITScreen = ({navigation, route}: Props) => {
         const fetchData = async () => {
             if (creatorID) {
                 const result = await getFollowers(creatorID);
-                console.log('result:', result);
 
                 if (result && result.followers && Array.isArray(result.followers)) {
                     setData(result.followers);

@@ -1,66 +1,26 @@
 import React, {useState, useCallback, useRef, useEffect} from 'react';
-import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    Dimensions,
-    ImageBackground,
-    Image,
-    TouchableOpacity,
-    Pressable,
-    Modal,
-    TextInput,
-    Alert,
-    FlatList,
-    ActivityIndicator,
-} from 'react-native';
+import {View, Text, ScrollView, ImageBackground, Image, TouchableOpacity, Alert} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-
-import {Icon, Avatar, color} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import MITSwipe from '../../../components/MITSwipe';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
-import MITMessages from '../../../components/MITMessages';
 import AkcruButtons from '../../../components/akcruButtons';
 import LinearGradient from 'react-native-linear-gradient';
-import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
 import imageindex from '../../../../assets/images/imageindex';
-import {JENNY_INVITES} from '../../../../assets/constants/Mockusers';
-import BottomSheet, {BottomSheetHandleProps, BottomSheetView, BottomSheetScrollView} from '@gorhom/bottom-sheet';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {acceptAMITInvite, declineAMITInvite, getMyMITInvites} from '../../../lib/api/mit.lib';
+import {acceptAMITInvite, declineAMITInvite} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
-import {getCRUInvites} from '../../../lib/api/cru.lib';
-import YoutubePlayer from 'react-native-youtube-iframe';
 import moment from 'moment';
-import {MediaType, launchImageLibrary} from 'react-native-image-picker';
-import MITMessage from '../../../../assets/constants/MITmessages';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
-import {
-    HMSAudioTrackSettings,
-    HMSCameraFacing,
-    HMSConfig,
-    HMSMessage,
-    HMSPeer,
-    HMSSDK,
-    HMSTrack,
-    HMSTrackSettings,
-    HMSTrackSettingsInitState,
-    HMSTrackUpdate,
-    HMSUpdateListenerActions,
-    HMSVideoTrackSettings,
-} from '@100mslive/react-native-hms';
-import {createChatRoom, getTextMessages, saveTextMessage, getUsers} from '../../../lib/api/rooms.lib';
+import {IMessage} from 'react-native-gifted-chat';
+import {HMSSDK} from '@100mslive/react-native-hms';
+import {getTextMessages} from '../../../lib/api/rooms.lib';
 import useAuthStore from '../../../stores/auth.store';
-import {TouchableRipple} from 'react-native-paper';
 import HexAvatar from '../../../components/HexAvatar';
-import UserCruChatCard from '../../../components/UserCruChatCard';
-import {IChatUser} from '../../../../types';
 import {
     capitalizeFirstLetterOfString,
     formatMovieDuration,
@@ -70,7 +30,7 @@ import {
 } from '../../../util/util';
 import FingerAnimation from '../../../components/FingerAnimation';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import { getFollowers } from '../../../lib/api/user.lib';
+import {getFollowers} from '../../../lib/api/user.lib';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -113,16 +73,13 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     const getTextMessage = async (roomId: string) => {
         const response = await getTextMessages(roomId);
-        //   console.log(JSON.stringify(response));
         setMessages(response!);
     };
 
     const handleDecline = () => {
         setIsLoading(true);
-        //console.log('decline invite');
         declineAMITInvite({inviteId: MITID})
             .then(res => {
-                //console.log('declined res:', res);
                 setIsLoading(false);
                 // Add any additional logic you need after declining the invite
                 // For example, navigate to another screen or update the UI.
@@ -136,10 +93,8 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     const handleAccept = () => {
         setIsLoading(true);
-        //console.log('accept invite');
         acceptAMITInvite({inviteId: MITID})
             .then(res => {
-                //console.log('accepted res:', res);
                 setIsLoading(false);
                 // Add any additional logic you need after accepting the invite
                 // For example, navigate to another screen or update the UI.
@@ -530,19 +485,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         "{creator?.firstName}" wants to watch "{movie?.title}" with you
                                     </Text>
                                 </View>
-                                {/* <View style={{alignItems: 'center', marginVertical: 10}}>
-                                    <View style={styles.datebox}>
-                                        <Text style={styles.datetext}>
-                                            {' '}
-                                            {moment(schedule).tz(timezone).format('ddd, MMM Do')}{' '}
-                                        </Text>
-                                        <Text style={styles.datetext}>@ </Text>
-                                        <Text style={styles.datetext}>
-                                            {moment(schedule).tz(timezone).format('h:mm A')}{' '}
-                                            {getShortenedTimezone(timezone)}
-                                        </Text>
-                                    </View>
-                                </View> */}
                                 <View style={{marginTop: 25}}>
                                     <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
                                 </View>

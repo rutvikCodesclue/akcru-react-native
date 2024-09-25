@@ -10,15 +10,23 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IComment, IPoll, IPollComment} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import {deletePoll, getPollById, getPollComments, likePoll, likePollComment, unlikePoll, unlikePollComment, voteOnPoll} from '../../../lib/api/poll.lib';
-import PollCard from '../../../components/SkinnyPollCard';
+import {
+    deletePoll,
+    getPollById,
+    getPollComments,
+    likePoll,
+    likePollComment,
+    unlikePoll,
+    unlikePollComment,
+    voteOnPoll,
+} from '../../../lib/api/poll.lib';
 import {selectAvatarBorderColor} from '../../../util/util';
 import BackButton from '../../../components/General/backbutton';
 import PollScreenCard from '../../../components/SkinnyPollCard';
 import PollCommentCard from '../../../components/PollCommentCard';
 import PostButton from '../../../components/AkcruPostButton';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 type PollScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PollScreen'>;
 type PollScreenRouteProp = RouteProp<CrummunityStackParams, 'PollScreen'>;
@@ -30,12 +38,9 @@ type Props = {
 
 const PollScreen = ({navigation, route}: Props) => {
     const pollId = route.params?.poll.id;
-    console.log('PollScreen pollId:', pollId);
     const isLikedByCurrentUser = route.params?.isLikedByCurrentUser;
     const {user} = useAuthStore();
-    // console.log('PollScreen user:', user);
     const [poll, setPoll] = useState<IPoll>({...route.params?.poll, isLikedByCurrentUser});
-    // console.log('PollScreen poll:', poll);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [comments, setComments] = useState<IPollComment[]>([]);
@@ -74,8 +79,6 @@ const PollScreen = ({navigation, route}: Props) => {
             setLoadingComments(true);
             try {
                 const fetchedComments = await getPollComments(pollId);
-                console.log('Fetched comments:', fetchedComments); // Debug log
-
                 // Sort the comments from oldest to newest
                 const sortedComments = fetchedComments.sort(
                     (a: IPollComment, b: IPollComment) =>
@@ -245,8 +248,7 @@ const PollScreen = ({navigation, route}: Props) => {
                             <View style={{marginTop: '25%'}}>
                                 <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                             </View>
-                        ) : // You can customize the size and color
-                        comments.length === 0 ? (
+                        ) : comments.length === 0 ? (
                             <View>
                                 <Text style={styles.noCommentsText}>No comments yet</Text>
                             </View>

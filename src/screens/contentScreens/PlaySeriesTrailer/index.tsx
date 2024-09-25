@@ -61,15 +61,6 @@ export default function SeriesTrailerPlayer({navigation, route}: Props) {
         return () => {
             Orientation.lockToPortrait();
             StatusBar.setHidden(false);
-            // if (hasStartedWatching && user?.id && seriesId) {
-            //     finishUserWatchingSeries(user.id, seriesId).then((finishedSuccessfully: any) => {
-            //         if (finishedSuccessfully) {
-            //             //console.log(`User finished watching series: ${seriesId}`);
-            //         } else {
-            //             //console.log(`Failed to mark series as finished: ${seriesId}`);
-            //         }
-            //     });
-            // }
         };
     }, [seriesId, user?.id, hasStartedWatching]);
 
@@ -109,7 +100,6 @@ export default function SeriesTrailerPlayer({navigation, route}: Props) {
                     </>
                 ) : (
                     <>
-                        {console.log('Series indicator')}
                         <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
                     </>
                 )}

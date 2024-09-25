@@ -50,8 +50,6 @@ const SendMITSearchInput = (props: any) => {
     };
 
     useEffect(() => {
-        console.log('Search user id: ', userid);
-
         const fetchMovies = async () => {
             try {
                 const fetchedMovies: IMovie[] = await findMovies();
@@ -147,21 +145,6 @@ const SendMITSearchInput = (props: any) => {
                                         }}
                                         onChangeText={handleSearch}
                                     />
-                                    {/* <TouchableWithoutFeedback onPress={() => {}}>
-                                      <Icon
-                                          name="close-circle"
-                                          type="material-community"
-                                          size={25}
-                                          color={COLORS.DARKGREY}
-                                          style={{marginLeft: SIZES.ScreenWidth / 2.2}}
-                                          onPress={() => {
-                                              textInputRef.current.clear();
-                                              handleSearch('');
-
-                                              setTextInputFocused(true);
-                                          }}
-                                      />
-                                  </TouchableWithoutFeedback> */}
                                 </View>
                             </View>
                             <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>

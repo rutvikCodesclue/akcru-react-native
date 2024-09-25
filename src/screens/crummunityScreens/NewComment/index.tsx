@@ -11,6 +11,7 @@ import {
     ActivityIndicator,
     Platform,
     StyleSheet,
+    Alert,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
@@ -543,9 +544,6 @@ const NewComment = ({navigation, route}: Props) => {
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
                                     <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
-                                {/* <TouchableOpacity onPress={selectAGIF}>
-                            <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
-                        </TouchableOpacity> */}
                                 <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
                                     <Icon
                                         name="video-account"

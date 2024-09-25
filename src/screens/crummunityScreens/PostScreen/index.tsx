@@ -22,7 +22,6 @@ import {
 } from '../../../lib/api/post.lib';
 import PostCommentCard from '../../../components/PostCommentCard';
 import {getPostComments} from '../../../lib/api/post.lib';
-import HexShape from '../../../components/HexShape';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
@@ -40,7 +39,6 @@ type Props = {
 
 const PostScreen = ({navigation, route}: Props) => {
     const postId = route.params?.post.id;
-    console.log('PostScreen postId:', postId);
     const isLikedByCurrentUser = route.params?.isLikedByCurrentUser;
     const {user, hydrateUser} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
@@ -53,7 +51,6 @@ const PostScreen = ({navigation, route}: Props) => {
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
     const [post, setPost] = useState<IPost>({...route.params?.post, isLikedByCurrentUser});
-    console.log('PostScreen post:', post);
     const [comment, setComment] = useState<IComment>(route.params?.comment);
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -62,7 +59,6 @@ const PostScreen = ({navigation, route}: Props) => {
             setLoading(true);
             try {
                 const fetchedPost = await getPost(postId);
-                console.log('Fetched post:', fetchedPost);
                 fetchedPost.isLikedByCurrentUser = isLikedByCurrentUser;
                 setPost(fetchedPost);
                 setLoading(false);
@@ -174,7 +170,6 @@ const PostScreen = ({navigation, route}: Props) => {
     };
 
     const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        //console.log('handleFollow', authorId);
         const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
         if (updatedStatus !== undefined) {
             setPosts(prevPosts =>
@@ -194,14 +189,11 @@ const PostScreen = ({navigation, route}: Props) => {
     const onLikeOrUnlikePost = async (postId: number) => {
         try {
             const isLiked = post?.isLikedByCurrentUser;
-            console.log('Before like/unlike:', isLiked);
 
             if (isLiked) {
                 await unlikePost(postId);
-                console.log('Unlike request sent');
             } else {
                 await likePost(postId);
-                console.log('Like request sent');
             }
 
             if (post) {
@@ -213,7 +205,6 @@ const PostScreen = ({navigation, route}: Props) => {
                         likes: prevPost._count.likes + (isLiked ? -1 : 1),
                     },
                 }));
-                console.log('Updated post after like/unlike:', post);
             }
         } catch (error) {
             console.error('Error changing like status:', error);
@@ -311,8 +302,6 @@ const PostScreen = ({navigation, route}: Props) => {
                             openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
                             currentUserID={currentUserID ?? ''}
                             deleteThePost={() => handleDeletePost(+post.id)}
-                            // onFollow={() => handleFollow(item.author.id)}
-                            // onUnfollow={() => handleUnfollow(item.author.id)}
                             onDeletePost={handleDeletePost}
                             isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
@@ -348,8 +337,6 @@ const PostScreen = ({navigation, route}: Props) => {
                                             }
                                             userName={item.author?.username}
                                             firstName={item.author?.firstName}
-                                            // onFollow={() => handleFollow(item.author.id)}
-                                            // onUnfollow={() => handleUnfollow(item.author.id)}
                                             isCommentLiked={item.isLikedByCurrentUser}
                                             onDeleteComment={() => handleDeleteComment(+item.id)}
                                             currentUserID={currentUserID || ''}

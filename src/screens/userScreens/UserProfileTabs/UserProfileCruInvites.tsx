@@ -72,9 +72,7 @@ const UserProfileCruInvites = () => {
 
     const _acceptCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        //console.log('accept CruInvite');
         acceptACRUInvite({inviteId: item.id}).then(res => {
-            //console.log('accepted res:', res);
             setIsLoading(false);
 
             setRefetchCrus(true);
@@ -90,9 +88,7 @@ const UserProfileCruInvites = () => {
 
     const _declineCruInvite = (item: ICruInvite) => {
         setIsLoading(true);
-        //console.log('decline CruInvite');
         declineACRUInvite({inviteId: item.id}).then(res => {
-            //console.log('declined res:', res);
             setIsLoading(false);
 
             navigation.navigate('CruInviteDecline', {

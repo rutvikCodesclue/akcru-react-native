@@ -140,9 +140,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const [btnDisabled, setbtnDisabled] = useState(false);
     const [btnColor, setbtnColor] = useState(COLORS.AKCRUBLUE);
 
-
-   
-
     useFocusEffect(
         React.useCallback(() => {
             findAUser({id: userID}).then(user => {
@@ -689,19 +686,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                         ) : (
                             <View>
-                                {/* {currentlyWatching?.length > 0 && currentlyWatching[0].finishedAt === null && (
-                                    <View style={{marginHorizontal: 15, marginTop: '5%'}}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.paragraph1,
-
-                                                color: COLORS.LIGHTGREY,
-                                                textAlign: 'center',
-                                            }}>
-                                            {user?.username} is watching "{currentlyWatching[0].movie.title}"
-                                        </Text>
-                                    </View>
-                                )} */}
                                 <View>
                                     <Text style={styles.desctext}>ARCHETYPE</Text>
 
@@ -856,11 +840,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 <Text style={{...FONTS.Title2}}>Close</Text>
                             </TouchableOpacity>
                         </View>
-                        {/* <Animated.Image
-                            source={{uri: selectedPhotoUri}}
-                            resizeMode="contain"
-                            style={[styles.selectedPhoto, {opacity: selectedPhotoAnimatedOpacity}]}
-                        /> */}
                     </TouchableOpacity>
                 )}
                 <Modal

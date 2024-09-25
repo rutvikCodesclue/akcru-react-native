@@ -140,18 +140,7 @@ const PhoneForgotPassword = () => {
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />
-                                    <Text style={styles.textinputprefix}>+1</Text>
-                                {/* <TextInput
-                                    
-                                    placeholder="1-234-456-7890"
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={handlePhoneNumberChange}
-                                    value={phone}
-                                    keyboardType="phone-pad"
-                                    editable={true}
-                                /> */}
+                                <Text style={styles.textinputprefix}>+1</Text>
                                 <TextInput
                                     placeholder="234-456-7890" 
                                     placeholderTextColor={COLORS.DARKGREY}

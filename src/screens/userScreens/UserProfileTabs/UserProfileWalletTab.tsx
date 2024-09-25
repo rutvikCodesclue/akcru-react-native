@@ -1,22 +1,9 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    Image,
-    TextInput,
-    StyleSheet,
-    Pressable,
-    TouchableWithoutFeedback,
-    Modal,
-    Alert,
-    Platform,
-} from 'react-native';
+import {View, Text, ScrollView, Image, TextInput, Pressable, Modal, Alert, Platform} from 'react-native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
-import {Icon} from '@rneui/base';
 import AkcruButtons from '../../../components/akcruButtons';
 import useAuthStore from '../../../stores/auth.store';
 import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';

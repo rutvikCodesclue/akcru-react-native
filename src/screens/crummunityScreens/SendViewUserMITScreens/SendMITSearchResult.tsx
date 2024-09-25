@@ -6,7 +6,6 @@ import SendMITSearchInput from './SendMITSearchInput';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
-import {Icon} from '@rneui/base';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {IMovie, IUserProfile} from '../../../../types';
 import {findMovies} from '../../../lib/api/movies.lib';
@@ -60,7 +59,6 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
         }
 
         if (movies.length === 0) {
-            //console.log('No movies found...');
 
             setFilteredMovies([]);
             return;

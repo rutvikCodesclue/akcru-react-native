@@ -3,16 +3,14 @@ import {View, Text, ScrollView, SafeAreaView} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import styles from './styles';
 import {RouteProp} from '@react-navigation/native';
-import {Avatar} from '@rneui/base';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IUserProfile} from '../../../../types';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import HexAvatar from '../../../components/HexAvatar';
-import { MULTISIZES } from '../../../../assets/constants/theme';
-import { selectAvatarBorderColor } from '../../../util/util';
+import {MULTISIZES} from '../../../../assets/constants/theme';
+import {selectAvatarBorderColor} from '../../../util/util';
 
 type CruInviteAcceptNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
 

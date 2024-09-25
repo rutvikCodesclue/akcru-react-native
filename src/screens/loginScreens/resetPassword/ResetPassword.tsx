@@ -150,7 +150,6 @@ const ResetPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

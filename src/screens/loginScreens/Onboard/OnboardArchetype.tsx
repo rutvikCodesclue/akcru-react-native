@@ -284,17 +284,6 @@ const OnboardArchetype = () => {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                             width: '100%',
                         }}>
-                        {/* {showSkipButton && (
-                            <View style={{position: 'absolute', zIndex: 10, bottom: '3%', right: '50%', left: '33%'}}>
-                                <AkcruButtons.SmallButton
-                                    color={COLORS.PURPLE}
-                                    btnname={'Skip'}
-                                    onPress={handleSkipVideo}
-                                    disabled={false}
-                                />
-                            </View>
-                        )} */}
-
                         {!isVideoLoaded && (
                             <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
                                 <ActivityIndicator size="large" color={COLORS.PURPLE} />

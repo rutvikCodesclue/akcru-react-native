@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Alert} from 'react-native';
-import {Icon} from '@rneui/base';
+import {View, Text, TextInput, ScrollView, StyleSheet, Modal, Alert} from 'react-native';
 import {COLORS, FONTS} from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';

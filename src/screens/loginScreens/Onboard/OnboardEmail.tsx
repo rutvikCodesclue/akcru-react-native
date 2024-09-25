@@ -92,10 +92,6 @@ const OnboardEmail = () => {
         iconcolor: '',
     });
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const [signupErrorMessage, setSignupErrorMessage] = useState('');
-
     const SendOTP = async () => {
         if (!isEmailValid(email)) {
             setEmailError(true);

@@ -91,8 +91,6 @@ const AccountSettings = () => {
     const confirmFirstNameUpdate = async () => {
         try {
             setLoading(true);
-            console.log('firstname', firstName);
-
             const updatedFields = {
                 firstName: firstName,
             };
@@ -679,24 +677,6 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-
-                    {/* <View>
-                        <Text style={styles.inputlabel}>Phone number</Text>
-                        <View style={styles.input}>
-                            <TouchableOpacity onPress={handlePhoneModalOpen}>
-                                <MaskedTextInput
-                                    mask="1-999-999-9999"
-                                    placeholder={user?.phoneNumber}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setPhoneModified(text)}
-                                    value={phone || ''}
-                                    editable={false}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    </View> */}
                     <View>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
@@ -885,24 +865,6 @@ const AccountSettings = () => {
                             </View>
                         </View>
                     </Modal>
-
-                    {/* <View>
-                        <Text style={styles.inputlabel}>DOB</Text>
-                        <View style={styles.input}>
-                            <TouchableOpacity onPress={handleDobModalOpen}>
-                                <TextInput
-                                    placeholder={user?.dateOfBirth || 'Select Date of Birth'}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setDobModified(text)}
-                                    value={dob ? formatDateToDayMonthYear(new Date(dob)) : ''}
-                                    editable={false}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                    </View> */}
-
                     <Modal animationType="fade" transparent={false} visible={dobModalVisible}>
                         <SafeAreaView
                             style={{
@@ -1228,146 +1190,6 @@ const AccountSettings = () => {
                             alignSelf: 'center',
                         }}
                     />
-
-                    {/* <View style={{borderWidth: 0.8, borderRadius: 5, borderColor: COLORS.LIGHTGREY, padding: 10}}>
-                        <Text style={{...FONTS.Title2, marginBottom: 5, textAlign: 'center'}}>Privacy settings</Text>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                paddingBottom: 10,
-                                alignSelf: 'center',
-                            }}>
-                            <Text style={{...FONTS.Title2, paddingRight: 10}}>Control who can see your profile</Text>
-                            <Icon name="eye-outline" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-around',
-
-                                paddingBottom: 5,
-                            }}>
-                            <TouchableOpacity onPress={() => setPrivacySetting('Public')}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Public</Text>
-                                    {privacySetting === 'Public' && (
-                                        <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setPrivacySetting('Followers')}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Only Followers</Text>
-                                    {privacySetting === 'Followers' && (
-                                        <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View
-                            style={{
-                                borderBottomWidth: 0.8,
-                                borderColor: COLORS.LIGHTGREY,
-                                marginVertical: 20,
-                                width: SIZES.ScreenWidth / 4,
-                                alignSelf: 'center',
-                            }}
-                        />
-
-                        <View
-                            style={{
-                                paddingBottom: 10,
-                            }}>
-                            <Text style={{...FONTS.Title2, paddingRight: 10, textAlign: 'center'}}>
-                                Do you want your followers to see your "Watch Status"?
-                            </Text>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'space-around',
-
-                                paddingBottom: 5,
-                            }}>
-                            <TouchableOpacity onPress={() => setWatchStatus('Yes')}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...FONTS.paragraph1, paddingRight: 10}}>Yes</Text>
-                                    {watchStatus === 'Yes' && (
-                                        <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setWatchStatus('No')}>
-                                <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                    <Text style={{...FONTS.paragraph1, paddingRight: 10}}>No</Text>
-                                    {watchStatus === 'No' && (
-                                        <Icon name="checkmark-circle" type="ionicon" size={20} color={COLORS.GREEN} />
-                                    )}
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-                    </View> */}
-                    {/* <View style={{alignItems: 'center', marginTop: 20}}>
-                        <AkcruButtons.LrgButton
-                            btnname={'Update'}
-                            disabled={false}
-                            color={COLORS.AKCRUBLUE}
-                            onPress={handleUpdateProfile}
-                        />
-                    </View> */}
-
-                    {/* <Modal animationType="fade" transparent={true} visible={showUpdateConfirmation}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            }}>
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                }}>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={{...FONTS.Title3, marginBottom: 10}}>Confirm Update</Text>
-                                    <Text style={{marginBottom: 20, ...FONTS.Title3}}>
-                                        Are you sure you want to update your Account settings?
-                                    </Text>
-                                </View>
-
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                    }}>
-                                    <TouchableOpacity
-                                        onPress={() => setShowUpdateConfirmation(false)}
-                                        style={{
-                                            backgroundColor: 'red',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        onPress={confirmUpdate}
-                                        style={{
-                                            backgroundColor: 'green',
-                                            padding: 10,
-                                            borderRadius: 5,
-                                        }}>
-                                        <Text style={{...FONTS.Title3}}>Update</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                    </Modal> */}
                 </View>
             </ScrollView>
         </View>

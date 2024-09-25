@@ -7,15 +7,13 @@ import styles from './styles';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import Svg, {Path} from 'react-native-svg';
 import {Icon} from '@rneui/base';
 import CodeInput from '../../../components/CodeInput/CodeInput';
 import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
-import { supabase } from '../../../../lib/supabase';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../../components/General/backbutton';
 
@@ -23,15 +21,8 @@ import BackButton from '../../../components/General/backbutton';
 const OTPVerification = ({route}) => {
     const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
-
-    
-
-    
     const email = route.params?.email;
     const phoneNumber = route.params?.phoneNumber;
-
-    const [otp, setOTP] = useState<string>('');
 
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
     //code length
@@ -100,7 +91,6 @@ const OTPVerification = ({route}) => {
             const data = response.data;
 
             if (data.success) {
-                //console.log('Verification successful', data);
                 setVerify(false);
                 handleShowOTPModal('success');
 

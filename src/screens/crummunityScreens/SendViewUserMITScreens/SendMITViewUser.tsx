@@ -1,21 +1,20 @@
-import {Text, View, Image, SafeAreaView, FlatList, ScrollView, TouchableOpacity} from 'react-native';
+import {Text, View, Image, SafeAreaView, FlatList, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
-import {Avatar, Icon} from '@rneui/base';
+import {Avatar} from '@rneui/base';
 import SendMITSearchInput from './SendMITSearchInput';
 import GenreCard from '../../../components/GenreCard';
 import AkcruLevels from '../../../components/akcruBadges';
 import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {getMovieGenres} from '../../../lib/api/movies.lib';
 import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../util/util';
 import {IGenreItem, IUserProfile} from '../../../../types';
 import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import styles from '../../contentScreens/PlayContentScreen/styles';
 import BackButton from '../../../components/General/backbutton';
 type SendMITViewUserNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITViewUser'>;
 

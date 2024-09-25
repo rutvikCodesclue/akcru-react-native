@@ -7,31 +7,20 @@ import styles from './styles';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import useAuthStore from '../../../stores/auth.store';
 import Svg, {Path} from 'react-native-svg';
 import {Icon} from '@rneui/base';
 import CodeInput from '../../../components/CodeInput/CodeInput';
 import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
-import { supabase } from '../../../../lib/supabase';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../../components/General/backbutton';
 
-
 const OTPVerificationSignup = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-
-    
-
-    
     const email = route.params?.email;
-    //console.log('Email passed:', email);
-    const phoneNumber = route.params?.phoneNumber;
-    //console.log('Phone number passed:', phoneNumber);
 
-    const [otp, setOTP] = useState<string>('');
+    const phoneNumber = route.params?.phoneNumber;
 
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
     //code length
@@ -81,49 +70,42 @@ const OTPVerificationSignup = ({route}) => {
         }
     };
 
-     const handleOTPVerification = async () => {
-         try {
-             setVerify(true);
+    const handleOTPVerification = async () => {
+        try {
+            setVerify(true);
 
-             
-             
-             const payload = email ? {email} : {phoneNumber};
+            const payload = email ? {email} : {phoneNumber};
 
-             const response = await API.post('/v1/auth/verify', {
-                 ...payload,
-                 otp: code,
-                 
-             });
+            const response = await API.post('/v1/auth/verify', {
+                ...payload,
+                otp: code,
+            });
 
-             const data = response.data;
+            const data = response.data;
 
-             if (data.success) {
-                 //console.log('Verification successful', data);
-                 setVerify(false);
-                 handleShowOTPModal('success');
+            if (data.success) {
+                //console.log('Verification successful', data);
+                setVerify(false);
+                handleShowOTPModal('success');
 
-                 
-                 
-                 navigation.navigate('OnboardEmailOrPassword', {
-                     email: email,
-                     phoneNumber: phoneNumber,
-                 });
-             } else {
-                 
-                 throw new Error(data.message || 'Verification failed');
-             }
-         } catch (error) {
-             console.error('Verification failed', error);
-             setVerify(false);
-             handleShowOTPModal('failed');
-         }
-     };
+                navigation.navigate('OnboardEmailOrPassword', {
+                    email: email,
+                    phoneNumber: phoneNumber,
+                });
+            } else {
+                throw new Error(data.message || 'Verification failed');
+            }
+        } catch (error) {
+            console.error('Verification failed', error);
+            setVerify(false);
+            handleShowOTPModal('failed');
+        }
+    };
 
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

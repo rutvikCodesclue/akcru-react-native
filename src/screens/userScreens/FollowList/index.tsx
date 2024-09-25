@@ -1,17 +1,7 @@
-import {
-    View,
-    Text,
-    TouchableOpacity,
-    PressableAndroidRippleConfig,
-    StyleProp,
-    useWindowDimensions,
-    ViewStyle,
-    TextStyle,
-} from 'react-native';
+import {View, PressableAndroidRippleConfig, StyleProp, useWindowDimensions, ViewStyle, TextStyle} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {Icon} from '@rneui/base';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';

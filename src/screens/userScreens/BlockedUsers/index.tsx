@@ -1,6 +1,5 @@
 import {View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/header';

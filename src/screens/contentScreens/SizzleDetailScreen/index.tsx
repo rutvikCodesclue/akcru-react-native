@@ -2,7 +2,6 @@ import {View, ScrollView, SafeAreaView, ActivityIndicator} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
-import BasicListCategories from '../../../components/BasicListCategories';
 import {COLORS} from '../../../../assets/constants';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp} from '@react-navigation/native';
@@ -128,16 +127,6 @@ export default function SizzleDetailScreen({navigation}: Props) {
                                 />
                             </View>
                             <View />
-
-                            {/* <View style={{marginHorizontal: 15}}>
-                                <BasicListCategories
-                                    Akcru_Content={{
-                                        id: 'recommendedForYou',
-                                        title: 'Recommended by Akcru',
-                                        movies: randomMovies,
-                                    }}
-                                />
-                            </View> */}
                         </View>
                     ) : (
                         <View style={styles.activitycontainer}>

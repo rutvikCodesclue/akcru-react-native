@@ -1,9 +1,6 @@
 import {View, SafeAreaView} from 'react-native';
 import React from 'react';
 import WebView from 'react-native-webview';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {CruChewStackParams} from '../../../navigation/CruChewStack';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 

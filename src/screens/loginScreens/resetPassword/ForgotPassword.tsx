@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Alert, Pressable} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Pressable} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -8,11 +8,10 @@ import imageindex from '../../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {supabase} from '../../../../lib/supabase';
 import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 
 const ForgotPassword = () => {
@@ -22,7 +21,6 @@ const ForgotPassword = () => {
     const [emailError, setEmailError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    
     const isEmailValid = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
@@ -34,10 +32,7 @@ const ForgotPassword = () => {
     };
 
     const checkFormCompletion = () => {
-        if (
-            email &&
-            isEmailValid(email) 
-        ) {
+        if (email && isEmailValid(email)) {
             setIsFormComplete(true);
         } else {
             setIsFormComplete(false);
@@ -61,7 +56,7 @@ const ForgotPassword = () => {
         iconcolor: '',
     });
 
-    
+
     const SendOTP = async () => {
         if (!isEmailValid(email)) {
             setEmailError(true);
@@ -70,10 +65,8 @@ const ForgotPassword = () => {
 
         setLoading(true);
         try {
-            
+
             const {data, error} = await API.post('/v1/user/sendOTP', {email});
-            
-            console.log("Data", data, error)
             if (error) {
                 setResetResultType({
                     messageheader: 'Error',
@@ -93,10 +86,10 @@ const ForgotPassword = () => {
                     iconcolor: COLORS.CATGREENLGT,
                 });
 
-                
+
                 setTimeout(() => {
                     navigation.navigate('OTPVerification', {email});
-                }, 3000); 
+                }, 3000);
             }
 
         } catch (error) {
@@ -117,7 +110,7 @@ const ForgotPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
+
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',

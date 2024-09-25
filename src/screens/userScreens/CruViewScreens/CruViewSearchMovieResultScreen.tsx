@@ -5,7 +5,6 @@ import CruViewSearchInput from '../../../components/CruViewSearchInput/CruViewSe
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
-import {Icon} from '@rneui/base';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';

@@ -64,9 +64,10 @@ export default function SizzlePlayer({navigation}: Props) {
             if (hasStartedWatching && user?.id && trailerId) {
                 finishUserWatching(user.id, trailerId).then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        //console.log(`User finished watching movie: ${movieId}`);
+
                     } else {
-                        //console.log(`Failed to mark movie as finished: ${movieId}`);
+                        // Handle the case where the user did not finish watching the trailer
+                        // You can show an error message or perform any other action here
                     }
                 });
             }
@@ -116,7 +117,6 @@ export default function SizzlePlayer({navigation}: Props) {
                     </>
                 ) : (
                     <>
-                        {console.log('Sizzle indicator')}
                         <ActivityIndicator size="large" color={COLORS.CATPURPDRK} style={{alignSelf: 'center'}} />
                     </>
                 )}

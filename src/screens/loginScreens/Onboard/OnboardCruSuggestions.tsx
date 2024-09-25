@@ -6,8 +6,6 @@ import {useNavigation} from '@react-navigation/native';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import AkcruButtons from '../../../components/akcruButtons';
-import {appVersion} from '../../../../assets/constants/Data';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/themed';
 import {IUserProfile} from '../../../../types';
@@ -15,7 +13,6 @@ import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
 import UserCruBuilderCard from '../../../components/UserCruBuilderCard';
 import useAuthStore from '../../../stores/auth.store';
 import {getCruInviteStatus, createACRUInvite, checkUserMembership} from '../../../lib/api/cru.lib';
-import BackButton from '../../../components/General/backbutton';
 
 const OnboardCruSuggestions = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -200,14 +197,6 @@ const OnboardCruSuggestions = () => {
                                 </View>
                             )}
                         </ScrollView>
-                        {/* <View style={{position: 'relative', bottom: '15%', left: '8%'}}>
-                            <AkcruButtons.XlLrgButton
-                                color={COLORS.PURPLE}
-                                btnname={'Watch Content'}
-                                onPress={handleNavigateToSwipe}
-                                disabled={false}
-                            />
-                        </View> */}
                     </View>
                 </View>
             </ImageBackground>

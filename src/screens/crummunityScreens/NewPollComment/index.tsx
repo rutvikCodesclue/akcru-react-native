@@ -482,22 +482,6 @@ const NewPollComment = ({navigation, route}: Props) => {
                                 maxLength={200}
                                 editable={true}
                             />
-                            {/* <TextInput
-                            placeholder={'Tell us the "skinny" in 150 characters or less'}
-                            placeholderTextColor={COLORS.DARKGREY}
-                            style={styles.textinput}
-                            secureTextEntry={false}
-                            onChangeText={text => {
-
-                                if (text.length <= 200) {
-                                    setComment(text);
-                                }
-                            }}
-                            value={comment}
-                            multiline={true}
-                            maxLength={200}
-                            editable={true}
-                        /> */}
                         </View>
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
@@ -544,9 +528,6 @@ const NewPollComment = ({navigation, route}: Props) => {
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
                                     <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
-                                {/* <TouchableOpacity onPress={selectAGIF}>
-                            <Icon name="file-gif-box" type="material-community" color={COLORS.MIDORANGE} size={26} />
-                        </TouchableOpacity> */}
                                 <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
                                     <Icon
                                         name="video-account"

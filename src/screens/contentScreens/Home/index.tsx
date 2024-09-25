@@ -270,20 +270,6 @@ const HomeScreen = () => {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    // useEffect(() => {
-    //     const loadUnfinishedMovies = async () => {
-    //         const movies = await fetchUnfinishedMovies();
-    //         setUnfinishedMovies(movies);
-    //         setIsLoading(false);
-    //     };
-
-    //     loadUnfinishedMovies();
-    // }, []);
-
-    // const updateUnfinishedMovies = (updatedMovies: React.SetStateAction<IMovie[]>) => {
-    //     setUnfinishedMovies(updatedMovies);
-    // };
-
     useFocusEffect(
         React.useCallback(() => {
             console.log('Getting unfinished content');

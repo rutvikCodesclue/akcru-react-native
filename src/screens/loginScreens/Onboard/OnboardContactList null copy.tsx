@@ -42,7 +42,6 @@ const OnboardContactList = () => {
         setLoading(true);
 
         const contacts = await Contacts.getAll();
-        console.log('length', contacts.length);
         setIsContactPermission(true);
         let allPhoneNumbers: any = [];
 

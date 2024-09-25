@@ -634,15 +634,6 @@ const NewPoll = () => {
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPollImage}>
                                     <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
                                 </TouchableOpacity>
-
-                                {/* <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPollVideo}>
-                                    <Icon
-                                        name="video-account"
-                                        type="material-community"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={30}
-                                    />
-                                </TouchableOpacity> */}
                             </View>
                         )}
                         {selectedVideo && (
@@ -834,7 +825,6 @@ const NewPoll = () => {
                 <Modal transparent={true} visible={isPosting} animationType="fade">
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color={COLORS.PINK} />
-                        {/* We are posting text in middle white */}
                         <Text style={stylesProgress.loadingText}>We're Posting...</Text>
                     </View>
                 </Modal>

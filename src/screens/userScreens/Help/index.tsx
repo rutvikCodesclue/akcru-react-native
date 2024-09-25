@@ -1,10 +1,9 @@
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import {ScrollView} from 'react-native-gesture-handler';
-import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';

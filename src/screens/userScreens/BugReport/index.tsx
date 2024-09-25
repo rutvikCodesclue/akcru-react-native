@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
     View,
     Text,
@@ -12,18 +12,18 @@ import {
     Alert,
     Pressable,
 } from 'react-native';
-import { Icon } from '@rneui/base';
-import { COLORS, FONTS, SIZES } from '../../../../assets/constants';
+import {Icon} from '@rneui/base';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import { launchImageLibrary } from 'react-native-image-picker';
-import { MediaType } from 'react-native-image-picker';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {MediaType} from 'react-native-image-picker';
 import useAuthStore from '../../../stores/auth.store';
-import { sendReportToBackend, uploadImages } from '../../../lib/api/user.lib';
+import {sendReportToBackend, uploadImages} from '../../../lib/api/user.lib';
 import ReportResultModal from '../../../components/ReportResultModal/ReportResultModal';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
@@ -35,7 +35,6 @@ const BugReport = () => {
 
     const [description, setDescription] = useState('');
     const [selectedImages, setSelectedImages] = useState([]);
-    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState('');
@@ -52,7 +51,6 @@ const BugReport = () => {
         };
 
         launchImageLibrary(options, response => {
-            //console.log('Response from Image Picker:', response);
 
             if (response && !response.didCancel && response.assets) {
                 const uris = response.assets.map(asset => asset.uri);
@@ -64,15 +62,13 @@ const BugReport = () => {
     const handleSubmitReport = async () => {
         let uploadedImageUrls: string[] = [];
         if (selectedImages.length > 0) {
-            //console.log('Attempting to upload image:', selectedImages);
             const uploadResponses = await uploadImages(selectedImages);
-            //console.log('Upload response:', uploadResponses);
 
             if (uploadResponses && uploadResponses.success) {
                 uploadedImageUrls = uploadResponses.content;
-                //console.log('Uploaded Image URL:', uploadedImageUrls);
             } else {
-                //console.log('No image URL returned from upload');
+                Alert.alert('Error', 'Failed to upload images.');
+                return;
             }
         }
 
@@ -108,7 +104,6 @@ const BugReport = () => {
     };
 
     const removeFromUpload = async imageUri => {
-        //console.log('Attempting to remove image:', imageUri);
 
         const updatedImages = selectedImages.filter(img => img !== imageUri);
         setSelectedImages(updatedImages);

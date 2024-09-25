@@ -143,7 +143,6 @@ const OnboardEmailOrPassword = ({route}) => {
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your mobile number'}
                                         onPress={() => {
-                                            console.log('phone =>', '1' + phone);
                                             navigation.navigate('OnboardPassword', {email: email, phoneNumber: phone});
                                         }}
                                         disabled={phoneError || !phone}

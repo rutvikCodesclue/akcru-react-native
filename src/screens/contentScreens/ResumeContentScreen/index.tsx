@@ -85,7 +85,6 @@ export default function ResumePlayer({navigation}: Props) {
         React.useCallback(() => {
             hideNavigationBar();
             if (isMoviePlaying) {
-                console.log('focus');
             }
 
             return () => {
@@ -122,7 +121,6 @@ export default function ResumePlayer({navigation}: Props) {
         }
         if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
             syncWatchTime();
-            // Update watch time
             updateWatchTime(movieId, currentTime, isEpisode);
         }
     };
@@ -184,8 +182,7 @@ export default function ResumePlayer({navigation}: Props) {
                     }
                 })
                 .catch(error => {
-                    console.log("resume Content Screen Finsh error");
-                    
+                    console.log('resume Content Screen Finsh error');
                     console.error('Error finishing user watching:', error);
                 });
         }
@@ -226,7 +223,6 @@ export default function ResumePlayer({navigation}: Props) {
                         </>
                     ) : (
                         <>
-                            {console.log('error')}
                             <ActivityIndicator size="large" color={COLORS.BLACK} />
                         </>
                     )

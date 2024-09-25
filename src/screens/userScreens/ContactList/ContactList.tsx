@@ -26,7 +26,6 @@ import {PERMISSIONS, RESULTS, check} from 'react-native-permissions';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
-import {Icon} from '@rneui/base';
 import BackButton from '../../../components/General/backbutton';
 
 const ContactList = () => {
@@ -44,7 +43,6 @@ const ContactList = () => {
         setLoading(true);
 
         const contacts = await Contacts.getAll();
-        console.log('length:', contacts.length);
         setIsContactPermission(true);
         let allPhoneNumbers: any = [];
 
@@ -53,7 +51,6 @@ const ContactList = () => {
 
             allPhoneNumbers = allPhoneNumbers.concat(phoneNumbers);
         });
-        console.log('allPhoneNumbers:', allPhoneNumbers);
         const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
         setContacts(cleanedPhoneNumbers);
         getKnownUsers(cleanedPhoneNumbers);

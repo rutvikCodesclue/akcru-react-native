@@ -1,4 +1,4 @@
-import {Text, View, TouchableWithoutFeedback, TouchableOpacity, TextInput, FlatList, SafeAreaView} from 'react-native';
+import {View, TouchableWithoutFeedback, TextInput, FlatList, SafeAreaView} from 'react-native';
 import styles from './styles';
 import React, {useState, useRef} from 'react';
 import Header from '../../../components/header';
@@ -6,7 +6,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 
-import {FONTS, COLORS} from '../../../../assets/constants';
+import {COLORS} from '../../../../assets/constants';
 import {ScrollView} from 'react-native-gesture-handler';
 import {searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';

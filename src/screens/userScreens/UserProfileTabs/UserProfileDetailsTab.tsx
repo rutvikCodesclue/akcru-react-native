@@ -250,10 +250,8 @@ const UserProfileDetailsTab = () => {
                     }
                 }
 
-                // const filteredUploadedImages = uploadedImages.filter((image): image is string => !!image);
 
                 if (uploadedImages.length > 0) {
-                    // const newGallery = [...userPics, ...filteredUploadedImages].slice(0, 30);
                     setUserPics(uploadedImages);
                 }
             }
@@ -261,14 +259,12 @@ const UserProfileDetailsTab = () => {
     };
 
     const removeFromGallery = async (image: string) => {
-        //console.log('removeFromGallery called with image:', image);
         try {
             const updatedUser = await deleteUserGalleryImage(image);
             if (updatedUser) {
                 const filteredImages = userPics.filter(url => url !== image);
                 setUserPics(filteredImages);
             } else {
-                //console.log('Failed to delete image from gallery');
             }
         } catch (error) {
             console.error('Error removing image from gallery:', error);
@@ -516,21 +512,6 @@ const UserProfileDetailsTab = () => {
                                                 />
                                             </TouchableOpacity>
                                         </View>
-                                        {/* <View>
-                                            <Image
-                                                source={imageindex.NewCru}
-                                                style={{width: 120, height: 120}}
-                                                resizeMode="cover"
-                                            />
-                                        </View>
-                                        <View style={{marginTop: 15}}>
-                                            <AkcruButtons.SmallButton
-                                                disabled={false}
-                                                color={COLORS.MIDORANGE}
-                                                btnname="CRU View"
-                                                onPress={() => navigation.navigate('UserCruChatScreen')}
-                                            />
-                                        </View> */}
                                     </View>
                                 </View>
                                 <View style={{marginTop: 10}}>
@@ -702,9 +683,11 @@ const UserProfileDetailsTab = () => {
                                             updateWatchlist={updateWatchlist}
                                         />
                                     </View>
-                                ):  (<View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
-                                    <Text style={{color:'gray'}}>Your Favorites will appear here</Text>
-                                    </View>)}
+                                ) : (
+                                    <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
+                                        <Text style={{color: 'gray'}}>Your Favorites will appear here</Text>
+                                    </View>
+                                )}
                                 <View style={styles.lineDivider} />
                                 <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
                                     <AkcruButtons.LrgButton

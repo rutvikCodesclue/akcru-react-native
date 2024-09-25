@@ -1,11 +1,10 @@
-import {View, Text, ScrollView, TouchableOpacity, FlatList} from 'react-native';
+import {View, Text, ScrollView, FlatList} from 'react-native';
 import React, {useEffect} from 'react';
 import CruViewSearchInput from '../../../components/CruViewSearchInput/CruViewSearchInput';
 import GenreCard from '../../../components/GenreCard';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-import {Icon} from '@rneui/base';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {getMovieGenres} from '../../../lib/api/movies.lib';
 import {capitalizeFirstLetterOfString} from '../../../util/util';

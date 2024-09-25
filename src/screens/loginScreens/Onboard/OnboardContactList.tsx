@@ -42,7 +42,6 @@ const OnboardContactList = () => {
         try {
             setLoading(true);
             const contacts = await Contacts.getAll();
-            console.log('Total contacts on phone:', contacts.length);
 
             let allPhoneNumbers: any[] = [];
 
@@ -52,7 +51,6 @@ const OnboardContactList = () => {
             });
 
             const cleanedPhoneNumbers = await cleanPhoneNumbersAsync(allPhoneNumbers);
-            console.log('Cleaned phone numbers:', cleanedPhoneNumbers);
 
             setContacts(cleanedPhoneNumbers);
             await getKnownUsers(cleanedPhoneNumbers);
@@ -92,7 +90,6 @@ const OnboardContactList = () => {
                 phoneNumbers: allPhoneNumbers,
             });
             if (user_known_contacts.data.success) {
-                console.log('Known users from API:', user_known_contacts.data.users);
 
                 const clonedArray = user_known_contacts.data.users.map((obj: any) => ({
                     ...obj,
@@ -102,7 +99,6 @@ const OnboardContactList = () => {
 
                 setKnowContacts(clonedArray);
             } else {
-                console.log('No known users found.');
             }
         } catch (error) {
             console.error('Error fetching known users:', error);

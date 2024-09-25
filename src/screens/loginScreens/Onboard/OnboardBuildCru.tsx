@@ -7,7 +7,7 @@ import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {appVersion} from '../../../../assets/constants/Data';
+
 import LinearGradient from 'react-native-linear-gradient';
 
 const OnboardBuildCru = () => {

@@ -1,16 +1,4 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    TouchableOpacity,
-    ImageBackground,
-    Pressable,
-    Modal,
-    KeyboardAvoidingView,
-    Alert,
-    ActivityIndicator,
-    TextInput,
-} from 'react-native';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, TextInput} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -20,16 +8,10 @@ import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
-import Inputs from '../../../components/input';
-import {Icon} from '@rneui/base';
-import Tos from './tos';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
-import axios from 'axios';
-import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
-import {API} from '../../../clients/api.client';
 import {updateUser} from '../../../lib/api/user.lib';
 import BackButton from '../../../components/General/backbutton';
 
@@ -49,8 +31,6 @@ const OnboardDescription = () => {
             });
 
             if (updatedUser) {
-                //console.log('Description updated successfully:', updatedUser);
-
                 const currentUser = useAuthStore.getState().user;
                 if (currentUser) {
                     currentUser.description = description;
@@ -117,15 +97,6 @@ const OnboardDescription = () => {
                                     editable={true}
                                 />
                             </View>
-                            {/* <Inputs
-                              placeholdername={'Email'}
-                              iconname={'mail'}
-                              iconcolor={COLORS.LIGHTGREY}
-                              secureTextEntry={false}
-                              onChangeText={handleEmailChange}
-                              value={email}
-                              editable={!loading}
-                          /> */}
                         </View>
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>

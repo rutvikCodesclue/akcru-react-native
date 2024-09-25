@@ -50,7 +50,6 @@ const EditCru = () => {
     useFocusEffect(
         React.useCallback(() => {
             getMyCRU().then(res => {
-                //console.log('Data from getMyCRU:', res);
                 setCRU(res?.CRU);
                 if (res?.CRU.members) {
                     setMembers(res.CRU.members);
@@ -58,9 +57,7 @@ const EditCru = () => {
                 }
             });
 
-            return () => {
-                //console.log('Screen unfocused [EditCruScreen]');
-            };
+            return () => {};
         }, []),
     );
 
@@ -83,8 +80,6 @@ const EditCru = () => {
 
                 if (updatedCRU) {
                     setCRU(updatedCRU);
-
-                    //console.log('Modified CRU Name:', updatedCRU.name);
                 }
             } else {
                 console.error('Invalid CRU name');
@@ -123,7 +118,6 @@ const EditCru = () => {
                     setMembers(prevMembers => prevMembers.filter(member => member.id !== memberToDelete.id));
 
                     setShowConfirmationModal(false);
-                    //console.log('User removed from CRU:', memberToDelete.id);
                 }
             } catch (error) {
                 console.error('Error removing user from CRU:', error);

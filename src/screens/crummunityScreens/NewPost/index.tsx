@@ -656,7 +656,6 @@ const NewPost = () => {
                 <Modal transparent={true} visible={isPosting} animationType="fade">
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color={COLORS.PINK} />
-                        {/* We are posting text in middle white */}
                         <Text style={stylesProgress.loadingText}>We're Posting...</Text>
                     </View>
                 </Modal>

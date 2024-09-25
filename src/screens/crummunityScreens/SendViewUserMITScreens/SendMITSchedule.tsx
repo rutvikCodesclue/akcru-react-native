@@ -16,7 +16,6 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import AkcruButtons from '../../../components/akcruButtons';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import {Icon} from '@rneui/base';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -39,7 +38,6 @@ import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import BackButton from '../../../components/General/backbutton';
-import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -62,8 +60,6 @@ export default function SendMITSchedule({route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            console.log('Userid', userID);
-
             findAUser({id: userID}).then(user => {
                 setUser(user);
             });
@@ -163,7 +159,6 @@ export default function SendMITSchedule({route}: Props) {
     };
 
     const handleSetDateTime = async () => {
-        // console.log('Test mit', selectedDate, selectedTime, selectedTimeZone, movie, user);
         setLoading(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
@@ -456,19 +451,6 @@ export default function SendMITSchedule({route}: Props) {
                                                         size={MULTISIZES.Xlarge43}
                                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                                     />
-                                                    {/* <Avatar
-                                                        rounded
-                                                        size={40}
-                                                        source={
-                                                            user?.profilePicture
-                                                                ? {uri: user?.profilePicture}
-                                                                : imageindex.Akcruplaceholder
-                                                        }
-                                                        avatarStyle={{
-                                                            borderWidth: 2,
-                                                            borderColor: COLORS.AKCRUBLUE,
-                                                        }}
-                                                    /> */}
                                                 </View>
                                                 <View style={{marginLeft: 10}}>
                                                     <Text style={{...FONTS.Title2}}>{user?.username}</Text>

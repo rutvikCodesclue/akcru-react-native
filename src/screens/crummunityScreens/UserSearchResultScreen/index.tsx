@@ -1,4 +1,4 @@
-import {Text, View, TouchableOpacity, TextInput, FlatList, SafeAreaView} from 'react-native';
+import {View, TextInput, FlatList, SafeAreaView} from 'react-native';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
@@ -6,8 +6,7 @@ import UserSearchCard from '../../../components/UserSearchCard';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
-
-import {FONTS, COLORS} from '../../../../assets/constants';
+import {COLORS} from '../../../../assets/constants';
 import {ScrollView} from 'react-native-gesture-handler';
 import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
@@ -98,7 +97,6 @@ const UserSearchResultScreen = () => {
                                             userPicture={item.profilePicture}
                                             userName={item.username}
                                             onPress={() => {
-                                                //console.log('Navigating to ViewUserScreen with userID:', item.username, item.id);
                                                 navigation.navigate('ViewUserScreen', {
                                                     userID: item.id,
                                                 });
@@ -134,7 +132,6 @@ const UserSearchResultScreen = () => {
                                             userPicture={item.profilePicture}
                                             userName={item.username}
                                             onPress={() => {
-                                                //console.log('Navigating to ViewUserScreen with userID:', item.username, item.id);
                                                 navigation.navigate('ViewUserScreen', {
                                                     userID: item.id,
                                                 });

@@ -130,7 +130,6 @@ export default function EpisodePlayer({navigation}: Props) {
     };
 
     const onPlay = () => {
-        console.log('onPlay');
         setIsEpisodePlaying(true);
         startTimer();
         if (user?.id && episodeId && !hasStartedWatching) {
@@ -152,28 +151,6 @@ export default function EpisodePlayer({navigation}: Props) {
             setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
         }
     };
-
-    // const onEnd = () => {
-    //     setIsEpisodePlaying(false);
-    //     pauseTimer();
-    //     resetTimer();
-
-    //     if (episodeId) {
-    //         finishUserWatching(episodeId, true).then(finishedSuccessfully => {
-    //             if (finishedSuccessfully) {
-    //                 const pausedCurrentTime = currentTime;
-    //                 setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
-    //                 setHasStartedWatching(false);
-    //                 Orientation.lockToPortrait();
-    //                 StatusBar.setHidden(false);
-    //                 navigation.pop();
-    //             } else {
-    //                 console.error('Error finishing episode watching.');
-    //             }
-    //         });
-    //     }
-    // };
-
     const onEnd = () => {
         setIsEpisodePlaying(false);
         pauseTimer();
@@ -238,7 +215,6 @@ export default function EpisodePlayer({navigation}: Props) {
                             </>
                         ) : (
                             <>
-                                {console.log('error')}
                                 <ActivityIndicator size="large" color={COLORS.BLACK} />
                             </>
                         )
@@ -254,7 +230,6 @@ export default function EpisodePlayer({navigation}: Props) {
                     <AkcruOpener
                         onAnimationFinish={() => {
                             if (!hasLottieFirstLoopCompleted) {
-                                console.log('here');
                                 setHasLottieFirstLoopCompleted(true);
                             }
                         }}

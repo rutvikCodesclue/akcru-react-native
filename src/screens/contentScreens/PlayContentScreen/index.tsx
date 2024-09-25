@@ -17,7 +17,6 @@ import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 import AkcruOpener from '../../../components/AkcruOpener';
-import {has} from 'lodash';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -68,9 +67,20 @@ export default function ContentPlayer({navigation}: Props) {
         fetchMovie();
         Orientation.lockToLandscape();
         StatusBar.setHidden(true);
-
-
     }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
+
+    const onBack = () => {
+        onPause();
+
+        syncWatchTime();
+        // Update watch time
+        updateWatchTime(movieId, currentTime, isEpisode);
+        // navigation.pop();
+
+        Orientation.lockToPortrait();
+        navigation.navigate('ClientTabNavigator', {screen: 'ClientStack'});
+    };
+
     useEffect(() => {
         const backAction = () => {
             // Unlock the orientation or reset to portrait
@@ -81,7 +91,6 @@ export default function ContentPlayer({navigation}: Props) {
             }
 
             return true; // Prevent default back behavior (exiting the app)
-
         };
 
         const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
@@ -203,18 +212,6 @@ export default function ContentPlayer({navigation}: Props) {
         }
     };
 
-    const onBack = () => {
-        onPause();
-
-        syncWatchTime();
-        // Update watch time
-        updateWatchTime(movieId, currentTime, isEpisode);
-        // navigation.pop();
-
-        Orientation.lockToPortrait();
-        navigation.navigate('ClientTabNavigator', {screen: 'ClientStack'});
-    };
-
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
@@ -267,7 +264,6 @@ export default function ContentPlayer({navigation}: Props) {
                             }
                         }}
                     />
-                  
                 )}
             </View>
         </View>

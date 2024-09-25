@@ -1,4 +1,4 @@
-import {View, Text, FlatList, TouchableOpacity, Image, Platform, ActivityIndicator} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
@@ -8,7 +8,6 @@ import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import AkcruButtons from '../../../components/akcruButtons';
 import styles from '../PlayContentScreen/styles';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
