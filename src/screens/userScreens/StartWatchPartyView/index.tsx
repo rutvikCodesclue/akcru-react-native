@@ -158,13 +158,13 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
             channelA.unsubscribe();
             setChannel(null);
         };
-    }, [roomId, currentRoomHost]);
+    }, [roomId, currentRoomHost, isMicOn, hmsInstanceRef]);
 
     const muteLocalPeer = async (payload: any) => {
         if (payload.payload.muteAll) {
             const localPeer = await hmsInstanceRef.current?.getLocalPeer();
             localPeer?.localAudioTrack()?.setMute(true);
-            setIsMicOn((prevState: boolean) => !prevState);
+            setIsMicOn(false);
         }
     };
 
@@ -391,23 +391,12 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
 
     const handleEndRoom = async () => {
         if (hmsInstanceRef.current) {
-            try {
-                await hmsInstanceRef?.current.endRoom('Host Terminated Watchparty Session', false);
-            } catch (error) {
-                console.error('An error occurred:', error);
+            const hostUpdateSuccess = await updateHostId(creatorID);
+
+            if (hostUpdateSuccess) {
+                sendRoomTermination();
+                await handleRoomLeaving();
             }
-            console.log('End Room Success');
-
-            // this condition caters to host users who are not the host according to 100ms (original)
-            if (currentRoomHostRef.current !== creatorID) {
-                const hostUpdateSuccess = await updateHostId(creatorID);
-
-                if (hostUpdateSuccess) {
-                    sendRoomTermination();
-                }
-            }
-
-            await handleRoomLeaving();
         }
     };
 
@@ -603,7 +592,7 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
         if (type === HMSPeerUpdate.PEER_LEFT) {
             setPeerTrackNodes(prevPeerTrackNodes => removeNodeWithPeerId(prevPeerTrackNodes, peer.peerID));
             const userThatLeft = membersRef.current.find(member => member.peerID === peer.peerID);
-            console.log('currentRoomHost - ', user?.username, currentRoomHost);
+            console.log('User That Left: ', userThatLeft?.name);
             if (userThatLeft?.user.id === currentRoomHost) {
                 const peersInRoom = (await hmsInstanceRef.current?.getRoom())?.peers;
                 if (peersInRoom && peersInRoom.length > 0) {
