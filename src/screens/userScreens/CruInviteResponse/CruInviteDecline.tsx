@@ -11,10 +11,11 @@ import {ClientStackParams} from '../../../navigation/ClientStack';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {selectAvatarBorderColor} from '../../../util/util';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
-type CruInviteDeclineNavigationProp = StackNavigationProp<ClientStackParams, 'CruInviteDecline'>;
+type CruInviteDeclineNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'CruInviteDecline'>;
 
-type CruInviteDeclineRouteProp = RouteProp<ClientStackParams, 'CruInviteDecline'>;
+type CruInviteDeclineRouteProp = RouteProp<NoBottomTabStackParams, 'CruInviteDecline'>;
 
 type Props = {
     navigation: CruInviteDeclineNavigationProp;
@@ -26,7 +27,7 @@ const CruInviteDecline = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const timer = setTimeout(() => {
-            navigation.navigate('UserProfileScreen');
+            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileScreen', params: {tabKey: 3}});
         }, 4000);
 
         return () => clearTimeout(timer);
