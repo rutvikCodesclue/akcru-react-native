@@ -35,13 +35,37 @@ export const saveTextMessage = async (
     receiverId: string,
     isCru: boolean = false,
     msgId: string,
-): Promise<undefined> => {
-    try {
-        const param = {roomId, content, receiverId, isCru, msgId};
+    imageUrl: string | null,
+) => {
+    const formData = new FormData();
 
-        const {data} = await API.post('/v1/realtime/create-room-message', param);
-        return data;
-    } catch (error) {}
+    formData.append('roomId', roomId);
+    formData.append('content', content);
+    formData.append('receiverId', receiverId);
+    formData.append('isCru', String(isCru)); 
+    formData.append('msgId', msgId);
+
+    if (imageUrl) {
+        const fileExtension = imageUrl.split('.').pop();
+        const file = {
+            uri: imageUrl,
+            type: `image/${fileExtension}`,
+            name: `image_${Date.now()}.${fileExtension}`,
+        };
+        formData.append('file', file);
+    }
+
+    try {
+        const response = await API.post('/v1/realtime/create-room-message', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error saving message:', error);
+        throw error; // Rethrow error for upstream handling if necessary
+    }
 };
 
 export const getUnread = async (cruIds: String[]): Promise<undefined> => {
@@ -71,29 +95,34 @@ export const getUsers = async (): Promise<IChatUser[] | undefined> => {
         console.error(error);
     }
 };
-export const getTextMessages = async (roomId: String): Promise<IMessage[] | undefined> => {
+export const getMitMessages = async (roomId: String): Promise<IMessage[] | undefined> => {
     try {
         const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
-        const messages: IChatType[] = data.messages;
-        var chatMessage: IMessage[] = [];
-        messages.forEach(item => {
-            const iMessage: IMessage = {
-                _id: item.id,
-                text: item.content,
-                user: {_id: item.senderId},
-                createdAt: new Date(item.createdAt),
-            };
-            chatMessage.push(iMessage);
-        });
-        return chatMessage;
+        // const messages: IChatType[] = data.messages;
+        console.log("MIT messages data:", data);
+
+        // var chatMessage: IMessage[] = [];
+        // messages.forEach(item => {
+        //     const iMessage: IMessage = {
+        //         _id: item.id,
+        //         text: item.content,
+        //         user: {_id: item.senderId},
+        //         createdAt: new Date(item.createdAt),
+        //     };
+        //     chatMessage.push(iMessage);
+        // });
+        return data;
     } catch (error) {
         console.error(error);
     }
 };
 
-export const getTextMessagesGroup = async (roomId: String): Promise<IMessage[] | undefined> => {
+export const getCruMessages = async (roomId: String): Promise<IMessage[] | undefined> => {
     try {
-        const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
+        const { data } = await API.get(`/v1/rooms/messages/${roomId}`);
+        console.log("Cru messages data:", data);
+
+        // Assuming data.messages contains the array of messages
         const messages: IChatType[] = data.messages;
 
         return messages;

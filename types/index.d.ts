@@ -493,6 +493,7 @@ export type SkinnyType = {
 };
 
 export type IChatType = {
+    image_url?: string;
     id: string;
     content: string;
     senderId: string;
