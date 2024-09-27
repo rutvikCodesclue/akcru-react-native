@@ -172,13 +172,13 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            <UserProfile.Screen
+            {/* <UserProfile.Screen
                 name="WatchPartyPreview"
                 component={WatchPartyPreview}
                 options={() => ({
                     headerShown: false,
                 })}
-            />
+            /> */}
 
             {/* <UserProfile.Screen
                 name="FollowList"
