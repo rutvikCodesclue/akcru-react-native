@@ -73,7 +73,10 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [showMITEntryErr, setshowMITEntryErr] = useState(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-    const [index, setIndex] = useState(route.params?.index || 0);
+    const {tabKey = 'first'} = route.params || {};
+    const [index, setIndex] = React.useState(
+        tabKey === 'first' ? 0 : tabKey === 'second' ? 1 : tabKey === 'third' ? 2 : 3,
+    );
 
     const [inviteCount, setInviteCount] = React.useState<number>(0);
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);

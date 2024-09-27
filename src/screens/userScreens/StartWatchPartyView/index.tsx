@@ -2,7 +2,7 @@ import {View, Platform} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {SIZES} from '../../../../assets/constants';
-import {useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useState, useRef, useEffect} from 'react';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
@@ -43,8 +43,6 @@ import TopContainer from './TopContainer';
 import {updateMITHostId} from '../../../lib/api/mit.lib';
 import {updateCruViewHostId} from '../../../lib/api/cru.lib';
 import {VolumeManager} from 'react-native-volume-manager';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
 import {MemberInfo, PeerTrackNode, WatchPartyViewProps} from './WatchPartyProps';
 import {
     _updateNode,
@@ -54,8 +52,7 @@ import {
     updateMembersList,
 } from './PeersAndUserManagement';
 
-const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
-    const navigationToProfile = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     const viewId: string | null = route.params?.inviteId ?? null;
@@ -291,7 +288,7 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
         const room_time_limit = checkRoomTime(Timezone, Movietime);
         if (room_time_limit) {
             AsyncStorage.setItem('isRoomTimeLimitCompleted', 'true');
-            navigationToProfile.navigate('UserProfileStack');
+            navigation.navigate('ClientTabNavigator', {screen: 'UserProfileScreen', params: {tabKey: 2}});
         } else {
             setTimeout(() => {
                 RestrictPartyRoom();
@@ -401,6 +398,9 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
     };
 
     const handleRoomLeaving = async () => {
+        console.log('Nav start');
+        navigation.navigate('ClientTabNavigator', {screen: 'UserProfileScreen', params: {tabKey: 4}});
+        console.log('Nav end');
         if (hmsInstanceRef.current) {
             console.log('Leaving the watchparty room [StartWatchPartyView]...');
             hmsInstanceRef.current.leave();
@@ -412,12 +412,6 @@ const StartWatchPartyView = ({route}: WatchPartyViewProps) => {
         hmsInstanceRef.current = null;
 
         resetTimer();
-
-        // navigationToProfile.reset({
-        //     index: 0,
-        //     routes: [{name: 'UserProfileStack'}],
-        // });
-        navigationToProfile.navigate('UserProfileStack');
     };
 
     const __handleRoomChannelEventsAndSubscribe = () => {

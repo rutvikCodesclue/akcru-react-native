@@ -54,6 +54,7 @@ import EditCommentScreen from '../screens/crummunityScreens/EditComment';
 import NewPoll from '../screens/crummunityScreens/NewPoll';
 import PollScreen from '../screens/crummunityScreens/PollScreen';
 import NewPollComment from '../screens/crummunityScreens/NewPollComment';
+import {CruInviteAccept, CruInviteDecline} from '../screens/userScreens/CruInviteResponse';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -120,6 +121,8 @@ export type NoBottomTabStackParams = {
         comment?: IPollComment;
         pollId: string;
     };
+    CruInviteDecline: any;
+    CruInviteAccept: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -544,6 +547,20 @@ export default function NoBottomStack() {
                     headerShown: false,
                     gestureEnabled: false,
                 }}
+            />
+            <NoBottom.Screen
+                name="CruInviteAccept"
+                component={CruInviteAccept}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="CruInviteDecline"
+                component={CruInviteDecline}
+                options={() => ({
+                    headerShown: false,
+                })}
             />
         </NoBottom.Navigator>
     );
