@@ -1,5 +1,5 @@
-import {View, Text, TouchableOpacity, Image, Pressable} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import {View, Text, TouchableOpacity, Image, Pressable, AppState, AppStateStatus} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
 import {Icon, withBadge} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
@@ -30,6 +30,8 @@ const Header = () => {
     const [unreadCount, setUnreadCount] = useState('');
 
     const isFocused = useIsFocused();
+    const pollingInterval = useRef<NodeJS.Timeout | null>(null);
+    const appState = useRef(AppState.currentState); // Track the app state (active, background, etc.)
 
     const fetchNotifications = async () => {
         try {
@@ -39,36 +41,77 @@ const Header = () => {
                     'MITReceived',
                     'MITAccepted',
                     'MITDeclined',
+                    'MITCanceled',
+                    'CruViewStarted',
+                    'CRUViewCanceled',
+                    'UserLikedGallery',
+                    'UserLikedComment',
+                    'UserLikedPost',
+                    'UserTaggedOnPost',
+                    'UserCommentedOnPost',
+                    'UserTaggedOnComment',
+                    'UserFollowed',
+                    'CruInviteReceived',
                     'CruInviteAccepted',
                     'CruInviteDeclined',
-                    'UserFollowed',
-                    'UserCommentedOnPost',
-                    'UserLikedComment',
-                    'UserTaggedOnPost',
-                    'UserTaggedOnComment',
-                    'UserLikedPost',
-                    'CruInviteReceived',
                     'CruViewScheduled',
-                    'CruViewStarted',
                     'ADReceived',
-                    'MsgRcvd',
                     'GroupMessageReceived',
-                    'UserLikedGallery',
+                    'MsgRcvd',
                 ];
                 const unreadNotifications = notifications.filter(
                     notification => !notification.isRead && specificTypes.includes(notification.type),
                 );
-                setUnreadCount(unreadNotifications.length.toString());
+                notifications.length ? setUnreadCount(unreadNotifications.length.toString()) : setUnreadCount('');
             }
         } catch (error) {
             console.error(error);
         }
     };
 
+    // Function to set the polling interval
+    const startPolling = () => {
+        if (pollingInterval.current) {
+            clearInterval(pollingInterval.current);
+        }
+        pollingInterval.current = setInterval(() => {
+            fetchNotifications();
+        }, 60000); // polling every 30 seconds
+    };
+
+    useEffect(() => {
+        const handleAppStateChange = (nextAppState: AppStateStatus) => {
+            if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+                // App is coming to the foreground
+                if (isFocused) {
+                    fetchNotifications(); // Fetch notifications when app comes to foreground
+                    startPolling();
+                }
+            }
+            appState.current = nextAppState;
+        };
+
+        const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+        return () => {
+            if (pollingInterval.current) {
+                clearInterval(pollingInterval.current); // Clean up interval on unmount
+            }
+            subscription.remove(); // Remove app state listener on unmount
+        };
+    }, [isFocused]); // Depend on isFocused
+
+    // isFocused useEffect for normal navigation events
     useEffect(() => {
         if (isFocused) {
             fetchNotifications();
+            startPolling();
         }
+        return () => {
+            if (pollingInterval.current) {
+                clearInterval(pollingInterval.current);
+            }
+        };
     }, [isFocused]);
 
     useEffect(() => {
