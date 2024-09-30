@@ -33,7 +33,7 @@ export const saveTextMessage = async (
     roomId: string,
     content: string,
     receiverId: string,
-    isCru: boolean = false,
+    isCru: string,
     msgId: string,
     imageUrl: string | null,
 ) => {
@@ -42,7 +42,7 @@ export const saveTextMessage = async (
     formData.append('roomId', roomId);
     formData.append('content', content);
     formData.append('receiverId', receiverId);
-    formData.append('isCru', String(isCru)); 
+    formData.append('isCru', isCru); 
     formData.append('msgId', msgId);
 
     if (imageUrl) {
@@ -56,11 +56,13 @@ export const saveTextMessage = async (
     }
 
     try {
+        console.log("form Data:", formData)
         const response = await API.post('/v1/realtime/create-room-message', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
+        console.log("Response form Data:", formData)
         return response.data;
     } catch (error) {
         console.error('Error saving message:', error);
@@ -100,6 +102,7 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
         const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
         // const messages: IChatType[] = data.messages;
         console.log("MIT messages data:", data);
+        const messages: IChatType[] = data.messages;
 
         // var chatMessage: IMessage[] = [];
         // messages.forEach(item => {
@@ -111,7 +114,7 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
         //     };
         //     chatMessage.push(iMessage);
         // });
-        return data;
+        return messages;
     } catch (error) {
         console.error(error);
     }
