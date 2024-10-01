@@ -4,7 +4,11 @@ import {listCrusForUser} from '../../../lib/api/cru.lib';
 import {navigate} from '../../../util/RootNavigation';
 
 export function navigateToScreen(screenname: string, params?: object) {
-    navigate('NoBottomStack', {screen: screenname, params: params});
+    if (screenname === 'UserProfileScreen') {
+        navigate('UserProfileStack', {screen: 'UserProfileScreen', params: params});
+    } else {
+        navigate('NoBottomStack', {screen: screenname, params: params});
+    }
 }
 
 export const NotificationNavigation = async (notification: any, userID: any) => {
@@ -17,19 +21,19 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                 navigateToScreen('UserMITHubScreen', {index: 0});
                 break;
             case 'MITAccepted':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'MITDeclined':
                 navigateToScreen('UserMITHubScreen', {index: 1});
                 break;
             case 'MITCanceled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'CruViewStarted':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'CRUViewCanceled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'UserLikedGallery':
                 userId = notification.senderId;
@@ -118,19 +122,19 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                 }
                 break;
             case 'CruInviteReceived':
-                navigateToScreen('UserProfileScreen', {index: 2});
+                navigateToScreen('UserProfileScreen', {tabKey: 'third'});
                 break;
             case 'CruInviteAccepted':
-                navigateToScreen('UserProfileScreen', {index: 0});
+                navigateToScreen('UserProfileScreen', {tabKey: 'first'});
                 break;
             case 'CruInviteDeclined':
-                navigateToScreen('UserProfileScreen', {index: 0});
+                navigateToScreen('UserProfileScreen', {tabKey: 'first'});
                 break;
             case 'CruViewScheduled':
-                navigateToScreen('UserProfileScreen', {index: 1});
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'ADReceived':
-                navigateToScreen('UserProfileScreen', {index: 3});
+                navigateToScreen('UserProfileScreen', {tabKey: 'fourth'});
                 break;
             case 'GroupMessageReceived':
                 let userCrus = await listCrusForUser(userID);
