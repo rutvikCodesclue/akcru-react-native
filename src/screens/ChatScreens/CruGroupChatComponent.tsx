@@ -92,6 +92,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         const chatMessages: IMessage[] = response!.map(item => ({
             _id: item.id,
             text: item.content,
+            isCru: item.isCru,
             image: item.imageUrl,
             user: {
                 _id: item.senderId,
@@ -148,7 +149,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                 event: 'groupchat',
                 payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
             });
-            parentChannel.send({
+            parentChannel.send({    
                 type: 'broadcast',
                 event: 'parent-cru-chat',
                 payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
@@ -239,6 +240,10 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             wrapperStyle={{
                                 right: {backgroundColor: COLORS.AKCRUBLUE},
                                 left: {backgroundColor: COLORS.CATPURPDRK},
+                            }}
+                            textStyle={{
+                                right: { color: COLORS.WHITE },  
+                                left: { color: COLORS.WHITE },   
                             }}
                         />
                     )}

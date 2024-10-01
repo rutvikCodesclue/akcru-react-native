@@ -21,7 +21,7 @@ const CruChatComponent = ({ route }: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userId ?? null;
-
+    const {profilePicture} = route.params;
     const [membersData, setMembersData] = useState({});
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
@@ -117,7 +117,6 @@ const CruChatComponent = ({ route }: any) => {
 
         try {
             const response = await saveTextMessage(mItInviteId, imageMessageText, user.id!, 'false', msgId, selectedImage);
-            console.log("Image message saved successfully:", response);
         } catch (error) {
             console.error("Error saving image message:", error);
         }
@@ -134,10 +133,6 @@ const CruChatComponent = ({ route }: any) => {
         const textMessage = messages[0].text!;
 
         try {
-            console.log("Sending text message:", { mItInviteId, textMessage, userId: user.id, isCru: 'false', msgId, image: null });
-
-            // Send message through the channel
-            // Change this line
             channel.send({
                 type: 'broadcast',
                 event: 'test',
@@ -146,21 +141,14 @@ const CruChatComponent = ({ route }: any) => {
 
 
             playMessageSound();
-            console.log("before setMessages");
 
             // Update local messages
             setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-            console.log("after setMessages");
 
-            // Log parameters being sent to saveTextMessage
-            console.log("Saving text message with params:", { mItInviteId, textMessage, receiverId: user.id!, isCru: 'false', msgId, imageUrl: null });
 
-            // Save the message to the backend
             const response = await saveTextMessage(mItInviteId, textMessage, user.id!, 'false', msgId, null);
 
-            console.log("Text message saved successfully:", response);
         } catch (error) {
-            // Improved error handling
             console.error("Error sending text message:", error.response ? error.response.data : error.message);
         }
     };
@@ -216,7 +204,13 @@ const CruChatComponent = ({ route }: any) => {
                                         ? user?.badge ?? 'AKCRUIT'
                                         : 'OTHER_USER_BADGE',
                                 )}
-                                source={{ uri: membersData[props.currentMessage?.user?._id]?.profilePicture }}
+                                source={{
+                                    uri:
+                                        props.currentMessage?.user?._id === user?.id
+                                            ? user?.profilePicture
+                                            : profilePicture,
+                                }}
+                                {...props}
                             />
                         </TouchableOpacity>
                     )}
@@ -226,6 +220,10 @@ const CruChatComponent = ({ route }: any) => {
                             wrapperStyle={{
                                 right: { backgroundColor: COLORS.AKCRUBLUE },
                                 left: { backgroundColor: COLORS.CATPURPDRK },
+                            }}
+                            textStyle={{
+                                right: { color: COLORS.WHITE },  
+                                left: { color: COLORS.WHITE },   
                             }}
                         />
                     )}
