@@ -178,7 +178,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         });
         playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-        saveTextMessage(cruId, textMessage, user.id!, 'true', msgId);
+        saveTextMessage(cruId, textMessage, user.id!, 'true', msgId, null);
     };
 
     const resetImageSelection = () => {
