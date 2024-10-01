@@ -1,4 +1,4 @@
-import {API} from '../../clients/api.client';
+import {API} from '../../clients/crummunity.client';
 
 export async function getPosts(page = 1) {
     try {
@@ -11,7 +11,6 @@ export async function getPosts(page = 1) {
         if (data.success === false) {
             throw new Error(data.message);
         }
-
         return data.posts;
     } catch (error) {
         console.error(error);
@@ -339,11 +338,13 @@ export async function editComment(commentId: number, editedText: string) {
 }
 
 export async function newVisitCrum() {
-    const response = await API.post('/v1/post/isNewUser');
-
-    if (response) {
-        console.log('data come successfully', response.data.isNewVisitCrum);
-        return response.data.isNewVisitCrum;
+    try {
+        const response = await API.post('/v1/post/isNewUser');
+        if (response) {
+            return response.data.isNewVisitCrum;
+        }
+    } catch (error) {
+        throw new Error('Error thrown while calling newVisitCrum');
     }
 }
 export async function newUserUpdate() {
