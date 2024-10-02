@@ -1,35 +1,40 @@
-import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
-import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
-import {COLORS} from '../../../assets/constants';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {TouchableRipple} from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, TouchableOpacity, Image, TextInput } from 'react-native';
+import { Bubble, GiftedChat, IMessage } from 'react-native-gifted-chat';
+import { COLORS } from '../../../assets/constants';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import HexAvatar from '../../components/HexAvatar';
-import {getTextMessages, saveTextMessage} from '../../lib/api/rooms.lib';
-import {UserProfileStackParams} from '../../navigation/UserProfileStack';
+import { getMitMessages, saveTextMessage, updateMessageStatus } from '../../lib/api/rooms.lib';
+import { UserProfileStackParams } from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
-import {selectAvatarBorderColor} from '../../util/util';
-import _ from 'lodash';
-import {supabase} from '../../../lib/supabase';
-import {RealtimeChannel} from '@supabase/supabase-js';
+import { selectAvatarBorderColor } from '../../util/util';
+import uuid from 'react-native-uuid';
+import styles from './CruGroupChatStyles';
+import { supabase } from '../../../lib/supabase';
+import { RealtimeChannel } from '@supabase/supabase-js';
 import playMessageSound from '../../util/playMessageSound';
 
-const CruChatComponent = ({route}: any) => {
+const CruChatComponent = ({ route }: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userId ?? null;
     const {profilePicture} = route.params;
-    const {user} = useAuthStore();
+    const [membersData, setMembersData] = useState({});
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [imageMessageText, setImageMessageText] = useState('');
+    const { user } = useAuthStore();
 
     const mItInviteId: string | undefined = route.params?.mItInviteId ?? null;
-    const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
+    const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
     useEffect(() => {
-        intializeChat();
+        initializeChat();
         const channelA = supabase.channel(mItInviteId);
         channelA
-            .on('broadcast', {event: 'test'}, payload => messageReceived(payload))
+            .on('broadcast', { event: 'test' }, payload => messageReceived(payload))
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
                     setChannel(channelA);
@@ -42,110 +47,191 @@ const CruChatComponent = ({route}: any) => {
         };
     }, []);
 
-    function messageReceived(payload: any) {
-        if (payload.payload.senderId === userID) {
-            return;
-        }
+    const initializeChat = async () => {
+        const response = await getMitMessages(mItInviteId!);
+        const chatMessages: IMessage[] = response.map(item => ({
+            _id: item.id,
+            text: item.content,
+            image: item.imageUrl,
+            user: {
+                _id: item.senderId,
+                name: membersData[item.senderId]?.username || 'Unknown User',
+            },
+            createdAt: new Date(item.createdAt),
+        }));
 
-        var messsages: IMessage[] = [];
-        const iMessage: IMessage = {
-            _id: _.uniqueId(),
+        if (chatMessages.length > 0) {
+            updateMessageStatus([chatMessages[0]._id]);
+            setMessages(chatMessages);
+        }
+    };
+
+    const messageReceived = (payload: any) => {
+        if (payload.payload.senderId === user.id) return;
+
+        const newMessage: IMessage = {
+            _id: payload.payload.msgId || uuid.v4(),
             text: payload.payload.message,
-            user: {_id: userID!},
+            isCru: payload.payload.isCru,
+            user: { _id: payload.payload.senderId, name: membersData[payload.payload.senderId]?.username },
             createdAt: Date.now(),
         };
+
         playMessageSound();
-        messsages.push(iMessage);
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messsages));
-    }
-
-    const getTextMessage = async (mitid: string) => {
-        const response = await getTextMessages(mitid);
-        setMessages(response!);
+        setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
+        updateMessageStatus([payload.payload.msgId]);
     };
 
-    const intializeChat = async () => {
-        getTextMessage(mItInviteId!);
+    const handleImagePick = () => {
+        launchImageLibrary({ mediaType: 'photo' }, response => {
+            if (!response.didCancel && !response.errorMessage && response.assets?.length > 0) {
+                const imageUri = response.assets[0].uri;
+                setSelectedImage(imageUri);
+                setImageMessageText('');
+            }
+        });
     };
 
-    const onSend = (messages: IMessage[] = []) => {
-        if (channelll === null) {
-            return;
+    const onSendImage = async () => {
+        if (!selectedImage && !imageMessageText) return;
+
+        const msgId = uuid.v4();
+        const message: IMessage = {
+            _id: msgId,
+            text: imageMessageText,
+            isCru: 'false',
+            image: selectedImage,
+            user: { _id: user.id, name: user.username },
+            createdAt: new Date(),
+        };
+
+        if (channel) {
+            channel.send({
+                type: 'broadcast',
+                event: 'test',
+                payload: { image: selectedImage, text: imageMessageText, senderId: user.id, mItInviteId, isCru: 'false', msgId },
+            });
         }
 
-        channelll.send({
-            type: 'broadcast',
-            event: 'test',
-            payload: {message: messages[0]!.text!, senderId: userID},
-        });
+        setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
+
+        try {
+            const response = await saveTextMessage(mItInviteId, imageMessageText, user.id!, 'false', msgId, selectedImage);
+        } catch (error) {
+            console.error("Error saving image message:", error);
+        }
+
         playMessageSound();
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-        saveTextMessage(mItInviteId, messages[0]!.text!, userID!);
+        resetImageSelection();
+    };
+
+    const onSendText = async (messages: IMessage[] = []) => {
+        const isCru = 'false';
+        if (!channel || messages.length === 0) return;
+
+        const msgId = uuid.v4();
+        const textMessage = messages[0].text!;
+
+        try {
+            channel.send({
+                type: 'broadcast',
+                event: 'test',
+                payload: { message: textMessage, senderId: user.id, mItInviteId, isCru: 'false', msgId, image: null },
+            });
+
+
+            playMessageSound();
+
+            // Update local messages
+            setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
+
+
+            const response = await saveTextMessage(mItInviteId, textMessage, user.id!, 'false', msgId, null);
+
+        } catch (error) {
+            console.error("Error sending text message:", error.response ? error.response.data : error.message);
+        }
+    };
+
+
+
+
+    const resetImageSelection = () => {
+        setSelectedImage(null);
+        setImageMessageText('');
     };
 
     const handleAvatarPress = (user: any) => {
-        navigation.navigate('ViewUserScreen', {userID: user._id});
+        navigation.navigate('ViewUserScreen', { userID: user._id });
     };
 
     return (
-        <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-            <GiftedChat
-                messages={messages}
-                onSend={messages => onSend(messages)}
-                user={{
-                    _id: user?.id!,
-                    name: user?.username,
-                }}
-                textInputProps={{
-                    style: {
-                        color: COLORS.BLACK,
-                        width: '85%',
-                        padding: 10,
-                    },
-                }}
-                renderUsernameOnMessage={true}
-                showUserAvatar={true}
-                renderAvatar={props => (
-                    <TouchableRipple onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                        <HexAvatar
-                            size={45}
-                            bordercolor={selectAvatarBorderColor(
-                                props.currentMessage?.user?._id === user?.id
-                                    ? user?.badge ?? 'AKCRUIT'
-                                    : 'OTHER_USER_BADGE',
-                            )}
-                            source={{
-                                uri:
-                                    props.currentMessage?.user?._id === user?.id
-                                        ? user?.profilePicture
-                                        : profilePicture,
-                            }}
-                            {...props}
-                        />
-                    </TouchableRipple>
-                )}
-                renderBubble={props => (
-                    <Bubble
-                        {...props}
-                        wrapperStyle={{
-                            right: {
-                                backgroundColor: COLORS.AKCRUBLUE,
-                            },
-                            left: {
-                                backgroundColor: COLORS.CATPURPDRK,
-                            },
-                        }}
-                        textStyle={{
-                            right: {
-                                color: COLORS.WHITE,
-                            },
-                            left: {
-                                color: COLORS.WHITE,
-                            },
-                        }}
+        <View style={styles.container}>
+            {selectedImage ? (
+                <View style={styles.fullScreen}>
+                    <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+                    <TextInput
+                        placeholder="Type a message..."
+                        value={imageMessageText}
+                        onChangeText={setImageMessageText}
+                        style={styles.textInput}
                     />
-                )}
-            />
+                    <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
+                        <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                    </TouchableOpacity>
+                </View>
+            ) : (
+                <GiftedChat
+                    messages={messages}
+                    onSend={onSendText}
+                    user={{ _id: user?.id!, name: user?.username }}
+                    textInputProps={{
+                        style: {
+                            color: COLORS.BLACK,
+                            width: '85%',
+                            padding: 10,
+                            paddingLeft: 42,
+                        },
+                    }}
+                    renderUsernameOnMessage={true}
+                    showUserAvatar={true}
+                    renderAvatar={props => (
+                        <TouchableOpacity onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                            <HexAvatar
+                                size={45}
+                                bordercolor={selectAvatarBorderColor(
+                                    props.currentMessage?.user?._id === user?.id
+                                        ? user?.badge ?? 'AKCRUIT'
+                                        : 'OTHER_USER_BADGE',
+                                )}
+                                source={{
+                                    uri:
+                                        props.currentMessage?.user?._id === user?.id
+                                            ? user?.profilePicture
+                                            : profilePicture,
+                                }}
+                                {...props}
+                            />
+                        </TouchableOpacity>
+                    )}
+                    renderBubble={props => (
+                        <Bubble
+                            {...props}
+                            wrapperStyle={{
+                                right: { backgroundColor: COLORS.AKCRUBLUE },
+                                left: { backgroundColor: COLORS.CATPURPDRK },
+                            }}
+                            textStyle={{
+                                right: { color: COLORS.WHITE },  
+                                left: { color: COLORS.WHITE },   
+                            }}
+                        />
+                    )}
+                />
+            )}
+            <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+            </TouchableOpacity>
         </View>
     );
 };

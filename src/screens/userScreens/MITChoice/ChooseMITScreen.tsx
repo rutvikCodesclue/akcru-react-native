@@ -18,7 +18,7 @@ import moment from 'moment';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {IMessage} from 'react-native-gifted-chat';
 import {HMSSDK} from '@100mslive/react-native-hms';
-import {getTextMessages} from '../../../lib/api/rooms.lib';
+import {getMitMessages} from '../../../lib/api/rooms.lib';
 import useAuthStore from '../../../stores/auth.store';
 import HexAvatar from '../../../components/HexAvatar';
 import {
@@ -72,7 +72,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     }, []);
 
     const getTextMessage = async (roomId: string) => {
-        const response = await getTextMessages(roomId);
+        const response = await getMitMessages(roomId);
         setMessages(response!);
     };
 
