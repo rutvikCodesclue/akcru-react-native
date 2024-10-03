@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, Modal, Alert, ScrollView, ActivityIndicator} from 'react-native';
+import {View, Text, ImageBackground, Modal, Alert, ScrollView, ActivityIndicator, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -15,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import {getPushToken} from '../../../../lib/pushNotifications';
+import {Icon} from '@rneui/base';
 
 const OnboardPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -29,6 +30,8 @@ const OnboardPassword = ({route}) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordError, setPasswordError] = useState(false);
     const [passwordLengthError, setPasswordLengthError] = useState(false);
+    const [isPasswordVisible, setPasswordVisible] = useState(false);
+    const [isConfirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
     const [showConfirmNewPasswordModal, setShowConfirmNewPasswordModal] = useState(false);
     const [resetResultType, setResetResultType] = useState({
         messageheader: '',
@@ -147,27 +150,63 @@ const OnboardPassword = ({route}) => {
                             </Text>
                         </View>
                         <View style={{marginBottom: 10, alignItems: 'center'}}>
-                            <Inputs
-                                placeholdername={'Choose New Password'}
-                                iconname={'lock-closed'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={true}
-                                onChangeText={handlePassword}
-                                value={password}
-                                editable={!loading}
-                            />
+                            <View style={styles1.inputContainer}>
+                                <Icon
+                                    name="lock-closed"
+                                    type="ionicon"
+                                    size={20}
+                                    color={COLORS.LIGHTGREY}
+                                    style={{marginRight: 5}}
+                                />
+                                <TextInput
+                                    placeholder="Choose New Password"
+                                    style={styles1.input}
+                                    secureTextEntry={!isPasswordVisible}
+                                    onChangeText={handlePassword}
+                                    value={password}
+                                    editable={!loading}
+                                />
+                                <TouchableOpacity
+                                    onPress={() => setPasswordVisible(!isPasswordVisible)}
+                                    style={styles1.iconContainer}>
+                                    <Icon
+                                        name={isPasswordVisible ? 'eye' : 'eye-off'}
+                                        type="ionicon"
+                                        size={20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                             {passwordLengthError && (
                                 <Text style={styles.warningText}>Password must be at least 8 characters long</Text>
                             )}
-                            <Inputs
-                                placeholdername={'Confirm New Password'}
-                                iconname={'lock-closed'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={true}
-                                onChangeText={handleConfirmPassword}
-                                value={confirmPassword}
-                                editable={!loading}
-                            />
+                            <View style={styles1.inputContainer}>
+                                <Icon
+                                    name="lock-closed"
+                                    type="ionicon"
+                                    size={20}
+                                    color={COLORS.LIGHTGREY}
+                                    style={{marginRight: 5}}
+                                />
+                                <TextInput
+                                    placeholder={'Confirm New Password'}
+                                    style={styles1.input}
+                                    secureTextEntry={!isConfirmPasswordVisible}
+                                    onChangeText={handleConfirmPassword}
+                                    value={confirmPassword}
+                                    editable={!loading}
+                                />
+                                <TouchableOpacity
+                                    onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                                    style={styles1.iconContainer}>
+                                    <Icon
+                                        name={isConfirmPasswordVisible ? 'eye' : 'eye-off'}
+                                        type="ionicon"
+                                        size={20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
+                                </TouchableOpacity>
+                            </View>
                             {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
                         </View>
                         <AkcruButtons.LrgButton
@@ -214,3 +253,25 @@ const OnboardPassword = ({route}) => {
 };
 
 export default OnboardPassword;
+
+const styles1 = StyleSheet.create({
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'lightgrey',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        backgroundColor: COLORS.TRANSDARKGREY,
+    },
+    input: {
+        flex: 1, // Takes up the remaining space inside the container
+        paddingVertical: 10,
+        paddingRight: 40, // Ensure space for the icon
+    },
+    iconContainer: {
+        position: 'absolute',
+        right: 5, // Align the icon inside the input field on the right
+    },
+});

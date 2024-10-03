@@ -1,7 +1,8 @@
-import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, StyleSheet, TextInput} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {Icon} from '@rneui/base';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -123,10 +124,11 @@ const Signin = () => {
     const [password, setPassword] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
 
+    const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false);
+
     const [loading, setLoading] = useState<boolean>(false);
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
 
     async function attemptLogin() {
         try {
@@ -247,19 +249,37 @@ const Signin = () => {
                                     iconname={'mail'}
                                     iconcolor={COLORS.LIGHTGREY}
                                     secureTextEntry={false}
-                                    onChangeText={(text: string) => setEmail(text.toLowerCase())}
+                                    onChangeText={(text: string) => setEmail(text.trim().toLowerCase())}
                                     value={email}
                                     editable={true}
                                 />
-                                <Inputs
-                                    placeholdername={'Password'}
-                                    iconname={'lock-closed'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={true}
-                                    onChangeText={(text: React.SetStateAction<string>) => setPassword(text)}
-                                    value={password}
-                                    editable={true}
-                                />
+                                <View style={styles1.inputContainer}>
+                                    <Icon
+                                        name="lock-closed"
+                                        type="ionicon"
+                                        size={20}
+                                        color={COLORS.LIGHTGREY}
+                                        style={{marginRight: 5}}
+                                    />
+                                    <TextInput
+                                        placeholder="Password"
+                                        style={styles1.input}
+                                        secureTextEntry={!isPasswordVisible}
+                                        onChangeText={text => setPassword(text)}
+                                        value={password}
+                                        editable={true}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() => setPasswordVisible(!isPasswordVisible)}
+                                        style={styles1.iconContainer}>
+                                        <Icon
+                                            name={isPasswordVisible ? 'eye' : 'eye-off'}
+                                            type="ionicon"
+                                            size={20}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                             <View style={{marginVertical: 10}}>
                                 <AkcruButtons.LrgButton
@@ -358,3 +378,25 @@ const Signin = () => {
 };
 
 export default Signin;
+
+const styles1 = StyleSheet.create({
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'lightgrey',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        marginVertical: 10,
+        backgroundColor: COLORS.TRANSDARKGREY,
+    },
+    input: {
+        flex: 1, // Takes up the remaining space inside the container
+        paddingVertical: 10,
+        paddingRight: 40, // Ensure space for the icon
+    },
+    iconContainer: {
+        position: 'absolute',
+        right: 5, // Align the icon inside the input field on the right
+    },
+});

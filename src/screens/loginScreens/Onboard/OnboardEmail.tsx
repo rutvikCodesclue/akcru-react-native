@@ -67,7 +67,7 @@ const OnboardEmail = () => {
     };
 
     const handleEmailChange = (text: string) => {
-        setEmail(text.toLowerCase());
+        setEmail(text.trim().toLowerCase());
         setEmailError(!isEmailValid(text));
     };
 
