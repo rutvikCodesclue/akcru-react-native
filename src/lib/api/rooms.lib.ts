@@ -42,7 +42,7 @@ export const saveTextMessage = async (
     formData.append('roomId', roomId);
     formData.append('content', content);
     formData.append('receiverId', receiverId);
-    formData.append('isCru', isCru); 
+    formData.append('isCru', isCru);
     formData.append('msgId', msgId);
 
     if (imageUrl) {
@@ -56,13 +56,13 @@ export const saveTextMessage = async (
     }
 
     try {
-        console.log("form Data:", formData)
+        console.log('form Data:', formData);
         const response = await API.post('/v1/realtime/create-room-message', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log("Response form Data:", formData)
+        console.log('Response form Data:', formData);
         return response.data;
     } catch (error) {
         console.error('Error saving message:', error);
@@ -101,7 +101,7 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
     try {
         const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
         // const messages: IChatType[] = data.messages;
-        console.log("MIT messages data:", data);
+        console.log('MIT messages data:', data);
         const messages: IChatType[] = data.messages;
 
         // var chatMessage: IMessage[] = [];
@@ -122,8 +122,8 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
 
 export const getCruMessages = async (roomId: String): Promise<IMessage[] | undefined> => {
     try {
-        const { data } = await API.get(`/v1/rooms/messages/${roomId}`);
-        console.log("Cru messages data:", data);
+        const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
+        console.log('Cru messages data:', data);
 
         // Assuming data.messages contains the array of messages
         const messages: IChatType[] = data.messages;
@@ -180,5 +180,16 @@ export const joinMITRoom = async (inviteId: string) => {
         return data.roomAuthToken.token;
     } catch (error) {
         console.error(error);
+    }
+};
+
+export const deleteMessage = async (messageId: string): Promise<undefined> => {
+    try {
+        // Make a DELETE request to the API with the messageId
+        const {data} = await API.delete(`/v1/rooms/message/${messageId}`);
+
+        return data;
+    } catch (error) {
+        console.error('Error deleting message:', error);
     }
 };
