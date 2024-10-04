@@ -47,7 +47,7 @@ const OnboardEmailOrPassword = ({route}) => {
     };
 
     const handleEmailChange = (text: string) => {
-        setEmail(text.toLowerCase());
+        setEmail(text.trim().toLowerCase());
         setEmailError(!isEmailValid(text));
     };
 
