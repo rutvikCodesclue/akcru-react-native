@@ -1,6 +1,6 @@
 // CruGroupChatStyles.ts
-import { StyleSheet } from 'react-native';
-import { COLORS } from '../../../assets/constants';
+import {StyleSheet} from 'react-native';
+import {COLORS} from '../../../assets/constants';
 
 const styles = StyleSheet.create({
     container: {
@@ -27,6 +27,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         padding: 10,
         paddingLeft: 10,
+        color: 'black',
     },
     sendButton: {
         alignSelf: 'flex-end',
@@ -36,6 +37,12 @@ const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 8,
         left: 6,
+    },
+    crossButton: {
+        position: 'absolute',
+        top: -15,
+        right: 10,
+        zIndex: 10,
     },
 });
 

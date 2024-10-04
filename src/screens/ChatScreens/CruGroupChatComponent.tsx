@@ -1,12 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Image, TextInput} from 'react-native';
+import {View, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback, Alert, Text} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import HexAvatar from '../../components/HexAvatar';
-import {getCruMessages, saveTextMessage, updateMessageStatus} from '../../lib/api/rooms.lib';
+import {getCruMessages, saveTextMessage, updateMessageStatus, deleteMessage} from '../../lib/api/rooms.lib';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import useAuthStore from '../../stores/auth.store';
 import {selectAvatarBorderColor} from '../../util/util';
@@ -24,6 +24,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const [membersData, setMembersData] = useState({});
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
+    const [isSelectionMode, setIsSelectionMode] = useState(false);
+    const [selectedMessages, setSelectedMessages] = useState<any[]>([]);
 
     const {user} = useAuthStore();
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
@@ -149,7 +151,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                 event: 'groupchat',
                 payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
             });
-            parentChannel.send({    
+            parentChannel.send({
                 type: 'broadcast',
                 event: 'parent-cru-chat',
                 payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
@@ -162,23 +164,36 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         resetImageSelection();
     };
 
-    const onSendText = (messages: IMessage[] = []) => {
-        if (!channel || messages.length === 0) return;
+    const onSendText = async (messages: IMessage[] = []) => {
+        if (!channel) return;
 
         const msgId = uuid.v4();
         const textMessage = messages[0].text!;
-        channel.send({
-            type: 'broadcast',
-            event: 'groupchat',
-            payload: {message: textMessage, senderId: user.id, cruId, msgId},
-        });
-        parentChannel.send({
-            type: 'broadcast',
-            event: 'parent-cru-chat',
-            payload: {message: textMessage, senderId: user.id, cruId, msgId},
-        });
+        const newMessage: IMessage = {
+            _id: msgId,
+            text: textMessage,
+            user: {_id: user.id, name: user.username},
+            createdAt: new Date(),
+        };
+
+        // Update local messages immediately
+        setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
+
+        // Send the message
+        await Promise.all([
+            channel.send({
+                type: 'broadcast',
+                event: 'groupchat',
+                payload: {message: textMessage, senderId: user.id, cruId, msgId},
+            }),
+            parentChannel.send({
+                type: 'broadcast',
+                event: 'parent-cru-chat',
+                payload: {message: textMessage, senderId: user.id, cruId, msgId},
+            }),
+        ]);
+
         playMessageSound();
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
         saveTextMessage(cruId, textMessage, user.id!, 'true', msgId, null);
     };
 
@@ -191,68 +206,166 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         navigation.navigate('ViewUserScreen', {userID: user._id});
     };
 
+    const handleMessagePress = (message: IMessage) => {
+        if (isSelectionMode) {
+            if (selectedMessages.includes(message._id)) {
+                setSelectedMessages(selectedMessages.filter(id => id !== message._id));
+            } else {
+                setSelectedMessages([...selectedMessages, message._id]);
+            }
+        }
+    };
+
+    const handleLongPress = (message: IMessage) => {
+        if (!isSelectionMode && message.user._id === user.id) {
+            // Check if the message is from the current user
+            setIsSelectionMode(true);
+            setSelectedMessages([message._id]);
+        }
+    };
+
+    const handleScreenPress = () => {
+        if (selectedMessages.length > 0) {
+            setSelectedMessages([]);
+            setIsSelectionMode(false);
+        }
+    };
+
+    const deleteMessages = async () => {
+        Alert.alert(
+            'Delete Messages',
+            'Are you sure you want to delete the selected messages?',
+            [
+                {
+                    text: 'Cancel',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: async () => {
+                        try {
+                            const messagesToDelete = messages.filter(msg => selectedMessages.includes(msg._id));
+                            if (messagesToDelete.length === 0) return;
+
+                            // Update the UI immediately for a better user experience
+                            setMessages(prevMessages =>
+                                prevMessages.filter(message => !selectedMessages.includes(message._id as string)),
+                            );
+
+                            // Perform deletion from the server
+                            await Promise.all(selectedMessages.map(id => deleteMessage(id)));
+
+                            // Reset selection mode after deletion
+                            setSelectedMessages([]);
+                            setIsSelectionMode(false);
+
+                            // Re-fetch messages to ensure local state is in sync
+                            fetchMessages(cruId);
+                        } catch (error) {
+                            console.error('Error deleting messages:', error);
+                            Alert.alert('Error', 'Failed to delete messages. Please try again.');
+                        }
+                    },
+                    style: 'destructive',
+                },
+            ],
+            {cancelable: true},
+        );
+    };
+
     return (
-        <View style={styles.container}>
-            {selectedImage ? (
-                <View style={styles.fullScreen}>
-                    <Image source={{uri: selectedImage}} style={styles.selectedImage} />
-                    <TextInput
-                        placeholder="Type a message..."
-                        value={imageMessageText}
-                        onChangeText={setImageMessageText}
-                        style={styles.textInput}
-                    />
-                    <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
-                        <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
-                    </TouchableOpacity>
-                </View>
-            ) : (
-                <GiftedChat
-                    messages={messages}
-                    onSend={onSendText}
-                    user={{_id: user?.id!, name: user?.username}}
-                    textInputProps={{
-                        style: {
-                            color: COLORS.BLACK,
-                            width: '85%',
+        <TouchableWithoutFeedback onPress={handleScreenPress}>
+            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+                {selectedMessages.length > 0 && (
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
                             padding: 10,
-                            paddingLeft: 42,
-                        },
-                    }}
-                    renderUsernameOnMessage={true}
-                    showUserAvatar={true}
-                    renderAvatar={props => (
-                        <TouchableOpacity onPress={() => handleAvatarPress(props.currentMessage?.user)}>
-                            <HexAvatar
-                                size={45}
-                                bordercolor={selectAvatarBorderColor(
-                                    props.currentMessage?.user?._id === user?.id
-                                        ? user?.badge ?? 'AKCRUIT'
-                                        : 'OTHER_USER_BADGE',
-                                )}
-                                source={{uri: membersData[props.currentMessage?.user?._id]?.profilePicture}}
-                            />
+                            backgroundColor: COLORS.AKCRUBLUE,
+                        }}>
+                        <Text style={{color: COLORS.WHITE, fontSize: 18}}>{selectedMessages.length} Selected</Text>
+                        <TouchableOpacity onPress={deleteMessages}>
+                            <Icon name="delete" type="material" color={COLORS.WHITE} size={25} />
                         </TouchableOpacity>
-                    )}
-                    renderBubble={props => (
-                        <Bubble
-                            {...props}
-                            wrapperStyle={{
-                                right: {backgroundColor: COLORS.AKCRUBLUE},
-                                left: {backgroundColor: COLORS.CATPURPDRK},
+                    </View>
+                )}
+
+                <View style={styles.container}>
+                    {selectedImage ? (
+                        <View style={styles.fullScreen}>
+                            <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
+                                <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
+                            </TouchableOpacity>
+                            <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+                            <TextInput
+                                placeholder="Type a message..."
+                                value={imageMessageText}
+                                placeholderTextColor={'black'}
+                                onChangeText={setImageMessageText}
+                                style={styles.textInput}
+                            />
+                            <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
+                                <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <GiftedChat
+                            messages={messages}
+                            onSend={onSendText}
+                            user={{_id: user?.id!, name: user?.username}}
+                            onPress={(context, message) => handleMessagePress(message)}
+                            onLongPress={(context, message) => handleLongPress(message)}
+                            textInputProps={{
+                                style: {
+                                    color: COLORS.BLACK,
+                                    width: '85%',
+                                    padding: 10,
+                                    paddingLeft: 42,
+                                },
                             }}
-                            textStyle={{
-                                right: { color: COLORS.WHITE },  
-                                left: { color: COLORS.WHITE },   
-                            }}
+                            renderUsernameOnMessage={true}
+                            showUserAvatar={true}
+                            renderAvatar={props => (
+                                <TouchableOpacity onPress={() => handleAvatarPress(props.currentMessage?.user)}>
+                                    <HexAvatar
+                                        size={45}
+                                        bordercolor={selectAvatarBorderColor(
+                                            props.currentMessage?.user?._id === user?.id
+                                                ? user?.badge ?? 'AKCRUIT'
+                                                : 'OTHER_USER_BADGE',
+                                        )}
+                                        source={{uri: membersData[props.currentMessage?.user?._id]?.profilePicture}}
+                                    />
+                                </TouchableOpacity>
+                            )}
+                            renderBubble={props => (
+                                <Bubble
+                                    {...props}
+                                    wrapperStyle={{
+                                        right: {
+                                            backgroundColor: selectedMessages.includes(props.currentMessage._id)
+                                                ? COLORS.AKCRUBACKGROUND // Change this to your desired selected color
+                                                : COLORS.AKCRUBLUE,
+                                        },
+                                        left: {
+                                            backgroundColor: COLORS.CATPURPDRK,
+                                        },
+                                    }}
+                                    textStyle={{
+                                        right: {color: COLORS.WHITE},
+                                        left: {color: COLORS.WHITE},
+                                    }}
+                                />
+                            )}
                         />
                     )}
-                />
-            )}
-            <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
-                <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
-            </TouchableOpacity>
-        </View>
+                    <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                        <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 
