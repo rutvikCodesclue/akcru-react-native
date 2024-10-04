@@ -140,6 +140,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         const message: IMessage = {
             _id: msgId,
             text: imageMessageText,
+            isCru: 'true',
             image: selectedImage,
             user: {_id: user.id, name: user.username},
             createdAt: new Date(),
@@ -154,7 +155,14 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             parentChannel.send({
                 type: 'broadcast',
                 event: 'parent-cru-chat',
-                payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
+                payload: {
+                    image: selectedImage,
+                    text: imageMessageText,
+                    senderId: user.id,
+                    cruId,
+                    isCru: 'true',
+                    msgId,
+                },
             });
         }
 
