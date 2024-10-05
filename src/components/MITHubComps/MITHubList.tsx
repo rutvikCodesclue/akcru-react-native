@@ -104,23 +104,34 @@ const MITHubList = () => {
                 horizontal={false}
                 scrollEnabled={false}
                 keyExtractor={(_, index) => index.toString()}
-                renderItem={({item}) => (
-                    <View style={{marginVertical: 5, marginHorizontal: 15}}>
+                renderItem={({ item }) => {
+                    const { username, profilePicture, badge, influencerStatus, companyStatus, ownerStatus, blackCloakStatus } = item.invitee;
+                    const startDate = item.startDate ?? '';
+                    
+                    // Safely access movie title only if item.movie exists and is not null
+                    const movieTitle = item.movie ? item.movie.title ?? 'N/A' : 'N/A';
+                    
+                    return (
+                      <View style={{ marginVertical: 5, marginHorizontal: 15 }}>
                         <MITHubCard
-                            inviteeName={
-                                item.invitee.firstName ? `${item.invitee.firstName}` : `${item.invitee.username}`
-                            }
-                            inviteePicture={item.invitee.profilePicture ?? ''}
-                            MITDate={item.startDate}
-                            MITMoviechoice={item.movie.title}
-                            scheduleDate={item.startDate}
-                            scheduleTime={item.startDate}
-                            timezone={item.timezone}
-                            onPressIn={() => navigation.navigate('ViewUserScreen', {userID: item.inviteeId})}
-                            akcruBadge={item.invitee.badge}
+                          inviteeName={username ?? 'Unknown User'}
+                          inviteePicture={profilePicture ?? ''}
+                          MITDate={startDate}
+                          MITMoviechoice={movieTitle}
+                          scheduleDate={startDate}
+                          scheduleTime={startDate}
+                          timezone={item.timezone ?? 'N/A'}
+                          onPressIn={() => navigation.navigate('ViewUserScreen', { userID: item.inviteeId })}
+                          akcruBadge={badge}
+                          cancel={() => handleCancelMIT(item.id)}
+                          influencerStatus={influencerStatus}
+                          companyStatus={companyStatus}
+                          ownerStatus={ownerStatus}
+                          blackCloakStatus={blackCloakStatus}
                         />
-                    </View>
-                )}
+                      </View>
+                    );
+                  }}
             />
         </View>
     );

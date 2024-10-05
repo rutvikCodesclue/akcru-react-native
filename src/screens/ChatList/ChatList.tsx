@@ -71,7 +71,7 @@ const ChatList = () => {
                 <UserCruChatCard
                     userID={item.id}
                     userName={receiverUsername}
-                    movie={item.movie.title}
+                    movie={item.movie.title | ''}
                     moviePoster={item.movie.landscapeURL}
                     CruChatDate={new Date(item.lastMessageAt).toLocaleDateString()}
                     CruChatTime={new Date(item.lastMessageAt).toLocaleTimeString()}
