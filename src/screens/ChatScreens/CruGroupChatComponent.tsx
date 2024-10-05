@@ -31,8 +31,26 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
     const [parentChannel, setParentChannel] = useState<RealtimeChannel | null>(null);
 
+    
+    
+    membersData[user.id] = {
+        profilePicture: user?.profilePicture,
+        username: user?.username,
+    };
+
+    membersData[cru?.creator?.id] = {
+        profilePicture: cru?.creator?.profilePicture,
+        username: cru?.creator?.username,
+    };
+
+    members.forEach(member => {
+        membersData[member.id] = {
+            profilePicture: member.profilePicture,
+            username: member.username,
+        };
+    });
+
     useEffect(() => {
-        initializeMembersData();
         fetchMessages(cruId!);
         setupChannels(cruId);
 
@@ -40,27 +58,6 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             cleanupChannels();
         };
     }, []);
-
-    const initializeMembersData = () => {
-        const data = {
-            [user.id]: {
-                profilePicture: user?.profilePicture,
-                username: user?.username,
-            },
-            [cru?.creator?.id]: {
-                profilePicture: cru?.creator?.profilePicture,
-                username: cru?.creator?.username,
-            },
-            ...members.reduce((acc, member) => {
-                acc[member.id] = {
-                    profilePicture: member.profilePicture,
-                    username: member.username,
-                };
-                return acc;
-            }, {}),
-        };
-        setMembersData(data);
-    };
 
     const setupChannels = (cruId: string) => {
         const channelA = supabase
@@ -94,12 +91,12 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         const chatMessages: IMessage[] = response!.map(item => ({
             _id: item.id,
             text: item.content,
+            // content: item.content,
             isCru: item.isCru,
-            image: item.imageUrl,
+            image:  item.imageUrl,
             user: {
                 _id: item.senderId,
-                name: membersData[item.senderId]?.username || 'Unknown User',
-            },
+                name: membersData[item.senderId] ? membersData[item.senderId].username : 'Unknown User',	            },
             createdAt: new Date(item.createdAt),
         }));
 
