@@ -101,7 +101,7 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
     try {
         const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
         // const messages: IChatType[] = data.messages;
-        console.log('MIT messages data:', data);
+        // console.log('MIT messages data:', data);
         const messages: IChatType[] = data.messages;
 
         // var chatMessage: IMessage[] = [];
@@ -123,7 +123,7 @@ export const getMitMessages = async (roomId: String): Promise<IMessage[] | undef
 export const getCruMessages = async (roomId: String): Promise<IMessage[] | undefined> => {
     try {
         const {data} = await API.get(`/v1/rooms/messages/${roomId}`);
-        console.log('Cru messages data:', data);
+        // console.log('Cru messages data:', data);
 
         // Assuming data.messages contains the array of messages
         const messages: IChatType[] = data.messages;

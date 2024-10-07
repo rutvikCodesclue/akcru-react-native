@@ -22,7 +22,6 @@ const CruChatComponent = ({route}: any) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userId ?? null;
     const {profilePicture} = route.params;
-    const [membersData, setMembersData] = useState({});
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedMessages, setSelectedMessages] = useState<any[]>([]);
 
@@ -34,7 +33,7 @@ const CruChatComponent = ({route}: any) => {
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
 
     useEffect(() => {
-        initializeChat(mItInviteId);
+        fetchMessages(mItInviteId!);
         const channelA = supabase.channel(mItInviteId);
         channelA
             .on('broadcast', {event: 'test'}, payload => messageReceived(payload))
@@ -50,24 +49,28 @@ const CruChatComponent = ({route}: any) => {
         };
     }, []);
 
-    const initializeChat = async mItInviteId => {
+    const fetchMessages = async (mItInviteId: string) => {
         const response = await getMitMessages(mItInviteId!);
-        const chatMessages: IMessage[] = response.map(item => ({
-            _id: item.id,
-            text: item.content,
-            image: item.imageUrl,
-            user: {
-                _id: item.senderId,
-                name: membersData[item.senderId]?.username || 'Unknown User',
-            },
-            createdAt: new Date(item.createdAt),
-        }));
-
+        const chatMessages: IMessage[] = response!.map(item => {
+            return {
+                _id: item.id,
+                text: item.content,
+                image: item.imageUrl,
+                isCru: item.isCru,
+                user: {
+                    _id: item.senderId,
+                    name: route.params.username,
+                },
+                createdAt: new Date(item.createdAt),
+            };
+        });
+    
         if (chatMessages.length > 0) {
             updateMessageStatus([chatMessages[0]._id]);
             setMessages(chatMessages);
         }
     };
+    
 
     const messageReceived = (payload: any) => {
         if (payload.payload.senderId === user.id) return;
@@ -76,7 +79,7 @@ const CruChatComponent = ({route}: any) => {
             _id: payload.payload.msgId || uuid.v4(),
             text: payload.payload.message,
             isCru: payload.payload.isCru,
-            user: {_id: payload.payload.senderId, name: membersData[payload.payload.senderId]?.username},
+            user: {_id: userID!, name: route.params.username },
             createdAt: Date.now(),
         };
 
@@ -115,7 +118,7 @@ const CruChatComponent = ({route}: any) => {
                 payload: {
                     image: selectedImage,
                     text: imageMessageText,
-                    senderId: user.id,
+                    senderId: userID,
                     mItInviteId,
                     isCru: 'false',
                     msgId,
@@ -127,7 +130,7 @@ const CruChatComponent = ({route}: any) => {
         setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
 
         try {
-            saveTextMessage(mItInviteId, imageMessageText, user.id!, 'false', msgId, selectedImage);
+            saveTextMessage(mItInviteId, imageMessageText, userID!, 'false', msgId, selectedImage);
 
             // Immediately delete the message after sending
             await deleteMessage(msgId); // Use appropriate method to delete
@@ -146,19 +149,25 @@ const CruChatComponent = ({route}: any) => {
         const msgId = uuid.v4();
         const textMessage = messages[0].text!;
 
+        const newMessage: IMessage = {
+            _id: msgId,
+            text: textMessage,
+            user: {_id: user.id, name: user.username},
+            createdAt: new Date(),
+        };
+        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
+
         try {
             await channel.send({
                 type: 'broadcast',
                 event: 'test',
-                payload: {message: textMessage, senderId: user.id, mItInviteId, isCru: 'false', msgId, image: null},
+                payload: {message: textMessage, senderId: userID, mItInviteId, isCru: 'false', msgId, image: null},
             });
 
             playMessageSound();
 
             // Update local messages immediately
-            setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
-
-            const response = await saveTextMessage(mItInviteId, textMessage, user.id!, 'false', msgId, null);
+        saveTextMessage(mItInviteId, textMessage, userID!, 'false', msgId, null);
 
             // Immediately delete the message after sending
             await deleteMessage(msgId); // Use appropriate method to delete
@@ -229,7 +238,7 @@ const CruChatComponent = ({route}: any) => {
                             setIsSelectionMode(false);
 
                             // Re-fetch messages to ensure local state is in sync
-                            initializeChat(mItInviteId);
+                            fetchMessages(mItInviteId);
                         } catch (error) {
                             console.error('Error deleting messages:', error);
                             Alert.alert('Error', 'Failed to delete messages. Please try again.');
