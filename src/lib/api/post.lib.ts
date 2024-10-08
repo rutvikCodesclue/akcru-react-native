@@ -1,8 +1,9 @@
-import {API} from '../../clients/crummunity.client';
+import {API} from '../../clients/api.client';
+import {CRUMMUNITY} from '../../clients/crummunity.client';
 
 export async function getPosts(page = 1) {
     try {
-        const {data} = await API.get('/v1/post', {
+        const {data} = await CRUMMUNITY.get('/v1/post', {
             params: {
                 page: page - 1,
             },
@@ -21,7 +22,7 @@ export async function getPosts(page = 1) {
 export async function getPost(postId: number) {
     try {
         console.log(`Making request to /v1/post/${postId}`);
-        const {data} = await API.get(`/v1/post/${postId}`);
+        const {data} = await CRUMMUNITY.get(`/v1/post/${postId}`);
         // console.log('Received data:', data);
 
         if (data.success === false) {
@@ -47,7 +48,7 @@ export async function getPost(postId: number) {
 export const getPostComments = async (postId: number): Promise<Object | undefined> => {
     console.log(`Making request to /v1/post/comments with postId: ${postId}`);
     try {
-        const {data} = await API.get('/v1/post/comments', {params: {id: postId}});
+        const {data} = await CRUMMUNITY.get('/v1/post/comments', {params: {id: postId}});
         // console.log('Received data:', data);
         return data;
     } catch (error) {
@@ -71,7 +72,7 @@ export async function createPost(postType: string, content: string[]) {
         const postContent = Array.isArray(content) ? content : [content];
         console.log('Post Content:', postContent);
 
-        const {data} = await API.post('/v1/post/create', {
+        const {data} = await CRUMMUNITY.post('/v1/post/create', {
             postType,
             content: postContent,
         });
@@ -97,7 +98,7 @@ export async function commentOnPost(postId: number, postType: string, content: s
 
         console.log('Sending Comment Data:', commentData);
 
-        const response = await API.post('/v1/post/comment', commentData);
+        const response = await CRUMMUNITY.post('/v1/post/comment', commentData);
 
         if (response.data.success === false) {
             throw new Error(response.data.message);
@@ -188,7 +189,7 @@ export async function uploadVideo(videoFileUri: any, uploadType: any, durationIn
 
 export async function deletePost(id: number) {
     try {
-        const {data} = await API.delete('/v1/post/delete', {
+        const {data} = await CRUMMUNITY.delete('/v1/post/delete', {
             data: {id},
         });
 
@@ -203,7 +204,7 @@ export async function deletePost(id: number) {
 
 export async function likePost(id: number) {
     try {
-        const {data} = await API.post('/v1/post/like', {
+        const {data} = await CRUMMUNITY.post('/v1/post/like', {
             id,
         });
 
@@ -218,7 +219,7 @@ export async function likePost(id: number) {
 
 export async function unlikePost(id: number) {
     try {
-        const {data} = await API.delete('/v1/post/unlike', {
+        const {data} = await CRUMMUNITY.delete('/v1/post/unlike', {
             data: {id},
         });
 
@@ -233,7 +234,7 @@ export async function unlikePost(id: number) {
 
 export async function likeComment(id: number) {
     try {
-        const {data} = await API.post('/v1/post/comment/like', {
+        const {data} = await CRUMMUNITY.post('/v1/post/comment/like', {
             id,
         });
 
@@ -248,7 +249,7 @@ export async function likeComment(id: number) {
 
 export async function unlikeComment(id: number) {
     try {
-        const {data} = await API.delete('/v1/post/comment/unlike', {
+        const {data} = await CRUMMUNITY.delete('/v1/post/comment/unlike', {
             data: {id},
         });
 
@@ -263,7 +264,7 @@ export async function unlikeComment(id: number) {
 
 export async function deleteComment(commentId: number) {
     try {
-        const {data} = await API.delete('/v1/post/comment/delete', {
+        const {data} = await CRUMMUNITY.delete('/v1/post/comment/delete', {
             data: {id: commentId},
         });
 
@@ -278,7 +279,7 @@ export async function deleteComment(commentId: number) {
 
 export async function getPostsByUser(userId: string, page = 1) {
     try {
-        const {data} = await API.get(`/v1/post/${userId}/posts`, {
+        const {data} = await CRUMMUNITY.get(`/v1/post/${userId}/posts`, {
             params: {
                 page: page - 1,
             },
@@ -298,7 +299,7 @@ export async function getPostsByUser(userId: string, page = 1) {
 export async function editPost(postId: number, editedText: string) {
     try {
         console.log('Request body:', {id: postId, editedText: editedText}); // Add this line for debugging
-        const response = await API.post('/v1/post/edit', {
+        const response = await CRUMMUNITY.post('/v1/post/edit', {
             id: postId,
             editedText: editedText,
         });
@@ -319,7 +320,7 @@ export async function editPost(postId: number, editedText: string) {
 // For editing a comment
 export async function editComment(commentId: number, editedText: string) {
     try {
-        const response = await API.post('/v1/post/comment/edit', {
+        const response = await CRUMMUNITY.post('/v1/post/comment/edit', {
             id: commentId,
             editedText: editedText,
         });
@@ -339,7 +340,7 @@ export async function editComment(commentId: number, editedText: string) {
 
 export async function newVisitCrum() {
     try {
-        const response = await API.post('/v1/post/isNewUser');
+        const response = await CRUMMUNITY.post('/v1/post/isNewUser');
         if (response) {
             return response.data.isNewVisitCrum;
         }
@@ -348,7 +349,7 @@ export async function newVisitCrum() {
     }
 }
 export async function newUserUpdate() {
-    const response = await API.post('/v1/post/newUserUpdate');
+    const response = await CRUMMUNITY.post('/v1/post/newUserUpdate');
 
     if (response) {
         console.log('data come update successfully', response.data);
