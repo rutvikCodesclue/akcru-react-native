@@ -19,7 +19,7 @@ const determineBaseURL = (): string => {
     }
 };
 
-const API = axios.create({
+const CRUMMUNITY = axios.create({
     baseURL: determineBaseURL(),
     headers: {
         Accept: 'application/json',
@@ -30,7 +30,7 @@ const API = axios.create({
     },
 });
 
-API.interceptors.request.use(
+CRUMMUNITY.interceptors.request.use(
     async config => {
         const session = authStore.getState().getSession();
 
@@ -65,4 +65,4 @@ API.interceptors.request.use(
     },
 );
 
-export {API};
+export {CRUMMUNITY};
