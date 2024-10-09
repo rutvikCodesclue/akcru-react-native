@@ -241,11 +241,14 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             if (pollIndex === -1) return;
 
             const poll = posts[pollIndex];
+            console.log("Poll", pollId)
             const isLiked = poll.isLikedByCurrentUser;
 
             if (isLiked) {
+                console.log("unliking");
                 await unlikePoll(pollId);
             } else {
+                console.log("liking");
                 await likePoll(pollId);
             }
 
@@ -509,6 +512,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                                 pollId: item.id,
                                                             })
                                                         }
+                                                        onLikeOrUnlikePoll={() => onLikeOrUnlikePoll(item.id)}
                                                         openProfile={() =>
                                                             navigation2.navigate('ViewUserScreen', {
                                                                 userID: item.user?.id,

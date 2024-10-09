@@ -706,6 +706,7 @@ interface IUserTrailerReaction {
 export type IPollType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
 
 export interface IPoll {
+    isLikedByCurrentUser: any;
     id: string;
     question: string;
     imageUrl?: string;

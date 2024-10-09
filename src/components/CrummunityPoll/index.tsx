@@ -68,7 +68,7 @@ type PollCardProps = {
     profilePicture?: string;
     isAdmin: boolean;
     CommentOnPollButton: any;
-    onLikeOrUnlike: (pollId: string) => void;
+    onLikeOrUnlikePoll: (pollId: string) => void;
 };
 
 const PollCard = ({
@@ -81,7 +81,7 @@ const PollCard = ({
     onDeletePoll,
     isAdmin,
     CommentOnPollButton,
-    onLikeOrUnlike,
+    onLikeOrUnlikePoll,
 }: PollCardProps) => {
     const [selectedChoice, setSelectedChoice] = useState<string | null>(poll.selectedChoice || null);
     const [pollOptionsVisible, setPollOptionsVisible] = useState(false);
@@ -474,7 +474,7 @@ const PollCard = ({
             </Modal>
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} color={COLORS.AKCRUBLUE} onPress={CommentOnPollButton} />
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(poll.id)} color={likeIconColor} />
+                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlikePoll(poll.id)} color={likeIconColor} />
             </View>
             <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Text style={styles.footStats}>
