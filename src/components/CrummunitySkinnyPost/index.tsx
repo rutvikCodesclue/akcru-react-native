@@ -25,6 +25,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
+import VideoPlayer from 'react-native-media-console';
 
 type FooterIconsProps = {
     iconname: string;
@@ -156,6 +157,7 @@ const SkinnyPostCard = ({
 
     const [isVideoModalVisible, setVideoModalVisible] = useState(false);
     const [selectedVideo, setSelectedVideo] = useState('');
+    const [videoAspectRatio, setVideoAspectRatio] = useState(9 / 16); // Default to portrait
 
     const [isPostOptionsVisible, setPostOptionsVisible] = useState(false);
 
@@ -164,6 +166,10 @@ const SkinnyPostCard = ({
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
+
+    const [isPaused, setIsPaused] = useState(true);  // Track if the video is paused
+    const [showVideoControls, setShowVideoControls] = useState(true);  // Track visibility of controls
+    const [currentVideoTime, setCurrentVideoTime] = useState(0); // Store current video time
 
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
 
@@ -199,9 +205,28 @@ const SkinnyPostCard = ({
         setVideoModalVisible(false);
     };
 
-    const handleVideoLoad = () => {
+    const handleVideoLoad = (data: any) => {
         // Logic for when the video is loaded
+        const {width, height} = data.naturalSize;
+
+        if (width && height) {
+            setVideoAspectRatio(width / height); // Calculate correct aspect ratio
+        }
         setIsVideoLoaded(true);
+    };
+
+    // Function to handle video play
+    const handlePlay = () => {
+        setIsPaused(false);  // Update paused state to false
+    };
+
+    // Function to handle video pause
+    const handlePause = () => {
+        setIsPaused(true);  // Update paused state to true
+    };
+
+    const handleProgress = (data: any) => {
+        setCurrentVideoTime(data.currentTime); // Save current time when video progresses
     };
 
     const handleModalVideoLoad = () => {
@@ -370,8 +395,6 @@ const SkinnyPostCard = ({
     };
 
     // console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
-
-
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
 
     return (
@@ -546,18 +569,32 @@ const SkinnyPostCard = ({
             <View>
                 {/* Render video if available */}
                 {videoUrl && (
-                    <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>
-                        <View style={styles.postvideo}>
-                            <Video
-                                ref={topVideoRef}
-                                style={styles.videoStyle}
+                    <TouchableOpacity>
+                        <View style={[styles.postvideo, {aspectRatio: 4 / 5}]}>
+                            <VideoPlayer
+                                videoRef={topVideoRef}
+                                videoStyle={styles.videoStyle}
                                 source={{uri: videoUrl}}
                                 resizeMode="contain"
                                 onEnd={handleVideoEnd}
                                 repeat={false}
                                 onError={handleVideoError}
                                 onLoad={handleVideoLoad}
-                                muted={true}
+                                onPlay={handlePlay}
+                                onPause={handlePause}
+                                onProgress={handleProgress}
+                                paused={isPaused}
+                                tapAnywhereToPause={false}
+                                showOnStart={true}
+                                showOnEnd={true}
+                                disableVolume={true}
+                                disableBack={true}
+                                disableSeekButtons={true}
+                                disableOverlay={true}
+                                disableTimer={true}
+                                disableFullscreen={true}
+                                controlTimeoutDelay={isPaused ? 9999999 : 1500}
+                                onEnterFullscreen={() => openVideoModal(videoUrl)}
                             />
                         </View>
                     </TouchableOpacity>
@@ -586,7 +623,7 @@ const SkinnyPostCard = ({
                 </Pressable>
             </Modal>
             {/* Video Modal */}
-            <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
+            {/* <Modal visible={isVideoModalVisible} transparent={true} animationType="fade">
                 <View
                     style={{
                         flex: 1,
@@ -602,7 +639,9 @@ const SkinnyPostCard = ({
                         onEnd={handleVideoEnd}
                         repeat={false}
                         onError={handleVideoError}
-                        onLoad={handleModalVideoLoad}
+                        onLoad={() => {
+                            modalVideoRef.current.seek(currentVideoTime); // Resume video from the stored time
+                          }}
                         muted={false}
                     />
                     {showSkipButton && (
@@ -616,7 +655,7 @@ const SkinnyPostCard = ({
                         </View>
                     )}
                 </View>
-            </Modal>
+            </Modal> */}
             <View style={styles.postfooter}>
                 <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} color={COLORS.AKCRUBLUE} />
                 {/* <FooterIcons iconname={'happy'} onPress={handleLikePress} /> */}

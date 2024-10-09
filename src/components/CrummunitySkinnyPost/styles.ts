@@ -46,15 +46,14 @@ export default StyleSheet.create({
         fontSize: 14,
     },
     postimage: {
-        width: '75%',
-        aspectRatio: 9 / 16,
+        width: '100%',
+        aspectRatio: 4 / 5,
         borderRadius: 10,
         marginTop: 10,
         alignSelf: 'center',
     },
     postvideo: {
-        width: '75%',
-        aspectRatio: 9 / 16,
+        width: '100%',
         borderRadius: 10,
         marginTop: 10,
         alignSelf: 'center',
@@ -82,4 +81,20 @@ export default StyleSheet.create({
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     videoStyle: {width: '100%', height: '100%', borderRadius: 10},
+    playButton: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{translateX: -25}, {translateY: -25}], // Center the button
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Semi-transparent background
+        borderRadius: 50,
+        width: 50,
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    playButtonText: {
+        color: '#fff',
+        fontSize: 30,
+    },
 });
