@@ -232,3 +232,25 @@ export async function getPollCommentLikes(pollCommentId: string): Promise<any[]>
         throw new Error('Failed to fetch poll comment likes');
     }
 }
+
+export async function editPollComment(commentId: number, editedText: string) {
+    try {
+        console.log("aaaa");
+        
+        const response = await API.post('/v1/poll/comment/edit', {
+            id: commentId,
+            editedText: editedText,
+        });
+
+        if (response.status === 200) {
+            console.log('Comment edited successfully:', response.data.comment);
+            return response.data.comment;
+        } else {
+            console.error('Failed to edit comment:', response.data.message);
+            throw new Error(response.data.message);
+        }
+    } catch (error: any) {
+        console.error('Error editing comment:', error.message);
+        throw new Error('Failed to edit the comment.');
+    }
+}

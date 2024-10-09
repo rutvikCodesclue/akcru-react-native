@@ -194,6 +194,10 @@ const PollScreen = ({navigation, route}: Props) => {
         }
     };
 
+    function handleEditComment(comment: IPollComment): void {
+        navigation2.navigate('EditPollCommentScreen', {comment});
+    }
+
     return (
         <TabContainer>
             <SafeAreaView>

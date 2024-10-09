@@ -51,6 +51,7 @@ import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
 import EditPostScreen from '../screens/crummunityScreens/EditPost';
 import EditCommentScreen from '../screens/crummunityScreens/EditComment';
+import EditPollCommentScreen from '../screens/crummunityScreens/EditPollComment';
 import NewPoll from '../screens/crummunityScreens/NewPoll';
 import PollScreen from '../screens/crummunityScreens/PollScreen';
 import NewPollComment from '../screens/crummunityScreens/NewPollComment';
@@ -115,6 +116,7 @@ export type NoBottomTabStackParams = {
     EditCru: any;
     EditPostScreen: any;
     EditCommentScreen: any;
+    EditPollCommentScreen: any;
     NewPoll: any;
     PollScreen: {
         poll?: IPoll;
@@ -528,6 +530,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="EditCommentScreen"
                 component={EditCommentScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="EditPollCommentScreen"
+                component={EditPollCommentScreen}
                 options={() => ({
                     headerShown: false,
                 })}
