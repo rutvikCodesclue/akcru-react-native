@@ -126,27 +126,31 @@ const PollScreen = ({navigation, route}: Props) => {
         setDebounce(true);
 
         try {
-            let updatedPoll;
-            if (poll.isLikedByCurrentUser) {
+            const isLiked = poll?.isLikedByCurrentUser;
+    
+            if (isLiked) {
                 await unlikePoll(pollId);
-                updatedPoll = {
-                    ...poll,
-                    isLikedByCurrentUser: false,
-                    likeCount: poll.likeCount - 1,
-                };
             } else {
                 await likePoll(pollId);
-                updatedPoll = {
-                    ...poll,
-                    isLikedByCurrentUser: true,
-                    likeCount: poll.likeCount + 1,
-                };
             }
-            setPoll(updatedPoll);
+
+            if (poll) {
+                setPoll(prevPoll => ({
+                    ...prevPoll,
+                    isLikedByCurrentUser: !isLiked,
+                    _count: {
+                        ...prevPoll._count,
+                        pollLikes: prevPoll._count.pollLikes + (isLiked ? -1 : 1),
+                    },
+                }));
+            }
         } catch (error) {
             console.error('Failed to like/unlike poll:', error);
+            setError(error.message || 'Failed to like/unlike the post');
         } finally {
-            setDebounce(false);
+            setTimeout(() => {
+                setDebounce(false);
+            }, 2000);
         }
     };
 

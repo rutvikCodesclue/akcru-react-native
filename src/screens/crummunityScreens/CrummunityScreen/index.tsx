@@ -69,6 +69,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [loading, setLoading] = useState(false);
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [error, setError] = useState('');
+    const [debounce, setDebounce] = useState(false);
 
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -207,6 +208,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const onLikeOrUnlike = async (postId: number) => {
+        if (debounce) return;
+    
+        setDebounce(true);
         try {
             const postIndex = posts.findIndex(post => +post.id === postId);
             if (postIndex === -1) return;
@@ -232,10 +236,17 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(updatedPosts);
         } catch (error) {
             console.error('Error changing like status:', error);
+        } finally {
+            setTimeout(() => {
+                setDebounce(false);
+            }, 2000);
         }
     };
 
     const onLikeOrUnlikePoll = async (pollId: string) => {
+        if (debounce) return;
+    
+        setDebounce(true);
         try {
             const pollIndex = posts.findIndex(post => post.id === pollId);
             if (pollIndex === -1) return;
@@ -261,6 +272,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(updatedPosts);
         } catch (error) {
             console.error('Error changing like status:', error);
+        } finally {
+            setTimeout(() => {
+                setDebounce(false);
+            }, 2000);
         }
     };
 
