@@ -47,6 +47,7 @@ const PostScreen = ({navigation, route}: Props) => {
     const [error, setError] = useState('');
     const [comments, setComments] = useState<IComment[]>([]);
     const [loadingComments, setLoadingComments] = useState(true);
+    const [debounce, setDebounce] = useState(false);
 
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
@@ -187,6 +188,8 @@ const PostScreen = ({navigation, route}: Props) => {
     };
 
     const onLikeOrUnlikePost = async (postId: number) => {
+        if (debounce) return;
+        setDebounce(true);
         try {
             const isLiked = post?.isLikedByCurrentUser;
 
@@ -209,6 +212,10 @@ const PostScreen = ({navigation, route}: Props) => {
         } catch (error) {
             console.error('Error changing like status:', error);
             setError(error.message || 'Failed to like/unlike the post');
+        } finally {
+            setTimeout(() => {
+                setDebounce(false);
+            }, 2000);
         }
     };
 
