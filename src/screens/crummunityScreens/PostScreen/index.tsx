@@ -44,6 +44,7 @@ const PostScreen = ({navigation, route}: Props) => {
     const [posts, setPosts] = useState<IPost[]>([]);
     const [likedPosts, setLikedPosts] = useState(new Set());
     const [loading, setLoading] = useState(false);
+    const [loadingPostIds, setLoadingPostIds] = useState<{ [key: number]: boolean }>({});
     const [error, setError] = useState('');
     const [comments, setComments] = useState<IComment[]>([]);
     const [loadingComments, setLoadingComments] = useState(true);
@@ -131,6 +132,7 @@ const PostScreen = ({navigation, route}: Props) => {
 
     const handleDeletePost = async (postId: number) => {
         try {
+            setLoadingPostIds(prev => ({ ...prev, [postId]: true }));
             // If the post is liked by the current user, unlike it first
             if (post.isLikedByCurrentUser) {
                 await unlikePost(postId);
@@ -144,6 +146,9 @@ const PostScreen = ({navigation, route}: Props) => {
         } catch (error) {
             console.error('Error in deleting post:', error);
             // Handle error (e.g., show a message to the user)
+        }
+        finally {
+            setLoadingPostIds(prev => ({ ...prev, [postId]: false }));
         }
     };
 
@@ -306,6 +311,7 @@ const PostScreen = ({navigation, route}: Props) => {
                     <View style={styles.postcontainer}>
                         <PostCard
                             post={post}
+                            loading={loadingPostIds[postId] || false}
                             openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
                             currentUserID={currentUserID ?? ''}
                             deleteThePost={() => handleDeletePost(+post.id)}

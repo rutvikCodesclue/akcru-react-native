@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView,ActivityIndicator} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Icon} from '@rneui/base';
@@ -99,6 +99,7 @@ type PostType = {
 
 type PostProps = {
     post: PostType;
+    loading?: boolean;
     openProfile: () => void;
     onFollow: () => void;
     onUnfollow: () => void;
@@ -116,6 +117,7 @@ type PostProps = {
 
 const PostCard = ({
     post,
+    loading,
     openProfile,
     onFollow,
     onUnfollow,
@@ -152,6 +154,7 @@ const PostCard = ({
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const handleDeletePost = () => {
+        closePostOptions();
         onDeletePost(+post.id);
     };
 
@@ -584,6 +587,23 @@ const PostCard = ({
                     {post._count?.comments || 0} Comments • {post._count?.likes || 0} Likes
                 </Text>
             </View>
+            {/* Loading Indicator */}
+            {loading && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1,
+                }}>
+                    <ActivityIndicator size="small" color="#0000ff" />
+                    <Text style={{ marginTop: 8, color: '#000', fontSize: 16 }}>Deleting post...</Text>
+                </View>
+            )}
         </View>
     );
 };

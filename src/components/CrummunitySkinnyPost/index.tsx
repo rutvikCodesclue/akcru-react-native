@@ -7,6 +7,7 @@ import {
     Pressable,
     ScrollView,
     TouchableWithoutFeedback,
+    ActivityIndicator,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
@@ -112,6 +113,7 @@ type PostType = {
 
 type PostProps = {
     post: PostType;
+    loading?: boolean;
     openProfile: () => void;
     onFollow: () => void;
     onUnfollow: () => void;
@@ -134,6 +136,7 @@ type PostProps = {
 
 const SkinnyPostCard = ({
     post,
+    loading,
     openProfile,
     onFollow,
     onUnfollow,
@@ -182,6 +185,7 @@ const SkinnyPostCard = ({
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const handleDeletePost = () => {
+        closePostOptions();
         onDeletePost(+post.id);
     };
 
@@ -688,6 +692,23 @@ const SkinnyPostCard = ({
                 )}
                 {post.author.promoUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Promo</Text>}
             </View>
+             {/* Loading Indicator */}
+            {loading && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1,
+                }}>
+                    <ActivityIndicator size="small" color="#0000ff" />
+                    <Text style={{ marginTop: 8, color: '#000', fontSize: 16 }}>Deleting post...</Text>
+                </View>
+            )}
         </View>
     );
 };
