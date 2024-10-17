@@ -67,6 +67,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [posts, setPosts] = useState<(IPost | IPoll)[]>([]);
     const [loading, setLoading] = useState(false);
+    const [loadingPostIds, setLoadingPostIds] = useState<{ [key: number]: boolean }>({});
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [error, setError] = useState('');
     const [debounce, setDebounce] = useState(false);
@@ -281,6 +282,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const handleDeletePost = async (postId: number) => {
         const postIndex = posts.findIndex(post => +post.id === postId);
+        setLoadingPostIds(prev => ({ ...prev, [postId]: true }));
         if (postIndex === -1) return;
 
         const post = posts[postIndex];
@@ -295,6 +297,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
         } catch (error) {
             console.error('Error in deleting post:', error);
+        }
+        finally {
+            setLoadingPostIds(prev => ({ ...prev, [postId]: false }));
         }
     };
 
@@ -542,6 +547,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                     style={{marginBottom: 10}}>
                                                     <SkinnyPostCard
                                                         post={item}
+                                                        loading={loadingPostIds[item.id] || false}
                                                         openProfile={() =>
                                                             navigation2.navigate('ViewUserScreen', {
                                                                 userID: item.author?.id,
