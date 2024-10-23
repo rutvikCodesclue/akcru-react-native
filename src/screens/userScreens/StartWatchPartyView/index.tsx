@@ -237,8 +237,6 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                 await VolumeManager.setMode('MoviePlayback');
                 await VolumeManager.setCategory('Playback');
             }
-            await VolumeManager.setVolume(1);
-            await VolumeManager.showNativeVolumeUI({enabled: true});
         };
 
         async function onMount() {
