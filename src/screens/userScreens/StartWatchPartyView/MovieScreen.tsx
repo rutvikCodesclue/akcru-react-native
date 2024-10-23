@@ -201,7 +201,6 @@ const MovieScreen = ({
                                             paused={!isMoviePlaying}
                                             poster={movie?.landscapeURL}
                                             resizeMode="contain"
-                                            mixWithOthers={'mix'}
                                             ignoreSilentSwitch="ignore"
                                             muted={false}
                                             volume={1.0}

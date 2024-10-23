@@ -9,6 +9,7 @@ import {
     Platform,
     Alert,
     Linking,
+    Modal,
 } from 'react-native';
 import React, {useRef} from 'react';
 import Header from '../../../components/header';
@@ -137,104 +138,102 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         //check permissions for camera and microphone on android
         if (Platform.OS === 'android') {
             check(PERMISSIONS.ANDROID.RECORD_AUDIO)
-            .then(audioResult => {
-                if (audioResult === RESULTS.GRANTED) {
-                    console.log('Microphone permission granted');
-                } else if (audioResult === RESULTS.DENIED) {
-                    // If permission is denied, request it again
-                    request(PERMISSIONS.ANDROID.RECORD_AUDIO)
-                        .then(audioRequestResult => {
-                            if (audioRequestResult === RESULTS.GRANTED) {
-                                console.log('Microphone permission granted after request');
-                            } else {
-                                Alert.alert(
-                                    'Microphone Permission Blocked',
-                                    'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
-                                    [
-                                        {
-                                            text: 'Open Settings',
-                                            onPress: () => {
-                                                Linking.openSettings(); // Opens the app settings
+                .then(audioResult => {
+                    if (audioResult === RESULTS.GRANTED) {
+                        console.log('Microphone permission granted');
+                    } else if (audioResult === RESULTS.DENIED) {
+                        // If permission is denied, request it again
+                        request(PERMISSIONS.ANDROID.RECORD_AUDIO)
+                            .then(audioRequestResult => {
+                                if (audioRequestResult === RESULTS.GRANTED) {
+                                    console.log('Microphone permission granted after request');
+                                } else {
+                                    Alert.alert(
+                                        'Microphone Permission Blocked',
+                                        'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
+                                        [
+                                            {
+                                                text: 'Open Settings',
+                                                onPress: () => {
+                                                    Linking.openSettings(); // Opens the app settings
+                                                },
                                             },
-                                        },
-                                    ],
-                                );
-                                console.log('Microphone permission denied again');
-                            }
-                        })
-                        .catch(audioError => {
-                            console.log('Error requesting microphone permission:', audioError);
-                        });
-                } else if (audioResult === RESULTS.BLOCKED) {
-                    // Permission is blocked; show an alert to open app settings
-                    Alert.alert(
-                        'Microphone Permission Blocked',
-                        'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
-                        [
-                            {
-                                text: 'Open Settings',
-                                onPress: () => {
-                                    Linking.openSettings(); // Opens the app settings
+                                        ],
+                                    );
+                                    console.log('Microphone permission denied again');
+                                }
+                            })
+                            .catch(audioError => {
+                                console.log('Error requesting microphone permission:', audioError);
+                            });
+                    } else if (audioResult === RESULTS.BLOCKED) {
+                        // Permission is blocked; show an alert to open app settings
+                        Alert.alert(
+                            'Microphone Permission Blocked',
+                            'You have permanently denied the microphone permission. Please enable it in the app settings to use this feature.',
+                            [
+                                {
+                                    text: 'Open Settings',
+                                    onPress: () => {
+                                        Linking.openSettings(); // Opens the app settings
+                                    },
                                 },
-                            },
-                        ],
-                    );
-                }
-            })
-            .catch(audioError => {
-                console.log('Error checking microphone permission:', audioError);
-            });
-         
+                            ],
+                        );
+                    }
+                })
+                .catch(audioError => {
+                    console.log('Error checking microphone permission:', audioError);
+                });
+
             check(PERMISSIONS.ANDROID.CAMERA)
-            .then(cameraResult => {
-                if (cameraResult === RESULTS.GRANTED) {
-                    console.log('Camera permission granted');
-                } else if (cameraResult === RESULTS.DENIED) {
-                    // If permission is denied, request it again
-                    request(PERMISSIONS.ANDROID.CAMERA)
-                        .then(cameraRequestResult => {
-                            if (cameraRequestResult === RESULTS.GRANTED) {
-                                console.log('Camera permission granted after request');
-                            } else {
-                                Alert.alert(
-                                    'Camera Permission Blocked',
-                                    'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
-                                    [
-                                        {
-                                            text: 'Open Settings',
-                                            onPress: () => {
-                                                Linking.openSettings(); // Opens the app settings
+                .then(cameraResult => {
+                    if (cameraResult === RESULTS.GRANTED) {
+                        console.log('Camera permission granted');
+                    } else if (cameraResult === RESULTS.DENIED) {
+                        // If permission is denied, request it again
+                        request(PERMISSIONS.ANDROID.CAMERA)
+                            .then(cameraRequestResult => {
+                                if (cameraRequestResult === RESULTS.GRANTED) {
+                                    console.log('Camera permission granted after request');
+                                } else {
+                                    Alert.alert(
+                                        'Camera Permission Blocked',
+                                        'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
+                                        [
+                                            {
+                                                text: 'Open Settings',
+                                                onPress: () => {
+                                                    Linking.openSettings(); // Opens the app settings
+                                                },
                                             },
-                                        },
-                                    ],
-                                );
-                                console.log('Camera permission denied again');
-                            }
-                        })
-                        .catch(cameraError => {
-                            console.log('Error requesting camera permission:', cameraError);
-                        });
-                } else if (cameraResult === RESULTS.BLOCKED) {
-                    // Permission is blocked; show an alert to open app settings
-                    Alert.alert(
-                        'Camera Permission Blocked',
-                        'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
-                        [
-                            {
-                                text: 'Open Settings',
-                                onPress: () => {
-                                    Linking.openSettings(); // Opens the app settings
+                                        ],
+                                    );
+                                    console.log('Camera permission denied again');
+                                }
+                            })
+                            .catch(cameraError => {
+                                console.log('Error requesting camera permission:', cameraError);
+                            });
+                    } else if (cameraResult === RESULTS.BLOCKED) {
+                        // Permission is blocked; show an alert to open app settings
+                        Alert.alert(
+                            'Camera Permission Blocked',
+                            'You have permanently denied the camera permission. Please enable it in the app settings to use this feature.',
+                            [
+                                {
+                                    text: 'Open Settings',
+                                    onPress: () => {
+                                        Linking.openSettings(); // Opens the app settings
+                                    },
                                 },
-                            },
-                        ],
-                    );
-                }
-            })
-            .catch(cameraError => {
-                console.log('Error checking camera permission:', cameraError);
-            });
-    
-    
+                            ],
+                        );
+                    }
+                })
+                .catch(cameraError => {
+                    console.log('Error checking camera permission:', cameraError);
+                });
         }
 
         if (Platform.OS === 'ios') {
@@ -426,6 +425,8 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
 
+    const [headphonesNotificationModalVisible, setHeadphonesNotificationModalVisibile] = useState(true);
+
     return (
         <SafeAreaView>
             <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
@@ -548,6 +549,47 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                     </View>
                 </View>
             </View>
+            <Modal animationType="fade" transparent={true} visible={headphonesNotificationModalVisible}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                    <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text
+                            style={{
+                                ...FONTS.Title3,
+                                marginBottom: 10,
+                                textAlign: 'center',
+                            }}>
+                            Please use headphones for better experience.
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => {
+                                setHeadphonesNotificationModalVisibile(false);
+                            }}>
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    marginBottom: 10,
+                                    textAlign: 'center',
+                                    color: COLORS.PINK,
+                                }}>
+                                Ok
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 };
