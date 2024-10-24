@@ -9,6 +9,7 @@ import {
     Pressable,
     ActivityIndicator,
     Alert,
+    RefreshControl,
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -82,7 +83,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-            fetchPostsAndPolls(1);
+            fetchPostsAndPolls(1, 'false');
         });
 
         return unsubscribe;
@@ -97,10 +98,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }, []),
     );
 
-    const fetchPostsAndPolls = async (pageNumber: number) => {
+    const fetchPostsAndPolls = async (pageNumber: number, skipCache: string) => {
         setLoading(true);
         try {
-            const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber), getPolls(pageNumber)]);
+            const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber, skipCache), getPolls(pageNumber)]);
 
             let followingIds = new Set();
             let blockedUserIds = new Set();
@@ -178,7 +179,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
 
         setIsLoadingMore(true);
-        await fetchPostsAndPolls(page + 1);
+        await fetchPostsAndPolls(page + 1, 'false');
         setIsLoadingMore(false);
     };
 
@@ -315,7 +316,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const handleVote = async (pollId: string, choiceId: string) => {
         try {
             await voteOnPoll(pollId, choiceId);
-            fetchPostsAndPolls(1);
+            fetchPostsAndPolls(1, 'false');
         } catch (error) {
             console.error('Error voting on poll:', error);
         }
@@ -403,9 +404,9 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleRefresh = () => {
+    const handleRefresh = async () => {
         setRefreshing(true);
-        fetchPostsAndPolls(1);
+        await fetchPostsAndPolls(1, 'true');
         setRefreshing(false);
     };
 
@@ -435,7 +436,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             stickyHeaderIndices={[0]}
                             style={{height: SIZES.ScreenHeight}}
                             onScroll={handleScroll}
-                            scrollEventThrottle={16}>
+                            scrollEventThrottle={16}
+                            refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+                            }
+                            >
                             <View>
                                 <View style={{zIndex: 100}}>
                                     <Header />
@@ -511,8 +516,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                         data={posts}
                                         style={styles.postcontainer}
                                         keyExtractor={item => item.id}
-                                        refreshing={refreshing}
-                                        onRefresh={handleRefresh}
+                                        // refreshing={refreshing}
+                                        // onRefresh={handleRefresh}
                                         renderItem={({item}) =>
                                             item.type === 'poll' ? (
                                                 <Pressable

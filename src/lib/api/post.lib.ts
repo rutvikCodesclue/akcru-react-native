@@ -1,11 +1,12 @@
 import {API} from '../../clients/api.client';
 import {CRUMMUNITY} from '../../clients/crummunity.client';
 
-export async function getPosts(page = 1) {
+export async function getPosts(page = 1, skipCache: string) {
     try {
         const {data} = await CRUMMUNITY.get('/v1/post', {
             params: {
                 page: page - 1,
+                skipCache,
             },
         });
 
