@@ -59,6 +59,8 @@ const NewPost = () => {
     const [isPosting, setIsPosting] = useState(false);
     const [isCompress, setIsCompress] = useState(false);
     const [progressVal, setProgress] = useState(0);
+    const [isPressing, setIsPressing] = useState(false);
+
     const videoRef = useRef(null);
 
     const getFileSize = async filePath => {
@@ -354,6 +356,14 @@ const NewPost = () => {
         }
     };
 
+    const handlePress = () => {
+        if (!isPressing) {
+            setIsPressing(true);
+            navigation.pop();
+            setTimeout(() => setIsPressing(false), 1000);
+        }
+    };
+
     useEffect(() => {
         const fetchUserSuggestions = async () => {
             if (isTagging && currentTag) {
@@ -401,7 +411,7 @@ const NewPost = () => {
                                     marginTop: '20%',
                                     marginHorizontal: 15,
                                 }}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
+                                <TouchableOpacity onPress={handlePress} disabled={isPressing}>
                                     <View>
                                         <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
                                     </View>

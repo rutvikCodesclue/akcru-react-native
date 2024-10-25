@@ -63,51 +63,45 @@ const Welcome = params => {
             await authStore.hydrateAuth();
             const accessToken = await AsyncStorage.getItem('access_token');
             const isAuthed = authStore.getUser() !== null && authStore.getSession() !== null;
-            const isLoggedInWithToken = isAuthed && accessToken !== null;
-
-            //  const navigateTo = isLoggedInWithToken ? 'ClientTabNavigator' : 'Signin';
-            await handleAnimation();
-
-            if (isLoggedInWithToken) {
-                navigation.navigate('NoBottomStack', {
-                    screen: params.route.params.params.screenName,
-                    params: params.route.params.params.params,
-                    isLoggedIn,
-                });
-            }
+            return isAuthed && accessToken !== null;
         } catch (err) {
             console.error('Error checking auth', err);
-        } finally {
-            setLoading(false);
+            return false;
         }
     };
 
     const handleAnimation = () => {
-        return new Promise(resolve => {
+        return new Promise<void>(resolve => {
             setShowOpener(true);
             setTimeout(() => {
-                setLoading(false);
                 setShowOpener(false);
                 resolve();
-            }, 3400);
+            }, 5000);
         });
     };
 
     useEffect(() => {
-        checkAuth();
-    }, []);
+        const initiateLoading = async () => {
+            // Start both tasks in parallel
+            const authCheckPromise = checkAuth(); // Start the authentication check
+            const animationPromise = handleAnimation(); // Start the animation
 
-    const handleLogout = async () => {
-        try {
-            await AsyncStorage.removeItem('access_token');
-            await authStore.logout();
-            navigation.navigate('Signin');
-        } catch (err) {
-            console.error('Error during logout', err);
-        } finally {
-            setIsLoggedIn(false);
-        }
-    };
+            // Wait for both promises to complete
+            const [isLoggedIn] = await Promise.all([authCheckPromise, animationPromise]);
+
+            // Navigate only after both processes complete
+            if (isLoggedIn) {
+                navigation.navigate('NoBottomStack', {
+                    screen: params.route.params.params.screenName,
+                    params: params.route.params.params.params,
+                });
+            } else {
+                setLoading(false);
+            }
+        };
+
+        initiateLoading();
+    }, [navigation, params]);
 
     if (loading) {
         return (

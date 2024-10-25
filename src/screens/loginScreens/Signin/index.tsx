@@ -268,6 +268,7 @@ const Signin = () => {
                                         onChangeText={text => setPassword(text)}
                                         value={password}
                                         editable={true}
+                                        placeholderTextColor={COLORS.DARKGREY} // Add this line
                                     />
                                     <TouchableOpacity
                                         onPress={() => setPasswordVisible(!isPasswordVisible)}
@@ -393,6 +394,7 @@ const styles1 = StyleSheet.create({
     input: {
         flex: 1, // Takes up the remaining space inside the container
         paddingVertical: 10,
+        color: COLORS.WHITE,
         paddingRight: 40, // Ensure space for the icon
     },
     iconContainer: {
