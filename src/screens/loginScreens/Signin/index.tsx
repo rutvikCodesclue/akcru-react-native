@@ -263,12 +263,12 @@ const Signin = () => {
                                     />
                                     <TextInput
                                         placeholder="Password"
-                                        style={styles1.input}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={[styles1.input, {color: COLORS.LIGHTGREY}]}
                                         secureTextEntry={!isPasswordVisible}
                                         onChangeText={text => setPassword(text)}
                                         value={password}
                                         editable={true}
-                                        placeholderTextColor={COLORS.DARKGREY} // Add this line
                                     />
                                     <TouchableOpacity
                                         onPress={() => setPasswordVisible(!isPasswordVisible)}
