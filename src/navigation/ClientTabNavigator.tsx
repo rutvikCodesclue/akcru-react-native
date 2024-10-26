@@ -17,6 +17,7 @@ import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton
 import {UseTabMenu} from '../context/TabContext';
 import AkcruButtonStack from './AkcruButtonStack';
 import CrummunityScreen from '../screens/crummunityScreens/CrummunityScreen';
+import {CrusaderStack} from './CrusaderStack';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -28,6 +29,7 @@ export type ClientTabsParams = {
     TabContainer: any;
     AkcruCenterButton: any;
     ShowTestScreen: any;
+    CrusaderStack: any;
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
@@ -121,6 +123,22 @@ export default function ClientTabNavigator() {
                 }}
             />
             <ClientTabs.Screen
+                name="CrusaderStack"
+                component={CrusaderStack}
+                options={{
+                    tabBarItemStyle: {},
+                    headerShown: false,
+                    tabBarIcon: ({color}) => (
+                        <View style={styles.tabIconContainer}>
+                            <Icon name="earth-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                        </View>
+                    ),
+                }}
+                listeners={{
+                    tabPress: closeCenterButtonIfOpen,
+                }}
+            />
+            {/* <ClientTabs.Screen
                 name="CruChewStack"
                 component={CruChewStack}
                 options={{
@@ -135,7 +153,7 @@ export default function ClientTabNavigator() {
                 listeners={{
                     tabPress: closeCenterButtonIfOpen,
                 }}
-            />
+            /> */}
             <ClientTabs.Screen
                 name="UserProfileStack"
                 component={UserProfileStack}

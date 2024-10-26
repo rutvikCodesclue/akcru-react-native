@@ -436,7 +436,7 @@ export const finishUserWatching = async (id: string, isEpisode: boolean): Promis
         const response = await API.post('/v1/user/currentWatching/finish', requestData);
         return response.data.success;
     } catch (error) {
-        console.log("userLib Finish Error");
+        console.log('userLib Finish Error');
         console.error('Error finishing user watching:', error.response?.data || error.message);
         console.error('Request failed with status code', error.response?.status || 'unknown');
         return false;
@@ -739,5 +739,20 @@ export const removeUnfinishedContent = async (id: string, isEpisode: boolean): P
     } catch (error) {
         console.error('Error removing unfinished content:', error);
         return false;
+    }
+};
+
+export const fetchUsersWithFollowers = async (): Promise<IUserProfile[] | []> => {
+    try {
+        const {data} = await API.get('/v1/user/users-with-followers');
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return data.users;
+    } catch (error) {
+        console.error('Error fetching users with followers:', error);
+        return [];
     }
 };
