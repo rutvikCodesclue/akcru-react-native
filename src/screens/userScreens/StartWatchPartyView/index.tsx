@@ -28,7 +28,7 @@ import {
 } from '@100mslive/react-native-hms';
 import useAuthStore from '../../../stores/auth.store';
 import Orientation from 'react-native-orientation-locker';
-import Video from 'react-native-video';
+import {VideoRef} from 'react-native-video';
 import {IUserProfile} from '../../../../types';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {checkRoomTime} from '../../../util/checkRoomTime';
@@ -75,7 +75,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
 
     const [isStreamOpen, setIsStreamOpen] = useState(false);
     const [isMoviePlaying, setIsMoviePlaying] = useState(false);
-    const [isMicOn, setIsMicOn] = useState(micInitialState);
+    const [isMicOn, setIsMicOn] = useState<boolean>(micInitialState);
     const [isUserVideoOn, setIsUserVideoOn] = useState(cameraInitialState);
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +90,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
     const syncChannelRef = useRef<RealtimeChannel | null>(null);
     const roomChannelRef = useRef<RealtimeChannel | null>(null);
-    const videoPlayerRef = useRef<Video | null>(null);
+    const videoPlayerRef = useRef<VideoRef | null>(null);
     const isSyncedWithHost = useRef<boolean | null>(null);
 
     const isFocused = useIsFocused();
@@ -234,8 +234,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
             console.log('Join room');
             await _setupRoomChannels();
             if (Platform.OS === 'ios') {
-                await VolumeManager.setMode('MoviePlayback');
-                await VolumeManager.setCategory('Playback');
+                await VolumeManager.setMode('VideoChat');
             }
         };
 
@@ -250,14 +249,19 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
         }
         onMount();
         updateHost(3, viewtype, viewId, setCurrentRoomHost);
-
-        return () => {
-            if (Platform.OS === 'ios') {
-                VolumeManager.setCategory('Ambient', false);
-                VolumeManager.setMode('Default');
-            }
-        };
     }, [movieId, viewId, viewtype, currentRoomHost]);
+
+    useEffect(() => {
+        (async function updateVolumeModeIOS() {
+            if (Platform.OS !== 'ios') {
+                return;
+            } else if (isMicOn) {
+                await VolumeManager.setMode('VideoChat');
+            } else if (isMoviePlaying) {
+                await VolumeManager.setMode('MoviePlayback');
+            }
+        })();
+    }, [isMicOn, isMoviePlaying]);
 
     useFocusEffect(
         React.useCallback(() => {

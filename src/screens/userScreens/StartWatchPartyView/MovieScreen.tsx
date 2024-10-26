@@ -197,6 +197,7 @@ const MovieScreen = ({
                                             source={{
                                                 uri: movie?.movieURL,
                                             }}
+                                            mixWithOthers="mix"
                                             showHours={true}
                                             paused={!isMoviePlaying}
                                             poster={movie?.landscapeURL}

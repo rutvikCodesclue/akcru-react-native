@@ -163,8 +163,8 @@ const Signin = () => {
         } catch (error: any) {
             setShowLoginError(true);
             setLoading(false);
-            if (error.response.data.message) {
-                setErrorMsg(error.response.data.message);
+            if (error.response?.data.message) {
+                setErrorMsg(error.response?.data.message);
             } else {
                 setErrorMsg(error.response);
             }
