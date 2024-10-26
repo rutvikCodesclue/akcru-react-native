@@ -163,7 +163,7 @@ const FollowList = () => {
             <View>
                 <BackButton navigation={navigation} />
                 <View style={styles.backbutton}>
-                    <Header />
+                    <Header searchScreen='UserSearchResultScreen'/>
                 </View>
             </View>
             <TabView
