@@ -12,7 +12,7 @@ import {getMyNotifications} from '../../lib/api/notify.lib';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {UseTabMenu} from '../../context/TabContext';
 
-const Header = () => {
+const Header = ({ searchScreen = 'SearchMovieScreen' }) => {
     const {user} = useAuthStore();
 
     const {
@@ -155,7 +155,7 @@ const Header = () => {
                                 type="material-community"
                                 color={COLORS.LIGHTGREY}
                                 size={25}
-                                onPress={() => navigation.navigate('SearchMovieScreen')}
+                                onPress={() => navigation.navigate(searchScreen)}
                             />
                         </TouchableOpacity>
                     </View>
