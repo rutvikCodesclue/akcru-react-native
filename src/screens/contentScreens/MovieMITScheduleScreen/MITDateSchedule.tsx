@@ -189,6 +189,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
 
     const handleSetDateTime = async () => {
+
+        setIsSelectionDisabled(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
@@ -205,6 +207,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     setIsDateTimeSelected(true);
                     setIsSelectionDisabled(true);
                     setShowSendMIT(true);
+                }
+                else {
+                    setIsSelectionDisabled(false);
                 }
             }
         }
@@ -736,7 +741,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         btnname={'Send MIT'}
                                                         color={COLORS.AKCRUBLUE}
                                                         onPress={handleSetDateTime}
-                                                        disabled={!selectedDate || !selectedTime || !selectedTimeZone}
+                                                        disabled={!selectedDate || !selectedTime || !selectedTimeZone || isSelectionDisabled}
                                                     />
                                                 </View>
                                             ) : (
