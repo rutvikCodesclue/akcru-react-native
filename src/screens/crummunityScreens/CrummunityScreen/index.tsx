@@ -212,36 +212,45 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const onLikeOrUnlike = async (postId: number) => {
         if (debounce) return;
     
+        const postIndex = posts.findIndex(post => +post.id === postId);
+        if (postIndex === -1) return;
+    
+        const post = posts[postIndex];
+        const isLiked = post.isLikedByCurrentUser;
+
+        const updatedPosts = [...posts];
+        updatedPosts[postIndex] = {
+            ...post,
+            isLikedByCurrentUser: !isLiked,
+            _count: {
+                ...post._count,
+                likes: post._count.likes + (isLiked ? -1 : 1),
+            },
+        };
+        setPosts(updatedPosts);
+    
         setDebounce(true);
         try {
-            const postIndex = posts.findIndex(post => +post.id === postId);
-            if (postIndex === -1) return;
-
-            const post = posts[postIndex];
-            const isLiked = post.isLikedByCurrentUser;
-
             if (isLiked) {
                 await unlikePost(postId);
             } else {
                 await likePost(postId);
             }
-
-            const updatedPosts = [...posts];
+        } catch (error) {
+            console.error('Error changing like status:', error);
             updatedPosts[postIndex] = {
                 ...post,
-                isLikedByCurrentUser: !isLiked,
+                isLikedByCurrentUser: isLiked,
                 _count: {
                     ...post._count,
-                    likes: post._count.likes + (isLiked ? -1 : 1),
+                    likes: post._count.likes + (isLiked ? 1 : -1),
                 },
             };
             setPosts(updatedPosts);
-        } catch (error) {
-            console.error('Error changing like status:', error);
         } finally {
             setTimeout(() => {
                 setDebounce(false);
-            }, 2000);
+            }, 200);
         }
     };
 
