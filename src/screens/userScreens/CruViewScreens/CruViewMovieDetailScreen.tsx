@@ -73,6 +73,9 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
 
+    const [userSelectedDate, setUserSelectedDate] = useState(false);
+    const [userSelectedTime, setUserSelectedTime] = useState(false);
+
     const months = [
         'January',
         'February',
@@ -117,6 +120,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
     const handleDateChange = day => {
         const updatedDate = new Date(currentYear, currentMonth, day);
         setSelectedDate(updatedDate);
+        setUserSelectedDate(true);
     };
 
     const handleTimeChange = (hours, minutes) => {
@@ -124,6 +128,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
         updatedTime.setHours(hours);
         updatedTime.setMinutes(minutes);
         setSelectedTime(updatedTime);
+        setUserSelectedTime(true);
     };
 
     const handleTimeZoneChange = (timeZone: string) => {
@@ -467,7 +472,7 @@ export default function CruViewMovieDetailScreen({navigation, route}: Props) {
                                                         btnname={'Set Date'}
                                                         color={COLORS.PURPLE}
                                                         onPress={handleSetDateTime}
-                                                        disabled={!selectedDate || !selectedTime || !selectedTimeZone}
+                                                        disabled={!userSelectedDate || !userSelectedTime || !selectedTimeZone}
                                                     />
                                                 </View>
                                             ) : (
