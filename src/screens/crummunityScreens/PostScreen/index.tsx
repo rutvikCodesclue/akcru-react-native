@@ -194,33 +194,47 @@ const PostScreen = ({navigation, route}: Props) => {
 
     const onLikeOrUnlikePost = async (postId: number) => {
         if (debounce) return;
+        const isLiked = post?.isLikedByCurrentUser;
+
+        setPost(prevPost => {
+            if (!prevPost) return prevPost;
+
+            return {
+                ...prevPost,
+                isLikedByCurrentUser: !isLiked,
+                _count: {
+                    ...prevPost._count,
+                    likes: prevPost._count.likes + (isLiked ? -1 : 1),
+                },
+            };
+        });
+
         setDebounce(true);
         try {
-            const isLiked = post?.isLikedByCurrentUser;
-
             if (isLiked) {
                 await unlikePost(postId);
             } else {
                 await likePost(postId);
             }
-
-            if (post) {
-                setPost(prevPost => ({
-                    ...prevPost,
-                    isLikedByCurrentUser: !isLiked,
-                    _count: {
-                        ...prevPost._count,
-                        likes: prevPost._count.likes + (isLiked ? -1 : 1),
-                    },
-                }));
-            }
         } catch (error) {
             console.error('Error changing like status:', error);
             setError(error.message || 'Failed to like/unlike the post');
+            setPost(prevPost => {
+                if (!prevPost) return prevPost; // Prevent updates if prevPost is null
+    
+                return {
+                    ...prevPost,
+                    isLikedByCurrentUser: isLiked,
+                    _count: {
+                        ...prevPost._count,
+                        likes: prevPost._count.likes + (isLiked ? 1 : -1),
+                    },
+                };
+            });
         } finally {
             setTimeout(() => {
                 setDebounce(false);
-            }, 2000);
+            }, 200);
         }
     };
 

@@ -359,8 +359,7 @@ const MovieDetailCard = ({
                     <TouchableOpacity onPress={onPress}>
                         <View style={styles.MITbutton}>
                             <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-
-                            <Text style={{...FONTS.Title2AkcruBlue}}>Send Movie Invite Ticket</Text>
+                            <Text style={styles.buttonText}>Send Movie Invite Ticket</Text>
                         </View>
                     </TouchableOpacity>
                 </View>

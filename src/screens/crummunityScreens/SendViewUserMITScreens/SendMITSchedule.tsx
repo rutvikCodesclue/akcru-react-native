@@ -160,6 +160,8 @@ export default function SendMITSchedule({route}: Props) {
 
     const handleSetDateTime = async () => {
         setLoading(true);
+        setIsSelectionDisabled(true);
+
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
@@ -175,6 +177,9 @@ export default function SendMITSchedule({route}: Props) {
                     setIsDateTimeSelected(true);
                     setIsSelectionDisabled(true);
                     setShowSendMIT(true);
+                } 
+                else {
+                    setIsSelectionDisabled(false);
                 }
             }
         }
@@ -651,7 +656,7 @@ export default function SendMITSchedule({route}: Props) {
                                                                 color={COLORS.AKCRUBLUE}
                                                                 onPress={handleSetDateTime}
                                                                 disabled={
-                                                                    !selectedDate || !selectedTime || !selectedTimeZone
+                                                                    !selectedDate || !selectedTime || !selectedTimeZone || isSelectionDisabled
                                                                 }
                                                             />
                                                         </View>
