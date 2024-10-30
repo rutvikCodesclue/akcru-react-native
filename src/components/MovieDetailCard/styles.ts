@@ -52,5 +52,12 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        backgroundColor: COLORS.TRANSAKCRUBLUE,
+    },
+    buttonText: {
+        ...FONTS.Title2AkcruBlue,
+        color: COLORS.WHITE,
+        fontWeight: 'bold',
+        fontSize: 14,
     },
 });
