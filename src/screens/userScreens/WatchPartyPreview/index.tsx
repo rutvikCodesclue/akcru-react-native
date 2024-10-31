@@ -571,7 +571,8 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                                 marginBottom: 10,
                                 textAlign: 'center',
                             }}>
-                            Please use headphones for better experience.
+                            For the best viewing experience, we recommend using EarPods or any connected or wireless
+                            headphones.
                         </Text>
                         <TouchableOpacity
                             onPress={() => {
