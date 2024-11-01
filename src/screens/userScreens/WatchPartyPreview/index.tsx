@@ -44,6 +44,7 @@ import {checkRoomTime} from '../../../util/checkRoomTime';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import BackButton from '../../../components/General/backbutton';
+import {Recommendations} from './Recommendations';
 
 type RoomPreviewNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'WatchPartyPreview'>;
 
@@ -425,8 +426,6 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
 
-    const [headphonesNotificationModalVisible, setHeadphonesNotificationModalVisibile] = useState(true);
-
     return (
         <SafeAreaView>
             <View style={{marginBottom: SIZES.ScreenHeight / 12, height: '100%'}}>
@@ -549,47 +548,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                     </View>
                 </View>
             </View>
-            <Modal animationType="fade" transparent={true} visible={headphonesNotificationModalVisible}>
-                <View
-                    style={{
-                        flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                    <View
-                        style={{
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                            padding: 20,
-                            borderRadius: 10,
-                            alignItems: 'center',
-                            marginHorizontal: 15,
-                        }}>
-                        <Text
-                            style={{
-                                ...FONTS.Title3,
-                                marginBottom: 10,
-                                textAlign: 'center',
-                            }}>
-                            Please use headphones for better experience.
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => {
-                                setHeadphonesNotificationModalVisibile(false);
-                            }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    marginBottom: 10,
-                                    textAlign: 'center',
-                                    color: COLORS.PINK,
-                                }}>
-                                Ok
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Modal>
+            <Recommendations />
         </SafeAreaView>
     );
 };
