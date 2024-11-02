@@ -401,6 +401,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
 
     const handleRoomLeaving = async () => {
         console.log('Nav start');
+        Orientation.lockToPortrait();
         navigation.navigate('ClientTabNavigator', {screen: 'UserProfileScreen', params: {tabKey: 4}});
         console.log('Nav end');
         if (hmsInstanceRef.current) {
