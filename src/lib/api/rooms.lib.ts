@@ -62,8 +62,8 @@ export const saveTextMessage = async (
                 'Content-Type': 'multipart/form-data',
             },
         });
-        console.log('Response form Data:', formData);
-        return response.data;
+        console.log('File:', response.data.imageUrl);
+        return response;
     } catch (error) {
         console.error('Error saving message:', error);
         throw error; // Rethrow error for upstream handling if necessary

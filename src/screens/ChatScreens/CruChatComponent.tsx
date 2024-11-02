@@ -34,25 +34,34 @@ const CruChatComponent = ({route}: any) => {
 
     useEffect(() => {
         fetchMessages(mItInviteId!);
+        setupChannels(mItInviteId!);
+
+        return () => {
+            cleanupChannels();
+        };
+    }, []);
+        
+
+    const setupChannels = (cruId: string) => {
         const channelA = supabase.channel(mItInviteId);
         channelA
-            .on('broadcast', {event: 'test'}, payload => messageReceived(payload))
+            .on('broadcast', {event: 'test'}, messageReceived)
             .subscribe(status => {
                 if (status === 'SUBSCRIBED') {
                     setChannel(channelA);
                 }
             });
+    }
 
-        return () => {
-            channelA.unsubscribe();
-            setChannel(null);
-        };
-    }, []);
+    const cleanupChannels = () => {
+        if (channel) channel.unsubscribe();
+        setChannel(null);
+    };
 
     const fetchMessages = async (mItInviteId: string) => {
         const response = await getMitMessages(mItInviteId!);
-        const chatMessages: IMessage[] = response!.map(item => {
-            return {
+        
+        const chatMessages: IMessage[] = response!.map(item => ({
                 _id: item.id,
                 text: item.content,
                 image: item.imageUrl,
@@ -62,22 +71,21 @@ const CruChatComponent = ({route}: any) => {
                     name: route.params.username,
                 },
                 createdAt: new Date(item.createdAt),
-            };
-        });
+            }));
     
-        if (chatMessages.length > 0) {
-            updateMessageStatus([chatMessages[0]._id]);
-            setMessages(chatMessages);
-        }
+            if (chatMessages.length > 0) {
+                updateMessageStatus([chatMessages[0]._id]);
+                setMessages(chatMessages);
+            }
     };
     
 
     const messageReceived = (payload: any) => {
-        if (payload.payload.senderId === user.id) return;
-
+        // if (payload.payload.senderId === user.id) return;
         const newMessage: IMessage = {
             _id: payload.payload.msgId || uuid.v4(),
-            text: payload.payload.message,
+            text: payload.payload.text,
+            image: payload.payload.image,
             isCru: payload.payload.isCru,
             user: {_id: userID!, name: route.params.username },
             createdAt: Date.now(),
@@ -102,44 +110,42 @@ const CruChatComponent = ({route}: any) => {
         if (!selectedImage && !imageMessageText) return;
 
         const msgId = uuid.v4();
-        const message: IMessage = {
-            _id: msgId,
-            text: imageMessageText,
-            isCru: 'false',
-            image: selectedImage,
-            user: {_id: user.id, name: user.username},
-            createdAt: new Date(),
-        };
-
-        if (channel) {
-            channel.send({
-                type: 'broadcast',
-                event: 'test',
-                payload: {
-                    image: selectedImage,
-                    text: imageMessageText,
-                    senderId: userID,
-                    mItInviteId,
-                    isCru: 'false',
-                    msgId,
-                },
-            });
-        }
-
-        // Update messages immediately after sending
-        setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
 
         try {
-            saveTextMessage(mItInviteId, imageMessageText, userID!, 'false', msgId, selectedImage);
+            resetImageSelection();
+            const response = await saveTextMessage(mItInviteId, imageMessageText, user.id!, 'false', msgId, selectedImage);
+            const imageUrl = response.data.imageUrl;
 
-            // Immediately delete the message after sending
+            const message: IMessage = {
+                _id: msgId,
+                text: imageMessageText,
+                isCru: 'false',
+                image: imageUrl,
+                user: {_id: user.id, name: user.username},
+                createdAt: new Date(),
+            };
+
+            if (channel) {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'test',
+                    payload: {
+                        image: imageUrl,
+                        text: imageMessageText,
+                        senderId: user.id,
+                        mItInviteId,
+                        isCru: 'false',
+                        msgId,
+                    },
+                });
+            }
+            setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
             await deleteMessage(msgId); // Use appropriate method to delete
+            
+            playMessageSound();
         } catch (error) {
-            console.error('Error saving image message:', error);
+            console.error('Error sending image message:', error);
         }
-
-        playMessageSound();
-        resetImageSelection();
     };
 
     const onSendText = async (messages: IMessage[] = []) => {
@@ -155,22 +161,20 @@ const CruChatComponent = ({route}: any) => {
             user: {_id: user.id, name: user.username},
             createdAt: new Date(),
         };
-        setMessages(previousMessages => GiftedChat.append(previousMessages, messages));
+        setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
 
         try {
             await channel.send({
                 type: 'broadcast',
                 event: 'test',
-                payload: {message: textMessage, senderId: userID, mItInviteId, isCru: 'false', msgId, image: null},
+                payload: {text: textMessage, senderId: user.id, mItInviteId, isCru: 'false', msgId, image: null},
             });
 
             playMessageSound();
-
             // Update local messages immediately
-        saveTextMessage(mItInviteId, textMessage, userID!, 'false', msgId, null);
-
+            saveTextMessage(mItInviteId, textMessage, user.id!, 'false', msgId, null);
             // Immediately delete the message after sending
-            await deleteMessage(msgId); // Use appropriate method to delete
+            // await deleteMessage(msgId); // Use appropriate method to delete
         } catch (error) {
             console.error('Error sending text message:', error.response ? error.response.data : error.message);
         }
