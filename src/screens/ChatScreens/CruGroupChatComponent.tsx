@@ -109,11 +109,15 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const messageReceived = (payload: any) => {
         if (payload.payload.senderId === user.id) return;
 
+        const senderData = membersData[payload.payload.senderId];
+        const senderName = senderData ? senderData.username : 'Unknown';
+
         const newMessage: IMessage = {
             _id: payload.payload.msgId,
-            text: payload.payload.message,
-            user: {_id: payload.payload.senderId, name: membersData[payload.payload.senderId].username},
-            createdAt: Date.now(),
+            text: payload.payload.text,
+            image: payload.payload.image,
+            user: {_id: payload.payload.senderId, name: senderName},
+            createdAt: new Date(),
         };
         playMessageSound();
         setMessages(previousMessages => GiftedChat.append(previousMessages, [newMessage]));
@@ -130,43 +134,50 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         });
     };
 
-    const onSendImage = () => {
+    const onSendImage = async() => {
         if (!selectedImage && !imageMessageText) return;
-
+        
         const msgId = uuid.v4();
-        const message: IMessage = {
-            _id: msgId,
-            text: imageMessageText,
-            isCru: 'true',
-            image: selectedImage,
-            user: {_id: user.id, name: user.username},
-            createdAt: new Date(),
-        };
 
-        if (channel) {
-            channel.send({
-                type: 'broadcast',
-                event: 'groupchat',
-                payload: {image: selectedImage, text: imageMessageText, senderId: user.id, cruId, msgId},
-            });
-            parentChannel.send({
-                type: 'broadcast',
-                event: 'parent-cru-chat',
-                payload: {
-                    image: selectedImage,
-                    text: imageMessageText,
-                    senderId: user.id,
-                    cruId,
-                    isCru: 'true',
-                    msgId,
-                },
-            });
-        }
+        try {
+            resetImageSelection();
+            const response = await saveTextMessage(cruId, imageMessageText, user.id!, 'true', msgId, selectedImage);
+
+            const imageUrl = response.data.imageUrl;
+            const message: IMessage = {
+                _id: msgId,
+                text: imageMessageText,
+                isCru: 'true',
+                image: imageUrl,
+                user: {_id: user.id, name: user.username},
+                createdAt: new Date(),
+            };
+
+            if (channel) {
+                channel.send({
+                    type: 'broadcast',
+                    event: 'groupchat',
+                    payload: {image: imageUrl, text: imageMessageText, senderId: user.id, cruId, msgId},
+                });
+                parentChannel.send({
+                    type: 'broadcast',
+                    event: 'parent-cru-chat',
+                    payload: {
+                        image: imageUrl,
+                        text: imageMessageText,
+                        senderId: user.id,
+                        cruId,
+                        isCru: 'true',
+                        msgId,
+                    },
+                });
+            }
 
         setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
-        saveTextMessage(cruId, imageMessageText, user.id!, 'true', msgId, selectedImage);
         playMessageSound();
-        resetImageSelection();
+    } catch (error) {
+        console.error('Error sending image message:', error);
+      }
     };
 
     const onSendText = async (messages: IMessage[] = []) => {
@@ -189,12 +200,12 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             channel.send({
                 type: 'broadcast',
                 event: 'groupchat',
-                payload: {message: textMessage, senderId: user.id, cruId, msgId},
+                payload: {text: textMessage, senderId: user.id, cruId, msgId},
             }),
             parentChannel.send({
                 type: 'broadcast',
                 event: 'parent-cru-chat',
-                payload: {message: textMessage, senderId: user.id, cruId, msgId},
+                payload: {text: textMessage, senderId: user.id, cruId, msgId},
             }),
         ]);
 
