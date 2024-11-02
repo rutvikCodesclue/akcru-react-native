@@ -268,7 +268,7 @@ const CruChatComponent = ({route}: any) => {
                         }}>
                         <Text style={{color: COLORS.WHITE, fontSize: 18}}>{selectedMessages.length} Selected</Text>
                         <TouchableOpacity onPress={deleteMessages}>
-                            <Icon name="delete" type="material" color={COLORS.WHITE} size={25} />
+                            <Icon name="delete" color={COLORS.WHITE} size={25} />
                         </TouchableOpacity>
                     </View>
                 )}
