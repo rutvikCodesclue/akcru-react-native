@@ -280,16 +280,28 @@ const CruChatComponent = ({route}: any) => {
                                 <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
                             </TouchableOpacity>
                             <Image source={{uri: selectedImage}} style={styles.selectedImage} />
-                            <TextInput
-                                placeholder="Type a message..."
-                                value={imageMessageText}
-                                placeholderTextColor={'black'}
-                                onChangeText={setImageMessageText}
-                                style={styles.textInput}
-                            />
-                            <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
-                                <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
-                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    // flex: 1,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    columnGap: 5,
+                                }}>
+                                <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                                    <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                                <TextInput
+                                    placeholder="Type a message..."
+                                    value={imageMessageText}
+                                    placeholderTextColor={'black'}
+                                    onChangeText={setImageMessageText}
+                                    style={styles.textInput}
+                                />
+                                <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
+                                    <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     ) : (
                         <GiftedChat
@@ -298,14 +310,34 @@ const CruChatComponent = ({route}: any) => {
                             user={{_id: user?.id!, name: user?.username}}
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
+                            renderActions={() => (
+                                <TouchableOpacity onPress={handleImagePick} style={{padding: 5}}>
+                                    <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                            )}
                             textInputProps={{
                                 style: {
                                     color: COLORS.BLACK,
-                                    width: '85%',
-                                    padding: 10,
-                                    paddingLeft: 42,
+                                    flex: 1,
+                                    fontSize: 16,
+                                    paddingVertical: 12,
+                                    paddingHorizontal: 10,
                                 },
                             }}
+                            alwaysShowSend
+                            renderSend={props => (
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        if ('onSend' in props && typeof props.onSend === 'function') {
+                                            props.onSend(messages, true);
+                                        } else {
+                                            onSendText(messages);
+                                        }
+                                    }}
+                                    style={{padding: 5, display: props.text?.trim().length === 0 ? 'none' : 'flex'}}>
+                                    <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                            )}
                             renderUsernameOnMessage={true}
                             showUserAvatar={true}
                             renderAvatar={props => (
@@ -348,9 +380,6 @@ const CruChatComponent = ({route}: any) => {
                             )}
                         />
                     )}
-                    <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
-                        <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
-                    </TouchableOpacity>
                 </View>
             </View>
         </TouchableWithoutFeedback>
