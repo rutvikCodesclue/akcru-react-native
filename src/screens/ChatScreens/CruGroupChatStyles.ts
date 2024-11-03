@@ -20,9 +20,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     textInput: {
-        width: '90%',
+        // width: '90%',
+        flex: 1,
         backgroundColor: 'white',
-        borderColor: COLORS.GRAY,
+        borderColor: COLORS.BLACK,
         borderWidth: 1,
         borderRadius: 15,
         padding: 10,
@@ -30,19 +31,20 @@ const styles = StyleSheet.create({
         color: 'black',
     },
     sendButton: {
-        alignSelf: 'flex-end',
-        marginLeft: 10,
+        // alignSelf: 'flex-end',
+        // marginLeft: 10,
     },
     imagePickerButton: {
-        position: 'absolute',
-        bottom: 8,
-        left: 6,
+        // position: 'absolute',
+        // bottom: 8,
+        // left: 6,
     },
     crossButton: {
-        position: 'absolute',
-        top: -15,
-        right: 10,
-        zIndex: 10,
+        alignSelf: 'flex-end',
+        // position: 'absolute',
+        // top: -15,
+        // right: 10,
+        // zIndex: 10,
     },
 });
 
