@@ -1,6 +1,15 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback, Alert, Text} from 'react-native';
+import {
+    View,
+    TouchableOpacity,
+    Image,
+    TextInput,
+    TouchableWithoutFeedback,
+    Alert,
+    Text,
+    ScrollView,
+} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -275,7 +284,10 @@ const CruChatComponent = ({route}: any) => {
 
                 <View style={styles.container}>
                     {selectedImage ? (
-                        <View style={styles.fullScreen}>
+                        <ScrollView
+                            automaticallyAdjustKeyboardInsets
+                            style={{flexGrow: 1}}
+                            contentContainerStyle={[styles.fullScreen, {width: '100%'}]}>
                             <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
                                 <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
                             </TouchableOpacity>
@@ -302,7 +314,7 @@ const CruChatComponent = ({route}: any) => {
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             </View>
-                        </View>
+                        </ScrollView>
                     ) : (
                         <GiftedChat
                             messages={messages}
