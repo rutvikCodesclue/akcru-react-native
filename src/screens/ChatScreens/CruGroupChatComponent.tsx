@@ -1,6 +1,17 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {Fragment, useEffect, useState} from 'react';
-import {View, TouchableOpacity, Image, TextInput, TouchableWithoutFeedback, Alert, Text} from 'react-native';
+import {
+    View,
+    TouchableOpacity,
+    Image,
+    TextInput,
+    TouchableWithoutFeedback,
+    Alert,
+    Text,
+    ScrollView,
+    KeyboardAvoidingView,
+    Platform,
+} from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -302,14 +313,17 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                         }}>
                         <Text style={{color: COLORS.WHITE, fontSize: 18}}>{selectedMessages.length} Selected</Text>
                         <TouchableOpacity onPress={deleteMessages}>
-                            <Icon name="delete" type="material" color={COLORS.WHITE} size={25} />
+                            <Icon name="delete" color={COLORS.WHITE} size={25} />
                         </TouchableOpacity>
                     </View>
                 )}
 
                 <View style={styles.container}>
                     {selectedImage ? (
-                        <View style={styles.fullScreen}>
+                        <ScrollView
+                            automaticallyAdjustKeyboardInsets
+                            style={{flexGrow: 1}}
+                            contentContainerStyle={[styles.fullScreen, {width: '100%'}]}>
                             <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
                                 <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
                             </TouchableOpacity>
@@ -336,7 +350,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             </View>
-                        </View>
+                        </ScrollView>
                     ) : (
                         <GiftedChat
                             renderActions={() => (
