@@ -72,27 +72,39 @@ const useAuthStore = create<IAuthStore>()(
             },
 
             logout: async () => {
-                const deviceToken = await messaging().getToken();
+                try {
+                    const deviceToken = await messaging().getToken();
+                    const user = await get().getUser();
+                    console.log('Token deregistering:', deviceToken, 'for user:', user?.id);
+                
+                    if (user?.id && deviceToken) {
+                        await API.post(`/v1/auth/device-token/deregister`, {
+                            userId: user.id,
+                            deviceToken: deviceToken,
+                        });
+                    }
 
-                const user = await get().getUser();
-                console.log('token dereg: ', deviceToken, user?.id);
-                const response = await API.post(`/v1/auth/device-token/deregister`, {
-                    userId: user?.id,
-                    deviceToken: deviceToken,
-                });
-                const {error} = await supabase.auth.signOut({scope: 'local'});
+                    const {error} = await supabase.auth.signOut({scope: 'local'});
+                    if (error) {
+                        console.error('Error logging out:', error);
+                        return false;
+                    }
 
-                if (error) {
-                    console.error('Error logging out:', error);
+                    await messaging().deleteToken();
+                    await AsyncStorage.removeItem('access_token');
+
+                    await AsyncStorage.removeItem('deviceToken');
+                    set({session: null, user: null});
+            
+                    messaging().onMessage(() => null);
+                    messaging().onNotificationOpenedApp(() => null);
+                    messaging().setBackgroundMessageHandler(() => null);
+            
+                    return true;
+                } catch (error) {
+                    console.error('Logout failed:', error);
                     return false;
                 }
-
-                await AsyncStorage.removeItem('access_token');
-
-                await AsyncStorage.removeItem('deviceToken');
-                set({session: null, user: null});
-
-                return true;
             },
 
             getUser: (): IUserProfile | null => {
