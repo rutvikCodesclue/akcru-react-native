@@ -36,6 +36,7 @@ const CruChatComponent = ({route}: any) => {
 
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
+    const [text, setText] = useState('');
     const {user} = useAuthStore();
 
     const mItInviteId: string | undefined = route.params?.mItInviteId ?? null;
@@ -154,6 +155,13 @@ const CruChatComponent = ({route}: any) => {
             playMessageSound();
         } catch (error) {
             console.error('Error sending image message:', error);
+        }
+    };
+
+    const handleSendMessage = () => {
+        if (text.trim().length > 0) {
+          onSendText([{ text, user: { _id: user.id } }]);
+          setText('');
         }
     };
 
@@ -328,6 +336,8 @@ const CruChatComponent = ({route}: any) => {
                                 </TouchableOpacity>
                             )}
                             textInputProps={{
+                                value: text,
+                                onChangeText: setText,
                                 style: {
                                     color: COLORS.BLACK,
                                     flex: 1,
@@ -338,15 +348,7 @@ const CruChatComponent = ({route}: any) => {
                             }}
                             alwaysShowSend
                             renderSend={props => (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        if ('onSend' in props && typeof props.onSend === 'function') {
-                                            props.onSend(messages, true);
-                                        } else {
-                                            onSendText(messages);
-                                        }
-                                    }}
-                                    style={{padding: 5, display: props.text?.trim().length === 0 ? 'none' : 'flex'}}>
+                                <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}

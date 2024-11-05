@@ -35,6 +35,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const [membersData, setMembersData] = useState({});
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
+    const [text, setText] = useState('');
     const [isSelectionMode, setIsSelectionMode] = useState(false);
     const [selectedMessages, setSelectedMessages] = useState<any[]>([]);
 
@@ -188,9 +189,16 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         playMessageSound();
     } catch (error) {
         console.error('Error sending image message:', error);
-      }
+        }
     };
-
+    
+    const handleSendMessage = () => {
+        if (text.trim().length > 0) {
+          onSendText([{ text, user: { _id: user.id } }]);
+          setText('');
+        }
+    };
+    
     const onSendText = async (messages: IMessage[] = []) => {
         if (!channel) return;
 
@@ -364,6 +372,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
                             textInputProps={{
+                                value: text,
+                                onChangeText: setText,
                                 style: {
                                     color: COLORS.BLACK,
                                     flex: 1,
@@ -374,15 +384,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             }}
                             alwaysShowSend
                             renderSend={props => (
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        if ('onSend' in props && typeof props.onSend === 'function') {
-                                            props.onSend(messages, true);
-                                        } else {
-                                            onSendText(messages);
-                                        }
-                                    }}
-                                    style={{padding: 5, display: props.text?.trim().length === 0 ? 'none' : 'flex'}}>
+                                <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}
