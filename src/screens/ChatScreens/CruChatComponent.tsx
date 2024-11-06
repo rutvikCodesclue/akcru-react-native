@@ -91,7 +91,16 @@ const CruChatComponent = ({route}: any) => {
     
 
     const messageReceived = (payload: any) => {
-        // if (payload.payload.senderId === user.id) return;
+
+        if (payload.payload.deleteid != ""){
+            const deletemsgid =payload.payload.deleteid 
+            setMessages(prevMessages =>
+                prevMessages.filter(message => deletemsgid != message._id ),
+            );
+            return
+        }
+        // if (payload.payload.senderId === userID) return;
+
         const newMessage: IMessage = {
             _id: payload.payload.msgId || uuid.v4(),
             text: payload.payload.text,
@@ -146,6 +155,7 @@ const CruChatComponent = ({route}: any) => {
                         mItInviteId,
                         isCru: 'false',
                         msgId,
+                        deleteid:"",
                     },
                 });
             }
@@ -184,7 +194,7 @@ const CruChatComponent = ({route}: any) => {
             await channel.send({
                 type: 'broadcast',
                 event: 'test',
-                payload: {text: textMessage, senderId: user.id, mItInviteId, isCru: 'false', msgId, image: null},
+                payload: {text: textMessage, senderId: user.id, mItInviteId, isCru: 'false', msgId, image: null, deleteid:""},
             });
 
             playMessageSound();
@@ -250,6 +260,15 @@ const CruChatComponent = ({route}: any) => {
                             setMessages(prevMessages =>
                                 prevMessages.filter(message => !selectedMessages.includes(message._id as string)),
                             );
+
+                            const payload = {image: "", text: "", senderId: "", mItInviteId, msgId:"", deleteid:selectedMessages[0]}
+                            channel?.send(
+                                {
+                                    type: 'broadcast',
+                                    event: 'test',
+                                    payload: payload,
+                                }
+                            )
 
                             // Perform deletion from the server
                             await Promise.all(selectedMessages.map(id => deleteMessage(id)));
