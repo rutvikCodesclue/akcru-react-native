@@ -119,6 +119,13 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     const messageReceived = (payload: any) => {
+        if (payload.payload.deleteid != ""){
+            const deletemsgid =payload.payload.deleteid 
+            setMessages(prevMessages =>
+                prevMessages.filter(message => deletemsgid != message._id ),
+            );
+            return
+        }
         if (payload.payload.senderId === user.id) return;
 
         const senderData = membersData[payload.payload.senderId];
@@ -169,7 +176,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                 channel.send({
                     type: 'broadcast',
                     event: 'groupchat',
-                    payload: {image: imageUrl, text: imageMessageText, senderId: user.id, cruId, msgId},
+                    payload: {image: imageUrl, text: imageMessageText, senderId: user.id, cruId, msgId, deleteid:""},
                 });
                 parentChannel.send({
                     type: 'broadcast',
@@ -219,7 +226,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             channel.send({
                 type: 'broadcast',
                 event: 'groupchat',
-                payload: {text: textMessage, senderId: user.id, cruId, msgId},
+                payload: {text: textMessage, senderId: user.id, cruId, msgId, deleteid:""},
             }),
             parentChannel.send({
                 type: 'broadcast',
@@ -282,20 +289,25 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             const messagesToDelete = messages.filter(msg => selectedMessages.includes(msg._id));
                             if (messagesToDelete.length === 0) return;
 
-                            // Update the UI immediately for a better user experience
                             setMessages(prevMessages =>
                                 prevMessages.filter(message => !selectedMessages.includes(message._id as string)),
                             );
+                            const payload = {image: "", text: "", senderId: "", cruId, msgId:"", deleteid:selectedMessages[0]}
+                            channel?.send(
+                                {
+                                    type: 'broadcast',
+                                    event: 'groupchat',
+                                    payload: payload,
+                                }
+                            )
 
-                            // Perform deletion from the server
                             await Promise.all(selectedMessages.map(id => deleteMessage(id)));
 
-                            // Reset selection mode after deletion
                             setSelectedMessages([]);
                             setIsSelectionMode(false);
 
-                            // Re-fetch messages to ensure local state is in sync
                             fetchMessages(cruId);
+                            
                         } catch (error) {
                             console.error('Error deleting messages:', error);
                             Alert.alert('Error', 'Failed to delete messages. Please try again.');
@@ -330,8 +342,9 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                     {selectedImage ? (
                         <ScrollView
                             automaticallyAdjustKeyboardInsets
-                            style={{flexGrow: 1}}
-                            contentContainerStyle={[styles.fullScreen, {width: '100%'}]}>
+                            style={{flex: 1}}
+                            keyboardShouldPersistTaps="handled"
+                            contentContainerStyle={[styles.fullScreen, {width: '100%', paddingBottom: 20}]}>
                             <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
                                 <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
                             </TouchableOpacity>
@@ -362,7 +375,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                     ) : (
                         <GiftedChat
                             renderActions={() => (
-                                <TouchableOpacity onPress={handleImagePick} style={{padding: 5}}>
+                                <TouchableOpacity onPress={handleImagePick} style={{padding: Platform.OS=="android"?10:5}}>
                                     <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}
@@ -384,7 +397,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             }}
                             alwaysShowSend
                             renderSend={props => (
-                                <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
+                                <TouchableOpacity onPress={handleSendMessage} style={{padding: Platform.OS=="android"?10:5}}>
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}

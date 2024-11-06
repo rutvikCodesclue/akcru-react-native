@@ -123,7 +123,7 @@ const CruChatComponent = ({route}: any) => {
 
         try {
             resetImageSelection();
-            const response = await saveTextMessage(mItInviteId, imageMessageText, user.id!, 'false', msgId, selectedImage);
+            const response = await saveTextMessage(mItInviteId, imageMessageText, userID!, 'false', msgId, selectedImage);
             const imageUrl = response.data.imageUrl;
 
             const message: IMessage = {
@@ -189,7 +189,7 @@ const CruChatComponent = ({route}: any) => {
 
             playMessageSound();
             // Update local messages immediately
-            saveTextMessage(mItInviteId, textMessage, user.id!, 'false', msgId, null);
+            saveTextMessage(mItInviteId, textMessage, userID!, 'false', msgId, null);
             // Immediately delete the message after sending
             // await deleteMessage(msgId); // Use appropriate method to delete
         } catch (error) {
@@ -331,7 +331,7 @@ const CruChatComponent = ({route}: any) => {
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
                             renderActions={() => (
-                                <TouchableOpacity onPress={handleImagePick} style={{padding: 5}}>
+                                <TouchableOpacity onPress={handleImagePick} style={{padding: Platform.OS=="android"?10:5}}>
                                     <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}
@@ -348,7 +348,7 @@ const CruChatComponent = ({route}: any) => {
                             }}
                             alwaysShowSend
                             renderSend={props => (
-                                <TouchableOpacity onPress={handleSendMessage} style={styles.sendButton}>
+                                <TouchableOpacity onPress={handleSendMessage} style={{padding: Platform.OS=="android"?10:5}}>
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}
