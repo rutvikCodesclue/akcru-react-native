@@ -150,7 +150,7 @@ const CruChatComponent = ({route}: any) => {
                 });
             }
             setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
-            await deleteMessage(msgId); // Use appropriate method to delete
+            // await deleteMessage(msgId); // Use appropriate method to delete
             
             playMessageSound();
         } catch (error) {
