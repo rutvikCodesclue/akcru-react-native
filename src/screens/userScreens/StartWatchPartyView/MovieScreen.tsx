@@ -210,6 +210,7 @@ const MovieScreen = ({
                                             preventsDisplaySleepDuringVideoPlayback={true}
                                             isFullscreen={isFullscreen}
                                             fullscreenAutorotate={false}
+                                            disableVolume
                                             disableBack={true}
                                             disablePlayPause={currentRoomHost === user?.id ? false : true}
                                             disableSeekButtons={currentRoomHost === user?.id ? false : true}

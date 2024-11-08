@@ -51,21 +51,27 @@ export function Recommendations() {
                 </View>
             </Modal>
 
-            <Modal animationType="fade" transparent={false} visible={showGifModal}>
+            <Modal
+                animationType="fade"
+                transparent={false}
+                visible={showGifModal}
+                style={{justifyContent: 'center', alignItems: 'center'}}>
                 <SafeAreaView style={styles.gifContainer}>
-                    {isGifLoading && <ActivityIndicator size="large" color={COLORS.PINK} style={styles.loader} />}
                     <View style={{alignItems: 'center', justifyContent: 'center', marginTop: 20}}>
                         <Text style={{color: COLORS.PINK, fontSize: 16, fontFamily: 'Montserrat-Bold'}}>
                             Recommended settings for better experience
                         </Text>
                     </View>
-                    <Image
-                        source={VoiceIsolationModeGIF}
-                        style={styles.gif}
-                        onLoadStart={() => setIsGifLoading(true)}
-                        onLoadEnd={() => setIsGifLoading(false)}
-                        resizeMode="contain"
-                    />
+                    <View style={styles.loaderContainer}>
+                        {isGifLoading && <ActivityIndicator size="large" color={COLORS.PINK} style={styles.loader} />}
+                        <Image
+                            source={VoiceIsolationModeGIF}
+                            style={styles.gif}
+                            onLoadStart={() => setIsGifLoading(true)}
+                            onLoadEnd={() => setIsGifLoading(false)}
+                            resizeMode="contain"
+                        />
+                    </View>
                     <TouchableOpacity style={styles.skipButton} onPress={handleSkipGif}>
                         <Text style={styles.skipButtonText}>Skip</Text>
                     </TouchableOpacity>
@@ -105,19 +111,27 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         justifyContent: 'center',
         alignItems: 'center',
+        rowGap: 30,
     },
     gif: {
-        width: '100%',
-        height: '100%',
+        width: '70%',
+        aspectRatio: 9 / 16,
+        height: 'auto',
+        borderColor: COLORS.PINK,
+        borderRadius: 10,
+        borderWidth: 1,
     },
     loader: {
         position: 'absolute',
         zIndex: 1,
     },
+    loaderContainer: {
+        height: '70%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
+    },
     skipButton: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
         padding: 10,
         borderRadius: 5,
     },
