@@ -1,4 +1,4 @@
-import {View, Platform} from 'react-native';
+import {View, Platform, SafeAreaView} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {SIZES} from '../../../../assets/constants';
@@ -675,7 +675,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     };
 
     return (
-        <View style={{marginBottom: SIZES.ScreenHeight / 12}}>
+        <SafeAreaView style={{marginBottom: SIZES.ScreenHeight / 12}}>
             {!isFullscreen && (
                 // eslint-disable-next-line react-native/no-inline-styles
                 <View style={{zIndex: 20}}>
@@ -750,7 +750,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                     currentHmsInstance={hmsInstanceRef.current}
                 />
             ) : null}
-        </View>
+        </SafeAreaView>
     );
 };
 
