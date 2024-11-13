@@ -139,15 +139,17 @@ const Signin = () => {
             const user = loginResponse?.user;
 
             if (!session || !user) {
-                Alert.alert('Error Logging In');
+                // Alert.alert('Error Logging In');
                 setShowLoginError(true);
                 setLoading(false);
+                setErrorMsg('Error Logging In');
                 return;
             }
             if (!loginResponse) {
-                Alert.alert('Error Logging In. Please try again.');
+                // Alert.alert('Error Logging In. Please try again.');
                 setShowLoginError(true);
                 setLoading(false);
+                setErrorMsg('Error Logging In');
                 return;
             }
 
@@ -166,7 +168,7 @@ const Signin = () => {
             if (error.response?.data.message) {
                 setErrorMsg(error.response?.data.message);
             } else {
-                setErrorMsg(error.response);
+                setErrorMsg('Error Logging In');
             }
         }
     }
