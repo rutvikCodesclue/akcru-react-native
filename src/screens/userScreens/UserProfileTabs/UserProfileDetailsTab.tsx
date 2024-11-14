@@ -176,6 +176,9 @@ const UserProfileDetailsTab = () => {
             }
             fetchData();
         }
+        return () => {
+            setUserPics([]);
+        };
     }, []);
 
     const getFileSize = async filePath => {
