@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, BackHandler } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import styles from './styles';
@@ -80,7 +80,7 @@ const MovieDetailCard = ({
     contentButtonName,
 }: MovieDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-
+    const [isNavigating, setIsNavigating] = useState(false);
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
@@ -132,6 +132,26 @@ const MovieDetailCard = ({
         if (selectedReaction !== reactionType) {
             postReaction(reactionType);
         }
+    };
+
+    const handleBackPress = () => {
+        if (isNavigating) return;
+        setIsNavigating(true);
+
+        const { routes } = navigation.getState();
+        
+        if (routes.length > 1) {
+            Orientation.lockToPortrait();
+            navigation.pop();
+            return true;
+        } else {
+            console.log('No more screens to pop');
+            BackHandler.exitApp(); 
+        }
+
+        setTimeout(() => {
+            setIsNavigating(false);
+        }, 300);
     };
 
     const getIconForReaction = (reactionType: string | null) => {
@@ -197,10 +217,7 @@ const MovieDetailCard = ({
                         }}
                     />
                     <TouchableOpacity
-                        onPress={() => {
-                            Orientation.lockToPortrait();
-                            navigation.pop();
-                        }}
+                        onPress={handleBackPress}
                         style={{
                             position: 'absolute',
                             left: 0,

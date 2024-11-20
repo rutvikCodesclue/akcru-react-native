@@ -405,9 +405,6 @@ const AccountSettings = () => {
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
-                                    <Pressable onPress={handleChangeFirstName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
                                     <Pressable onPress={() => setFirstNameModalVisible(false)}>
                                         <Icon
                                             name="close-circle"
@@ -415,6 +412,10 @@ const AccountSettings = () => {
                                             size={25}
                                             color={COLORS.DARKAKCRUBLUE}
                                         />
+                                    </Pressable>
+
+                                    <Pressable onPress={handleChangeFirstName}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                 </View>
                             )}
@@ -574,9 +575,6 @@ const AccountSettings = () => {
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
-                                    <Pressable onPress={handleChangeLastName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
                                     <Pressable onPress={() => setLastNameModalVisible(false)}>
                                         <Icon
                                             name="close-circle"
@@ -584,6 +582,9 @@ const AccountSettings = () => {
                                             size={25}
                                             color={COLORS.DARKAKCRUBLUE}
                                         />
+                                    </Pressable>
+                                    <Pressable onPress={handleChangeLastName}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                 </View>
                             )}
@@ -756,9 +757,6 @@ const AccountSettings = () => {
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
-                                    <Pressable onPress={handleChangePhone}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
                                     <Pressable onPress={() => setPhoneModalVisible(false)}>
                                         <Icon
                                             name="close-circle"
@@ -766,6 +764,9 @@ const AccountSettings = () => {
                                             size={25}
                                             color={COLORS.DARKAKCRUBLUE}
                                         />
+                                    </Pressable>
+                                    <Pressable onPress={handleChangePhone}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                 </View>
                             )}
@@ -1002,9 +1003,6 @@ const AccountSettings = () => {
                                         justifyContent: 'space-between',
                                         marginBottom: 20,
                                     }}>
-                                    <Pressable onPress={handleChangePassword}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </Pressable>
                                     <Pressable onPress={() => setPasswordModalVisible(false)}>
                                         <Icon
                                             name="close-circle"
@@ -1012,6 +1010,9 @@ const AccountSettings = () => {
                                             size={25}
                                             color={COLORS.DARKAKCRUBLUE}
                                         />
+                                    </Pressable>
+                                    <Pressable onPress={handleChangePassword}>
+                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                     </Pressable>
                                 </View>
                             )}
