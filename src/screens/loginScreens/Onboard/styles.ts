@@ -163,4 +163,17 @@ export default StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         marginTop: Platform.OS === 'ios' ? '10%' : 0,
     },
+    skipButton: {
+        position: 'absolute',
+        top: 30,
+        right: 20,
+        backgroundColor: '#ffffff',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+    },
+    skipButtonText: {
+        color: '#000',
+        fontWeight: 'bold',
+    },
 });
