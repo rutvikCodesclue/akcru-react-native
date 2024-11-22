@@ -88,10 +88,10 @@ const UserDatesCard = ({
 
     const handleCancelCruView = async () => {
         try {
+            setConfirmCancelModal(false);
             const response = await cancelCRUView(id);
             if (response.success) {
                 setRefetchDates(true);
-                setConfirmCancelModal(false);
                 setDateType('Success');
                 setDateResultModal(true);
                 setDateMessage('CRU View cancelled successfully');
@@ -99,7 +99,6 @@ const UserDatesCard = ({
                 setDateIconColor('green');
             } else {
                 setRefetchDates(true);
-                setConfirmCancelModal(false);
                 setDateType('Fail');
                 setDateResultModal(true);
                 setDateMessage('Failed to cancel CRU View');

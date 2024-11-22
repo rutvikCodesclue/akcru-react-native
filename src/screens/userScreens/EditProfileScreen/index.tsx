@@ -460,6 +460,9 @@ export default function EditProfile({session}: {session: Session}) {
                                             justifyContent: 'space-between',
                                             marginBottom: 20,
                                         }}>
+                                        <Pressable onPress={() => setUsernameModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        </Pressable>
                                         <Pressable onPress={handleChangeUsername}>
                                             <Icon
                                                 name="checkmark-circle"
@@ -467,9 +470,6 @@ export default function EditProfile({session}: {session: Session}) {
                                                 size={25}
                                                 color={COLORS.AKCRUBLUE}
                                             />
-                                        </Pressable>
-                                        <Pressable onPress={() => setUsernameModalVisible(false)}>
-                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                         </Pressable>
                                     </View>
                                 )}
@@ -647,6 +647,9 @@ export default function EditProfile({session}: {session: Session}) {
                                             justifyContent: 'space-between',
                                             marginBottom: 20,
                                         }}>
+                                            <Pressable onPress={() => setDescriptionModalVisible(false)}>
+                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                        </Pressable>
                                         <Pressable onPress={handleChangeDescription}>
                                             <Icon
                                                 name="checkmark-circle"
@@ -654,9 +657,6 @@ export default function EditProfile({session}: {session: Session}) {
                                                 size={25}
                                                 color={COLORS.AKCRUBLUE}
                                             />
-                                        </Pressable>
-                                        <Pressable onPress={() => setDescriptionModalVisible(false)}>
-                                            <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                         </Pressable>
                                     </View>
                                 )}

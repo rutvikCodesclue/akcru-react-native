@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert} from 'react-native';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, ActivityIndicator} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -60,9 +60,10 @@ const OnboardUsername = ({route}) => {
     });
 
     const UserNameSet = async () => {
+        if (loading) return; 
+        setLoading(true);
+    
         try {
-            setLoading(true);
-
             const lowercaseUserName = userName.toLowerCase();
 
             const usernameExists = await checkUsernameExists(lowercaseUserName);
@@ -156,15 +157,23 @@ const OnboardUsername = ({route}) => {
                             </Text>
                         </View>
                         <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Next'}
-                                    onPress={() => UserNameSet()}
-                                    disabled={!isFormComplete}
-                                />
-                            </View>
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <AkcruButtons.LrgButton
+                                color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                btnname={'Next'}
+                                onPress={() => {
+                                    if (!loading) {
+                                        UserNameSet();
+                                    }
+                                }}
+                                disabled={!isFormComplete || loading}
+                            />
                         </View>
+                        {loading && (
+                            <ActivityIndicator size="large" color={COLORS.PURPLE} style={{marginTop: 10}} />
+                        )}
+                    </View>
+
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}

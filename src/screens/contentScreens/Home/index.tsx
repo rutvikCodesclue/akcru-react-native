@@ -1,5 +1,6 @@
-import {View, Text, FlatList, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import {View, Text, FlatList, ScrollView, Pressable, ActivityIndicator, BackHandler, ToastAndroid} from 'react-native';
 import React, {useEffect, useState} from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import BasicListCategories from '../../../components/BasicListCategories';
 import LargeListCategories from '../../../components/LargeListCategories';
 import Header from '../../../components/header';
@@ -47,6 +48,31 @@ const HomeScreen = () => {
     const [unfinishedContent, setUnfinishedContent] = useState<any[]>([]);
 
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [backPressCount, setBackPressCount] = useState(0);
+    const isFocused = useIsFocused();
+
+    useEffect(() => {
+        if (!isFocused) return;
+
+        const backAction = () => {
+          if (backPressCount === 1) {
+            BackHandler.exitApp();
+          } else {
+            setBackPressCount(1);
+            ToastAndroid.show("Press back again to exit", ToastAndroid.SHORT);
+    
+            setTimeout(() => setBackPressCount(0), 2000);
+          }
+          return true;
+        };
+    
+        const backHandler = BackHandler.addEventListener(
+          "hardwareBackPress",
+          backAction
+        );
+    
+        return () => backHandler.remove();
+      }, [backPressCount, isFocused]);
 
     const handleVideoEnd = () => {
         const randomIndex = Math.floor(Math.random() * topBox.length);
