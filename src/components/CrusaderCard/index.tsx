@@ -1,11 +1,13 @@
 import {Text, View, TouchableOpacity, Image} from 'react-native';
 import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
-import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
 import CustomIcon from '../CustomIcon/CustomIcon';
-import DisplayBadge from '../General/akcrubadge';
+import imageindex from '../../../assets/images/imageindex';
+import ArcheTypeMatchIcon from '../ArcheTypeMatchIcon';
+import { color } from '@rneui/base';
+
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -23,6 +25,7 @@ type CrusaderCardProps = {
     influencerStatus?: boolean;
     blackCloakStatus?: boolean;
     isAdmin?: boolean;
+    isArchetypeMatch?: boolean; // New prop
 };
 
 const CrusaderCard = ({
@@ -37,93 +40,51 @@ const CrusaderCard = ({
     influencerStatus,
     blackCloakStatus,
     isAdmin,
+    isArchetypeMatch,
 }: CrusaderCardProps) => {
-    const truncateduserDesc =
-        userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
-
     return (
         <View
             style={{
                 borderRadius: 5,
-                backgroundColor: COLORS.TAGCOLOR,
                 width: SIZES.ScreenWidth * 0.295,
                 height: SIZES.ScreenWidth * 0.39,
             }}>
             <View style={{padding: 10}}>
-                <View style={{}}>
-                    <View style={{alignItems: 'center'}}>
-                        <TouchableOpacity onPress={onPress}>
-                            {/* <HexAvatar
-                                source={{uri: userPicture}}
-                                size={58}
-                                bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
-                            /> */}
-                            <Image
-                                source={{uri: userPicture}}
+                <View style={{position: 'relative', alignItems: 'center'}}>
+                    <TouchableOpacity onPress={onPress}>
+                        <Image
+                            source={
+                                userPicture
+                                    ? {uri: userPicture} // Remote image
+                                    : imageindex.Akcruplaceholder // Local placeholder
+                            }
+                            style={{
+                                width: SIZES.ScreenWidth * 0.295,
+                                height: SIZES.ScreenWidth * 0.39,
+                                borderRadius: 5,
+                                borderColor: selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT'),
+                                borderWidth: 2,
+                            }}
+                        />
+                        {isArchetypeMatch && (
+                            <View
                                 style={{
-                                    width: SIZES.ScreenWidth * 0.295,
-                                    height: SIZES.ScreenWidth * 0.39,
-                                    borderRadius: 5,
-                                    borderColor: selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT'),
-                                    borderWidth: 2,
-                                }}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    {/* <View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{...FONTS.Username, marginRight: 2}}>{userName}</Text>
-                            {ownerStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.STARGOLD}
-                                    baseSize={12}
-                                    style={{marginRight: 0}}
-                                />
-                            )}
-                            {companyStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.WHITE}
-                                    baseSize={12}
-                                    style={{marginRight: 0}}
-                                />
-                            )}
-                            {influencerStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.AKCRUBLUE}
-                                    baseSize={12}
-                                    style={{marginRight: 0}}
-                                />
-                            )}
-                            {blackCloakStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.BLACKCLOAK}
-                                    baseSize={12}
-                                    style={{marginRight: 0}}
-                                />
-                            )}
-                            {isAdmin && (
-                                <CustomIcon
-                                    name="police-badge"
-                                    type="material-community"
-                                    color={COLORS.STARGOLD}
-                                    baseSize={12}
-                                    style={{marginRight: 0}}
-                                />
-                            )}
-                        </View>
-                        <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <DisplayBadge akcruBadge={akcruBadge} />
-                        </View>
-                    </View> */}
+                                    position: 'absolute',
+                                    top: '25%',
+                                    left: '12%',
+                                }}>
+                                <ArcheTypeMatchIcon size={100} fillcolor={COLORS.PINK} />
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        color: COLORS.LIGHTGREY,
+                                        textAlign: 'center',
+                                    }}>
+                                    Arche Match
+                                </Text>
+                            </View>
+                        )}
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>

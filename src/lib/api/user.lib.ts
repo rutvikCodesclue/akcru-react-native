@@ -742,17 +742,18 @@ export const removeUnfinishedContent = async (id: string, isEpisode: boolean): P
     }
 };
 
-export const fetchUsersWithFollowers = async (): Promise<IUserProfile[] | []> => {
+export const fetchCrusaders = async (): Promise<IUserProfile[] | []> => {
     try {
-        const {data} = await API.get('/v1/user/users-with-followers');
+        const {data} = await API.get('/v1/user/crusaders');
 
         if (data.success === false) {
             return [];
         }
 
-        return data.users;
+        return data.users; // Users are already sorted by the backend
     } catch (error) {
         console.error('Error fetching users with followers:', error);
         return [];
     }
 };
+

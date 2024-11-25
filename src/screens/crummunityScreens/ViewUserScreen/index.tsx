@@ -381,7 +381,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         <Header />
                     </View>
                     <View style={{marginBottom: '5%'}}>
-                        <View style={{ marginTop: -60}}>
+                        <View style={{marginTop: -60}}>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
                                 style={{
@@ -591,6 +591,20 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 </Text>
                             </View>
                         </View>
+                        <View>
+                            {user?.isArchetypeMatch && (
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        textAlign: 'center',
+                                        color: COLORS.AKCRUPINK,
+                                        marginTop: 10,
+                                    }}>
+                                    ARCHETYPE MATCH!!!
+                                </Text>
+                            )}
+                        </View>
+
                         <View
                             style={{
                                 marginTop: 10,

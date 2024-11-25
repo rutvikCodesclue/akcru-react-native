@@ -44,6 +44,7 @@ interface IUserProfile {
     pollCommentLikes: IPollCommentLike[];
     pollLikes: IPollLike[];
     isAdmin: boolean;
+    isArchetypeMatch: boolean;
 }
 
 interface IUserWatching {

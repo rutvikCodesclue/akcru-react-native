@@ -8,7 +8,7 @@ import {useNavigation} from '@react-navigation/native';
 import {Icon} from '@rneui/base';
 import {COLORS} from '../../../../assets/constants';
 import {ScrollView} from 'react-native-gesture-handler';
-import {fetchRandomUsers, fetchUsersWithFollowers, searchForUsers} from '../../../lib/api/user.lib';
+import {fetchRandomUsers, fetchCrusaders, searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -35,24 +35,16 @@ const CrusaderScreen = () => {
 
     const [crusaders, setCrusaders] = useState<IUserProfile[]>([]);
 
-    // Shuffle function
-    const shuffleArray = (array: IUserProfile[]) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
-    };
-
     useEffect(() => {
         const loadUsersWithFollowers = async () => {
-            const fetchedUsers = await fetchUsersWithFollowers();
-            const shuffledUsers = shuffleArray(fetchedUsers);
-            setCrusaders(shuffledUsers);
+            const fetchedUsers = await fetchCrusaders();
+
+            setCrusaders(fetchedUsers); // Directly use the backend order
         };
 
         loadUsersWithFollowers().catch(console.error);
     }, []);
+
 
     return (
         <TabContainer>
@@ -90,7 +82,7 @@ const CrusaderScreen = () => {
                 </View>
                 <ScrollView>
                     {searchInput.length === 0 && (
-                        <View style={{ marginBottom: '45%', alignItems: 'center'}}>
+                        <View style={{marginBottom: '45%', alignItems: 'center'}}>
                             <FlatList
                                 data={crusaders}
                                 horizontal={false}
@@ -118,6 +110,7 @@ const CrusaderScreen = () => {
                                             influencerStatus={item.influencerStatus}
                                             blackCloakStatus={item.blackCloakStatus}
                                             isAdmin={item?.isAdmin}
+                                            isArchetypeMatch={item.isArchetypeMatch} // Pass the flag from backend
                                         />
                                     </View>
                                 )}
