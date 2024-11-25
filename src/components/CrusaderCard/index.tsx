@@ -70,18 +70,20 @@ const CrusaderCard = ({
                             <View
                                 style={{
                                     position: 'absolute',
-                                    top: '25%',
-                                    left: '12%',
+                                    bottom: '5%',
+                                    left: '15%',
                                 }}>
-                                <ArcheTypeMatchIcon size={100} fillcolor={COLORS.PINK} />
-                                <Text
-                                    style={{
+                                <View style={{alignItems: 'center'}}>
+                                    <ArcheTypeMatchIcon size={75} fillcolor={COLORS.PURPLE} />
+                                    <Text
+                                        style={{
                                         ...FONTS.Title3,
                                         color: COLORS.LIGHTGREY,
                                         textAlign: 'center',
-                                    }}>
-                                    Arche Match
-                                </Text>
+                                        }}>
+                                        Arche Match
+                                    </Text>
+                                </View>
                             </View>
                         )}
                     </TouchableOpacity>
