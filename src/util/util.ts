@@ -22,6 +22,9 @@ export function capitalizeFirstLetterOfString2(str: string) {
 }
 
 export function capitalizeFirstLetterOfString(str: string) {
+    if (typeof str !== 'string' || str === '') {
+        return str;  // Return the input if it's not a valid string or is empty
+    }
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 

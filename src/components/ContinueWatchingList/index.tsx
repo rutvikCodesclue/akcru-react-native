@@ -36,6 +36,7 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
     const handleConfirmRemoveFromWatchList = async () => {
         setShowConfirmationModal(false);
         if (selectedContent && selectedContent.id) {
+        try {
             console.log('selectedContent', selectedContent.id);
             const success = await removeUnfinishedContent(selectedContent.id, 'episodeId' in selectedContent);
             if (success) {
@@ -44,6 +45,10 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
 
                 handleShowRemovalModal('success');
             } else {
+                handleShowRemovalModal('failed');
+            }
+        }   catch (error) {
+                console.error('Error removing content from watch list:', error);
                 handleShowRemovalModal('failed');
             }
         }

@@ -39,6 +39,7 @@ import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
 import {ProgressView} from '@react-native-community/progress-view';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
+import { handleError } from '../../../util/handleError';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -344,6 +345,7 @@ const NewPost = () => {
             }
         } catch (error) {
             console.error('Error creating the post:', error);
+            handleError("Error creating the post, Please try again");
             setIsPosting(false);
         }
         if (!cancelidVideo) {

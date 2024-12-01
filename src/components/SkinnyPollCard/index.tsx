@@ -221,11 +221,15 @@ const PollScreenCard = ({
     };
 
     const openProfileForTag = async (username: any) => {
+        try {
         const taggedUser = await findAUser({username});
         if (taggedUser) {
             navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
         } else {
             return;
+        }
+        } catch (error) {
+            console.error('Error finding user:', error);
         }
     };
 

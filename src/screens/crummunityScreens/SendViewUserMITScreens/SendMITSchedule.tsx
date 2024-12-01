@@ -162,6 +162,7 @@ export default function SendMITSchedule({route}: Props) {
         setLoading(true);
         setIsSelectionDisabled(true);
 
+    try {
         if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
@@ -182,6 +183,9 @@ export default function SendMITSchedule({route}: Props) {
                     setIsSelectionDisabled(false);
                 }
             }
+        }
+    }   catch (error) {
+            console.error('Error setting date and time:', error);
         }
         setLoading(false);
     };

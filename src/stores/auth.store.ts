@@ -29,6 +29,7 @@ const useAuthStore = create<IAuthStore>()(
             session: null,
             user: null,
             loginWithEmail: async (email: string, password: string) => {
+            try {
                 const loginResponse = await API.post('/v1/auth/login', {
                     type: 'email',
                     email: email,
@@ -46,9 +47,14 @@ const useAuthStore = create<IAuthStore>()(
                 set({session: data.session, user: data.user});
 
                 return {session, user};
+            } catch (error) {
+                console.error('Login failed:', error);
+                return { session: null, user: null };
+            }
             },
 
             signUpWithEmail: async (email: string, password: string) => {
+            try {
                 const signUpResponse = await API.post('/v1/auth/signup', {
                     type: 'email',
                     email: email,
@@ -69,6 +75,10 @@ const useAuthStore = create<IAuthStore>()(
                 await get().hydrateUser();
 
                 return {user, response: signUpResponse};
+            } catch (error) {
+                console.error('Sign-up failed:', error);
+                return { response: {} as AxiosResponse, user: null };
+            }
             },
 
             logout: async () => {
@@ -108,16 +118,28 @@ const useAuthStore = create<IAuthStore>()(
             },
 
             getUser: (): IUserProfile | null => {
-                return get().user;
+                try {
+                    
+                    return get().user;
+                } catch (error) {
+                    console.error("Error fetching user:", error);
+                    return null;
+                }
             },
             getSession: (): Session | null => {
-                return get().session;
+                try {
+                    return get().session;
+                } catch (error) {
+                    console.error("Error fetching session:", error);
+                    return null;
+                }
             },
             hydrateAuth: async () => {
+            try {
                 // Check network connectivity
                 const networkState = await NetInfo.fetch();
 
-                if (!networkState.isConnected) {
+                if (!networkState.isInternetReachable) {
                     console.log('No internet connection. Sticking to the current screen.');
                     // Don't navigate to sign-in, return early
                     return;
@@ -139,8 +161,12 @@ const useAuthStore = create<IAuthStore>()(
                 } else {
                     RootNavigation.navigate('Signin', {});
                 }
+            } catch (error) {
+                console.error('Error during session hydration:', error);
+            }
             },
             hydrateUser: async () => {
+            try {
                 const userResponse = await getMe();
 
                 if (userResponse === undefined) {
@@ -148,6 +174,9 @@ const useAuthStore = create<IAuthStore>()(
                 }
 
                 set({user: userResponse});
+            } catch (error) {
+                console.error('Error during user hydration:', error);
+            }
             },
         }),
         {
