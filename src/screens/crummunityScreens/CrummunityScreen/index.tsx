@@ -10,6 +10,7 @@ import {
     ActivityIndicator,
     Alert,
     RefreshControl,
+    TouchableOpacity,
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -80,6 +81,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [blockedUsers, setBlockedUsers] = useState([]);
 
     const [refreshing, setRefreshing] = useState(false);
+    const [showSkip, setShowSkip] = useState(true);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -392,6 +394,21 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
+    const handleSkip = async () => {
+        try {
+            setShowSkip(false);
+            const updateResponse = await newUserUpdate();
+            if (updateResponse.success) {
+                setFirstTimeUser(false);
+            } else {
+                console.log('Failed to update user status');
+            }
+        } catch (error) {
+            console.log(error);
+            setShowSkip(true);
+        }
+    };
+
     const closeModal = () => {
         setBlockUserModal(false);
     };
@@ -433,6 +450,12 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                         resizeMode="cover"
                         onEnd={handleVideoEnd}
                     />
+
+                    {showSkip && (
+                        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+                            <Text style={styles.skipButtonText}>Skip</Text>
+                        </TouchableOpacity>
+                    )}
                 </SafeAreaView>
             </TabContainer>
         );

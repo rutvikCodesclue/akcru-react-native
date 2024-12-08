@@ -23,6 +23,7 @@ const OnboardArchetype = () => {
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
     const [archetypeModal, setArchetypeModal] = useState(false);
+    const [showSkip, setShowSkip] = useState(true);
 
     const handleCheckboxChange = (genreId: string) => {
         if (checkedGenres[genreId]) {
@@ -303,6 +304,11 @@ const OnboardArchetype = () => {
                             onError={handleVideoError}
                             onLoad={handleVideoLoad}
                         />
+                        {showSkip && (
+                        <TouchableOpacity style={styles.skipButton} onPress={handleSkipVideo}>
+                            <Text style={styles.skipButtonText}>Skip</Text>
+                        </TouchableOpacity>
+                    )}
                     </View>
                 </Modal>
             </ImageBackground>
