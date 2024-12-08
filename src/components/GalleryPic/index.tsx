@@ -22,6 +22,7 @@ const GalleryPic = ({image}: GalleryPicProps) => {
     }, []);
 
     const fetchLikeCount = async () => {
+    try {
         const likeInfo = await getGalleryLikeCount(image);
         if (likeInfo.likeExists) {
             setlikeImage(true);
@@ -32,9 +33,13 @@ const GalleryPic = ({image}: GalleryPicProps) => {
         if (likeInfo.count !== undefined) {
             setLikeCount(likeInfo.count);
         }
+    } catch (error) {
+        console.error('Error fetching like count:', error);
+        }
     };
 
     const likeUnlikeHandler = async () => {
+    try {
         if (likeImage === false) {
             console.log('Liking the image.');
             if (likeCount != null) {
@@ -54,6 +59,9 @@ const GalleryPic = ({image}: GalleryPicProps) => {
             setlikeImage(!likeImage);
             await unlikeGalleryItem(image);
             await fetchLikeCount();
+        }
+    } catch (error) {
+        console.error('Error during like/unlike operation:', error);
         }
     };
 

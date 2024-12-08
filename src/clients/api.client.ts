@@ -1,8 +1,9 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 export const isProduction = process.env.NODE_ENV === 'production';
 import {DEV_API_URL} from '@env';
 import authStore from '../stores/auth.store';
 import Castle from '@castleio/react-native-castle';
+import { Alert } from 'react-native';
 console.log('DEV_API_URL:', DEV_API_URL);
 
 const addRequestTokenHeader = async () => {
@@ -64,5 +65,22 @@ API.interceptors.request.use(
         return Promise.reject(error);
     },
 );
+
+API.interceptors.response.use( response => response, error => {
+    
+    if (isNetworkError(error)) {
+        // console.log("ERR_NETWORK N");
+        Alert.alert("Please check your internet connection and Try Again")
+        
+    }
+    return error;
+});
+
+function isNetworkError(error: unknown): error is AxiosError {
+    if (error instanceof AxiosError) {
+        return error.code === 'ERR_NETWORK';
+    }
+    return false;
+}
 
 export {API};
