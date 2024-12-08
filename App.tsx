@@ -11,6 +11,8 @@ import Castle from '@castleio/react-native-castle';
 import {CASTLE_API_PK} from '@env';
 import {LogBox} from 'react-native';
 import {NotificationNavigation} from './src/screens/userScreens/UserNotificationTabs/NotificationNavigation';
+import NoInternetAlert from './src/components/errorHandling/NoInternetAlert';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -20,6 +22,7 @@ function App(): JSX.Element {
     const userId = useAuthStore(state => state.user?.id);
 
     const initialNotificationHandled = useRef(false);
+    const { isInternetReachable: isConnected } = useNetInfo();
 
     useEffect(() => {
         if (userId) {
@@ -107,6 +110,7 @@ function App(): JSX.Element {
 
     return (
         <View style={styles.container}>
+            <NoInternetAlert />
             <StatusBar barStyle={'light-content'} backgroundColor={COLORS.AKCRUBACKGROUND} />
 
             <RootNavigator />

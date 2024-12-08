@@ -27,6 +27,7 @@ import playMessageSound from '../../util/playMessageSound';
 import uuid from 'react-native-uuid';
 import styles from './CruGroupChatStyles';
 import {COLORS} from '../../../assets/constants';
+import { handleError } from '../../util/handleError';
 
 const CruGroupChatComponent = ({cru, members}: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -99,6 +100,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     };
 
     const fetchMessages = async (cruId: string) => {
+        try {
         const response = await getCruMessages(cruId);
         const chatMessages: IMessage[] = response!.map(item => ({
             _id: item.id,
@@ -116,6 +118,11 @@ const CruGroupChatComponent = ({cru, members}: any) => {
             updateMessageStatus([chatMessages[0]._id]);
             setMessages(chatMessages);
         }
+    } catch (error) {
+        console.log("Error fetching Cru Messages:", error);
+        
+        handleError('Failed to fetch Cru messages. Please try again.');
+    }
     };
 
     const messageReceived = (payload: any) => {

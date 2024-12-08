@@ -25,6 +25,7 @@ import styles from './CruGroupChatStyles';
 import {supabase} from '../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../util/playMessageSound';
+import { handleError } from '../../util/handleError';
 
 const CruChatComponent = ({route}: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -69,6 +70,7 @@ const CruChatComponent = ({route}: any) => {
     };
 
     const fetchMessages = async (mItInviteId: string) => {
+        try {
         const response = await getMitMessages(mItInviteId!);
         
         const chatMessages: IMessage[] = response!.map(item => ({
@@ -86,7 +88,12 @@ const CruChatComponent = ({route}: any) => {
             if (chatMessages.length > 0) {
                 updateMessageStatus([chatMessages[0]._id]);
                 setMessages(chatMessages);
-            }
+        }
+        } catch (error) {
+            console.error("Error fetching messages.", error);
+            
+            handleError('Failed to fetch messages. Please try again.');
+        }
     };
     
 
