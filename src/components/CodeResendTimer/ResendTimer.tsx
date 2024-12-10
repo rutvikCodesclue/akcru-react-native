@@ -1,5 +1,5 @@
 import {View, Text, Pressable} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 
 type ResendTimerProps = {
@@ -11,55 +11,57 @@ type ResendTimerProps = {
     resendingEmail: any;
 };
 
-const ResendTimer = ({
-    activeResend,
-    setActiveResend,
-    targetTimeInSec,
-    resendEmail,
-    resendStatus,
-    resendingEmail,
-    ...props
-}: ResendTimerProps) => {
-    const [timeLeft, setTimeLeft] = useState(null);
-    const [targetTime, setTargetTime] = useState(null);
+const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmail, resendStatus}: ResendTimerProps) => {
+    const [timeLeft, setTimeLeft] = useState<number | null>(null);
+    const [targetTime, setTargetTime] = useState<number | null>(null);
+    const resendTimerInterval = useRef<NodeJS.Timeout | null>(null);
 
-    const resendText = (resendStatus: any) => {
-        if (resendStatus === 'Failed') {
+    const resendText = (status: any) => {
+        if (status === 'Failed') {
             return COLORS.CATREDLGT;
-        } else if (resendStatus === 'Sent') {
+        } else if (status === 'Sent') {
             return COLORS.GREEN;
         } else {
             return COLORS.LIGHTORANGE;
         }
     };
 
-    let resendTimerInterval;
+    const calculateTimeLeft = useCallback(
+        (finalTime: number) => {
+            const difference = finalTime - +new Date();
+            if (difference >= 0) {
+                setTimeLeft(Math.round(difference / 1000));
+            } else {
+                if (resendTimerInterval.current !== null) {
+                    clearInterval(resendTimerInterval.current);
+                }
+                setActiveResend(true);
+                setTimeLeft(null);
+            }
+        },
+        [setActiveResend],
+    );
 
-    const triggerTimer = (targetTimeInSec: number = 60) => {
-        setTargetTime(targetTimeInSec);
-        setActiveResend(false);
-        const finalTime = +new Date() + targetTimeInSec * 1000;
-        resendTimerInterval = setInterval(() => calculateTimeLeft(finalTime), 1000);
-    };
-
-    const calculateTimeLeft = (finalTime: number) => {
-        const difference = finalTime - +new Date();
-        if (difference >= 0) {
-            setTimeLeft(Math.round(difference / 1000));
-        } else {
-            clearInterval(resendTimerInterval);
-            setActiveResend(true);
-            setTimeLeft(null);
-        }
-    };
+    const triggerTimer = useCallback(
+        (targetTimeSeconds: number = 30) => {
+            setTargetTime(targetTimeSeconds);
+            setActiveResend(false);
+            const finalTime = +new Date() + targetTimeSeconds * 1000;
+            resendTimerInterval.current = setInterval(() => calculateTimeLeft(finalTime), 1000);
+        },
+        [calculateTimeLeft, setActiveResend],
+    );
 
     useEffect(() => {
         triggerTimer(targetTimeInSec);
 
         return () => {
-            clearInterval(resendTimerInterval);
+            if (resendTimerInterval.current !== null) {
+                clearInterval(resendTimerInterval.current);
+            }
         };
-    }, []);
+    }, [targetTimeInSec, triggerTimer]);
+
     return (
         <View style={{alignItems: 'center', marginTop: 10}}>
             <View style={{flexDirection: 'row'}}>

@@ -176,6 +176,7 @@ const OTPVerification = ({route}) => {
                             )}
                             <View>
                                 <ResendTimer
+                                    targetTimeInSec={30}
                                     setActiveResend={setActiveResend}
                                     activeResend={activeResend}
                                     resendStatus={resendStatus}
