@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import Video from 'react-native-video';
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Header from '../../../components/header';
 import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -77,6 +77,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
+
+    const postLikedStatusTimer = useRef<Record<number, NodeJS.Timeout>>({});
 
     const [blockedUsers, setBlockedUsers] = useState([]);
 
@@ -212,11 +214,15 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const onLikeOrUnlike = async (postId: number) => {
-        if (debounce) return;
-    
+        if (postId in postLikedStatusTimer.current) {
+            clearTimeout(postLikedStatusTimer.current[postId]);
+        }
+        // optimistic update
         const postIndex = posts.findIndex(post => +post.id === postId);
-        if (postIndex === -1) return;
-    
+        if (postIndex === -1) {
+            return;
+        }
+
         const post = posts[postIndex];
         const isLiked = post.isLikedByCurrentUser;
 
@@ -230,30 +236,29 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             },
         };
         setPosts(updatedPosts);
-    
-        setDebounce(true);
-        try {
-            if (isLiked) {
-                await unlikePost(postId);
-            } else {
-                await likePost(postId);
+
+        postLikedStatusTimer.current[postId] = setTimeout(async () => {
+            try {
+                if (isLiked) {
+                    await unlikePost(postId);
+                } else {
+                    await likePost(postId);
+                }
+            } catch (exception: unknown) {
+                console.error('Error changing like status:', exception);
+
+                // undo optimistic update
+                updatedPosts[postIndex] = {
+                    ...post,
+                    isLikedByCurrentUser: isLiked,
+                    _count: {
+                        ...post._count,
+                        likes: post._count.likes + (isLiked ? 1 : -1),
+                    },
+                };
+                setPosts(updatedPosts);
             }
-        } catch (error) {
-            console.error('Error changing like status:', error);
-            updatedPosts[postIndex] = {
-                ...post,
-                isLikedByCurrentUser: isLiked,
-                _count: {
-                    ...post._count,
-                    likes: post._count.likes + (isLiked ? 1 : -1),
-                },
-            };
-            setPosts(updatedPosts);
-        } finally {
-            setTimeout(() => {
-                setDebounce(false);
-            }, 200);
-        }
+        }, 200);
     };
 
     const onLikeOrUnlikePoll = async (pollId: string) => {
