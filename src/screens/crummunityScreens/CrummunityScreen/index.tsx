@@ -83,7 +83,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [blockedUsers, setBlockedUsers] = useState([]);
 
     const [refreshing, setRefreshing] = useState(false);
-    const [showSkip, setShowSkip] = useState(true);
+    const [skipped, setSkipped] = useState(false);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -105,7 +105,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const fetchPostsAndPolls = async (pageNumber: number, skipCache: string) => {
         setLoading(true);
         try {
-            const [fetchedPosts, fetchedPolls] = await Promise.all([getPosts(pageNumber, skipCache), getPolls(pageNumber)]);
+            const [fetchedPosts, fetchedPolls] = await Promise.all([
+                getPosts(pageNumber, skipCache),
+                getPolls(pageNumber),
+            ]);
 
             let followingIds = new Set();
             let blockedUserIds = new Set();
@@ -263,21 +266,21 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const onLikeOrUnlikePoll = async (pollId: string) => {
         if (debounce) return;
-    
+
         setDebounce(true);
         try {
             const pollIndex = posts.findIndex(post => post.id === pollId);
             if (pollIndex === -1) return;
 
             const poll = posts[pollIndex];
-            console.log("Poll", pollId)
+            console.log('Poll', pollId);
             const isLiked = poll.isLikedByCurrentUser;
 
             if (isLiked) {
-                console.log("unliking");
+                console.log('unliking');
                 await unlikePoll(pollId);
             } else {
-                console.log("liking");
+                console.log('liking');
                 await likePoll(pollId);
             }
 
@@ -299,7 +302,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const handleDeletePost = async (postId: number) => {
         const postIndex = posts.findIndex(post => +post.id === postId);
-        setLoadingPostIds(prev => ({ ...prev, [postId]: true }));
+        setLoadingPostIds(prev => ({...prev, [postId]: true}));
         if (postIndex === -1) return;
 
         const post = posts[postIndex];
@@ -314,9 +317,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(prevPosts => prevPosts.filter(post => +post.id !== postId));
         } catch (error) {
             console.error('Error in deleting post:', error);
-        }
-        finally {
-            setLoadingPostIds(prev => ({ ...prev, [postId]: false }));
+        } finally {
+            setLoadingPostIds(prev => ({...prev, [postId]: false}));
         }
     };
 
@@ -399,21 +401,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleSkip = async () => {
-        try {
-            setShowSkip(false);
-            const updateResponse = await newUserUpdate();
-            if (updateResponse.success) {
-                setFirstTimeUser(false);
-            } else {
-                console.log('Failed to update user status');
-            }
-        } catch (error) {
-            console.log(error);
-            setShowSkip(true);
-        }
-    };
-
     const closeModal = () => {
         setBlockUserModal(false);
     };
@@ -443,12 +430,12 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     if (firstTimeUser === null) {
         return <LoadingComponent />;
-    } else if (firstTimeUser) {
+    } else if (firstTimeUser && !skipped) {
         return (
             <TabContainer>
                 <SafeAreaView>
                     <Video
-                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide.mp4'}}
+                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide2.mp4'}}
                         style={{height: '100%', width: '100%'}}
                         paused={false} // make it start
                         repeat={false}
@@ -456,11 +443,14 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                         onEnd={handleVideoEnd}
                     />
 
-                    {showSkip && (
-                        <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-                            <Text style={styles.skipButtonText}>Skip</Text>
-                        </TouchableOpacity>
-                    )}
+                    <TouchableOpacity
+                        style={styles.skipButton}
+                        onPress={() => {
+                            setSkipped(true);
+                            handleVideoEnd();
+                        }}>
+                        <Text style={styles.skipButtonText}>Skip</Text>
+                    </TouchableOpacity>
                 </SafeAreaView>
             </TabContainer>
         );
@@ -474,10 +464,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             style={{height: SIZES.ScreenHeight}}
                             onScroll={handleScroll}
                             scrollEventThrottle={16}
-                            refreshControl={
-                            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-                            }
-                            >
+                            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
                             <View>
                                 <View style={{zIndex: 100}}>
                                     <Header />
