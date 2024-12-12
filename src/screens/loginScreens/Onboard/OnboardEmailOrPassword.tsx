@@ -1,4 +1,13 @@
-import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, ActivityIndicator, TextInput} from 'react-native';
+import {
+    View,
+    Text,
+    ImageBackground,
+    Modal,
+    KeyboardAvoidingView,
+    ActivityIndicator,
+    TextInput,
+    Alert,
+} from 'react-native';
 import React, {useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -13,6 +22,8 @@ import {Icon} from '@rneui/base';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
+import {API} from '../../../clients/api.client';
+import {AxiosError} from 'axios';
 
 const OnboardEmailOrPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -142,8 +153,39 @@ const OnboardEmailOrPassword = ({route}) => {
                                     <AkcruButtons.LrgButton
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your mobile number'}
-                                        onPress={() => {
-                                            navigation.navigate('OnboardPassword', {email: email, phoneNumber: phone});
+                                        onPress={async () => {
+                                            try {
+                                                type CheckPhoneResponse = {success: true; message: string};
+                                                const response = await API.post<CheckPhoneResponse>(
+                                                    '/v1/user/check-phone',
+                                                    {
+                                                        phoneNumber: phone,
+                                                    },
+                                                );
+                                                if (response instanceof AxiosError) {
+                                                    // as error cases are handled to return as response by the interceptor
+                                                    throw response;
+                                                }
+                                                if (!response.data.success) {
+                                                    throw new Error("Couldn't verify phone number");
+                                                }
+                                                navigation.navigate('OnboardPassword', {
+                                                    email: email,
+                                                    phoneNumber: phone,
+                                                });
+                                            } catch (error) {
+                                                if (error instanceof AxiosError && error.response?.status === 400) {
+                                                    Alert.alert(
+                                                        'Duplicate Phone Number',
+                                                        'Phone number is already in use.',
+                                                    );
+                                                } else {
+                                                    Alert.alert(
+                                                        'Something went wrong',
+                                                        'Unable to verify the phone number, please try again later.',
+                                                    );
+                                                }
+                                            }
                                         }}
                                         disabled={phoneError || !phone}
                                     />
