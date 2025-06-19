@@ -12,7 +12,7 @@ import {CASTLE_API_PK} from '@env';
 import {LogBox} from 'react-native';
 import {NotificationNavigation} from './src/screens/userScreens/UserNotificationTabs/NotificationNavigation';
 import NoInternetAlert from './src/components/errorHandling/NoInternetAlert';
-import { useNetInfo } from '@react-native-community/netinfo';
+import {useNetInfo} from '@react-native-community/netinfo';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();

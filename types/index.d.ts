@@ -47,6 +47,9 @@ interface IUserProfile {
     isArchetypeMatch: boolean;
 }
 
+export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
+
+export type IAgeBracket = 'AGE_18_24' | 'AGE_25_34' | 'AGE_35_39' | 'AGE_40_49' | 'AGE_50_PLUS';
 interface IUserWatching {
     id: string;
     user: IUserProfile;
@@ -55,6 +58,17 @@ interface IUserWatching {
     movie: IMovie;
     startedAt: string;
     finishedAt: string;
+}
+
+export interface IFlirtPreference {
+    id: string;
+    userId: string;
+    gender: IGender[];
+    ageBrackets: IAgeBracket[];
+    relationIntent: string;
+    archetypes: string[];
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface IMovie {

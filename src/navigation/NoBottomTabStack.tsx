@@ -56,6 +56,11 @@ import NewPoll from '../screens/crummunityScreens/NewPoll';
 import PollScreen from '../screens/crummunityScreens/PollScreen';
 import NewPollComment from '../screens/crummunityScreens/NewPollComment';
 import {CruInviteAccept, CruInviteDecline} from '../screens/userScreens/CruInviteResponse';
+import FlickFlirtPref from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPref';
+import FlickFlirtPrefB from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefB';
+import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefC';
+import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
+import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -78,6 +83,11 @@ export type NoBottomTabStackParams = {
     Signin: any;
     AkcruButtonStack: any;
     FlickFlirtScreen: any;
+    FlickFlirtPref: any;
+    FlickFlirtPrefB: any;
+    FlickFlirtPrefC: any;
+    FlickFlirtPrefD: any;
+    FlickFlirtSwipe: any;
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     TrailerPlayer: any;
@@ -567,6 +577,41 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="CruInviteDecline"
                 component={CruInviteDecline}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtPref"
+                component={FlickFlirtPref}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtPrefB"
+                component={FlickFlirtPrefB}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtPrefC"
+                component={FlickFlirtPrefC}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtPrefD"
+                component={FlickFlirtPrefD}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtSwipe"
+                component={FlickFlirtSwipe}
                 options={() => ({
                     headerShown: false,
                 })}

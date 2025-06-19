@@ -1,6 +1,7 @@
 import {formatDistance, formatDuration, intervalToDuration} from 'date-fns';
 import {AKCRUBADGES, COLORS} from '../../assets/constants';
 import {DateTime} from 'luxon';
+import { IAgeBracket } from '../../types';
 
 export function timeSince(dateCreated: string): string {
     const now = new Date();
@@ -197,3 +198,37 @@ export function formatNumber(num: number) {
     }
     return Math.round(millions) + 'm';
 }
+
+export const calculateAgeFromDOB = (dobString: string): number => {
+    const dob = new Date(dobString);
+    const today = new Date();
+
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    const dayDiff = today.getDate() - dob.getDate();
+
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        age--;
+    }
+
+    return age;
+};
+
+export const getAgeBracketFromAge = (age: number): IAgeBracket | null => {
+    if (age >= 18 && age <= 24) {
+        return 'AGE_18_24';
+    }
+    if (age >= 25 && age <= 34) {
+        return 'AGE_25_34';
+    }
+    if (age >= 35 && age <= 39) {
+        return 'AGE_35_39';
+    }
+    if (age >= 40 && age <= 49) {
+        return 'AGE_40_49';
+    }
+    if (age >= 50) {
+        return 'AGE_50_PLUS';
+    }
+    return null; // if under 18 or invalid
+};

@@ -1,18 +1,46 @@
+
 import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import Header from '../../../components/header';
 import {Icon} from '@rneui/base';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
+import AkcruButtons from '../../../components/akcruButtons';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import { API } from '../../../clients/api.client';
 
-const FlickFlirtScreen = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
+type FlickFlirtScreenProps = {
+    contentButtonName: string;
+    preference: () => void;
+};
+
+const FlickFlirtScreen = ({contentButtonName, preference}: FlickFlirtScreenProps) => {
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
+    const [hasMatches, setHasMatches] = useState(false);
+
+    // On focus, check if user has any matches
+    useFocusEffect(
+        React.useCallback(() => {
+            let isActive = true;
+            API.get('v1/flickflirt/matches')
+                .then(res => {
+                    if (isActive && res.data.success) {
+                        setHasMatches(Array.isArray(res.data.matches) && res.data.matches.length > 0);
+                    }
+                })
+                .catch(console.error);
+            return () => {
+                isActive = false;
+            };
+        }, []),
+    );
     return (
         <TabContainer>
             <View>
@@ -38,19 +66,44 @@ const FlickFlirtScreen = () => {
                                     interests.
                                 </Text>
                             </View>
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.XlLrgButton
+                                    btnname={'Open FlickFlirt'}
+                                    onPress={() => navigation.navigate('FlickFlirtPref')}
+                                    color={COLORS.PURPLE}
+                                    disabled={false}
+                                />
+                            </View>
+                            {/* Show this only if there are matches */}
+                            {hasMatches && (
+                                <View style={{alignItems: 'center', marginTop: 20}}>
+                                    <AkcruButtons.XlLrgButton
+                                        btnname="You Have Matches"
+                                        onPress={() => navigation.navigate('FlickFlirtMatches')}
+                                        color={COLORS.PURPLE}
+                                    />
+                                </View>
+                            )}
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.XlLrgButton
+                                    btnname={'Reset Preferences'}
+                                    onPress={async () => {
+                                        try {
+                                            const res = await API.delete('v1/flickflirt/reset-preferences');
+                                            if (res.data.success) {
+                                                console.log('Preferences reset successfully');
+                                            } else {
+                                                console.error('Reset failed:', res.data.message);
+                                            }
+                                        } catch (error) {
+                                            console.error('Error resetting preferences:', error);
+                                        }
+                                    }}
+                                    color={COLORS.PURPLE}
+                                />
+                            </View>
                         </View>
                     </SafeAreaView>
-                    {/* <LinearGradient
-
-                      colors={['transparent', COLORS.AKCRUBACKGROUND]}
-                      style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          height: 600,
-                      }}
-                  /> */}
                 </ImageBackground>
             </View>
         </TabContainer>

@@ -1,0 +1,328 @@
+import {View, Text, SafeAreaView, FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
+import LinearGradient from 'react-native-linear-gradient';
+import {ImageBackground} from 'react-native';
+import imageindex from '../../../../../assets/images/imageindex';
+import styles from './styles';
+import Header from '../../../../components/header';
+import BackButton from '../../../../components/General/backbutton';
+import {API} from '../../../../clients/api.client';
+import AkcruButtons from '../../../../components/akcruButtons';
+import {IMovie, IUserProfile} from '../../../../../types';
+import {findSponsoredMovies} from '../../../../lib/api/movies.lib';
+import Swiper from 'react-native-deck-swiper';
+import useAuthStore from '../../../../stores/auth.store';
+import {getFollowers} from '../../../../lib/api/user.lib';
+import {UserProfileStackParams} from '../../../../navigation/UserProfileStack';
+import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
+import {capitalizeFirstLetterOfString} from '../../../../util/util';
+import {Icon} from '@rneui/base';
+
+const FlickFlirtSwipe = () => {
+    // const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const [movies, setMovies] = useState<IMovie[]>([]);
+    const [allSwiped, setAllSwiped] = useState(false);
+    const [checkingFlirts, setCheckingFlirts] = useState(false);
+    const [hasCheckedFlirts, setHasCheckedFlirts] = useState(false);
+
+    // load sponsored movies
+    useFocusEffect(
+        React.useCallback(() => {
+            findSponsoredMovies().then(setMovies).catch(console.error);
+        }, []),
+    );
+
+    const [data, setData] = useState<IUserProfile[]>([]);
+
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigationB = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
+    const {user, hydrateUser} = useAuthStore();
+
+    useFocusEffect(
+        React.useCallback(() => {
+            hydrateUser();
+            return () => {
+                hydrateUser();
+            };
+        }, []),
+    );
+
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         if (user?.id) {
+    //             try {
+    //                 const result = await getFollowers(user.id);
+    //                 if (result && result.followers && Array.isArray(result.followers)) {
+    //                     setData(result.followers);
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error fetching followers:', error);
+    //             }
+    //         }
+    //     };
+
+    //     fetchData();
+    // }, [user?.id]);
+
+    const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE') => {
+        try {
+            await API.post('v1/flickflirt/swipe', {
+                movieId,
+                type,
+            });
+        } catch (error) {
+            console.error('Error recording swipe:', error);
+        }
+    };
+
+    const [swipeResult, setSwipeResult] = useState<null | 'LIKE' | 'NOPE'>(null);
+
+    return (
+        <View>
+            <ImageBackground
+                source={imageindex.FLickFlirt}
+                resizeMode="cover"
+                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                <SafeAreaView style={{flex: 1}}>
+                    <LinearGradient
+                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        // eslint-disable-next-line react-native/no-inline-styles
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: SIZES.ScreenHeight,
+                        }}
+                    />
+                    <View>
+                        <Header />
+                    </View>
+                    <BackButton navigation={navigation} />
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        {movies.length > 0 ? (
+                            <Swiper
+                                cards={movies}
+                                renderCard={(movie: IMovie) => (
+                                    <View style={styles.card}>
+                                        <ImageBackground source={{uri: movie.portraitURL}} style={styles.cardImage}>
+                                            <LinearGradient
+                                                colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                                // eslint-disable-next-line react-native/no-inline-styles
+                                                style={{
+                                                    position: 'absolute',
+                                                    left: 0,
+                                                    right: 0,
+                                                    top: 0,
+                                                    height: '100%',
+                                                }}
+                                            />
+                                            <View style={{padding: 10}}>
+                                                <Text style={styles.bigTitle}>{movie.title}</Text>
+                                                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                                                    <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {capitalizeFirstLetterOfString(movie?.genres[0])}
+                                                    </Text>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {capitalizeFirstLetterOfString(movie?.genres[1])}
+                                                    </Text>
+
+                                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                                </View>
+                                                <Text style={styles.desc}>{movie.description}</Text>
+                                            </View>
+                                        </ImageBackground>
+                                    </View>
+                                )}
+                                onSwipedLeft={cardIndex => {
+                                    console.log('Swiped left:', movies[cardIndex].title);
+                                    // Optionally store "disliked" movie
+                                    setSwipeResult('NOPE');
+                                    handleSwipe(movies[cardIndex].id, 'DISLIKE');
+
+                                    setTimeout(() => setSwipeResult(null), 1200);
+                                }}
+                                onSwipedRight={cardIndex => {
+                                    console.log('Swiped right:', movies[cardIndex].title);
+                                    // Optionally store "liked" movie
+                                    setSwipeResult('LIKE');
+                                    handleSwipe(movies[cardIndex].id, 'LIKE');
+
+                                    setTimeout(() => setSwipeResult(null), 1200);
+                                }}
+                                backgroundColor="transparent"
+                                stackSize={4}
+                                cardIndex={0}
+                                verticalSwipe={false}
+                                cardStyle={{
+                                    marginTop: '-10%',
+                                    marginLeft: '3%',
+                                }}
+                                onSwipedAll={() => {
+                                    setAllSwiped(true);
+                                    setCheckingFlirts(true);
+                                    API.get('v1/flickflirt/matches')
+                                        .then(res => {
+                                            if (res.data.success) {
+                                                setData(res.data.matches);
+                                            } else {
+                                                console.error('Fetch matches failed:', res.data.message);
+                                            }
+                                        })
+                                        .catch(console.error);
+
+                                    setTimeout(() => {
+                                        setHasCheckedFlirts(true);
+                                        setCheckingFlirts(false);
+                                    }, 1500); // Simulate 1.5 second search delay
+                                }}
+                                overlayLabels={{
+                                    left: {
+                                        title: 'NOPE',
+                                        style: {
+                                            label: {
+                                                backgroundColor: 'transparent',
+                                                borderColor: 'red',
+                                                color: 'red',
+                                                fontSize: 38,
+                                                fontWeight: 'bold',
+                                                borderWidth: 2,
+                                                padding: 10,
+                                            },
+                                            wrapper: {
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-end',
+                                                justifyContent: 'flex-start',
+                                                marginTop: 30,
+                                                marginLeft: -30,
+                                            },
+                                        },
+                                    },
+                                    right: {
+                                        title: 'LIKE',
+                                        style: {
+                                            label: {
+                                                backgroundColor: 'transparent',
+                                                borderColor: '#00BFFF',
+                                                color: '#00BFFF',
+                                                fontSize: 38,
+                                                fontWeight: 'bold',
+                                                borderWidth: 2,
+                                                padding: 10,
+                                            },
+                                            wrapper: {
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start',
+                                                justifyContent: 'flex-start',
+                                                marginTop: 30,
+                                                marginLeft: 30,
+                                            },
+                                        },
+                                    },
+                                }}
+                                animateOverlayLabelsOpacity={true}
+                            />
+                        ) : (
+                            <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>Loading movies...</Text>
+                        )}
+                        {allSwiped && checkingFlirts && (
+                            <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>Checking For Flirts...</Text>
+                        )}
+                        {allSwiped && hasCheckedFlirts && (
+                            <View
+                                style={{
+                                    alignItems: 'center',
+                                    marginBottom: '20%',
+                                    justifyContent: 'center',
+                                    marginLeft: '3%',
+                                }}>
+                                {data.length > 0 ? (
+                                    <>
+                                        <FlatList
+                                            data={data}
+                                            numColumns={2}
+                                            keyExtractor={item => item.id}
+                                            ListHeaderComponent={() => (
+                                                <Text
+                                                    style={[
+                                                        FONTS.Title3,
+                                                        {
+                                                            color: COLORS.LIGHTGREY,
+                                                            textAlign: 'center',
+                                                            marginBottom: 10,
+                                                        },
+                                                    ]}>
+                                                    You have matches.
+                                                </Text>
+                                            )}
+                                            renderItem={({item}) => (
+                                                <View style={{marginVertical: 5}}>
+                                                    <FlickFlirtMatchCard
+                                                        userPicture={item.profilePicture}
+                                                        userName={item.username}
+                                                        onPress={() =>
+                                                            navigation.navigate('ViewUserScreen', {userID: item.id})
+                                                        }
+                                                        influencer={false}
+                                                        akcruBadge={item.badge}
+                                                        userDesc={item.description}
+                                                    />
+                                                </View>
+                                            )}
+                                        />
+                                        {/* Reset Preferences if they want to start fresh after seeing matches */}
+                                        <AkcruButtons.XlLrgButton
+                                            btnname="Reset Preferences"
+                                            onPress={() => navigationB.navigate('FlickFlirtPref')}
+                                            color={COLORS.PURPLE}
+                                        />
+                                    </>
+                                ) : (
+                                    <View style={{alignItems: 'center'}}>
+                                        <Text
+                                            style={[
+                                                FONTS.Title3,
+                                                {color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 20},
+                                            ]}>
+                                            You have no matches.
+                                        </Text>
+                                        {/* Start Over button when there are no matches */}
+                                        <AkcruButtons.XlLrgButton
+                                            btnname="Start Over"
+                                            onPress={() => navigationB.navigate('FlickFlirtScreen')}
+                                            color={COLORS.PURPLE}
+                                        />
+                                    </View>
+                                )}
+                            </View>
+                        )}
+                    </View>
+                    {!allSwiped && (
+                        <View style={{alignItems: 'center', marginBottom: '20%'}}>
+                            <Text style={[FONTS.Title3, {color: COLORS.AKCRUPINK}]}>
+                                Swipe right if you like, swipe left if you dislike
+                            </Text>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '40%'}}>
+                                <Icon name={'sad'} type="ionicon" color={COLORS.CATREDLGT} size={40} />
+                                <Icon name={'happy'} type="ionicon" color={COLORS.AKCRUBLUE} size={40} />
+                            </View>
+                        </View>
+                    )}
+                </SafeAreaView>
+            </ImageBackground>
+        </View>
+    );
+};
+
+export default FlickFlirtSwipe;
