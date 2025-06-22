@@ -14,6 +14,7 @@ import {UseTabMenu} from '../context/TabContext';
 import AkcruButtonStack from './AkcruButtonStack';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import {API} from '../clients/api.client';
+import {DeviceEventEmitter} from 'react-native';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -38,16 +39,23 @@ export default function ClientTabNavigator() {
     const fetchMatches = useCallback(() => {
         API.get('v1/flickflirt/matches')
             .then(res => {
-                if (res.data.success) {
-                    setHasMatches(res.data.matches.length > 0);
-                }
+                // normalize payload
+                const payload = res?.data ?? res;
+                const ok: boolean = !!payload.success;
+                const matches: any[] = Array.isArray(payload.matches) ? payload.matches : [];
+                setHasMatches(ok && matches.length > 0);
             })
-            .catch(console.error);
+            .catch(err => {
+                console.error('fetchMatches error:', err);
+                setHasMatches(false);
+            });
     }, []);
-
     // fetch once on mount
+    useEffect(fetchMatches, [fetchMatches]);
+
     useEffect(() => {
-        fetchMatches();
+        const sub = DeviceEventEmitter.addListener('matchesUpdated', fetchMatches);
+        return () => sub.remove();
     }, [fetchMatches]);
 
     const closeCenterButtonIfOpen = (e: any) => {

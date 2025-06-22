@@ -258,6 +258,7 @@ const FlickFlirtSwipe = () => {
                                                         influencer={false}
                                                         akcruBadge={item.badge}
                                                         userDesc={item.description}
+                                                        matchLabel={item.matchLabel}
                                                     />
                                                 </View>
                                             )}

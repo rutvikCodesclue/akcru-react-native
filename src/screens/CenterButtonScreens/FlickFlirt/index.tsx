@@ -11,6 +11,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
+import {DeviceEventEmitter} from 'react-native';
 
 const FlickFlirtScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -103,6 +104,7 @@ const FlickFlirtScreen = () => {
                                             if (payload.success) {
                                                 console.log('Preferences reset successfully');
                                                 await fetchMatches();
+                                                DeviceEventEmitter.emit('matchesUpdated');
                                             } else {
                                                 console.error('Reset failed:', payload.message);
                                             }
