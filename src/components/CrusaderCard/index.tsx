@@ -66,7 +66,7 @@ const CrusaderCard = ({
                                 borderWidth: 2,
                             }}
                         />
-                        {isArchetypeMatch && (
+                        {/* {isArchetypeMatch && (
                             <View
                                 style={{
                                     position: 'absolute',
@@ -85,7 +85,7 @@ const CrusaderCard = ({
                                     </Text>
                                 </View>
                             </View>
-                        )}
+                        )} */}
                     </TouchableOpacity>
                 </View>
             </View>
