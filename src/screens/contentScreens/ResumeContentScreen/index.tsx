@@ -219,6 +219,7 @@ export default function ResumePlayer({navigation}: Props) {
                                 onLoad={onLoad}
                                 onProgress={onProgress}
                                 onError={error => console.log('Video error:', error)}
+                                title={movie.title}
                             />
                         </>
                     ) : (

@@ -211,6 +211,7 @@ export default function EpisodePlayer({navigation}: Props) {
                                     onLoad={onLoad}
                                     onProgress={onProgress}
                                     onError={error => console.log('Video error:', error)}
+                                    title={episode.title}
                                 />
                             </>
                         ) : (

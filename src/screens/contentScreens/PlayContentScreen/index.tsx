@@ -240,6 +240,7 @@ export default function ContentPlayer({navigation}: Props) {
                                     onLoad={onLoad}
                                     onProgress={onProgress}
                                     onError={error => console.log('Video error:', error)}
+                                    title={movie.title}
                                 />
                             </>
                         ) : (

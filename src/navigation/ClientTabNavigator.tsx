@@ -1,5 +1,5 @@
 import {View, StyleSheet, Platform} from 'react-native';
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import {Icon} from '@rneui/base';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -13,6 +13,7 @@ import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton
 import {UseTabMenu} from '../context/TabContext';
 import AkcruButtonStack from './AkcruButtonStack';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import {API} from '../clients/api.client';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -32,6 +33,22 @@ const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
 
 export default function ClientTabNavigator() {
     const {opened, toggleOpened} = UseTabMenu();
+    const [hasMatches, setHasMatches] = useState(false);
+
+    const fetchMatches = useCallback(() => {
+        API.get('v1/flickflirt/matches')
+            .then(res => {
+                if (res.data.success) {
+                    setHasMatches(res.data.matches.length > 0);
+                }
+            })
+            .catch(console.error);
+    }, []);
+
+    // fetch once on mount
+    useEffect(() => {
+        fetchMatches();
+    }, [fetchMatches]);
 
     const closeCenterButtonIfOpen = (e: any) => {
         if (opened) {
@@ -104,7 +121,6 @@ export default function ClientTabNavigator() {
                 name="FlickFlirtScreen"
                 component={FlickFlirtScreen}
                 options={{
-                    tabBarItemStyle: {},
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
@@ -114,11 +130,15 @@ export default function ClientTabNavigator() {
                                 color={color}
                                 size={SIZES.SmallIcon}
                             />
+                            {hasMatches && <View style={styles.redDot} />}
                         </View>
                     ),
                 }}
                 listeners={{
-                    tabPress: closeCenterButtonIfOpen,
+                    tabPress: () => {
+                        fetchMatches();
+                    },
+                    focus: fetchMatches,
                 }}
             />
             <ClientTabs.Screen
@@ -168,5 +188,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '95%',
+    },
+    redDot: {
+        position: 'absolute',
+        top: 0,
+        right: 20,
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'red',
     },
 });

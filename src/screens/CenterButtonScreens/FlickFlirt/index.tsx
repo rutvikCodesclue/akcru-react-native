@@ -10,6 +10,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {API} from '../../../clients/api.client';
+import LinearGradient from 'react-native-linear-gradient';
 
 const FlickFlirtScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -49,8 +50,18 @@ const FlickFlirtScreen = () => {
                     resizeMode="cover"
                     style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                     <SafeAreaView>
+                        <LinearGradient
+                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                            // eslint-disable-next-line react-native/no-inline-styles
+                            style={{
+                                position: 'absolute',
+                                left: 0,
+                                right: 0,
+                                top: 0,
+                                height: SIZES.ScreenHeight,
+                            }}
+                        />
                         <Header />
-                        <BackButton navigation={navigation} />
                         <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.65}}>
                             <View style={styles.textcontainer}>
                                 <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Flick Flirt</Text>
@@ -118,7 +129,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     textcontainer: {
-        backgroundColor: COLORS.TRANSPURPLGT,
         alignSelf: 'center',
         width: SIZES.ScreenWidth * 0.93,
         padding: 15,

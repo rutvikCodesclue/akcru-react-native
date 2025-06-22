@@ -205,6 +205,7 @@ export default function ContentDetailScreen({navigation}: Props) {
                                             id: id,
                                             movieURL: movieURL,
                                             landscapeURL: landscapeURL,
+                                            title,
                                         });
                                     }}
                                     PlayTrailer={() => {
@@ -212,6 +213,7 @@ export default function ContentDetailScreen({navigation}: Props) {
                                             id: id,
                                             trailerURL: trailerURL,
                                             landscapeURL: landscapeURL,
+                                            title,
                                         });
                                     }}
                                     onPress={() => {
