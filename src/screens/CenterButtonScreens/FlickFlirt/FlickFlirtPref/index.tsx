@@ -16,7 +16,6 @@ import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {AkcruLogo} from '../../../../../assets/svg';
 import AkcruButtons from '../../../../components/akcruButtons';
 
-
 const FlickFlirtPref = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [genders, setGenders] = useState([]);
@@ -113,9 +112,6 @@ const FlickFlirtPref = () => {
                         <Header />
                     </View>
                     <BackButton navigation={navigation} />
-                    <View style={{alignItems: 'center', marginHorizontal: 15}}>
-                        <AkcruLogo width={200} height={60} />
-                    </View>
                     <View style={{marginHorizontal: 15}}>
                         <Text style={[FONTS.Title2, {textAlign: 'center', marginBottom: 10}]}>
                             Why do you want to use Flick Flirt?

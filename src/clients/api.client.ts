@@ -66,15 +66,16 @@ API.interceptors.request.use(
     },
 );
 
-API.interceptors.response.use( response => response, error => {
-    
-    if (isNetworkError(error)) {
-        // console.log("ERR_NETWORK N");
+API.interceptors.response.use(
+    response => response,
+    error => {
+        if (isNetworkError(error)) {
+            // console.log("ERR_NETWORK N");
             Alert.alert('Please check your internet connection and Try Again');
-        
-    }
-    return error;
-});
+        }
+        return error;
+    },
+);
 
 function isNetworkError(error: unknown): error is AxiosError {
     if (error instanceof AxiosError) {

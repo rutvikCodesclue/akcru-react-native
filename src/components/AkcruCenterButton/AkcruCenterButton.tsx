@@ -18,25 +18,17 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         toggleOpened();
         console.log('handlePressShop');
     };
-    const handlePressRobot = () => {
-        navigation.navigate('FlickFlirtScreen');
+    // new
+    const handlePressWorld = () => {
+        navigation.navigate('AkcruButtonStack', {
+            screen: 'CrusaderScreen',
+        });
         toggleOpened();
-        console.log('handlePressRobot');
-    };
-    const handlePressBullhorn = () => {
-        navigation.navigate('AkcruNetworkScreen');
-        toggleOpened();
-        console.log('handlePressBullhorn');
     };
 
     const handlePressCenterButton = () => {
         toggleOpened();
         console.log('handlePressCenterButton');
-    };
-    const handlePressAwards = () => {
-        navigation.navigate('AwardScreen');
-        toggleOpened();
-        console.log('handlePressAwards');
     };
 
     React.useEffect(() => {
@@ -58,102 +50,6 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     return (
         <View style={styles.container}>
             <View style={styles.box}>
-                <Pressable onPressIn={handlePressAwards}>
-                    <Animated.View
-                        style={[
-                            styles.item,
-                            opacity,
-                            {
-                                transform: [
-                                    {
-                                        translateX: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, -40],
-                                        }),
-                                    },
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, -140],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="shield-crown"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={25}
-                            style={styles.itemIcon}
-                        />
-                    </Animated.View>
-                </Pressable>
-                <Pressable onPressIn={handlePressRobot}>
-                    <Animated.View
-                        style={[
-                            styles.item,
-                            opacity,
-                            {
-                                transform: [
-                                    {
-                                        translateX: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, 50],
-                                        }),
-                                    },
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, -140],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="robot-love"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={25}
-                            style={styles.itemIcon}
-                        />
-                    </Animated.View>
-                </Pressable>
-                <Pressable onPressIn={handlePressBullhorn}>
-                    <Animated.View
-                        style={[
-                            styles.item,
-                            opacity,
-                            {
-                                transform: [
-                                    {
-                                        translateX: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, -90],
-                                        }),
-                                    },
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, -85],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="bullhorn"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={25}
-                            style={styles.itemIcon}
-                        />
-                    </Animated.View>
-                </Pressable>
                 <Pressable onPressIn={handlePressShop}>
                     <Animated.View
                         style={[
@@ -164,13 +60,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 100],
+                                            outputRange: [0, 10],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -85],
+                                            outputRange: [0, -170],
                                         }),
                                     },
                                 ],
@@ -179,6 +75,38 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                         <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
                         <Icon
                             name="store"
+                            type="material-community"
+                            color={COLORS.WHITE}
+                            size={25}
+                            style={styles.itemIcon}
+                        />
+                    </Animated.View>
+                </Pressable>
+                <Pressable onPressIn={handlePressWorld}>
+                    <Animated.View
+                        style={[
+                            styles.item,
+                            opacity,
+                            {
+                                transform: [
+                                    {
+                                        translateX: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, 8],
+                                        }),
+                                    },
+                                    {
+                                        translateY: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -100],
+                                        }),
+                                    },
+                                ],
+                            },
+                        ]}>
+                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
+                        <Icon
+                            name="earth"
                             type="material-community"
                             color={COLORS.WHITE}
                             size={25}

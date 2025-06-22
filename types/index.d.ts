@@ -45,6 +45,7 @@ interface IUserProfile {
     pollLikes: IPollLike[];
     isAdmin: boolean;
     isArchetypeMatch: boolean;
+    matchLabel: string;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';

@@ -1,46 +1,46 @@
-
-import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import React, { useState } from 'react';
-
+import React, {useState, useCallback} from 'react';
+import {ImageBackground, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import Header from '../../../components/header';
-import {Icon} from '@rneui/base';
+import BackButton from '../../../components/General/backbutton';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
-import TabContainer from '../../../components/TabContainer/TabContainer';
-import BackButton from '../../../components/General/backbutton';
 import AkcruButtons from '../../../components/akcruButtons';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 
-type FlickFlirtScreenProps = {
-    contentButtonName: string;
-    preference: () => void;
-};
-
-const FlickFlirtScreen = ({contentButtonName, preference}: FlickFlirtScreenProps) => {
+const FlickFlirtScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
     const [hasMatches, setHasMatches] = useState(false);
 
-    // On focus, check if user has any matches
+    // Fetch match status and guard against different API return shapes
+    const fetchMatches = useCallback(async () => {
+        try {
+            const response = await API.get('/v1/flickflirt/matches');
+            // Handle Axios style (response.data) or direct-data style
+            const payload = response?.data ?? response;
+            const success = payload.success;
+            const matches = payload.matches;
+
+            if (typeof success === 'boolean') {
+                setHasMatches(success && Array.isArray(matches) && matches.length > 0);
+            } else {
+                setHasMatches(false);
+            }
+        } catch (error) {
+            console.error('Error fetching matches:', error);
+            setHasMatches(false);
+        }
+    }, []);
+
     useFocusEffect(
-        React.useCallback(() => {
-            let isActive = true;
-            API.get('v1/flickflirt/matches')
-                .then(res => {
-                    if (isActive && res.data.success) {
-                        setHasMatches(Array.isArray(res.data.matches) && res.data.matches.length > 0);
-                    }
-                })
-                .catch(console.error);
-            return () => {
-                isActive = false;
-            };
-        }, []),
+        useCallback(() => {
+            fetchMatches();
+        }, [fetchMatches]),
     );
+
     return (
         <TabContainer>
             <View>
@@ -49,13 +49,11 @@ const FlickFlirtScreen = ({contentButtonName, preference}: FlickFlirtScreenProps
                     resizeMode="cover"
                     style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                     <SafeAreaView>
-                        <View>
-                            <Header />
-                        </View>
+                        <Header />
                         <BackButton navigation={navigation} />
                         <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.65}}>
                             <View style={styles.textcontainer}>
-                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>"Flick Flirt"</Text>
+                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Flick Flirt</Text>
                                 <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
                                     Elevate Your Movie Nights with a Dash of Romance!
                                 </Text>
@@ -68,13 +66,12 @@ const FlickFlirtScreen = ({contentButtonName, preference}: FlickFlirtScreenProps
                             </View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.XlLrgButton
-                                    btnname={'Open FlickFlirt'}
+                                    btnname="Open FlickFlirt"
                                     onPress={() => navigation.navigate('FlickFlirtPref')}
                                     color={COLORS.PURPLE}
-                                    disabled={false}
                                 />
                             </View>
-                            {/* Show this only if there are matches */}
+
                             {hasMatches && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
                                     <AkcruButtons.XlLrgButton
@@ -84,16 +81,19 @@ const FlickFlirtScreen = ({contentButtonName, preference}: FlickFlirtScreenProps
                                     />
                                 </View>
                             )}
+
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.XlLrgButton
-                                    btnname={'Reset Preferences'}
+                                    btnname="Reset Preferences"
                                     onPress={async () => {
                                         try {
-                                            const res = await API.delete('v1/flickflirt/reset-preferences');
-                                            if (res.data.success) {
+                                            const res = await API.delete('/v1/flickflirt/reset-preferences');
+                                            const payload = res?.data ?? res;
+                                            if (payload.success) {
                                                 console.log('Preferences reset successfully');
+                                                await fetchMatches();
                                             } else {
-                                                console.error('Reset failed:', res.data.message);
+                                                console.error('Reset failed:', payload.message);
                                             }
                                         } catch (error) {
                                             console.error('Error resetting preferences:', error);

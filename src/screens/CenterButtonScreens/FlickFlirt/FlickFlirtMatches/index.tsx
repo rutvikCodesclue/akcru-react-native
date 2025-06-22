@@ -64,17 +64,11 @@ const FlickFlirtMatches = () => {
                                                 influencer={false}
                                                 akcruBadge={item.badge}
                                                 userDesc={item.description}
+                                                matchLabel={item.matchLabel}
                                             />
                                         </View>
                                     )}
                                 />
-                                <View style={styles.buttonWrapper}>
-                                    <AkcruButtons.XlLrgButton
-                                        btnname="Reset Preferences"
-                                        onPress={() => navigation.navigate('FlickFlirtPref')}
-                                        color={COLORS.PURPLE}
-                                    />
-                                </View>
                             </>
                         ) : (
                             <View style={styles.noMatchWrapper}>
@@ -104,10 +98,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     content: {
-        flex: 1,
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 20,
+        justifyContent: 'center',
     },
     headerText: {
         ...FONTS.Title3,
@@ -116,7 +108,6 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     cardWrapper: {
-        flex: 1,
         margin: 5,
     },
     buttonWrapper: {

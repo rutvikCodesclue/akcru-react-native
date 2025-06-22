@@ -1,5 +1,5 @@
 import {View, Text, SafeAreaView, FlatList} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -16,14 +16,12 @@ import {IMovie, IUserProfile} from '../../../../../types';
 import {findSponsoredMovies} from '../../../../lib/api/movies.lib';
 import Swiper from 'react-native-deck-swiper';
 import useAuthStore from '../../../../stores/auth.store';
-import {getFollowers} from '../../../../lib/api/user.lib';
 import {UserProfileStackParams} from '../../../../navigation/UserProfileStack';
 import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {Icon} from '@rneui/base';
 
 const FlickFlirtSwipe = () => {
-    // const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [movies, setMovies] = useState<IMovie[]>([]);
     const [allSwiped, setAllSwiped] = useState(false);
     const [checkingFlirts, setCheckingFlirts] = useState(false);
@@ -49,25 +47,8 @@ const FlickFlirtSwipe = () => {
             return () => {
                 hydrateUser();
             };
-        }, []),
+        }, [hydrateUser]),
     );
-
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         if (user?.id) {
-    //             try {
-    //                 const result = await getFollowers(user.id);
-    //                 if (result && result.followers && Array.isArray(result.followers)) {
-    //                     setData(result.followers);
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error fetching followers:', error);
-    //             }
-    //         }
-    //     };
-
-    //     fetchData();
-    // }, [user?.id]);
 
     const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE') => {
         try {
@@ -283,8 +264,8 @@ const FlickFlirtSwipe = () => {
                                         />
                                         {/* Reset Preferences if they want to start fresh after seeing matches */}
                                         <AkcruButtons.XlLrgButton
-                                            btnname="Reset Preferences"
-                                            onPress={() => navigationB.navigate('FlickFlirtPref')}
+                                            btnname="Go To Start"
+                                            onPress={() => navigationB.navigate('FlickFlirtScreen')}
                                             color={COLORS.PURPLE}
                                         />
                                     </>

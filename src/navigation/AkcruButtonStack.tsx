@@ -6,6 +6,8 @@ import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
+import {CrusaderStack} from './CrusaderStack';
+import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 
 export type AkcruButtonStackParams = {
     PurchaseMITScreen: any;
@@ -14,6 +16,8 @@ export type AkcruButtonStackParams = {
     ClientTabNavigator: any;
     AwardScreen: any;
     AkcruCenterButton: any;
+    CrusaderStack: any;
+    CrusaderScreen: any;
 };
 
 const AkcruBtn = createStackNavigator<AkcruButtonStackParams>();
@@ -34,12 +38,27 @@ export default function AkcruButtonStack() {
                 }}
             />
             <AkcruBtn.Screen
+                name="CrusaderStack"
+                component={CrusaderStack}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AkcruBtn.Screen
                 name="PurchaseMITScreen"
                 component={PurchaseMITScreen}
                 options={{
                     headerShown: false,
                 }}
             />
+            <AkcruBtn.Screen
+                name="CrusaderScreen"
+                component={CrusaderScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+
             <AkcruBtn.Screen
                 name="FlickFlirtScreen"
                 component={FlickFlirtScreen}

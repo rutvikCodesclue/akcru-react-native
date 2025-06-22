@@ -61,6 +61,7 @@ import FlickFlirtPrefB from '../screens/CenterButtonScreens/FlickFlirt/FlickFlir
 import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefC';
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
+import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -88,6 +89,7 @@ export type NoBottomTabStackParams = {
     FlickFlirtPrefC: any;
     FlickFlirtPrefD: any;
     FlickFlirtSwipe: any;
+    FlickFlirtMatches: any;
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     TrailerPlayer: any;
@@ -612,6 +614,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtSwipe"
                 component={FlickFlirtSwipe}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtMatches"
+                component={FlickFlirtMatches}
                 options={() => ({
                     headerShown: false,
                 })}

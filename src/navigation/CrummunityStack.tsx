@@ -11,11 +11,13 @@ import {
     SendMITViewUser,
     SendMITSearchInput,
 } from '../screens/crummunityScreens/SendViewUserMITScreens';
+import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 import {COLORS} from '../../assets/constants';
 
 export type CrummunityStackParams = {
     CrummunityScreen: any;
     UserSearchResultScreen: any;
+    CrusaderScreen: any;
 
     ViewUserDetailScreen: any;
     PurchaseMITScreen: any;
@@ -56,13 +58,13 @@ export function CrummunityStack() {
                     headerShown: false,
                 })}
             />
-            {/* <Crummunity.Screen
-              name="ViewUserScreen"
-              component={ViewUserScreen}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
+            <Crummunity.Screen
+                name="CrusaderScreen"
+                component={CrusaderScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
             <Crummunity.Screen
                 name="ViewUserDetailScreen"
                 component={ViewUserDetailScreen}
@@ -118,24 +120,24 @@ export function CrummunityStack() {
               options={{
                   headerShown: false,
 
-              }}
-          />
-          <Crummunity.Screen
-              name="PurchaseMITScreen"
-              component={PurchaseMITScreen}
-              options={{
-                  headerShown: false,
+          }}
+        />
+        <Crummunity.Screen
+          name="PurchaseMITScreen"
+          component={PurchaseMITScreen}
+          options={{
+            headerShown: false,
 
-              }}
-          />
-          <Crummunity.Screen
-              name="FlickFlirtScreen"
-              component={FlickFlirtScreen}
-              options={{
-                  headerShown: false,
+          }}
+        />
+        <Crummunity.Screen
+          name="FlickFlirtScreen"
+          component={FlickFlirtScreen}
+          options={{
+            headerShown: false,
 
-              }}
-          /> */}
+          }}
+        /> */}
         </Crummunity.Navigator>
     );
 }

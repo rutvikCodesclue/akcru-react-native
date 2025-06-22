@@ -10,7 +10,7 @@ const addRequestTokenHeader = async () => {
 };
 
 const determineBaseURL = (): string => {
-    console.log(CRUMMUNITY_API_URL)
+    console.log(CRUMMUNITY_API_URL);
     switch (process.env.NODE_ENV) {
         case 'production':
             return CRUMMUNITY_API_URL;

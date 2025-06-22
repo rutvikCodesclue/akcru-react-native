@@ -16,6 +16,7 @@ type FlickFlirtMatchCardProps = {
     akcruBadge: any;
     onPress: () => void;
     userDesc?: string;
+    matchLabel?: string;
 };
 
 const FlickFlirtMatchCard = ({
@@ -25,6 +26,7 @@ const FlickFlirtMatchCard = ({
     akcruBadge,
     onPress,
     userDesc,
+    matchLabel,
 }: FlickFlirtMatchCardProps) => {
     const truncateduserName =
         userDesc && userDesc?.length > MAX_USERNAME_LENGTH ? userName.slice(0, MAX_USERNAME_LENGTH) + '...' : userName;
@@ -74,6 +76,7 @@ const FlickFlirtMatchCard = ({
                                     />
                                 )}
                             </View>
+                            {matchLabel && <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>{matchLabel}</Text>}
 
                             <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
@@ -82,6 +85,4 @@ const FlickFlirtMatchCard = ({
             </View>
         </View>
     );
-};
-
-export default FlickFlirtMatchCard;
+};export default FlickFlirtMatchCard;
