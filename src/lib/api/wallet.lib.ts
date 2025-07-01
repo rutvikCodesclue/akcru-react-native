@@ -16,6 +16,40 @@ export const getTotalSupplyOfAD = async (): Promise<Number | undefined> => {
     }
 };
 
+export interface ADSnapshot {
+    date: string;
+    supply: number;
+    snapshotAt: string;
+}
+
+export const getADSupplySnapshots = async (): Promise<ADSnapshot[]> => {
+    try {
+        // 1) Request
+        const response = await API.get<{
+            success: boolean;
+            history: ADSnapshot[];
+        }>('/v1/wallet/snapshots');
+
+        const {data} = response;
+
+        // 2) Validate
+        if (!data.success || !Array.isArray(data.history)) {
+            console.warn('[wallet.lib] unexpected snapshots payload:', data);
+            return [];
+        }
+
+        // 3) Return typed data (you can also transform here if needed)
+        return data.history.map(snap => ({
+            date: snap.date,
+            supply: snap.supply,
+            snapshotAt: snap.snapshotAt,
+        }));
+    } catch (err) {
+        console.error('[wallet.lib] fetching AD snapshots failed:', err);
+        return [];
+    }
+};
+
 export const purchaseMIT = async (params: {amount: number}): Promise<boolean> => {
     console.log('purchaseMIT', params);
     try {

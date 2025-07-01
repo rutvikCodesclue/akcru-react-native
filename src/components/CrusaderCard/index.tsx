@@ -3,9 +3,9 @@ import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
-import CustomIcon from '../CustomIcon/CustomIcon';
+
 import imageindex from '../../../assets/images/imageindex';
-import ArcheTypeMatchIcon from '../ArcheTypeMatchIcon';
+
 import { color } from '@rneui/base';
 
 

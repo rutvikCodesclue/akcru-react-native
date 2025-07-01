@@ -7,11 +7,19 @@ import imageindex from '../../../../assets/images/imageindex';
 import AkcruButtons from '../../../components/akcruButtons';
 import useAuthStore from '../../../stores/auth.store';
 import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
-import {getTotalSupplyOfAD, sendAD} from '../../../lib/api/wallet.lib';
+import {getTotalSupplyOfAD, getADSupplySnapshots, sendAD} from '../../../lib/api/wallet.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
+import {LineChart} from 'react-native-gifted-charts';
+import {Dimensions} from 'react-native';
+
+type Snapshot = {
+    date: string;
+    supply: number;
+    snapshotAt: string;
+};
 
 const UserProfileWalletTab = () => {
     // Use the useRoute hook to access the selected user data
@@ -31,6 +39,8 @@ const UserProfileWalletTab = () => {
     const [walletResultMessage, setWalletResultMessage] = useState('');
     const [iconName, setIconName] = useState('');
 
+    const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     useEffect(() => {
@@ -41,14 +51,11 @@ const UserProfileWalletTab = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            // Do something when the screen is focused
-            getTotalSupplyOfAD().then(amount => {
-                setTotalSupply(amount);
+            getTotalSupplyOfAD().then(setTotalSupply);
+            getADSupplySnapshots().then((history: Snapshot[]) => {
+                // console.log('RAW snapshot history:', history);
+                setSnapshots(history);
             });
-
-            return () => {
-                // Do something when the screen is unfocused
-            };
         }, []),
     );
 
@@ -103,6 +110,38 @@ const UserProfileWalletTab = () => {
         setSendTo(selectedUser?.username);
         setConfirmationModalVisible(true);
     };
+
+    // after fetching & sorting `snapshots` ascending by date...
+    // pick the *last* snapshot of each month
+    const monthlySnapshots = Object.values(
+        snapshots.reduce<Record<string, (typeof snapshots)[0]>>((acc, snap) => {
+            const monthKey = snap.date.slice(0, 7); // "YYYY-MM"
+            // overwrite so the *latest* date in that month “wins”
+            acc[monthKey] = snap;
+            return acc;
+        }, {}),
+    );
+
+    // now build chartData off `monthlySnapshots` instead of `snapshots`
+    const chartData = monthlySnapshots.map(s => {
+        const [Y, M] = s.date.split('-').map(Number);
+        const label = new Date(Y, M - 1).toLocaleDateString('en-US', {month: 'short'});
+        return {value: s.supply, label};
+    });
+
+    // console.log('chartdata:', chartData);
+    // 3) Compute Y axis scale
+    const max = Math.max(...chartData.map(d => d.value));
+    const noOfSections = 5;
+    // round up the “step” to the nearest 10 000:
+    const stepValue = Math.ceil(max / noOfSections / 10000) * 10000;
+
+    const screenWidth = Dimensions.get('window').width - SIZES.marginhorizontal * 2;
+    const pointCount = 7; // = 6
+    const gap =
+        pointCount > 1
+            ? screenWidth / (pointCount - 1) // 5 gaps over screenWidth
+            : screenWidth;
 
     return (
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -208,8 +247,40 @@ const UserProfileWalletTab = () => {
                         {`${totalSupply?.toString()} AD` ?? 'Loading...'}
                     </Text>
                 </View>
-                <View style={{marginBottom: 75}}>
-                    <Image source={imageindex.GRAPHwallet2} style={{width: SIZES.ScreenWidth / 1.1, height: 170}} />
+                <View style={{marginBottom: 100, marginTop: 10}}>
+                    {/* <Image source={imageindex.GRAPHwallet2} style={{width: SIZES.ScreenWidth / 1.1, height: 170}} /> */}
+                    <LineChart
+                        data={chartData}
+                        width={screenWidth}
+                        height={220}
+                        areaChart
+                        thickness={5}
+                        color={COLORS.PURPLE}
+                        startFillColor={COLORS.AKCRUBLUE}
+                        endFillColor={COLORS.PURPLE}
+                        xAxisColor={COLORS.LIGHTGREY}
+                        xAxisLabelTexts={chartData.map(d => d.label)}
+                        hideDataPoints
+                        spacing={gap}
+                        initialSpacing={5}
+                        endSpacing={5}
+                        adjustToWidth={true}
+                        // 4) show Y axis labels
+                        yAxisLabelPrefix=""
+                        yAxisLabelSuffix=""
+                        yAxisTextStyle={{fontSize: 10, color: COLORS.LIGHTGREY}}
+                        yAxisLabelWidth={40}
+                        yAxisColor={COLORS.LIGHTGREY}
+                        noOfSections={5}
+                        stepValue={stepValue}
+                        // 5) style X axis labels
+                        xAxisLabelTextStyle={{fontSize: 10, color: COLORS.LIGHTGREY}}
+                        xAxisLength={SIZES.ScreenWidth - SIZES.marginhorizontal}
+                        // optional: hide the vertical grid lines
+                        showVerticalLines={false}
+                        curved={true}
+                        curvature={0.1}
+                    />
                 </View>
             </ScrollView>
             <Modal transparent={true} visible={confirmationModalVisible} animationType="fade">
