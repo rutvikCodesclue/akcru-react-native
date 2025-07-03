@@ -1,4 +1,4 @@
-import {Platform, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../../assets/constants';
 
 export default StyleSheet.create({
@@ -79,5 +79,14 @@ export default StyleSheet.create({
         marginHorizontal: 2,
         borderRadius: 4,
         textAlign: 'center',
+    },
+    unlockWrapper: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
+    unlockText: {
+        ...FONTS.Title3,
+        color: COLORS.LIGHTGREY,
+        marginBottom: 10,
     },
 });

@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, FlatList} from 'react-native';
+import {View, Text, SafeAreaView, FlatList, Alert, Modal, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -21,11 +21,27 @@ import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {Icon} from '@rneui/base';
 
+import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
+
 const FlickFlirtSwipe = () => {
     const [movies, setMovies] = useState<IMovie[]>([]);
     const [allSwiped, setAllSwiped] = useState(false);
     const [checkingFlirts, setCheckingFlirts] = useState(false);
     const [hasCheckedFlirts, setHasCheckedFlirts] = useState(false);
+
+    const [matches, setMatches] = useState<IUserProfile[]>([]);
+    const [hiddenCount, setHiddenCount] = useState(0);
+    const [unlocked, setUnlocked] = useState(false);
+    const [unlockOptions, setUnlockOptions] = useState<UnlockOption[]>([]);
+
+    // Confirmation modal state
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedOpt, setSelectedOpt] = useState<UnlockOption | null>(null);
+
+    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    const navigationB = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
+    const {hydrateUser} = useAuthStore();
 
     // load sponsored movies
     useFocusEffect(
@@ -33,13 +49,6 @@ const FlickFlirtSwipe = () => {
             findSponsoredMovies().then(setMovies).catch(console.error);
         }, []),
     );
-
-    const [data, setData] = useState<IUserProfile[]>([]);
-
-    const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    const navigationB = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
-    const {user, hydrateUser} = useAuthStore();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -49,6 +58,22 @@ const FlickFlirtSwipe = () => {
             };
         }, [hydrateUser]),
     );
+
+    const fetchMatches = async () => {
+        try {
+            const data = await getMatches();
+            if (!data.success) {
+                return Alert.alert('Error', data.message || 'Could not load matches.');
+            }
+            setMatches(data.matches);
+            setHiddenCount(data.hiddenCount);
+            setUnlocked(data.unlocked);
+            setUnlockOptions(data.unlockOptions);
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Network error fetching matches.');
+        }
+    };
 
     const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE') => {
         try {
@@ -62,6 +87,54 @@ const FlickFlirtSwipe = () => {
     };
 
     const [swipeResult, setSwipeResult] = useState<null | 'LIKE' | 'NOPE'>(null);
+
+    const onSwipedAll = () => {
+        setAllSwiped(true);
+        setCheckingFlirts(true);
+        fetchMatches().finally(() => {
+            // simulate spinner delay
+            setTimeout(() => {
+                setHasCheckedFlirts(true);
+                setCheckingFlirts(false);
+            }, 1500);
+        });
+    };
+
+    const confirmUnlock = async () => {
+        if (!selectedOpt) {
+            return;
+        }
+        setModalVisible(false);
+
+        try {
+            const data = await unlockMatches(selectedOpt.durationDays);
+            if (!data.success) {
+                Alert.alert('Unable to Unlock', data.message);
+                return;
+            }
+            // Append only new matches
+            setMatches(prev => {
+                const seen = new Set(prev.map(m => m.id));
+                return [...prev, ...data.matches.filter(m => !seen.has(m.id))];
+            });
+            setHiddenCount(0);
+            setUnlocked(true);
+            hydrateUser(); // refresh AD balance
+        } catch (err) {
+            console.error(err);
+            Alert.alert('Error', 'Network error during unlock.');
+        }
+    };
+
+    // 2) Open the unlock confirmation
+    const openModal = () => {
+        if (unlockOptions.length === 0) {
+            return Alert.alert('Error', 'No unlock options available.');
+        }
+        // default to first option
+        setSelectedOpt(unlockOptions[0]);
+        setModalVisible(true);
+    };
 
     return (
         <View>
@@ -150,24 +223,7 @@ const FlickFlirtSwipe = () => {
                                     marginTop: '-10%',
                                     marginLeft: '3%',
                                 }}
-                                onSwipedAll={() => {
-                                    setAllSwiped(true);
-                                    setCheckingFlirts(true);
-                                    API.get('v1/flickflirt/matches')
-                                        .then(res => {
-                                            if (res.data.success) {
-                                                setData(res.data.matches);
-                                            } else {
-                                                console.error('Fetch matches failed:', res.data.message);
-                                            }
-                                        })
-                                        .catch(console.error);
-
-                                    setTimeout(() => {
-                                        setHasCheckedFlirts(true);
-                                        setCheckingFlirts(false);
-                                    }, 1500); // Simulate 1.5 second search delay
-                                }}
+                                onSwipedAll={onSwipedAll}
                                 overlayLabels={{
                                     left: {
                                         title: 'NOPE',
@@ -224,14 +280,15 @@ const FlickFlirtSwipe = () => {
                             <View
                                 style={{
                                     alignItems: 'center',
-                                    marginBottom: '20%',
                                     justifyContent: 'center',
+                                    marginBottom: '100%',
+
                                     marginLeft: '3%',
                                 }}>
-                                {data.length > 0 ? (
+                                {matches.length > 0 ? (
                                     <>
                                         <FlatList
-                                            data={data}
+                                            data={matches}
                                             numColumns={2}
                                             keyExtractor={item => item.id}
                                             ListHeaderComponent={() => (
@@ -263,12 +320,25 @@ const FlickFlirtSwipe = () => {
                                                 </View>
                                             )}
                                         />
-                                        {/* Reset Preferences if they want to start fresh after seeing matches */}
-                                        <AkcruButtons.XlLrgButton
-                                            btnname="Go To Start"
-                                            onPress={() => navigationB.navigate('FlickFlirtScreen')}
-                                            color={COLORS.PURPLE}
-                                        />
+                                        {!unlocked && hiddenCount > 0 && (
+                                            <View style={styles.unlockWrapper}>
+                                                <Text style={styles.unlockText}>
+                                                    {hiddenCount} more {hiddenCount > 1 ? 'matches' : 'match'} locked
+                                                </Text>
+                                                <AkcruButtons.XlLrgButton
+                                                    btnname={'Unlock Matches'}
+                                                    onPress={openModal}
+                                                    color={COLORS.PURPLE}
+                                                />
+                                            </View>
+                                        )}
+                                        <View style={styles.gotToStartWrapper}>
+                                            <AkcruButtons.XlLrgButton
+                                                btnname="Go To Start"
+                                                onPress={() => navigationB.navigate('FlickFlirtScreen')}
+                                                color={COLORS.PURPLE}
+                                            />
+                                        </View>
                                     </>
                                 ) : (
                                     <View style={{alignItems: 'center'}}>
@@ -303,6 +373,43 @@ const FlickFlirtSwipe = () => {
                     )}
                 </SafeAreaView>
             </ImageBackground>
+            <Modal
+                visible={modalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setModalVisible(false)}>
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Unlock All Matches</Text>
+
+                        <Text style={styles.modalLabel}>Choose an option:</Text>
+                        {unlockOptions.map(opt => (
+                            <TouchableOpacity
+                                key={opt.durationDays}
+                                style={[
+                                    styles.optionRow,
+                                    selectedOpt?.durationDays === opt.durationDays && styles.optionRowSelected,
+                                ]}
+                                onPress={() => setSelectedOpt(opt)}>
+                                <Text style={styles.optionText}>
+                                    {opt.durationDays} days — {opt.cost} AD
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+
+                        <View style={styles.modalButtonsRow}>
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.cancelBtn]}
+                                onPress={() => setModalVisible(false)}>
+                                <Text style={styles.modalBtnText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalBtn, styles.confirmBtn]} onPress={confirmUnlock}>
+                                <Text style={styles.modalBtnText}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };

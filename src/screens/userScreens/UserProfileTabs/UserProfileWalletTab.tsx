@@ -111,16 +111,20 @@ const UserProfileWalletTab = () => {
         setConfirmationModalVisible(true);
     };
 
-    // after fetching & sorting `snapshots` ascending by date...
-    // pick the *last* snapshot of each month
-    const monthlySnapshots = Object.values(
+    // 1) group into one-per-month
+    const allMonthly = Object.values(
         snapshots.reduce<Record<string, (typeof snapshots)[0]>>((acc, snap) => {
             const monthKey = snap.date.slice(0, 7); // "YYYY-MM"
-            // overwrite so the *latest* date in that month “wins”
-            acc[monthKey] = snap;
+            acc[monthKey] = snap; // keeps the last snapshot of that month
             return acc;
         }, {}),
     );
+
+    // 2) sort by calendar date
+    allMonthly.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // 3) keep only the most recent 6 months
+    const monthlySnapshots = allMonthly.slice(-6);
 
     // now build chartData off `monthlySnapshots` instead of `snapshots`
     const chartData = monthlySnapshots.map(s => {
@@ -129,7 +133,7 @@ const UserProfileWalletTab = () => {
         return {value: s.supply, label};
     });
 
-    // console.log('chartdata:', chartData);
+    console.log('chartdata:', chartData);
     // 3) Compute Y axis scale
     const max = Math.max(...chartData.map(d => d.value));
     const noOfSections = 5;

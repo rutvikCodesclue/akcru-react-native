@@ -85,4 +85,5 @@ const FlickFlirtMatchCard = ({
             </View>
         </View>
     );
-};export default FlickFlirtMatchCard;
+};
+export default FlickFlirtMatchCard;

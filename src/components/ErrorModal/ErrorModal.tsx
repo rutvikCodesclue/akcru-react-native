@@ -30,7 +30,7 @@ const ErrorModal = ({closeModal, message, iconcolor, iconname}: ErrorModalProps)
                     width: '75%',
                 }}>
                 <View>
-                    <Icon name={iconname} type="ionicon" size={80} color={iconcolor} />
+                    <Icon name="alert-circle" type="ionicon" size={80} color={iconcolor} />
                 </View>
                 <Text
                     style={{
