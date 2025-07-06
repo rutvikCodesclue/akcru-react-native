@@ -11,9 +11,26 @@ import useAuthStore from '../../stores/auth.store';
 import {getMyNotifications} from '../../lib/api/notify.lib';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {UseTabMenu} from '../../context/TabContext';
+import {getUserWallet} from '../../lib/api/wallet.lib';
 
-const Header = ({ searchScreen = 'SearchMovieScreen' }) => {
+const Header = ({searchScreen = 'SearchMovieScreen'}) => {
     const {user} = useAuthStore();
+    const isFocused = useIsFocused();
+    const walletBalance = useAuthStore(s => s.walletBalance);
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+
+    useEffect(() => {
+        if (!isFocused) {
+            return;
+        }
+        getUserWallet()
+            .then(b => {
+                if (b !== undefined) {
+                    setWalletBalance(b);
+                }
+            })
+            .catch(e => console.error('wallet fetch failed', e));
+    }, [isFocused, setWalletBalance]);
 
     const {
         refetchReadNotifications,
@@ -29,7 +46,6 @@ const Header = ({ searchScreen = 'SearchMovieScreen' }) => {
 
     const [unreadCount, setUnreadCount] = useState('');
 
-    const isFocused = useIsFocused();
     const pollingInterval = useRef<NodeJS.Timeout | null>(null);
     const appState = useRef(AppState.currentState); // Track the app state (active, background, etc.)
 
@@ -175,7 +191,7 @@ const Header = ({ searchScreen = 'SearchMovieScreen' }) => {
                             resizeMode="contain"
                         />
                     </View>
-                    <Text style={{...FONTS.Title1}}>{user?.adAmount ?? 0}</Text>
+                    <Text style={{...FONTS.Title1}}>{walletBalance ?? '0'}</Text>
                 </View>
             </View>
         </View>

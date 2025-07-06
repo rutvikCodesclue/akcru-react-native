@@ -10,7 +10,7 @@ import {
     Pressable,
 } from 'react-native';
 import styles from './styles';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Header from '../../../components/header';
 import AkcruLevels from '../../../components/akcruBadges';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -27,6 +27,10 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import BackButton from '../../../components/General/backbutton';
 
+import {getUserWallet} from '../../../lib/api/wallet.lib';
+import useAuthStore from '../../../stores/auth.store';
+import {useIsFocused} from '@react-navigation/native';
+
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
 
 type ViewUserDetailScreenRouteProp = RouteProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
@@ -39,6 +43,22 @@ type Props = {
 const ViewUserDetailScreen = ({route, navigation}: Props) => {
     const userID: string | undefined = route.params?.userID ?? null;
     const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
+
+    const isFocused = useIsFocused();
+    const [balance, setBalance] = useState<number>(0);
+
+    useEffect(() => {
+        if (!isFocused) {
+            return;
+        }
+        getUserWallet()
+            .then(b => {
+                // b is string | undefined
+                const n = b != null ? Number(b) : 0;
+                setBalance(n);
+            })
+            .catch(console.error);
+    }, [isFocused]);
 
     const toggleAvatarModal = () => {
         setAvatarModalVisible(!isAvatarModalVisible);
@@ -158,7 +178,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             </View>
                             <View style={{flexDirection: 'row', marginVertical: 5}}>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>Akcru Dollars Earned: </Text>
-                                <Text style={{...FONTS.Title2}}>{user?.adAmount}</Text>
+                                <Text style={{...FONTS.Title2}}>{balance}</Text>
                             </View>
                             <View style={{flexDirection: 'row'}}>
                                 <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE}}>CRU Name: </Text>

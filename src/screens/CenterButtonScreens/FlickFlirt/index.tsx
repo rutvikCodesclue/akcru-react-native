@@ -83,7 +83,6 @@ const FlickFlirtScreen = () => {
                         style={{position: 'absolute', top: 0, left: 0, right: 0, height: SIZES.ScreenHeight}}
                     />
                     <Header />
-                    <BackButton navigation={navigation} />
 
                     <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.60}}>
                         <View style={styles.textcontainer}>

@@ -25,10 +25,45 @@ export const getMatches = async (): Promise<MatchesResponse> => {
 };
 
 // unlock for a given duration
-export const unlockMatches = async (durationDays: number): Promise<MatchesResponse> => {
+// export const unlockMatches = async (durationDays: number): Promise<MatchesResponse> => {
+//     const res = await API.get<MatchesResponse>('/v1/flickflirt/matches', {
+//         params: {unlock: true, durationDays},
+//         validateStatus: () => true,
+//     });
+//     return res.data;
+// };
+
+export async function unlockMatches(durationDays: number): Promise<MatchesResponse> {
     const res = await API.get<MatchesResponse>('/v1/flickflirt/matches', {
         params: {unlock: true, durationDays},
+        // allow 402 through so we can handle it below
         validateStatus: () => true,
     });
+
+    // 402: insufficient funds
+    if (res.status === 402) {
+        return {
+            success: false,
+            matches: [],
+            hiddenCount: 0,
+            unlocked: false,
+            unlockOptions: res.data?.unlockOptions ?? [],
+            message: res.data?.message ?? 'Need AD to unlock',
+        };
+    }
+
+    // any other non-200 → error
+    if (res.status !== 200 || !res.data.success) {
+        return {
+            success: false,
+            matches: [],
+            hiddenCount: 0,
+            unlocked: false,
+            unlockOptions: res.data?.unlockOptions ?? [],
+            message: res.data?.message ?? 'Unable to unlock matches',
+        };
+    }
+
+    // 200 + success
     return res.data;
-};
+}

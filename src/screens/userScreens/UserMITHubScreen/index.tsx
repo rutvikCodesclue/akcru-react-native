@@ -2,7 +2,6 @@ import {
     Text,
     View,
     ScrollView,
-    ImageBackground,
     TouchableWithoutFeedback,
     TouchableOpacity,
     Image,
@@ -11,19 +10,18 @@ import {
     ViewStyle,
     TextStyle,
     PressableAndroidRippleConfig,
-    Pressable,
     useWindowDimensions,
     ActivityIndicator,
+    Alert,
+    Modal,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
-import {MITHubList} from '../../../components/MITHubComps';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import {DIGITAL_PASS} from '../../../../assets/constants/Mockusers';
 import {Icon, color} from '@rneui/base';
-import {Route, RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {Route, RouteProp, useFocusEffect} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -34,10 +32,10 @@ import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from '
 import MITReceived from '../UserMITHubTabs/MITReceived';
 import MITSent from '../UserMITHubTabs/MITSent';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import AkcruButtons from '../../../components/akcruButtons';
 import BackButton from '../../../components/General/backbutton';
 import {IChatUser} from '../../../../types';
 import {getUsers} from '../../../lib/api/rooms.lib';
+import { getMitTiers, MitTier, purchaseMIT } from '../../../lib/api/mit.lib';
 
 type UserMITHubScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserMITHubScreen'>;
 
@@ -78,6 +76,46 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
             };
         }, []),
     );
+
+    // MIT purchase flow
+    const [tiers, setTiers] = useState<MitTier[]>([]);
+    const [tierModalVisible, setTierModalVis] = useState(false);
+    const [confirmVisible, setConfirmVis] = useState(false);
+    const [successVisible, setSuccessVis] = useState(false);
+    const [selectedTier, setSelectedTier] = useState<MitTier | null>(null);
+
+    // load MIT tiers on mount
+    useEffect(() => {
+        getMitTiers().then(setTiers);
+    }, []);
+
+    // tap “Buy Movie Invite Tickets”
+    const onBuyPress = () => {
+        if (tiers.length === 0) {
+            return Alert.alert('No bundles available');
+        }
+        setSelectedTier(tiers[0]);
+        setTierModalVis(true);
+    };
+
+    const onConfirmTier = () => {
+        setTierModalVis(false);
+        setConfirmVis(true);
+    };
+
+    const onPurchase = async () => {
+        setConfirmVis(false);
+        if (!selectedTier) {
+            return;
+        }
+        const resp = await purchaseMIT(selectedTier.quantity);
+        if (!resp.success) {
+            return Alert.alert('Purchase failed', resp.message || '');
+        }
+        await hydrateUser();
+        setSuccessVis(true);
+        setTimeout(() => setSuccessVis(false), 2500);
+    };
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -220,10 +258,18 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                             </TouchableWithoutFeedback>
                         </View>
                     </View>
-                    <View style={{}}>
+                    <View>
                         <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
                             You have {user?.MITCount} Movie Invites Tickets left
                         </Text>
+                        <TouchableOpacity
+                            onPress={onBuyPress}
+                            style={{alignItems: 'center', marginTop: 10, marginBottom: 10}}>
+                            <View style={styles.MITbutton}>
+                                <Image source={imageindex.MITticket} style={{marginRight: 10}} />
+                                <Text style={styles.buttonText}>Buy Movie Invite Tickets</Text>
+                            </View>
+                        </TouchableOpacity>
                         <View style={{flex: 1}}>
                             <TabView
                                 navigationState={{index, routes}}
@@ -245,6 +291,67 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                     </View>
                 </ScrollView>
             </SafeAreaView>
+            {/* Tier Selection Modal */}
+            <Modal transparent visible={tierModalVisible} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Select bundle</Text>
+                        {tiers.map(t => (
+                            <TouchableOpacity
+                                key={t.quantity}
+                                style={[
+                                    styles.optionRow,
+                                    selectedTier?.quantity === t.quantity && styles.optionRowSelected,
+                                ]}
+                                onPress={() => setSelectedTier(t)}>
+                                <Text style={styles.optionText}>
+                                    {t.quantity} for {t.cost} AD
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                        <View style={styles.modalButtonsRow}>
+                            <TouchableOpacity
+                                onPress={() => setTierModalVis(false)}
+                                style={[styles.modalBtn, styles.cancelBtn]}>
+                                <Text style={styles.modalBtnText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onConfirmTier} style={[styles.modalBtn, styles.confirmBtn]}>
+                                <Text style={styles.modalBtnText}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Confirm Purchase Modal */}
+            <Modal transparent visible={confirmVisible} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>
+                            Purchase {selectedTier?.quantity} Ticket(s) for {selectedTier?.cost} AD?
+                        </Text>
+                        <View style={styles.modalButtonsRow}>
+                            <TouchableOpacity
+                                onPress={() => setConfirmVis(false)}
+                                style={[styles.modalBtn, styles.cancelBtn]}>
+                                <Text style={styles.modalBtnText}>No</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={onPurchase} style={[styles.modalBtn, styles.confirmBtn]}>
+                                <Text style={styles.modalBtnText}>Yes</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Success Overlay */}
+            <Modal transparent visible={successVisible} animationType="fade">
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>🎉 Purchased!</Text>
+                    </View>
+                </View>
+            </Modal>
         </TabContainer>
     );
 };

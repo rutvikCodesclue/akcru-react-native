@@ -1,6 +1,23 @@
 import {API} from '../../clients/api.client';
 import axios from 'axios';
 
+export const getUserWallet = async (): Promise<string | undefined> => {
+    try {
+        const {data} = await API.get<{
+            success: boolean;
+            balance: string;
+        }>('/v1/wallet/me');
+
+        if (!data.success) {
+            return undefined;
+        }
+        return data.balance;
+    } catch (err) {
+        console.error('[wallet.lib] getUserWallet error:', err);
+        return undefined;
+    }
+};
+
 export const getTotalSupplyOfAD = async (): Promise<Number | undefined> => {
     try {
         const {data} = await API.get('/v1/wallet/total-supply');

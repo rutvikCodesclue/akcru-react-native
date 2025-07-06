@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {IMITInvite} from '../../../types';
 import {API} from '../../clients/api.client';
 
@@ -72,23 +73,6 @@ export const getMoreMITs = async (params: {count: number}): Promise<number | und
         console.error(error);
     }
 };
-
-// export const createAMITInvite = async (params: {
-//     movieId: string;
-//     username: string;
-//     startDate: string;
-//     timezone: string;
-// }): Promise<IMITInvite | undefined> => {
-//     try {
-//         const {movieId, username, startDate, timezone} = params;
-//         const {data} = await API.post('/v1/mit/invite/create', {movieId, username, startDate, timezone});
-//         console.log('data', data);
-
-//         return data.invite;
-//     } catch (error) {
-//         console.error(error);
-//     }
-// };
 
 export const createAMITInvite = async (params: {
     movieId: string;
@@ -201,5 +185,75 @@ export const updateMITHostId = async (
         return data.success;
     } catch (error) {
         console.error(error);
+    }
+};
+
+/** A single MIT bundle option */
+export interface MitTier {
+    quantity: number;
+    cost: number;
+}
+
+/** Response for fetching tiers */
+export interface GetMitTiersResponse {
+    success: boolean;
+    tiers: MitTier[];
+    message?: string;
+}
+
+/** Purchase response */
+export interface PurchaseMitResponse {
+    success: boolean;
+    message?: string;
+}
+
+/**
+ * 1) Fetch all available MIT bundles
+ */
+export const getMitTiers = async (): Promise<MitTier[]> => {
+    try {
+        const {data} = await API.get<GetMitTiersResponse>('/v1/mit/tiers');
+        return data.success ? data.tiers : [];
+    } catch (err) {
+        console.error('[wallet.lib] getMitTiers', err);
+        return [];
+    }
+};
+
+/**
+ * 2) Purchase a given quantity of MITs
+ *    handles both 400 (invalid tier) and 402 (insufficient AD)
+ */
+export const purchaseMIT = async (quantity: number): Promise<PurchaseMitResponse> => {
+    try {
+        const {data, status} = await API.post<PurchaseMitResponse>(
+            '/v1/mit/purchase',
+            {
+                amount: quantity,
+            },
+            {
+                // allow 402 so we can read data.message
+                validateStatus: () => true,
+            },
+        );
+
+        if (status === 402) {
+            return {success: false, message: data.message || 'Not enough AD'};
+        }
+
+        if (!data.success) {
+            return {success: false, message: data.message || 'Could not purchase'};
+        }
+
+        return {success: true};
+    } catch (err) {
+        if (axios.isAxiosError(err) && err.response) {
+            return {
+                success: false,
+                message: err.response.data?.message || 'Network error',
+            };
+        }
+        console.error('[wallet.lib] purchaseMIT', err);
+        return {success: false, message: 'Unexpected error'};
     }
 };

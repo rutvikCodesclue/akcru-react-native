@@ -62,6 +62,8 @@ import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlir
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
+import AdminGrantADScreen from '../screens/adminScreens/grantAD';
+import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -137,6 +139,8 @@ export type NoBottomTabStackParams = {
     };
     CruInviteDecline: any;
     CruInviteAccept: any;
+    AdminGrantADScreen: any;
+    AdminWalletSearch: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -624,6 +628,18 @@ export default function NoBottomStack() {
                 options={() => ({
                     headerShown: false,
                 })}
+            />
+            <NoBottom.Screen
+                name="AdminGrantADScreen"
+                component={AdminGrantADScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="AdminWalletSearch"
+                component={AdminWalletSearch}
+                options={() => ({headerShown: false})}
             />
         </NoBottom.Navigator>
     );

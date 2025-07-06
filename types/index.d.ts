@@ -46,6 +46,7 @@ interface IUserProfile {
     isAdmin: boolean;
     isArchetypeMatch: boolean;
     matchLabel: string;
+    canGrantAD: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';

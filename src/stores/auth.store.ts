@@ -10,10 +10,14 @@ import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
 import * as RootNavigation from '../util/RootNavigation';
 import messaging from '@react-native-firebase/messaging';
+import {getUserWallet} from '../lib/api/wallet.lib';
 
 interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
+    walletBalance: string | null;
+    getWalletBalance: () => string | null;
+    setWalletBalance: (balance: string | null) => void;
     getUser: () => IUserProfile | null;
     getSession: () => Session | null;
     loginWithEmail: (email: string, password: string) => Promise<{session: Session | null; user: IUserProfile | null}>;
@@ -28,57 +32,60 @@ const useAuthStore = create<IAuthStore>()(
         (set, get) => ({
             session: null,
             user: null,
+            walletBalance: null,
+            getWalletBalance: () => get().walletBalance,
+            setWalletBalance: balance => set({walletBalance: balance}),
             loginWithEmail: async (email: string, password: string) => {
-            try {
-                const loginResponse = await API.post('/v1/auth/login', {
-                    type: 'email',
-                    email: email,
-                    password: password,
-                });
+                try {
+                    const loginResponse = await API.post('/v1/auth/login', {
+                        type: 'email',
+                        email: email,
+                        password: password,
+                    });
 
-                if (loginResponse.status !== 200) {
+                    if (loginResponse.status !== 200) {
+                        return {session: null, user: null};
+                    }
+
+                    const data = loginResponse.data as ILoginResponse;
+                    const session = data.session;
+                    const user = data.user;
+
+                    set({session: data.session, user: data.user});
+
+                    return {session, user};
+                } catch (error) {
+                    console.error('Login failed:', error);
                     return {session: null, user: null};
                 }
-
-                const data = loginResponse.data as ILoginResponse;
-                const session = data.session;
-                const user = data.user;
-
-                set({session: data.session, user: data.user});
-
-                return {session, user};
-            } catch (error) {
-                console.error('Login failed:', error);
-                return { session: null, user: null };
-            }
             },
 
             signUpWithEmail: async (email: string, password: string) => {
-            try {
-                const signUpResponse = await API.post('/v1/auth/signup', {
-                    type: 'email',
-                    email: email,
-                    password: password,
-                });
+                try {
+                    const signUpResponse = await API.post('/v1/auth/signup', {
+                        type: 'email',
+                        email: email,
+                        password: password,
+                    });
 
-                if (signUpResponse.status !== 200) {
-                    return {response: signUpResponse, user: null};
+                    if (signUpResponse.status !== 200) {
+                        return {response: signUpResponse, user: null};
+                    }
+
+                    const user = signUpResponse.data.user as IUserProfile;
+
+                    set({user});
+
+                    await get().loginWithEmail(email, password);
+
+                    await get().hydrateAuth();
+                    await get().hydrateUser();
+
+                    return {user, response: signUpResponse};
+                } catch (error) {
+                    console.error('Sign-up failed:', error);
+                    return {response: {} as AxiosResponse, user: null};
                 }
-
-                const user = signUpResponse.data.user as IUserProfile;
-
-                set({user});
-
-                await get().loginWithEmail(email, password);
-
-                await get().hydrateAuth();
-                await get().hydrateUser();
-
-                return {user, response: signUpResponse};
-            } catch (error) {
-                console.error('Sign-up failed:', error);
-                return { response: {} as AxiosResponse, user: null };
-            }
             },
 
             logout: async () => {
@@ -86,9 +93,9 @@ const useAuthStore = create<IAuthStore>()(
                     const deviceToken = await messaging().getToken();
                     const user = await get().getUser();
                     console.log('Token deregistering:', deviceToken, 'for user:', user?.id);
-                
+
                     if (user?.id && deviceToken) {
-                        await API.post(`/v1/auth/device-token/deregister`, {
+                        await API.post('/v1/auth/device-token/deregister', {
                             userId: user.id,
                             deviceToken: deviceToken,
                         });
@@ -105,11 +112,11 @@ const useAuthStore = create<IAuthStore>()(
 
                     await AsyncStorage.removeItem('deviceToken');
                     set({session: null, user: null});
-            
+
                     messaging().onMessage(() => null);
                     messaging().onNotificationOpenedApp(() => null);
-                    messaging().setBackgroundMessageHandler(() => null);
-            
+                    messaging().setBackgroundMessageHandler(async () => null);
+
                     return true;
                 } catch (error) {
                     console.error('Logout failed:', error);
@@ -119,10 +126,9 @@ const useAuthStore = create<IAuthStore>()(
 
             getUser: (): IUserProfile | null => {
                 try {
-                    
                     return get().user;
                 } catch (error) {
-                    console.error("Error fetching user:", error);
+                    console.error('Error fetching user:', error);
                     return null;
                 }
             },
@@ -130,53 +136,56 @@ const useAuthStore = create<IAuthStore>()(
                 try {
                     return get().session;
                 } catch (error) {
-                    console.error("Error fetching session:", error);
+                    console.error('Error fetching session:', error);
                     return null;
                 }
             },
             hydrateAuth: async () => {
-            try {
-                // Check network connectivity
-                const networkState = await NetInfo.fetch();
+                try {
+                    // Check network connectivity
+                    const networkState = await NetInfo.fetch();
 
-                if (!networkState.isInternetReachable) {
-                    console.log('No internet connection. Sticking to the current screen.');
-                    // Don't navigate to sign-in, return early
-                    return;
-                }
+                    if (!networkState.isInternetReachable) {
+                        console.log('No internet connection. Sticking to the current screen.');
+                        // Don't navigate to sign-in, return early
+                        return;
+                    }
 
-                const currentSession = get().session;
-                const timeNow = Math.round(Date.now() / 1000);
+                    const currentSession = get().session;
+                    const timeNow = Math.round(Date.now() / 1000);
 
-                if (currentSession && currentSession?.expires_at) {
-                    const hasSessionExpired = timeNow > currentSession.expires_at;
+                    if (currentSession && currentSession?.expires_at) {
+                        const hasSessionExpired = timeNow > currentSession.expires_at;
 
-                    if (currentSession !== null && !hasSessionExpired) {
-                        const refreshedSession = await supabaseAuth.refreshSession(currentSession);
-                        set({session: refreshedSession.data.session});
+                        if (currentSession !== null && !hasSessionExpired) {
+                            const refreshedSession = await supabaseAuth.refreshSession(currentSession);
+                            set({session: refreshedSession.data.session});
+                        } else {
+                            await get().logout();
+                            RootNavigation.navigate('Signin', {});
+                        }
                     } else {
-                        await get().logout();
                         RootNavigation.navigate('Signin', {});
                     }
-                } else {
-                    RootNavigation.navigate('Signin', {});
+                } catch (error) {
+                    console.error('Error during session hydration:', error);
                 }
-            } catch (error) {
-                console.error('Error during session hydration:', error);
-            }
             },
             hydrateUser: async () => {
-            try {
-                const userResponse = await getMe();
+                try {
+                    const userResponse = await getMe();
 
-                if (userResponse === undefined) {
-                    return;
+                    if (userResponse === undefined) {
+                        return;
+                    }
+
+                    set({user: userResponse});
+                    // fetch wallet balance
+                    const balance = await getUserWallet();
+                    set({walletBalance: balance ?? null});
+                } catch (error) {
+                    console.error('Error during user hydration:', error);
                 }
-
-                set({user: userResponse});
-            } catch (error) {
-                console.error('Error during user hydration:', error);
-            }
             },
         }),
         {

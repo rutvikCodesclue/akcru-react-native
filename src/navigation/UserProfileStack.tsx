@@ -23,6 +23,8 @@ import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserPro
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import {ChatList} from '../screens/ChatList';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
+import AdminGrantADScreen from '../screens/adminScreens/grantAD';
+import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 
 
 export type UserProfileStackParams = {
@@ -55,6 +57,8 @@ export type UserProfileStackParams = {
     ViewUserFollowList: any;
     ViewUserScreen: any;
     ChatList: any;
+    AdminGrantADScreen: any;
+    AdminWalletSearch: any;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -235,6 +239,18 @@ export function UserProfileStack() {
                 options={() => ({
                     headerShown: false,
                 })}
+            />
+            <UserProfile.Screen
+                name="AdminGrantADScreen"
+                component={AdminGrantADScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <UserProfile.Screen
+                name="AdminWalletSearch"
+                component={AdminWalletSearch}
+                options={() => ({headerShown: false})}
             />
         </UserProfile.Navigator>
     );

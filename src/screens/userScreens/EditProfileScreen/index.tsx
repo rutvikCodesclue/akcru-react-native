@@ -47,6 +47,7 @@ export default function EditProfile({session}: {session: Session}) {
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const user = useAuthStore(state => state.user);
+    const canGrantAD = useAuthStore(state => state.user?.canGrantAD);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
     const {hydrateUser} = useAuthStore();
@@ -297,12 +298,11 @@ export default function EditProfile({session}: {session: Session}) {
     return (
         <TabContainer>
             <View>
-         
                 <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
-                    
+
                     <View style={styles.container}>
                         <BackButton navigation={navigation} />
                         <View>
@@ -647,7 +647,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             justifyContent: 'space-between',
                                             marginBottom: 20,
                                         }}>
-                                            <Pressable onPress={() => setDescriptionModalVisible(false)}>
+                                        <Pressable onPress={() => setDescriptionModalVisible(false)}>
                                             <Icon name="close-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
                                         </Pressable>
                                         <Pressable onPress={handleChangeDescription}>
@@ -866,8 +866,6 @@ export default function EditProfile({session}: {session: Session}) {
                             />
                         </Modal>
 
-                       
-
                         <View style={{alignItems: 'center', marginVertical: 20}}>
                             <TouchableOpacity onPress={() => navigation2.navigate('AccountSettings')}>
                                 <Text style={styles.settingslabel}>Account Settings</Text>
@@ -906,6 +904,11 @@ export default function EditProfile({session}: {session: Session}) {
                                 }}>
                                 <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
                             </TouchableOpacity>
+                            {canGrantAD && (
+                                <TouchableOpacity onPress={() => navigation2.navigate('AdminGrantADScreen')}>
+                                    <Text style={[styles.settingslabel, styles.mt20]}>System Wallet</Text>
+                                </TouchableOpacity>
+                            )}
                         </View>
                         <Text style={{...FONTS.Title2White, textAlign: 'center', fontSize: 12}}>
                             version {appVersion[0].version}
@@ -937,34 +940,3 @@ export default function EditProfile({session}: {session: Session}) {
         </TabContainer>
     );
 }
-
-const stylescustom = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#F5FCFF',
-    },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background for modal
-    },
-    modalContent: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        elevation: 5, // Android only: elevation for shadow effect
-        shadowColor: '#000', // iOS only: shadow color for shadow effect
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-    },
-    spinnerContainer: {
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1, // Ensure spinner is above modal content
-    },
-});

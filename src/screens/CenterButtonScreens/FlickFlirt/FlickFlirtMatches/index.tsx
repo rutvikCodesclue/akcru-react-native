@@ -89,7 +89,7 @@ const FlickFlirtMatches = () => {
         setModalVisible(false);
 
         try {
-            const data = await unlockMatches(selectedOpt.durationDays);
+            const data = await unlockMatches(selectedOpt!.durationDays);
             if (!data.success) {
                 Alert.alert('Unable to Unlock', data.message);
                 return;

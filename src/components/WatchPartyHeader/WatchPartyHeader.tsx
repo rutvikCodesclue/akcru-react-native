@@ -1,12 +1,29 @@
 import {View, Text, Image} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import useAuthStore from '../../stores/auth.store';
+import {getUserWallet} from '../../lib/api/wallet.lib';
+import {useIsFocused} from '@react-navigation/native';
 
 const WatchPartyHeader = () => {
-    const {user} = useAuthStore();
+    const isFocused = useIsFocused();
+    const walletBalance = useAuthStore(s => s.walletBalance);
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+
+    useEffect(() => {
+        if (!isFocused) {
+            return;
+        }
+        getUserWallet()
+            .then(b => {
+                if (b !== undefined) {
+                    setWalletBalance(b);
+                }
+            })
+            .catch(e => console.error('wallet fetch failed', e));
+    }, [isFocused, setWalletBalance]);
 
     return (
         <View
@@ -35,7 +52,7 @@ const WatchPartyHeader = () => {
                             resizeMode="contain"
                         />
                     </View>
-                    <Text style={{...FONTS.Title1}}>{user?.adAmount ?? 0}</Text>
+                    <Text style={{...FONTS.Title1}}>{walletBalance ?? '0'}</Text>
                 </View>
             </View>
         </View>
