@@ -26,9 +26,11 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>localhost</key>
+			<key>http://13.60.26.211:3000</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
