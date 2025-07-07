@@ -1,77 +1,141 @@
+// watchtime.store.ts
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {create} from 'zustand';
 import {persist} from 'zustand/middleware';
-import {updateUserWatchTime} from '../lib/api/user.lib';
 import useAuthStore from './auth.store';
-import {fetchWatchTime, updateWatchTime as syncWatchTimeWithBackend} from '../lib/api/watchtime.lib';
+import {
+    fetchWatchTime,
+    updateWatchTime as syncWatchTimeWithBackend,
+    awardAD,
+    fetchRewardInterval,
+} from '../lib/api/watchtime.lib';
 
 interface IWatchTimeState {
-    watchTime: number;
+    // COUNTERS
+    watchTime: number; // for resume/backend‐sync
+    rewardTime: number; // for AD awards
+
     timer: NodeJS.Timer | null;
-    lastPlaybackPositions: {[id: string]: {position: number; isEpisode: boolean}};
+
+    // PLAYBACK POSITIONS
+    lastPlaybackPositions: {
+        [id: string]: {position: number; isEpisode: boolean};
+    };
+
+    // ACTIONS
     startTimer: () => void;
     pauseTimer: () => void;
     resetTimer: () => void;
+
     setLastPlaybackPosition: (id: string, position: number, isEpisode: boolean) => void;
     getLastPlaybackPosition: (id: string, isEpisode: boolean) => Promise<number>;
+
     handleCountWatchTime: () => Promise<void>;
     syncWatchTime: () => Promise<void>;
+    // track when we last sent an AD reward
+    lastADTimestamp: number;
+    rewardInterval: number;
+    loadRewardInterval: () => Promise<void>;
 }
+
+// INTERVAL CONSTANTS
+const RESUME_SYNC_INTERVAL = 30; // seconds between automatic resume‐syncs
+// const REWARD_INTERVAL = 216; // seconds between AD awards
 
 const useWatchTimeStore = create<IWatchTimeState>()(
     persist(
         (set, get) => ({
             watchTime: 0,
+            rewardTime: 0,
             timer: null,
             lastPlaybackPositions: {},
-            setLastPlaybackPosition: (id: string, position: number, isEpisode: boolean) => {
-                set(state => ({
+            lastADTimestamp: 0,
+            rewardInterval: 216, // initial fallback
+            loadRewardInterval: async () => {
+                // one‐time fetch
+                try {
+                    const interval = await fetchRewardInterval();
+                    set({rewardInterval: interval});
+                } catch (err) {
+                    console.error(err);
+                }
+            },
+
+            /** Save a position to state & AsyncStorage immediately on onProgress */
+            setLastPlaybackPosition: (id, position, isEpisode) => {
+                set(s => ({
                     lastPlaybackPositions: {
-                        ...state.lastPlaybackPositions,
+                        ...s.lastPlaybackPositions,
                         [id]: {position, isEpisode},
                     },
                 }));
                 AsyncStorage.setItem(`watchTime_${id}`, JSON.stringify({position, isEpisode}));
             },
-            getLastPlaybackPosition: async (id: string, isEpisode: boolean): Promise<number> => {
-                const asyncStoragePosition = await AsyncStorage.getItem(`watchTime_${id}`);
-                let lastPlaybackPosition = asyncStoragePosition ? JSON.parse(asyncStoragePosition).position : 0;
 
-                if (lastPlaybackPosition === 0) {
-                    lastPlaybackPosition = await fetchWatchTime(id, isEpisode);
-                    console.log(
-                        `getLastPlaybackPosition - log from store - Fetched position from backend: ${lastPlaybackPosition}`,
-                    );
-                    if (lastPlaybackPosition > 0) {
-                        set(state => ({
+            /** Retrieve from AsyncStorage or backend if none saved locally */
+            getLastPlaybackPosition: async (id, isEpisode) => {
+                const raw = await AsyncStorage.getItem(`watchTime_${id}`);
+                let lastPos = raw ? JSON.parse(raw).position : 0;
+
+                if (lastPos === 0) {
+                    lastPos = await fetchWatchTime(id, isEpisode);
+                    console.log(`Fetched resume position from backend: ${lastPos}`);
+                    if (lastPos > 0) {
+                        set(s => ({
                             lastPlaybackPositions: {
-                                ...state.lastPlaybackPositions,
-                                [id]: {position: lastPlaybackPosition, isEpisode},
+                                ...s.lastPlaybackPositions,
+                                [id]: {position: lastPos, isEpisode},
                             },
                         }));
-
-                        AsyncStorage.setItem(
-                            `watchTime_${id}`,
-                            JSON.stringify({position: lastPlaybackPosition, isEpisode}),
-                        );
+                        AsyncStorage.setItem(`watchTime_${id}`, JSON.stringify({position: lastPos, isEpisode}));
                     }
                 }
-                return lastPlaybackPosition;
+                return lastPos;
             },
+
+            /** Starts the second-by-second timer driving both resume-sync & reward */
             startTimer: () => {
                 const interval = setInterval(async () => {
-                    set(state => ({watchTime: state.watchTime + 1}));
-                    const {watchTime} = get();
-                    const POINTS_INTERVAL = 30;
-                    if (watchTime >= POINTS_INTERVAL) {
+                    // bump both counters
+                    set(s => ({
+                        watchTime: s.watchTime + 1,
+                        rewardTime: s.rewardTime + 1,
+                    }));
+                    const {watchTime, rewardTime, lastPlaybackPositions, lastADTimestamp, rewardInterval} = get();
+                    const now = Date.now();
+
+                    // ——— every 30s: persist positions to backend ———
+                    if (watchTime >= RESUME_SYNC_INTERVAL) {
                         set({watchTime: 0});
-                        // console.log('<== send user AD for watch time ==>');
-                        await updateUserWatchTime({});
-                        await useAuthStore.getState().hydrateUser();
+                        for (const [id, {position, isEpisode}] of Object.entries(lastPlaybackPositions)) {
+                            try {
+                                const success = await syncWatchTimeWithBackend(id, position, isEpisode);
+                                if (success) {
+                                    console.log(`Auto-synced resume for ${isEpisode ? 'episode' : 'movie'} ${id}`);
+                                }
+                            } catch (err) {
+                                console.error('Resume sync error:', err);
+                            }
+                        }
+                    }
+
+                    // ——— every 216s: award 1 AD ———
+                    if (rewardTime >= rewardInterval && now - lastADTimestamp >= rewardInterval * 1000) {
+                        set({rewardTime: 0, lastADTimestamp: now});
+                        try {
+                            await awardAD();
+                            await useAuthStore.getState().hydrateUser();
+                        } catch (err) {
+                            console.error('AD reward error:', err);
+                        }
                     }
                 }, 1000);
+
                 set({timer: interval});
             },
+
+            /** Stops the interval */
             pauseTimer: () => {
                 const {timer} = get();
                 if (timer) {
@@ -79,36 +143,40 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                     set({timer: null});
                 }
             },
+
+            /** Stops & resets both counters */
             resetTimer: () => {
                 const {timer} = get();
-                if (timer) {
-                    clearInterval(timer);
-                    set({timer: null, watchTime: 0});
-                }
+                if (timer) clearInterval(timer);
+                set({timer: null, watchTime: 0, rewardTime: 0});
             },
+
+            /** Manual trigger for AD award (if you ever need it) */
             handleCountWatchTime: async () => {
-                const {watchTime} = get();
-                const POINTS_INTERVAL = 30;
-                if (watchTime >= POINTS_INTERVAL) {
-                    set({watchTime: 0});
-                    // console.log('<== send user AD for watch time ==>');
-                    await updateUserWatchTime({});
-                    await useAuthStore.getState().hydrateUser();
+                const {rewardTime} = get();
+                if (rewardTime >= REWARD_INTERVAL) {
+                    set({rewardTime: 0});
+                    try {
+                        await awardAD();
+                        await useAuthStore.getState().hydrateUser();
+                    } catch (err) {
+                        console.error('AD reward error:', err);
+                    }
                 }
             },
+
+            /** Manual sync of all pending resume positions */
             syncWatchTime: async () => {
                 const {lastPlaybackPositions} = get();
                 for (const [id, {position, isEpisode}] of Object.entries(lastPlaybackPositions)) {
                     const success = await syncWatchTimeWithBackend(id, position, isEpisode);
                     if (success) {
-                        console.log(`Watch time for ${isEpisode ? 'episode' : 'movie'} ${id} synced successfully.`);
-
-                        set(state => {
-                            const updatedPositions = {...state.lastPlaybackPositions};
-                            delete updatedPositions[id];
-                            return {lastPlaybackPositions: updatedPositions};
+                        console.log(`Synced watchTime for ${isEpisode ? 'episode' : 'movie'} ${id} successfully.`);
+                        set(s => {
+                            const updated = {...s.lastPlaybackPositions};
+                            delete updated[id];
+                            return {lastPlaybackPositions: updated};
                         });
-
                         AsyncStorage.removeItem(`watchTime_${id}`);
                     }
                 }

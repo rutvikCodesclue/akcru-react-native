@@ -1,28 +1,6 @@
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
 
-// export const updateWatchTime = async (movieId: string, watchTime: number): Promise<boolean> => {
-//     await useAuthStore.getState().hydrateAuth();
-//     console.log('Updating watch time:', movieId, watchTime);
-//     try {
-//         const response = await API.put(`/v1/watchtime/${movieId}`, {watchTime});
-//         return response.data.success;
-//     } catch (error) {
-//         console.error('Error updating watch time:', error);
-//         return false;
-//     }
-// };
-
-// export const fetchWatchTime = async (movieId: string): Promise<number> => {
-//     await useAuthStore.getState().hydrateAuth();
-//     const {data} = await API.get<{success: boolean; watchTime?: number}>(`/v1/watchtime/${movieId}`);
-//     if (data.watchTime !== undefined) {
-//         return data.watchTime;
-//     } else {
-//         return 0;
-//     }
-// };
-
 export const updateWatchTime = async (id: string, watchTime: number, isEpisode: boolean = false): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     const endpoint = isEpisode ? `/v1/watchtime/episode/${id}` : `/v1/watchtime/movie/${id}`;
@@ -34,22 +12,6 @@ export const updateWatchTime = async (id: string, watchTime: number, isEpisode: 
         return false;
     }
 };
-
-// export const fetchWatchTime = async (id: string, isEpisode: boolean = false): Promise<number> => {
-//     await useAuthStore.getState().hydrateAuth();
-//     const endpoint = isEpisode ? `/v1/watchtime/episode/${id}` : `/v1/watchtime/movie/${id}`;
-//     try {
-//         const {data} = await API.get<{success: boolean; watchTime?: number}>(endpoint);
-//         if (data.watchTime !== undefined) {
-//             return data.watchTime;
-//         } else {
-//             return 0;
-//         }
-//     } catch (error) {
-//         console.error('Error fetching watch time:', error);
-//         return 0;
-//     }
-// };
 
 export const fetchWatchTime = async (id: string, isEpisode: boolean): Promise<number> => {
     await useAuthStore.getState().hydrateAuth();
@@ -67,3 +29,32 @@ export const fetchWatchTime = async (id: string, isEpisode: boolean): Promise<nu
     }
 };
 
+/**
+ * Award 1 AD to the user (debited from the System wallet).
+ * Hits your updateAUsersWatchTimeHandler endpoint.
+ */
+export const awardAD = async (): Promise<boolean> => {
+    // ensure auth token is fresh
+    await useAuthStore.getState().hydrateAuth();
+
+    try {
+        // no params—just call the AD awarding endpoint
+        const response = await API.put('/v1/watchtime/award');
+        return response.data.success;
+    } catch (error) {
+        console.error('Error awarding AD:', error);
+        return false;
+    }
+};
+
+export const fetchRewardInterval = async (): Promise<number> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.get<{success: boolean; rewardIntervalSeconds: number}>('/v1/watchtime/config');
+        return data.rewardIntervalSeconds;
+    } catch (err) {
+        console.error('Error fetching reward interval:', err);
+        // fallback to 216 if the call fails
+        return 216;
+    }
+};

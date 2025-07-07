@@ -13,6 +13,7 @@ import {LogBox} from 'react-native';
 import {NotificationNavigation} from './src/screens/userScreens/UserNotificationTabs/NotificationNavigation';
 import NoInternetAlert from './src/components/errorHandling/NoInternetAlert';
 import {useNetInfo} from '@react-native-community/netinfo';
+import useWatchTimeStore from './src/stores/watchTime.store';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -23,6 +24,11 @@ function App(): JSX.Element {
 
     const initialNotificationHandled = useRef(false);
     const { isInternetReachable: isConnected } = useNetInfo();
+
+    const loadRewardInterval = useWatchTimeStore(state => state.loadRewardInterval);
+    useEffect(() => {
+        loadRewardInterval();
+    }, [loadRewardInterval]);
 
     useEffect(() => {
         if (userId) {
