@@ -22,6 +22,9 @@ import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 10;
 
 const OnboardPhone = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -130,6 +133,10 @@ const OnboardPhone = () => {
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
+                            <View style={{width: '90%'}}>
+                                <Text style={{...FONTS.Title2}}>1/{TOTAL_STEPS}</Text>
+                                <ProgressBar currentStep={1} totalSteps={TOTAL_STEPS} style={styles.progress} />
+                            </View>
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Welcome to Akcru first things first, lets verify you through your mobile number below.
                             </Text>

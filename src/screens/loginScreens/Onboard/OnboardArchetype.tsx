@@ -15,7 +15,11 @@ import Video from 'react-native-video';
 import {updateUser} from '../../../lib/api/user.lib';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import LinearGradient from 'react-native-linear-gradient';
-import { getHelpVideoById } from '../../../lib/api/helpvideo.lib';
+import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 11;
+const CURRENT_STEP = 11;
 
 const OnboardArchetype = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -170,6 +174,16 @@ const OnboardArchetype = () => {
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
+                            <View style={{width: '90%'}}>
+                                <Text style={{...FONTS.Title2}}>
+                                    {CURRENT_STEP}/{TOTAL_STEPS}
+                                </Text>
+                                <ProgressBar
+                                    currentStep={CURRENT_STEP}
+                                    totalSteps={TOTAL_STEPS}
+                                    style={styles.progress}
+                                />
+                            </View>
                         </View>
 
                         <Text style={{...FONTS.Title2, textAlign: 'center', marginHorizontal: 10}}>
@@ -305,10 +319,10 @@ const OnboardArchetype = () => {
                             onLoad={handleVideoLoad}
                         />
                         {showSkip && (
-                        <TouchableOpacity style={styles.skipButton} onPress={handleSkipVideo}>
-                            <Text style={styles.skipButtonText}>Skip</Text>
-                        </TouchableOpacity>
-                    )}
+                            <TouchableOpacity style={styles.skipButton} onPress={handleSkipVideo}>
+                                <Text style={styles.skipButtonText}>Skip</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </Modal>
             </ImageBackground>

@@ -15,6 +15,10 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import LinearGradient from 'react-native-linear-gradient';
 import {ICru} from '../../../../types';
 import {searchCRUs, updateCRUInfo} from '../../../lib/api/cru.lib';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 11;
+const CURRENT_STEP = 7;
 
 const OnboardCruName = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -129,6 +133,16 @@ const OnboardCruName = () => {
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
+                            <View style={{width: '90%'}}>
+                                <Text style={{...FONTS.Title2}}>
+                                    {CURRENT_STEP}/{TOTAL_STEPS}
+                                </Text>
+                                <ProgressBar
+                                    currentStep={CURRENT_STEP}
+                                    totalSteps={TOTAL_STEPS}
+                                    style={styles.progress}
+                                />
+                            </View>
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>Now create a Cru name.</Text>
                         </View>
                         <View style={{alignItems: 'center', marginTop: 10}}>

@@ -14,6 +14,10 @@ import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
 import {searchForUsers, updateUser} from '../../../lib/api/user.lib';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 11;
+const CURRENT_STEP = 4;
 
 const OnboardUsername = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -62,7 +66,7 @@ const OnboardUsername = ({route}) => {
     const UserNameSet = async () => {
         if (loading) return; 
         setLoading(true);
-    
+
         try {
             const lowercaseUserName = userName.toLowerCase();
 
@@ -139,6 +143,16 @@ const OnboardUsername = ({route}) => {
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
+                            <View style={{width: '90%'}}>
+                                <Text style={{...FONTS.Title2}}>
+                                    {CURRENT_STEP}/{TOTAL_STEPS}
+                                </Text>
+                                <ProgressBar
+                                    currentStep={CURRENT_STEP}
+                                    totalSteps={TOTAL_STEPS}
+                                    style={styles.progress}
+                                />
+                            </View>
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>Now lets choose a Username.</Text>
                         </View>
                         <View style={{alignItems: 'center', marginTop: 10}}>
@@ -157,22 +171,22 @@ const OnboardUsername = ({route}) => {
                             </Text>
                         </View>
                         <View>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruButtons.LrgButton
-                                color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                btnname={'Next'}
-                                onPress={() => {
-                                    if (!loading) {
-                                        UserNameSet();
-                                    }
-                                }}
-                                disabled={!isFormComplete || loading}
-                            />
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.LrgButton
+                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                    btnname={'Next'}
+                                    onPress={() => {
+                                        if (!loading) {
+                                            UserNameSet();
+                                        }
+                                    }}
+                                    disabled={!isFormComplete || loading}
+                                />
+                            </View>
+                            {loading && (
+                                <ActivityIndicator size="large" color={COLORS.PURPLE} style={{marginTop: 10}} />
+                            )}
                         </View>
-                        {loading && (
-                            <ActivityIndicator size="large" color={COLORS.PURPLE} style={{marginTop: 10}} />
-                        )}
-                    </View>
 
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal

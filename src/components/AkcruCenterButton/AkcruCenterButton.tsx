@@ -14,7 +14,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
 
     const handlePressShop = () => {
-        navigation.navigate('PurchaseMITScreen');
+        navigation.navigate('AkcruButtonStack', {screen: 'PurchaseAdScreen'});
         toggleOpened();
         console.log('handlePressShop');
     };
@@ -50,7 +50,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     return (
         <View style={styles.container}>
             <View style={styles.box}>
-                {/* <Pressable onPressIn={handlePressShop}>
+                <Pressable onPressIn={handlePressShop}>
                     <Animated.View
                         style={[
                             styles.item,
@@ -81,7 +81,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                             style={styles.itemIcon}
                         />
                     </Animated.View>
-                </Pressable> */}
+                </Pressable>
                 <Pressable onPressIn={handlePressWorld}>
                     <Animated.View
                         style={[

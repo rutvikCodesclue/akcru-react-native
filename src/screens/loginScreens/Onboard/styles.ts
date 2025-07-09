@@ -176,4 +176,7 @@ export default StyleSheet.create({
         color: '#000',
         fontWeight: 'bold',
     },
+    progress: {
+        marginBottom: 24,
+    },
 });

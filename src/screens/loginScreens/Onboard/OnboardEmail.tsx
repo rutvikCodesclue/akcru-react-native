@@ -24,6 +24,10 @@ import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 11;
+const CURRENT_STEP = 1;
 
 const TOSModal = ({visible, children}: {visible: boolean; children: any}) => {
     const [showModal, setShowModal] = useState(visible);
@@ -167,6 +171,17 @@ const OnboardEmail = () => {
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
+                            {/* Progress bar at the top */}
+                            <View style={{width: '90%'}}>
+                                <Text style={{...FONTS.Title2}}>
+                                    {CURRENT_STEP}/{TOTAL_STEPS}
+                                </Text>
+                                <ProgressBar
+                                    currentStep={CURRENT_STEP}
+                                    totalSteps={TOTAL_STEPS}
+                                    style={styles.progress}
+                                />
+                            </View>
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Welcome to Akcru first things first, lets verify you through your email below.
                             </Text>

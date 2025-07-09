@@ -1,4 +1,15 @@
-import {View, Text, ImageBackground, Modal, Alert, ScrollView, ActivityIndicator, TextInput, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+    View,
+    Text,
+    ImageBackground,
+    Modal,
+    Alert,
+    ScrollView,
+    ActivityIndicator,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -16,6 +27,10 @@ import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import {getPushToken} from '../../../../lib/pushNotifications';
 import {Icon} from '@rneui/base';
+import ProgressBar from '../../../components/ProgressBar';
+
+const TOTAL_STEPS = 11;
+const CURRENT_STEP = 3;
 
 const OnboardPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -144,11 +159,18 @@ const OnboardPassword = ({route}) => {
                     <View style={{flex: 1, alignItems: 'center'}}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={200} height={60} />
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
-                                Now that you've been verified, you can choose a new password. It is imperative that you
-                                do not share this with anyone.
-                            </Text>
                         </View>
+                        <View style={{width: '90%'}}>
+                            <Text style={{...FONTS.Title2}}>
+                                {CURRENT_STEP}/{TOTAL_STEPS}
+                            </Text>
+                            <ProgressBar currentStep={CURRENT_STEP} totalSteps={TOTAL_STEPS} style={styles.progress} />
+                        </View>
+                        <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            Now that you've been verified, you can choose a new password. It is imperative that you do
+                            not share this with anyone.
+                        </Text>
+
                         <View style={{marginBottom: 10, alignItems: 'center'}}>
                             <View style={styles1.inputContainer}>
                                 <Icon
