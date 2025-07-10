@@ -1,3 +1,5 @@
+// src/screens/PurchaseAdScreen.tsx
+
 import React, {useEffect, useState} from 'react';
 import {View, Text, SafeAreaView, TouchableOpacity, Modal, Alert, Linking, Image} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -19,7 +21,6 @@ export default function PurchaseAdScreen() {
     const [selectedTier, setSelectedTier] = useState<AdPackInfo | null>(null);
     const [confirmVisible, setConfirmVis] = useState(false);
 
-    // load bundles on mount
     useEffect(() => {
         getAdPacks()
             .then(setTiers)
@@ -29,19 +30,19 @@ export default function PurchaseAdScreen() {
             });
     }, []);
 
-    const handlePurchasePress = () => {
-        if (!selectedTier) {
-            return Alert.alert('Select a bundle first.');
-        }
+    // Show confirmation for a particular pack
+    const onPackPurchasePress = (tier: AdPackInfo) => {
+        setSelectedTier(tier);
         setConfirmVis(true);
     };
 
+    // After confirming
     const confirmPurchase = async () => {
         setConfirmVis(false);
+        if (!selectedTier) return;
+
         try {
-            // purchaseAD now returns the raw URL string
-            const checkoutUrl = await purchaseAD(selectedTier!.tier);
-            // send the user off to Stripe’s hosted Checkout
+            const checkoutUrl = await purchaseAD(selectedTier.tier);
             Linking.openURL(checkoutUrl);
         } catch (err: any) {
             console.error('Checkout session error:', err);
@@ -52,69 +53,87 @@ export default function PurchaseAdScreen() {
     return (
         <View style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <Header />
-                <BackButton navigation={navigation} />
+                <View>
+                    <ScrollView style={{padding: 16}} contentContainerStyle={{paddingTop: 16, paddingBottom: '40%'}}>
+                        <Text style={{...FONTS.Title2, marginTop: 5}}>Choose a pack:</Text>
 
-                <ScrollView style={{padding: 16}}>
-                    <Text style={{...FONTS.Title2, marginTop: 5}}>Choose a pack:</Text>
+                        {tiers.map(t => {
+                            const isSelected = selectedTier?.tier === t.tier;
+                            return (
+                                <View
+                                    key={t.tier}
+                                    style={{
+                                        padding: 20,
+                                        marginVertical: 6,
+                                        borderRadius: 6,
+                                        borderWidth: 3,
+                                        borderColor: COLORS.PURPLE,
+                                        backgroundColor: isSelected ? COLORS.TRANSPURPLE : COLORS.AKCRUBACKGROUND,
+                                    }}>
+                                    <TouchableOpacity onPress={() => setSelectedTier(t)}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.ContentTitle,
+                                                color: COLORS.AKCRUPINK,
+                                                textAlign: 'center',
+                                            }}>
+                                            {t.label}
+                                        </Text>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                marginVertical: 8,
+                                            }}>
+                                            <Image
+                                                source={imageindex.AkcruHexLogo}
+                                                style={{width: 21, height: 21, marginRight: 6}}
+                                                resizeMode="contain"
+                                            />
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title1,
+                                                    color: COLORS.WHITE,
+                                                    textAlign: 'center',
+                                                }}>
+                                                {t.adGiven.toLocaleString()} AD
+                                            </Text>
+                                        </View>
 
-                    {tiers.map(t => {
-                        const isSelected = selectedTier?.tier === t.tier;
-                        return (
-                            <TouchableOpacity
-                                key={t.tier}
-                                onPress={() => setSelectedTier(t)}
-                                style={{
-                                    padding: 20,
-                                    marginVertical: 6,
-                                    borderRadius: 6,
-                                    borderWidth: 3,
-                                    borderColor: isSelected ? COLORS.PURPLE : COLORS.PURPLE,
-                                    backgroundColor: isSelected ? COLORS.TRANSPURPLE : COLORS.AKCRUBACKGROUND,
-                                }}>
-                                <Text style={{...FONTS.ContentTitle, color: COLORS.AKCRUPINK, textAlign: 'center'}}>
-                                    {t.label.toLocaleString()}
-                                </Text>
-                                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                                    <Image
-                                        source={imageindex.AkcruHexLogo}
-                                        style={{width: 21, height: 21, marginRight: 6}}
-                                        resizeMode="contain"
-                                    />
-                                    <Text style={{...FONTS.Title1, color: COLORS.WHITE, textAlign: 'center'}}>
-                                        {t.adGiven.toLocaleString()} AD
-                                    </Text>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                color: COLORS.DARKGREY,
+                                                textAlign: 'center',
+                                                marginBottom: 8,
+                                            }}>
+                                            {t.baselineAd.toLocaleString()} + {t.bonusAD.toLocaleString()} AD bonus (
+                                            {t.bonusPercent}%)
+                                        </Text>
+                                        <Text
+                                            style={{
+                                                ...FONTS.ContentTitle,
+                                                color: COLORS.WHITE,
+                                                textAlign: 'center',
+                                            }}>
+                                            ${t.priceUSD.toFixed(2)}
+                                        </Text>
+                                    </TouchableOpacity>
+
+                                    <View style={{marginTop: 12, alignItems: 'center'}}>
+                                        <AkcruButtons.XlLrgButton
+                                            btnname="Purchase"
+                                            onPress={() => onPackPurchasePress(t)}
+                                            color={COLORS.CATPURPLGT}
+                                        />
+                                    </View>
                                 </View>
-
-                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY, textAlign: 'center'}}>
-                                    {t.baselineAd.toLocaleString()} + {t.bonusAD.toLocaleString()} AD bonus (
-                                    {t.bonusPercent}%)
-                                </Text>
-                                <Text style={{...FONTS.ContentTitle, color: COLORS.WHITE, textAlign: 'center'}}>
-                                    ${t.priceUSD.toFixed(2)}
-                                </Text>
-                            </TouchableOpacity>
-                        );
-                    })}
-                    <View style={{marginTop: 20, marginBottom: '30%'}}>
-                        <AkcruButtons.LrgButton
-                            btnname="PURCHASE"
-                            disabled={!selectedTier}
-                            onPress={handlePurchasePress}
-                            color={COLORS.CATPURPDRK}
-                        />
-                    </View>
-                </ScrollView>
+                            );
+                        })}
+                    </ScrollView>
+                </View>
             </SafeAreaView>
 
             {/* Confirm Modal */}
@@ -135,9 +154,14 @@ export default function PurchaseAdScreen() {
                         }}>
                         <Text style={{textAlign: 'center', ...FONTS.Title2}}>
                             Confirm purchase of {selectedTier?.adGiven.toLocaleString()} AD for $
-                            {selectedTier?.priceUSD.toFixed(2)}? (All sales are final no refunds)
+                            {selectedTier?.priceUSD.toFixed(2)}? (All sales are final — no refunds)
                         </Text>
-                        <View style={{flexDirection: 'row', marginTop: 16, justifyContent: 'space-between'}}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                marginTop: 16,
+                                justifyContent: 'space-between',
+                            }}>
                             <AkcruButtons.SmallButton
                                 btnname="Cancel"
                                 onPress={() => setConfirmVis(false)}
@@ -146,7 +170,7 @@ export default function PurchaseAdScreen() {
                             <AkcruButtons.SmallButton
                                 btnname="Confirm"
                                 onPress={confirmPurchase}
-                                color={COLORS.CATPURPDRK}
+                                color={COLORS.CATPURPLGT}
                             />
                         </View>
                     </View>
