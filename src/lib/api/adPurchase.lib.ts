@@ -56,8 +56,16 @@ export async function getAdPacks(): Promise<AdPackInfo[]> {
  * Kick off a Stripe Checkout session for the chosen tier.
  * Returns the hosted Checkout URL.
  */
-export async function purchaseAD(tier: string): Promise<{url: string}> {
+export async function purchaseAD(tier: string): Promise<string> {
+    // ensure we’re logged in
     await useAuthStore.getState().hydrateAuth();
-    const {data} = await API.post<{url: string}>('/v1/ad-purchase', {tier});
-    return data;
+
+    // call the *checkout* route, not the tiers route
+    const resp = await API.post<{url: string}>('/v1/ad-checkout/create-session', {tier});
+
+    // resp.data should be { url: string }
+    if (!resp.data || typeof resp.data.url !== 'string') {
+        throw new Error('Unexpected response from server');
+    }
+    return resp.data.url;
 }

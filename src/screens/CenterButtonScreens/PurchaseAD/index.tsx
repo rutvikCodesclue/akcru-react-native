@@ -39,9 +39,10 @@ export default function PurchaseAdScreen() {
     const confirmPurchase = async () => {
         setConfirmVis(false);
         try {
-            const {url} = await purchaseAD(selectedTier!.tier);
-            // redirect into Stripe Checkout
-            Linking.openURL(url);
+            // purchaseAD now returns the raw URL string
+            const checkoutUrl = await purchaseAD(selectedTier!.tier);
+            // send the user off to Stripe’s hosted Checkout
+            Linking.openURL(checkoutUrl);
         } catch (err: any) {
             console.error('Checkout session error:', err);
             Alert.alert('Purchase Failed', err.message || 'Please try again.');
@@ -130,18 +131,19 @@ export default function PurchaseAdScreen() {
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                             padding: 20,
                             borderRadius: 8,
+                            width: '85%',
                         }}>
-                        <Text style={FONTS.Title2}>
+                        <Text style={{textAlign: 'center', ...FONTS.Title2}}>
                             Confirm purchase of {selectedTier?.adGiven.toLocaleString()} AD for $
-                            {selectedTier?.priceUSD.toFixed(2)}?
+                            {selectedTier?.priceUSD.toFixed(2)}? (All sales are final no refunds)
                         </Text>
                         <View style={{flexDirection: 'row', marginTop: 16, justifyContent: 'space-between'}}>
-                            <AkcruButtons.FollowButton
+                            <AkcruButtons.SmallButton
                                 btnname="Cancel"
                                 onPress={() => setConfirmVis(false)}
                                 color={COLORS.AKCRUBLUE}
                             />
-                            <AkcruButtons.FollowButton
+                            <AkcruButtons.SmallButton
                                 btnname="Confirm"
                                 onPress={confirmPurchase}
                                 color={COLORS.CATPURPDRK}
