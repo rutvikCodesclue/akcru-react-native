@@ -133,4 +133,25 @@ export default StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
     },
+
+    backdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    container: {
+        width: '80%',
+        maxHeight: '70%',
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        borderRadius: 12,
+        padding: 16,
+    },
+    title: {...FONTS.Title1, marginBottom: 12, color: COLORS.PINK},
+    separator: {height: 1, backgroundColor: COLORS.DARKERGREY, marginVertical: 8},
+    userRow: {flexDirection: 'row', alignItems: 'center'},
+    avatar: {width: 32, height: 32, borderRadius: 16},
+    username: {marginLeft: 12, ...FONTS.Title2},
+    closeBtn: {marginTop: 16, alignSelf: 'flex-end'},
+    closeText: {...FONTS.paragraph2, color: COLORS.PINK},
 });

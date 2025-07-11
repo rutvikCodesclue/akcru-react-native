@@ -392,7 +392,7 @@ const MovieDetailCard = ({
                         style={{width: 26, height: 26, marginRight: 10}}
                         resizeMode="contain"
                     />
-                    <Text style={{...FONTS.Title2Orange}}>Earn up to 500 AKCRU dollars</Text>
+                    <Text style={{...FONTS.Title2Orange}}>Earn AKCRU dollars</Text>
                 </View>
 
                 <View style={{marginHorizontal: 15, marginTop: 15}}>

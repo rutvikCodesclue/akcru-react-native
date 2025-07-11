@@ -265,7 +265,6 @@ export const likeGalleryItem = async (imageUrl: string): Promise<any> => {
         }
 
         return response.data.message;
-
     } catch (error) {
         console.error('Error liking gallery item:', error);
         return undefined;
@@ -279,9 +278,35 @@ export const unlikeGalleryItem = async (imageUrl: string): Promise<any> => {
             return undefined;
         }
         return response.data.message;
-
     } catch (error) {
         console.error('Error unliking gallery item:', error);
+        return undefined;
+    }
+};
+
+/**
+ * GET /v1/user/gallery/likes-list?imageUrl=…
+ * Returns { success, users } where users is an array of
+ * { id, username, avatarUrl }
+ */
+export const getGalleryLikesList = async (
+    imageUrl: string,
+): Promise<
+    | {
+          success: boolean;
+          users: {id: string; username: string; avatarUrl: string; badge: string}[];
+      }
+    | undefined
+> => {
+    try {
+        const response = await API.get(`/v1/user/gallery/likes-list?imageUrl=${encodeURIComponent(imageUrl)}`);
+        if (response.data.success === false) {
+            return undefined;
+        }
+        // response.data has shape { success: true, users: [...] }
+        return response.data;
+    } catch (error) {
+        console.error('Error getting gallery likes list:', error);
         return undefined;
     }
 };
@@ -424,7 +449,7 @@ export const startUserWatching = async (id: string, isEpisode: boolean): Promise
 export const finishUserWatching = async (id: string, isEpisode: boolean): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     console.log('Finishing user watching:', id, isEpisode ? 'episode' : 'movie');
-    
+
     try {
         const requestData = {
             movieId: isEpisode ? undefined : id,
@@ -756,4 +781,3 @@ export const fetchCrusaders = async (): Promise<IUserProfile[] | []> => {
         return [];
     }
 };
-

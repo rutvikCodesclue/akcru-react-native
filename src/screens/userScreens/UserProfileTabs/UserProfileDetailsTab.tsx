@@ -8,13 +8,19 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../../stores/auth.store';
 import {ICru, IMovie, IUserProfile} from '../../../../types';
-import {findMovies} from '../../../lib/api/movies.lib';
+
 import {getWatchlist} from '../../../lib/api/movies.lib';
 import CruMemberPic from '../../../components/CruMemberPic';
 import {getMyCRU, removeAUserFromCRU} from '../../../lib/api/cru.lib';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import {supabase} from '../../../../lib/supabase';
-import {deleteUserGalleryImage, updateUserGallery, fetchUserGallery} from '../../../lib/api/user.lib';
+import {
+    deleteUserGalleryImage,
+    updateUserGallery,
+    fetchUserGallery,
+    getGalleryLikeCount,
+    getGalleryLikesList,
+} from '../../../lib/api/user.lib';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import WatchListCategory from '../../../components/WatchlistCategory';
@@ -34,18 +40,11 @@ import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 
 const UserProfileDetailsTab = () => {
-    const [isModalVisible, setModalVisible] = useState(false);
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
-
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
-    };
 
     const [crus, setCrus] = useState<ICru[]>([]);
     const [membercruIds, setMemberCruIds] = useState([]);
     const [unreadcruIds, setUnreadCruIds] = useState([]);
-
-    const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const user = useAuthStore(state => state.user);
@@ -61,28 +60,11 @@ const UserProfileDetailsTab = () => {
     );
 
     const [CRU, setCRU] = useState<ICru | undefined>(undefined);
-    const [potentialMembers, setPotentialMembers] = useState<IUserProfile[] | []>([]);
     const [members, setMembers] = useState<IUserProfile[] | []>([]);
     const cruMembers = (): IUserProfile[] | [] => {
         return members;
     };
 
-    useEffect(() => {
-        const fetchNewerYearMovies = async () => {
-            try {
-                const allMovies: IMovie[] = await findMovies();
-
-                const sortedMovies = allMovies.sort((a, b) => b.year - a.year);
-
-                const Newer5Movies = sortedMovies.slice(0, 5);
-
-                setNewerYearMovies(Newer5Movies);
-            } catch (error) {
-                console.error('Error fetching top rated movies:', error);
-            }
-        };
-        fetchNewerYearMovies();
-    }, []);
 
     useEffect(() => {}, [unreadcruIds]);
     useEffect(() => {
@@ -157,7 +139,7 @@ const UserProfileDetailsTab = () => {
     );
 
     const updateWatchlist = (updatedWatchlist: IMovie[]) => {
-        console.log('updatedWatchlist', updatedWatchlist)
+        console.log('updatedWatchlist', updatedWatchlist);
         setWatchlist(updatedWatchlist);
     };
 
@@ -167,19 +149,47 @@ const UserProfileDetailsTab = () => {
     const [userPics, setUserPics] = useState<string[]>(user?.gallery || []);
 
     useEffect(() => {
-        if (user?.gallery) {
-            setUserPics(user.gallery);
-        } else {
-            async function fetchData() {
-                const gallerydata = await fetchUserGallery(user.id);
-                setUserPics(gallerydata);
-            }
-            fetchData();
+        // only run once we actually have a user object
+        if (!user) {
+            return;
         }
-        return () => {
-            setUserPics([]);
-        };
-    }, []);
+
+        // if they already have a non-empty gallery array, use it
+        if (user.gallery && user.gallery.length > 0) {
+            setUserPics(user.gallery);
+            return;
+        }
+
+        // otherwise fetch from Supabase by passing the whole user
+        fetchUserGallery(user)
+            .then(galleryData => {
+                setUserPics(galleryData);
+            })
+            .catch(console.error);
+    }, [user]);
+
+    const [likesData, setLikesData] = useState<Record<string, {count: number; likeExists: boolean}>>({});
+
+    useEffect(() => {
+        async function loadLikes() {
+            const newData: typeof likesData = {};
+            await Promise.all(
+                userPics.map(async url => {
+                    const res = await getGalleryLikeCount(url);
+                    if (res?.success) {
+                        newData[url] = {
+                            count: res.count,
+                            likeExists: !!res.likeExists,
+                        };
+                    }
+                }),
+            );
+            setLikesData(newData);
+        }
+        if (userPics.length) {
+            loadLikes();
+        }
+    }, [userPics]);
 
     const getFileSize = async filePath => {
         try {
@@ -252,7 +262,6 @@ const UserProfileDetailsTab = () => {
                         }
                     }
                 }
-
 
                 if (uploadedImages.length > 0) {
                     setUserPics(uploadedImages);
@@ -375,6 +384,23 @@ const UserProfileDetailsTab = () => {
         }
     };
 
+    const [likesListModalVisible, setLikesListModalVisible] = useState(false);
+    const [likesList, setLikesList] = useState<{id: string; username: string; avatarUrl: string}[]>([]);
+    const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+    const handleShowLikes = async (photoUrl: string) => {
+        try {
+            const res = await getGalleryLikesList(photoUrl);
+            if (res?.success) {
+                setLikesList(res.users);
+                setSelectedPhoto(photoUrl);
+                setLikesListModalVisible(true);
+            }
+        } catch (err) {
+            console.error('Failed to load likes list', err);
+        }
+    };
+
     return (
         <View>
             <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -390,6 +416,30 @@ const UserProfileDetailsTab = () => {
                                 <Pressable onPress={() => handleImageEnlarge(item)}>
                                     <Image source={{uri: item}} style={styles.galleryImage} />
                                 </Pressable>
+                                {/* only render once we've loaded likes for this URL */}
+                                {likesData[item] && (
+                                    <TouchableOpacity
+                                        activeOpacity={0.8}
+                                        onPress={() => handleShowLikes(item)}
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: 6,
+                                            right: 6,
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                            borderRadius: 12,
+                                            paddingHorizontal: 6,
+                                            paddingVertical: 2,
+                                        }}>
+                                        <View>
+                                            <Icon name="happy-outline" type="ionicon" size={20} color={COLORS.PINK} />
+                                        </View>
+                                        <Text style={{marginLeft: 4, ...FONTS.paragraph1}}>
+                                            {likesData[item].count}
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         )}
                         ListHeaderComponent={
@@ -735,6 +785,41 @@ const UserProfileDetailsTab = () => {
                                         iconname={cruIconName}
                                         iconcolor={cruIconColor}
                                     />
+                                </Modal>
+                                <Modal
+                                    visible={likesListModalVisible}
+                                    transparent
+                                    animationType="fade"
+                                    onRequestClose={() => setLikesListModalVisible(false)}>
+                                    <View style={styles.backdrop}>
+                                        <View style={styles.container}>
+                                            <Text style={styles.title}>Liked by</Text>
+                                            <FlatList
+                                                data={likesList}
+                                                keyExtractor={u => u.id}
+                                                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                                                renderItem={({item}) => (
+                                                    <TouchableOpacity
+                                                        onPress={() => {
+                                                            setLikesListModalVisible(false);
+                                                            navigation.navigate('ViewUserScreen', {userID: item.id});
+                                                        }}
+                                                        style={styles.userRow}>
+                                                        <CruMemberPic
+                                                            userPicture={item.avatarUrl}
+                                                            akcruBadge={item.badge}
+                                                        />
+                                                        <Text style={styles.username}>{item.username}</Text>
+                                                    </TouchableOpacity>
+                                                )}
+                                            />
+                                            <TouchableOpacity
+                                                onPress={() => setLikesListModalVisible(false)}
+                                                style={styles.closeBtn}>
+                                                <Text style={styles.closeText}>Close</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
                                 </Modal>
                             </View>
                         }
