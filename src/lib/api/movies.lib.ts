@@ -139,3 +139,20 @@ export const findSponsoredMovies = async (): Promise<IMovie[] | []> => {
         return [];
     }
 };
+
+export const findFlickFlirtMovies = async (): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const response = await API.get('/v1/movies/flick-flirt');
+
+        if (response.data.success) {
+            return response.data.movies;
+        } else {
+            console.log(response.data.message);
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching sponsored movies:', error);
+        return [];
+    }
+};

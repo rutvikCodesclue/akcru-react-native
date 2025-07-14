@@ -8,4 +8,5 @@ declare module '@env' {
     export const CASTLE_API_PK: string;
     export const AUTH_API_URL: string;
     export const CRUMMUNITY_API_URL: string;
+    export const STRIPE_PUBLISHABLE_KEY: string;
 }

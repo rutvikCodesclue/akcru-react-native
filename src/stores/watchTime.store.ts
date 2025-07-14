@@ -16,7 +16,7 @@ interface IWatchTimeState {
     watchTime: number; // for resume/backend‐sync
     rewardTime: number; // for AD awards
 
-    timer: NodeJS.Timer | null;
+    timer: number | null;
 
     // PLAYBACK POSITIONS
     lastPlaybackPositions: {
@@ -41,7 +41,6 @@ interface IWatchTimeState {
 
 // INTERVAL CONSTANTS
 const RESUME_SYNC_INTERVAL = 30; // seconds between automatic resume‐syncs
-// const REWARD_INTERVAL = 216; // seconds between AD awards
 
 const useWatchTimeStore = create<IWatchTimeState>()(
     persist(
@@ -96,7 +95,7 @@ const useWatchTimeStore = create<IWatchTimeState>()(
 
             /** Starts the second-by-second timer driving both resume-sync & reward */
             startTimer: () => {
-                const interval = setInterval(async () => {
+                const intervalId = setInterval(async () => {
                     // bump both counters
                     set(s => ({
                         watchTime: s.watchTime + 1,
@@ -132,13 +131,13 @@ const useWatchTimeStore = create<IWatchTimeState>()(
                     }
                 }, 1000);
 
-                set({timer: interval});
+                set({timer: intervalId as unknown as number});
             },
 
             /** Stops the interval */
             pauseTimer: () => {
                 const {timer} = get();
-                if (timer) {
+                if (timer !== null) {
                     clearInterval(timer);
                     set({timer: null});
                 }
@@ -147,14 +146,16 @@ const useWatchTimeStore = create<IWatchTimeState>()(
             /** Stops & resets both counters */
             resetTimer: () => {
                 const {timer} = get();
-                if (timer) clearInterval(timer);
+                if (timer) {
+                    clearInterval(timer);
+                }
                 set({timer: null, watchTime: 0, rewardTime: 0});
             },
 
             /** Manual trigger for AD award (if you ever need it) */
             handleCountWatchTime: async () => {
-                const {rewardTime} = get();
-                if (rewardTime >= REWARD_INTERVAL) {
+                const {rewardTime, rewardInterval} = get();
+                if (rewardTime >= rewardInterval) {
                     set({rewardTime: 0});
                     try {
                         await awardAD();

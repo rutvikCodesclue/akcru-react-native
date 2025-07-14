@@ -13,7 +13,7 @@ import BackButton from '../../../../components/General/backbutton';
 import {API} from '../../../../clients/api.client';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {IMovie, IUserProfile} from '../../../../../types';
-import {findSponsoredMovies} from '../../../../lib/api/movies.lib';
+import {findFlickFlirtMovies} from '../../../../lib/api/movies.lib';
 import Swiper from 'react-native-deck-swiper';
 import useAuthStore from '../../../../stores/auth.store';
 import {UserProfileStackParams} from '../../../../navigation/UserProfileStack';
@@ -46,7 +46,7 @@ const FlickFlirtSwipe = () => {
     // load sponsored movies
     useFocusEffect(
         React.useCallback(() => {
-            findSponsoredMovies().then(setMovies).catch(console.error);
+            findFlickFlirtMovies().then(setMovies).catch(console.error);
         }, []),
     );
 

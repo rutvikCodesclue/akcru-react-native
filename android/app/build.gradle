@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "com.facebook.react"
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android' 
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -81,7 +82,24 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [
+        appAuthRedirectScheme: 'akcruapp'
+    ]
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+        // ─── Enable BuildConfig generation ───────────────────────────────────────────
+    buildFeatures {
+        buildConfig true
+    }
+    // ─────────────────────────────────────────────────────────────────────────────
     signingConfigs {
         release {
             if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {

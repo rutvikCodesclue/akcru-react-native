@@ -69,3 +69,27 @@ export async function purchaseAD(tier: string): Promise<string> {
     }
     return resp.data.url;
 }
+
+/**
+ * Confirm a completed Stripe session via session_id.
+ * Returns `true` on success, throws on failure.
+ */
+export async function verifyAdPurchaseSession(sessionId: string): Promise<boolean> {
+    await useAuthStore.getState().hydrateAuth();
+
+    try {
+        const resp = await API.get<{success: boolean; data?: any}>('/v1/ad-purchase/verify-session', {
+            params: {session_id: sessionId},
+        });
+
+        if (!resp.data || !resp.data.success) {
+            console.error('verifyAdPurchaseSession: failed response', resp.data);
+            throw new Error('Unable to verify session');
+        }
+
+        return true;
+    } catch (err) {
+        console.error('verifyAdPurchaseSession error:', err);
+        throw err;
+    }
+}

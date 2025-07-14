@@ -47,6 +47,7 @@ interface IUserProfile {
     isArchetypeMatch: boolean;
     matchLabel: string;
     canGrantAD: boolean;
+    hasSetFlirtPref: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
@@ -95,6 +96,7 @@ export interface IMovie {
     createdAt: string;
     updatedAt: string;
     sponsored: boolean;
+    flickFlirt: boolean;
 }
 
 export interface IGenreItem {

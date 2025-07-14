@@ -1,0 +1,51 @@
+diff --git a/node_modules/react-native-webview/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-webview/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+new file mode 100644
+index 0000000..776557e
+--- /dev/null
++++ b/node_modules/react-native-webview/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
+@@ -0,0 +1,5 @@
++aarFormatVersion=1.0
++aarMetadataVersion=1.0
++minCompileSdk=1
++minCompileSdkExtension=0
++minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+new file mode 100644
+index 0000000..4d6be98
+--- /dev/null
++++ b/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
+@@ -0,0 +1,2 @@
++#Sat Jul 12 18:32:55 EDT 2025
++com.reactnativecommunity.webview.react-native-webview-main-6\:/xml/file_provider_paths.xml=D\:\\AkcruClone\\Akcru\\frontendclone\\node_modules\\react-native-webview\\android\\build\\intermediates\\packaged_res\\debug\\xml\\file_provider_paths.xml
+diff --git a/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+new file mode 100644
+index 0000000..9ff6b8e
+--- /dev/null
++++ b/node_modules/react-native-webview/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
+@@ -0,0 +1,2 @@
++<?xml version="1.0" encoding="utf-8"?>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\src\main\res"><file name="file_provider_paths" path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\src\main\res\xml\file_provider_paths.xml" qualifiers="" type="xml"/></source></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-webview\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
+\ No newline at end of file
+diff --git a/node_modules/react-native-webview/android/build/intermediates/packaged_res/debug/xml/file_provider_paths.xml b/node_modules/react-native-webview/android/build/intermediates/packaged_res/debug/xml/file_provider_paths.xml
+new file mode 100644
+index 0000000..aba5f56
+--- /dev/null
++++ b/node_modules/react-native-webview/android/build/intermediates/packaged_res/debug/xml/file_provider_paths.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<paths>
++  <external-path
++    name="shared"
++    path="." />
++</paths>
+diff --git a/node_modules/react-native-webview/android/src/main/AndroidManifest.xml b/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
+index b8f945d..ee28102 100644
+--- a/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-webview/android/src/main/AndroidManifest.xml
+@@ -1,5 +1,4 @@
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-  package="com.reactnativecommunity.webview">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+   <application>
+     <provider

@@ -64,6 +64,8 @@ import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlir
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
+import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
+import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebCheckout';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -141,6 +143,8 @@ export type NoBottomTabStackParams = {
     CruInviteAccept: any;
     AdminGrantADScreen: any;
     AdminWalletSearch: any;
+    AdPurchaseSuccessScreen: any;
+    StripeWebCheckout: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -639,6 +643,16 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="AdminWalletSearch"
                 component={AdminWalletSearch}
+                options={() => ({headerShown: false})}
+            />
+            <NoBottom.Screen
+                name="AdPurchaseSuccessScreen"
+                component={AdPurchaseSuccessScreen}
+                options={() => ({headerShown: false})}
+            />
+            <NoBottom.Screen
+                name="StripeWebCheckout"
+                component={StripeWebCheckout}
                 options={() => ({headerShown: false})}
             />
         </NoBottom.Navigator>

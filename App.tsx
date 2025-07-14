@@ -1,6 +1,5 @@
 import React, {useEffect, useRef} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
-
 import RootNavigator from './src/navigation/RootNavigator';
 import {COLORS} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
@@ -23,7 +22,7 @@ function App(): JSX.Element {
     const userId = useAuthStore(state => state.user?.id);
 
     const initialNotificationHandled = useRef(false);
-    const { isInternetReachable: isConnected } = useNetInfo();
+    const {isInternetReachable: isConnected} = useNetInfo();
 
     const loadRewardInterval = useWatchTimeStore(state => state.loadRewardInterval);
     useEffect(() => {
@@ -118,7 +117,6 @@ function App(): JSX.Element {
         <View style={styles.container}>
             <NoInternetAlert />
             <StatusBar barStyle={'light-content'} backgroundColor={COLORS.AKCRUBACKGROUND} />
-
             <RootNavigator />
         </View>
     );

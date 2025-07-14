@@ -20,12 +20,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import Header from '../../../components/header';
-import BackButton from '../../../components/General/backbutton';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
 import {API} from '../../../clients/api.client';
+import useAuthStore from '../../../stores/auth.store';
 
 const FlickFlirtScreen = () => {
+    const {user, hydrateUser} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [hasMatches, setHasMatches] = useState(false);
     const [resetModalVisible, setResetModalVisible] = useState(false);
@@ -49,8 +50,9 @@ const FlickFlirtScreen = () => {
     // 2) refetch on screen focus
     useFocusEffect(
         useCallback(() => {
+            hydrateUser();
             fetchMatches();
-        }, [fetchMatches]),
+        }, [fetchMatches, hydrateUser]),
     );
 
     // 3) perform the reset when confirmed
@@ -60,6 +62,7 @@ const FlickFlirtScreen = () => {
             const payload = response?.data ?? response;
             if (payload.success) {
                 setResetModalVisible(false);
+                await hydrateUser();
                 await fetchMatches();
                 DeviceEventEmitter.emit('matchesUpdated');
             } else {
@@ -84,7 +87,7 @@ const FlickFlirtScreen = () => {
                     />
                     <Header />
 
-                    <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.60}}>
+                    <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.6}}>
                         <View style={styles.textcontainer}>
                             <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Flick Flirt</Text>
                             <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
@@ -114,14 +117,15 @@ const FlickFlirtScreen = () => {
                                 />
                             </View>
                         )}
-
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruButtons.XlLrgButton
-                                btnname="Reset Preferences"
-                                onPress={() => setResetModalVisible(true)}
-                                color={COLORS.PURPLE}
-                            />
-                        </View>
+                        {user?.hasSetFlirtPref && (
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.XlLrgButton
+                                    btnname="Reset Preferences"
+                                    onPress={() => setResetModalVisible(true)}
+                                    color={COLORS.PURPLE}
+                                />
+                            </View>
+                        )}
                     </View>
                 </SafeAreaView>
             </ImageBackground>

@@ -1,21 +1,21 @@
 // src/screens/PurchaseAdScreen.tsx
 
 import React, {useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, TouchableOpacity, Modal, Alert, Linking, Image} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, Modal, Alert, Image} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
-import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS, FONTS} from '../../../../assets/constants';
 import Header from '../../../components/header';
-import BackButton from '../../../components/General/backbutton';
+
 import AkcruButtons from '../../../components/akcruButtons';
 import {getAdPacks, purchaseAD, AdPackInfo} from '../../../lib/api/adPurchase.lib';
-import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import LinearGradient from 'react-native-linear-gradient';
+
 import {ScrollView} from 'react-native-gesture-handler';
 import imageindex from '../../../../assets/images/imageindex';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 export default function PurchaseAdScreen() {
-    const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [tiers, setTiers] = useState<AdPackInfo[]>([]);
     const [selectedTier, setSelectedTier] = useState<AdPackInfo | null>(null);
@@ -43,7 +43,7 @@ export default function PurchaseAdScreen() {
 
         try {
             const checkoutUrl = await purchaseAD(selectedTier.tier);
-            Linking.openURL(checkoutUrl);
+            navigation.navigate('StripeWebCheckout', {checkoutUrl});
         } catch (err: any) {
             console.error('Checkout session error:', err);
             Alert.alert('Purchase Failed', err.message || 'Please try again.');
