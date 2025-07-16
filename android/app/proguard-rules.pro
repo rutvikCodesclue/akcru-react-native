@@ -8,3 +8,18 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+# Keep Java 11+ concat logic required by HMS SDK
+-keep class java.lang.invoke.StringConcatFactory { *; }
+-dontwarn java.lang.invoke.StringConcatFactory
+
+# Keep desugaring classes
+-keep class j$.** { *; }
+-dontwarn j$.**
+
+# Keep HMS SDK internals to prevent R8 stripping
+-keep class live.hms.** { *; }
+-dontwarn live.hms.**
+
+
+

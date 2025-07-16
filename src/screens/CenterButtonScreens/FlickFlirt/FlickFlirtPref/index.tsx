@@ -13,7 +13,6 @@ import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
 import {API} from '../../../../clients/api.client';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
-import {AkcruLogo} from '../../../../../assets/svg';
 import AkcruButtons from '../../../../components/akcruButtons';
 
 const FlickFlirtPref = () => {
