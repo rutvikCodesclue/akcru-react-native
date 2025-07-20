@@ -20,6 +20,7 @@ import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
+import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -42,6 +43,7 @@ export type ClientStackParams = {
     PurchaseMITScreen: any;
     AkcruCenterButton: any;
     AwardScreen: any;
+    PurchaseAdScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -170,6 +172,13 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="AwardScreen"
                 component={AwardScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ClientSearch.Screen
+                name="PurchaseAdScreen"
+                component={PurchaseAdScreen}
                 options={{
                     headerShown: false,
                 }}

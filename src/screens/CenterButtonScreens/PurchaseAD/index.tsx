@@ -13,6 +13,7 @@ import {getAdPacks, purchaseAD, AdPackInfo} from '../../../lib/api/adPurchase.li
 import {ScrollView} from 'react-native-gesture-handler';
 import imageindex from '../../../../assets/images/imageindex';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import TabContainer from '../../../components/TabContainer/TabContainer';
 
 export default function PurchaseAdScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -51,7 +52,7 @@ export default function PurchaseAdScreen() {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <TabContainer style={{flex: 1}}>
             <SafeAreaView style={{flex: 1}}>
                 <Header />
                 <View>
@@ -176,6 +177,6 @@ export default function PurchaseAdScreen() {
                     </View>
                 </View>
             </Modal>
-        </View>
+        </TabContainer>
     );
 }

@@ -124,6 +124,7 @@ export const postUserReaction = async (movieId: string, reactionType: any) => {
 };
 
 export const findSponsoredMovies = async (): Promise<IMovie[] | []> => {
+    console.log('findSponsoredMovies');
     await useAuthStore.getState().hydrateAuth();
     try {
         const response = await API.get('/v1/movies/sponsored');
@@ -155,4 +156,43 @@ export const findFlickFlirtMovies = async (): Promise<IMovie[] | []> => {
         console.error('Error fetching sponsored movies:', error);
         return [];
     }
+};
+
+export const rentMovie = async (movieId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post(`/v1/movies/${movieId}/purchase-movie`, {
+            purchaseType: 'RENT', // ← directly use the string
+        });
+        return data.success;
+    } catch {
+        return false;
+    }
+};
+
+export const buyMovie = async (movieId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post(`/v1/movies/${movieId}/purchase-movie`, {
+            purchaseType: 'BUY', // ← directly use the string
+        });
+        return data.success;
+    } catch {
+        return false;
+    }
+};
+
+export interface IContentPurchaseStatus {
+    active: boolean;
+    purchase?: {
+        purchaseType: 'RENT' | 'BUY';
+        expireAt: string | null;
+    };
+}
+
+/** Get whether the current user has an unexpired rental or a buy on this movie */
+export const getMoviePurchaseStatus = async (movieId: string): Promise<IContentPurchaseStatus> => {
+    await useAuthStore.getState().hydrateAuth();
+    const {data} = await API.get<IContentPurchaseStatus>(`/v1/movies/${movieId}/purchase-status`);
+    return data;
 };

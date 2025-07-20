@@ -9,13 +9,24 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
-import {addToWatchlist, findMovieById, findMovies, getUserReactions, getWatchlist} from '../../../lib/api/movies.lib';
+import {
+    addToWatchlist,
+    buyMovie,
+    findMovieById,
+    findMovies,
+    getMoviePurchaseStatus,
+    getUserReactions,
+    getWatchlist,
+    IContentPurchaseStatus,
+    rentMovie,
+} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import ResultModal from '../../../components/ResultModal/ResultModal';
 import useAuthStore from '../../../stores/auth.store';
+import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
 
 type ContentDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentDetailScreen'>;
 
@@ -88,11 +99,93 @@ export default function ContentDetailScreen({navigation}: Props) {
         rating,
         year,
         rated,
-        length,
         movieURL,
         duration,
         trailerURL,
+        rentable,
+        buyable,
+        rentalPrice,
+        buyPrice,
+        rentalDurationHrs = undefined,
     } = movie[0] || {};
+
+    const playContent = () => {
+        navigation2.navigate('ContentPlayer', {id, movieURL, landscapeURL, title});
+    };
+
+    const [purchaseStatus, setPurchaseStatus] = useState<IContentPurchaseStatus>({active: false});
+
+    useEffect(() => {
+        if (!id) return;
+        (async () => {
+            const status = await getMoviePurchaseStatus(id);
+            setPurchaseStatus(status);
+        })();
+    }, [id]);
+
+    const rentalLabel =
+        rentable && rentalPrice && rentalDurationHrs ? `Rent ${rentalPrice} AD for ${rentalDurationHrs}h` : undefined;
+    const buyLabel = buyable && buyPrice ? `Buy for ${buyPrice} AD` : undefined;
+
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Determine primary button text
+    const primaryText = purchaseStatus.active
+        ? 'Play'
+        : !rentable && !buyable
+        ? 'Play for Free'
+        : rentable && !buyable
+        ? rentalLabel!
+        : buyable && !rentable
+        ? buyLabel!
+        : 'Buy or Rent';
+
+    // 6) Handle the primary tap
+    const handlePrimary = async () => {
+        // If they've already paid (or it's free), just play
+        if (purchaseStatus.active || (!rentable && !buyable)) {
+            return playContent();
+        }
+
+        // Rent only
+        if (rentable && !buyable) {
+            setIsProcessing(true);
+            const ok = await rentMovie(id);
+            setIsProcessing(false);
+            if (ok) playContent();
+            return;
+        }
+
+        // Buy only
+        if (buyable && !rentable) {
+            setIsProcessing(true);
+            const ok = await buyMovie(id);
+            setIsProcessing(false);
+            if (ok) playContent();
+            return;
+        }
+
+        // Both options → show modal
+        setShowPurchaseModal(true);
+    };
+
+    // 7) Rent / Buy callbacks
+    const handleRent = async () => {
+        setShowPurchaseModal(false);
+        setIsProcessing(true);
+        const ok = await rentMovie(id);
+        setIsProcessing(false);
+        if (ok) playContent();
+    };
+
+    const handleBuy = async () => {
+        setShowPurchaseModal(false);
+        setIsProcessing(true);
+        const ok = await buyMovie(id);
+        setIsProcessing(false);
+        if (ok) playContent();
+    };
 
     const [showAddToWatchListConfirmationModal, setShowAddToWatchListConfirmationModal] = useState(false);
 
@@ -199,15 +292,8 @@ export default function ContentDetailScreen({navigation}: Props) {
                                     movieURL={movieURL}
                                     genre1={genres[0]}
                                     genre2={genres[1]}
-                                    contentButtonName="Play Movie"
-                                    playContent={() => {
-                                        navigation2.navigate('ContentPlayer', {
-                                            id: id,
-                                            movieURL: movieURL,
-                                            landscapeURL: landscapeURL,
-                                            title,
-                                        });
-                                    }}
+                                    contentButtonName={isProcessing ? 'Processing…' : primaryText}
+                                    playContent={handlePrimary}
                                     PlayTrailer={() => {
                                         navigation2.navigate('TrailerPlayer', {
                                             id: id,
@@ -253,6 +339,17 @@ export default function ContentDetailScreen({navigation}: Props) {
                 <Modal animationType="fade" transparent={true} visible={showResultModal}>
                     <ResultModal closeModal={handleCloseResultModal} type={typeResultModal} />
                 </Modal>
+
+                {!purchaseStatus.active && rentable && buyable && (
+                    <ContentPurchaseModal
+                        visible={showPurchaseModal}
+                        onClose={() => setShowPurchaseModal(false)}
+                        onRent={handleRent}
+                        onBuy={handleBuy}
+                        rentalLabel={rentalLabel}
+                        buyLabel={buyLabel}
+                    />
+                )}
             </SafeAreaView>
         </TabContainer>
     );

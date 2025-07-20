@@ -25,6 +25,12 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         });
         toggleOpened();
     };
+    const handlePressCalendar = () => {
+        navigation.navigate('AkcruButtonStack', {
+            screen: 'AkcruNetworkScreen',
+        });
+        toggleOpened();
+    };
 
     const handlePressCenterButton = () => {
         toggleOpened();
@@ -50,6 +56,38 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     return (
         <View style={styles.container}>
             <View style={styles.box}>
+                <Pressable onPressIn={handlePressCalendar}>
+                    <Animated.View
+                        style={[
+                            styles.item,
+                            opacity,
+                            {
+                                transform: [
+                                    {
+                                        translateX: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -78],
+                                        }),
+                                    },
+                                    {
+                                        translateY: animation.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, -90],
+                                        }),
+                                    },
+                                ],
+                            },
+                        ]}>
+                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
+                        <Icon
+                            name="calendar"
+                            type="material-community"
+                            color={COLORS.WHITE}
+                            size={25}
+                            style={styles.itemIcon}
+                        />
+                    </Animated.View>
+                </Pressable>
                 <Pressable onPressIn={handlePressShop}>
                     <Animated.View
                         style={[
@@ -60,13 +98,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 10],
+                                            outputRange: [0, 8],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -170],
+                                            outputRange: [0, -150],
                                         }),
                                     },
                                 ],
@@ -92,13 +130,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 8],
+                                            outputRange: [0, 90],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -100],
+                                            outputRange: [0, -90],
                                         }),
                                     },
                                 ],

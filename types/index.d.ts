@@ -48,6 +48,11 @@ interface IUserProfile {
     matchLabel: string;
     canGrantAD: boolean;
     hasSetFlirtPref: boolean;
+    ADTransaction: IADTransaction[];
+    AdPurchase: IAdPurchase[];
+    MoviePurchase: IMoviePurchase[];
+    visionaryStatus: boolean;
+    SeasonPurchase: ISeasonPurchase[];
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
@@ -97,6 +102,15 @@ export interface IMovie {
     updatedAt: string;
     sponsored: boolean;
     flickFlirt: boolean;
+    shortFilm: boolean;
+    rentalDurationHrs?: number | null;
+    totalADEarned: string; // BigInt serialized as string
+    rentable: boolean;
+    buyable: boolean;
+    rentalPrice?: string; // BigInt serialized as string
+    buyPrice?: string; // BigInt serialized as string
+    rentCount: number;
+    buyCount: number;
 }
 
 export interface IGenreItem {
@@ -313,6 +327,16 @@ export interface IMovie {
     updatedAt: string;
     sponsored: boolean;
     blackInTheDays: boolean;
+    flickFlirt: boolean;
+    shortFilm: boolean;
+    rentalDurationHrs?: number | null;
+    totalADEarned: string; // BigInt serialized as string
+    rentable: boolean;
+    buyable: boolean;
+    rentalPrice?: string; // BigInt serialized as string
+    buyPrice?: string; // BigInt serialized as string
+    rentCount: number;
+    buyCount: number;
 }
 
 export interface IGenreItem {
@@ -640,6 +664,14 @@ export interface ISeason {
     year: number;
     actors: IActor[];
     director: IDirector[];
+    rentalDurationHrs?: number | null;
+    totalADEarned: string; // BigInt serialized as string
+    rentable: boolean;
+    buyable: boolean;
+    rentalPrice?: string; // BigInt serialized as string
+    buyPrice?: string; // BigInt serialized as string
+    rentCount: number;
+    buyCount: number;
 }
 
 export interface IEpisode {
@@ -713,14 +745,6 @@ interface IUserTrailerReaction {
     user: IUser;
     trailer: ITrailer;
 }
-
-// export enum IPollType {
-//     TEXT = 'TEXT',
-//     IMAGE = 'IMAGE',
-//     VIDEO = 'VIDEO',
-//     REEL = 'REEL',
-//     HYBRID = 'HYBRID',
-// }
 
 export type IPollType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
 
@@ -803,4 +827,42 @@ export interface IPollCommentLike {
     user: IUserProfile;
     pollComment: IPollComment;
     dateCreated: Date;
+}
+
+export type IADTransactionType = 'REWARD' | 'PURCHASE' | 'GIFT';
+
+export interface IADTransaction {
+    id: string;
+    senderId: string;
+    receiverId: string;
+    amount: string; // BigInt serialized as string
+    createdAt: string; // ISO date string
+    updatedAt: string; // ISO date string
+    initiatorId?: string; // optional
+    transactionType: IADTransactionType;
+}
+
+// === Content purchase types ===
+export type IContentPurchaseType = 'RENT' | 'BUY';
+
+// === MoviePurchase ===
+export interface IMoviePurchase {
+    id: string;
+    userId: string;
+    movieId: string;
+    amount: string; // BigInt serialized as string
+    purchasedAt: string; // ISO date string
+    expireAt: string | null; // null for permanent purchases
+    purchaseType: IContentPurchaseType;
+}
+
+// === SeasonPurchase ===
+export interface ISeasonPurchase {
+    id: string;
+    userId: string;
+    seasonId: string;
+    amount: string;
+    purchasedAt: string;
+    expireAt: string | null;
+    purchaseType: IContentPurchaseType;
 }
