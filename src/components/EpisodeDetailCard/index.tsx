@@ -1,7 +1,6 @@
-import {View, Text, TouchableOpacity, Image, Modal} from 'react-native';
+import {View, Text, TouchableOpacity, Image} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
-import styles from './styles';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../assets/images/imageindex';
 import LinearGradient from 'react-native-linear-gradient';
@@ -11,11 +10,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import {formatMovieDuration} from '../../util/util';
 import {capitalizeFirstLetterOfString} from '../../util/util';
-import ConfirmationModal from '../ConfirmationModal';
 import {API} from '../../clients/api.client';
-import {MULTISIZES} from '../../../assets/constants/theme';
 import Orientation from 'react-native-orientation-locker';
-import { ISeason } from '../../../types';
 
 type ReactionStat = {
     type: string;
@@ -342,18 +338,6 @@ const EpisodeDetailCard = ({
                     ))}
                 </View>
 
-                {/*
-                //Send MIT button
-
-                <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                    <TouchableOpacity onPress={onPress}>
-                        <View style={styles.MITbutton}>
-                            <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-
-                            <Text style={{...FONTS.Title2AkcruBlue}}>Send Invite Ticket</Text>
-                        </View>
-                    </TouchableOpacity>
-                </View> */}
                 <View
                     style={{
                         height: 40,
@@ -366,7 +350,7 @@ const EpisodeDetailCard = ({
                         style={{width: 26, height: 26, marginRight: 10}}
                         resizeMode="contain"
                     />
-                    <Text style={{...FONTS.Title2Orange}}>Earn up to 100 AKCRU dollars</Text>
+                    <Text style={{...FONTS.Title2Orange}}>Earn AKCRU dollars</Text>
                 </View>
 
                 <View style={{marginHorizontal: 15, marginTop: 15}}>

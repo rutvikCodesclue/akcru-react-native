@@ -114,30 +114,6 @@ export function CrummunityStack() {
                     headerShown: false,
                 })}
             />
-            {/* <Crummunity.Screen
-              name="AkcruNetworkScreen"
-              component={AkcruNetworkScreen}
-              options={{
-                  headerShown: false,
-
-          }}
-        />
-        <Crummunity.Screen
-          name="PurchaseMITScreen"
-          component={PurchaseMITScreen}
-          options={{
-            headerShown: false,
-
-          }}
-        />
-        <Crummunity.Screen
-          name="FlickFlirtScreen"
-          component={FlickFlirtScreen}
-          options={{
-            headerShown: false,
-
-          }}
-        /> */}
         </Crummunity.Navigator>
     );
 }

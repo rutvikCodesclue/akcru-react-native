@@ -27,6 +27,8 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import ResultModal from '../../../components/ResultModal/ResultModal';
 import useAuthStore from '../../../stores/auth.store';
 import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
+import {getUserWallet} from '../../../lib/api/wallet.lib';
+import ComfirmationModal from '../../../components/ConfirmationModal';
 
 type ContentDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentDetailScreen'>;
 
@@ -43,7 +45,25 @@ export default function ContentDetailScreen({navigation}: Props) {
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentDetailScreen'>>();
     const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
 
+    const [confirmAction, setConfirmAction] = useState<'rent' | 'buy' | null>(null);
+
     const user = useAuthStore(state => state.user);
+    // grab the raw string|null out of the store
+    const rawBalance = useAuthStore(s => s.walletBalance);
+
+    // coerce it to a number, defaulting to 0 if it was null or unparsable
+    const balance = rawBalance != null ? Number(rawBalance) : 0;
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+
+    useEffect(() => {
+        getUserWallet()
+            .then(b => {
+                if (b !== undefined) {
+                    setWalletBalance(b);
+                }
+            })
+            .catch(e => console.error('wallet fetch failed', e));
+    }, [setWalletBalance]);
 
     useEffect(() => {
         const fetchMovie = async () => {
@@ -104,8 +124,8 @@ export default function ContentDetailScreen({navigation}: Props) {
         trailerURL,
         rentable,
         buyable,
-        rentalPrice,
-        buyPrice,
+        rentalPrice: rentalPriceStr,
+        buyPrice: buyPriceStr,
         rentalDurationHrs = undefined,
     } = movie[0] || {};
 
@@ -123,9 +143,17 @@ export default function ContentDetailScreen({navigation}: Props) {
         })();
     }, [id]);
 
+    const rentCost = rentalPriceStr != null ? Number(rentalPriceStr) : 0;
+    const buyCost = buyPriceStr != null ? Number(buyPriceStr) : 0;
+
     const rentalLabel =
-        rentable && rentalPrice && rentalDurationHrs ? `Rent ${rentalPrice} AD for ${rentalDurationHrs}h` : undefined;
-    const buyLabel = buyable && buyPrice ? `Buy for ${buyPrice} AD` : undefined;
+        rentable && rentCost && rentalDurationHrs ? `${rentalDurationHrs}h rental for ${rentCost} AD` : undefined;
+    const buyLabel = buyable && buyCost ? `Buy for ${buyCost} AD` : undefined;
+
+    // for the currently selected item:
+
+    const canRent = balance >= rentCost;
+    const canBuy = balance >= buyCost;
 
     const [showPurchaseModal, setShowPurchaseModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -141,48 +169,42 @@ export default function ContentDetailScreen({navigation}: Props) {
         ? buyLabel!
         : 'Buy or Rent';
 
-    // 6) Handle the primary tap
-    const handlePrimary = async () => {
-        // If they've already paid (or it's free), just play
-        if (purchaseStatus.active || (!rentable && !buyable)) {
-            return playContent();
-        }
-
-        // Rent only
-        if (rentable && !buyable) {
-            setIsProcessing(true);
-            const ok = await rentMovie(id);
-            setIsProcessing(false);
-            if (ok) playContent();
+    // 6) New simplified “play or pay” gate:
+    const handlePrimary = () => {
+        // If it’s locked (active=false) and needs purchase …
+        if (!purchaseStatus.active && (rentable || buyable)) {
+            setShowPurchaseModal(true);
             return;
         }
+        // otherwise just play
+        playContent();
+    };
 
-        // Buy only
-        if (buyable && !rentable) {
-            setIsProcessing(true);
-            const ok = await buyMovie(id);
-            setIsProcessing(false);
-            if (ok) playContent();
-            return;
+    // 7) “Yes, I want to rent/buy” → queue up confirmation
+    const handleRent = () => {
+        setShowPurchaseModal(false);
+        setConfirmAction('rent');
+    };
+    const handleBuy = () => {
+        setShowPurchaseModal(false);
+        setConfirmAction('buy');
+    };
+
+    // 8) After they confirm in the ConfirmationModal
+    const runPurchase = async () => {
+        if (!confirmAction) return;
+        setConfirmAction(null);
+        setIsProcessing(true);
+
+        let ok = false;
+        if (confirmAction === 'rent') {
+            ok = await rentMovie(id!);
+            if (ok) setPurchaseStatus({active: true}); // you can expand .purchase if you need it
+        } else {
+            ok = await buyMovie(id!);
+            if (ok) setPurchaseStatus({active: true});
         }
 
-        // Both options → show modal
-        setShowPurchaseModal(true);
-    };
-
-    // 7) Rent / Buy callbacks
-    const handleRent = async () => {
-        setShowPurchaseModal(false);
-        setIsProcessing(true);
-        const ok = await rentMovie(id);
-        setIsProcessing(false);
-        if (ok) playContent();
-    };
-
-    const handleBuy = async () => {
-        setShowPurchaseModal(false);
-        setIsProcessing(true);
-        const ok = await buyMovie(id);
         setIsProcessing(false);
         if (ok) playContent();
     };
@@ -340,7 +362,7 @@ export default function ContentDetailScreen({navigation}: Props) {
                     <ResultModal closeModal={handleCloseResultModal} type={typeResultModal} />
                 </Modal>
 
-                {!purchaseStatus.active && rentable && buyable && (
+                {!purchaseStatus.active && (rentable || buyable) && (
                     <ContentPurchaseModal
                         visible={showPurchaseModal}
                         onClose={() => setShowPurchaseModal(false)}
@@ -348,7 +370,25 @@ export default function ContentDetailScreen({navigation}: Props) {
                         onBuy={handleBuy}
                         rentalLabel={rentalLabel}
                         buyLabel={buyLabel}
+                        canRent={canRent}
+                        canBuy={canBuy}
+                        rentalPrice={rentCost}
+                        buyPrice={buyCost}
+                        balance={balance}
                     />
+                )}
+                {confirmAction != null && (
+                    <Modal transparent animationType="fade" visible onRequestClose={() => setConfirmAction(null)}>
+                        <ComfirmationModal
+                            confirmationText={
+                                confirmAction === 'rent'
+                                    ? `Rent this movie for ${rentCost} AD? This cannot be undone.`
+                                    : `Buy this movie for ${buyCost} AD? This cannot be undone.`
+                            }
+                            onPressYes={runPurchase}
+                            onPressNo={() => setConfirmAction(null)}
+                        />
+                    </Modal>
                 )}
             </SafeAreaView>
         </TabContainer>

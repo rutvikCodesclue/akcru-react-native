@@ -38,6 +38,7 @@ import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../../util/playMessageSound';
 import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
+import PurchasedContent from '../../../components/PurchasedContent';
 
 const UserProfileDetailsTab = () => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
@@ -190,18 +191,6 @@ const UserProfileDetailsTab = () => {
             loadLikes();
         }
     }, [userPics]);
-
-    const getFileSize = async filePath => {
-        try {
-            const response = await fetch(filePath, {method: 'HEAD'});
-            const contentLength = response._bodyBlob._data.size;
-            return contentLength ? parseInt(contentLength, 10) : 0;
-        } catch (error) {
-            console.error('Error getting file size: ', error);
-            Alert.alert('Error', 'Could not get file size.');
-            return 0;
-        }
-    };
 
     const compressImage = async image => {
         const compressedImagePath = await CompressorImage.compress(image, {
@@ -741,6 +730,8 @@ const UserProfileDetailsTab = () => {
                                         <Text style={{color: 'gray'}}>Your Favorites will appear here</Text>
                                     </View>
                                 )}
+                                <View style={styles.lineDivider} />
+                                <PurchasedContent />
                                 <View style={styles.lineDivider} />
                                 <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
                                     <AkcruButtons.LrgButton

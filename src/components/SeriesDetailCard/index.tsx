@@ -51,7 +51,6 @@ type SeriesDetailCardProps = {
     portraitURL: string;
     seriesTrailerURL: string;
     landscapeURL: string;
-    price: number;
     genre1: string;
     genre2: string;
     onPress: () => void;
@@ -66,6 +65,15 @@ type SeriesDetailCardProps = {
     duration: number;
     seasons: {id: string; seasonNumber: number}[];
     episodes: Episode[];
+
+    selectedSeasonId: string;
+    onSelectSeason: (seasonId: string) => void;
+    seasonUnlocked: boolean;
+    onRent: () => void;
+    onBuy: () => void;
+    rentalLabel?: string;
+    buyLabel?: string;
+    onLockedPress: () => void;
 };
 
 const SeriesDetailCard = ({
@@ -81,7 +89,6 @@ const SeriesDetailCard = ({
     portraitURL,
     seriesTrailerURL,
     landscapeURL,
-    price,
     genre1,
     genre2,
     onPress,
@@ -96,16 +103,23 @@ const SeriesDetailCard = ({
     duration,
     seasons,
     episodes,
+    selectedSeasonId,
+    onSelectSeason,
+    seasonUnlocked,
+    onRent,
+    onBuy,
+    rentalLabel,
+    buyLabel,
+    onLockedPress,
 }: SeriesDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
-    const [selectedSeasonId, setSelectedSeasonId] = useState<string>(seasons[0]?.id);
 
     const handleSeasonSelect = (seasonId: string) => {
-        setSelectedSeasonId(seasonId);
+        onSelectSeason(seasonId);
     };
 
     useEffect(() => {
@@ -135,21 +149,23 @@ const SeriesDetailCard = ({
                 <View style={{marginRight: 10}}>
                     <TouchableOpacity
                         onPress={() => {
-                            console.log('Episode ID:', item.id);
-                            navigation.navigate('EpisodePlayer', {
-                                seriesId,
-                                seasonId: item.seasonId,
-                                episodeId: item.id,
-                            });
+                            if (seasonUnlocked) {
+                                navigation.navigate('EpisodePlayer', {
+                                    seriesId: id,
+                                    seasonId: item.seasonId,
+                                    episodeId: item.id,
+                                });
+                            } else {
+                                onLockedPress();
+                            }
                         }}>
-                        <View
-                            style={{
-                                position: 'absolute',
-                                zIndex: 20,
-                                top: -8,
-                                left: SIZES.ScreenWidth * 0.05,
-                            }}>
-                            <CustomIcon name="play-circle" color={COLORS.TRANSPINK} type={'ionicon'} baseSize={60} />
+                        <View style={{position: 'absolute', zIndex: 20, top: -8, left: SIZES.ScreenWidth * 0.05}}>
+                            <CustomIcon
+                                name={seasonUnlocked ? 'play-circle' : 'lock-closed'}
+                                color={seasonUnlocked ? COLORS.TRANSPINK : COLORS.TRANSPINK}
+                                type="ionicon"
+                                baseSize={60}
+                            />
                         </View>
                         <Image
                             source={{uri: item.landscapeURL}}
@@ -157,6 +173,7 @@ const SeriesDetailCard = ({
                                 height: SIZES.ScreenWidth * 0.2,
                                 width: SIZES.ScreenWidth * 0.3,
                                 borderRadius: 5,
+                                opacity: seasonUnlocked ? 1 : 0.5,
                             }}
                             resizeMode="cover"
                         />
@@ -166,26 +183,18 @@ const SeriesDetailCard = ({
                     <Text style={{...FONTS.Title2}}>{`Ep. ${item.episodeNumber}`}</Text>
                     <Text style={{...FONTS.Title2}}>{item.title}</Text>
                     <Text style={{...FONTS.paragraph1}}> {formatMovieDuration(item.duration)}</Text>
-                    <TouchableOpacity
-                        onPress={() => {
-                            console.log('Episode ID:', item.id);
-                            navigation.navigate('EpisodeDetailScreen', {
-                                seriesId,
-                                seasonId: item.seasonId,
-                                episodeId: item.id,
-                            });
-                        }}>
-                        <Text style={{...FONTS.Title2, color: COLORS.PINK, marginTop: 10}}>Details</Text>
-                    </TouchableOpacity>
-                    {/* <View style={{flexDirection: 'row', marginBottom: 5}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
+                    {seasonUnlocked && (
+                        <TouchableOpacity
+                            onPress={() => {
+                                navigation.navigate('EpisodeDetailScreen', {
+                                    seriesId,
+                                    seasonId: item.seasonId,
+                                    episodeId: item.id,
+                                });
                             }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {item.actors}
-                        </Text>
-                    </View> */}
+                            <Text style={{...FONTS.Title2, color: COLORS.PINK, marginTop: 10}}>Details</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
             <View style={{marginTop: 10}}>
@@ -318,7 +327,7 @@ const SeriesDetailCard = ({
                             position: 'absolute',
                             left: 0,
                             right: 0,
-                            top: SIZES.ScreenHeight * -0.32,
+                            top: SIZES.ScreenHeight * -0.4,
                             marginHorizontal: 15,
                         }}>
                         <View

@@ -196,3 +196,9 @@ export const getMoviePurchaseStatus = async (movieId: string): Promise<IContentP
     const {data} = await API.get<IContentPurchaseStatus>(`/v1/movies/${movieId}/purchase-status`);
     return data;
 };
+
+export const getPurchasedMovies = async (): Promise<IMovie[]> => {
+    await useAuthStore.getState().hydrateAuth();
+    const {data} = await API.get<{success: boolean; movies: IMovie[]}>('/v1/movies/purchased');
+    return data.success ? data.movies : [];
+};

@@ -1,133 +1,244 @@
-import {View, ScrollView, SafeAreaView, ActivityIndicator} from 'react-native';
-import React, {useState, useEffect} from 'react';
-import styles from './styles';
-import Header from '../../../components/header';
-import {COLORS} from '../../../../assets/constants';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
-import {useRoute, useNavigation} from '@react-navigation/native';
-import {getUserReactions} from '../../../lib/api/movies.lib';
-import {ISeries} from '../../../../types';
-import TabContainer from '../../../components/TabContainer/TabContainer';
+import React, {useState, useEffect, useCallback} from 'react';
+import {View, ScrollView, SafeAreaView, ActivityIndicator, Modal} from 'react-native';
+import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
 import useAuthStore from '../../../stores/auth.store';
+import {getUserWallet} from '../../../lib/api/wallet.lib';
+import {findSeriesWithEpisodes, getSeasonPurchaseStatus, rentSeason, buySeason} from '../../../lib/api/series.lib';
+import {getUserReactions} from '../../../lib/api/movies.lib';
 import SeriesDetailCard from '../../../components/SeriesDetailCard';
-import {findSeriesById, findSeriesWithEpisodes} from '../../../lib/api/series.lib';
+import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
+import TabContainer from '../../../components/TabContainer/TabContainer';
+import Header from '../../../components/header';
+import {ISeries} from '../../../../types';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import {COLORS} from '../../../../assets/constants';
+import ComfirmationModal from '../../../components/ConfirmationModal';
 
 type SeriesDetailScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>;
 
-type Props = {
-    route: SeriesDetailScreenRouteProp;
-};
-
-export default function SeriesDetailScreen({route}: Props) {
-    const [series, setSeries] = useState<ISeries | null>(null);
-    const [isSeriesDataLoaded, setIsSeriesDataLoaded] = useState(false);
-    const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>>();
-    const user = useAuthStore(state => state.user);
-
-    useEffect(() => {
-        const fetchSeries = async () => {
-            try {
-                const id: string | undefined = routeParams.params?.id;
-                if (id) {
-                    const fetchedSeries: ISeries | null = await findSeriesWithEpisodes(id);
-                    if (fetchedSeries) {
-                        setSeries(fetchedSeries);
-                        setIsSeriesDataLoaded(true);
-                    } else {
-                        setSeries(null);
-                        setIsSeriesDataLoaded(false);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching series:', error);
-                setIsSeriesDataLoaded(false);
-            }
-        };
-
-        fetchSeries();
-    }, [routeParams.params?.id]);
-
-    const [reactions, setReactions] = useState<string[]>([]);
-
-    useEffect(() => {
-        getUserReactions().then(fetchedReactions => {
-            if (Array.isArray(fetchedReactions)) {
-                setReactions(fetchedReactions);
-            }
-        });
-    }, []);
-
+export default function SeriesDetailScreen() {
+    const route = useRoute<SeriesDetailScreenRouteProp>();
     const navigation = useNavigation();
 
-    const handlePlaySeries = () => {
-        if (series && series.seasons.length > 0 && series.seasons[0].episodes.length > 0) {
-            const firstEpisode = series.seasons[0].episodes[0];
-            navigation.navigate('EpisodePlayer', {
-                seriesId: series.id,
-                seasonId: firstEpisode.seasonId,
-                episodeId: firstEpisode.id,
-                episodeURL: firstEpisode.episodeURL,
-                landscapeURL: firstEpisode.landscapeURL,
-            });
+    const [series, setSeries] = useState<ISeries | null>(null);
+    const [isSeriesDataLoaded, setIsSeriesDataLoaded] = useState(false);
+
+    const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
+    const [purchaseStatus, setPurchaseStatus] = useState<{
+        active: boolean;
+        purchaseType?: 'RENT' | 'BUY' | null;
+        expireAt?: string | null;
+    }>({active: false});
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const [confirmAction, setConfirmAction] = useState<'rent' | 'buy' | null>(null);
+
+    const [reactions, setReactions] = useState<string[]>([]);
+    const rawBalance = useAuthStore(s => s.walletBalance);
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+    const balance = rawBalance != null ? Number(rawBalance) : 0;
+
+    // 1) load wallet & reactions once
+    useEffect(() => {
+        getUserWallet().then(b => {
+            if (b !== undefined) setWalletBalance(b);
+        });
+        getUserReactions().then(r => Array.isArray(r) && setReactions(r));
+    }, [setWalletBalance]);
+
+    // 2) fetch entire series/package
+    useEffect(() => {
+        const load = async () => {
+            const id = route.params?.id;
+            if (!id) return;
+            const s = await findSeriesWithEpisodes(id);
+            if (s) {
+                setSeries(s);
+                setIsSeriesDataLoaded(true);
+                setSelectedSeasonId(s.seasons[0].id);
+            }
+        };
+        load();
+    }, [route.params?.id]);
+
+    // 3) refetch purchaseStatus helper
+    const refetchSeasonStatus = useCallback(async () => {
+        if (!selectedSeasonId) return;
+        const status = await getSeasonPurchaseStatus(selectedSeasonId);
+        setPurchaseStatus(status);
+    }, [selectedSeasonId]);
+
+    // 4) on focus
+    useFocusEffect(
+        useCallback(() => {
+            refetchSeasonStatus();
+        }, [refetchSeasonStatus]),
+    );
+
+    if (!series || !selectedSeasonId) return null;
+
+    // 5) derive flags & costs
+    const cur = series.seasons.find(s => s.id === selectedSeasonId)!;
+    const rentable = cur.rentable;
+    const buyable = cur.buyable;
+    const rentCost = cur.rentalPrice != null ? Number(cur.rentalPrice) : 0;
+    const buyCost = cur.buyPrice != null ? Number(cur.buyPrice) : 0;
+    const rentalHours = cur.rentalDurationHrs;
+
+    const alwaysFree = !rentable && !buyable;
+    const unlocked = alwaysFree || purchaseStatus.active;
+
+    const rentalLabel = rentable && rentalHours ? `${rentalHours}h rental for ${rentCost} AD` : undefined;
+    const buyLabel = buyable ? `Buy the season for ${buyCost} AD` : undefined;
+
+    const canRent = balance >= rentCost;
+    const canBuy = balance >= buyCost;
+
+    const primaryText = purchaseStatus.active
+        ? 'Play'
+        : alwaysFree
+        ? 'Play for Free'
+        : rentable && !buyable
+        ? rentalLabel!
+        : buyable && !rentable
+        ? buyLabel!
+        : 'Buy or Rent';
+
+    // 6) helper to play first ep
+    const playFirstEpisode = () => {
+        const ep = cur.episodes[0]!;
+        navigation.navigate('EpisodePlayer', {
+            seriesId: series.id,
+            seasonId: cur.id,
+            episodeId: ep.id,
+            episodeURL: ep.episodeURL,
+            landscapeURL: ep.landscapeURL,
+        });
+    };
+
+    // 7) main button handler
+    const handlePrimary = () => {
+        if (!purchaseStatus.active && (rentable || buyable)) {
+            setShowPurchaseModal(true);
+        } else {
+            playFirstEpisode();
         }
     };
+
+    const handleRent = async () => {
+        setShowPurchaseModal(false);
+        setIsProcessing(true);
+        const ok = await rentSeason(cur.id);
+        setIsProcessing(false);
+        if (ok) {
+            // mark unlocked client‐side so they won’t pay again
+            setPurchaseStatus({active: true, purchaseType: 'RENT', expireAt: null});
+            playFirstEpisode();
+        }
+    };
+
+    const handleBuy = async () => {
+        setShowPurchaseModal(false);
+        setIsProcessing(true);
+        const ok = await buySeason(cur.id);
+        setIsProcessing(false);
+        if (ok) {
+            setPurchaseStatus({active: true, purchaseType: 'BUY', expireAt: null});
+            playFirstEpisode();
+        }
+    };
+
+    console.log('Season status:', purchaseStatus);
 
     return (
         <TabContainer>
             <SafeAreaView>
                 <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-                    <View>
-                        <Header />
-                    </View>
-                    {isSeriesDataLoaded && series ? (
-                        <View style={{marginBottom: '5%'}}>
-                            <View style={{marginTop: -65, marginBottom: 10}}>
-                                <SeriesDetailCard
-                                    reactions={reactions}
-                                    portraitURL={series.portraitURL}
-                                    title={series.title}
-                                    years={series.years}
-                                    yearsActive={series.yearsActive}
-                                    rated={series.rated}
-                                    rating={series.rating}
-                                    description={series.description}
-                                    actors={series.actors.map(actor => actor.name).join(', ')}
-                                    directors={series.director.map(director => director.name).join(', ')}
-                                    id={series.id}
-                                    seriesTrailerURL={series.seriesTrailerURL}
-                                    landscapeURL={series.landscapeURL}
-                                    price={series.price}
-                                    seasons={series.seasons}
-                                    episodes={series.seasons.flatMap(season => season.episodes)}
-                                    genre1={series.genres[0]}
-                                    genre2={series.genres[1]}
-                                    contentButtonName="Play Series"
-                                    playSeries={handlePlaySeries}
-                                    PlayTrailer={() => {
-                                        navigation.navigate('SeriesTrailerPlayer', {
-                                            id: series.id,
-                                            seriesTrailerURL: series.seriesTrailerURL,
-                                            landscapeURL: series.landscapeURL,
-                                        });
-                                    }}
-                                    onPress={() => {
-                                        navigation.navigate('MITDateSchedule', {
-                                            id: series.id,
-                                            title: series.title,
-                                            portraitURL: series.portraitURL,
-                                            year: series.years,
-                                        });
-                                    }}
-                                />
-                            </View>
-                        </View>
+                    <Header />
+                    {isSeriesDataLoaded ? (
+                        <SeriesDetailCard
+                            portraitURL={series.portraitURL}
+                            title={series.title}
+                            years={series.years}
+                            yearsActive={series.yearsActive}
+                            rated={series.rated}
+                            rating={series.rating}
+                            description={series.description}
+                            actors={series.actors.map(a => a.name).join(', ')}
+                            directors={series.director.map(d => d.name).join(', ')}
+                            id={series.id}
+                            seriesTrailerURL={series.seriesTrailerURL}
+                            landscapeURL={series.landscapeURL}
+                            seasons={series.seasons}
+                            episodes={series.seasons.flatMap(s => s.episodes)}
+                            genre1={series.genres[0]}
+                            genre2={series.genres[1]}
+                            reactions={reactions}
+                            contentButtonName={isProcessing ? 'Processing…' : primaryText}
+                            playSeries={handlePrimary}
+                            onLockedPress={() => setShowPurchaseModal(true)}
+                            selectedSeasonId={selectedSeasonId}
+                            onSelectSeason={setSelectedSeasonId}
+                            seasonUnlocked={unlocked}
+                            onRent={handleRent}
+                            onBuy={handleBuy}
+                            rentalLabel={rentalLabel}
+                            buyLabel={buyLabel}
+                        />
                     ) : (
                         <View style={styles.activitycontainer}>
                             <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                         </View>
                     )}
                 </ScrollView>
+
+                {/* only show if it’s still locked */}
+                {!purchaseStatus.active && (rentable || buyable) && (
+                    <ContentPurchaseModal
+                        visible={showPurchaseModal}
+                        onClose={() => setShowPurchaseModal(false)}
+                        onRent={() => {
+                            setShowPurchaseModal(false);
+                            setConfirmAction('rent');
+                        }}
+                        onBuy={() => {
+                            setShowPurchaseModal(false);
+                            setConfirmAction('buy');
+                        }}
+                        rentalLabel={rentalLabel}
+                        buyLabel={buyLabel}
+                        canRent={canRent}
+                        canBuy={canBuy}
+                        rentalPrice={rentCost}
+                        buyPrice={buyCost}
+                        balance={balance}
+                    />
+                )}
+                {confirmAction != null && (
+                    <Modal
+                        transparent
+                        animationType="fade"
+                        visible={confirmAction != null}
+                        onRequestClose={() => setConfirmAction(null)}>
+                        <ComfirmationModal
+                            confirmationText={
+                                confirmAction === 'rent'
+                                    ? `Rent this season for ${rentCost} AD? This cannot be undone.`
+                                    : `Buy this season for ${buyCost} AD? This cannot be undone.`
+                            }
+                            onPressYes={() => {
+                                if (confirmAction === 'rent') handleRent();
+                                else handleBuy();
+                                setConfirmAction(null);
+                            }}
+                            onPressNo={() => {
+                                setConfirmAction(null);
+                            }}
+                        />
+                    </Modal>
+                )}
             </SafeAreaView>
         </TabContainer>
     );

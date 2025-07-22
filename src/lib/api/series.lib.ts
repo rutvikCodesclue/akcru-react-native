@@ -149,3 +149,51 @@ export const findEpisodeById = async (episodeId: string): Promise<IEpisode | nul
         return null;
     }
 };
+
+/** Rent a whole season with AD */
+export const rentSeason = async (seasonId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post(`/v1/series/${seasonId}/purchase-season`, {
+            purchaseType: 'RENT',
+        });
+        return data.success;
+    } catch {
+        return false;
+    }
+};
+
+/** Buy a whole season outright with AD */
+export const buySeason = async (seasonId: string): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post(`/v1/series/${seasonId}/purchase-season`, {
+            purchaseType: 'BUY',
+        });
+        return data.success;
+    } catch {
+        return false;
+    }
+};
+
+/**
+ * Get whether the current user has an unexpired rental or a permanent buy
+ * on this season.
+ */
+// export const getSeasonPurchaseStatus = async (seasonId: string): Promise<IContentPurchaseStatus> => {
+//     await useAuthStore.getState().hydrateAuth();
+//     const {data} = await API.get<IContentPurchaseStatus>(`/v1/series/${seasonId}/purchase-status`);
+//     return data;
+// };
+
+export async function getSeasonPurchaseStatus(seasonId: string) {
+    await useAuthStore.getState().hydrateAuth();
+    const {data} = await API.get(`/v1/series/${seasonId}/purchase-status`);
+    return data.status; // { active, purchaseType, expireAt }
+}
+
+export const getPurchasedSeries = async (): Promise<ISeries[]> => {
+    await useAuthStore.getState().hydrateAuth();
+    const {data} = await API.get<{success: boolean; series: ISeries[]}>('/v1/series/purchased');
+    return data.success ? data.series : [];
+};
