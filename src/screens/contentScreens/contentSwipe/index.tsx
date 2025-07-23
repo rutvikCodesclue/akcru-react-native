@@ -12,12 +12,13 @@ import {useState} from 'react';
 import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {findSponsoredMovies} from '../../../lib/api/movies.lib';
+import {isTablet} from '../../../../assets/constants/theme';
 
 const {width, height} = Dimensions.get('window');
 const TICKER_HEIGHT = MULTISIZES.medium14;
 const LOGO_WIDTH = 220;
 const LOGO_HEIGHT = 40;
-const CIRCLE_SIZE = width * 0.6;
+const CIRCLE_SIZE = width * 0.7;
 const DOT_SIZE = 15;
 
 type ContentSwipeNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentSwipe'>;
@@ -217,7 +218,14 @@ const Pagination = ({scrollX, onPress2, movies}) => {
                 })}
             </View>
             <TouchableOpacity onPress={onPress2}>
-                <Text style={{...FONTS.Title2, paddingTop: SIZES.ScreenHeight * 0.1, zIndex: 999, color: COLORS.PINK}}>
+                <Text
+                    style={{
+                        ...FONTS.Title2,
+                        paddingTop: isTablet() ? SIZES.ScreenHeight * 0.04 : SIZES.ScreenHeight * 0.1,
+                        zIndex: 999,
+                        color: COLORS.PINK,
+                        marginBottom: 10,
+                    }}>
                     Skip to Homepage
                 </Text>
             </TouchableOpacity>
@@ -326,9 +334,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     imageStyle: {
-        width: width * 1.35,
-        height: width * 1.9,
+        width: isTablet() ? width * 1 : width * 1.35,
+        height: isTablet() ? width * 1.5 : width * 1.9,
         resizeMode: 'cover',
+        marginTop: isTablet() ? -100 : 0,
 
         borderRadius: 10,
     },
@@ -336,7 +345,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         alignSelf: 'center',
         flex: 0.55,
-        marginTop: -170,
+        marginTop: isTablet() ? -300 : -175,
     },
     heading: {
         ...FONTS.Username,

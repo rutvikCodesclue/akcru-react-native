@@ -9,6 +9,7 @@ import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import LinearGradient from 'react-native-linear-gradient';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const OnboardBuildCru = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -37,7 +38,7 @@ const OnboardBuildCru = () => {
                 <View style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Last but not least our goal here at Akcru is to bring people together in a safe setting.
                                 Here is where you can start building your "Cru" that you'll be able to watch your

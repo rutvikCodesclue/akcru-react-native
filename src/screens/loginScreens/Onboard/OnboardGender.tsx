@@ -16,6 +16,7 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 5;
@@ -106,7 +107,7 @@ const OnboardGender = () => {
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <View style={{width: '90%'}}>
                                 <Text style={{...FONTS.Title2}}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}

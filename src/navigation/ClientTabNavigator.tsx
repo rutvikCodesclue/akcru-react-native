@@ -15,6 +15,7 @@ import AkcruButtonStack from './AkcruButtonStack';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import {API} from '../clients/api.client';
 import {DeviceEventEmitter} from 'react-native';
+import {isTablet} from '../../assets/constants/theme';
 
 export type ClientTabsParams = {
     UserProfileStack: any;
@@ -83,7 +84,12 @@ export default function ClientTabNavigator() {
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
-                            <Icon name="home-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                            <Icon
+                                name="home-outline"
+                                type="ionicon"
+                                color={color}
+                                size={isTablet() ? 30 : SIZES.SmallIcon}
+                            />
                         </View>
                     ),
                 }}
@@ -99,7 +105,12 @@ export default function ClientTabNavigator() {
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
-                            <Icon name="people-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                            <Icon
+                                name="people-outline"
+                                type="ionicon"
+                                color={color}
+                                size={isTablet() ? 30 : SIZES.SmallIcon}
+                            />
                         </View>
                     ),
                 }}
@@ -118,7 +129,7 @@ export default function ClientTabNavigator() {
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
-                            <View style={{marginTop: -15}}>
+                            <View style={{marginTop: isTablet() ? -20 : -15}}>
                                 <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />
                             </View>
                         </View>
@@ -136,7 +147,7 @@ export default function ClientTabNavigator() {
                                 name="heart-multiple-outline"
                                 type="material-community"
                                 color={color}
-                                size={SIZES.SmallIcon}
+                                size={isTablet() ? 30 : SIZES.SmallIcon}
                             />
                             {hasMatches && <View style={styles.redDot} />}
                         </View>
@@ -157,7 +168,12 @@ export default function ClientTabNavigator() {
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
-                            <Icon name="person-outline" type="ionicon" color={color} size={SIZES.SmallIcon} />
+                            <Icon
+                                name="person-outline"
+                                type="ionicon"
+                                color={color}
+                                size={isTablet() ? 30 : SIZES.SmallIcon}
+                            />
                         </View>
                     ),
                 }}
@@ -175,7 +191,7 @@ const styles = StyleSheet.create({
         padding: 0,
 
         bottom: Platform.OS === 'ios' ? 50 : 10,
-        height: 60,
+        height: isTablet() ? 80 : 60,
         borderRadius: 16,
         backgroundColor: COLORS.TRANSDARKGREY,
         borderTopColor: 'transparent',
@@ -192,10 +208,10 @@ const styles = StyleSheet.create({
     },
     tabIconContainer: {
         position: 'absolute',
-        top: 15,
+        top: isTablet() ? 20 : 15,
         alignItems: 'center',
         justifyContent: 'center',
-        width: '95%',
+        width: isTablet() ? '120%' : '95%',
     },
     redDot: {
         position: 'absolute',

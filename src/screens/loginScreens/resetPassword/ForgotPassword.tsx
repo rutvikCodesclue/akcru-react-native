@@ -13,6 +13,12 @@ import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
+import {isTablet} from '../../../../assets/constants/theme';
+
+const smlIconSize = isTablet() ? 28 : 20;
+const svgSize = isTablet() ? 200 : 150;
+const lrgIconSize = isTablet() ? 110 : 80;
+const iconMargin = isTablet() ? '5%' : '8%';
 
 const ForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -127,15 +133,15 @@ const ForgotPassword = () => {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                             }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
                             <Text style={{...FONTS.Title3, marginLeft: 5}}>Back to Signin</Text>
                         </View>
                     </TouchableOpacity>
                     <View style={{flex: 1, alignItems: 'center', marginTop: '45%'}}>
                         <View>
                             <Svg
-                                height={150}
-                                width={150}
+                                height={svgSize}
+                                width={svgSize}
                                 viewBox={`0 0 270 234`}
                                 style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
@@ -143,9 +149,9 @@ const ForgotPassword = () => {
                             <Icon
                                 name="key"
                                 type="ionicon"
-                                size={80}
+                                size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: '8%'}}
+                                style={{marginBottom: iconMargin}}
                             />
                         </View>
                         <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Forgot your password?</Text>

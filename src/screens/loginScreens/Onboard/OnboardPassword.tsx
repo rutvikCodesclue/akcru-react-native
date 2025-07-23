@@ -28,9 +28,11 @@ import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import {getPushToken} from '../../../../lib/pushNotifications';
 import {Icon} from '@rneui/base';
 import ProgressBar from '../../../components/ProgressBar';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 3;
+const iconSize = isTablet() ? 28 : 20;
 
 const OnboardPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -158,7 +160,7 @@ const OnboardPassword = ({route}) => {
                 <View style={styles.container}>
                     <View style={{flex: 1, alignItems: 'center'}}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                         </View>
                         <View style={{width: '90%'}}>
                             <Text style={{...FONTS.Title2}}>
@@ -176,7 +178,7 @@ const OnboardPassword = ({route}) => {
                                 <Icon
                                     name="lock-closed"
                                     type="ionicon"
-                                    size={20}
+                                    size={iconSize}
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />
@@ -187,6 +189,7 @@ const OnboardPassword = ({route}) => {
                                     onChangeText={handlePassword}
                                     value={password}
                                     editable={!loading}
+                                    placeholderTextColor={COLORS.DARKGREY}
                                 />
                                 <TouchableOpacity
                                     onPress={() => setPasswordVisible(!isPasswordVisible)}
@@ -194,7 +197,7 @@ const OnboardPassword = ({route}) => {
                                     <Icon
                                         name={isPasswordVisible ? 'eye' : 'eye-off'}
                                         type="ionicon"
-                                        size={20}
+                                        size={iconSize}
                                         color={COLORS.LIGHTGREY}
                                     />
                                 </TouchableOpacity>
@@ -206,7 +209,7 @@ const OnboardPassword = ({route}) => {
                                 <Icon
                                     name="lock-closed"
                                     type="ionicon"
-                                    size={20}
+                                    size={iconSize}
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />
@@ -217,6 +220,7 @@ const OnboardPassword = ({route}) => {
                                     onChangeText={handleConfirmPassword}
                                     value={confirmPassword}
                                     editable={!loading}
+                                    placeholderTextColor={COLORS.DARKGREY}
                                 />
                                 <TouchableOpacity
                                     onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
@@ -224,7 +228,7 @@ const OnboardPassword = ({route}) => {
                                     <Icon
                                         name={isConfirmPasswordVisible ? 'eye' : 'eye-off'}
                                         type="ionicon"
-                                        size={20}
+                                        size={iconSize}
                                         color={COLORS.LIGHTGREY}
                                     />
                                 </TouchableOpacity>
@@ -286,11 +290,14 @@ const styles1 = StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         backgroundColor: COLORS.TRANSDARKGREY,
+        width: SIZES.ScreenWidth * 0.9,
+        color: COLORS.WHITE,
     },
     input: {
         flex: 1, // Takes up the remaining space inside the container
         paddingVertical: 10,
         paddingRight: 40, // Ensure space for the icon
+        fontSize: isTablet() ? 18 : 14,
     },
     iconContainer: {
         position: 'absolute',

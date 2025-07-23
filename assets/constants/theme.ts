@@ -1,9 +1,22 @@
-import {Dimensions, PixelRatio} from 'react-native';
+import {Dimensions, PixelRatio, Platform} from 'react-native';
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
+const {width, height} = Dimensions.get('window');
+const aspectRatio = height / width;
+
+export const isTablet = () => {
+    const pixelDensity = PixelRatio.get();
+    const adjustedWidth = width * pixelDensity;
+    const adjustedHeight = height * pixelDensity;
+    return (
+        (Platform.OS === 'android' || Platform.OS === 'ios') &&
+        (adjustedWidth >= 1000 || adjustedHeight >= 1000) &&
+        aspectRatio <= 1.6
+    );
+};
 
 const fontScale = PixelRatio.getFontScale();
-const getFontSize = (size: number) => size / fontScale;
+const getFontSize = (size: number) => (isTablet() ? (size * 1.4) / fontScale : size / fontScale);
 
 // Get the device's screen dimensions
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
@@ -23,20 +36,20 @@ const getAdaptiveSize = (size: number) => Math.ceil(size * scale);
 const adaptiveHeight = getAdaptiveSize(15);
 
 export const SIZES = {
-  //screen size
-  ScreenWidth,
-  ScreenHeight,
-  marginhorizontal: 15,
-  marginvertical: 10,
-  //element size
-  SmallIcon: 23,
-  MedIcon: 28,
-  CatBtnSize: {
-    width: 80,
-    height: 50,
-    borderRadius: 5,
-    justifyContent: 'center',
-  },
+    //screen size
+    ScreenWidth,
+    ScreenHeight,
+    marginhorizontal: 15,
+    marginvertical: 10,
+    //element size
+    SmallIcon: 23,
+    MedIcon: 28,
+    CatBtnSize: {
+        width: 80,
+        height: 50,
+        borderRadius: 5,
+        justifyContent: 'center',
+    },
 };
 
 export const COLORS = {
@@ -168,30 +181,30 @@ export const FONTS = {
 };
 
 export const AKCRUBADGES = {
-  Guardian: {
-    badgeid: 'guardian',
-    label: 'GUARDIAN',
-    color: '#ED54ED',
-    background: COLORS.CATPURPDRK,
-  },
-  Hero: {
-    badgeid: 'hero',
-    label: 'HERO',
-    color: '#F88163',
-    background: '#A74640',
-  },
-  SuperHero: {
-    badgeid: 'superhero',
-    label: 'SUPERHERO',
-    color: '#5689FF',
-    background: '#01003A',
-  },
-  Akcruit: {
-    badgeid: 'ackruit',
-    label: 'AKCRUIT',
-    color: COLORS.AKCRUBLUE,
-    background: '#076d91',
-  },
+    Guardian: {
+        badgeid: 'guardian',
+        label: 'GUARDIAN',
+        color: '#ED54ED',
+        background: COLORS.CATPURPDRK,
+    },
+    Hero: {
+        badgeid: 'hero',
+        label: 'HERO',
+        color: '#F88163',
+        background: '#A74640',
+    },
+    SuperHero: {
+        badgeid: 'superhero',
+        label: 'SUPERHERO',
+        color: '#5689FF',
+        background: '#01003A',
+    },
+    Akcruit: {
+        badgeid: 'ackruit',
+        label: 'AKCRUIT',
+        color: COLORS.AKCRUBLUE,
+        background: '#076d91',
+    },
 };
 
 const appTheme = {COLORS, SIZES, FONTS, AKCRUBADGES};

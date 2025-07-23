@@ -23,8 +23,11 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
 import ProgressBar from '../../../components/ProgressBar';
+import {isTablet} from '../../../../assets/constants/theme';
 
-const TOTAL_STEPS = 10;
+const iconSize = isTablet() ? 28 : 20;
+
+const TOTAL_STEPS = 11;
 
 const OnboardPhone = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -132,7 +135,7 @@ const OnboardPhone = () => {
                             </View>
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <View style={{width: '90%'}}>
                                 <Text style={{...FONTS.Title2}}>1/{TOTAL_STEPS}</Text>
                                 <ProgressBar currentStep={1} totalSteps={TOTAL_STEPS} style={styles.progress} />
@@ -146,7 +149,7 @@ const OnboardPhone = () => {
                                 <Icon
                                     name={'call'}
                                     type="ionicon"
-                                    size={20}
+                                    size={iconSize}
                                     color={COLORS.LIGHTGREY}
                                     style={{marginRight: 5}}
                                 />

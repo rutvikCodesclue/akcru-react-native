@@ -15,6 +15,11 @@ import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../../components/General/backbutton';
+import { isTablet } from '../../../../assets/constants/theme';
+
+const svgSize = isTablet() ? 200 : 150;
+const lrgIconSize = isTablet() ? 110 : 80;
+const iconMargin = isTablet() ? '5%' : '8%';
 
 const OTPVerificationSignup = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -120,8 +125,8 @@ const OTPVerificationSignup = ({route}) => {
                     <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
                             <Svg
-                                height={150}
-                                width={150}
+                                height={svgSize}
+                                width={svgSize}
                                 viewBox={`0 0 270 234`}
                                 style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
@@ -129,9 +134,9 @@ const OTPVerificationSignup = ({route}) => {
                             <Icon
                                 name="lock-open"
                                 type="ionicon"
-                                size={80}
+                                size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: '8%'}}
+                                style={{marginBottom: iconMargin}}
                             />
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>

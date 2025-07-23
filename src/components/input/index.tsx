@@ -4,6 +4,9 @@ import styles from './styles';
 import {COLORS} from '../../../assets/constants';
 
 import {Icon} from '@rneui/themed';
+import {isTablet} from '../../../assets/constants/theme';
+
+const iconSize = isTablet() ? 28 : 20;
 
 interface Props {
     placeholdername: string;
@@ -26,12 +29,17 @@ const Inputs: React.FC<Props> = ({
 }) => {
     return (
         <View style={styles.input}>
-            <Icon name={iconname} type="ionicon" size={20} color={iconcolor} style={{marginRight: 5}} />
+            <Icon name={iconname} type="ionicon" size={iconSize} color={iconcolor} style={{marginRight: 5}} />
             <TextInput
                 autoCapitalize="none"
                 placeholder={placeholdername}
                 placeholderTextColor={COLORS.DARKGREY}
-                style={styles.textinput}
+                style={[
+                    styles.textinput,
+                    {
+                        fontSize: isTablet() ? 18 : 14, // Or use MULTISIZES
+                    },
+                ]}
                 secureTextEntry={secureTextEntry}
                 onChangeText={onChangeText}
                 value={value}

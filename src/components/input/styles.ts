@@ -1,5 +1,8 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES} from '../../../assets/constants';
+import {isTablet} from '../../../assets/constants/theme';
+
+const inputHeight = isTablet() ? 60 : 45;
 
 export default StyleSheet.create({
     input: {
@@ -11,7 +14,7 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 45,
+        height: inputHeight,
         backgroundColor: COLORS.TRANSDARKGREY,
     },
     textinput: {

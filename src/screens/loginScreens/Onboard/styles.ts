@@ -1,5 +1,8 @@
 import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {isTablet} from '../../../../assets/constants/theme';
+
+const phoneInput = isTablet() ? 60 : 45;
 
 export default StyleSheet.create({
     tosmodal: {
@@ -95,6 +98,7 @@ export default StyleSheet.create({
     phonenuminput: {
         color: COLORS.WHITE,
         width: '100%',
+        fontSize: isTablet() ? 18 : 14,
     },
     phoneinput: {
         width: SIZES.ScreenWidth * 0.9,
@@ -105,7 +109,7 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 45,
+        height: phoneInput,
         backgroundColor: COLORS.TRANSDARKGREY,
     },
     datepicker: {
@@ -132,10 +136,12 @@ export default StyleSheet.create({
     textinput: {
         color: COLORS.WHITE,
         width: '100%',
+        fontSize: isTablet() ? 18 : 14,
     },
     textinputprefix: {
         color: COLORS.WHITE,
         marginBottom: 2,
+        fontSize: isTablet() ? 18 : 14,
     },
     input: {
         width: SIZES.ScreenWidth * 0.9,
@@ -160,8 +166,7 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
     },
     backbutton: {
-        backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? '10%' : 0,
+        marginTop: Platform.OS === 'ios' || isTablet() ? '10%' : '10%',
     },
     skipButton: {
         position: 'absolute',

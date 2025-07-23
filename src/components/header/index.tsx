@@ -12,6 +12,7 @@ import {getMyNotifications} from '../../lib/api/notify.lib';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {UseTabMenu} from '../../context/TabContext';
 import {getUserWallet} from '../../lib/api/wallet.lib';
+import { isTablet } from '../../../assets/constants/theme';
 
 const Header = ({searchScreen = 'SearchMovieScreen'}) => {
     const {user} = useAuthStore();
@@ -160,7 +161,11 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                 }}>
                 <View>
                     <Pressable onPress={() => navigation.navigate('ClientTabNavigator')}>
-                        <Image source={imageindex.AkcruLogo} style={{width: 90, height: 60}} resizeMode="contain" />
+                        <Image
+                            source={imageindex.AkcruLogo}
+                            style={{width: isTablet() ? 120 : 90, height: isTablet() ? 90 : 60}}
+                            resizeMode="contain"
+                        />
                     </Pressable>
                 </View>
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -170,7 +175,7 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                                 name="magnify"
                                 type="material-community"
                                 color={COLORS.LIGHTGREY}
-                                size={25}
+                                size={isTablet() ? 32 : 25}
                                 onPress={() => navigation.navigate(searchScreen)}
                             />
                         </TouchableOpacity>
@@ -180,14 +185,19 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                             name="notifications-outline"
                             type="ionicon"
                             color={COLORS.LIGHTGREY}
-                            size={SIZES.SmallIcon}
+                            size={isTablet() ? SIZES.MedIcon : SIZES.SmallIcon}
                             onPress={() => navigation2.navigate('UserNotification')}
                         />
                     </TouchableOpacity>
                     <View>
                         <Image
                             source={imageindex.AkcruHexLogo}
-                            style={{width: 21, height: 21, marginRight: 8, marginLeft: 20}}
+                            style={{
+                                width: isTablet() ? 28 : 21,
+                                height: isTablet() ? 28 : 21,
+                                marginRight: 8,
+                                marginLeft: 20,
+                            }}
                             resizeMode="contain"
                         />
                     </View>

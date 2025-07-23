@@ -2,6 +2,7 @@ import {View, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {FONTS, COLORS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
+import { isTablet } from '../../../assets/constants/theme';
 
 interface Props {
     btnname: string;
@@ -18,10 +19,16 @@ interface BtnProps {
     disabled?: boolean;
 }
 
+const buttonHeight = isTablet() ? 60 : 45;
+const smallButtonHeight = isTablet() ? 50 : 35;
+
 const SmallButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
-            <TouchableOpacity style={{width: SIZES.ScreenWidth / 3, height: 45}} onPress={onPress} disabled={disabled}>
+            <TouchableOpacity
+                style={{width: SIZES.ScreenWidth / 3, height: buttonHeight}}
+                onPress={onPress}
+                disabled={disabled}>
                 <View
                     style={{
                         flex: 1,
@@ -36,7 +43,7 @@ const SmallButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =>
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 45,
+                            height: buttonHeight,
                             borderRadius: 5,
                         }}
                     />
@@ -51,7 +58,7 @@ const MedButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
             <TouchableOpacity
-                style={{width: SIZES.ScreenWidth / 2.2, height: 45}}
+                style={{width: SIZES.ScreenWidth / 2.2, height: buttonHeight}}
                 onPress={onPress}
                 disabled={disabled}>
                 <View
@@ -68,7 +75,7 @@ const MedButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 45,
+                            height: buttonHeight,
                             borderRadius: 5,
                         }}
                     />
@@ -83,7 +90,7 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     return (
         <View>
             <TouchableOpacity
-                style={{width: SIZES.ScreenWidth * 0.9, height: 45}}
+                style={{width: SIZES.ScreenWidth * 0.9, height: buttonHeight}}
                 onPress={onPress}
                 disabled={disabled}>
                 <View
@@ -100,7 +107,7 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 45,
+                            height: buttonHeight,
                             borderRadius: 5,
                         }}
                     />
@@ -115,7 +122,7 @@ const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =>
     return (
         <View>
             <TouchableOpacity
-                style={{width: SIZES.ScreenWidth * 0.8, height: 45}}
+                style={{width: SIZES.ScreenWidth * 0.8, height: buttonHeight}}
                 onPress={onPress}
                 disabled={disabled}>
                 <View
@@ -132,7 +139,7 @@ const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =>
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 45,
+                            height: buttonHeight,
                             borderRadius: 5,
                         }}
                     />
@@ -150,7 +157,7 @@ const XSmallButton = ({btnname, onPress, disabled, color}: BtnProps) => {
                 <View
                     style={{
                         backgroundColor: color,
-                        height: 35,
+                        height: smallButtonHeight,
                         justifyContent: 'center',
                         width: 90,
                         borderRadius: 5,
@@ -163,7 +170,7 @@ const XSmallButton = ({btnname, onPress, disabled, color}: BtnProps) => {
                             left: 0,
                             right: 0,
                             top: 0,
-                            height: 35,
+                            height: smallButtonHeight,
                             borderRadius: 5,
                         }}
                     />

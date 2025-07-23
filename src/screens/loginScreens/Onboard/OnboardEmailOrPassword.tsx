@@ -25,9 +25,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
 import {AxiosError} from 'axios';
 import ProgressBar from '../../../components/ProgressBar';
+import {isTablet} from '../../../../assets/constants/theme';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 2;
+const iconSize = isTablet() ? 28 : 20;
 
 const OnboardEmailOrPassword = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -95,7 +97,7 @@ const OnboardEmailOrPassword = ({route}) => {
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <View style={{width: '90%'}}>
                                 <Text style={{...FONTS.Title2}}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
@@ -125,7 +127,7 @@ const OnboardEmailOrPassword = ({route}) => {
                                     <Icon
                                         name={'call'}
                                         type="ionicon"
-                                        size={20}
+                                        size={iconSize}
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />

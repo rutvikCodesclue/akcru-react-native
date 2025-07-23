@@ -17,6 +17,10 @@ import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import {getPushToken} from '../../../../lib/pushNotifications';
+import {isTablet} from '../../../../assets/constants/theme';
+
+const iconSize = isTablet() ? 28 : 20;
+const inputHeight = isTablet() ? 60 : 50;
 
 const Signin = () => {
     useEffect(() => {
@@ -195,7 +199,7 @@ const Signin = () => {
                 <View style={styles.container}>
                     {isLoggedIn ? (
                         <View style={styles.container2}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
                                 authStore.user?.username || 'User'
                             }`}</Text>
@@ -241,7 +245,7 @@ const Signin = () => {
                         </View>
                     ) : (
                         <>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <View style={{marginBottom: 10}}>
                                 <Text style={{...FONTS.Title1}}>Welcome back, sign in below</Text>
                             </View>
@@ -259,14 +263,17 @@ const Signin = () => {
                                     <Icon
                                         name="lock-closed"
                                         type="ionicon"
-                                        size={20}
+                                        size={iconSize}
                                         color={COLORS.LIGHTGREY}
                                         style={{marginRight: 5}}
                                     />
                                     <TextInput
                                         placeholder="Password"
                                         placeholderTextColor={COLORS.DARKGREY}
-                                        style={[styles1.input, {color: COLORS.LIGHTGREY}]}
+                                        style={[
+                                            styles1.input,
+                                            {color: COLORS.LIGHTGREY, fontSize: isTablet() ? 18 : 14},
+                                        ]}
                                         secureTextEntry={!isPasswordVisible}
                                         onChangeText={text => setPassword(text)}
                                         value={password}
@@ -278,7 +285,7 @@ const Signin = () => {
                                         <Icon
                                             name={isPasswordVisible ? 'eye' : 'eye-off'}
                                             type="ionicon"
-                                            size={20}
+                                            size={iconSize}
                                             color={COLORS.LIGHTGREY}
                                         />
                                     </TouchableOpacity>
@@ -392,6 +399,7 @@ const styles1 = StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         backgroundColor: COLORS.TRANSDARKGREY,
+        height: inputHeight,
     },
     input: {
         flex: 1, // Takes up the remaining space inside the container

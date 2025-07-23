@@ -7,11 +7,16 @@ import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruButtonStackParams} from '../../navigation/AkcruButtonStack';
+import {isTablet} from '../../../assets/constants/theme';
 
 const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
 
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
+
+    const centerButtonLift = isTablet() ? -40 : -28;
+    const iconSize = isTablet() ? 32 : 25;
+    const hexSize = isTablet() ? 80 : 60;
 
     const handlePressShop = () => {
         navigation.navigate('AkcruButtonStack', {screen: 'PurchaseAdScreen'});
@@ -66,7 +71,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -78],
+                                            outputRange: [0, isTablet() ? -108 : -78],
                                         }),
                                     },
                                     {
@@ -83,7 +88,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                             name="calendar"
                             type="material-community"
                             color={COLORS.WHITE}
-                            size={25}
+                            size={iconSize}
                             style={styles.itemIcon}
                         />
                     </Animated.View>
@@ -104,7 +109,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -150],
+                                            outputRange: [0, isTablet() ? -180 : -150],
                                         }),
                                     },
                                 ],
@@ -115,7 +120,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                             name="store"
                             type="material-community"
                             color={COLORS.WHITE}
-                            size={25}
+                            size={iconSize}
                             style={styles.itemIcon}
                         />
                     </Animated.View>
@@ -130,7 +135,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, 90],
+                                            outputRange: [0, isTablet() ? 120 : 90],
                                         }),
                                     },
                                     {
@@ -147,7 +152,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                             name="earth"
                             type="material-community"
                             color={COLORS.WHITE}
-                            size={25}
+                            size={iconSize}
                             style={styles.itemIcon}
                         />
                     </Animated.View>
@@ -161,13 +166,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, -28],
+                                            outputRange: [0, centerButtonLift],
                                         }),
                                     },
                                 ],
                             },
                         ]}>
-                        <AkcruControlBtn />
+                        {isTablet() ? <AkcruControlBtn width={90} height={90} /> : <AkcruControlBtn />}
                     </Animated.View>
                 </TouchableWithoutFeedback>
             </View>
@@ -190,8 +195,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 60,
-        height: 60,
+        width: isTablet() ? 75 : 60,
+        height: isTablet() ? 75 : 60,
     },
     itemIcon: {
         marginBottom: 5,

@@ -16,7 +16,11 @@ import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../../components/General/backbutton';
+import {isTablet} from '../../../../assets/constants/theme';
 
+const svgSize = isTablet() ? 200 : 150;
+const lrgIconSize = isTablet() ? 110 : 80;
+const iconMargin = isTablet() ? '5%' : '8%';
 
 const OTPVerification = ({route}) => {
     const authStore = useAuthStore();
@@ -76,17 +80,13 @@ const OTPVerification = ({route}) => {
         try {
             setVerify(true);
 
-            
-            
             const payload = email ? {email} : {phoneNumber};
 
-            
             const response = await API.post('/v1/user/verifyOTP', {
                 ...payload,
                 otp: code,
-                
             });
-            console.log(response.data)
+            console.log(response.data);
 
             const data = response.data;
 
@@ -94,14 +94,11 @@ const OTPVerification = ({route}) => {
                 setVerify(false);
                 handleShowOTPModal('success');
 
-                
-                
                 navigation.navigate('ResetPassword', {
                     email: email,
                     phoneNumber: phoneNumber,
                 });
             } else {
-                
                 throw new Error(data.message || 'Verification failed');
             }
         } catch (error) {
@@ -115,7 +112,6 @@ const OTPVerification = ({route}) => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -130,8 +126,8 @@ const OTPVerification = ({route}) => {
                     <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
                             <Svg
-                                height={150}
-                                width={150}
+                                height={svgSize}
+                                width={svgSize}
                                 viewBox={`0 0 270 234`}
                                 style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
@@ -139,9 +135,9 @@ const OTPVerification = ({route}) => {
                             <Icon
                                 name="lock-open"
                                 type="ionicon"
-                                size={80}
+                                size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: '8%'}}
+                                style={{marginBottom: iconMargin}}
                             />
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>

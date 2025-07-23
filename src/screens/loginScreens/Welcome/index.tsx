@@ -15,6 +15,7 @@ import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const Welcome = params => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -133,7 +134,7 @@ const Welcome = params => {
                 <View style={styles.container}>
                     <View>
                         <View style={{alignItems: 'center'}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                         </View>
                         <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
                             <View style={{marginBottom: '15%'}}>

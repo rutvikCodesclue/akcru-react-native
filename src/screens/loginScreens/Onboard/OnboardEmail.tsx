@@ -25,6 +25,7 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
 import ProgressBar from '../../../components/ProgressBar';
+import {isTablet} from '../../../../assets/constants/theme';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 1;
@@ -170,7 +171,7 @@ const OnboardEmail = () => {
                             </View>
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={200} height={60} />
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             {/* Progress bar at the top */}
                             <View style={{width: '90%'}}>
                                 <Text style={{...FONTS.Title2}}>
