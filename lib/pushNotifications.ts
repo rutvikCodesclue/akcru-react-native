@@ -39,7 +39,6 @@ export const sendTokenToServer = async (userId: string, deviceToken: string): Pr
             userId,
             deviceToken,
         });
-        console.log('Device token sent to server:', response.data);
     } catch (error) {
         console.error('Error sending device token to server:', error);
     }
@@ -50,8 +49,4 @@ export async function requestUserPermission() {
     const enabled =
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-        // console.log('Authorization status:', authStatus);
-    }
 }

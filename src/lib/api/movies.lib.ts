@@ -124,7 +124,6 @@ export const postUserReaction = async (movieId: string, reactionType: any) => {
 };
 
 export const findSponsoredMovies = async (): Promise<IMovie[] | []> => {
-    console.log('findSponsoredMovies');
     await useAuthStore.getState().hydrateAuth();
     try {
         const response = await API.get('/v1/movies/sponsored');

@@ -51,6 +51,9 @@ export const fetchRewardInterval = async (): Promise<number> => {
     await useAuthStore.getState().hydrateAuth();
     try {
         const {data} = await API.get<{success: boolean; rewardIntervalSeconds: number}>('/v1/watchtime/config');
+        if (!data ) {
+            return 216;
+        }
         return data.rewardIntervalSeconds;
     } catch (err) {
         console.error('Error fetching reward interval:', err);
