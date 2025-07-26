@@ -4,7 +4,6 @@ import {DEV_API_URL} from '@env';
 import authStore from '../stores/auth.store';
 import Castle from '@castleio/react-native-castle';
 import {Alert} from 'react-native';
-console.log('DEV_API_URL:', DEV_API_URL);
 
 const addRequestTokenHeader = async () => {
     const requestToken = await Castle.createRequestToken();

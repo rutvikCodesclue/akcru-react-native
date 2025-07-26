@@ -31,8 +31,25 @@ function App(): JSX.Element {
 
     useEffect(() => {
         if (userId) {
-            // exampleFunction();
-            // Subscribe to foreground message handling
+            async function registerAppWithFCM() {
+                try {
+                    await messaging().registerDeviceForRemoteMessages();
+
+                    const token = await messaging().getToken();
+
+                    return token;
+                } catch (error) {
+                    console.error('Error in FCM registration:', error);
+                    return null;
+                }
+            }
+            const checkIfRegistered = async () => {
+                const token = await messaging().getToken();
+                if (!token) {
+                    await registerAppWithFCM();
+                } 
+            }
+            checkIfRegistered();
             const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
                 onDisplayNotification(remoteMessage);
             });
@@ -74,7 +91,6 @@ function App(): JSX.Element {
             };
         }
 
-        // Cleanup subscriptions
     }, [userId]);
 
     const getAndSendToken = async (userId: string) => {

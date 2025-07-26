@@ -144,10 +144,7 @@ const useAuthStore = create<IAuthStore>()(
                 try {
                     // Check network connectivity
                     const networkState = await NetInfo.fetch();
-
                     if (!networkState.isInternetReachable) {
-                        console.log('No internet connection. Sticking to the current screen.');
-                        // Don't navigate to sign-in, return early
                         return;
                     }
 

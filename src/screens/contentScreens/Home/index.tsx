@@ -296,7 +296,6 @@ const HomeScreen = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            console.log('Getting unfinished content');
 
             const loadUnfinishedContent = async () => {
                 const content = await fetchUnfinishedContent();
