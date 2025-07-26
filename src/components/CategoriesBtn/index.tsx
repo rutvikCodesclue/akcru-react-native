@@ -2,6 +2,7 @@ import {View, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
+import { isTablet } from '../../../assets/constants/theme';
 interface Props {
     category: string;
     color: string;
@@ -14,8 +15,8 @@ const CategoriesBtn = ({category, color, onPress}: Props) => {
             <TouchableOpacity onPress={onPress}>
                 <View
                     style={{
-                        width: SIZES.ScreenWidth * 0.2,
-                        height: SIZES.ScreenWidth * 0.13,
+                        width: isTablet() ? SIZES.ScreenWidth * 0.18 : SIZES.ScreenWidth * 0.2,
+                        height: isTablet() ? SIZES.ScreenWidth * 0.1 : SIZES.ScreenWidth * 0.13,
                         borderRadius: 5,
                         justifyContent: 'center',
                         backgroundColor: color,
@@ -32,7 +33,7 @@ const CategoriesBtn = ({category, color, onPress}: Props) => {
                             borderRadius: 5,
                         }}
                     />
-                    <Text style={{...FONTS.Akcrubadges, textAlign: 'center'}}>{category}</Text>
+                    <Text style={{...FONTS.paragraph2, textAlign: 'center'}}>{category}</Text>
                 </View>
             </TouchableOpacity>
         </View>

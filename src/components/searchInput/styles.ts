@@ -1,5 +1,6 @@
 import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES} from '../../../assets/constants';
+import {FONTS, isTablet} from '../../../assets/constants/theme';
 
 export default StyleSheet.create({
     searchmodal: {
@@ -10,6 +11,7 @@ export default StyleSheet.create({
         marginRight: 5,
     },
     textinput: {
+        ...FONTS.Title2,
         color: COLORS.WHITE,
         width: '100%',
     },
@@ -22,10 +24,11 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 40,
+        height: isTablet() ? 60 : 45,
     },
     backbutton: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        marginTop: Platform.OS === 'ios' ? '10%' : 0,
+        marginTop: Platform.OS === 'ios' ? '10%' : 10,
+        marginHorizontal: isTablet() ? 30 : 15,
     },
 });

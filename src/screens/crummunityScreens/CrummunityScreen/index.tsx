@@ -42,6 +42,7 @@ import PollCard from '../../../components/CrummunityPoll';
 import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
+import {isTablet} from '../../../../assets/constants/theme';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -471,8 +472,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 </View>
                                 <View
                                     style={{
-                                        height: SIZES.ScreenHeight * 0.24,
-                                        marginTop: -68,
+                                        height: SIZES.ScreenHeight * 0.26,
+                                        marginTop: isTablet() ? -160 : -68,
                                         backgroundColor: COLORS.AKCRUBACKGROUND,
                                     }}>
                                     <LinearGradient
@@ -482,7 +483,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                             left: 0,
                                             right: 0,
                                             top: 0,
-                                            height: SIZES.ScreenHeight * 0.24,
+                                            height: SIZES.ScreenHeight * 0.26,
                                         }}
                                     />
                                     <Text style={styles.screenTitle}>What's the Skinny?</Text>
@@ -498,8 +499,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                 <Icon
                                                     name="magnify"
                                                     type="material-community"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    size={25}
+                                                    color={COLORS.DARKGREY}
+                                                    size={isTablet() ? 32 : 25}
                                                     style={{marginRight: '2%'}}
                                                 />
                                                 <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>

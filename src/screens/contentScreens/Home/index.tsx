@@ -26,6 +26,7 @@ import BasicSeriesCarousel from '../../../components/BasicSeriesCarousel';
 import {findSeries} from '../../../lib/api/series.lib';
 import {getTrailers} from '../../../lib/api/sizzles.lib';
 import BasicSizzleCarousel from '../../../components/BasicSizzleCarousel';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -333,7 +334,7 @@ const HomeScreen = () => {
                                     <Icon
                                         name={isMuted ? 'volume-mute' : 'volume-high'}
                                         type="ionicon"
-                                        size={20}
+                                        size={isTablet() ? 30 : 20}
                                         color={COLORS.LIGHTGREY}
                                     />
                                 </TouchableOpacity>
@@ -349,10 +350,20 @@ const HomeScreen = () => {
                                     paddingHorizontal: 15,
                                 }}>
                                 <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
-                                    <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Icon
+                                        name="chevron-forward"
+                                        type="ionicon"
+                                        size={isTablet() ? 30 : 20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
                                 </TouchableOpacity>
                                 <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Icon
+                                        name="chevron-back"
+                                        type="ionicon"
+                                        size={isTablet() ? 30 : 20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
                                 </TouchableOpacity>
                             </View>
                             <Pressable style={styles.videocontainer} onPress={handlePress}>
@@ -413,7 +424,7 @@ const HomeScreen = () => {
                                 </View>
                             </Pressable>
                         </View>
-                        <View style={{marginTop: 75, marginBottom: 75}}>
+                        <View style={{marginTop: isTablet() ? '15%' : 75, marginBottom: isTablet() ? '15%' : 75}}>
                             <View>
                                 <FlatList
                                     data={MOVIE_GENRES}

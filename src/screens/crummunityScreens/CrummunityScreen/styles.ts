@@ -1,5 +1,6 @@
 import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import { isTablet } from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     input: {
@@ -20,7 +21,7 @@ export default StyleSheet.create({
         marginHorizontal: 15,
     },
     searchinput: {
-        width: SIZES.ScreenWidth / 1.08,
+        width: SIZES.ScreenWidth / 1.1,
         flexDirection: 'row',
         borderWidth: 1,
         borderColor: COLORS.DARKGREY,
@@ -28,11 +29,11 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         alignItems: 'center',
-        height: 35,
+        height: isTablet() ? 60 : 40,
     },
     screenTitle: {
         ...FONTS.Title3,
-        marginHorizontal: 15,
+        marginHorizontal: isTablet() ? 40 : 15,
         marginBottom: 10,
         marginTop: '20%',
     },
@@ -50,7 +51,14 @@ export default StyleSheet.create({
     },
     floatingbutton: {
         position: 'relative',
-        bottom: Platform.OS === 'ios' ? '30%' : '25%',
+        bottom:
+            Platform.OS === 'ios'
+                ? isTablet()
+                    ? '35%' // iPad
+                    : '30%' // iPhone
+                : isTablet()
+                ? '30%' // Android tablet
+                : '25%', // Android phone,
         left: '0%',
         alignItems: 'flex-end',
         width: '100%',

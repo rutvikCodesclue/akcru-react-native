@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {isTablet} from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     input: {
@@ -10,6 +11,7 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight * 0.1,
     },
     textinput: {
+        ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
     },
     container: {
@@ -140,7 +142,7 @@ export default StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 10,
         width: '30%',
-        height: 40,
+        height: isTablet() ? 60 : 40,
     },
     durationSeparator: {
         ...FONTS.Title3,

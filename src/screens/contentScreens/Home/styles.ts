@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
+import { isTablet } from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     container: {
@@ -50,16 +51,16 @@ export default StyleSheet.create({
         justifyContent: 'center',
     },
     heroButtons: {
-        width: 30,
-        height: 30,
+        width: isTablet() ? 40 : 30,
+        height: isTablet() ? 40 : 30,
         borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: COLORS.TRANSAKCRUBLUE,
     },
     muteButton: {
-        width: 30,
-        height: 30,
+        width: isTablet() ? 40 : 30,
+        height: isTablet() ? 40 : 30,
         borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',

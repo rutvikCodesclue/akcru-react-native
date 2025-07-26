@@ -10,6 +10,7 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight * 0.17,
     },
     textinput: {
+        ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
     },
     container: {

@@ -11,6 +11,7 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
+import { isTablet } from '../../../../assets/constants/theme';
 const SearchMovieScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
@@ -36,7 +37,7 @@ const SearchMovieScreen = () => {
     return (
         <TabContainer>
             <View style={{flex: 1}}>
-                <View style={{marginHorizontal: 15}}>
+                <View style={{marginHorizontal: isTablet() ? 30 : 15, marginTop: isTablet() ? 10 : 0}}>
                     <BackButton navigation={navigation} />
                 </View>
                 <SearchInput />
@@ -44,7 +45,7 @@ const SearchMovieScreen = () => {
                     <Text
                         style={{
                             ...FONTS.Title2,
-                            marginHorizontal: SIZES.marginhorizontal,
+                            marginHorizontal: isTablet() ? 35 : SIZES.marginhorizontal,
                             marginVertical: SIZES.marginvertical,
                         }}>
                         Choose Genre

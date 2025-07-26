@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {View, Text, SafeAreaView, ScrollView, Pressable, ActivityIndicator, FlatList} from 'react-native';
 import styles from './styles';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
@@ -214,7 +214,7 @@ const PollScreen = ({navigation, route}: Props) => {
                         <View
                             style={{
                                 height: SIZES.ScreenHeight * 0.15,
-                                marginTop: -68,
+                                marginTop: isTablet() ? -150 : -68,
                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                             }}>
                             <LinearGradient

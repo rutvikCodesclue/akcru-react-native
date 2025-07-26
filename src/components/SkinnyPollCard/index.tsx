@@ -3,7 +3,7 @@ import {View, Text, TouchableOpacity, Image, FlatList, Pressable, Modal, Touchab
 import styles from './styles';
 import {IUserProfile, IChoice, IPollType} from '../../../types';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, MULTISIZES} from '../../../assets/constants/theme';
+import {COLORS, FONTS, isTablet, MULTISIZES} from '../../../assets/constants/theme';
 import HexAvatar from '../HexAvatar';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import DisplayBadge from '../General/akcrubadge';
@@ -26,7 +26,7 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={color} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 25 : 18} />
             </TouchableOpacity>
         </View>
     );
@@ -273,6 +273,8 @@ const PollScreenCard = ({
         }
     };
 
+    const userIcons = isTablet() ? 18 : 12;
+
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
@@ -305,7 +307,7 @@ const PollScreenCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -314,7 +316,7 @@ const PollScreenCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -323,7 +325,7 @@ const PollScreenCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -332,7 +334,7 @@ const PollScreenCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -341,7 +343,16 @@ const PollScreenCard = ({
                                 name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={userIcons}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {poll.user?.visionaryStatus && (
+                            <CustomIcon
+                                name="diamond"
+                                type="ionicon"
+                                color={COLORS.WHITE}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -355,7 +366,12 @@ const PollScreenCard = ({
                 {isCurrentUserAuthor && (
                     <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                         <Pressable onPress={openPollOptions}>
-                            <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                            <Icon
+                                name="ellipsis-horizontal"
+                                type="ionicon"
+                                color={COLORS.AKCRUBLUE}
+                                size={isTablet() ? 32 : 20}
+                            />
                         </Pressable>
                     </View>
                 )}

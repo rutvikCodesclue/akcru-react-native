@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../assets/constants';
+import { isTablet } from '../../../assets/constants/theme';
 
 export default StyleSheet.create({
     topContainer: {
@@ -61,7 +62,7 @@ export default StyleSheet.create({
     },
     postfooter: {
         marginTop: 20,
-        width: SIZES.ScreenWidth / 5,
+        width: isTablet() ? '15%' : SIZES.ScreenWidth / 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
     },

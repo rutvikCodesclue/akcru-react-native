@@ -17,7 +17,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -481,7 +481,7 @@ const NewPoll = () => {
                     <View
                         style={{
                             height: SIZES.ScreenHeight * 0.15,
-                            marginTop: -68,
+                            marginTop: isTablet() ? -160 : -68,
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
@@ -491,7 +491,7 @@ const NewPoll = () => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight * 0.15,
+                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
                             }}>
                             <View
                                 style={{
@@ -532,7 +532,7 @@ const NewPoll = () => {
                                                 ? {uri: user.profilePicture}
                                                 : imageindex.Akcruplaceholder
                                         }
-                                        size={45}
+                                        size={isTablet() ? 65 : 45}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                     />
                                 </TouchableOpacity>
@@ -632,7 +632,12 @@ const NewPoll = () => {
                         {!isTagging && (
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPollImage}>
-                                    <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                                    <Icon
+                                        name="images"
+                                        type="ionicon"
+                                        color={COLORS.AKCRUBLUE}
+                                        size={isTablet() ? 30 : 20}
+                                    />
                                 </TouchableOpacity>
                             </View>
                         )}
@@ -695,7 +700,12 @@ const NewPoll = () => {
                                     )}
                                     <View style={styles.choiceButtons}>
                                         <TouchableOpacity onPress={() => selectChoiceImage(index)}>
-                                            <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                                            <Icon
+                                                name="images"
+                                                type="ionicon"
+                                                color={COLORS.AKCRUBLUE}
+                                                size={isTablet() ? 30 : 20}
+                                            />
                                         </TouchableOpacity>
                                         {pollChoices.length > 2 && (
                                             <TouchableOpacity onPress={() => removeChoice(index)}>
@@ -703,7 +713,7 @@ const NewPoll = () => {
                                                     name="remove-circle"
                                                     type="ionicon"
                                                     color={COLORS.CATREDDRK}
-                                                    size={20}
+                                                    size={isTablet() ? 30 : 20}
                                                 />
                                             </TouchableOpacity>
                                         )}
@@ -713,7 +723,12 @@ const NewPoll = () => {
                         </View>
                         <TouchableOpacity onPress={addChoice} style={styles.addChoiceButton}>
                             <Text style={styles.addChoiceButtonText}>Add Choice</Text>
-                            <Icon name="plus-circle" type="material-community" color={COLORS.AKCRUPINK} size={25} />
+                            <Icon
+                                name="plus-circle"
+                                type="material-community"
+                                color={COLORS.AKCRUPINK}
+                                size={isTablet() ? 30 : 25}
+                            />
                         </TouchableOpacity>
                         <View style={styles.durationContainer}>
                             <View style={{marginBottom: 10}}>
@@ -726,7 +741,12 @@ const NewPoll = () => {
                             </View>
 
                             <View>
-                                <Icon name="timer" type="material-community" color={COLORS.PINK} size={25} />
+                                <Icon
+                                    name="timer"
+                                    type="material-community"
+                                    color={COLORS.PINK}
+                                    size={isTablet() ? 30 : 25}
+                                />
                             </View>
 
                             <View style={styles.durationInputs}>
