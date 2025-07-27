@@ -11,6 +11,7 @@ export default StyleSheet.create({
         height: 100,
     },
     textinput: {
+        ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
     },
     container: {

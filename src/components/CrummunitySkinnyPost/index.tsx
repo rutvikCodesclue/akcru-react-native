@@ -13,14 +13,12 @@ import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
-import Video from 'react-native-video';
-import AkcruButtons from '../akcruButtons';
 import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
-import {MULTISIZES} from '../../../assets/constants/theme';
+import {isTablet, MULTISIZES} from '../../../assets/constants/theme';
 import DisplayBadge from '../General/akcrubadge';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
@@ -38,7 +36,7 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={color} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 28 : 18} />
             </TouchableOpacity>
         </View>
     );
@@ -170,8 +168,8 @@ const SkinnyPostCard = ({
 
     const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
 
-    const [isPaused, setIsPaused] = useState(true);  // Track if the video is paused
-    const [showVideoControls, setShowVideoControls] = useState(true);  // Track visibility of controls
+    const [isPaused, setIsPaused] = useState(true); // Track if the video is paused
+    const [showVideoControls, setShowVideoControls] = useState(true); // Track visibility of controls
     const [currentVideoTime, setCurrentVideoTime] = useState(0); // Store current video time
 
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
@@ -221,12 +219,12 @@ const SkinnyPostCard = ({
 
     // Function to handle video play
     const handlePlay = () => {
-        setIsPaused(false);  // Update paused state to false
+        setIsPaused(false); // Update paused state to false
     };
 
     // Function to handle video pause
     const handlePause = () => {
-        setIsPaused(true);  // Update paused state to true
+        setIsPaused(true); // Update paused state to true
     };
 
     const handleProgress = (data: any) => {
@@ -358,12 +356,12 @@ const SkinnyPostCard = ({
 
     const openProfileForTag = async username => {
         try {
-        const taggedUser = await findAUser({username});
-        if (taggedUser) {
-            navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
-        } else {
-            return;
-        }
+            const taggedUser = await findAUser({username});
+            if (taggedUser) {
+                navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
+            } else {
+                return;
+            }
         } catch (error) {
             console.error('Error finding user:', error);
         }
@@ -404,6 +402,7 @@ const SkinnyPostCard = ({
 
     // console.log('isCurrentUserAuthor:', isCurrentUserAuthor);
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
+    const userIcons = isTablet() ? 15 : 12;
 
     return (
         <View style={styles.cardcontainer}>
@@ -437,7 +436,7 @@ const SkinnyPostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -446,7 +445,7 @@ const SkinnyPostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -455,7 +454,7 @@ const SkinnyPostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -464,7 +463,7 @@ const SkinnyPostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
-                                baseSize={12}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -473,7 +472,16 @@ const SkinnyPostCard = ({
                                 name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={userIcons}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {post?.author.visionaryStatus && (
+                            <CustomIcon
+                                name="diamond"
+                                type="material-community"
+                                color={COLORS.WHITE}
+                                baseSize={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -486,7 +494,12 @@ const SkinnyPostCard = ({
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                        <Icon
+                            name="ellipsis-horizontal"
+                            type="ionicon"
+                            color={COLORS.AKCRUBLUE}
+                            size={isTablet() ? 30 : 20}
+                        />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
@@ -549,11 +562,6 @@ const SkinnyPostCard = ({
                 {post.edited && <Text style={{...FONTS.Username, color: COLORS.PURPLE}}> (edited)</Text>}
             </Text>
             {/* Render text if available */}
-            {/* {textContent && (
-                <View style={{marginTop: 10}}>
-                    <Text style={styles.post}>{renderPostText(textContent)}</Text>
-                </View>
-            )} */}
             {post.edited && post.editedText ? (
                 <View style={{marginTop: 10}}>
                     <Text style={styles.post}>{renderPostText(post.editedText)}</Text>
@@ -696,21 +704,22 @@ const SkinnyPostCard = ({
                 )}
                 {post.author.promoUser && <Text style={{...FONTS.paragraph1, color: COLORS.PINK}}>Promo</Text>}
             </View>
-             {/* Loading Indicator */}
+            {/* Loading Indicator */}
             {loading && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1,
-                }}>
-                    <ActivityIndicator size="small" color="#0000ff" />
-                    <Text style={{ marginTop: 8, color: '#000', fontSize: 16 }}>Deleting post...</Text>
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1,
+                    }}>
+                    <ActivityIndicator size="small" color={COLORS.AKCRUBLUE} />
+                    <Text style={{...FONTS.Title1, marginTop: 8}}>Deleting post...</Text>
                 </View>
             )}
         </View>

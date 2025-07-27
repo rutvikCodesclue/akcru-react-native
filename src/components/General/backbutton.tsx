@@ -1,10 +1,11 @@
 import {View, Text, TouchableOpacity} from 'react-native';
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {COLORS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
+import {isTablet} from '../../../assets/constants/theme';
 
-const BackButton = ({ navigation }: Props) => {
+const BackButton = ({navigation}: Props) => {
     const [isNavigating, setIsNavigating] = useState(false);
 
     const handleBackPress = () => {
@@ -26,7 +27,7 @@ const BackButton = ({ navigation }: Props) => {
         <View style={styles.backbutton}>
             <TouchableOpacity onPress={handleBackPress} style={styles.box}>
                 <View style={styles.flexCenter}>
-                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 30 : 20} color={COLORS.LIGHTGREY} />
                     <Text style={styles.fontstyle}>Back</Text>
                 </View>
             </TouchableOpacity>

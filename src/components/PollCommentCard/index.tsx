@@ -15,6 +15,7 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
 import CustomIcon from '../CustomIcon/CustomIcon';
+import { isTablet } from '../../../assets/constants/theme';
 
 type FooterIconsProps = {
     iconname: string;
@@ -25,7 +26,7 @@ type FooterIconsProps = {
 const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => (
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TouchableOpacity onPress={onPress}>
-            <Icon name={iconname} type="ionicon" color={color} size={18} />
+            <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 25 : 18} />
         </TouchableOpacity>
     </View>
 );
@@ -223,12 +224,12 @@ const PollCommentCard = ({
 
     const openProfileForTag = async username => {
         try {
-        const taggedUser = await findAUser({username});
-        if (taggedUser) {
-            navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
-        } else {
-            return;
-        }
+            const taggedUser = await findAUser({username});
+            if (taggedUser) {
+                navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
+            } else {
+                return;
+            }
         } catch (error) {
             console.error('Error finding user:', error);
         }
@@ -286,7 +287,7 @@ const PollCommentCard = ({
                     <TouchableOpacity onPress={openProfile}>
                         <HexAvatar
                             source={{uri: comment.user?.profilePicture}}
-                            size={58}
+                            size={isTablet() ? 75 : 58}
                             bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
@@ -299,7 +300,7 @@ const PollCommentCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                size={18}
+                                size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -308,7 +309,7 @@ const PollCommentCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                size={18}
+                                size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -317,7 +318,7 @@ const PollCommentCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                size={18}
+                                size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -326,7 +327,7 @@ const PollCommentCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
-                                size={18}
+                                size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -335,7 +336,16 @@ const PollCommentCard = ({
                                 name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={isTablet() ? 18 : 12}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {comment?.user.visionaryStatus && (
+                            <Icon
+                                name="ribbon"
+                                type="ionicon"
+                                color={COLORS.WHITE}
+                                size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -347,7 +357,12 @@ const PollCommentCard = ({
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                        <Icon
+                            name="ellipsis-horizontal"
+                            type="ionicon"
+                            color={COLORS.AKCRUBLUE}
+                            size={isTablet() ? 32 : 20}
+                        />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">

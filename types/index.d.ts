@@ -53,6 +53,7 @@ interface IUserProfile {
     MoviePurchase: IMoviePurchase[];
     visionaryStatus: boolean;
     SeasonPurchase: ISeasonPurchase[];
+    visionaryStatus: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';

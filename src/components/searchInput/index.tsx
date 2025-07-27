@@ -1,4 +1,14 @@
-import {View, Text, Modal, TextInput, TouchableWithoutFeedback, TouchableOpacity, Keyboard, Image} from 'react-native';
+import {
+    View,
+    Text,
+    Modal,
+    TextInput,
+    TouchableWithoutFeedback,
+    TouchableOpacity,
+    Keyboard,
+    Image,
+    FlatList,
+} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -12,6 +22,7 @@ import {findMovies} from '../../lib/api/movies.lib';
 import {IMovie} from '../../../types';
 import {FlashList} from '@shopify/flash-list';
 import debounce from 'lodash/debounce';
+import {isTablet} from '../../../assets/constants/theme';
 
 const SearchInput = () => {
     //search input function
@@ -22,6 +33,8 @@ const SearchInput = () => {
     const textInputRef = useRef<TextInput>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+
+    const modalFontSize = isTablet() ? 18 : 12;
 
     const contains = ({title}: {title: string}, query: string) => {
         return title.toLowerCase().includes(query.toLowerCase());
@@ -76,7 +89,7 @@ const SearchInput = () => {
                             name="magnify"
                             type="material-community"
                             color={COLORS.DARKGREY}
-                            size={28}
+                            size={isTablet() ? 32 : 28}
                             style={{marginRight: 10}}
                         />
                         <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>What movie are you searching for?</Text>
@@ -89,7 +102,7 @@ const SearchInput = () => {
                             <TouchableOpacity
                                 onPress={() => setModalVisible(false)}
                                 style={{
-                                    paddingHorizontal: 15,
+                                    paddingHorizontal: isTablet() ? 0 : 15,
                                     paddingVertical: 10,
                                 }}>
                                 <View
@@ -97,7 +110,12 @@ const SearchInput = () => {
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                     }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Icon
+                                        name="chevron-back"
+                                        type="ionicon"
+                                        size={isTablet() ? 30 : 20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
                                     <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                                 </View>
                             </TouchableOpacity>
@@ -117,7 +135,7 @@ const SearchInput = () => {
                                         type="material-community"
                                         style={styles.icon}
                                         color={COLORS.DARKGREY}
-                                        size={28}
+                                        size={isTablet() ? 35 : 28}
                                     />
                                 </View>
                                 <TextInput
@@ -146,7 +164,7 @@ const SearchInput = () => {
                                     <Icon
                                         name="close-circle"
                                         type="material-community"
-                                        size={25}
+                                        size={isTablet() ? 32 : 25}
                                         color={COLORS.DARKGREY}
                                         style={{marginLeft: SIZES.ScreenWidth / 2.2}}
                                     />
@@ -154,9 +172,8 @@ const SearchInput = () => {
                             </View>
                         </View>
                         <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                            <FlashList
+                            <FlatList
                                 data={data}
-                                estimatedItemSize={500}
                                 ListFooterComponent={<View style={{marginBottom: 70}} />}
                                 renderItem={({item}) => (
                                     <TouchableOpacity
@@ -171,18 +188,26 @@ const SearchInput = () => {
                                         }}>
                                         <View
                                             style={{
-                                                marginHorizontal: 15,
+                                                marginHorizontal: isTablet() ? 40 : 15,
                                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                                                 marginBottom: 10,
                                             }}>
                                             <View style={{flexDirection: 'row'}}>
                                                 <Image
                                                     source={{uri: item.portraitURL}}
-                                                    style={{width: 30, height: 50, borderRadius: 3}}
+                                                    style={{
+                                                        width: isTablet() ? 60 : 30,
+                                                        height: isTablet() ? 100 : 50,
+                                                        borderRadius: 3,
+                                                    }}
                                                 />
                                                 <View style={{marginLeft: 10}}>
-                                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{item.title}</Text>
-                                                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{item.year}</Text>
+                                                    <Text style={{...FONTS.Title2, fontSize: modalFontSize}}>
+                                                        {item.title}
+                                                    </Text>
+                                                    <Text style={{...FONTS.paragraph1, fontSize: modalFontSize}}>
+                                                        {item.year}
+                                                    </Text>
                                                 </View>
                                             </View>
                                         </View>

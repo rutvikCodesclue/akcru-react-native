@@ -24,6 +24,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {UseTabMenu} from '../../../context/TabContext';
 import {NotificationNavigation} from '../UserNotificationTabs/NotificationNavigation';
 import {StackNavigationProp} from '@react-navigation/stack';
+import { isTablet } from '../../../../assets/constants/theme';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewUserFollowList'>;
@@ -188,7 +189,7 @@ const UserNotification = ({route}: Props) => {
                 </View>
                 <View
                     style={{
-                        marginTop: -60,
+                        marginTop: isTablet() ? -100 : 60,
                         backgroundColor: COLORS.AKCRUBACKGROUND,
                     }}>
                     <LinearGradient
@@ -214,7 +215,6 @@ const UserNotification = ({route}: Props) => {
                                 ...FONTS.Title2,
                                 marginVertical: 15,
                                 textAlign: 'center',
-                                fontSize: 13,
                                 textDecorationLine: 'underline',
                             }}>
                             NOTIFICATIONS

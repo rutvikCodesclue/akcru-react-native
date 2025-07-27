@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView,ActivityIndicator} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView, ActivityIndicator} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
 import {Icon} from '@rneui/base';
@@ -15,6 +15,7 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
 import CustomIcon from '../CustomIcon/CustomIcon';
+import {isTablet, MULTISIZES} from '../../../assets/constants/theme';
 
 type FooterIconsProps = {
     iconname: string;
@@ -26,7 +27,7 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <TouchableOpacity onPress={onPress}>
-                <Icon name={iconname} type="ionicon" color={color} size={18} />
+                <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 28 : 18} />
             </TouchableOpacity>
         </View>
     );
@@ -298,14 +299,14 @@ const PostCard = ({
 
     const openProfileForTag = async username => {
         try {
-        const taggedUser = await findAUser({username});
-        if (taggedUser) {
-            navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
-        } else {
-            return;
-        }
+            const taggedUser = await findAUser({username});
+            if (taggedUser) {
+                navigation.navigate('ViewUserScreen', {userID: taggedUser.id});
+            } else {
+                return;
+            }
         } catch (error) {
-                console.error('Error finding user:', error);
+            console.error('Error finding user:', error);
         }
     };
 
@@ -343,6 +344,7 @@ const PostCard = ({
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
+    const userIcons = isTablet() ? 25 : 18;
 
     return (
         <View style={styles.cardcontainer}>
@@ -362,7 +364,7 @@ const PostCard = ({
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: post.author?.profilePicture}}
-                            size={70}
+                            size={MULTISIZES.Xlarge60}
                             bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
@@ -375,7 +377,7 @@ const PostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                size={18}
+                                size={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -384,7 +386,7 @@ const PostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                size={18}
+                                size={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -393,7 +395,7 @@ const PostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                size={18}
+                                size={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -402,7 +404,7 @@ const PostCard = ({
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
-                                size={18}
+                                size={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -411,7 +413,16 @@ const PostCard = ({
                                 name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
-                                baseSize={12}
+                                baseSize={isTablet() ? 18 : 12}
+                                style={{marginRight: 0}}
+                            />
+                        )}
+                        {post?.author.visionaryStatus && (
+                            <Icon
+                                name="diamond"
+                                type="ionicon"
+                                color={COLORS.WHITE}
+                                size={userIcons}
                                 style={{marginRight: 0}}
                             />
                         )}
@@ -423,7 +434,12 @@ const PostCard = ({
                 </View>
                 <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -4}}>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                        <Icon
+                            name="ellipsis-horizontal"
+                            type="ionicon"
+                            color={COLORS.AKCRUBLUE}
+                            size={isTablet() ? 32 : 20}
+                        />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
@@ -593,19 +609,20 @@ const PostCard = ({
             </View>
             {/* Loading Indicator */}
             {loading && (
-                <View style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1,
-                }}>
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1,
+                    }}>
                     <ActivityIndicator size="small" color="#0000ff" />
-                    <Text style={{ marginTop: 8, color: '#000', fontSize: 16 }}>Deleting post...</Text>
+                    <Text style={{marginTop: 8, color: '#000', fontSize: 16}}>Deleting post...</Text>
                 </View>
             )}
         </View>

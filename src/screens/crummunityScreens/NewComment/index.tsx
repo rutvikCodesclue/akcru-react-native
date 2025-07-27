@@ -17,7 +17,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import {Icon} from '@rneui/base';
 import {RouteProp} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
@@ -385,7 +385,7 @@ const NewComment = ({navigation, route}: Props) => {
                     <View
                         style={{
                             height: SIZES.ScreenHeight * 0.15,
-                            marginTop: -68,
+                            marginTop: isTablet() ? -160 : -68,
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
@@ -395,7 +395,7 @@ const NewComment = ({navigation, route}: Props) => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight * 0.15,
+                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
                             }}>
                             <View
                                 style={{
@@ -427,13 +427,13 @@ const NewComment = ({navigation, route}: Props) => {
                                                 ? {uri: user.profilePicture}
                                                 : imageindex.Akcruplaceholder
                                         }
-                                        size={45}
+                                        size={isTablet() ? 65 : 45}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                     />
                                 </TouchableOpacity>
                             </View>
                             <View>
-                                <Text style={{...FONTS.Title2, fontSize: 12}}>{user ? user?.username : 'Guest'}</Text>
+                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
                                 {user?.badge === 'AKCRUIT' && (
                                     <View>
                                         <AkcruLevels.AkcruBadgeAkcruit />
@@ -482,22 +482,6 @@ const NewComment = ({navigation, route}: Props) => {
                                 maxLength={200}
                                 editable={true}
                             />
-                            {/* <TextInput
-                            placeholder={'Tell us the "skinny" in 150 characters or less'}
-                            placeholderTextColor={COLORS.DARKGREY}
-                            style={styles.textinput}
-                            secureTextEntry={false}
-                            onChangeText={text => {
-
-                                if (text.length <= 200) {
-                                    setComment(text);
-                                }
-                            }}
-                            value={comment}
-                            multiline={true}
-                            maxLength={200}
-                            editable={true}
-                        /> */}
                         </View>
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
@@ -542,14 +526,19 @@ const NewComment = ({navigation, route}: Props) => {
                         {!isTagging && (
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                                    <Icon
+                                        name="images"
+                                        type="ionicon"
+                                        color={COLORS.AKCRUBLUE}
+                                        size={isTablet() ? 32 : 20}
+                                    />
                                 </TouchableOpacity>
                                 <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
                                     <Icon
                                         name="video-account"
                                         type="material-community"
                                         color={COLORS.AKCRUBLUE}
-                                        size={30}
+                                        size={isTablet() ? 50 : 30}
                                     />
                                 </TouchableOpacity>
                             </View>

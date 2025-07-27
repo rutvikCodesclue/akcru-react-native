@@ -1,5 +1,6 @@
 import React from 'react';
 import {PixelRatio, Dimensions} from 'react-native';
+import { isTablet } from '../../assets/constants/theme';
 
 interface TabContextType {
     opened: boolean;
@@ -72,8 +73,9 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
         const {width} = Dimensions.get('window');
         const adjustmentFactor = PixelRatio.get();
 
-        const adjustedSize = baseSize * (width > 400 ? 1.1 : 1) * adjustmentFactor;
+        const adjustedSize = baseSize * (isTablet() ? 1.5 : width > 400 ? 1.1 : 1) * adjustmentFactor;
         return Math.min(adjustedSize, baseSize * 1.5);
+
     };
 
     return (

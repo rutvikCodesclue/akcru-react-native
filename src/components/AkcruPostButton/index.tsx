@@ -1,8 +1,7 @@
-import {Image, Pressable, StyleSheet, Text, View} from 'react-native';
+import {Image, Pressable, StyleSheet, View} from 'react-native';
 import React from 'react';
 import imageindex from '../../../assets/images/imageindex';
-import {Icon} from '@rneui/base';
-import {COLORS, MULTISIZES} from '../../../assets/constants/theme';
+import {COLORS, isTablet, MULTISIZES} from '../../../assets/constants/theme';
 import CustomIcon from '../CustomIcon/CustomIcon';
 
 type PostButtonProps = {
@@ -17,9 +16,8 @@ const PostButton = ({onPress}: PostButtonProps) => {
                 resizeMode="contain"
                 style={{width: MULTISIZES.Xlarge75, height: MULTISIZES.Xlarge75}}
             />
-            <View style={{position: 'absolute', top: '11%', right: '16%'}}>
-                {/* <Icon name="add" type="ionicon" color={COLORS.LIGHTGREY} size={45} /> */}
-                <CustomIcon name="add" type="ionicon" baseSize={35} color={COLORS.LIGHTGREY} />
+            <View style={styles.iconContainer}>
+                <CustomIcon name="add" type="ionicon" baseSize={isTablet() ? 62 : 35} color={COLORS.LIGHTGREY} />
             </View>
         </Pressable>
     );
@@ -28,11 +26,9 @@ const PostButton = ({onPress}: PostButtonProps) => {
 export default PostButton;
 
 const styles = StyleSheet.create({
-    item: {
+    iconContainer: {
         position: 'absolute',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 60,
-        height: 60,
+        top: '11%',
+        right: isTablet() ? '16%' : '19%',
     },
 });

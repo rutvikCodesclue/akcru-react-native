@@ -1,16 +1,17 @@
-import {View, Text, Image, TouchableOpacity, Modal} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Modal, FlatList} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import React, {useState} from 'react';
-import {IEpisode, IMovie, ISeries} from '../../../types';
+import {IMovie, ISeries} from '../../../types';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {removeUnfinishedContent} from '../../lib/api/user.lib'; // Updated function
 import RemovalModal from '../RemovalModal/RemovalModal';
 import ConfirmationModal from '../ConfirmationModal';
 import {FlashList} from '@shopify/flash-list';
+import {isTablet} from '../../../assets/constants/theme';
 
 interface ContinueWatchingListProps {
     Akcru_Content: {
@@ -36,18 +37,18 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
     const handleConfirmRemoveFromWatchList = async () => {
         setShowConfirmationModal(false);
         if (selectedContent && selectedContent.id) {
-        try {
-            console.log('selectedContent', selectedContent.id);
-            const success = await removeUnfinishedContent(selectedContent.id, 'episodeId' in selectedContent);
-            if (success) {
-                const updatedContent = Akcru_Content.content.filter(content => content.id !== selectedContent.id);
-                updateUnfinishedContent(updatedContent);
+            try {
+                console.log('selectedContent', selectedContent.id);
+                const success = await removeUnfinishedContent(selectedContent.id, 'episodeId' in selectedContent);
+                if (success) {
+                    const updatedContent = Akcru_Content.content.filter(content => content.id !== selectedContent.id);
+                    updateUnfinishedContent(updatedContent);
 
-                handleShowRemovalModal('success');
-            } else {
-                handleShowRemovalModal('failed');
-            }
-        }   catch (error) {
+                    handleShowRemovalModal('success');
+                } else {
+                    handleShowRemovalModal('failed');
+                }
+            } catch (error) {
                 console.error('Error removing content from watch list:', error);
                 handleShowRemovalModal('failed');
             }
@@ -75,11 +76,10 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
     return (
         <>
             <Text style={{...FONTS.Title2, marginTop: 10, marginLeft: '2%'}}>{Akcru_Content.title}</Text>
-            <FlashList
+            <FlatList
                 data={Akcru_Content.content}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
-                estimatedItemSize={124}
                 renderItem={({item}) => (
                     <View style={{margin: 5}}>
                         <TouchableOpacity
@@ -103,7 +103,7 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
                                     name="play-circle"
                                     color={COLORS.TRANSPINK}
                                     type={'ionicon'}
-                                    baseSize={60}
+                                    baseSize={isTablet() ? 125 : 60}
                                 />
                             </View>
                             <Image source={{uri: item.portraitURL}} style={styles.poster} />
@@ -143,12 +143,17 @@ const ContinueWatchingList = ({Akcru_Content, updateUnfinishedContent}: Continue
                                 <CustomIcon
                                     name={'information-circle'}
                                     type={'ionicon'}
-                                    baseSize={20}
+                                    baseSize={isTablet() ? 30 : 20}
                                     color={COLORS.AKCRUBLUE}
                                 />
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleShowConfirmationModal(item)}>
-                                <CustomIcon name={'remove-circle'} type={'ionicon'} baseSize={20} color={COLORS.PINK} />
+                                <CustomIcon
+                                    name={'remove-circle'}
+                                    type={'ionicon'}
+                                    baseSize={isTablet() ? 30 : 20}
+                                    color={COLORS.PINK}
+                                />
                             </TouchableOpacity>
                         </View>
                     </View>

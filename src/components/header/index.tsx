@@ -12,7 +12,7 @@ import {getMyNotifications} from '../../lib/api/notify.lib';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {UseTabMenu} from '../../context/TabContext';
 import {getUserWallet} from '../../lib/api/wallet.lib';
-import { isTablet } from '../../../assets/constants/theme';
+import {isTablet} from '../../../assets/constants/theme';
 
 const Header = ({searchScreen = 'SearchMovieScreen'}) => {
     const {user} = useAuthStore();

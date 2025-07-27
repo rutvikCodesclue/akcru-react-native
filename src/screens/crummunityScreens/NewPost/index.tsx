@@ -16,7 +16,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -393,8 +393,8 @@ const NewPost = () => {
                     </View>
                     <View
                         style={{
-                            height: SIZES.ScreenHeight * 0.15,
-                            marginTop: -68,
+                            height: isTablet() ? SIZES.ScreenHeight * 0.15 : SIZES.ScreenHeight * 0.15,
+                            marginTop: isTablet() ? -160 : -68,
                             backgroundColor: COLORS.AKCRUBACKGROUND,
                         }}>
                         <LinearGradient
@@ -404,7 +404,7 @@ const NewPost = () => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight * 0.15,
+                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
                             }}>
                             <View
                                 style={{
@@ -436,7 +436,7 @@ const NewPost = () => {
                                                 ? {uri: user.profilePicture}
                                                 : imageindex.Akcruplaceholder
                                         }
-                                        size={45}
+                                        size={isTablet() ? 65 : 45}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                     />
                                 </TouchableOpacity>
@@ -536,7 +536,12 @@ const NewPost = () => {
                         {!isTagging && (
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                                    <Icon
+                                        name="images"
+                                        type="ionicon"
+                                        color={COLORS.AKCRUBLUE}
+                                        size={isTablet() ? 35 : 20}
+                                    />
                                 </TouchableOpacity>
 
                                 <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
@@ -544,7 +549,7 @@ const NewPost = () => {
                                         name="video-account"
                                         type="material-community"
                                         color={COLORS.AKCRUBLUE}
-                                        size={30}
+                                        size={isTablet() ? 50 : 30}
                                     />
                                 </TouchableOpacity>
                             </View>
@@ -565,7 +570,9 @@ const NewPost = () => {
                                                 source={{uri: item}}
                                                 style={{
                                                     width: SIZES.ScreenWidth / 3.55,
-                                                    height: SIZES.ScreenWidth / 2.35,
+                                                    height: isTablet()
+                                                        ? SIZES.ScreenWidth / 3.55
+                                                        : SIZES.ScreenWidth / 2.35,
                                                     margin: 5,
                                                     borderRadius: 5,
                                                 }}
@@ -587,9 +594,9 @@ const NewPost = () => {
                                 )}
                             </View>
                         )}
-                        <View>
-                            <Text style={{color: COLORS.DARKGREY}}>Limit of Image: 10 MB</Text>
-                            <Text style={{color: COLORS.DARKGREY}}>Limit of Video: 01 GB</Text>
+                        <View style={{marginHorizontal: isTablet() ? 20 : 10}}>
+                            <Text style={{...FONTS.paragraph1, color: COLORS.DARKGREY}}>Limit of Image: 10 MB</Text>
+                            <Text style={{...FONTS.paragraph1, color: COLORS.DARKGREY}}>Limit of Video: 01 GB</Text>
                         </View>
 
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
