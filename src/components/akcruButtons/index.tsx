@@ -20,7 +20,8 @@ interface BtnProps {
 }
 
 const buttonHeight = isTablet() ? 60 : 45;
-const smallButtonHeight = isTablet() ? 50 : 35;
+const smallButtonHeight = isTablet() ? 60 : 40;
+const smallButtonWidth = isTablet() ? 130 : 95;
 
 const SmallButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     return (
@@ -159,7 +160,7 @@ const XSmallButton = ({btnname, onPress, disabled, color}: BtnProps) => {
                         backgroundColor: color,
                         height: smallButtonHeight,
                         justifyContent: 'center',
-                        width: 90,
+                        width: smallButtonWidth,
                         borderRadius: 5,
                         alignItems: 'center',
                     }}>

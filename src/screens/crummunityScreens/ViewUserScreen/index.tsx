@@ -1,7 +1,6 @@
 import {
     Text,
     View,
-    ImageBackground,
     TouchableOpacity,
     Image,
     ScrollView,
@@ -48,7 +47,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import {MULTISIZES} from '../../../../assets/constants/theme';
+import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 import GalleryPic from '../../../components/GalleryPic';
 import BackButton from '../../../components/General/backbutton';
 
@@ -410,7 +409,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                         <Icon
                                             name="ellipsis-vertical"
                                             type="ionicon"
-                                            size={20}
+                                            size={isTablet() ? 32 : 20}
                                             color={COLORS.LIGHTGREY}
                                         />
                                     </View>
@@ -497,7 +496,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                                     userID,
                                                 });
                                             }}>
-                                            <Image source={imageindex.MITticket} style={{height: 40}} />
+                                            <Image
+                                                source={imageindex.MITticket}
+                                                style={{height: isTablet() ? 75 : 40, width: isTablet() ? 85 : 40}}
+                                            />
                                             <Text style={{color: 'white', ...FONTS.chart}}>Send User a MIT</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -520,7 +522,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             name="ribbon"
                                             type="ionicon"
                                             color={COLORS.WHITE}
-                                            baseSize={12}
+                                            baseSize={MULTISIZES.small11}
                                             style={{marginRight: 0}}
                                         />
                                     )}
@@ -529,7 +531,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             name="ribbon"
                                             type="ionicon"
                                             color={COLORS.AKCRUBLUE}
-                                            baseSize={12}
+                                            baseSize={MULTISIZES.small11}
                                             style={{marginRight: 0}}
                                         />
                                     )}
@@ -538,7 +540,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             name="ribbon"
                                             type="ionicon"
                                             color={COLORS.BLACKCLOAK}
-                                            baseSize={12}
+                                            baseSize={MULTISIZES.small11}
                                             style={{marginRight: 0}}
                                         />
                                     )}
@@ -547,7 +549,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                             name="police-badge"
                                             type="material-community"
                                             color={COLORS.STARGOLD}
-                                            baseSize={12}
+                                            baseSize={MULTISIZES.small11}
+                                            style={{marginRight: 0}}
+                                        />
+                                    )}
+                                    {user?.visionaryStatus && (
+                                        <CustomIcon
+                                            name="diamond"
+                                            type="ionicon"
+                                            color={COLORS.WHITE}
+                                            baseSize={MULTISIZES.small11}
                                             style={{marginRight: 0}}
                                         />
                                     )}
@@ -616,7 +627,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 style={{
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
-                                    width: SIZES.ScreenWidth * 0.93,
+                                    width: SIZES.ScreenWidth * 0.95,
                                     alignItems: 'center',
                                 }}>
                                 <AkcruButtons.FollowButton

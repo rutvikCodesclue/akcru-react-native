@@ -6,6 +6,7 @@ import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import DisplayBadge from '../General/akcrubadge';
+import { isTablet } from '../../../assets/constants/theme';
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -66,7 +67,7 @@ const UserSearchCard = ({
                         <TouchableOpacity onPress={onPress}>
                             <HexAvatar
                                 source={{uri: userPicture}}
-                                size={58}
+                                size={isTablet() ? 80 : 58}
                                 bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                             />
                         </TouchableOpacity>

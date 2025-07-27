@@ -39,6 +39,7 @@ import playMessageSound from '../../../util/playMessageSound';
 import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import PurchasedContent from '../../../components/PurchasedContent';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const UserProfileDetailsTab = () => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
@@ -422,9 +423,14 @@ const UserProfileDetailsTab = () => {
                                             paddingVertical: 2,
                                         }}>
                                         <View>
-                                            <Icon name="happy-outline" type="ionicon" size={20} color={COLORS.PINK} />
+                                            <Icon
+                                                name="happy-outline"
+                                                type="ionicon"
+                                                size={isTablet() ? 40 : 20}
+                                                color={COLORS.PINK}
+                                            />
                                         </View>
-                                        <Text style={{marginLeft: 4, ...FONTS.paragraph1}}>
+                                        <Text style={{marginLeft: 4, ...FONTS.paragraph2}}>
                                             {likesData[item].count}
                                         </Text>
                                     </TouchableOpacity>
@@ -589,7 +595,9 @@ const UserProfileDetailsTab = () => {
                                                         padding: 15,
                                                         marginBottom: 15,
                                                         marginHorizontal: 10,
-                                                        width: SIZES.ScreenWidth * 0.75,
+                                                        width: isTablet()
+                                                            ? SIZES.ScreenWidth * 0.65
+                                                            : SIZES.ScreenWidth * 0.75,
                                                     }}>
                                                     <LinearGradient
                                                         colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
@@ -635,7 +643,7 @@ const UserProfileDetailsTab = () => {
                                                             name="chatbox-ellipses"
                                                             type="ionicon"
                                                             color={COLORS.PURPLE}
-                                                            baseSize={22}
+                                                            baseSize={isTablet() ? 35 : 22}
                                                             style={{margin: 0}}
                                                         />
                                                     </TouchableOpacity>
@@ -652,7 +660,7 @@ const UserProfileDetailsTab = () => {
                                                         }}>
                                                         <HexAvatar
                                                             source={{uri: item.creator.profilePicture}}
-                                                            size={70}
+                                                            size={isTablet() ? 120 : 70}
                                                             bordercolor={selectAvatarBorderColor(
                                                                 item.creator.badge ?? 'AKCRUIT',
                                                             )}
@@ -733,7 +741,13 @@ const UserProfileDetailsTab = () => {
                                 <View style={styles.lineDivider} />
                                 <PurchasedContent />
                                 <View style={styles.lineDivider} />
-                                <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
+                                <View
+                                    style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginVertical: 10,
+                                        marginRight: isTablet() ? 25 : 0,
+                                    }}>
                                     <AkcruButtons.LrgButton
                                         btnname={'Add to Gallery'}
                                         onPress={selectGalleryImage}

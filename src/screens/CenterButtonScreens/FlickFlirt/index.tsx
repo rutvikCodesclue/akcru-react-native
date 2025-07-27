@@ -173,8 +173,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     paragraph: {
-        ...FONTS.Title2,
-        fontSize: 12,
+        ...FONTS.paragraph1,
         textAlign: 'center',
     },
     modalOverlay: {

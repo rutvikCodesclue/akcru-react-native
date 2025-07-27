@@ -1,5 +1,6 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import { isTablet } from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     titleText1: {
@@ -24,7 +25,7 @@ export default StyleSheet.create({
         marginBottom: 90,
     },
     galleryImage: {
-        width: SIZES.ScreenWidth / 3.55,
+        width: isTablet() ? SIZES.ScreenWidth / 3.3 : SIZES.ScreenWidth / 3.55,
         height: SIZES.ScreenWidth / 2.35,
         margin: 5,
         borderRadius: 5,

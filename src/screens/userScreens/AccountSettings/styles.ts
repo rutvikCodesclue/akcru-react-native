@@ -12,6 +12,7 @@ export default StyleSheet.create({
         height: 40,
     },
     textinput: {
+        ...FONTS.paragraph1,
         color: COLORS.WHITE,
         width: '100%',
     },

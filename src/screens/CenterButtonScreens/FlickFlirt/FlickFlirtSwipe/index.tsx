@@ -22,6 +22,7 @@ import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {Icon} from '@rneui/base';
 
 import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
+import {isTablet} from '../../../../../assets/constants/theme';
 
 const FlickFlirtSwipe = () => {
     const [movies, setMovies] = useState<IMovie[]>([]);
@@ -181,7 +182,7 @@ const FlickFlirtSwipe = () => {
                                                     height: '100%',
                                                 }}
                                             />
-                                            <View style={{padding: 10}}>
+                                            <View style={{padding: isTablet() ? 30 : 10}}>
                                                 <Text style={styles.bigTitle}>{movie.title}</Text>
                                                 <View style={{flexDirection: 'row', marginVertical: 10}}>
                                                     <Text style={styles.drawfonttag}>{movie?.rated}</Text>
@@ -220,8 +221,9 @@ const FlickFlirtSwipe = () => {
                                 cardIndex={0}
                                 verticalSwipe={false}
                                 cardStyle={{
-                                    marginTop: '-10%',
-                                    marginLeft: '3%',
+                                    marginTop: isTablet() ? 0 : '-10%',
+                                    marginLeft: isTablet() ? '17%' : '3%',
+                                    alignSelf: 'center', // center horizontally
                                 }}
                                 onSwipedAll={onSwipedAll}
                                 overlayLabels={{
@@ -242,7 +244,7 @@ const FlickFlirtSwipe = () => {
                                                 alignItems: 'flex-end',
                                                 justifyContent: 'flex-start',
                                                 marginTop: 30,
-                                                marginLeft: -30,
+                                                marginLeft: isTablet() ? -330 : -30,
                                             },
                                         },
                                     },
@@ -277,87 +279,92 @@ const FlickFlirtSwipe = () => {
                             <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>Checking For Flirts...</Text>
                         )}
                         {allSwiped && hasCheckedFlirts && (
-                            <View
-                                style={{
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: '100%',
-
-                                    marginLeft: '3%',
-                                }}>
-                                {matches.length > 0 ? (
-                                    <>
-                                        <FlatList
-                                            data={matches}
-                                            numColumns={2}
-                                            keyExtractor={item => item.id}
-                                            ListHeaderComponent={() => (
-                                                <Text
-                                                    style={[
-                                                        FONTS.Title3,
-                                                        {
-                                                            color: COLORS.LIGHTGREY,
-                                                            textAlign: 'center',
-                                                            marginBottom: 10,
-                                                        },
-                                                    ]}>
-                                                    You have matches.
-                                                </Text>
-                                            )}
-                                            renderItem={({item}) => (
-                                                <View style={{marginVertical: 5}}>
-                                                    <FlickFlirtMatchCard
-                                                        userPicture={item.profilePicture}
-                                                        userName={item.username}
-                                                        onPress={() =>
-                                                            navigation.navigate('ViewUserScreen', {userID: item.id})
-                                                        }
-                                                        influencer={false}
-                                                        akcruBadge={item.badge}
-                                                        userDesc={item.description}
-                                                        matchLabel={item.matchLabel}
-                                                    />
-                                                </View>
-                                            )}
-                                        />
-                                        {!unlocked && hiddenCount > 0 && (
-                                            <View style={styles.unlockWrapper}>
-                                                <Text style={styles.unlockText}>
-                                                    {hiddenCount} more {hiddenCount > 1 ? 'matches' : 'match'} locked
-                                                </Text>
-                                                <AkcruButtons.XlLrgButton
-                                                    btnname={'Unlock Matches'}
-                                                    onPress={openModal}
-                                                    color={COLORS.PURPLE}
-                                                />
-                                            </View>
-                                        )}
-                                        <View style={styles.gotToStartWrapper}>
+                            <>
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        marginLeft: '3%',
+                                        marginRight: '3%',
+                                        paddingBottom: 150, // reserve space for bottom buttons
+                                    }}>
+                                    {matches.length > 0 ? (
+                                        <>
+                                            <FlatList
+                                                data={matches}
+                                                numColumns={2}
+                                                keyExtractor={item => item.id}
+                                                ListHeaderComponent={() => (
+                                                    <Text
+                                                        style={[
+                                                            FONTS.Title3,
+                                                            {
+                                                                color: COLORS.LIGHTGREY,
+                                                                textAlign: 'center',
+                                                                marginBottom: 10,
+                                                                marginTop: isTablet() ? '20%' : '40%',
+                                                            },
+                                                        ]}>
+                                                        You have matches.
+                                                    </Text>
+                                                )}
+                                                renderItem={({item}) => (
+                                                    <View style={{marginVertical: 5}}>
+                                                        <FlickFlirtMatchCard
+                                                            userPicture={item.profilePicture}
+                                                            userName={item.username}
+                                                            onPress={() =>
+                                                                navigation.navigate('ViewUserScreen', {userID: item.id})
+                                                            }
+                                                            influencer={false}
+                                                            akcruBadge={item.badge}
+                                                            userDesc={item.description}
+                                                            matchLabel={item.matchLabel}
+                                                        />
+                                                    </View>
+                                                )}
+                                            />
+                                        </>
+                                    ) : (
+                                        <View style={{alignItems: 'center'}}>
+                                            <Text
+                                                style={[
+                                                    FONTS.Title3,
+                                                    {color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 20},
+                                                ]}>
+                                                You have no matches.
+                                            </Text>
                                             <AkcruButtons.XlLrgButton
-                                                btnname="Go To Start"
+                                                btnname="Start Over"
                                                 onPress={() => navigationB.navigate('FlickFlirtScreen')}
                                                 color={COLORS.PURPLE}
                                             />
                                         </View>
-                                    </>
-                                ) : (
-                                    <View style={{alignItems: 'center'}}>
-                                        <Text
-                                            style={[
-                                                FONTS.Title3,
-                                                {color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 20},
-                                            ]}>
-                                            You have no matches.
-                                        </Text>
-                                        {/* Start Over button when there are no matches */}
+                                    )}
+                                </View>
+
+                                {/* Fixed bottom button stack */}
+                                <View style={{position: 'absolute', bottom: '15%', alignSelf: 'center'}}>
+                                    {!unlocked && hiddenCount > 0 && (
+                                        <View style={styles.unlockWrapper}>
+                                            <Text style={styles.unlockText}>
+                                                {hiddenCount} more {hiddenCount > 1 ? 'matches' : 'match'} locked
+                                            </Text>
+                                            <AkcruButtons.XlLrgButton
+                                                btnname={'Unlock Matches'}
+                                                onPress={openModal}
+                                                color={COLORS.PURPLE}
+                                            />
+                                        </View>
+                                    )}
+                                    <View style={styles.gotToStartWrapper}>
                                         <AkcruButtons.XlLrgButton
-                                            btnname="Start Over"
+                                            btnname="Go To Start"
                                             onPress={() => navigationB.navigate('FlickFlirtScreen')}
                                             color={COLORS.PURPLE}
                                         />
                                     </View>
-                                )}
-                            </View>
+                                </View>
+                            </>
                         )}
                     </View>
                     {!allSwiped && (
@@ -366,8 +373,18 @@ const FlickFlirtSwipe = () => {
                                 Swipe right if you like, swipe left if you dislike
                             </Text>
                             <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '40%'}}>
-                                <Icon name={'sad'} type="ionicon" color={COLORS.CATREDLGT} size={40} />
-                                <Icon name={'happy'} type="ionicon" color={COLORS.AKCRUBLUE} size={40} />
+                                <Icon
+                                    name={'sad'}
+                                    type="ionicon"
+                                    color={COLORS.CATREDLGT}
+                                    size={isTablet() ? 60 : 40}
+                                />
+                                <Icon
+                                    name={'happy'}
+                                    type="ionicon"
+                                    color={COLORS.AKCRUBLUE}
+                                    size={isTablet() ? 60 : 40}
+                                />
                             </View>
                         </View>
                     )}

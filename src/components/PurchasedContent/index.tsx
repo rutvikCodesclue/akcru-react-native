@@ -7,6 +7,7 @@ import {getPurchasedMovies} from '../../lib/api/movies.lib';
 import {getPurchasedSeries} from '../../lib/api/series.lib';
 import {FONTS, SIZES} from '../../../assets/constants';
 import {ClientStackParams} from '../../navigation/ClientStack';
+import { isTablet } from '../../../assets/constants/theme';
 
 export type Purchasable = {
     id: string;
@@ -108,10 +109,10 @@ const styles = StyleSheet.create({
     },
     item: {
         marginRight: 12,
-        width: 120,
+        width: isTablet() ? '33%' : 120,
     },
     poster: {
-        width: SIZES.ScreenWidth / 3.6,
+        width: isTablet() ? SIZES.ScreenWidth / 3.6 : SIZES.ScreenWidth / 3.6,
         height: SIZES.ScreenWidth / 2.4,
         borderRadius: 5,
         margin: 5,

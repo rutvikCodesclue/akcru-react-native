@@ -1,5 +1,6 @@
 import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import { isTablet } from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     gallerycontainer: {
@@ -43,7 +44,7 @@ export default StyleSheet.create({
         borderColor: COLORS.LIGHTGREY,
         marginBottom: 20,
         alignSelf: 'center',
-        height: 40,
+        height: 45,
     },
     bioinput: {
         width: SIZES.ScreenWidth * 0.92,
@@ -52,11 +53,19 @@ export default StyleSheet.create({
         borderColor: COLORS.LIGHTGREY,
         marginBottom: 20,
         alignSelf: 'center',
-        height: 60,
+        height: 120,
     },
-    textinput: {
+    biotextinput: {
+        ...FONTS.paragraph2,
         color: COLORS.WHITE,
         width: '100%',
+        height: isTablet() ? 120 : 45,
+    },
+    textinput: {
+        ...FONTS.paragraph2,
+        color: COLORS.WHITE,
+        width: '100%',
+        height: isTablet() ? 55 : 45,
     },
     inputlabel: {
         ...FONTS.paragraph1,

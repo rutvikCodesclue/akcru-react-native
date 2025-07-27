@@ -1,5 +1,6 @@
 import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../../assets/constants';
+import {isTablet} from '../../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     bgimage: {
@@ -43,8 +44,8 @@ export default StyleSheet.create({
         color: COLORS.LIGHTGREY,
     },
     card: {
-        width: SIZES.ScreenWidth / 1.2,
-        height: SIZES.ScreenHeight / 1.6,
+        width: isTablet() ? SIZES.ScreenWidth / 1.6 : SIZES.ScreenWidth / 1.2,
+        height: isTablet() ? SIZES.ScreenHeight / 1.7 : SIZES.ScreenHeight / 1.6,
         borderRadius: 7,
         shadowColor: '#000000',
         shadowOffset: {
@@ -67,7 +68,7 @@ export default StyleSheet.create({
         width: '75%',
     },
     desc: {
-        ...FONTS.Username,
+        ...FONTS.paragraph1,
         marginBottom: 10,
     },
     drawfonttag: {
@@ -81,7 +82,7 @@ export default StyleSheet.create({
         textAlign: 'center',
     },
     unlockWrapper: {marginTop: 20, alignItems: 'center'},
-    gotToStartWrapper: {marginTop: 20, alignItems: 'center'},
+    gotToStartWrapper: {paddingTop: 20, alignItems: 'center'},
     unlockText: {...FONTS.Title3, color: COLORS.LIGHTGREY, marginBottom: 10},
 
     modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'},

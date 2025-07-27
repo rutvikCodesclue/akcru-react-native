@@ -6,6 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
 import DisplayBadge from '../General/akcrubadge';
+import { isTablet } from '../../../assets/constants/theme';
 
 const MAX_USERNAME_LENGTH = 10;
 
@@ -58,14 +59,14 @@ const FlickFlirtMatchCard = ({
                             <TouchableOpacity onPress={onPress}>
                                 <HexAvatar
                                     source={{uri: userPicture}}
-                                    size={45}
+                                    size={isTablet() ? 75 : 45}
                                     bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
                                 />
                             </TouchableOpacity>
                         </View>
                         <View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title2, fontSize: 12}}>{truncateduserName}</Text>
+                                <Text style={{...FONTS.Username}}>{truncateduserName}</Text>
                                 {influencer && (
                                     <Icon
                                         name="ribbon"
@@ -76,7 +77,7 @@ const FlickFlirtMatchCard = ({
                                     />
                                 )}
                             </View>
-                            {matchLabel && <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>{matchLabel}</Text>}
+                            {matchLabel && <Text style={{...FONTS.Title3, color: COLORS.AKCRUPINK}}>{matchLabel}</Text>}
 
                             <DisplayBadge akcruBadge={akcruBadge} />
                         </View>

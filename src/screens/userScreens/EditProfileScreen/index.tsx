@@ -1,18 +1,6 @@
 import {useState} from 'react';
 import styles from './styles';
-import {
-    View,
-    Alert,
-    Text,
-    ScrollView,
-    Image,
-    SafeAreaView,
-    TextInput,
-    Modal,
-    Pressable,
-    Platform,
-    StyleSheet,
-} from 'react-native';
+import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -39,7 +27,7 @@ import HelpModal from '../../../components/HelpModal/HelpModal';
 import BackButton from '../../../components/General/backbutton';
 import {Image as CompressorImage} from 'react-native-compressor';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import {MULTISIZES} from '../../../../assets/constants/theme';
+import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -126,7 +114,6 @@ export default function EditProfile({session}: {session: Session}) {
             setLoading(true);
             setShowUpdateUsernameConfirmation(false);
 
-
             if (userName && userName !== user?.username) {
                 const usernameExists = await checkUsernameExists(userName, user?.username);
 
@@ -177,7 +164,7 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
-    
+
     const selectProfileImage = async () => {
         let options = {
             mediaType: 'photo' as MediaType,
@@ -310,7 +297,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <View style={{alignItems: 'center'}}>
                                 <HexAvatar
                                     source={{uri: selectImage}}
-                                    size={140}
+                                    size={isTablet() ? 140 : 100}
                                     bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                 />
                                 <Text
@@ -576,7 +563,7 @@ export default function EditProfile({session}: {session: Session}) {
 
                         <View style={{alignItems: 'center'}}>
                             <Text style={styles.inputlabel}>Bio</Text>
-                            <View style={styles.input}>
+                            <View style={styles.bioinput}>
                                 {Platform.OS == 'ios' ? (
                                     <TouchableOpacity onPress={handleDescriptionModalOpen}>
                                         <TextInput
@@ -586,7 +573,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                     : user?.description
                                             }
                                             placeholderTextColor={COLORS.DARKGREY}
-                                            style={styles.textinput}
+                                            style={styles.biotextinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedDescription(text)}
                                             value={description || ''}
@@ -602,7 +589,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                     : user?.description
                                             }
                                             placeholderTextColor={COLORS.DARKGREY}
-                                            style={styles.textinput}
+                                            style={styles.biotextinput}
                                             secureTextEntry={false}
                                             onChangeText={text => setModifiedDescription(text)}
                                             value={description || ''}
@@ -670,7 +657,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                 : user?.description
                                         }
                                         placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.textinput}
+                                        style={styles.biotextinput}
                                         secureTextEntry={false}
                                         onChangeText={text => {
                                             if (text.length <= 150) {

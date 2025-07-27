@@ -1,5 +1,14 @@
 import * as React from 'react';
-import {View, useWindowDimensions, Text, TouchableOpacity, Image, SafeAreaView, Modal, ActivityIndicator } from 'react-native';
+import {
+    View,
+    useWindowDimensions,
+    Text,
+    TouchableOpacity,
+    Image,
+    SafeAreaView,
+    Modal,
+    ActivityIndicator,
+} from 'react-native';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import {
     UserProfileCruInvites,
@@ -33,7 +42,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import {getFollowers} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import {MULTISIZES} from '../../../../assets/constants/theme';
+import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 import AkcruButtons from '../../../components/akcruButtons';
 
 type UserProfileScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserProfileScreen'>;
@@ -305,15 +314,17 @@ export default function UserProfileScreen({navigation, route}: Props) {
         };
 
         loadData();
-    }, []); 
+    }, []);
     if (loading) {
         // Display a spinner while loading
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <ActivityIndicator size="large" color="#0000ff" />
             </View>
         );
     }
+
+    const iconSize = isTablet() ? 18 : 12;
 
     return (
         <TabContainer>
@@ -354,7 +365,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <View style={{flexDirection: 'row'}}>
+                                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
                                             <View>
                                                 <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
                                                 {user?.firstName && (
@@ -369,7 +380,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.STARGOLD}
-                                                    baseSize={12}
+                                                    baseSize={iconSize}
                                                     style={{marginRight: 0}}
                                                 />
                                             )}
@@ -378,7 +389,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.WHITE}
-                                                    baseSize={12}
+                                                    baseSize={iconSize}
                                                     style={{marginRight: 0}}
                                                 />
                                             )}
@@ -387,7 +398,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.AKCRUBLUE}
-                                                    baseSize={12}
+                                                    baseSize={iconSize}
                                                     style={{marginRight: 0}}
                                                 />
                                             )}
@@ -396,7 +407,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     name="ribbon"
                                                     type="ionicon"
                                                     color={COLORS.BLACKCLOAK}
-                                                    baseSize={12}
+                                                    baseSize={iconSize}
                                                     style={{marginRight: 0}}
                                                 />
                                             )}
@@ -405,7 +416,16 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                     name="police-badge"
                                                     type="material-community"
                                                     color={COLORS.STARGOLD}
-                                                    baseSize={12}
+                                                    baseSize={iconSize}
+                                                    style={{marginRight: 0}}
+                                                />
+                                            )}
+                                            {user?.visionaryStatus && (
+                                                <CustomIcon
+                                                    name="diamond"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    baseSize={iconSize}
                                                     style={{marginRight: 0}}
                                                 />
                                             )}
@@ -461,9 +481,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
                                         style={{marginRight: '5%'}}>
                                         <View>
-                                            <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
+                                            <Image
+                                                source={imageindex.LrgMIT}
+                                                style={{width: isTablet() ? 85 : 55, height: isTablet() ? 42 : 25}}
+                                            />
                                         </View>
-                                        <View style={{position: 'absolute', right: 0, bottom: 10}}>
+                                        <View style={{position: 'absolute', right: 0, bottom: isTablet() ? 20 : 10}}>
                                             <View
                                                 style={{
                                                     alignItems: 'center',
@@ -479,7 +502,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             </View>
                                         </View>
                                     </TouchableOpacity>
-                                 
+
                                     <View style={{marginTop: '30%'}}>
                                         <AkcruButtons.XSmallButton
                                             btnname="Edit Profile"
