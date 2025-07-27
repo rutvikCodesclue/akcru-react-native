@@ -24,6 +24,7 @@ type UserSearchCardProps = {
     influencerStatus?: boolean;
     blackCloakStatus?: boolean;
     isAdmin?: boolean;
+    visionaryStatus?: boolean;
 };
 
 const UserSearchCard = ({
@@ -38,9 +39,11 @@ const UserSearchCard = ({
     influencerStatus,
     blackCloakStatus,
     isAdmin,
+    visionaryStatus,
 }: UserSearchCardProps) => {
     const truncateduserDesc =
         userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
+        const iconSize = isTablet() ? 18 : 12;
 
     return (
         <View
@@ -80,7 +83,7 @@ const UserSearchCard = ({
                                     name="ribbon"
                                     type="ionicon"
                                     color={COLORS.STARGOLD}
-                                    baseSize={12}
+                                    baseSize={iconSize}
                                     style={{marginRight: 0}}
                                 />
                             )}
@@ -89,7 +92,7 @@ const UserSearchCard = ({
                                     name="ribbon"
                                     type="ionicon"
                                     color={COLORS.WHITE}
-                                    baseSize={12}
+                                    baseSize={iconSize}
                                     style={{marginRight: 0}}
                                 />
                             )}
@@ -98,7 +101,7 @@ const UserSearchCard = ({
                                     name="ribbon"
                                     type="ionicon"
                                     color={COLORS.AKCRUBLUE}
-                                    baseSize={12}
+                                    baseSize={iconSize}
                                     style={{marginRight: 0}}
                                 />
                             )}
@@ -107,7 +110,7 @@ const UserSearchCard = ({
                                     name="ribbon"
                                     type="ionicon"
                                     color={COLORS.BLACKCLOAK}
-                                    baseSize={12}
+                                    baseSize={iconSize}
                                     style={{marginRight: 0}}
                                 />
                             )}
@@ -116,7 +119,16 @@ const UserSearchCard = ({
                                     name="police-badge"
                                     type="material-community"
                                     color={COLORS.STARGOLD}
-                                    baseSize={12}
+                                    baseSize={iconSize}
+                                    style={{marginRight: 0}}
+                                />
+                            )}
+                            {visionaryStatus && (
+                                <CustomIcon
+                                    name="diamond-stone"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    baseSize={iconSize}
                                     style={{marginRight: 0}}
                                 />
                             )}

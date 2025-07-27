@@ -442,8 +442,8 @@ const PostCommentCard = ({
                         )}
                         {post?.author.visionaryStatus && (
                             <Icon
-                                name="ribbon"
-                                type="ionicon"
+                                name="diamond-stone"
+                                type="material-community"
                                 color={COLORS.WHITE}
                                 size={isTablet() ? 25 : 18}
                                 style={{marginRight: 0}}

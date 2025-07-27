@@ -329,7 +329,7 @@ const PollCard = ({
                         )}
                         {poll.user?.visionaryStatus && (
                             <CustomIcon
-                                name="diamond"
+                                name="diamond-stone"
                                 type="material-community"
                                 color={COLORS.WHITE}
                                 baseSize={userIcons}

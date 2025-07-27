@@ -419,8 +419,8 @@ const PostCard = ({
                         )}
                         {post?.author.visionaryStatus && (
                             <Icon
-                                name="diamond"
-                                type="ionicon"
+                                name="diamond-stone"
+                                type="material-community"
                                 color={COLORS.WHITE}
                                 size={userIcons}
                                 style={{marginRight: 0}}

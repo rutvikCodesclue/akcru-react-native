@@ -349,8 +349,8 @@ const PollScreenCard = ({
                         )}
                         {poll.user?.visionaryStatus && (
                             <CustomIcon
-                                name="diamond"
-                                type="ionicon"
+                                name="diamond-stone"
+                                type="material-community"
                                 color={COLORS.WHITE}
                                 baseSize={userIcons}
                                 style={{marginRight: 0}}

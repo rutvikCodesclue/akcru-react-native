@@ -555,8 +555,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     )}
                                     {user?.visionaryStatus && (
                                         <CustomIcon
-                                            name="diamond"
-                                            type="ionicon"
+                                            name="diamond-stone"
+                                            type="material-community"
                                             color={COLORS.WHITE}
                                             baseSize={MULTISIZES.small11}
                                             style={{marginRight: 0}}
