@@ -19,7 +19,7 @@ export default function StripeWebCheckout() {
         (navState: WebViewNavigation) => {
             const {url} = navState;
 
-            if (url.startsWith('http://10.0.2.2:3000/ad-purchase/success')) {
+            if (url.includes('ad-purchase/success')) {
                 const sessionId = new URL(url).searchParams.get('session_id');
                 if (sessionId) {
                     navigation.replace('AdPurchaseSuccessScreen', {session_id: sessionId});
@@ -27,7 +27,7 @@ export default function StripeWebCheckout() {
                 return false;
             }
 
-            if (url.startsWith('http://10.0.2.2:3000/ad-purchase/cancel')) {
+            if (url.includes('ad-purchase/cancel')) {
                 navigation.goBack();
                 return false;
             }
