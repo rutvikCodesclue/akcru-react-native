@@ -130,6 +130,7 @@ type PostProps = {
     onBlockUser: () => void;
     akcruBadgeColor: string;
     isAdmin: boolean; // Add this to check if the user is an admin
+    visionaryStatus: boolean;
 };
 
 const SkinnyPostCard = ({
@@ -152,6 +153,7 @@ const SkinnyPostCard = ({
     akcruBadgeColor,
     isAdmin,
     isLikedByCurrentUser,
+    visionaryStatus,
 }: PostProps) => {
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');

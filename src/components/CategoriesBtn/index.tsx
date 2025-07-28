@@ -15,8 +15,8 @@ const CategoriesBtn = ({category, color, onPress}: Props) => {
             <TouchableOpacity onPress={onPress}>
                 <View
                     style={{
-                        width: isTablet() ? SIZES.ScreenWidth * 0.18 : SIZES.ScreenWidth * 0.2,
-                        height: isTablet() ? SIZES.ScreenWidth * 0.1 : SIZES.ScreenWidth * 0.13,
+                        width: isTablet() ? SIZES.ScreenWidth * 0.18 : SIZES.ScreenWidth * 0.27,
+                        height: isTablet() ? SIZES.ScreenWidth * 0.09 : SIZES.ScreenWidth * 0.13,
                         borderRadius: 5,
                         justifyContent: 'center',
                         backgroundColor: color,

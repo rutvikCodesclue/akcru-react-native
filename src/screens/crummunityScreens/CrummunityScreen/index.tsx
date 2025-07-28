@@ -608,6 +608,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                         isOwner={item.author.ownerStatus}
                                                         isPromo={item.author.promoUser}
                                                         isAdmin={user?.isAdmin} // Pass isAdmin prop
+                                                        visionaryStatus={user?.visionaryStatus}
                                                     />
                                                 </Pressable>
                                             )
