@@ -1,5 +1,6 @@
 // src/lib/api/adPurchase.lib.ts
 
+import {Platform} from 'react-native';
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
 
@@ -60,13 +61,15 @@ export async function purchaseAD(tier: string): Promise<string> {
     // ensure we’re logged in
     await useAuthStore.getState().hydrateAuth();
 
-    // call the *checkout* route, not the tiers route
-    const resp = await API.post<{url: string}>('/v1/ad-checkout/create-session', {tier});
+    const resp = await API.post<{url: string}>('/v1/ad-checkout/create-session', {
+        tier,
+        platform: Platform.OS, // 👈 send 'android' or 'ios'
+    });
 
-    // resp.data should be { url: string }
     if (!resp.data || typeof resp.data.url !== 'string') {
         throw new Error('Unexpected response from server');
     }
+
     return resp.data.url;
 }
 
