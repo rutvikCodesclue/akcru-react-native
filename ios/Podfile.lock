@@ -2,7 +2,7 @@ PODS:
   - boost (1.76.0)
   - BVLinearGradient (2.8.3):
     - React-Core
-  - Castle (3.0.7)
+  - Castle (3.0.13)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.72.1)
   - FBReactNativeSpec (0.72.1):
@@ -191,6 +191,11 @@ PODS:
     - RNPermissions
   - Permission-StoreKit (3.10.1):
     - RNPermissions
+  - PostHog (3.30.0)
+  - posthog-react-native-session-replay (1.1.1):
+    - PostHog (~> 3.21)
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - PromisesObjC (2.4.0)
   - RCT-Folly (2021.07.22.00):
     - boost
@@ -491,8 +496,8 @@ PODS:
   - React-jsinspector (0.72.1)
   - React-logger (0.72.1):
     - glog
-  - react-native-castle (2.0.11):
-    - Castle (= 3.0.7)
+  - react-native-castle (2.1.1):
+    - Castle (= 3.0.13)
     - React-Core
   - react-native-compressor (1.8.24):
     - RCT-Folly (= 2021.07.22.00)
@@ -520,7 +525,7 @@ PODS:
     - React-Core
   - react-native-progress-bar-android (1.0.5):
     - React
-  - react-native-progress-view (1.4.2):
+  - react-native-progress-view (1.5.0):
     - React-Core
   - react-native-safe-area-context (4.9.0):
     - React-Core
@@ -651,6 +656,8 @@ PODS:
     - React-Core
   - RNDateTimePicker (7.6.2):
     - React-Core
+  - RNDeviceInfo (14.0.4):
+    - React-Core
   - RNFBApp (18.9.0):
     - Firebase/CoreOnly (= 10.20.0)
     - React-Core
@@ -663,6 +670,8 @@ PODS:
     - React-Core
   - RNGestureHandler (2.15.0):
     - RCT-Folly (= 2021.07.22.00)
+    - React-Core
+  - RNLocalize (3.5.1):
     - React-Core
   - RNNotifee (7.8.2):
     - React-Core
@@ -719,6 +728,7 @@ DEPENDENCIES:
   - Permission-Siri (from `../node_modules/react-native-permissions/ios/Siri/Permission-Siri.podspec`)
   - Permission-SpeechRecognition (from `../node_modules/react-native-permissions/ios/SpeechRecognition/Permission-SpeechRecognition.podspec`)
   - Permission-StoreKit (from `../node_modules/react-native-permissions/ios/StoreKit/Permission-StoreKit.podspec`)
+  - posthog-react-native-session-replay (from `../node_modules/posthog-react-native-session-replay`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -771,10 +781,12 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBMessaging (from `../node_modules/@react-native-firebase/messaging`)"
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
@@ -808,6 +820,7 @@ SPEC REPOS:
     - MMKVCore
     - Mute
     - nanopb
+    - PostHog
     - PromisesObjC
     - SocketRocket
 
@@ -863,6 +876,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-permissions/ios/SpeechRecognition/Permission-SpeechRecognition.podspec"
   Permission-StoreKit:
     :path: "../node_modules/react-native-permissions/ios/StoreKit/Permission-StoreKit.podspec"
+  posthog-react-native-session-replay:
+    :path: "../node_modules/posthog-react-native-session-replay"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -965,6 +980,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-masked-view/masked-view"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNFBApp:
     :path: "../node_modules/@react-native-firebase/app"
   RNFBMessaging:
@@ -973,6 +990,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
+  RNLocalize:
+    :path: "../node_modules/react-native-localize"
   RNNotifee:
     :path: "../node_modules/@notifee/react-native"
   RNPermissions:
@@ -991,7 +1010,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost: 7dcd2de282d72e344012f7d6564d024930a6a440
   BVLinearGradient: cb006ba232a1f3e4f341bb62c42d1098c284da70
-  Castle: f00b8cd4b4d495c5059dda9d64e8c1c6e1e24765
+  Castle: 4ed38c385a67478ed200ca1c374cd03855c90c22
   DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
   FBLazyVector: 55cd4593d570bd9e5e227488d637ce6a9581ce51
   FBReactNativeSpec: 799b0e1a1561699cd0e424e24fe5624da38402f0
@@ -1037,6 +1056,8 @@ SPEC CHECKSUMS:
   Permission-Siri: dcbc10a4c8ec0589723ad8a6eccb6e2143d38bcf
   Permission-SpeechRecognition: 08fceb5a02fa486885f3fa052a792659e13ff684
   Permission-StoreKit: 0524d38fdb27b9109e5a29a8a2a549d98cf5fd7d
+  PostHog: 716bb0e65134459b7d3955b02be2a420c574b914
+  posthog-react-native-session-replay: 72dcfd00ab11fcc9f1552418823e422363855205
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   RCT-Folly: 8dc08ca5a393b48b1c523ab6220dfdcc0fe000ad
   RCTRequired: c52ee8fb2b35c1b54031dd8e92d88ad4dba8f2ce
@@ -1053,7 +1074,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: a2b883b0e3fbc606a1e6e97a15059b71d6da1715
   React-jsinspector: d0b5bfd1085599265f4212034321e829bdf83cc0
   React-logger: 70abe174614ac3f165e02ab8300fec50d2f9572d
-  react-native-castle: c1d2c000865c544f6d68194b5f7991e4246efa58
+  react-native-castle: 3afd463c583e0a40ded9447e428292d666e57618
   react-native-compressor: 5e2eab33d28c0fd7269b09a0e885cfcd6db87bc4
   react-native-contacts: f551920b74ebfc5f7f6df307495f085e504a4369
   react-native-get-random-values: d16467cf726c618e9c7a8c3c39c31faa2244bbba
@@ -1064,7 +1085,7 @@ SPEC CHECKSUMS:
   react-native-orientation-locker: ee8bb2177365ca74f51dc1e11218fe544634d523
   react-native-pager-view: fc7b57d30e9bc63b5edd105274fb02efbb61d29c
   react-native-progress-bar-android: 70caf8832e7a6378a3340bc81f361f65ad406a54
-  react-native-progress-view: 3539dfda4e70cc8d338a9a457836687c06fbf3d1
+  react-native-progress-view: bae9c45202f3de868c63f536857f6a589cd78610
   react-native-safe-area-context: 435f4c13ac75ceed6135382ee77d57d1a5b5b2d6
   react-native-video: 2aad0d963bf3952bd9ebb2f53fab799338e8e202
   react-native-volume-manager: d9d2863a2374420af89c89662333ea6adf506988
@@ -1089,10 +1110,12 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: b94801a40fc7cf7f17f1af19a98b3a6337b96298
   RNCMaskedView: 4b5b12efdee55966f1d68f32d4b3401c2acf05c2
   RNDateTimePicker: 078355128345a5c07ec26ce51fd648d46678de97
+  RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFBApp: aadada421dfe12b21692f6973e9501f45b0057ce
   RNFBMessaging: 66535c56b29b5c111deb3e61999069345f1ebe74
   RNFlashList: 23b2c67aa684179d29c8c2f468c6f5334e609951
   RNGestureHandler: 0f262c198cb413bc4935ebaa90ee3587beb9f34d
+  RNLocalize: 60ebbb668e46d3b9f276aaf2db8ae5353b84e514
   RNNotifee: 8768d065bf1e2f9f8f347b4bd79147431c7eacd6
   RNPermissions: bd0d9ca7969ff7b999aa605ee2e5919c12522bfe
   RNReanimated: 6f3aaf59678d9743a4f609582b815c5608e5300c

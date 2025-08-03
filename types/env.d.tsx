@@ -9,4 +9,5 @@ declare module '@env' {
     export const AUTH_API_URL: string;
     export const CRUMMUNITY_API_URL: string;
     export const STRIPE_PUBLISHABLE_KEY: string;
+    export const POSTHOG_API_KEY: string;
 }

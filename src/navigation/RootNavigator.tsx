@@ -4,6 +4,8 @@ import AuthStack, {AuthStackParams} from './AuthNavigation';
 import {TabContextProvider} from '../context/TabContext';
 import {Alert, Linking} from 'react-native';
 import {verifyAdPurchaseSession} from '../lib/api/adPurchase.lib';
+import { PostHogProvider } from 'posthog-react-native'
+import {POSTHOG_API_KEY} from '@env';
 
 export default function RootNavigator(params: any) {
     const navigationRef = useRef<NavigationContainerRef<AuthStackParams>>(null);
@@ -58,7 +60,35 @@ export default function RootNavigator(params: any) {
                         },
                     },
                 }}>
+            <PostHogProvider apiKey={POSTHOG_API_KEY} options={{
+            host: "https://us.i.posthog.com",
+            
+            // check https://posthog.com/docs/session-replay/installation?tab=React+Native
+            // for more config and to learn about how we capture sessions on mobile
+            // and what to expect
+            enableSessionReplay: true,
+            sessionReplayConfig: {
+                // Whether text inputs are masked. Default is true.
+                // Password inputs are always masked regardless
+                maskAllTextInputs: false,
+                // Whether images are masked. Default is true.
+                maskAllImages: false,
+                // Capture logs automatically. Default is true.
+                // Android only (Native Logcat only)
+                captureLog: true,
+                // Whether network requests are captured in recordings. Default is true
+                // Only metric-like data like speed, size, and response code are captured.
+                // No data is captured from the request or response body.
+                // iOS only
+                captureNetworkTelemetry: true,
+                // Deboucer delay used to reduce the number of snapshots captured and reduce performance impact. Default is 1000ms
+                androidDebouncerDelayMs: 1000,
+                // Deboucer delay used to reduce the number of snapshots captured and reduce performance impact. Default is 1000ms
+                iOSdebouncerDelayMs: 1000,
+            },
+        }}>
                 <AuthStack params={params} />
+                </PostHogProvider>
             </NavigationContainer>
         </TabContextProvider>
     );
