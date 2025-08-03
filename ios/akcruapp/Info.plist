@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTasksSchedulePermittedIdentifiers</key>
+	<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -33,12 +37,12 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	<string>akcruapp</string>
+		<string>akcruapp</string>
 	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -57,7 +61,6 @@
 			</dict>
 		</dict>
 	</dict>
-	
 	<key>NSAppleMusicUsageDescription</key>
 	<string>This is to be able access your Apple Music data in the app</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
@@ -116,16 +119,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
-		<string>voip</string>
-		<string>bluetooth-central</string>
-		<string>nearby-interaction</string>
-		<string>push-to-talk</string>
-		<string>location</string>
-		<string>processing</string>
-		<string>fetch</string>
-		<string>external-accessory</string>
 		<string>audio</string>
-		<string>bluetooth-peripheral</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
