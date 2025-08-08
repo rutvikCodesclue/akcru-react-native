@@ -1,6 +1,6 @@
 // src/screens/FlickFlirtScreen.tsx
 
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {
     ImageBackground,
     SafeAreaView,
@@ -24,12 +24,39 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
 import {API} from '../../../clients/api.client';
 import useAuthStore from '../../../stores/auth.store';
+import {newFlickUserUpdate, newVisitFlick} from '../../../lib/api/flickflirt.lib';
+import LoadingComponent from '../../../components/Loading';
+import Video from 'react-native-video';
 
 const FlickFlirtScreen = () => {
     const {user, hydrateUser} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [hasMatches, setHasMatches] = useState(false);
     const [resetModalVisible, setResetModalVisible] = useState(false);
+    const [skipped, setSkipped] = useState(false);
+    const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchIntroVideoAndStatus() {
+            try {
+                const [visitRes, videoRes] = await Promise.all([
+                    newVisitFlick(),
+                    API.get('/v1/flickflirt/intro-video'),
+                ]);
+
+                if (visitRes) {
+                    setFirstTimeFlickUser(true);
+                }
+                if (videoRes?.data?.success) {
+                    setIntroVideoUrl(videoRes.data.video.videoURL);
+                }
+            } catch (err) {
+                console.log('Error loading intro video or user state', err);
+            }
+        }
+
+        fetchIntroVideoAndStatus();
+    }, []);
 
     // 1) fetchMatches: check if user has any matches
     const fetchMatches = useCallback(async () => {
@@ -74,89 +101,157 @@ const FlickFlirtScreen = () => {
         }
     };
 
-    return (
-        <TabContainer>
-            <ImageBackground
-                source={imageindex.FLickFlirt}
-                resizeMode="cover"
-                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+    const [firstTimeFlickUser, setFirstTimeFlickUser] = useState<any>(null);
+
+    useEffect(() => {
+        async function checkFirstTimeFlickUser() {
+            try {
+                const isNewVisitFlick = await newVisitFlick();
+                if (isNewVisitFlick) {
+                    setFirstTimeFlickUser(isNewVisitFlick);
+                    console.log('Flick intro check: ', isNewVisitFlick);
+                } else {
+                    setFirstTimeFlickUser(false);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        checkFirstTimeFlickUser();
+    }, []);
+
+    const handleFlickVideoEnd = async () => {
+        try {
+            const updateResponse = await newFlickUserUpdate();
+            if (updateResponse.success) {
+                setFirstTimeFlickUser(false);
+            } else {
+                console.log('Failed to update user status');
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    // console.log('Render state →', {
+    //     firstTimeFlickUser,
+    //     skipped,
+    // });
+
+    if (firstTimeFlickUser === null) {
+        return <LoadingComponent />;
+    } else if (firstTimeFlickUser && !skipped) {
+        return (
+            <TabContainer>
                 <SafeAreaView>
-                    <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={{position: 'absolute', top: 0, left: 0, right: 0, height: SIZES.ScreenHeight}}
+                    <Video
+                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide2.mp4'}}
+                        style={{height: '100%', width: '100%'}}
+                        paused={false} // make it start
+                        repeat={false}
+                        resizeMode="cover"
+                        onEnd={handleFlickVideoEnd}
                     />
-                    <Header />
 
-                    <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.6}}>
-                        <View style={styles.textcontainer}>
-                            <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Flick Flirt</Text>
-                            <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
-                                Elevate Your Movie Nights with a Dash of Romance!
-                            </Text>
-                            <Text style={styles.paragraph}>
-                                Welcome to Flick Flirt, the charming and playful side of Akcru designed to bring a touch
-                                of romance to your cinematic experiences. Flick Flirt is not just about watching movies;
-                                it's about connecting with someone special over shared film interests.
-                            </Text>
-                        </View>
-
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruButtons.XlLrgButton
-                                btnname="Open FlickFlirt"
-                                onPress={() => navigation.navigate('FlickFlirtPref')}
-                                color={COLORS.PURPLE}
-                            />
-                        </View>
-
-                        {hasMatches && (
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.XlLrgButton
-                                    btnname="You Have Matches"
-                                    onPress={() => navigation.navigate('FlickFlirtMatches')}
-                                    color={COLORS.PURPLE}
-                                />
-                            </View>
-                        )}
-                        {user?.hasSetFlirtPref && (
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.XlLrgButton
-                                    btnname="Reset Preferences"
-                                    onPress={() => setResetModalVisible(true)}
-                                    color={COLORS.PURPLE}
-                                />
-                            </View>
-                        )}
-                    </View>
+                    <TouchableOpacity
+                        style={styles.skipButton}
+                        onPress={() => {
+                            setSkipped(true);
+                            handleFlickVideoEnd();
+                        }}>
+                        <Text style={styles.skipButtonText}>Skip</Text>
+                    </TouchableOpacity>
                 </SafeAreaView>
-            </ImageBackground>
+            </TabContainer>
+        );
+    } else {
+        return (
+            <TabContainer>
+                <ImageBackground
+                    source={imageindex.FLickFlirt}
+                    resizeMode="cover"
+                    style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                    <SafeAreaView>
+                        <LinearGradient
+                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                            style={{position: 'absolute', top: 0, left: 0, right: 0, height: SIZES.ScreenHeight}}
+                        />
+                        <Header />
 
-            {/* ── Reset Confirmation Modal ── */}
-            <Modal
-                visible={resetModalVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setResetModalVisible(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Reset Flick Flirt Preferences?</Text>
-                        <Text style={styles.modalText}>
-                            This will clear all your swipes and matches. Are you sure you want to proceed?
-                        </Text>
-                        <View style={styles.modalButtonsRow}>
-                            <TouchableOpacity
-                                style={[styles.modalBtn, styles.cancelBtn]}
-                                onPress={() => setResetModalVisible(false)}>
-                                <Text style={styles.modalBtnText}>Cancel</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={[styles.modalBtn, styles.confirmBtn]} onPress={handleConfirmReset}>
-                                <Text style={styles.modalBtnText}>Confirm</Text>
-                            </TouchableOpacity>
+                        <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.6}}>
+                            <View style={styles.textcontainer}>
+                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Flick Flirt</Text>
+                                <Text style={[styles.title, {color: COLORS.PINK, marginBottom: 15}]}>
+                                    Elevate Your Movie Nights with a Dash of Romance!
+                                </Text>
+                                <Text style={styles.paragraph}>
+                                    Welcome to Flick Flirt, the charming and playful side of Akcru designed to bring a
+                                    touch of romance to your cinematic experiences. Flick Flirt is not just about
+                                    watching movies; it's about connecting with someone special over shared film
+                                    interests.
+                                </Text>
+                            </View>
+
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.XlLrgButton
+                                    btnname="Open FlickFlirt"
+                                    onPress={() => navigation.navigate('FlickFlirtPref')}
+                                    color={COLORS.PURPLE}
+                                />
+                            </View>
+
+                            {hasMatches && (
+                                <View style={{alignItems: 'center', marginTop: 20}}>
+                                    <AkcruButtons.XlLrgButton
+                                        btnname="You Have Matches"
+                                        onPress={() => navigation.navigate('FlickFlirtMatches')}
+                                        color={COLORS.PURPLE}
+                                    />
+                                </View>
+                            )}
+                            {user?.hasSetFlirtPref && (
+                                <View style={{alignItems: 'center', marginTop: 20}}>
+                                    <AkcruButtons.XlLrgButton
+                                        btnname="Reset Preferences"
+                                        onPress={() => setResetModalVisible(true)}
+                                        color={COLORS.PURPLE}
+                                    />
+                                </View>
+                            )}
+                        </View>
+                    </SafeAreaView>
+                </ImageBackground>
+
+                {/* ── Reset Confirmation Modal ── */}
+                <Modal
+                    visible={resetModalVisible}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setResetModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Reset Flick Flirt Preferences?</Text>
+                            <Text style={styles.modalText}>
+                                This will clear all your swipes and matches. Are you sure you want to proceed?
+                            </Text>
+                            <View style={styles.modalButtonsRow}>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.cancelBtn]}
+                                    onPress={() => setResetModalVisible(false)}>
+                                    <Text style={styles.modalBtnText}>Cancel</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.confirmBtn]}
+                                    onPress={handleConfirmReset}>
+                                    <Text style={styles.modalBtnText}>Confirm</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
-                </View>
-            </Modal>
-        </TabContainer>
-    );
+                </Modal>
+            </TabContainer>
+        );
+    }
 };
 
 export default FlickFlirtScreen;
@@ -218,5 +313,18 @@ const styles = StyleSheet.create({
     modalBtnText: {
         ...FONTS.Title3,
         color: COLORS.WHITE,
+    },
+    skipButton: {
+        position: 'absolute',
+        top: 30,
+        right: 20,
+        backgroundColor: '#ffffff',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 20,
+    },
+    skipButtonText: {
+        color: '#000',
+        fontWeight: 'bold',
     },
 });

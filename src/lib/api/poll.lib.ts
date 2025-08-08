@@ -235,8 +235,8 @@ export async function getPollCommentLikes(pollCommentId: string): Promise<any[]>
 
 export async function editPollComment(commentId: number, editedText: string) {
     try {
-        console.log("aaaa");
-        
+        console.log('aaaa');
+
         const response = await API.post('/v1/poll/comment/edit', {
             id: commentId,
             editedText: editedText,

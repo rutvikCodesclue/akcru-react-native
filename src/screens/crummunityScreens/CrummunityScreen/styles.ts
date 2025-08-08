@@ -1,6 +1,6 @@
 import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import { isTablet } from '../../../../assets/constants/theme';
+import {isTablet} from '../../../../assets/constants/theme';
 
 export default StyleSheet.create({
     input: {

@@ -67,3 +67,22 @@ export async function unlockMatches(durationDays: number): Promise<MatchesRespon
     // 200 + success
     return res.data;
 }
+
+export async function newVisitFlick() {
+    try {
+        const response = await API.post('/v1/flickflirt/isNewFlickUser');
+        if (response) {
+            return response.data.isNewVisitFlick;
+        }
+    } catch (error) {
+        throw new Error('Error thrown while calling newVisitFlick');
+    }
+}
+export async function newFlickUserUpdate() {
+    const response = await API.post('/v1/flickflirt/newFlickUserUpdate');
+
+    if (response) {
+        console.log('data come update successfully', response.data);
+        return response.data;
+    }
+}
