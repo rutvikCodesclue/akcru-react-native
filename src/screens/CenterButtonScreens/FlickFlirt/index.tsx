@@ -145,7 +145,7 @@ const FlickFlirtScreen = () => {
             <TabContainer>
                 <SafeAreaView>
                     <Video
-                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide2.mp4'}}
+                        source={{uri: 'https://d17ybuhl825fg.cloudfront.net/Intro+Videos/Crummuinty+feed-2.mp4'}}
                         style={{height: '100%', width: '100%'}}
                         paused={false} // make it start
                         repeat={false}

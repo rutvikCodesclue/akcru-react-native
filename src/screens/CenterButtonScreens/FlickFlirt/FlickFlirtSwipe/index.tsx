@@ -1,5 +1,5 @@
 import {View, Text, SafeAreaView, FlatList, Alert, Modal, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -23,6 +23,8 @@ import {Icon} from '@rneui/base';
 
 import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
 import {isTablet} from '../../../../../assets/constants/theme';
+// ADD these imports near the top
+import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
 const FlickFlirtSwipe = () => {
     const [movies, setMovies] = useState<IMovie[]>([]);
@@ -41,6 +43,51 @@ const FlickFlirtSwipe = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const navigationB = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+
+    const [adLoaded, setAdLoaded] = useState(false);
+    const interstitialRef = useRef<InterstitialAd | null>(null);
+
+    // Pick your ad unit ID
+    const interstitialUnitId = __DEV__
+        ? TestIds.INTERSTITIAL // Android test ID: ca-app-pub-3940256099942544/1033173712
+        : 'ca-app-pub-8264001768347242/5970565210'; // TODO: replace with your real unit ID
+
+    // Create & preload interstitial once per mount
+    useEffect(() => {
+        // Create and keep a reference to the interstitial
+        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+            requestNonPersonalizedAdsOnly: true,
+            // keywords: ['dating', 'movies', 'entertainment'],
+        });
+        interstitialRef.current = ad;
+
+        const setNotLoaded = () => setAdLoaded(false);
+
+        // Listeners
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
+        });
+
+        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+            setNotLoaded();
+            ad.load(); // prepare the next ad
+        });
+
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => {
+            setNotLoaded();
+        });
+
+        // Kick off first load
+        ad.load();
+
+        // Cleanup
+        return () => {
+            offLoaded();
+            offClosed();
+            offError();
+            interstitialRef.current = null;
+        };
+    }, [interstitialUnitId]);
 
     const {hydrateUser} = useAuthStore();
 
@@ -89,16 +136,39 @@ const FlickFlirtSwipe = () => {
 
     const [swipeResult, setSwipeResult] = useState<null | 'LIKE' | 'NOPE'>(null);
 
+    // const onSwipedAll = () => {
+    //     setAllSwiped(true);
+    //     setCheckingFlirts(true);
+    //     fetchMatches().finally(() => {
+    //         // simulate spinner delay
+    //         setTimeout(() => {
+    //             setHasCheckedFlirts(true);
+    //             setCheckingFlirts(false);
+    //         }, 1500);
+    //     });
+    // };
+
     const onSwipedAll = () => {
         setAllSwiped(true);
         setCheckingFlirts(true);
+
+        // Start fetching immediately (so results are ready when ad closes)
         fetchMatches().finally(() => {
-            // simulate spinner delay
+            // keep your small spinner delay
             setTimeout(() => {
                 setHasCheckedFlirts(true);
                 setCheckingFlirts(false);
             }, 1500);
         });
+
+        // Show interstitial if it’s ready
+        if (adLoaded && interstitialRef.current) {
+            interstitialRef.current.show();
+            // we do not block on the ad; user comes back to results once it closes
+        } else {
+            // Optional: try to load for next time
+            interstitialRef.current?.load?.();
+        }
     };
 
     const confirmUnlock = async () => {

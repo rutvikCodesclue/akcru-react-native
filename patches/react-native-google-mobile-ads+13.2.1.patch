@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-google-mobile-ads/android/build.gradle b/node_modules/react-native-google-mobile-ads/android/build.gradle
+index 16ec7a3..f8e5ccd 100644
+--- a/node_modules/react-native-google-mobile-ads/android/build.gradle
++++ b/node_modules/react-native-google-mobile-ads/android/build.gradle
+@@ -100,6 +100,7 @@ if (!appJSONGoogleMobileAdsAppIDString) {
+ 
+ android {
+   defaultConfig {
++    namespace "io.invertase.googlemobileads"
+     multiDexEnabled true
+     manifestPlaceholders = [
+       appJSONGoogleMobileAdsAppID                  : appJSONGoogleMobileAdsAppIDString,
+diff --git a/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml b/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
+index 065ccb8..4ef83b5 100644
+--- a/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
++++ b/node_modules/react-native-google-mobile-ads/android/src/main/AndroidManifest.xml
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+-    package="io.invertase.googlemobileads">
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+ 
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.WAKE_LOCK" />

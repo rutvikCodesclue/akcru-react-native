@@ -13,6 +13,7 @@ import {NotificationNavigation} from './src/screens/userScreens/UserNotification
 import NoInternetAlert from './src/components/errorHandling/NoInternetAlert';
 import {useNetInfo} from '@react-native-community/netinfo';
 import useWatchTimeStore from './src/stores/watchTime.store';
+import mobileAds from 'react-native-google-mobile-ads';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -23,6 +24,11 @@ function App(): JSX.Element {
 
     const initialNotificationHandled = useRef(false);
     const {isInternetReachable: isConnected} = useNetInfo();
+
+    useEffect(() => {
+        // optional: add request config (test devices, npa, etc.)
+        mobileAds().initialize();
+    }, []);
 
     const loadRewardInterval = useWatchTimeStore(state => state.loadRewardInterval);
     useEffect(() => {

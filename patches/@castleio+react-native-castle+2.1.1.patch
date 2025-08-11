@@ -1,27 +1,3 @@
-diff --git a/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-index c30342d..c9d83e0 100644
---- a/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-+++ b/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-@@ -1,6 +1,5 @@
- <?xml version="1.0" encoding="utf-8"?>
--<manifest xmlns:android="http://schemas.android.com/apk/res/android"
--    package="com.reactnativecastle" >
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
- 
-     <uses-sdk
-         android:minSdkVersion="21"
-diff --git a/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-index c30342d..c9d83e0 100644
---- a/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-+++ b/node_modules/@castleio/react-native-castle/android/bin/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-@@ -1,6 +1,5 @@
- <?xml version="1.0" encoding="utf-8"?>
--<manifest xmlns:android="http://schemas.android.com/apk/res/android"
--    package="com.reactnativecastle" >
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
- 
-     <uses-sdk
-         android:minSdkVersion="21"
 diff --git a/node_modules/@castleio/react-native-castle/android/build.gradle b/node_modules/@castleio/react-native-castle/android/build.gradle
 index 09e0d47..3f6ce1f 100644
 --- a/node_modules/@castleio/react-native-castle/android/build.gradle
@@ -34,14 +10,31 @@ index 09e0d47..3f6ce1f 100644
    compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
    buildToolsVersion getExtOrDefault('buildToolsVersion')
    defaultConfig {
+diff --git a/node_modules/@castleio/react-native-castle/android/build/generated/source/buildConfig/debug/com/reactnativecastle/BuildConfig.java b/node_modules/@castleio/react-native-castle/android/build/generated/source/buildConfig/debug/com/reactnativecastle/BuildConfig.java
+new file mode 100644
+index 0000000..1f64004
+--- /dev/null
++++ b/node_modules/@castleio/react-native-castle/android/build/generated/source/buildConfig/debug/com/reactnativecastle/BuildConfig.java
+@@ -0,0 +1,10 @@
++/**
++ * Automatically generated file. DO NOT MODIFY
++ */
++package com.reactnativecastle;
++
++public final class BuildConfig {
++  public static final boolean DEBUG = Boolean.parseBoolean("true");
++  public static final String LIBRARY_PACKAGE_NAME = "com.reactnativecastle";
++  public static final String BUILD_TYPE = "debug";
++}
 diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/@castleio/react-native-castle/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
 new file mode 100644
-index 0000000..3f5b08d
+index 0000000..d3b98ec
 --- /dev/null
 +++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,7 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativecastle" >
 +
 +    <uses-sdk android:minSdkVersion="21" />
 +
@@ -83,22 +76,53 @@ index 0000000..776557e
 +minCompileSdk=1
 +minCompileSdkExtension=0
 +minAndroidGradlePluginVersion=1.0.0
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json b/node_modules/@castleio/react-native-castle/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+new file mode 100644
+index 0000000..9e26dfe
+--- /dev/null
++++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/annotation_processor_list/debug/annotationProcessors.json
+@@ -0,0 +1 @@
++{}
+\ No newline at end of file
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_library_classes_jar/debug/classes.jar b/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_library_classes_jar/debug/classes.jar
+new file mode 100644
+index 0000000..d3d21fc
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_library_classes_jar/debug/classes.jar differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_r_class_jar/debug/R.jar b/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_r_class_jar/debug/R.jar
+new file mode 100644
+index 0000000..2251cf8
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_r_class_jar/debug/R.jar differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_symbol_list/debug/R.txt b/node_modules/@castleio/react-native-castle/android/build/intermediates/compile_symbol_list/debug/R.txt
+new file mode 100644
+index 0000000..e69de29
 diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
 new file mode 100644
-index 0000000..c3fbf56
+index 0000000..d668e5f
 --- /dev/null
 +++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
 @@ -0,0 +1 @@
-+#Sat Jul 12 18:32:54 EDT 2025
++#Sun Aug 10 19:54:00 EDT 2025
 diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
 new file mode 100644
-index 0000000..08fa928
+index 0000000..10136ef
 --- /dev/null
 +++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
 @@ -0,0 +1,2 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
++<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
 \ No newline at end of file
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/javac/debug/classes/com/reactnativecastle/BuildConfig.class b/node_modules/@castleio/react-native-castle/android/build/intermediates/javac/debug/classes/com/reactnativecastle/BuildConfig.class
+new file mode 100644
+index 0000000..df3bc0c
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/intermediates/javac/debug/classes/com/reactnativecastle/BuildConfig.class differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/local_only_symbol_list/debug/R-def.txt b/node_modules/@castleio/react-native-castle/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+new file mode 100644
+index 0000000..78ac5b8
+--- /dev/null
++++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/local_only_symbol_list/debug/R-def.txt
+@@ -0,0 +1,2 @@
++R_DEF: Internal format may change without notice
++local
 diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/@castleio/react-native-castle/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
 new file mode 100644
 index 0000000..4ab92ed
@@ -114,12 +138,13 @@ index 0000000..4ab92ed
 +7</manifest>
 diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/@castleio/react-native-castle/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
 new file mode 100644
-index 0000000..3f5b08d
+index 0000000..d3b98ec
 --- /dev/null
 +++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,7 @@
 +<?xml version="1.0" encoding="utf-8"?>
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.reactnativecastle" >
 +
 +    <uses-sdk android:minSdkVersion="21" />
 +
@@ -133,29 +158,380 @@ index 0000000..0637a08
 @@ -0,0 +1 @@
 +[]
 \ No newline at end of file
+diff --git a/node_modules/@castleio/react-native-castle/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt b/node_modules/@castleio/react-native-castle/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+new file mode 100644
+index 0000000..6cc88f5
+--- /dev/null
++++ b/node_modules/@castleio/react-native-castle/android/build/intermediates/symbol_list_with_package_name/debug/package-aware-r.txt
+@@ -0,0 +1 @@
++com.reactnativecastle
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab
+new file mode 100644
+index 0000000..f86a86f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream
+new file mode 100644
+index 0000000..a46593d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len
+new file mode 100644
+index 0000000..a0a88a6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at
+new file mode 100644
+index 0000000..817db5d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i
+new file mode 100644
+index 0000000..3a5c3c6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/inputs/source-to-output.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab
+new file mode 100644
+index 0000000..cfcfb3d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream
+new file mode 100644
+index 0000000..b60fe1c
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len
+new file mode 100644
+index 0000000..dca805e
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at
+new file mode 100644
+index 0000000..fc0e221
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i
+new file mode 100644
+index 0000000..6fec2b1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-attributes.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab
+new file mode 100644
+index 0000000..c6b453b
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..b60fe1c
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..dca805e
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..697461f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i
+new file mode 100644
+index 0000000..6fec2b1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/class-fq-name-to-source.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab
+new file mode 100644
+index 0000000..c6b453b
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream
+new file mode 100644
+index 0000000..d7d3912
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len
+new file mode 100644
+index 0000000..dca805e
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at
+new file mode 100644
+index 0000000..697461f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i
+new file mode 100644
+index 0000000..ba343b2
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/internal-name-to-source.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab
+new file mode 100644
+index 0000000..019ea4d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream
+new file mode 100644
+index 0000000..813cfa3
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len
+new file mode 100644
+index 0000000..25c4d2f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len
+new file mode 100644
+index 0000000..a9f80ae
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at
+new file mode 100644
+index 0000000..e4565ec
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i
+new file mode 100644
+index 0000000..75965a6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/proto.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab
+new file mode 100644
+index 0000000..3f712ea
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream
+new file mode 100644
+index 0000000..a46593d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len
+new file mode 100644
+index 0000000..a0a88a6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at
+new file mode 100644
+index 0000000..e093a4f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i
+new file mode 100644
+index 0000000..3a5c3c6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/source-to-classes.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab
+new file mode 100644
+index 0000000..23a6788
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream
+new file mode 100644
+index 0000000..b425921
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len
+new file mode 100644
+index 0000000..1cf91b4
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at
+new file mode 100644
+index 0000000..4c9d7a1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i
+new file mode 100644
+index 0000000..13aca7b
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/subtypes.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab
+new file mode 100644
+index 0000000..ef3b0bb
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream
+new file mode 100644
+index 0000000..b60fe1c
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len
+new file mode 100644
+index 0000000..dca805e
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at
+new file mode 100644
+index 0000000..fdc18fe
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i
+new file mode 100644
+index 0000000..6fec2b1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/jvm/kotlin/supertypes.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+new file mode 100644
+index 0000000..2ceb12b
+--- /dev/null
++++ b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/counters.tab
+@@ -0,0 +1,2 @@
++2
++0
+\ No newline at end of file
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab
+new file mode 100644
+index 0000000..4ccffc7
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream
+new file mode 100644
+index 0000000..a46593d
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len
+new file mode 100644
+index 0000000..a0a88a6
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at
+new file mode 100644
+index 0000000..7d30a43
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i
+new file mode 100644
+index 0000000..00de673
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/file-to-id.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab
+new file mode 100644
+index 0000000..9b643dd
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream
+new file mode 100644
+index 0000000..100d205
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len
+new file mode 100644
+index 0000000..ccfcbf4
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len
+new file mode 100644
+index 0000000..01bdaa1
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at
+new file mode 100644
+index 0000000..697461f
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i
+new file mode 100644
+index 0000000..f768a77
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/id-to-file.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab
+new file mode 100644
+index 0000000..617cc66
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream
+new file mode 100644
+index 0000000..d3c1604
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len
+new file mode 100644
+index 0000000..5504a2c
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.keystream.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len
+new file mode 100644
+index 0000000..f4d134e
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at
+new file mode 100644
+index 0000000..f886739
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab.values.at differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i
+new file mode 100644
+index 0000000..7e887bc
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len
+new file mode 100644
+index 0000000..131e265
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/caches-jvm/lookups/lookups.tab_i.len differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin
+new file mode 100644
+index 0000000..4b595e8
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/cacheable/last-build.bin differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin
+new file mode 100644
+index 0000000..f1dced8
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/classpath-snapshot/shrunk-classpath-snapshot.bin differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin
+new file mode 100644
+index 0000000..2d2e0fc
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/kotlin/compileDebugKotlin/local-state/build-history.bin differ
 diff --git a/node_modules/@castleio/react-native-castle/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/@castleio/react-native-castle/android/build/outputs/logs/manifest-merger-debug-report.txt
 new file mode 100644
-index 0000000..3f5b002
+index 0000000..f6aae4e
 --- /dev/null
 +++ b/node_modules/@castleio/react-native-castle/android/build/outputs/logs/manifest-merger-debug-report.txt
-@@ -0,0 +1,17 @@
+@@ -0,0 +1,16 @@
 +-- Merging decision tree log ---
 +manifest
-+ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:1-4:12
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:1-4:12
++ADDED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:1-3:12
++INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:1-3:12
 +	package
-+		ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:2:11-42
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
++		INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
 +	xmlns:android
-+		ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:11-69
++		ADDED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml:1:11-69
 +uses-sdk
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
++INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
++INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
++INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
 +	android:targetSdkVersion
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
++		INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
 +	android:minSdkVersion
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
++		INJECTED from D:\AkcruClone\Akcru\frontend\node_modules\@castleio\react-native-castle\android\src\main\AndroidManifest.xml
+diff --git a/node_modules/@castleio/react-native-castle/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin b/node_modules/@castleio/react-native-castle/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin
+new file mode 100644
+index 0000000..839c391
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/tmp/compileDebugJavaWithJavac/previous-compilation-data.bin differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/META-INF/castleio_react-native-castle_debug.kotlin_module b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/META-INF/castleio_react-native-castle_debug.kotlin_module
+new file mode 100644
+index 0000000..1e9f2ca
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/META-INF/castleio_react-native-castle_debug.kotlin_module differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastleModule.class b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastleModule.class
+new file mode 100644
+index 0000000..7ed783b
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastleModule.class differ
+diff --git a/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastlePackage.class b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastlePackage.class
+new file mode 100644
+index 0000000..8a5e2fc
+Binary files /dev/null and b/node_modules/@castleio/react-native-castle/android/build/tmp/kotlin-classes/debug/com/reactnativecastle/CastlePackage.class differ
 diff --git a/node_modules/@castleio/react-native-castle/android/src/main/AndroidManifest.xml b/node_modules/@castleio/react-native-castle/android/src/main/AndroidManifest.xml
 index efe21d7..0a0938a 100644
 --- a/node_modules/@castleio/react-native-castle/android/src/main/AndroidManifest.xml
