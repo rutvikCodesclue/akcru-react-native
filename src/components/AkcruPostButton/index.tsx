@@ -29,6 +29,6 @@ const styles = StyleSheet.create({
     iconContainer: {
         position: 'absolute',
         top: '11%',
-        right: isTablet() ? '16%' : '19%',
+        right: isTablet() ? '16%' : '17%',
     },
 });

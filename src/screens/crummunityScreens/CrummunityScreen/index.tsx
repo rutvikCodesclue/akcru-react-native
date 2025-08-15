@@ -43,6 +43,9 @@ import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
 import {isTablet} from '../../../../assets/constants/theme';
+import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+import {NativeSyntheticEvent, NativeScrollEvent} from 'react-native';
+
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -70,7 +73,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [posts, setPosts] = useState<(IPost | IPoll)[]>([]);
     const [loading, setLoading] = useState(false);
-    const [loadingPostIds, setLoadingPostIds] = useState<{ [key: number]: boolean }>({});
+    const [loadingPostIds, setLoadingPostIds] = useState<{[key: number]: boolean}>({});
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [error, setError] = useState('');
     const [debounce, setDebounce] = useState(false);
@@ -85,6 +88,49 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [refreshing, setRefreshing] = useState(false);
     const [skipped, setSkipped] = useState(false);
+
+    const [hasShownAd, setHasShownAd] = useState(false);
+    const [adLoaded, setAdLoaded] = useState(false);
+    const interstitialRef = useRef<InterstitialAd | null>(null);
+
+    // distance tracking (useRef to avoid re-renders on every scroll tick)
+    const lastAdPosRef = useRef(0);
+    // optional: tiny cooldown so you never double-fire within milliseconds
+    const cooldownRef = useRef(false);
+
+    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-8264001768347242/5970565210';
+
+    useEffect(() => {
+        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+            requestNonPersonalizedAdsOnly: true,
+        });
+        interstitialRef.current = ad;
+
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
+        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+            setAdLoaded(false);
+            ad.load(); // prepare for next time
+        });
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => setAdLoaded(false));
+
+        ad.load();
+
+        return () => {
+            offLoaded();
+            offClosed();
+            offError();
+            interstitialRef.current = null;
+        };
+    }, [interstitialUnitId]);
+
+    // 4) helper to show ad
+    const showInterstitialAd = () => {
+        if (!interstitialRef.current || !adLoaded || cooldownRef.current) return;
+        cooldownRef.current = true;
+        interstitialRef.current.show();
+        // small cooldown to avoid rapid repeat triggers when the user jitters around the threshold
+        setTimeout(() => (cooldownRef.current = false), 3000);
+    };
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -171,8 +217,18 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleScroll = ({nativeEvent}) => {
+        // existing infinite-scroll logic
         if (isCloseToBottom(nativeEvent)) {
             loadMorePosts();
+        }
+
+        // distance-based ad logic
+        const scrollY = nativeEvent.contentOffset.y;
+
+        // fire every +10000 px scrolled since last time
+        if (scrollY - lastAdPosRef.current >= 10000) {
+            showInterstitialAd();
+            lastAdPosRef.current = scrollY;
         }
     };
 

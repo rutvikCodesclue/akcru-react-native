@@ -27,6 +27,8 @@ import {MULTISIZES} from '../../../../assets/constants/theme';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
 
+import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+
 type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
 type MITDateScheduleRouteProp = RouteProp<NoBottomTabStackParams, 'MITDateSchedule'>;
@@ -41,6 +43,51 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const [data, setData] = useState<IUserProfile[] | []>([]);
+
+    // Interstitial setup
+    const interstitialRef = useRef<InterstitialAd | null>(null);
+    const [adLoaded, setAdLoaded] = useState(false);
+
+    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-8264001768347242/5970565210'; // your real ID
+
+    const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
+    const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+            requestNonPersonalizedAdsOnly: true,
+        });
+        interstitialRef.current = ad;
+
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
+        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+            setAdLoaded(false);
+
+            // ensure ticket is visible after the ad
+            setShowSendMIT(true);
+
+            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+            ticketTimerRef.current = setTimeout(() => {
+                setShowSendMIT(false);
+                setIsSelectionDisabled(true);
+                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+            }, TICKET_DISPLAY_MS);
+
+            ad.load(); // preload next ad
+        });
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => setAdLoaded(false));
+
+        // kick off first load
+        ad.load();
+
+        return () => {
+            offLoaded();
+            offClosed();
+            offError();
+            interstitialRef.current = null;
+            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+        };
+    }, [interstitialUnitId, navigation]);
 
     useEffect(() => {
         const fetchMovieData = async () => {
@@ -189,11 +236,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
 
     const handleSetDateTime = async () => {
-
         setIsSelectionDisabled(true);
         if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
             const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
-
 
             if (formattedSelectedDateTimeInISO) {
                 const response = await createAMITInvite({
@@ -204,32 +249,31 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                 });
 
                 if (response) {
+                    // show your success ticket UI under the ad
                     setIsDateTimeSelected(true);
-                    setIsSelectionDisabled(true);
                     setShowSendMIT(true);
-                }
-                else {
+
+                    if (adLoaded && interstitialRef.current) {
+                        interstitialRef.current.show();
+                    } else {
+                        // show ticket now, then navigate after delay
+                        setShowSendMIT(true);
+
+                        if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+                        ticketTimerRef.current = setTimeout(() => {
+                            setShowSendMIT(false);
+                            setIsSelectionDisabled(true);
+                            navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+                        }, TICKET_DISPLAY_MS);
+
+                        interstitialRef.current?.load?.();
+                    }
+                } else {
                     setIsSelectionDisabled(false);
                 }
             }
         }
     };
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (showSendMIT) {
-            timer = setTimeout(() => {
-                setShowSendMIT(false);
-                setIsSelectionDisabled(true);
-
-                navigation.navigate('UserProfileStack', {
-                    screen: 'UserMITHubScreen',
-                });
-            }, 4000);
-        }
-
-        return () => clearTimeout(timer);
-    }, [showSendMIT]);
 
     return (
         <View>
@@ -307,21 +351,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             />
                         </View>
                     </View>
-                    <Text
-                        style={{
-                            ...FONTS.Title3,
-                            textAlign: 'center',
-                            paddingTop: 20,
-                        }}>
-                        Don't forget to grab a bite while you watch at CRU Chew
-                    </Text>
-                    <Image
-                        source={imageindex.CruChew3}
-                        style={{
-                            width: 120,
-                            height: 120,
-                        }}
-                    />
                 </View>
             ) : (
                 <View>
@@ -741,7 +770,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         btnname={'Send MIT'}
                                                         color={COLORS.AKCRUBLUE}
                                                         onPress={handleSetDateTime}
-                                                        disabled={!selectedDate || !selectedTime || !selectedTimeZone || isSelectionDisabled}
+                                                        disabled={
+                                                            !selectedDate ||
+                                                            !selectedTime ||
+                                                            !selectedTimeZone ||
+                                                            isSelectionDisabled
+                                                        }
                                                     />
                                                 </View>
                                             ) : (

@@ -343,7 +343,7 @@ const HomeScreen = () => {
                                     width: '100%',
                                     zIndex: 2,
                                     position: 'absolute',
-                                    top: '65%',
+                                    top: '55%',
                                     flexDirection: 'row-reverse',
                                     justifyContent: 'space-between',
                                     paddingHorizontal: 15,

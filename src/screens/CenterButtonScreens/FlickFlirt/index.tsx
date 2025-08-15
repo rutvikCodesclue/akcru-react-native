@@ -34,29 +34,6 @@ const FlickFlirtScreen = () => {
     const [hasMatches, setHasMatches] = useState(false);
     const [resetModalVisible, setResetModalVisible] = useState(false);
     const [skipped, setSkipped] = useState(false);
-    const [introVideoUrl, setIntroVideoUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchIntroVideoAndStatus() {
-            try {
-                const [visitRes, videoRes] = await Promise.all([
-                    newVisitFlick(),
-                    API.get('/v1/flickflirt/intro-video'),
-                ]);
-
-                if (visitRes) {
-                    setFirstTimeFlickUser(true);
-                }
-                if (videoRes?.data?.success) {
-                    setIntroVideoUrl(videoRes.data.video.videoURL);
-                }
-            } catch (err) {
-                console.log('Error loading intro video or user state', err);
-            }
-        }
-
-        fetchIntroVideoAndStatus();
-    }, []);
 
     // 1) fetchMatches: check if user has any matches
     const fetchMatches = useCallback(async () => {
@@ -145,7 +122,7 @@ const FlickFlirtScreen = () => {
             <TabContainer>
                 <SafeAreaView>
                     <Video
-                        source={{uri: 'https://d17ybuhl825fg.cloudfront.net/Intro+Videos/Crummuinty+feed-2.mp4'}}
+                        source={{uri: 'https://d17ybuhl825fg.cloudfront.net/Intro+Videos/FlickFlirt_Intro-2.mp4'}}
                         style={{height: '100%', width: '100%'}}
                         paused={false} // make it start
                         repeat={false}

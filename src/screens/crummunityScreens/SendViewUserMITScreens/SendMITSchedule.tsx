@@ -8,7 +8,7 @@ import {
     Image,
     ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import AkcruLevels from '../../../components/akcruBadges';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
@@ -39,6 +39,8 @@ import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import BackButton from '../../../components/General/backbutton';
 
+import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
 type SendMITScheduleRouteProp = RouteProp<CrummunityStackParams, 'SendMITSchedule'>;
@@ -57,6 +59,51 @@ export default function SendMITSchedule({route}: Props) {
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
     const [loading, setLoading] = useState(true);
+
+    // Interstitial setup
+    const interstitialRef = useRef<InterstitialAd | null>(null);
+    const [adLoaded, setAdLoaded] = useState(false);
+
+    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-8264001768347242/5970565210'; // your real ID
+
+    const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
+    const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+            requestNonPersonalizedAdsOnly: true,
+        });
+        interstitialRef.current = ad;
+
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
+        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+            setAdLoaded(false);
+
+            // ensure ticket is visible after the ad
+            setShowSendMIT(true);
+
+            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+            ticketTimerRef.current = setTimeout(() => {
+                setShowSendMIT(false);
+                setIsSelectionDisabled(true);
+                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+            }, TICKET_DISPLAY_MS);
+
+            ad.load(); // preload next ad
+        });
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => setAdLoaded(false));
+
+        // kick off first load
+        ad.load();
+
+        return () => {
+            offLoaded();
+            offClosed();
+            offError();
+            interstitialRef.current = null;
+            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+        };
+    }, [interstitialUnitId, navigation]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -162,32 +209,48 @@ export default function SendMITSchedule({route}: Props) {
         setLoading(true);
         setIsSelectionDisabled(true);
 
-    try {
-        if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
-            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
+        try {
+            if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
+                const startDateISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-            if (formattedSelectedDateTimeInISO) {
-                const response = await createAMITInvite({
-                    movieId: movie.id,
-                    username: user.username,
-                    startDate: formattedSelectedDateTimeInISO,
-                    timezone: selectedTimeZone,
-                });
+                if (startDateISO) {
+                    const response = await createAMITInvite({
+                        movieId: movie.id,
+                        username: user.username,
+                        startDate: startDateISO,
+                        timezone: selectedTimeZone,
+                    });
 
-                if (response) {
-                    setIsDateTimeSelected(true);
-                    setIsSelectionDisabled(true);
-                    setShowSendMIT(true);
-                } 
-                else {
-                    setIsSelectionDisabled(false);
+                    if (response) {
+                        // Show the success ticket immediately
+                        setIsDateTimeSelected(true);
+                        setShowSendMIT(true);
+
+                        // Show ad if it's ready, otherwise fall back to a short delay
+                        if (adLoaded && interstitialRef.current) {
+                            interstitialRef.current.show();
+                        } else {
+                            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+                            ticketTimerRef.current = setTimeout(() => {
+                                setShowSendMIT(false);
+                                setIsSelectionDisabled(true);
+                                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+                            }, TICKET_DISPLAY_MS);
+
+                            // try to have the next ad ready
+                            interstitialRef.current?.load?.();
+                        }
+                    } else {
+                        setIsSelectionDisabled(false);
+                    }
                 }
             }
-        }
-    }   catch (error) {
+        } catch (error) {
             console.error('Error setting date and time:', error);
+            setIsSelectionDisabled(false);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const timeZones = [
@@ -202,22 +265,6 @@ export default function SendMITSchedule({route}: Props) {
     ];
 
     const [showSendMIT, setShowSendMIT] = useState(false);
-
-    useEffect(() => {
-        let timer: NodeJS.Timeout;
-        if (showSendMIT) {
-            timer = setTimeout(() => {
-                setShowSendMIT(false);
-                setIsSelectionDisabled(true);
-
-                navigation.navigate('UserProfileStack', {
-                    screen: 'UserMITHubScreen',
-                });
-            }, ROOM_VALIDATION_CHECK_TIME);
-        }
-
-        return () => clearTimeout(timer);
-    }, [showSendMIT]);
 
     return (
         <TabContainer>
@@ -309,21 +356,6 @@ export default function SendMITSchedule({route}: Props) {
                                     />
                                 </View>
                             </View>
-                            <Text
-                                style={{
-                                    ...FONTS.Title3,
-                                    textAlign: 'center',
-                                    paddingTop: 20,
-                                }}>
-                                Don't forget to grab a bite while you watch at CRU Chew
-                            </Text>
-                            <Image
-                                source={imageindex.CruChew3}
-                                style={{
-                                    width: 120,
-                                    height: 120,
-                                }}
-                            />
                         </View>
                     ) : (
                         <View>
@@ -484,17 +516,6 @@ export default function SendMITSchedule({route}: Props) {
                                                         </View>
                                                     )}
                                                 </View>
-                                                {/* <View>
-                                                {selectedInfluencer && (
-                                                    <Icon
-                                                        name="ribbon"
-                                                        type="ionicon"
-                                                        color={COLORS.AKCRUBLUE}
-                                                        size={20}
-                                                        style={{marginLeft: 5}}
-                                                    />
-                                                )}
-                                            </View> */}
                                             </View>
                                         </View>
                                         <View style={{marginLeft: 10}}>
@@ -660,7 +681,10 @@ export default function SendMITSchedule({route}: Props) {
                                                                 color={COLORS.AKCRUBLUE}
                                                                 onPress={handleSetDateTime}
                                                                 disabled={
-                                                                    !selectedDate || !selectedTime || !selectedTimeZone || isSelectionDisabled
+                                                                    !selectedDate ||
+                                                                    !selectedTime ||
+                                                                    !selectedTimeZone ||
+                                                                    isSelectionDisabled
                                                                 }
                                                             />
                                                         </View>
