@@ -4,9 +4,34 @@ require Pod::Executable.execute_command('node', ['-p',
     "react-native/scripts/react_native_pods.rb",
     {paths: [process.argv[1]]},
   )', __dir__]).strip
+require_relative '../node_modules/react-native-permissions/scripts/setup'
 
 platform :ios, '15.0'
 prepare_react_native_project!
+
+# ⬇️ uncomment wanted permissions
+setup_permissions([
+  'AppTrackingTransparency',
+  # 'Bluetooth',
+  'Calendars',
+  'Camera',
+  'Contacts',
+  'FaceID',
+  # 'LocationAccuracy',
+  'LocationAlways',
+  'LocationWhenInUse',
+  'MediaLibrary',
+  'Microphone',
+  'Motion',
+  'Notifications',
+  'PhotoLibrary',
+  # 'PhotoLibraryAddOnly',
+  'Reminders',
+  'Siri',
+  'SpeechRecognition',
+  'StoreKit',
+])
+
 pod 'Firebase', :modular_headers => true
 pod 'FirebaseCoreInternal', :modular_headers => true
 pod 'GoogleUtilities', :modular_headers => true
@@ -37,30 +62,11 @@ end
 
 target 'akcruapp' do
   config = use_native_modules!
-  pod 'boost', :podspec => '../node_modules/react-native/third-party-podspecs/boost.podspec'
 
   # Flags change depending on the env values.
   flags = get_default_flags()
-  # react-native-permissions permission handlers
-  permissions_path = '../node_modules/react-native-permissions/ios'
-
-  pod 'Permission-AppTrackingTransparency', :path => "#{permissions_path}/AppTrackingTransparency/Permission-AppTrackingTransparency.podspec"
-  pod 'Permission-BluetoothPeripheral', :path => "#{permissions_path}/BluetoothPeripheral/Permission-BluetoothPeripheral.podspec"
-  pod 'Permission-Calendars', :path => "#{permissions_path}/Calendars/Permission-Calendars.podspec"
-  pod 'Permission-Camera', :path => "#{permissions_path}/Camera/Permission-Camera.podspec"
-  pod 'Permission-Contacts', :path => "#{permissions_path}/Contacts/Permission-Contacts.podspec"
-  pod 'Permission-FaceID', :path => "#{permissions_path}/FaceID/Permission-FaceID.podspec"
-  pod 'Permission-LocationAlways', :path => "#{permissions_path}/LocationAlways/Permission-LocationAlways.podspec"
-  pod 'Permission-LocationWhenInUse', :path => "#{permissions_path}/LocationWhenInUse/Permission-LocationWhenInUse.podspec"
-  pod 'Permission-MediaLibrary', :path => "#{permissions_path}/MediaLibrary/Permission-MediaLibrary.podspec"
-  pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone/Permission-Microphone.podspec"
-  pod 'Permission-Motion', :path => "#{permissions_path}/Motion/Permission-Motion.podspec"
-  pod 'Permission-Notifications', :path => "#{permissions_path}/Notifications/Permission-Notifications.podspec"
-  pod 'Permission-PhotoLibrary', :path => "#{permissions_path}/PhotoLibrary/Permission-PhotoLibrary.podspec"
-  pod 'Permission-Reminders', :path => "#{permissions_path}/Reminders/Permission-Reminders.podspec"
-  pod 'Permission-Siri', :path => "#{permissions_path}/Siri/Permission-Siri.podspec"
-  pod 'Permission-SpeechRecognition', :path => "#{permissions_path}/SpeechRecognition/Permission-SpeechRecognition.podspec"
-  pod 'Permission-StoreKit', :path => "#{permissions_path}/StoreKit/Permission-StoreKit.podspec"
+  # react-native-permissions permission handlers no longer needed with setup_permissions
+  
   use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true
 
@@ -118,7 +124,6 @@ target 'akcruapp' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
-    __apply_Xcode_12_5_M1_post_install_workaround(installer)
     bitcode_strip_path = `xcrun --find bitcode_strip`.chop!
    def strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
      framework_path = File.join(Dir.pwd, framework_relative_path)
