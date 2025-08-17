@@ -69,6 +69,8 @@ target 'akcruapp' do
   
   use_frameworks! :linkage => :static
   $RNFirebaseAsStaticFramework = true
+  $RNVideoUseGoogleIMA=true
+
 
 
   use_react_native!(
