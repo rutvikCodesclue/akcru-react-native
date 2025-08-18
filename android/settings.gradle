@@ -1,6 +1,48 @@
-rootProject.name = 'akcruapp'
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
-include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
-include ':react-native-video'
-project(':react-native-video').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-video/android-exoplayer')
+// android/settings.gradle
+
+pluginManagement {
+  // RN’s Gradle plugin is an included build
+  includeBuild("../node_modules/@react-native/gradle-plugin")
+
+  // 👇 make sure plugin resolution can use Google's Maven (AGP lives here)
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+  repositories {
+    google()
+    mavenCentral()
+
+    // React Native's local maven
+    maven { url("$rootDir/../node_modules/react-native/android") }
+
+    // Notifee: ONLY resolve app.notifee from the local libs packaged in node_modules
+    maven {
+      url = uri("$rootDir/../node_modules/@notifee/react-native/android/libs")
+      content {
+        includeGroup("app.notifee")
+        includeGroupByRegex("app\\.notifee\\..*")
+      }
+    }
+
+    // JitPack (only for AndroidLame-kotlin used by react-native-compressor)
+    maven {
+      url = uri("https://jitpack.io")
+      content { includeGroup("com.github.banketree") }
+    }
+  }
+}
+
+
+
+apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle")
+applyNativeModulesSettingsGradle(settings)
+
+rootProject.name = "akcruapp"
+
+include(":app")
