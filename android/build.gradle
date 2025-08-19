@@ -1,15 +1,20 @@
+//android\build.gradle
 buildscript {
   ext {
-    buildToolsVersion       = "34.0.0"
     compileSdkVersion       = 34
     targetSdkVersion        = 34
     minSdkVersion           = 23
     ndkVersion              = "23.1.7779620"
-    kotlinVersion           = "1.9.10"
+    kotlinVersion           = "1.9.24"
 
     // any per-module overrides if you still need them
     Hmssdk_compileSdkVersion = 34
     Castle_compileSdkVersion = 34
+    useExoplayerIMA = true
+    useExoplayerRtsp = true
+    useExoplayerSmoothStreaming = true
+    useExoplayerDash = true
+    useExoplayerHls = true
     // …etc.
   }
 
@@ -21,7 +26,6 @@ buildscript {
   dependencies {
     classpath("com.android.tools.build:gradle:8.1.2")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-    classpath("com.facebook.react:react-native-gradle-plugin")
     classpath("com.google.gms:google-services:4.4.0")
   }
 }
@@ -42,28 +46,6 @@ subprojects { proj ->
   }
 }
 
-subprojects { p ->
-  afterEvaluate {
-    if (p.plugins.hasPlugin("com.android.application") || p.plugins.hasPlugin("com.android.library")) {
-      p.android.compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-      }
-    }
-    // Kotlin -> 17 everywhere
-    p.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-      kotlinOptions { jvmTarget = "17" }
-    }
-    // Also force JavaCompile tasks to 17 (some libs set 11 themselves)
-    p.tasks.withType(JavaCompile).configureEach {
-      options.release.set(17)
-      sourceCompatibility = '17'
-      targetCompatibility = '17'
-    }
-  }
-}
-
-
 subprojects { subproject ->
   subproject.configurations.all { config ->
     config.resolutionStrategy.eachDependency { details ->
@@ -77,16 +59,180 @@ subprojects { subproject ->
   }
 }
 
+// Unify AndroidX versions so react-native-video compiles (PiP uses OnUserLeaveHintProvider)
 subprojects { subproject ->
   subproject.configurations.all { config ->
     config.resolutionStrategy.eachDependency { details ->
-      if (details.requested.group == "androidx.core" &&
-          (details.requested.name == "core" || details.requested.name == "core-ktx")) {
-        details.useVersion "1.12.0"
-        details.because("AGP 8.1.2 + compileSdk 34 cannot use androidx.core 1.16.0")
+      if (details.requested.group == "androidx.core"
+          && (details.requested.name == "core" || details.requested.name == "core-ktx")) {
+        details.useVersion "1.13.1"
+        details.because("ComponentActivity implements androidx.core.app.OnUserLeaveHintProvider (core≥1.13).")
+      }
+      if (details.requested.group == "androidx.activity"
+          && (details.requested.name == "activity" || details.requested.name == "activity-ktx")) {
+        // Keep Activity aligned with modern Core
+        details.useVersion "1.9.3"
       }
     }
   }
 }
+
+
+// Align Java/Kotlin targets for the 100ms HMS module
+subprojects { subproject ->
+  if (subproject.name == "100mslive_react-native-hms") {
+    subproject.afterEvaluate {
+      if (subproject.hasProperty("android")) {
+        subproject.android {
+          compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+          }
+        }
+      }
+      // keep Kotlin at 17 as configured by RN's plugin, just in case
+      subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions.jvmTarget = "17"
+      }
+    }
+  }
+}
+
+// subprojects { subproject ->
+//   subproject.configurations.all { config ->
+//     config.resolutionStrategy.eachDependency { details ->
+//       if (details.requested.group == "app.notifee" && details.requested.name == "core") {
+//         // Pick a concrete version you have published; 8.x is recommended with RN 0.72/0.73.
+//         details.useVersion "8.0.0"
+//         details.because("Avoid dynamic app.notifee:core:+ during resolution")
+//       }
+//     }
+//   }
+// }
+
+// Align Java/Kotlin to 17 across all Android subprojects (AGP 8-safe)
+subprojects { sp ->
+  sp.plugins.withId("com.android.application") {
+    def androidExt = sp.extensions.getByName("android")
+    androidExt.compileOptions {
+      sourceCompatibility JavaVersion.VERSION_17
+      targetCompatibility JavaVersion.VERSION_17
+    }
+  }
+  sp.plugins.withId("com.android.library") {
+    def androidExt = sp.extensions.getByName("android")
+    androidExt.compileOptions {
+      sourceCompatibility JavaVersion.VERSION_17
+      targetCompatibility JavaVersion.VERSION_17
+    }
+  }
+  // Kotlin jvmTarget
+  sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions { jvmTarget = "17" }
+  }
+}
+
+// If any stubborn module still compiles Java at 1.8, force it explicitly:
+subprojects { sp ->
+  if (sp.name == "castleio_react-native-castle") {
+    sp.afterEvaluate {
+      if (sp.hasProperty("android")) {
+        sp.android {
+          compileOptions {
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
+          }
+        }
+      }
+    }
+  }
+}
+// Force Java/Kotlin 17 specifically for PostHog session replay (applies AFTER the module sets 1.8)
+subprojects { sp ->
+  if (sp.name == "posthog-react-native-session-replay" || sp.name == "@posthog_react-native-session-replay") {
+
+    // Ensure Android compileOptions use 17 even if the lib sets 1.8 inside its build.gradle
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          sourceCompatibility JavaVersion.VERSION_17
+          targetCompatibility JavaVersion.VERSION_17
+        }
+      }
+
+      // Also force JavaCompile tasks to 17 for extra safety
+      sp.tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        // (options.release = 17 is fine too, but not necessary if source/target are set)
+      }
+    }
+
+    // Keep Kotlin aligned
+    sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+      kotlinOptions { jvmTarget = "17" }
+    }
+  }
+}
+
+// Force Java/Kotlin 17 for react-native-compressor (overrides any 11 set in the lib)
+subprojects { sp ->
+  if (sp.name == "react-native-compressor") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          sourceCompatibility JavaVersion.VERSION_17
+          targetCompatibility JavaVersion.VERSION_17
+        }
+      }
+      // Belt & suspenders: make the JavaCompile tasks use 17 too
+      sp.tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        options.release = 17
+      }
+    }
+    // Keep Kotlin aligned with 17
+    sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+      kotlinOptions { jvmTarget = "17" }
+    }
+  }
+}
+
+// ---- Finalize Java/Kotlin to 17 for all Android subprojects (AGP 8 safe) ----
+subprojects { sp ->
+  sp.afterEvaluate {
+    def isAndroid = sp.plugins.hasPlugin("com.android.application") || sp.plugins.hasPlugin("com.android.library")
+    if (isAndroid) {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          sourceCompatibility JavaVersion.VERSION_17
+          targetCompatibility JavaVersion.VERSION_17
+        }
+      }
+      // Ensure JavaCompile tasks also honor 17 even if the lib hard-codes 1.8/11
+      sp.tasks.withType(JavaCompile).configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        options.release = 17
+      }
+    }
+  }
+
+  // Kotlin already set globally, but keep it here too
+  sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions { jvmTarget = "17" }
+  }
+}
+
+
+
+
+
+
+
 
 
