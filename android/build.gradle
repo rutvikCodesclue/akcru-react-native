@@ -10,6 +10,11 @@ buildscript {
     // any per-module overrides if you still need them
     Hmssdk_compileSdkVersion = 34
     Castle_compileSdkVersion = 34
+    useExoplayerIMA = true
+    useExoplayerRtsp = true
+    useExoplayerSmoothStreaming = true
+    useExoplayerDash = true
+    useExoplayerHls = true
     // …etc.
   }
 
