@@ -82,7 +82,7 @@ const Item = ({movie, portraitURL, genres, rated, rating, scrollX, index, onPres
                                     transform: [{translateX: translateXHeading}],
                                 },
                             ]}>
-                            {title}
+                            {isTablet() ? title : title && title.length > 23 ? `${title.slice(0, 23)}...` : title}
                         </Animated.Text>
                         <Animated.Text
                             style={[

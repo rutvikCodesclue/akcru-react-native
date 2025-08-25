@@ -228,6 +228,146 @@ subprojects { sp ->
   }
 }
 
+// android/build.gradle (project-level)
+// subprojects { subproj ->
+//   afterEvaluate {
+//     if (subproj.plugins.hasPlugin('com.android.application') ||
+//         subproj.plugins.hasPlugin('com.android.library')) {
+
+//       subproj.android.compileOptions {
+//         sourceCompatibility JavaVersion.VERSION_17
+//         targetCompatibility JavaVersion.VERSION_17
+//         coreLibraryDesugaringEnabled true
+//       }
+
+//       // If Kotlin is applied in that subproject, set JVM target
+//       if (subproj.hasProperty('kotlinOptions')) {
+//         subproj.kotlinOptions {
+//           jvmTarget = '17'
+//         }
+//       }
+
+//       // Make sure every Android subproject sees the desugar runtime
+//       subproj.dependencies.add(
+//         "coreLibraryDesugaring",
+//         "com.android.tools:desugar_jdk_libs:2.0.4"
+//       )
+//     }
+//   }
+// }
+
+// Force minSdk >= 21 for all Android library modules (desugaring compatibility)
+subprojects { sp ->
+  sp.plugins.withId("com.android.library") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null && androidExt.hasProperty("defaultConfig")) {
+        try {
+          def cur = androidExt.defaultConfig.minSdkVersion.apiLevel
+          if (cur < 21) {
+            androidExt.defaultConfig.minSdkVersion 21
+            println "[fix] Bumped minSdk to 21 for ${sp.path}"
+          }
+        } catch (ignored) {
+          // some AGP versions expose minSdkVersion as Integer/string; set blindly:
+          androidExt.defaultConfig.minSdkVersion 21
+          println "[fix] Bumped minSdk to 21 for ${sp.path} (fallback)"
+        }
+      }
+    }
+  }
+}
+
+// --- Enable desugaring ONLY for HMS module (where it's needed) ---
+// SINGLE canonical HMS block
+subprojects { sp ->
+  if (sp.name == "100mslive_react-native-hms") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          sourceCompatibility JavaVersion.VERSION_17   // <- 17
+          targetCompatibility JavaVersion.VERSION_17   // <- 17
+          coreLibraryDesugaringEnabled true
+        }
+      }
+      // Kotlin jvmTarget 17
+      sp.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions { jvmTarget = "17" }
+      }
+      // Ensure desugar runtime is on this module
+      sp.dependencies.add(
+        "coreLibraryDesugaring",
+        "com.android.tools:desugar_jdk_libs:2.0.4"
+      )
+    }
+  }
+}
+
+// Add extra keep rules to HMS' release build so R8 stops complaining
+subprojects { sp ->
+  if (sp.name == "100mslive_react-native-hms") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        def rel = androidExt.buildTypes.findByName("release")
+        if (rel != null) {
+          // NOTE: rootDir already == <project>/android
+          rel.proguardFiles += sp.files("${rootDir}/hms-extra-proguard.pro")
+        }
+      }
+    }
+  }
+}
+
+
+
+
+// --- Explicitly DISABLE desugaring for react-native-sound to silence its check ---
+subprojects { sp ->
+  if (sp.name == "react-native-sound") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          // keep Java level modern, but turn OFF desugaring here
+          sourceCompatibility JavaVersion.VERSION_17
+          targetCompatibility JavaVersion.VERSION_17
+          coreLibraryDesugaringEnabled false
+        }
+        // Make sure minSdk is sane
+        try {
+          if (androidExt.defaultConfig.minSdkVersion.apiLevel < 21) {
+            androidExt.defaultConfig.minSdkVersion 21
+          }
+        } catch (ignored) {
+          androidExt.defaultConfig.minSdkVersion 21
+        }
+      }
+    }
+  }
+}
+
+// TEMPORARY: disable minify for HMS lib to bypass R8
+// subprojects { sp ->
+//   if (sp.name == "100mslive_react-native-hms") {
+//     sp.afterEvaluate {
+//       def androidExt = sp.extensions.findByName("android")
+//       if (androidExt != null) {
+//         def rel = androidExt.buildTypes.findByName("release")
+//         if (rel != null) {
+//           rel.minifyEnabled = false
+//           rel.shrinkResources = false
+//         }
+//       }
+//     }
+//   }
+// }
+
+
+
+
+
 
 
 

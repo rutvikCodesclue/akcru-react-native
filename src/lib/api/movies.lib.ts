@@ -10,6 +10,23 @@ export const getMovieGenres = async () => {
         console.error(error);
     }
 };
+
+export const findTopBoxMovies = async (): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.get('/v1/movies/topbox');
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return data.movies;
+    } catch (error) {
+        console.error('Error fetching topbox movies:', error);
+        return [];
+    }
+};
+
 export const findMovies = async (genre?: string): Promise<IMovie[] | []> => {
     await useAuthStore.getState().hydrateAuth();
     try {
