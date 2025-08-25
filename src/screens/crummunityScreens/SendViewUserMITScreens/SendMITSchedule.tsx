@@ -7,6 +7,7 @@ import {
     SafeAreaView,
     Image,
     ActivityIndicator,
+    Platform,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import AkcruLevels from '../../../components/akcruBadges';
@@ -64,12 +65,18 @@ export default function SendMITSchedule({route}: Props) {
     const interstitialRef = useRef<InterstitialAd | null>(null);
     const [adLoaded, setAdLoaded] = useState(false);
 
-    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-8264001768347242/5970565210'; // your real ID
+    const PROD_IDS = Platform.select({
+            android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
+            ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
+        });
+    
+        const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
     const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
+        if (!interstitialUnitId) return; // guard if iOS id not set yet
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
             requestNonPersonalizedAdsOnly: true,
         });

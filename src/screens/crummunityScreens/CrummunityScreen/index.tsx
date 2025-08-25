@@ -11,6 +11,7 @@ import {
     Alert,
     RefreshControl,
     TouchableOpacity,
+    Platform,
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -98,9 +99,15 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     // optional: tiny cooldown so you never double-fire within milliseconds
     const cooldownRef = useRef(false);
 
-    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-8264001768347242/5970565210';
+    const PROD_IDS = Platform.select({
+        android: 'ca-app-pub-8264001768347242/5970565210', // <-- your real ANDROID id
+        ios: 'ca-app-pub-8264001768347242/4713688822', // <-- your real iOS id (make a separate unit in AdMob)
+    });
+    
+        const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
     useEffect(() => {
+        if (!interstitialUnitId) return; // guard if iOS id not set yet
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
             requestNonPersonalizedAdsOnly: true,
         });
