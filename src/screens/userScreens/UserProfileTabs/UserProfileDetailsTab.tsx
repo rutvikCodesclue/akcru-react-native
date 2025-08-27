@@ -39,14 +39,15 @@ import playMessageSound from '../../../util/playMessageSound';
 import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import PurchasedContent from '../../../components/PurchasedContent';
-import { isTablet } from '../../../../assets/constants/theme';
+import {isTablet} from '../../../../assets/constants/theme';
 
 const UserProfileDetailsTab = () => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     const [crus, setCrus] = useState<ICru[]>([]);
-    const [membercruIds, setMemberCruIds] = useState([]);
-    const [unreadcruIds, setUnreadCruIds] = useState([]);
+    const [membercruIds, setMemberCruIds] = useState<string[]>([]);
+    const [unreadcruIds, setUnreadCruIds] = useState<string[]>([]);
+
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const user = useAuthStore(state => state.user);
@@ -67,14 +68,19 @@ const UserProfileDetailsTab = () => {
         return members;
     };
 
-
     useEffect(() => {}, [unreadcruIds]);
     useEffect(() => {
-        getUnread(membercruIds).then(res => {
-            if (res?.success && res.unread != null) {
-                setUnreadCruIds(res.unread);
-            }
-        });
+        if (!membercruIds?.length) return;
+
+        getUnread(membercruIds)
+            .then(res => {
+                if (res && typeof res === 'object' && 'success' in res && res.success && res.unread != null) {
+                    setUnreadCruIds(res.unread);
+                }
+            })
+            .catch(e => {
+                console.warn('getUnread failed', e);
+            });
     }, [membercruIds]);
 
     useFocusEffect(
