@@ -24,19 +24,30 @@ const API = axios.create({
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: authStore.getState().getSession()
-            ? `Bearer ${authStore.getState().getSession()?.access_token}`
-            : undefined,
+        // Remove Authorization header from initial config - it will be set dynamically in the interceptor
     },
 });
 
 API.interceptors.request.use(
     async config => {
+        const state = authStore.getState();
+        
+        // If store hasn't hydrated yet, wait for it
+        if (!state._hasHydrated) {
+            // Wait for hydration to complete
+            let attempts = 0;
+            while (!authStore.getState()._hasHydrated && attempts < 20) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                attempts++;
+            }
+        }
+        
         const session = authStore.getState().getSession();
 
-        if (session) {
+        if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
+        
         const endpoints = [
             '/v1/user',
             // '/v1/auth/signup',
@@ -67,12 +78,22 @@ API.interceptors.request.use(
 
 API.interceptors.response.use(
     response => response,
-    error => {
+    async error => {
+        // Handle 401 responses globally
+        if (error.response?.status === 401) {
+            try {
+                const { forceLogoutManager } = await import('../util/forceLogoutManager');
+                await forceLogoutManager.executeForceLogout();
+            } catch (logoutError) {
+                console.error('Error during force logout:', logoutError);
+            }
+        }
+        
         if (isNetworkError(error)) {
             // console.log("ERR_NETWORK N");
             Alert.alert('Please check your internet connection and Try Again');
         }
-        return error;
+        return Promise.reject(error);
     },
 );
 

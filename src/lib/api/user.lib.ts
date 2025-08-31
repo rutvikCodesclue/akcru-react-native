@@ -1,17 +1,12 @@
 import {IMovie, IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
-
 export const getMe = async (): Promise<IUserProfile | undefined> => {
     try {
         const {data} = await API.get('/v1/auth/me');
 
-        if (data.success === false) {
-            return undefined;
-        }
-
         return data.user;
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
         return undefined;
     }

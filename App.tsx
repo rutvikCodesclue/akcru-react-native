@@ -4,7 +4,8 @@ import RootNavigator from './src/navigation/RootNavigator';
 import {COLORS} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
 import notifee, {EventType} from '@notifee/react-native';
-import {getPushToken} from './lib/pushNotifications';
+import {getPushToken, setupForceLogoutListeners} from './lib/pushNotifications';
+import {sessionValidationService} from './lib/sessionValidationService';
 import useAuthStore from './src/stores/auth.store';
 import Castle from '@castleio/react-native-castle';
 import {CASTLE_API_PK} from '@env';
@@ -57,17 +58,40 @@ function App(): JSX.Element {
             }
             checkIfRegistered();
             const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+                // Handle force logout messages
+                if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
+                    const { handleForceLogout } = await import('./lib/pushNotifications');
+                    await handleForceLogout();
+                    return;
+                }
+                
+                // Handle regular notifications
                 onDisplayNotification(remoteMessage);
             });
 
             // Handle background messages
             messaging().setBackgroundMessageHandler(async remoteMessage => {
                 console.log('Message handled in the background!', remoteMessage);
+                
+                // Handle force logout in background
+                if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
+                    const { handleForceLogout } = await import('./lib/pushNotifications');
+                    await handleForceLogout();
+                }
             });
 
             // Handle notification clicks
             messaging().onNotificationOpenedApp(remoteMessage => {
                 console.log('Notification caused app to open from background state:', remoteMessage.data);
+                
+                // Handle force logout when app opened from notification
+                if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
+                    import('./lib/pushNotifications').then(({ handleForceLogout }) => {
+                        handleForceLogout();
+                    });
+                    return;
+                }
+                
                 NotificationNavigation(remoteMessage.data, userId);
             });
 
@@ -77,6 +101,16 @@ function App(): JSX.Element {
                 .then(remoteMessage => {
                     if (remoteMessage && !initialNotificationHandled.current) {
                         console.log('Notification caused app to open from quit state:', remoteMessage.data);
+                        
+                        // Handle force logout from quit state
+                        if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
+                            import('./lib/pushNotifications').then(({ handleForceLogout }) => {
+                                handleForceLogout();
+                            });
+                            initialNotificationHandled.current = true;
+                            return;
+                        }
+                        
                         NotificationNavigation(remoteMessage.data, userId);
                         initialNotificationHandled.current = true;
                     }
@@ -91,9 +125,17 @@ function App(): JSX.Element {
 
             // Initial token registration
             getAndSendToken(userId);
+            
+            // Initialize session validation service
+            if (userId) {
+                sessionValidationService.initialize();
+            }
+            
             return () => {
                 unsubscribeForeground();
                 unsubscribeTokenRefresh();
+                // Cleanup session validation service
+                sessionValidationService.destroy();
             };
         }
 
@@ -129,7 +171,7 @@ function App(): JSX.Element {
         });
 
         notifee.onForegroundEvent(({type, detail}) => {
-            if (type === EventType.PRESS && detail.pressAction.id === 'default') {
+            if (type === EventType.PRESS && detail.pressAction?.id === 'default') {
                 NotificationNavigation(remoteMessage.data, userId);
             }
         });

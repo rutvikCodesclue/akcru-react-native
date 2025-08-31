@@ -30,6 +30,7 @@ import BackButton from '../../../components/General/backbutton';
 import {getUserWallet} from '../../../lib/api/wallet.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {useIsFocused} from '@react-navigation/native';
+import {queueApiCall} from '../../../util/apiQueue';
 
 type ViewUserDetailScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserDetailScreen'>;
 
@@ -46,35 +47,56 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
 
     const isFocused = useIsFocused();
     const [balance, setBalance] = useState<number>(0);
+    const [isLoadingData, setIsLoadingData] = useState(false);
 
-    useEffect(() => {
-        if (!isFocused) {
-            return;
+    // Sequential API loading to prevent multiple 401s
+    const loadUserData = async () => {
+        if (isLoadingData) return; // Prevent multiple simultaneous loads
+        
+        setIsLoadingData(true);
+        try {
+            // Queue API calls to execute sequentially
+            const userData = await queueApiCall(() => findAUser({id: userID}));
+            
+            if (userData) {
+                if (userData.gallery && userData.gallery.length > 6) {
+                    userData.gallery = userData.gallery.slice(0, 6);
+                }
+                setUser(userData);
+
+                // Only load wallet if user data was successful
+                try {
+                    const walletBalance = await queueApiCall(() => getUserWallet());
+                    const balanceNumber = walletBalance != null ? Number(walletBalance) : 0;
+                    setBalance(balanceNumber);
+                } catch (walletError) {
+                    console.error('Failed to load wallet balance:', walletError);
+                    // Don't set balance on error, keep previous value
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load user data:', error);
+        } finally {
+            setIsLoadingData(false);
         }
-        getUserWallet()
-            .then(b => {
-                // b is string | undefined
-                const n = b != null ? Number(b) : 0;
-                setBalance(n);
-            })
-            .catch(console.error);
-    }, [isFocused]);
+    };
 
     const toggleAvatarModal = () => {
         setAvatarModalVisible(!isAvatarModalVisible);
     };
 
+    useEffect(() => {
+        if (!isFocused) {
+            return;
+        }
+        loadUserData();
+    }, [isFocused]);
+
     useFocusEffect(
         React.useCallback(() => {
-            findAUser({id: userID}).then(user => {
-                if (user && user.gallery && user.gallery.length > 6) {
-                    user.gallery = user.gallery.slice(0, 6);
-                }
-                setUser(user);
-            });
-
+            loadUserData();
             return () => {};
-        }, []),
+        }, [userID]),
     );
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);

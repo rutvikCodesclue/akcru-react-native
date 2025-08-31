@@ -24,19 +24,30 @@ const CRUMMUNITY = axios.create({
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: authStore.getState().getSession()
-            ? `Bearer ${authStore.getState().getSession()?.access_token}`
-            : undefined,
+        // Remove Authorization header from initial config - it will be set dynamically in the interceptor
     },
 });
 
 CRUMMUNITY.interceptors.request.use(
     async config => {
+        const state = authStore.getState();
+        
+        // If store hasn't hydrated yet, wait for it
+        if (!state._hasHydrated) {
+            // Wait for hydration to complete
+            let attempts = 0;
+            while (!authStore.getState()._hasHydrated && attempts < 20) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+                attempts++;
+            }
+        }
+        
         const session = authStore.getState().getSession();
 
-        if (session) {
+        if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
+        
         const endpoints = [
             '/v1/user',
             // '/v1/auth/signup',
@@ -61,6 +72,27 @@ CRUMMUNITY.interceptors.request.use(
         return config;
     },
     error => {
+        return Promise.reject(error);
+    },
+);
+
+// Global flag to prevent multiple simultaneous force logouts
+let isForceLoggingOut = false;
+
+// Response interceptor to handle 401 responses
+CRUMMUNITY.interceptors.response.use(
+    response => response,
+    async error => {
+        // Handle 401 responses globally
+        if (error.response?.status === 401) {
+            try {
+                const { forceLogoutManager } = await import('../util/forceLogoutManager');
+                await forceLogoutManager.executeForceLogout();
+            } catch (logoutError) {
+                console.error('Error during force logout:', logoutError);
+            }
+        }
+        
         return Promise.reject(error);
     },
 );
