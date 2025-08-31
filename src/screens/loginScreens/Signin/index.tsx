@@ -237,10 +237,6 @@ const Signin = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-
-                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
-                                    version {appVersion[0].version}
-                                </Text>
                             </View>
                         </View>
                     ) : (
@@ -334,9 +330,6 @@ const Signin = () => {
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
-                                <Text style={{...FONTS.Title2White, textAlign: 'center'}}>
-                                    version {appVersion[0].version}
-                                </Text>
                             </View>
                         </>
                     )}

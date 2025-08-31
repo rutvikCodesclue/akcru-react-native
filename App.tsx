@@ -14,6 +14,7 @@ import NoInternetAlert from './src/components/errorHandling/NoInternetAlert';
 import {useNetInfo} from '@react-native-community/netinfo';
 import useWatchTimeStore from './src/stores/watchTime.store';
 import mobileAds from 'react-native-google-mobile-ads';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -136,13 +137,17 @@ function App(): JSX.Element {
     }
 
     return (
-        
-        <View style={styles.container}>
-            <NoInternetAlert />
-            <StatusBar barStyle={'light-content'} backgroundColor={COLORS.AKCRUBACKGROUND} />
-            <RootNavigator />
-        </View>
-
+        <SafeAreaProvider>
+            <SafeAreaView style={styles.container}>
+                <NoInternetAlert />
+                <StatusBar
+                    barStyle={'light-content'}
+                    backgroundColor={COLORS.AKCRUBACKGROUND}
+                    translucent={false} // Keep this false to maintain your current design
+                />
+                <RootNavigator />
+            </SafeAreaView>
+        </SafeAreaProvider>
     );
 }
 

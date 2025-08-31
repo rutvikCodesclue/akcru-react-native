@@ -55,10 +55,10 @@ export default StyleSheet.create({
             Platform.OS === 'ios'
                 ? isTablet()
                     ? '35%' // iPad
-                    : '30%' // iPhone
+                    : '35%' // iPhone
                 : isTablet()
                 ? '30%' // Android tablet
-                : '25%', // Android phone,
+                : '30%', // Android phone,
         left: '0%',
         alignItems: 'flex-end',
         width: '100%',
