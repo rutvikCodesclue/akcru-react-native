@@ -116,7 +116,7 @@ export interface IMovie {
 }
 
 export interface IGenreItem {
-    id: Genre;
+    id: string;
     genre: string;
     image: string;
     updatedAt: string;

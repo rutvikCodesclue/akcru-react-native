@@ -222,11 +222,11 @@ const HomeScreen = () => {
         const fetchTopBoxMovie = async () => {
             try {
                 const topBoxMovies: IMovie[] = await findTopBoxMovies();
-                console.log(
-                    'TopBox size:',
-                    topBoxMovies.length,
-                    topBoxMovies.map(m => ({id: m.id, topBox: m.topBox, trailer: m.trailerURL})),
-                );
+                // console.log(
+                //     'TopBox size:',
+                //     topBoxMovies.length,
+                //     topBoxMovies.map(m => ({id: m.id, title: m.title, trailer: m.trailerURL})),
+                // );
                 setTopBox(topBoxMovies);
                 setIsMovieDataLoaded(true);
             } catch (error) {

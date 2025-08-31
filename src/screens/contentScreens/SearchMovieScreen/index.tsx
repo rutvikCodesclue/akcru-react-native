@@ -12,6 +12,7 @@ import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
 import { isTablet } from '../../../../assets/constants/theme';
+import { DEFAULT_GENRE_IMAGE } from '../../../../assets/constants/Data';
 const SearchMovieScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
@@ -19,8 +20,12 @@ const SearchMovieScreen = () => {
     const [loading, setIsLoading] = React.useState(true);
 
     const fetchGenres = async () => {
-        const genres = await getMovieGenres();
-        setGenres(genres);
+        const serverGenres = await getMovieGenres(); // [{ id, genre, image }]
+        const normalized = (serverGenres ?? []).map(g => ({
+            ...g,
+            image: g.image && g.image.trim() ? g.image : DEFAULT_GENRE_IMAGE,
+        }));
+        setGenres(normalized);
         setIsLoading(false);
     };
 
@@ -64,11 +69,11 @@ const SearchMovieScreen = () => {
                                 horizontal={false}
                                 numColumns={2}
                                 scrollEnabled={false}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
+                                keyExtractor={(item, index) => String(item.genre ?? index)}
+                                renderItem={({item}) => (
                                     <View>
                                         <GenreCard
-                                            photo={item.image}
+                                            image={item.image ?? ''} // guard if image can be null
                                             genre={capitalizeFirstLetterOfString(item.genre)}
                                             onPress={() => handleGenrePress(item)}
                                         />

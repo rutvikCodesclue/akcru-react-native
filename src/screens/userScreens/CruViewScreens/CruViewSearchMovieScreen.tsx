@@ -12,15 +12,20 @@ import {IGenreItem} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from './styles';
 import BackButton from '../../../components/General/backbutton';
+import { DEFAULT_GENRE_IMAGE } from '../../../../assets/constants/Data';
 const CruViewSearchMovieScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const [genres, setGenres] = React.useState<IGenreItem[]>([]);
     const [loading, setIsLoading] = React.useState(true);
-    const fetchGenres = async () => {
-        const genres = await getMovieGenres();
-        setGenres(genres);
-        setIsLoading(false);
-    };
+     const fetchGenres = async () => {
+            const serverGenres = await getMovieGenres(); // [{ id, genre, image }]
+            const normalized = (serverGenres ?? []).map(g => ({
+                ...g,
+                image: g.image && g.image.trim() ? g.image : DEFAULT_GENRE_IMAGE,
+            }));
+            setGenres(normalized);
+            setIsLoading(false);
+        };
 
     const handleGenrePress = (genre: IGenreItem) => {
         navigation.navigate('CruViewSearchMovieResultScreen', {
@@ -43,7 +48,7 @@ const CruViewSearchMovieScreen = () => {
                     <CruViewSearchInput />
                 </View>
                 <ScrollView stickyHeaderIndices={[0]}>
-                    <View>
+                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND}}>
                         <Text
                             style={{
                                 ...FONTS.Title2,
@@ -68,7 +73,7 @@ const CruViewSearchMovieScreen = () => {
                                 renderItem={({item, index}) => (
                                     <View>
                                         <GenreCard
-                                            photo={item.image}
+                                            image={item.image}
                                             genre={capitalizeFirstLetterOfString(item.genre)}
                                             onPress={() => handleGenrePress(item)}
                                         />

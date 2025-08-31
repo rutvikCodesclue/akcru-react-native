@@ -254,3 +254,17 @@ export async function editPollComment(commentId: number, editedText: string) {
         throw new Error('Failed to edit the comment.');
     }
 }
+
+export async function getPollsByUser(userId: string, page = 1): Promise<IPoll[]> {
+    try {
+        const {data} = await API.get(`/v1/poll/${userId}/polls`, {
+            params: {page: page - 1}, // keep 1-based in the UI, 0-based on server
+        });
+        if (data.success === false) throw new Error(data.message);
+        return data.polls;
+    } catch (error) {
+        console.error('Error fetching user polls:', error);
+        throw new Error('Failed to fetch user polls');
+    }
+}
+

@@ -1640,6 +1640,109 @@ export const archetypeMapping: ArchetypeMapping = {
         description:
             'They are drawn to movies that blend thrilling adventures with imaginative and artistic animation. Embarking on epic quests through animation excites them.',
     },
+    'Documentary, Action': {
+        name: 'Adrenaline Journalist',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Adrenalin+Journalist.png',
+        description:
+            'Adrenaline Journalist chase reality in its rawest form, diving headfirst into danger and adrenaline. For them, every revelation carries urgency, as if exposing the truth itself is a high-stakes mission.',
+    },
+    'Documentary, Adventure': {
+        name: 'Explorer of Truths',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Explorer+of+Truths.png',
+        description:
+            'These are the ones who turn the world into a living map, uncovering hidden cultures, landscapes, and untold stories. Their journeys are less about destinations and more about discoveries that reshape our understanding of life.',
+    },
+    'Documentary, Biography': {
+        name: 'Life Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Life+Chronicler.png',
+        description:
+            'They like to shine a light on extraordinary lives, peeling back layers to reveal triumphs, flaws, and defining moments. Each portrait they craft is both a record of history and a mirror for the present.',
+    },
+    'Documentary, Comedy': {
+        name: 'Satirical Observer',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Satirical+Observer.png',
+        description:
+            'Satirical Observers find humor in the overlooked details of everyday reality, using laughter as a lens for deeper critique. Beneath their wit lies a sharp eye for the absurdities that define human life.',
+    },
+    'Documentary, Crime': {
+        name: 'The Investigator',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/The+Investigator.png',
+        description:
+            'They dig into society’s shadows, unraveling stories of corruption, betrayal, and justice denied. Their relentless pursuit of facts forces uncomfortable truths into the light.',
+    },
+    'Documentary, Drama': {
+        name: 'Reality Storyteller',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Reality+Storyteller.png',
+        description:
+            'Reality Storytellers frame the human condition with unflinching honesty, capturing emotions that feel larger than life. Their work unfolds with the intensity of an epic, but always rooted in authenticity.',
+    },
+    'Documentary, Family': {
+        name: 'Generational Guide',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Generational+Guide.png',
+        description:
+            'Generational Guides preserve stories that connect families across time, turning personal histories into living legacies. Their work reminds us of the bonds, struggles, and traditions that hold people together.',
+    },
+    'Documentary, Fantasy': {
+        name: 'Dream Weaver',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Dream+Weaver.png',
+        description:
+            'Dream Weavers blur the line between truth and imagination, crafting worlds that feel both otherworldly and real. Through their vision, fact transforms into myth, and myth reflects deeper truths.',
+    },
+    'Documentary, Horror': {
+        name: 'Fear Documenter',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Fear+Documenter.png',
+        description:
+            'Fear Documenters explore the darkest corners of reality, exposing terrors more unsettling than fiction. Every chilling detail they reveal lingers long after, proving that real life often holds the scariest stories.',
+    },
+    'Documentary, Mystery': {
+        name: 'Truth Hunter',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Truth+Hunter.png',
+        description:
+            'Truth Hunters peel back layers of secrets and deception, following trails others abandon. For them, every revelation sparks more questions, creating an endless labyrinth of curiosity.',
+    },
+    'Documentary, Romance': {
+        name: 'Love Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Love+Historian.png',
+        description:
+            'Love Historians uncover real stories of passion, heartbreak, and connection. Their work proves that love, in all its forms, is as complex, fragile, and timeless as any legend.',
+    },
+    'Documentary, SciFi': {
+        name: 'Future Witness',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Future+Witness.png',
+        description:
+            'Future Witnesses stand at the crossroads of science and speculation, revealing how today’s realities shape tomorrow’s possibilities. Their lens pushes audiences to imagine futures that feel both fragile and inevitable.',
+    },
+    'Documentary, Sports': {
+        name: 'Champion’s Chronicle',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Champion%E2%80%99s+Chronicle.png',
+        description:
+            'Champion’s Chroniclers capture the grit, determination, and sacrifice that define athletes’ journeys. In their stories, every victory and defeat becomes more than sport—it becomes a testament to human resilience.',
+    },
+    'Documentary, Thriller': {
+        name: 'Edge Witness',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Edge+Witness.png',
+        description:
+            'Edge Witnesses transform real events into suspense, delivering truth with the tension of a thriller. Their work keeps audiences on edge, reminding them that reality can be stranger—and scarier—than fiction.',
+    },
+    'Documentary, Western': {
+        name: 'Frontier Historian',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Frontier+Historian.png',
+        description:
+            'Frontier Historians bring to life the legends and hardships of untamed lands. Their stories preserve the spirit of endurance, survival, and freedom that shaped the frontier.',
+    },
+    'Documentary, Animation': {
+        name: 'Frame Weaver',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Frame+Weaver.png',
+        description:
+            'Frame Weavers transform reality into living art. This person blends the raw honesty of documentaries with the imaginative freedom of animation, crafting stories that feel both deeply authentic and visually magical. Their work turns truth into moving canvases where reality and creativity coexist in harmony.',
+    },
+    'Documentary, Foreign': {
+        name: 'Global Chronicler',
+        image: 'https://priymuscontent.s3.amazonaws.com/Archetype+images/Global+Chronicler.png',
+        description:
+            'Global Chroniclers dedicate themselves to capturing truth through a cultural lens that transcends borders. This person explores traditions, conflicts, and human experiences from diverse societies with a perspective that honors authenticity while revealing the interconnectedness of humanity. Their stories bring distant voices into sharp, immediate focus.',
+    },
+
     // Define more mappings here...
 };
 
