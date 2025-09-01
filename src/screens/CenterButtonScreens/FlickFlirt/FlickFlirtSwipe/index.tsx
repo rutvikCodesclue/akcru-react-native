@@ -1,4 +1,4 @@
-import {View, Text, SafeAreaView, FlatList, Alert, Modal, TouchableOpacity} from 'react-native';
+import {View, Text, SafeAreaView, FlatList, Alert, Modal, TouchableOpacity, Platform} from 'react-native';
 import React, {useState, useEffect, useRef} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -47,13 +47,16 @@ const FlickFlirtSwipe = () => {
     const [adLoaded, setAdLoaded] = useState(false);
     const interstitialRef = useRef<InterstitialAd | null>(null);
 
-    // Pick your ad unit ID
-    const interstitialUnitId = __DEV__
-        ? TestIds.INTERSTITIAL // Android test ID: ca-app-pub-3940256099942544/1033173712
-        : 'ca-app-pub-8264001768347242/5970565210'; // TODO: replace with your real unit ID
+    const PROD_IDS = Platform.select({
+        android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
+        ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
+    });
+
+    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
     // Create & preload interstitial once per mount
     useEffect(() => {
+        if (!interstitialUnitId) return; // guard if iOS id not set yet
         // Create and keep a reference to the interstitial
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
             requestNonPersonalizedAdsOnly: true,

@@ -82,7 +82,7 @@ const Item = ({movie, portraitURL, genres, rated, rating, scrollX, index, onPres
                                     transform: [{translateX: translateXHeading}],
                                 },
                             ]}>
-                            {title}
+                            {isTablet() ? title : title && title.length > 23 ? `${title.slice(0, 23)}...` : title}
                         </Animated.Text>
                         <Animated.Text
                             style={[
@@ -275,11 +275,6 @@ export default function ContentSwipe({navigation}: Props) {
                             Here are our top 5 movies recommended for you today
                         </Text>
                     </View>
-
-                    <Image
-                        source={imageindex.AkcruHexLogo}
-                        style={{width: 30, height: 26, alignSelf: 'center', marginBottom: 10}}
-                    />
                 </View>
                 <Circle scrollX={_scrollX} movies={movies} />
                 <Animated.FlatList
@@ -337,7 +332,7 @@ const styles = StyleSheet.create({
         width: isTablet() ? width * 1 : width * 1.35,
         height: isTablet() ? width * 1.5 : width * 1.9,
         resizeMode: 'cover',
-        marginTop: isTablet() ? -100 : 0,
+        marginTop: isTablet() ? -100 : -50,
 
         borderRadius: 10,
     },

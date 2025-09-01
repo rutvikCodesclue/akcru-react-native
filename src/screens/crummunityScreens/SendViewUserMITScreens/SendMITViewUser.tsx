@@ -44,10 +44,14 @@ const SendMITViewUser = ({route, navigation}: Props) => {
     const [loading, setIsLoading] = React.useState(true);
 
     const fetchGenres = async () => {
-        const genres = await getMovieGenres();
-        setGenres(genres);
-        setIsLoading(false);
-    };
+                const serverGenres = await getMovieGenres(); // [{ id, genre, image }]
+                const normalized = (serverGenres ?? []).map(g => ({
+                    ...g,
+                    image: g.image && g.image.trim() ? g.image : DEFAULT_GENRE_IMAGE,
+                }));
+                setGenres(normalized);
+                setIsLoading(false);
+            };
 
     const handleGenrePress = (genre: IGenreItem) => {
         navigation.navigate('SendMITSearchResult', {
@@ -98,7 +102,7 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                                 renderItem={({item, index}) => (
                                     <View>
                                         <GenreCard
-                                            photo={item.image}
+                                            image={item.image}
                                             genre={capitalizeFirstLetterOfString(item.genre)}
                                             onPress={() => handleGenrePress(item)}
                                         />

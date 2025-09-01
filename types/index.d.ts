@@ -104,6 +104,7 @@ export interface IMovie {
     updatedAt: string;
     sponsored: boolean;
     flickFlirt: boolean;
+    topBox: boolean;
     shortFilm: boolean;
     rentalDurationHrs?: number | null;
     totalADEarned: string; // BigInt serialized as string
@@ -116,7 +117,7 @@ export interface IMovie {
 }
 
 export interface IGenreItem {
-    id: Genre;
+    id: string;
     genre: string;
     image: string;
     updatedAt: string;

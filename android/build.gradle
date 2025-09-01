@@ -1,15 +1,15 @@
 //android\build.gradle
 buildscript {
   ext {
-    compileSdkVersion       = 34
-    targetSdkVersion        = 34
+    compileSdkVersion       = 35
+    targetSdkVersion        = 35
     minSdkVersion           = 23
     ndkVersion              = "23.1.7779620"
     kotlinVersion           = "1.9.24"
 
     // any per-module overrides if you still need them
-    Hmssdk_compileSdkVersion = 34
-    Castle_compileSdkVersion = 34
+    Hmssdk_compileSdkVersion = 35
+    Castle_compileSdkVersion = 35
     useExoplayerIMA = true
     useExoplayerRtsp = true
     useExoplayerSmoothStreaming = true
@@ -24,7 +24,7 @@ buildscript {
     mavenLocal()
   }
   dependencies {
-    classpath("com.android.tools.build:gradle:8.1.2")
+    classpath("com.android.tools.build:gradle:8.6.1")
     classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     classpath("com.google.gms:google-services:4.4.0")
   }
@@ -37,10 +37,35 @@ subprojects { proj ->
       // 1) Enable BuildConfig
       androidExt.buildFeatures.buildConfig = true
 
-      // 2) Auto-assign a valid namespace if missing
+      // 2) Auto-assign a valid namespace if missing, with special handling for modules
       if (!androidExt.hasProperty("namespace") || !androidExt.namespace) {
-        def ns = "com.${proj.name.replaceAll(/[-_]/, ".")}".toLowerCase()
+        def ns
+        if (proj.name == "100mslive_react-native-hms") {
+          // Special case: fix the invalid namespace for HMS module
+          ns = "com.hundredms.reactnative.hms"
+        } else if (proj.name == "castleio_react-native-castle") {
+          // Special case: fix the invalid namespace for Castle module
+          ns = "com.castleio.reactnative.castle"
+        } else if (proj.name == "lottie-react-native") {
+          // Special case: fix the invalid namespace for Lottie module
+          ns = "com.lottie.reactnative"
+        } else {
+          // General case: replace hyphens/underscores with dots, then fix 'native' keyword
+          def baseName = proj.name.replaceAll(/[-_]/, ".")
+          // Replace any occurrence of '.native' with '.reactnative'
+          baseName = baseName.replaceAll(/\.native(?=\.|$)/, ".reactnative")
+          // Handle names starting with numbers by prefixing with 'lib'
+          if (baseName.matches(/^\d.*/)) {
+            baseName = "lib" + baseName
+          }
+          ns = "com.${baseName}".toLowerCase()
+        }
         androidExt.namespace = ns
+      }
+      
+      // 3) Ensure compileSdkVersion is set
+      if (!androidExt.hasProperty("compileSdkVersion") || !androidExt.compileSdkVersion) {
+        androidExt.compileSdkVersion rootProject.ext.compileSdkVersion
       }
     }
   }
@@ -77,38 +102,40 @@ subprojects { subproject ->
   }
 }
 
-
-// Align Java/Kotlin targets for the 100ms HMS module
+// Configure HMS module specifically with compileSdkVersion and Java/Kotlin targets
 subprojects { subproject ->
   if (subproject.name == "100mslive_react-native-hms") {
     subproject.afterEvaluate {
       if (subproject.hasProperty("android")) {
         subproject.android {
+          // Explicitly set compileSdkVersion for HMS module
+          compileSdkVersion rootProject.ext.compileSdkVersion
+          
           compileOptions {
             sourceCompatibility JavaVersion.VERSION_17
             targetCompatibility JavaVersion.VERSION_17
+            coreLibraryDesugaringEnabled true
+          }
+          
+          // Ensure defaultConfig is properly set
+          defaultConfig {
+            minSdkVersion Math.max(21, rootProject.ext.minSdkVersion)
           }
         }
+        
+        // Add desugar runtime dependency
+        subproject.dependencies.add(
+          "coreLibraryDesugaring",
+          "com.android.tools:desugar_jdk_libs:2.0.4"
+        )
       }
-      // keep Kotlin at 17 as configured by RN's plugin, just in case
+      // keep Kotlin at 17 as configured by RN's plugin
       subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions.jvmTarget = "17"
       }
     }
   }
 }
-
-// subprojects { subproject ->
-//   subproject.configurations.all { config ->
-//     config.resolutionStrategy.eachDependency { details ->
-//       if (details.requested.group == "app.notifee" && details.requested.name == "core") {
-//         // Pick a concrete version you have published; 8.x is recommended with RN 0.72/0.73.
-//         details.useVersion "8.0.0"
-//         details.because("Avoid dynamic app.notifee:core:+ during resolution")
-//       }
-//     }
-//   }
-// }
 
 // Align Java/Kotlin to 17 across all Android subprojects (AGP 8-safe)
 subprojects { sp ->
@@ -132,21 +159,30 @@ subprojects { sp ->
   }
 }
 
-// If any stubborn module still compiles Java at 1.8, force it explicitly:
+// Configure Castle module specifically with compileSdkVersion and Java targets
 subprojects { sp ->
   if (sp.name == "castleio_react-native-castle") {
     sp.afterEvaluate {
       if (sp.hasProperty("android")) {
         sp.android {
+          // Explicitly set compileSdkVersion for Castle module
+          compileSdkVersion rootProject.ext.compileSdkVersion
+          
           compileOptions {
             sourceCompatibility JavaVersion.VERSION_17
             targetCompatibility JavaVersion.VERSION_17
+          }
+          
+          // Ensure defaultConfig is properly set
+          defaultConfig {
+            minSdkVersion Math.max(21, rootProject.ext.minSdkVersion)
           }
         }
       }
     }
   }
 }
+
 // Force Java/Kotlin 17 specifically for PostHog session replay (applies AFTER the module sets 1.8)
 subprojects { sp ->
   if (sp.name == "posthog-react-native-session-replay" || sp.name == "@posthog_react-native-session-replay") {
@@ -191,7 +227,6 @@ subprojects { sp ->
       sp.tasks.withType(JavaCompile).configureEach {
         sourceCompatibility = JavaVersion.VERSION_17.toString()
         targetCompatibility = JavaVersion.VERSION_17.toString()
-        options.release = 17
       }
     }
     // Keep Kotlin aligned with 17
@@ -217,7 +252,6 @@ subprojects { sp ->
       sp.tasks.withType(JavaCompile).configureEach {
         sourceCompatibility = JavaVersion.VERSION_17.toString()
         targetCompatibility = JavaVersion.VERSION_17.toString()
-        options.release = 17
       }
     }
   }
@@ -228,11 +262,65 @@ subprojects { sp ->
   }
 }
 
+// Force minSdk >= 21 for all Android library modules (desugaring compatibility)
+subprojects { sp ->
+  sp.plugins.withId("com.android.library") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null && androidExt.hasProperty("defaultConfig")) {
+        try {
+          def cur = androidExt.defaultConfig.minSdkVersion.apiLevel
+          if (cur < 21) {
+            androidExt.defaultConfig.minSdkVersion 21
+            println "[fix] Bumped minSdk to 21 for ${sp.path}"
+          }
+        } catch (ignored) {
+          // some AGP versions expose minSdkVersion as Integer/string; set blindly:
+          androidExt.defaultConfig.minSdkVersion 21
+          println "[fix] Bumped minSdk to 21 for ${sp.path} (fallback)"
+        }
+      }
+    }
+  }
+}
 
+// Add extra keep rules to HMS' release build so R8 stops complaining
+subprojects { sp ->
+  if (sp.name == "100mslive_react-native-hms") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        def rel = androidExt.buildTypes.findByName("release")
+        if (rel != null) {
+          // NOTE: rootDir already == <project>/android
+          rel.proguardFiles += sp.files("${rootDir}/hms-extra-proguard.pro")
+        }
+      }
+    }
+  }
+}
 
-
-
-
-
-
-
+// --- Explicitly DISABLE desugaring for react-native-sound to silence its check ---
+subprojects { sp ->
+  if (sp.name == "react-native-sound") {
+    sp.afterEvaluate {
+      def androidExt = sp.extensions.findByName("android")
+      if (androidExt != null) {
+        androidExt.compileOptions {
+          // keep Java level modern, but turn OFF desugaring here
+          sourceCompatibility JavaVersion.VERSION_17
+          targetCompatibility JavaVersion.VERSION_17
+          coreLibraryDesugaringEnabled false
+        }
+        // Make sure minSdk is sane
+        try {
+          if (androidExt.defaultConfig.minSdkVersion.apiLevel < 21) {
+            androidExt.defaultConfig.minSdkVersion 21
+          }
+        } catch (ignored) {
+          androidExt.defaultConfig.minSdkVersion 21
+        }
+      }
+    }
+  }
+}

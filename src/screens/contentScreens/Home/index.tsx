@@ -14,7 +14,7 @@ import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
-import {findMovies} from '../../../lib/api/movies.lib';
+import {findMovies, findTopBoxMovies} from '../../../lib/api/movies.lib';
 import {IMovie, ISeries, ITrailer} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {Icon} from '@rneui/base';
@@ -35,7 +35,8 @@ const HomeScreen = () => {
     const [newerYearMovies, setNewerYearMovies] = useState<IMovie[]>([]);
     const [randomMovies, setRandomMovies] = useState<IMovie[]>([]);
     const [topBox, setTopBox] = useState<IMovie[]>([]);
-    const [topBoxIndex, setTopBoxIndex] = useState(Math.floor(Math.random() * 15));
+    //const [topBoxIndex, setTopBoxIndex] = useState(Math.floor(Math.random() * 15));
+    const [topBoxIndex, setTopBoxIndex] = useState(0);
     const [topBoxShouldAutoplay, setTopBoxShouldAutoplay] = useState(true);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
     const [isVideoLoaded, setIsVideoLoaded] = useState(false);
@@ -44,7 +45,6 @@ const HomeScreen = () => {
     const [blackInTheDaysMovies, setBlackInTheDaysMovies] = useState<IMovie[]>([]);
     const [sizzles, setSizzles] = useState<ITrailer[]>([]);
     const [isSizzleDataLoaded, setIsSizzleDataLoaded] = useState(false);
-    const [unfinishedMovies, setUnfinishedMovies] = useState<IMovie[]>([]);
 
     const [unfinishedContent, setUnfinishedContent] = useState<any[]>([]);
 
@@ -72,22 +72,33 @@ const HomeScreen = () => {
         return () => backHandler.remove();
     }, [backPressCount, isFocused]);
 
-    const handleVideoEnd = () => {
-        const randomIndex = Math.floor(Math.random() * topBox.length);
+    const current = topBox[topBoxIndex];
+    const trailerUrl = current?.trailerURL ?? '';
+    const canPlay = trailerUrl.trim().length > 0;
 
-        setTopBoxIndex(randomIndex);
+    const len = topBox.length;
+
+    const handleVideoEnd = () => {
+        if (len <= 1) {
+            setElapsedTime(0);
+            return; // nothing to advance to
+        }
+        const next = (topBoxIndex + 1) % len;
+        setTopBoxIndex(next);
         setElapsedTime(0);
     };
 
     const handlePreviousVideo = () => {
-        const previousIndex = Math.max(0, topBoxIndex - 1);
-        setTopBoxIndex(previousIndex);
+        if (len <= 1) return; // nothing to go back to
+        const prev = (topBoxIndex - 1 + len) % len;
+        setTopBoxIndex(prev);
     };
 
     const handleVideoError = () => {
-        const randomIndex = Math.floor(Math.random() * topBox.length);
-
-        setTopBoxIndex(randomIndex);
+        if (len <= 1) return; // avoid random/index issues
+        // skip to the next item on error (deterministic)
+        const next = (topBoxIndex + 1) % len;
+        setTopBoxIndex(next);
     };
 
     const handleVideoLoad = () => {
@@ -97,23 +108,26 @@ const HomeScreen = () => {
     };
 
     useEffect(() => {
-        let timer: number;
+        setIsVideoLoaded(false);
+        setElapsedTime(0);
+    }, [topBoxIndex]);
 
-        const handleTimerTick = () => {
-            setElapsedTime(prev => prev + 1);
+    useEffect(() => {
+        if (!isVideoLoaded || !topBoxShouldAutoplay) return;
 
-            if (elapsedTime >= 30) {
-                clearInterval(timer);
-                handleVideoEnd();
-            }
-        };
-
-        if (isVideoLoaded && topBoxShouldAutoplay) {
-            timer = setInterval(handleTimerTick, 1000);
-        }
+        setElapsedTime(0);
+        const timer = setInterval(() => {
+            setElapsedTime(prev => {
+                if (prev + 1 >= 30) {
+                    clearInterval(timer);
+                    handleVideoEnd(); // will wrap: (index + 1) % len
+                }
+                return prev + 1;
+            });
+        }, 1000);
 
         return () => clearInterval(timer);
-    }, [isVideoLoaded, topBoxShouldAutoplay, elapsedTime]);
+    }, [isVideoLoaded, topBoxShouldAutoplay, topBoxIndex]);
 
     const nextVideo = () => {
         handleVideoEnd();
@@ -207,16 +221,16 @@ const HomeScreen = () => {
 
         const fetchTopBoxMovie = async () => {
             try {
-                const allMovies: IMovie[] = await findMovies();
-
-                const sortedMovies = allMovies.sort((a, b) => b.rating - a.rating);
-
-                const top15RatedMovies = sortedMovies.slice(0, 15);
-
-                setTopBox(top15RatedMovies);
+                const topBoxMovies: IMovie[] = await findTopBoxMovies();
+                // console.log(
+                //     'TopBox size:',
+                //     topBoxMovies.length,
+                //     topBoxMovies.map(m => ({id: m.id, title: m.title, trailer: m.trailerURL})),
+                // );
+                setTopBox(topBoxMovies);
                 setIsMovieDataLoaded(true);
             } catch (error) {
-                console.error('Error fetching top rated movies:', error);
+                console.error('Error fetching topbox movies:', error);
             }
         };
 
@@ -313,7 +327,7 @@ const HomeScreen = () => {
 
     return (
         <TabContainer>
-            <SafeAreaView>
+            
                 {isMovieDataLoaded ? (
                     <ScrollView stickyHeaderIndices={[0]}>
                         <View>
@@ -371,8 +385,9 @@ const HomeScreen = () => {
                                         <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
                                     )}
                                     <Video
+                                        key={current?.id}
                                         style={{width: '100%', height: '100%'}}
-                                        source={{uri: topBox[topBoxIndex]?.trailerURL}}
+                                        source={canPlay ? {uri: trailerUrl} : undefined}
                                         resizeMode="cover"
                                         onEnd={handleVideoEnd}
                                         repeat={false}
@@ -507,7 +522,7 @@ const HomeScreen = () => {
                         <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                     </View>
                 )}
-            </SafeAreaView>
+            
         </TabContainer>
     );
 };

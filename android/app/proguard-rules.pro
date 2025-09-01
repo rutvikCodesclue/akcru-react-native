@@ -21,5 +21,10 @@
 -keep class live.hms.** { *; }
 -dontwarn live.hms.**
 
+-keep class com.reactnativehmssdk.** { *; }
+-keep class live.hms.video.** { *; }
+-keep class org.webrtc.** { *; }
+
+
 
 
