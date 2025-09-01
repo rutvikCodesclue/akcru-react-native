@@ -173,6 +173,7 @@ const UserProfileDatesTab = () => {
                                 timezone={item.timezone}
                                 type="CRUView"
                                 creatorId={item.cru.creatorId}
+                                videoRoomPrivileges={item.videoRoomPrivileges}
                                 onPressin={() =>
                                     navigation.navigate('ContentDetailScreen', {
                                         id: item.movie.id,

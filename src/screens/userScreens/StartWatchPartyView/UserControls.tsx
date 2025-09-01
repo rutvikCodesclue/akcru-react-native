@@ -20,6 +20,7 @@ const UserControls = ({
     isMicOn,
     setIsMicOn,
     currentHmsInstance,
+    videoRoomPrivileges,
 }: UserControlsProps) => {
     const [showRequestSentModal, setShowRequestSentModal] = useState(false);
     const [showHostErrorModal, setShowHostErrorModal] = useState(false);
@@ -125,13 +126,15 @@ const UserControls = ({
         <View>
             <View style={styles.bottombtn}>
                 <View style={styles.rowContainer}>
-                    <Pressable onPress={toggleVideo}>
-                        {isUserVideoOn ? (
-                            <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
-                        ) : (
-                            <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
-                        )}
-                    </Pressable>
+                    {videoRoomPrivileges && (
+                        <Pressable onPress={toggleVideo}>
+                            {isUserVideoOn ? (
+                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                            ) : (
+                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                            )}
+                        </Pressable>
+                    )}
                     <Pressable onPress={toggleMic}>
                         {isMicOn ? (
                             <Icon name="mic-circle" type="ionicon" size={40} color={COLORS.GREEN} />

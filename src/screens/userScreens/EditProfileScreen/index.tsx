@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
-import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
+import {updateUserProfilePicture, updateUser, searchForUsers, upgradeCRUView} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
@@ -38,6 +38,7 @@ export default function EditProfile({session}: {session: Session}) {
     const canGrantAD = useAuthStore(state => state.user?.canGrantAD);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
+    const walletBalance = useAuthStore(s => s.walletBalance)
     const {hydrateUser} = useAuthStore();
 
     const [_, setLoading] = useState(false);
@@ -45,6 +46,7 @@ export default function EditProfile({session}: {session: Session}) {
     const [userName, setUserName] = useState('');
     const [, setModifiedUserName] = useState('');
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
+    const [unlockModalVisible, setUnlockModalVisible] = useState(false)
 
     const [description, setDescription] = useState('');
     const [, setModifiedDescription] = useState('');
@@ -247,6 +249,25 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
+    const handleUnlockVideoCruView = () => {
+        handleUpgrade()
+        const PRICE_TO_UNLOCK = 100
+
+        if (walletBalance) {
+            if (PRICE_TO_UNLOCK < Number(walletBalance)) {
+                // setUnlockModalVisible(true)
+            }
+        } else {
+            console.log('wallet not found')
+        }
+    }
+
+    const handleUpgrade = async () => {
+        const responseMessage = await upgradeCRUView()
+
+        console.log('Upgrade: ', responseMessage)
+    }
+
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
 
@@ -378,6 +399,51 @@ export default function EditProfile({session}: {session: Session}) {
                                             {'Close'}
                                         </Text>
                                     </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
+                        
+                        <Modal animationType="fade" transparent={true} visible={unlockModalVisible}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title3,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                        }}>
+                                        {'Are you sure you want to purchase this upgrade?'}
+                                    </Text>
+                                    <View style={{flexDirection: 'row', justifyContent: 'space-between',}}>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                setUnlockModalVisible(false);
+                                            }}
+                                            style={{backgroundColor: 'red', padding: 10, borderRadius: 5,}}>
+                                            <Text style={{...FONTS.Title3, color: 'white', }}>Decline</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                setUnlockModalVisible(false);
+                                                handleUpgrade();
+                                            }}
+                                            style={{backgroundColor: 'green', padding: 10, borderRadius: 5,}}>
+                                            <Text style={{...FONTS.Title3, color: 'white', }}>Accept</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
                         </Modal>
@@ -835,6 +901,14 @@ export default function EditProfile({session}: {session: Session}) {
                             )}
 
                             <View>
+                                <View style={{alignItems: 'center', marginBottom: 15}}>
+                                    <AkcruButtons.XlLrgButton
+                                        color={COLORS.CATGREENLGT}
+                                        btnname={'Unlock Video CRU View'}
+                                        onPress={handleUnlockVideoCruView}
+                                        disabled={false}
+                                    />
+                                </View>
                                 <View style={{alignItems: 'center'}}>
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.PURPLE}

@@ -54,6 +54,7 @@ interface IUserProfile {
     visionaryStatus: boolean;
     SeasonPurchase: ISeasonPurchase[];
     visionaryStatus: boolean;
+    hasVideoPrivileges: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
@@ -149,6 +150,7 @@ export interface ICruView {
     movie: IMovie;
     startDate: string;
     timezone: string;
+    videoRoomPrivileges: boolean;
 }
 
 export type ICruInvite = {

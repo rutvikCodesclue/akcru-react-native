@@ -781,3 +781,22 @@ export const fetchCrusaders = async (): Promise<IUserProfile[] | []> => {
         return [];
     }
 };
+
+export const upgradeCRUView = async (): Promise<string> => {
+    try {
+        const {data} = await API.post('v1/users/unlock-video-cru-view')
+        console.log('the data: ', data)
+        if (!data.success) {
+            return data.message
+        }
+
+        return data.message
+    } catch (error: any) {
+        if (error.response) {
+      // Backend responded with error JSON
+      return error.response.data.message || error.response.data.error || "Unknown server error";
+    }
+        console.error('Error upgrading CRU Views: ', error)
+        return "Error upgrading to video CRU View"
+    }
+}
