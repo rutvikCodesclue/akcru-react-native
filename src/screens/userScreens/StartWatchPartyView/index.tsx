@@ -69,7 +69,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const timezone = route.params?.Timezone;
     const movieTime = route.params?.Movietime;
     const viewtype = route.params?.type;
-    const videoRoomPrivileges = route.params?.videoRoomPrivileges;
+    const videoRoomPrivileges = viewtype === "CRUView" ? route.params?.videoRoomPrivileges : true; // give video room priveleges if its a MIT
 
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]);

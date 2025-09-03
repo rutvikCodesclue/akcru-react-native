@@ -1,6 +1,18 @@
 import {useState} from 'react';
 import styles from './styles';
-import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform} from 'react-native';
+import {
+    View,
+    Alert,
+    Text,
+    ScrollView,
+    Image,
+    SafeAreaView,
+    TextInput,
+    Modal,
+    Pressable,
+    Platform,
+    TouchableWithoutFeedback,
+} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -38,7 +50,7 @@ export default function EditProfile({session}: {session: Session}) {
     const canGrantAD = useAuthStore(state => state.user?.canGrantAD);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
-    const walletBalance = useAuthStore(s => s.walletBalance)
+    const walletBalance = useAuthStore(s => s.walletBalance);
     const {hydrateUser} = useAuthStore();
 
     const [_, setLoading] = useState(false);
@@ -46,7 +58,8 @@ export default function EditProfile({session}: {session: Session}) {
     const [userName, setUserName] = useState('');
     const [, setModifiedUserName] = useState('');
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
-    const [unlockModalVisible, setUnlockModalVisible] = useState(false)
+    const [unlockModalVisible, setUnlockModalVisible] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [description, setDescription] = useState('');
     const [, setModifiedDescription] = useState('');
@@ -250,23 +263,24 @@ export default function EditProfile({session}: {session: Session}) {
     };
 
     const handleUnlockVideoCruView = () => {
-        handleUpgrade()
-        const PRICE_TO_UNLOCK = 100
-
         if (walletBalance) {
-            if (PRICE_TO_UNLOCK < Number(walletBalance)) {
-                // setUnlockModalVisible(true)
-            }
+            handleUpgrade();
         } else {
-            console.log('wallet not found')
+            console.log('wallet not found');
         }
-    }
+    };
 
     const handleUpgrade = async () => {
-        const responseMessage = await upgradeCRUView()
+        const responseMessage = await upgradeCRUView();
 
-        console.log('Upgrade: ', responseMessage)
-    }
+        if (responseMessage) {
+            setShowSuccessModal(true);
+
+            setTimeout(() => {
+                setShowSuccessModal(false);
+            }, 2000); 
+        }
+    };
 
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
@@ -399,51 +413,6 @@ export default function EditProfile({session}: {session: Session}) {
                                             {'Close'}
                                         </Text>
                                     </TouchableOpacity>
-                                </View>
-                            </View>
-                        </Modal>
-                        
-                        <Modal animationType="fade" transparent={true} visible={unlockModalVisible}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <View
-                                    style={{
-                                        backgroundColor: COLORS.AKCRUBACKGROUND,
-                                        padding: 20,
-                                        borderRadius: 10,
-                                        alignItems: 'center',
-                                        marginHorizontal: 15,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title3,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
-                                        }}>
-                                        {'Are you sure you want to purchase this upgrade?'}
-                                    </Text>
-                                    <View style={{flexDirection: 'row', justifyContent: 'space-between',}}>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                setUnlockModalVisible(false);
-                                            }}
-                                            style={{backgroundColor: 'red', padding: 10, borderRadius: 5,}}>
-                                            <Text style={{...FONTS.Title3, color: 'white', }}>Decline</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                setUnlockModalVisible(false);
-                                                handleUpgrade();
-                                            }}
-                                            style={{backgroundColor: 'green', padding: 10, borderRadius: 5,}}>
-                                            <Text style={{...FONTS.Title3, color: 'white', }}>Accept</Text>
-                                        </TouchableOpacity>
-                                    </View>
                                 </View>
                             </View>
                         </Modal>
@@ -901,14 +870,16 @@ export default function EditProfile({session}: {session: Session}) {
                             )}
 
                             <View>
-                                <View style={{alignItems: 'center', marginBottom: 15}}>
-                                    <AkcruButtons.XlLrgButton
-                                        color={COLORS.CATGREENLGT}
-                                        btnname={'Unlock Video CRU View'}
-                                        onPress={handleUnlockVideoCruView}
-                                        disabled={false}
-                                    />
-                                </View>
+                                {!user?.hasVideoPrivileges && (
+                                    <View style={{alignItems: 'center', marginBottom: 15}}>
+                                        <AkcruButtons.XlLrgButton
+                                            color={COLORS.CATGREENLGT}
+                                            btnname={'Unlock Video CRU View'}
+                                            onPress={handleUnlockVideoCruView}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                )}
                                 <View style={{alignItems: 'center'}}>
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.PURPLE}
@@ -919,6 +890,34 @@ export default function EditProfile({session}: {session: Session}) {
                                 </View>
                             </View>
                         </View>
+
+                        <Modal animationType="fade" transparent={true} visible={showSuccessModal}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title3,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                        }}>
+                                        {'Success! You have upgraded to video CRU view!'}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Modal>
 
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
                             <EnlargeImageModal
