@@ -42,7 +42,6 @@ export const sendTokenToServer = async (userId: string, deviceToken: string): Pr
             userId,
             deviceToken,
         });
-        console.log("response", response);
     } catch (error:any) {
         console.error("error response", error.response);
         console.error('Error sending device token to server:', error);
