@@ -97,9 +97,6 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const {user} = useAuthStore();
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
-    // const hasVideoPrivileges = true; // get this from backend, this should be associated with a cru view, whether video is allowed for that room or not
-    // isVideoEnabled will be originally set when the host (with video privileges) creates the cru view
-
     useEffect(() => {
         RestrictPartyRoom();
 
