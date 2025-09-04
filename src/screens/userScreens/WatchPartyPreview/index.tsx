@@ -75,7 +75,9 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
     const cruId = route.params?.cruId;
     const cru = route.params?.cru;
-    const videoRoomPrivileges = route.params?.videoRoomPrivileges
+    const viewtype = route.params?.type;
+    const videoRoomPrivileges = viewtype === "CRUView" ? route.params?.videoRoomPrivileges : true; // give video room priveleges if its a MIT
+    console.log('view: ', videoRoomPrivileges)
 
     const userId = route.params?.userId;
     const isHost = route.params?.isHost;
@@ -425,120 +427,109 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         setIsMicOn((prevState: boolean) => !prevState);
     };
     const toggleVideo = () => {
+        console.log('movie: ', movie?.description)
         setIsUserVideoOn((prevState: boolean) => !prevState);
     };
 
     return (
-        <SafeAreaView>
-            <View style={{height: '100%'}}>
-                <View style={{zIndex: 20}}>
-                    <Header />
-                </View>
+        <SafeAreaView style={{flex: 1}}>
+            {/* Header */}
+            <Header />
 
-                <View style={styles.topcontainer}>
-                    <BackButton navigation={navigation} />
-                </View>
+            {/* Back Button */}
+            <View style={styles.topcontainer}>
+                <BackButton navigation={navigation} />
+            </View>
 
-                <View style={{flex: 1}}>
-                    {/* Top: Movie Info */}
-                    <View style={{flex: 1, marginBottom: 15}}>
-                        <View style={styles.movieview}>
-                            <LinearGradient
-                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                style={StyleSheet.absoluteFill}
-                            />
+            {/* Content */}
+            <View style={{flex: 1, paddingHorizontal: 15}}>
+                {/* Movie Info */}
+                <View style={styles.movieview}>
+                    <LinearGradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={StyleSheet.absoluteFill}
+                    />
 
-                            <View style={styles.moviecontainer}>
-                                {/* Poster */}
-                                <View style={{marginRight: 10}}>
-                                    <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
-                                </View>
+                    <View style={styles.moviecontainer}>
+                        <Image source={{uri: movie?.portraitURL}} style={styles.poster} />
 
-                                {/* Title & Info */}
-                                <View style={{flex: 1}}>
-                                    <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
+                        <View style={{flex: 1, marginLeft: 10}}>
+                            <Text style={{...FONTS.Title3}}>{movie?.title ?? 'Loading...'}</Text>
 
-                                    <View style={{flexDirection: 'row', marginVertical: 8, alignItems: 'center'}}>
-                                        <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
-                                        <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>
-                                            {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
-                                        </Text>
-                                    </View>
-
-                                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                                        <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                        {movie?.genres?.slice(0, 2).map((g, i) => (
-                                            <Text key={i} style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(g)}
-                                            </Text>
-                                        ))}
-                                        <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                    </View>
-                                </View>
+                            <View style={{flexDirection: 'row', marginVertical: 8, alignItems: 'center'}}>
+                                <Text style={{...FONTS.Title2, fontSize: 12}}>{movie?.year}</Text>
+                                <Text style={{...FONTS.Title2, fontSize: 12, marginHorizontal: 10}}>
+                                    {movie?.duration ? formatMovieDuration(movie?.duration) : '...'}
+                                </Text>
                             </View>
 
-                            <Text style={{...FONTS.paragraph1, fontSize: 12, marginTop: 8}}>{movie?.description}</Text>
+                            <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                {movie?.genres?.slice(0, 2).map((g, i) => (
+                                    <Text key={i} style={styles.drawfonttag}>
+                                        {capitalizeFirstLetterOfString(g)}
+                                    </Text>
+                                ))}
+                                <View style={{marginTop: 10}}>
+                                    <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                </View>
+                            </View>
                         </View>
                     </View>
 
-                    {/* Middle: Preview Video */}
-                    {user?.hasVideoPrivileges && (
-                        <View style={{flex: 2, margin: 15, borderRadius: 8, overflow: 'hidden'}}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: '#000',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}>
-                                {hmsInstanceRef.current && previewVideoTrack ? (
-                                    isUserVideoOn ? (
-                                        <hmsInstanceRef.current.HmsView
-                                            trackId={previewVideoTrack.trackId}
-                                            scaleType={HMSVideoViewMode.ASPECT_FILL}
-                                            style={{width: '100%', height: '100%'}}
-                                            mirror={true}
-                                            />
-                                        ) : (
-                                            <Text style={{color: '#fff'}}>Camera Off</Text>
-                                        )
-                                    ) : (
-                                        <Text style={{color: '#fff'}}>Loading....</Text>
-                                    )}
-                            </View>
-                        </View>
-                    )}
+                    <Text style={{...FONTS.paragraph1, fontSize: 12, marginTop: 8}}>{capitalizeFirstLetterOfString(movie?.description || '')}</Text>
+                </View>
 
-                    {/* Bottom Controls */}
-                    {user?.hasVideoPrivileges && (
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Pressable onPress={toggleVideo}>
-                                {isUserVideoOn ? (
-                                    <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                {/* Preview Area */}
+                <View style={{marginTop: 15, borderRadius: 8, overflow: 'hidden', width: '100%', flex: 2}}>
+                    <View style={{flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center'}}>
+                        {videoRoomPrivileges ? (
+                            hmsInstanceRef.current && previewVideoTrack ? (
+                                isUserVideoOn ? (
+                                <hmsInstanceRef.current.HmsView
+                                    trackId={previewVideoTrack.trackId}
+                                    scaleType={HMSVideoViewMode.ASPECT_FILL}
+                                    style={{width: '100%', height: '100%'}}
+                                    mirror={true}
+                                />
                                 ) : (
-                                    <Icon
-                                        name="video-off"
-                                        type="material-community"
-                                        size={40}
-                                        color={COLORS.CATREDLGT}
-                                    />
-                                )}
-                            </Pressable>
-                        </View>
-                    )}
-                    
-                    {/* Join Button */}
-                    <View style={{flex: 1, marginTop: user?.hasVideoPrivileges ? 0 : 400, alignItems: 'center', justifyContent: 'center'}}>
-                        <AkcruButtons.XlLrgButton
-                            disabled={!canJoinRoom}
-                            onPress={_handleJoinRoom}
-                            btnname="Join Room"
-                            color={COLORS.AKCRUBLUE}
-                        />
+                                <Text style={{color: '#fff'}}>Camera Off</Text>
+                                )
+                            ) : (
+                                <Text style={{color: '#fff'}}>Loading....</Text>
+                            )
+                            ) : (
+                            <Image
+                                source={{uri: user?.profilePicture}}
+                                style={{width: '100%', height: '100%'}}
+                                resizeMode="cover"
+                            />
+                        )}
                     </View>
+                </View>
 
+                {/* Controls + Join */}
+                <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 20}}>
+                    {videoRoomPrivileges && (
+                        <Pressable onPress={toggleVideo} style={{marginBottom: 20}}>
+                            {isUserVideoOn ? (
+                                <Icon name="video" type="material-community" size={40} color={COLORS.CATPURPLGT} />
+                            ) : (
+                                <Icon name="video-off" type="material-community" size={40} color={COLORS.CATREDLGT} />
+                            )}
+                        </Pressable>
+                    )}
+
+                    <AkcruButtons.XlLrgButton
+                        disabled={!canJoinRoom}
+                        onPress={_handleJoinRoom}
+                        btnname="Join Room"
+                        color={COLORS.AKCRUBLUE}
+                    />
                 </View>
             </View>
+
+            {/* Recommendations at the very bottom */}
             <Recommendations />
         </SafeAreaView>
     );
@@ -560,14 +551,13 @@ const styles = StyleSheet.create({
     },
     movieview: {
         // marginTop: 0,
-        marginHorizontal: 15,
         padding: 10,
         backgroundColor: '#1C202A',
         borderRadius: 5,
     },
     moviecontainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
     drawfonttag: {
         ...FONTS.Title2Orange,

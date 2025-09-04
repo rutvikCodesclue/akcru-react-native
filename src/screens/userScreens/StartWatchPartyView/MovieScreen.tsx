@@ -28,6 +28,7 @@ const MovieScreen = ({
     roomChannelRef,
     syncChannelRef,
     videoPlayerRef,
+    videoRoomPrivileges,
 }: MovieScreenProps) => {
     const {startTimer, resetTimer} = useWatchTimeStore();
 

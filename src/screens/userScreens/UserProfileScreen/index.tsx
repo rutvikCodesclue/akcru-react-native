@@ -343,6 +343,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
             setShowUpgradeModal(false);
             setShowResultModal(true);
+            hydrateUser()
 
             setTimeout(() => setShowResultModal(false), 2000);
         } catch (err) {
@@ -671,7 +672,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}
                                 resizeMode="contain"
                             />
-                            {'?'}
+                            {'? (This action is irreversible)'}
                         </Text>
 
                         {/* Buttons Row */}

@@ -1,6 +1,6 @@
 import {Icon} from '@rneui/base';
 import React, {useEffect, useState} from 'react';
-import {View, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Text, Pressable} from 'react-native';
+import {View, TouchableOpacity, StyleSheet, Dimensions, ScrollView, Text, Pressable, ImageBackground} from 'react-native';
 import {FONTS, COLORS} from '../../../assets/constants';
 import {HMSVideoViewMode} from '@100mslive/react-native-hms';
 
@@ -10,9 +10,10 @@ interface DockerProps {
     peersMuteStatus: any;
     currentRoomHost: any;
     peerTrackNodes: any;
+    videoRoomPrivileges: boolean;
 }
 
-const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoomHost, peerTrackNodes}: DockerProps) => {
+const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoomHost, peerTrackNodes, videoRoomPrivileges}: DockerProps) => {
     const {width} = Dimensions.get('window');
     const [isDrawer, setIsDrawer] = useState(false);
     const [screenWidth, setScreenWidth] = useState(width);
@@ -45,6 +46,10 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
                     }
                 }
 
+                const profilePic =
+                        members.find(member => member.peerID === item.peer.peerID)?.user
+                            .profilePicture;
+
                 return (
                     <View
                         key={item.peer.peerID} // Make sure to add a key prop for each item
@@ -60,7 +65,7 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
                             borderColor: COLORS.CATPURPLGT,
                             borderWidth: 4,
                         }}>
-                        {item.peer.videoTrack?.trackId ? (
+                        {videoRoomPrivileges && item.peer.videoTrack?.trackId ? (
                             <hmsInstanceRef.current.HmsView
                                 key={item.peer.peerID}
                                 trackId={item.peer.videoTrack.trackId}
@@ -73,6 +78,14 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
                                 mirror={true}
                             />
                         ) : null}
+
+                        {!videoRoomPrivileges && (
+                            <ImageBackground
+                                source={{uri: profilePic}}
+                                style={styles.hmsView}
+                                imageStyle={{resizeMode: 'cover'}} // controls scaling
+                            />
+                        )}
 
                         {showHostBadge ? (
                             <View style={{position: 'absolute', top: 0, right: 0}}>
@@ -220,6 +233,11 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 15,
         borderBottomLeftRadius: 15,
         right: 0,
+    },
+    hmsView: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'black',
     },
 });
 

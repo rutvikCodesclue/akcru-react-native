@@ -63,6 +63,7 @@ export interface MovieScreenProps {
     roomChannelRef: MutableRefObject<RealtimeChannel | null>;
     syncChannelRef: MutableRefObject<RealtimeChannel | null>;
     videoPlayerRef: MutableRefObject<Video | null>;
+    videoRoomPrivileges: boolean;
 }
 
 export interface UserVideosProps {
