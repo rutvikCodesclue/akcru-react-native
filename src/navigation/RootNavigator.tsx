@@ -6,9 +6,9 @@ import {Alert, Linking} from 'react-native';
 import {verifyAdPurchaseSession} from '../lib/api/adPurchase.lib';
 import { PostHogProvider } from 'posthog-react-native'
 import {POSTHOG_API_KEY} from '@env';
+import {navigationRef} from '../util/RootNavigation';
 
 export default function RootNavigator(params: any) {
-    const navigationRef = useRef<NavigationContainerRef<AuthStackParams>>(null);
 
     useEffect(() => {
         const handleUrl = async (event: {url: string}) => {
@@ -20,10 +20,12 @@ export default function RootNavigator(params: any) {
                         await verifyAdPurchaseSession(sessionId);
                         Alert.alert('Success', 'Your AD purchase was verified!');
                         console.log('Deep link verification successful');
-                        navigationRef.current?.navigate('NoBottomStack', {
-                            screen: 'AdPurchaseSuccessScreen',
-                            params: {sessionId},
-                        });
+                        if (navigationRef.isReady()) {
+                            navigationRef.navigate('NoBottomStack', {
+                                screen: 'AdPurchaseSuccessScreen',
+                                params: {sessionId},
+                            });
+                        }
                     } catch (err) {
                         Alert.alert('Verification Failed', 'Could not verify your purchase.');
                         console.error('Deep link verification error:', err);

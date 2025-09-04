@@ -870,3 +870,57 @@ export interface ISeasonPurchase {
     expireAt: string | null;
     purchaseType: IContentPurchaseType;
 }
+
+// =========================
+// Ads (matches Prisma schema)
+// =========================
+
+export type AdClickType = 'EXTERNAL' | 'INTERNAL';
+export type AdPlacement = 'HOME_BETWEEN_CAROUSELS';
+export type AdEventType = 'IMPRESSION' | 'CLICK';
+
+export interface IAd {
+  id: string;
+  title: string;
+  imageUrl: string;
+  clickType: AdClickType;
+  targetUrl?: string | null;
+  routeName?: string | null;
+  routeParams?: Record<string, unknown> | null;
+  placement: AdPlacement;
+  startAt?: string | null;   // ISO
+  endAt?: string | null;     // ISO
+  isActive: boolean;
+  weight: number;
+  createdAt: string;         // ISO
+  updatedAt: string;         // ISO
+}
+
+export interface IAdEvent {
+  id: string;
+  adId: string;
+  type: AdEventType;
+  createdAt: string;         // ISO
+  userId?: string | null;
+  meta?: Record<string, unknown> | null;
+  ad?: IAd;                  // optional expanded relation
+}
+
+// Convenience payloads for API calls
+export interface ICreateAdRequest {
+  title: string;
+  imageUrl: string;
+  clickType: AdClickType;
+  targetUrl?: string | null;
+  routeName?: string | null;
+  routeParams?: Record<string, unknown> | null;
+  placement: AdPlacement;
+  startAt?: string | null;   // ISO
+  endAt?: string | null;     // ISO
+  isActive?: boolean;
+  weight?: number;
+}
+
+export interface ICreateAdResponse { ad: IAd; }
+export interface IGetAdsResponse { ads: IAd[]; }
+
