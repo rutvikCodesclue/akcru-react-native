@@ -69,6 +69,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const timezone = route.params?.Timezone;
     const movieTime = route.params?.Movietime;
     const viewtype = route.params?.type;
+    const videoRoomPrivileges = viewtype === "CRUView" ? route.params?.videoRoomPrivileges : true; // give video room priveleges if its a MIT
 
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [peerTrackNodes, setPeerTrackNodes] = useState<PeerTrackNode[] | []>([]);
@@ -673,7 +674,6 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
             }
         }
     };
-
     return (
         <SafeAreaView style={{marginBottom: SIZES.ScreenHeight / 12}}>
             {!isFullscreen && (
@@ -722,6 +722,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                         peersMuteStatus={peersMuteStatus}
                         currentRoomHost={currentRoomHost}
                         members={members}
+                        videoRoomPrivileges={videoRoomPrivileges}
                     />
                 ) : (
                     <WatchPartyDocker
@@ -748,6 +749,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                     isMicOn={isMicOn}
                     setIsMicOn={setIsMicOn}
                     currentHmsInstance={hmsInstanceRef.current}
+                    videoRoomPrivileges={videoRoomPrivileges}
                 />
             ) : null}
         </SafeAreaView>

@@ -73,6 +73,7 @@ export interface UserVideosProps {
     peersMuteStatus: {[key: string]: boolean | undefined};
     currentRoomHost: string | undefined;
     members: MemberInfo[] | [];
+    videoRoomPrivileges: boolean;
 }
 
 export interface UserControlsProps {
@@ -88,6 +89,7 @@ export interface UserControlsProps {
     setIsUserVideoOn: Dispatch<SetStateAction<boolean>>;
     isMicOn: boolean;
     setIsMicOn: Dispatch<SetStateAction<boolean>>;
+    videoRoomPrivileges: boolean;
 }
 
 export interface FeedBackModalProps {

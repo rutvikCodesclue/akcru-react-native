@@ -776,3 +776,18 @@ export const fetchCrusaders = async (): Promise<IUserProfile[] | []> => {
         return [];
     }
 };
+
+export const upgradeCRUView = async (): Promise<boolean> => {
+    try {
+        const {data} = await API.post('v1/user/unlock-video-cru-view')
+        
+        if (!data.success) {
+            return data.message
+        }
+
+        return data.success
+    } catch (error: any) {
+        console.error('Error upgrading CRU Views: ', error)
+        return false
+    }
+}
