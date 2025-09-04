@@ -262,26 +262,6 @@ export default function EditProfile({session}: {session: Session}) {
         }
     };
 
-    const handleUnlockVideoCruView = () => {
-        if (walletBalance) {
-            handleUpgrade();
-        } else {
-            console.log('wallet not found');
-        }
-    };
-
-    const handleUpgrade = async () => {
-        const responseMessage = await upgradeCRUView();
-
-        if (responseMessage) {
-            setShowSuccessModal(true);
-
-            setTimeout(() => {
-                setShowSuccessModal(false);
-            }, 2000); 
-        }
-    };
-
     const handleFinishButton = async () => {
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
 
@@ -870,16 +850,6 @@ export default function EditProfile({session}: {session: Session}) {
                             )}
 
                             <View>
-                                {!user?.hasVideoPrivileges && (
-                                    <View style={{alignItems: 'center', marginBottom: 15}}>
-                                        <AkcruButtons.XlLrgButton
-                                            color={COLORS.CATGREENLGT}
-                                            btnname={'Unlock Video CRU View'}
-                                            onPress={handleUnlockVideoCruView}
-                                            disabled={false}
-                                        />
-                                    </View>
-                                )}
                                 <View style={{alignItems: 'center'}}>
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.PURPLE}

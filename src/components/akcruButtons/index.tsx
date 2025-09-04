@@ -3,6 +3,7 @@ import React from 'react';
 import {FONTS, COLORS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import { isTablet } from '../../../assets/constants/theme';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Props {
     btnname: string;
@@ -245,11 +246,63 @@ const FollowButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =
     );
 };
 
+const CustomButton = ({
+  btnname,
+  onPress,
+  disabled,
+  color,
+  iconName,
+  iconColor = COLORS.WHITE,
+  iconSize = 18,
+}: BtnProps & {iconName?: string; iconColor?: string; iconSize?: number}) => {
+  return (
+    <View>
+      <TouchableOpacity onPress={onPress} disabled={disabled}>
+        <View
+          style={{
+            backgroundColor: color,
+            height: smallButtonHeight,
+            justifyContent: 'center',
+            borderRadius: 5,
+            alignItems: 'center',
+            flexDirection: 'row',
+            paddingHorizontal: 6,
+            alignSelf: 'flex-start', 
+          }}>
+          <LinearGradient
+            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: smallButtonHeight,
+              borderRadius: 5,
+            }}
+          />
+          {/* Icon */}
+          {iconName && (
+              <Icon
+                name={iconName}
+                size={iconSize}
+                color={iconColor}
+                style={{marginRight: 6}}
+              />
+          )}
+          {/* Text */}
+          <Text style={{...FONTS.Title2}}>{btnname}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const AkcruButtons = {
     SmallButton,
     MedButton,
     LrgButton,
     XSmallButton,
+    CustomButton,
     XlLrgButton,
     FollowButton,
     AutoButton,
