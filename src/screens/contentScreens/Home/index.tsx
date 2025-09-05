@@ -55,7 +55,8 @@ const HomeScreen = () => {
     const isFocused = useIsFocused();
 
     const [homeAds, setHomeAds] = useState<IAd[]>([]);
-    const AD_HEIGHT = isTablet() ? Math.round((SIZES.ScreenWidth * 9) / 16) : Math.round((SIZES.ScreenWidth * 9) / 16);
+    // const AD_HEIGHT = isTablet() ? Math.round((SIZES.ScreenWidth * 9) / 16) : Math.round((SIZES.ScreenWidth * 9) / 16);
+    const AD_HEIGHT = SIZES.ScreenWidth / 2.4;
 
     useEffect(() => {
         (async () => {
@@ -491,7 +492,7 @@ const HomeScreen = () => {
                         />
 
                         {!!homeAds.length && (
-                            <View style={{marginVertical: isTablet() ? 24 : 16, paddingHorizontal: '2%'}}>
+                            <View style={{marginTop: isTablet() ? 24 : 16, paddingHorizontal: '2%'}}>
                                 <RotatingAd
                                     ads={homeAds}
                                     height={AD_HEIGHT}

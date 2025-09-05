@@ -50,7 +50,7 @@ const SearchMovieScreen = () => {
                     <Text
                         style={{
                             ...FONTS.Title2,
-                            marginHorizontal: isTablet() ? 35 : SIZES.marginhorizontal,
+                            marginHorizontal: isTablet() ? 30 : 15,
                             marginVertical: SIZES.marginvertical,
                         }}>
                         Choose Genre

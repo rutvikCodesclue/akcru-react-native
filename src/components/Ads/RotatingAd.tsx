@@ -24,17 +24,15 @@ const RotatingAd: React.FC<Props> = ({
     rotationMaxMs = 10000,
     onImpression,
     onClick,
-    borderRadius = 14,
+    borderRadius = 5,
 }) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [index, setIndex] = useState(0);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const seenImpressions = useRef<Set<string>>(new Set());
 
-    const playableAds = useMemo(
-        () => (ads ?? []).filter(a => a?.imageUrl && (a.clickType === 'EXTERNAL' ? a.targetUrl : a.routeName)),
-        [ads],
-    );
+    // allow image-only, do nothing on press if no target/route
+    const playableAds = useMemo(() => (ads ?? []).filter(a => !!a?.imageUrl), [ads]);
 
     // ✅ guard for empty lists
     if (!playableAds.length) return null;
