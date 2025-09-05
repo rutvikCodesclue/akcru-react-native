@@ -21,6 +21,7 @@ import filter from 'lodash/filter';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import {findMovies} from '../../lib/api/movies.lib';
 import {IMovie} from '../../../types';
+import {isTablet} from '../../../assets/constants/theme';
 
 const CruViewSearchInput = () => {
     const [data, setData] = useState<IMovie[]>([]);
@@ -29,6 +30,8 @@ const CruViewSearchInput = () => {
     const textInputRef = useRef(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+
+    const modalFontSize = isTablet() ? 18 : 12;
 
     const contains = ({title}: {title: string}, query: string) => {
         if (title.toLowerCase().includes(query.toLowerCase())) {
@@ -81,7 +84,7 @@ const CruViewSearchInput = () => {
                             name="magnify"
                             type="material-community"
                             color={COLORS.DARKGREY}
-                            size={28}
+                            size={isTablet() ? 32 : 28}
                             style={{marginRight: 10}}
                         />
                         <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Choose your movie</Text>
@@ -102,7 +105,12 @@ const CruViewSearchInput = () => {
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                     }}>
-                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Icon
+                                        name="chevron-back"
+                                        type="ionicon"
+                                        size={isTablet() ? 30 : 20}
+                                        color={COLORS.LIGHTGREY}
+                                    />
                                     <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                                 </View>
                             </TouchableOpacity>
@@ -122,7 +130,7 @@ const CruViewSearchInput = () => {
                                         type="material-community"
                                         style={styles.icon}
                                         color={COLORS.DARKGREY}
-                                        size={28}
+                                        size={isTablet() ? 35 : 28}
                                     />
                                 </View>
                                 <TextInput
@@ -160,18 +168,22 @@ const CruViewSearchInput = () => {
                                         }}>
                                         <View
                                             style={{
-                                                marginHorizontal: 15,
+                                                marginHorizontal: isTablet() ? 40 : 15,
                                                 backgroundColor: COLORS.AKCRUBACKGROUND,
                                                 marginBottom: 10,
                                             }}>
                                             <View style={{flexDirection: 'row'}}>
                                                 <Image
                                                     source={{uri: item.portraitURL}}
-                                                    style={{width: 30, height: 50, borderRadius: 3}}
+                                                    style={{
+                                                        width: isTablet() ? 60 : 30,
+                                                        height: isTablet() ? 100 : 50,
+                                                        borderRadius: 3,
+                                                    }}
                                                 />
                                                 <View style={{marginLeft: 10}}>
-                                                    <Text style={{...FONTS.Title2, fontSize: 12}}>{item.title}</Text>
-                                                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{item.year}</Text>
+                                                    <Text style={{...FONTS.Title2, fontSize: modalFontSize}}>{item.title}</Text>
+                                                    <Text style={{...FONTS.paragraph1, fontSize: modalFontSize}}>{item.year}</Text>
                                                 </View>
                                             </View>
                                         </View>

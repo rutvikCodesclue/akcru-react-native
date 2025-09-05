@@ -1,9 +1,9 @@
-import {Text, View, TouchableOpacity, Pressable, FlatList, StyleSheet} from 'react-native';
+import {Text, View, TouchableOpacity, Pressable, FlatList, StyleSheet, ImageBackground} from 'react-native';
 import React from 'react';
 import {SIZES, FONTS, COLORS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {HMSVideoViewMode} from '@100mslive/react-native-hms';
-import {UserVideosProps} from './WatchPartyProps';
+import {MemberInfo, UserVideosProps} from './WatchPartyProps';
 
 const UserVideos = ({
     currentHmsInstance,
@@ -13,6 +13,7 @@ const UserVideos = ({
     peersMuteStatus,
     currentRoomHost,
     members,
+    videoRoomPrivileges,
 }: UserVideosProps) => {
     return (
         <View style={styles.container}>
@@ -39,13 +40,18 @@ const UserVideos = ({
                             }
                         }
 
+                        const profilePic =
+                        members.find(member => member.peerID === item.peer.peerID)?.user
+                            .profilePicture;
+
                         return currentHmsInstance ? (
                             <View
                                 style={[
                                     styles.videoContainer,
                                     isExpanded ? styles.expandedVideoContainer : styles.collapsedVideoContainer,
                                 ]}>
-                                {item.peer.videoTrack?.trackId ? (
+                                    
+                                {(videoRoomPrivileges && item.peer.videoTrack?.trackId) ? (
                                     <currentHmsInstance.HmsView
                                         key={item.peer.peerID}
                                         trackId={item.peer.videoTrack.trackId}
@@ -55,13 +61,21 @@ const UserVideos = ({
                                     />
                                 ) : null}
 
+                                {!videoRoomPrivileges && (
+                                    <ImageBackground
+                                        source={{uri: profilePic}}
+                                        style={styles.hmsView}
+                                        imageStyle={{resizeMode: 'cover'}} // controls scaling
+                                    />
+                                )}
+
                                 {showHostBadge ? (
                                     <View style={styles.hostBadge}>
                                         <Text style={styles.hostBadgeText}>{'Host'}</Text>
                                     </View>
                                 ) : null}
 
-                                <View style={styles.expandIconContainer}>
+                                {/* <View style={styles.expandIconContainer}>
                                     <TouchableOpacity
                                         onPress={() => {
                                             if (isExpanded) {
@@ -79,7 +93,7 @@ const UserVideos = ({
                                             <Icon name="expand" type="ionicon" size={23} color={COLORS.AKCRUBLUE} />
                                         )}
                                     </TouchableOpacity>
-                                </View>
+                                </View> */}
 
                                 <View style={styles.muteStatusContainer}>
                                     <View style={styles.muteStatusContent}>
@@ -140,7 +154,6 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     videoContainer: {
-        backgroundColor: 'red',
         borderColor: COLORS.CATPURPLGT,
         borderWidth: 4,
     },

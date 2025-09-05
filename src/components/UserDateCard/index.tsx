@@ -41,6 +41,7 @@ type UserDatesCardProps = {
     creator: any;
     creatorId: any;
     invitee: any;
+    videoRoomPrivileges: boolean;
 };
 
 const UserDatesCard = ({
@@ -67,6 +68,7 @@ const UserDatesCard = ({
     creator,
     creatorId,
     invitee,
+    videoRoomPrivileges,
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -196,6 +198,7 @@ const UserDatesCard = ({
                             creatorId,
                             invitee,
                             cru,
+                            videoRoomPrivileges,
                         });
                     }
                 }
@@ -226,6 +229,7 @@ const UserDatesCard = ({
                         creatorId,
                         invitee,
                         cru,
+                        videoRoomPrivileges,
                     });
                 }
             }
@@ -256,6 +260,7 @@ const UserDatesCard = ({
                     creatorId,
                     invitee,
                     cru,
+                    videoRoomPrivileges,
                 });
             }
         }

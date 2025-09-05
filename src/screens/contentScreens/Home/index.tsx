@@ -15,7 +15,7 @@ import Video from 'react-native-video';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {findMovies, findTopBoxMovies} from '../../../lib/api/movies.lib';
-import {IMovie, ISeries, ITrailer} from '../../../../types';
+import {IAd, IMovie, ISeries, ITrailer} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {Icon} from '@rneui/base';
 import {TouchableOpacity} from 'react-native-gesture-handler';
@@ -27,6 +27,8 @@ import {findSeries} from '../../../lib/api/series.lib';
 import {getTrailers} from '../../../lib/api/sizzles.lib';
 import BasicSizzleCarousel from '../../../components/BasicSizzleCarousel';
 import { isTablet } from '../../../../assets/constants/theme';
+import RotatingAd from '../../../components/Ads/RotatingAd';
+import { getAds, trackAdClick, trackAdEvent, trackAdImpression } from '../../../lib/api/ads.lib';
 
 const HomeScreen = () => {
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
@@ -51,6 +53,31 @@ const HomeScreen = () => {
     const [elapsedTime, setElapsedTime] = useState(0);
     const [backPressCount, setBackPressCount] = useState(0);
     const isFocused = useIsFocused();
+
+    const [homeAds, setHomeAds] = useState<IAd[]>([]);
+    // const AD_HEIGHT = isTablet() ? Math.round((SIZES.ScreenWidth * 9) / 16) : Math.round((SIZES.ScreenWidth * 9) / 16);
+    const AD_HEIGHT = SIZES.ScreenWidth / 2.4;
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await getAds('HOME_BETWEEN_CAROUSELS'); // { ads: IAd[] }
+
+                // ✅ filter by start/end dates + active flag (client-side guard)
+                const now = Date.now();
+                const filtered = (res.ads ?? []).filter(a => {
+                    const s = a.startAt ? Date.parse(a.startAt) : -Infinity;
+                    const e = a.endAt ? Date.parse(a.endAt) : Infinity;
+                    return s <= now && now <= e && a.isActive;
+                });
+
+                setHomeAds(filtered);
+            } catch (e) {
+                console.log('Failed to load ads', e);
+                setHomeAds([]); // safe fallback
+            }
+        })();
+    }, []);
 
     useEffect(() => {
         if (!isFocused) return;
@@ -327,202 +354,213 @@ const HomeScreen = () => {
 
     return (
         <TabContainer>
-            
-                {isMovieDataLoaded ? (
-                    <ScrollView stickyHeaderIndices={[0]}>
-                        <View>
-                            <Header />
+            {isMovieDataLoaded ? (
+                <ScrollView stickyHeaderIndices={[0]}>
+                    <View>
+                        <Header />
+                    </View>
+                    <View>
+                        <View
+                            style={{
+                                width: '100%',
+                                zIndex: 3,
+                                position: 'absolute',
+                                top: '5%',
+                                paddingHorizontal: 15,
+                                alignItems: 'flex-end',
+                            }}>
+                            <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
+                                <Icon
+                                    name={isMuted ? 'volume-mute' : 'volume-high'}
+                                    type="ionicon"
+                                    size={isTablet() ? 30 : 20}
+                                    color={COLORS.LIGHTGREY}
+                                />
+                            </TouchableOpacity>
                         </View>
-                        <View>
-                            <View
-                                style={{
-                                    width: '100%',
-                                    zIndex: 3,
-                                    position: 'absolute',
-                                    top: '5%',
-                                    paddingHorizontal: 15,
-                                    alignItems: 'flex-end',
-                                }}>
-                                <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
-                                    <Icon
-                                        name={isMuted ? 'volume-mute' : 'volume-high'}
-                                        type="ionicon"
-                                        size={isTablet() ? 30 : 20}
-                                        color={COLORS.LIGHTGREY}
-                                    />
-                                </TouchableOpacity>
+                        <View
+                            style={{
+                                width: '100%',
+                                zIndex: 2,
+                                position: 'absolute',
+                                top: '55%',
+                                flexDirection: 'row-reverse',
+                                justifyContent: 'space-between',
+                                paddingHorizontal: 15,
+                            }}>
+                            <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
+                                <Icon
+                                    name="chevron-forward"
+                                    type="ionicon"
+                                    size={isTablet() ? 30 : 20}
+                                    color={COLORS.LIGHTGREY}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
+                                <Icon
+                                    name="chevron-back"
+                                    type="ionicon"
+                                    size={isTablet() ? 30 : 20}
+                                    color={COLORS.LIGHTGREY}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        <Pressable style={styles.videocontainer} onPress={handlePress}>
+                            <View style={{height: SIZES.ScreenHeight / 1.63}}>
+                                {!isVideoLoaded && (
+                                    <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
+                                )}
+                                <Video
+                                    key={current?.id}
+                                    style={{width: '100%', height: '100%'}}
+                                    source={canPlay ? {uri: trailerUrl} : undefined}
+                                    resizeMode="cover"
+                                    onEnd={handleVideoEnd}
+                                    repeat={false}
+                                    onError={handleVideoError}
+                                    posterResizeMode="cover"
+                                    poster={topBox[topBoxIndex]?.portraitURL}
+                                    onLoad={handleVideoLoad}
+                                    paused={!topBoxShouldAutoplay}
+                                    muted={isMuted}
+                                />
                             </View>
-                            <View
-                                style={{
-                                    width: '100%',
-                                    zIndex: 2,
-                                    position: 'absolute',
-                                    top: '55%',
-                                    flexDirection: 'row-reverse',
-                                    justifyContent: 'space-between',
-                                    paddingHorizontal: 15,
-                                }}>
-                                <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
-                                    <Icon
-                                        name="chevron-forward"
-                                        type="ionicon"
-                                        size={isTablet() ? 30 : 20}
-                                        color={COLORS.LIGHTGREY}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
-                                    <Icon
-                                        name="chevron-back"
-                                        type="ionicon"
-                                        size={isTablet() ? 30 : 20}
-                                        color={COLORS.LIGHTGREY}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            <Pressable style={styles.videocontainer} onPress={handlePress}>
-                                <View style={{height: SIZES.ScreenHeight / 1.63}}>
-                                    {!isVideoLoaded && (
-                                        <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
-                                    )}
-                                    <Video
-                                        key={current?.id}
-                                        style={{width: '100%', height: '100%'}}
-                                        source={canPlay ? {uri: trailerUrl} : undefined}
-                                        resizeMode="cover"
-                                        onEnd={handleVideoEnd}
-                                        repeat={false}
-                                        onError={handleVideoError}
-                                        posterResizeMode="cover"
-                                        poster={topBox[topBoxIndex]?.portraitURL}
-                                        onLoad={handleVideoLoad}
-                                        paused={!topBoxShouldAutoplay}
-                                        muted={isMuted}
-                                    />
-                                </View>
-                                <View>
-                                    <LinearGradient
-                                        colors={['transparent', COLORS.AKCRUBACKGROUND]}
-                                        style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            height: 200,
-                                        }}
-                                    />
-                                    <View
-                                        style={{
-                                            marginHorizontal: '2%',
-                                            marginBottom: 20,
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            right: 0,
-                                            left: 0,
-                                        }}>
-                                        <View>
-                                            <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
-                                            <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                                <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
-                                                <Text style={styles.drawfonttag}>
-                                                    {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
-                                                </Text>
-                                                <Text style={styles.drawfonttag}>
-                                                    {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
-                                                </Text>
+                            <View>
+                                <LinearGradient
+                                    colors={['transparent', COLORS.AKCRUBACKGROUND]}
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        height: 200,
+                                    }}
+                                />
+                                <View
+                                    style={{
+                                        marginHorizontal: '2%',
+                                        marginBottom: 20,
+                                        position: 'absolute',
+                                        bottom: 0,
+                                        right: 0,
+                                        left: 0,
+                                    }}>
+                                    <View>
+                                        <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
+                                        <View style={{flexDirection: 'row', marginVertical: 10}}>
+                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
+                                            <Text style={styles.drawfonttag}>
+                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
+                                            </Text>
+                                            <Text style={styles.drawfonttag}>
+                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
+                                            </Text>
 
-                                                <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
-                                            </View>
-                                            <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
+                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
                                         </View>
+                                        <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
                                     </View>
                                 </View>
-                            </Pressable>
+                            </View>
+                        </Pressable>
+                    </View>
+                    <View style={{marginTop: isTablet() ? '15%' : 75, marginBottom: isTablet() ? '15%' : 75}}>
+                        <View>
+                            <FlatList
+                                data={MOVIE_GENRES}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                keyExtractor={item => item.id}
+                                renderItem={({item, index}) => (
+                                    <CategoriesBtn
+                                        category={item.genre}
+                                        color={item.color}
+                                        onPress={() => handleGenrePress(item.genre)}
+                                    />
+                                )}
+                            />
                         </View>
-                        <View style={{marginTop: isTablet() ? '15%' : 75, marginBottom: isTablet() ? '15%' : 75}}>
-                            <View>
-                                <FlatList
-                                    data={MOVIE_GENRES}
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                    keyExtractor={item => item.id}
-                                    renderItem={({item, index}) => (
-                                        <CategoriesBtn
-                                            category={item.genre}
-                                            color={item.color}
-                                            onPress={() => handleGenrePress(item.genre)}
-                                        />
-                                    )}
+                        <BasicListCategories
+                            Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
+                        />
+                        <BasicListCategories
+                            Akcru_Content={{
+                                id: 'topRatedMovies',
+                                title: 'Top Rated on Akcru',
+                                movies: topRatedMovies,
+                            }}
+                        />
+
+                        {!!homeAds.length && (
+                            <View style={{marginTop: isTablet() ? 24 : 16, paddingHorizontal: '2%'}}>
+                                <RotatingAd
+                                    ads={homeAds}
+                                    height={AD_HEIGHT}
+                                    pause={!isFocused}
+                                    onImpression={id => trackAdEvent(id, 'IMPRESSION')}
+                                    onClick={id => trackAdEvent(id, 'CLICK')}
                                 />
                             </View>
-                            <BasicListCategories
-                                Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
-                            />
-                            <BasicListCategories
+                        )}
+
+                        <LargeListCategories
+                            Akcru_Content={{
+                                id: 'oldiesButGoodies',
+                                title: 'Oldies but Goodies',
+                                movies: olderYearMovies,
+                            }}
+                        />
+                        {unfinishedContent.length > 0 && (
+                            <ContinueWatchingList
                                 Akcru_Content={{
-                                    id: 'topRatedMovies',
-                                    title: 'Top Rated on Akcru',
-                                    movies: topRatedMovies,
+                                    id: 'unfinshedContent',
+                                    title: 'Continue Watching',
+                                    content: unfinishedContent,
                                 }}
+                                updateUnfinishedContent={updateUnfinishedContent}
                             />
+                        )}
+                        {blackInTheDaysMovies.length > 0 && (
                             <LargeListCategories
                                 Akcru_Content={{
-                                    id: 'oldiesButGoodies',
-                                    title: 'Oldies but Goodies',
-                                    movies: olderYearMovies,
+                                    id: 'blackinthedays',
+                                    title: 'Black in the Days',
+                                    movies: blackInTheDaysMovies,
                                 }}
                             />
-                            {unfinishedContent.length > 0 && (
-                                <ContinueWatchingList
-                                    Akcru_Content={{
-                                        id: 'unfinshedContent',
-                                        title: 'Continue Watching',
-                                        content: unfinishedContent,
-                                    }}
-                                    updateUnfinishedContent={updateUnfinishedContent}
-                                />
-                            )}
-                            {blackInTheDaysMovies.length > 0 && (
-                                <LargeListCategories
-                                    Akcru_Content={{
-                                        id: 'blackinthedays',
-                                        title: 'Black in the Days',
-                                        movies: blackInTheDaysMovies,
-                                    }}
-                                />
-                            )}
-                            <BasicListCategories
+                        )}
+                        <BasicListCategories
+                            Akcru_Content={{
+                                id: 'recommendedForYou',
+                                title: 'Recommended by Akcru',
+                                movies: randomMovies,
+                            }}
+                        />
+                        {originalSeries.length > 0 && (
+                            <BasicSeriesCarousel
                                 Akcru_Content={{
-                                    id: 'recommendedForYou',
-                                    title: 'Recommended by Akcru',
-                                    movies: randomMovies,
+                                    id: 'OrginalSeries',
+                                    title: 'Original Series',
+                                    series: originalSeries,
                                 }}
                             />
-                            {originalSeries.length > 0 && (
-                                <BasicSeriesCarousel
-                                    Akcru_Content={{
-                                        id: 'OrginalSeries',
-                                        title: 'Original Series',
-                                        series: originalSeries,
-                                    }}
-                                />
-                            )}
-                            {sizzles.length > 0 && (
-                                <BasicSizzleCarousel
-                                    Akcru_Content={{
-                                        id: 'ComingSoonTrailers',
-                                        title: 'Coming Soon Orginals',
-                                        sizzle: sizzles,
-                                    }}
-                                />
-                            )}
-                        </View>
-                    </ScrollView>
-                ) : (
-                    <View style={styles.activitycontainer}>
-                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                        )}
+                        {sizzles.length > 0 && (
+                            <BasicSizzleCarousel
+                                Akcru_Content={{
+                                    id: 'ComingSoonTrailers',
+                                    title: 'Coming Soon Orginals',
+                                    sizzle: sizzles,
+                                }}
+                            />
+                        )}
                     </View>
-                )}
-            
+                </ScrollView>
+            ) : (
+                <View style={styles.activitycontainer}>
+                    <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                </View>
+            )}
         </TabContainer>
     );
 };

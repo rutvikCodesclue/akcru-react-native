@@ -315,6 +315,8 @@ const UserProfileDetailsTab = () => {
                         }
                     } catch (error) {
                         console.error(error);
+                        // Print full error trace
+                        console.error('Full error trace:', error);
                     }
                 }
             };

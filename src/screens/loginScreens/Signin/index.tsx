@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, StyleSheet, TextInput} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, StyleSheet, TextInput, ActivityIndicator} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -18,6 +18,8 @@ import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import {getPushToken} from '../../../../lib/pushNotifications';
 import {isTablet} from '../../../../assets/constants/theme';
+import SessionManagementModal from '../../../components/SessionManagementModal';
+import messaging from '@react-native-firebase/messaging';
 
 const iconSize = isTablet() ? 28 : 20;
 const inputHeight = isTablet() ? 60 : 50;
@@ -131,41 +133,81 @@ const Signin = () => {
     const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false);
 
     const [loading, setLoading] = useState<boolean>(false);
+    const [loadingMessage, setLoadingMessage] = useState<string>('Logging in...');
+    const [loadingSubMessage, setLoadingSubMessage] = useState<string>('Please wait while we verify your credentials');
 
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+    // Session management states
+    const [showSessionModal, setShowSessionModal] = useState<boolean>(false);
+    const [otherSessionsCount, setOtherSessionsCount] = useState<number>(0);
+    const [sessionModalLoading, setSessionModalLoading] = useState<boolean>(false);
+    const [pendingLoginData, setPendingLoginData] = useState<{
+        user: any;
+        accessToken: string;
+    } | null>(null);
+
     async function attemptLogin() {
+        // Set loading immediately when button is clicked
+        setLoading(true);
+        setLoadingMessage('Validating...');
+        setLoadingSubMessage('Checking your credentials');
+        
+        // Early validation
+        if (!email.trim() || !password.trim()) {
+            setShowLoginError(true);
+            setErrorMsg('Email and password are required');
+            setLoading(false);
+            return;
+        }
+
         try {
-            setLoading(true);
+            setLoadingMessage('Checking sessions...');
+            setLoadingSubMessage('Verifying device access');
+
+            // First check for existing sessions
+            const sessionCheck = await authStore.checkSessions(email, password);
+            if (!sessionCheck?.user) {
+                setShowLoginError(true);
+                setLoading(false);
+                setErrorMsg('Invalid credentials');
+                return;
+            }
+
+            const hasOtherSessions = sessionCheck.hasOtherSessions;
+            const otherSessionsCount = sessionCheck.otherSessionsCount || 0;
+            // Check if there are other sessions
+            if (hasOtherSessions && otherSessionsCount > 0) {
+                // Store login data temporarily and show session management modal
+                setPendingLoginData({
+                    user: sessionCheck.user,
+                    accessToken: sessionCheck.user.access_token,
+                });
+                setOtherSessionsCount(otherSessionsCount);
+                setShowSessionModal(true);
+                setLoading(false);
+                return;
+            }
+
+            // No other sessions, proceed with actual login
+            setLoadingMessage('Authenticating...');
+            setLoadingSubMessage('Logging you in');
 
             const loginResponse = await authStore.loginWithEmail(email, password);
-            const session = loginResponse?.session;
-            const user = loginResponse?.user;
-
-            if (!session || !user) {
-                // Alert.alert('Error Logging In');
-                setShowLoginError(true);
-                setLoading(false);
-                setErrorMsg('Error Logging In');
-                return;
-            }
-            if (!loginResponse) {
-                // Alert.alert('Error Logging In. Please try again.');
+            
+            if (!loginResponse?.session || !loginResponse?.user) {
                 setShowLoginError(true);
                 setLoading(false);
                 setErrorMsg('Error Logging In');
                 return;
             }
 
-            const accessToken = session.access_token;
-            AsyncStorage.setItem('access_token', accessToken);
-            try {
-                await getPushToken(user.id);
-            } catch (e) {
-                console.log('Error getting push token:', e);
-            }
-            setLoading(false);
-            navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+            const accessToken = loginResponse.session.access_token;
+
+            // Complete login
+            setLoadingMessage('Finalizing...');
+            setLoadingSubMessage('Setting up your session');
+            await completeLogin(loginResponse.session, loginResponse.user, accessToken);
         } catch (error: any) {
             setShowLoginError(true);
             setLoading(false);
@@ -176,6 +218,100 @@ const Signin = () => {
             }
         }
     }
+
+    const completeLogin = async (session: any, user: any, accessToken: string) => {
+        try {
+            setLoadingMessage('Almost done...');
+            setLoadingSubMessage('Saving your session');
+            
+            await AsyncStorage.setItem('access_token', accessToken);
+            
+            setLoadingMessage('Success!');
+            setLoadingSubMessage('Welcome back! Redirecting...');
+            
+            // Small delay to show success message
+            setTimeout(() => {
+                setLoading(false);
+                navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+            }, 1000);
+        } catch (error) {
+            console.error('Error completing login:', error);
+            setShowLoginError(true);
+            setErrorMsg('Error completing login');
+            setLoading(false);
+        }
+    };
+
+    const handleCloseOtherSessions = async () => {
+        if (!pendingLoginData) return;
+
+        setSessionModalLoading(true);
+        setShowSessionModal(false); // Hide session modal
+        setLoading(true); // Show main loading modal
+        setLoadingMessage('Logging out other devices...');
+        setLoadingSubMessage('Closing sessions on other devices');
+        
+        try {
+            // Get current device token
+            const deviceToken = await messaging().getToken();
+            
+            // Close other sessions
+            const success = await authStore.closeOtherSessions(
+                pendingLoginData.user.id,
+                deviceToken
+            );
+
+            if (success) {
+                setLoadingMessage('Completing login...');
+                setLoadingSubMessage('Logging you in');
+                
+                // Now perform the actual login after closing other sessions
+                const loginResponse = await authStore.loginWithEmail(email, password);
+                
+                if (!loginResponse?.session || !loginResponse?.user) {
+                    setLoading(false);
+                    Alert.alert('Error', 'Failed to complete login after closing sessions.');
+                    return;
+                }
+
+                const accessToken = loginResponse.session.access_token;
+                
+                setLoadingMessage('Finalizing...');
+                setLoadingSubMessage('Setting up your session');
+                
+                await completeLogin(
+                    loginResponse.session,
+                    loginResponse.user,
+                    accessToken
+                );
+            } else {
+                setLoading(false);
+                Alert.alert('Error', 'Failed to close other sessions. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error closing other sessions:', error);
+            setLoading(false);
+            Alert.alert('Error', 'Failed to close other sessions. Please try again.');
+        } finally {
+            setSessionModalLoading(false);
+        }
+    };
+
+    const handleCancelLogin = () => {
+        // Reset all login-related states
+        setShowSessionModal(false);
+        setPendingLoginData(null);
+        setLoading(false);
+        setSessionModalLoading(false);
+        
+        // Clear the form
+        setEmail('');
+        setPassword('');
+        
+        // Show a message that login was cancelled
+        setErrorMsg('Login cancelled. Please close other sessions first or contact support.');
+        setShowLoginError(true);
+    };
 
     async function handleLogout() {
         await AsyncStorage.removeItem('access_token');
@@ -374,6 +510,72 @@ const Signin = () => {
                             </View>
                         </View>
                     </Modal>
+
+                    {/* Loading Modal */}
+                    <Modal animationType="fade" transparent={true} visible={loading}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 40,
+                                    borderRadius: 20,
+                                    alignItems: 'center',
+                                    marginHorizontal: 20,
+                                    minWidth: 250,
+                                    borderWidth: 1,
+                                    borderColor: COLORS.PURPLE,
+                                }}>
+                                <View style={{
+                                    width: 60,
+                                    height: 60,
+                                    borderRadius: 30,
+                                    backgroundColor: COLORS.PURPLE + '20',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    marginBottom: 20,
+                                }}>
+                                    <ActivityIndicator 
+                                        size="large" 
+                                        color={COLORS.PURPLE}
+                                    />
+                                </View>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        textAlign: 'center',
+                                        color: COLORS.WHITE,
+                                        marginBottom: 10,
+                                        fontWeight: 'bold',
+                                    }}>
+                                    {loadingMessage}
+                                </Text>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title3,
+                                        textAlign: 'center',
+                                        color: COLORS.LIGHTGREY,
+                                        opacity: 0.8,
+                                    }}>
+                                    {loadingSubMessage}
+                                </Text>
+                            </View>
+                        </View>
+                    </Modal>
+
+                    <SessionManagementModal
+                        visible={showSessionModal}
+                        onClose={() => {}}
+                        onCloseOtherSessions={handleCloseOtherSessions}
+                        onCancel={handleCancelLogin}
+                        otherSessionsCount={otherSessionsCount}
+                        loading={sessionModalLoading}
+                    />
                 </View>
             </ImageBackground>
         </View>

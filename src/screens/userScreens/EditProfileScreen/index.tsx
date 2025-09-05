@@ -1,6 +1,18 @@
 import {useState} from 'react';
 import styles from './styles';
-import {View, Alert, Text, ScrollView, Image, SafeAreaView, TextInput, Modal, Pressable, Platform} from 'react-native';
+import {
+    View,
+    Alert,
+    Text,
+    ScrollView,
+    Image,
+    SafeAreaView,
+    TextInput,
+    Modal,
+    Pressable,
+    Platform,
+    TouchableWithoutFeedback,
+} from 'react-native';
 import {TouchableOpacity, TouchableHighlight} from 'react-native-gesture-handler';
 import {Session} from '@supabase/supabase-js';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -17,7 +29,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
-import {updateUserProfilePicture, updateUser, searchForUsers} from '../../../lib/api/user.lib';
+import {updateUserProfilePicture, updateUser, searchForUsers, upgradeCRUView} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
@@ -38,6 +50,7 @@ export default function EditProfile({session}: {session: Session}) {
     const canGrantAD = useAuthStore(state => state.user?.canGrantAD);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
     const logout = useAuthStore(state => state.logout);
+    const walletBalance = useAuthStore(s => s.walletBalance);
     const {hydrateUser} = useAuthStore();
 
     const [_, setLoading] = useState(false);
@@ -45,6 +58,8 @@ export default function EditProfile({session}: {session: Session}) {
     const [userName, setUserName] = useState('');
     const [, setModifiedUserName] = useState('');
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
+    const [unlockModalVisible, setUnlockModalVisible] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const [description, setDescription] = useState('');
     const [, setModifiedDescription] = useState('');
@@ -244,6 +259,26 @@ export default function EditProfile({session}: {session: Session}) {
                 }));
             } else {
             }
+        }
+    };
+
+    const handleUnlockVideoCruView = () => {
+        if (walletBalance) {
+            handleUpgrade();
+        } else {
+            console.log('wallet not found');
+        }
+    };
+
+    const handleUpgrade = async () => {
+        const responseMessage = await upgradeCRUView();
+
+        if (responseMessage) {
+            setShowSuccessModal(true);
+
+            setTimeout(() => {
+                setShowSuccessModal(false);
+            }, 2000); 
         }
     };
 
@@ -835,6 +870,16 @@ export default function EditProfile({session}: {session: Session}) {
                             )}
 
                             <View>
+                                {!user?.hasVideoPrivileges && (
+                                    <View style={{alignItems: 'center', marginBottom: 15}}>
+                                        <AkcruButtons.XlLrgButton
+                                            color={COLORS.CATGREENLGT}
+                                            btnname={'Unlock Video CRU View'}
+                                            onPress={handleUnlockVideoCruView}
+                                            disabled={false}
+                                        />
+                                    </View>
+                                )}
                                 <View style={{alignItems: 'center'}}>
                                     <AkcruButtons.XlLrgButton
                                         color={COLORS.PURPLE}
@@ -845,6 +890,34 @@ export default function EditProfile({session}: {session: Session}) {
                                 </View>
                             </View>
                         </View>
+
+                        <Modal animationType="fade" transparent={true} visible={showSuccessModal}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title3,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                        }}>
+                                        {'Success! You have upgraded to video CRU view!'}
+                                    </Text>
+                                </View>
+                            </View>
+                        </Modal>
 
                         <Modal visible={isArchetypeModalVisible} animationType="fade" transparent={true}>
                             <EnlargeImageModal
