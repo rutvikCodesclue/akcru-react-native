@@ -268,6 +268,7 @@ const CustomButton = ({
             flexDirection: 'row',
             paddingHorizontal: 6,
             alignSelf: 'flex-start', 
+            opacity: disabled ? 0.6 : 1,
           }}>
           <LinearGradient
             colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}

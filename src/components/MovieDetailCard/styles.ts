@@ -54,6 +54,16 @@ export default StyleSheet.create({
         flexDirection: 'row',
         backgroundColor: COLORS.TRANSAKCRUBLUE,
     },
+    VisionaryButton: {
+        borderColor: COLORS.PURPLE,
+        borderWidth: 1,
+        borderRadius: 5,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        backgroundColor: COLORS.TRANSPURPLE,
+    },
     buttonText: {
         ...FONTS.Title2AkcruBlue,
         color: COLORS.WHITE,

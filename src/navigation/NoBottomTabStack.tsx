@@ -33,6 +33,7 @@ import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResult
 import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MITDateSchedule';
+import VisionaryRoomSchedule from '../screens/contentScreens/VisionaryRoomScheduleScreen/VisionaryRoomSchedule'
 import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
 import SeriesDetailScreen from '../screens/contentScreens/SeriesDetailScreen';
 import SeriesTrailerPlayer from '../screens/contentScreens/PlaySeriesTrailer';
@@ -115,6 +116,7 @@ export type NoBottomTabStackParams = {
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
     MITDateSchedule: any;
+    VisionaryRoomSchedule: any;
     SearchMovieScreen: any;
     SeriesDetailScreen: any;
     SeriesTrailerPlayer: any;
@@ -472,6 +474,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="MITDateSchedule"
                 component={MITDateSchedule}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="VisionaryRoomSchedule"
+                component={VisionaryRoomSchedule}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

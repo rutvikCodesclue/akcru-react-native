@@ -84,6 +84,7 @@ const MovieDetailCard = ({
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
     const [combinedReactions, setCombinedReactions] = useState<CombinedReaction[]>([]);
+    const visionaryStatus = true
 
     useEffect(() => {
         const fetchReactionStats = async () => {
@@ -153,6 +154,16 @@ const MovieDetailCard = ({
             setIsNavigating(false);
         }, 300);
     };
+
+    const handleVisionaryRoomPress = () => {
+        console.log('Navigate to the visionary room scheduler')
+        navigation.navigate('VisionaryRoomSchedule', {
+            id: movieId,
+            title: title,
+            portraitURL: portraitURL,
+            year: year,
+        });
+}
 
     const getIconForReaction = (reactionType: string | null) => {
         let color = COLORS.LIGHTGREY;
@@ -380,6 +391,15 @@ const MovieDetailCard = ({
                         </View>
                     </TouchableOpacity>
                 </View>
+                {visionaryStatus && (
+                    <View style={{marginHorizontal: 15, marginVertical: 10}}>
+                        <TouchableOpacity onPress={handleVisionaryRoomPress}>
+                            <View style={styles.VisionaryButton}>
+                                <Text style={styles.buttonText}>Create A Visionary Room</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                )}
                 <View
                     style={{
                         height: 40,
