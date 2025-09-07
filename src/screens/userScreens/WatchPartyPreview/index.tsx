@@ -76,7 +76,6 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const cruId = route.params?.cruId;
     const cru = route.params?.cru;
     const viewtype = route.params?.type;
-    const videoRoomPrivileges = viewtype === "CRUView" ? route.params?.videoRoomPrivileges : true; // give video room priveleges if its a MIT
     console.log('view: ', videoRoomPrivileges)
 
     const userId = route.params?.userId;
@@ -98,6 +97,16 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const [Movietime] = useState<string>(movieTime);
     const {user} = useAuthStore();
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
+
+    const videoRoomPrivileges = () => {
+        if (viewtype === 'MITInvite') {
+            return true
+        } else if (viewtype === 'VisionaryRoom') {
+            return false
+        } else {
+            return route.params?.videoRoomPrivileges
+        }
+    }
 
     useEffect(() => {
         RestrictPartyRoom();

@@ -67,6 +67,7 @@ import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
 import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebCheckout';
+import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -117,6 +118,7 @@ export type NoBottomTabStackParams = {
     ViewUserFollowList: any;
     MITDateSchedule: any;
     VisionaryRoomSchedule: any;
+    VisionaryRoomRequest: any;
     SearchMovieScreen: any;
     SeriesDetailScreen: any;
     SeriesTrailerPlayer: any;
@@ -482,6 +484,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="VisionaryRoomSchedule"
                 component={VisionaryRoomSchedule}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="VisionaryRoomRequest"
+                component={VisionaryRoomRequest}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
