@@ -20,6 +20,8 @@ import {
     fetchUserGallery,
     getGalleryLikeCount,
     getGalleryLikesList,
+    upgradeCRUView,
+    getCruVideoPrice,
 } from '../../../lib/api/user.lib';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
@@ -40,6 +42,8 @@ import {getUnread} from '../../../lib/api/rooms.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import PurchasedContent from '../../../components/PurchasedContent';
 import {isTablet} from '../../../../assets/constants/theme';
+import imageindex from '../../../../assets/images/imageindex';
+import { getUserWallet } from '../../../lib/api/wallet.lib';
 
 const UserProfileDetailsTab = () => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
@@ -47,7 +51,6 @@ const UserProfileDetailsTab = () => {
     const [crus, setCrus] = useState<ICru[]>([]);
     const [membercruIds, setMemberCruIds] = useState<string[]>([]);
     const [unreadcruIds, setUnreadCruIds] = useState<string[]>([]);
-
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const user = useAuthStore(state => state.user);
@@ -399,6 +402,71 @@ const UserProfileDetailsTab = () => {
         }
     };
 
+
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [loadingUpgrade, setLoadingUpgrade] = useState(false);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [upgradeResult, setUpgradeResult] = useState<'success' | 'error' | null>(null);
+
+    const handleUpgrade = async () => {
+        try {
+            setLoadingUpgrade(true);
+
+            const res = await upgradeCRUView();
+
+            if (res) {
+                setUpgradeResult('success');
+            } else {
+                setUpgradeResult('error');
+            }
+
+            setShowUpgradeModal(false);
+            setShowResultModal(true);
+            hydrateUser();
+
+            setTimeout(() => setShowResultModal(false), 2000);
+        } catch (err) {
+            setUpgradeResult('error');
+            setShowUpgradeModal(false);
+            setShowResultModal(true);
+            setTimeout(() => setShowResultModal(false), 2000);
+        } finally {
+            setLoadingUpgrade(false);
+        }
+    };
+
+    const [price, setPrice] = useState<number | null>(null);
+    const [loadingPrice, setLoadingPrice] = useState(false);
+
+    // pull balance from store (string → number)
+    const walletBalanceStr = useAuthStore(s => s.walletBalance);
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+    const walletBalance = Number(walletBalanceStr ?? '0');
+
+    // nicety
+    const fmt = (n?: number | null) => (n == null ? '…' : n.toLocaleString('en-US'));
+
+    // 3) when the modal opens, fetch price (and refresh balance if needed)
+    useEffect(() => {
+        if (!showUpgradeModal) return;
+        (async () => {
+            setLoadingPrice(true);
+            try {
+                const res = await getCruVideoPrice();
+                if (res?.success && typeof res.price === 'number') setPrice(res.price);
+
+                // optional: refresh wallet so the gate is accurate
+                const b = await getUserWallet();
+                if (b !== undefined) setWalletBalance(b);
+            } finally {
+                setLoadingPrice(false);
+            }
+        })();
+    }, [showUpgradeModal, setWalletBalance]);
+
+    // 4) computed flag
+    const canAfford = price != null && walletBalance >= price;
+
     return (
         <View>
             <View style={{marginHorizontal: SIZES.marginhorizontal}}>
@@ -460,115 +528,104 @@ const UserProfileDetailsTab = () => {
                                         PROFILE DETAILS
                                     </Text>
                                 </View>
+                                <View style={{alignItems: 'center', marginBottom: 15}}>
+                                    <FlatList
+                                        data={cruMembers()}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                        scrollEnabled={false}
+                                        keyExtractor={item => item.id}
+                                        renderItem={({item, index}) => (
+                                            <TouchableOpacity
+                                                onPress={() =>
+                                                    navigation.navigate('ViewUserScreen', {userID: item.id})
+                                                }>
+                                                <View
+                                                    style={{
+                                                        marginRight: index < cruMembers().length - 1 ? -16 : 0,
+                                                    }}>
+                                                    <CruMemberPic
+                                                        userPicture={item.profilePicture}
+                                                        akcruBadge={item.badge}
+                                                    />
+                                                </View>
+                                            </TouchableOpacity>
+                                        )}
+                                    />
+                                </View>
+                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                    <View>
+                                        {CRU && unreadcruIds && unreadcruIds.includes(CRU.id) && (
+                                            <View
+                                                style={{
+                                                    width: 10,
+                                                    height: 10,
+                                                    borderRadius: 5,
+                                                    backgroundColor: COLORS.PINK,
+                                                    position: 'absolute',
+                                                    zIndex: 100,
+                                                    left: '63%',
+                                                    top: -3,
+                                                }}
+                                            />
+                                        )}
+
+                                        <AkcruButtons.IconMedButton
+                                            icon="chatbox-ellipses"
+                                            type="ionicon"
+                                            disabled={false}
+                                            color={COLORS.PURPLE}
+                                            btnname="CRU Chat"
+                                            onPress={() => {
+                                                const updatedCruids = unreadcruIds.filter(id => id !== CRU.id);
+                                                setUnreadCruIds(updatedCruids);
+                                                navigation.navigate('ViewGroupChat', {
+                                                    isMyCruChat: true,
+                                                });
+                                            }}
+                                        />
+                                    </View>
+                                    <View style={{marginBottom: 10}}>
+                                        <AkcruButtons.IconMedButton
+                                            icon="calendar-sharp"
+                                            type="ionicon"
+                                            disabled={false}
+                                            color={COLORS.AKCRUBLUE}
+                                            btnname="CRU Sched."
+                                            onPress={() => navigation.navigate('CruViewSearchMovieScreen')}
+                                        />
+                                    </View>
+                                </View>
                                 <View
                                     style={{
                                         flexDirection: 'row',
-                                        justifyContent: 'space-around',
-                                        alignSelf: 'center',
-                                        alignItems: 'center',
-                                        width: '95%',
+                                        justifyContent: 'space-between',
+                                        marginBottom: 10,
                                     }}>
-                                    <View style={{alignContent: 'center', width: SIZES.ScreenWidth * 0.5}}>
-                                        <View>
-                                            <FlatList
-                                                data={cruMembers()}
-                                                horizontal={true}
-                                                showsHorizontalScrollIndicator={false}
-                                                scrollEnabled={false}
-                                                keyExtractor={item => item.id}
-                                                renderItem={({item, index}) => (
-                                                    <TouchableOpacity
-                                                        onPress={() =>
-                                                            navigation.navigate('ViewUserScreen', {userID: item.id})
-                                                        }>
-                                                        <View
-                                                            style={{
-                                                                marginRight: index < cruMembers().length - 1 ? -16 : 0,
-                                                            }}>
-                                                            <CruMemberPic
-                                                                userPicture={item.profilePicture}
-                                                                akcruBadge={item.badge}
-                                                            />
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                )}
-                                            />
-                                        </View>
-                                        <TouchableOpacity
+                                    <View>
+                                        <AkcruButtons.IconMedButton
+                                            icon="square-edit-outline"
+                                            type="material-community"
+                                            disabled={false}
+                                            color={COLORS.PINK}
+                                            btnname="Edit CRU"
                                             onPress={() => navigation.navigate('EditCru')}
-                                            style={{marginVertical: 15}}>
-                                            <View style={{flexDirection: 'row'}}>
-                                                <Icon
-                                                    name="square-edit-outline"
-                                                    type="material-community"
-                                                    color={COLORS.PINK}
-                                                    size={20}
-                                                    style={{marginRight: 5}}
-                                                />
-                                                <Text
-                                                    style={{
-                                                        ...FONTS.Title2,
-                                                        color: COLORS.PINK,
-                                                    }}>
-                                                    Edit your CRU
-                                                </Text>
-                                            </View>
-                                        </TouchableOpacity>
-
+                                        />
+                                    </View>
+                                    {!user?.hasVideoPrivileges ? (
                                         <View>
-                                            {CRU && unreadcruIds && unreadcruIds.includes(CRU.id) && (
-                                                <View
-                                                    style={{
-                                                        width: 10,
-                                                        height: 10,
-                                                        borderRadius: 5,
-                                                        backgroundColor: COLORS.PINK,
-                                                        position: 'absolute',
-                                                        zIndex: 100,
-                                                        left: '63%',
-                                                        top: -3,
-                                                    }}
-                                                />
-                                            )}
-
-                                            <AkcruButtons.SmallButton
+                                            <AkcruButtons.IconMedButton
+                                                icon="videocam"
+                                                type="ionicon"
                                                 disabled={false}
-                                                color={COLORS.PURPLE}
-                                                btnname="CRU Chat"
-                                                onPress={() => {
-                                                    const updatedCruids = unreadcruIds.filter(id => id !== CRU.id);
-                                                    setUnreadCruIds(updatedCruids);
-                                                    navigation.navigate('ViewGroupChat', {
-                                                        isMyCruChat: true,
-                                                    });
-                                                }}
+                                                color={COLORS.CATPURPLGT}
+                                                btnname="CRU Video"
+                                                onPress={() => setShowUpgradeModal(true)}
                                             />
                                         </View>
-                                    </View>
-                                    <View style={{alignItems: 'center', width: SIZES.ScreenWidth * 0.35}}>
-                                        <View>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.paragraph1,
-                                                    textAlign: 'center',
-
-                                                    color: COLORS.LIGHTGREY,
-                                                }}>
-                                                Schedule a CRU View through the CRU VIEW scheduler
-                                            </Text>
-                                        </View>
-                                        <View style={{marginTop: 10}}>
-                                            <TouchableOpacity
-                                                onPress={() => navigation.navigate('CruViewSearchMovieScreen')}>
-                                                <Icon
-                                                    name="calendar-sharp"
-                                                    type="ionicon"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    size={75}
-                                                />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
+                                    ) : (
+                                        <View />
+                                    )}
                                 </View>
                                 <View style={{marginTop: 10}}>
                                     <Text
@@ -831,6 +888,103 @@ const UserProfileDetailsTab = () => {
                                                 style={styles.closeBtn}>
                                                 <Text style={styles.closeText}>Close</Text>
                                             </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                                {/* Upgrade Confirmation Modal */}
+                                <Modal animationType="fade" transparent={true} visible={showUpgradeModal}>
+                                    <View
+                                        style={{
+                                            flex: 1,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                width: '80%',
+                                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                                borderRadius: 8,
+                                                padding: 20,
+                                            }}>
+                                            <Text style={{...FONTS.Title2, marginBottom: 15, textAlign: 'center'}}>
+                                                {'Upgrade your audio CRU View to '}
+                                                <Text style={{color: COLORS.AKCRUBLUE}}>{'CRU Video'}</Text>
+                                                {" "}
+                                                {fmt(loadingPrice ? null : price)}
+                                                <Image
+                                                    source={imageindex.AkcruHexLogo}
+                                                    style={{
+                                                        width: FONTS.Title2.fontSize,
+                                                        height: FONTS.Title2.fontSize,
+                                                        marginBottom: -3,
+                                                    }}
+                                                    resizeMode="contain"
+                                                />
+                                                {'? (This action is irreversible)'}
+                                            </Text>
+
+                                            {/* Buttons Row */}
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    justifyContent: 'space-between',
+                                                    marginTop: 20,
+                                                }}>
+                                                <TouchableOpacity
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: 10,
+                                                        borderRadius: 4,
+                                                        alignItems: 'center',
+                                                        marginHorizontal: 5,
+                                                        backgroundColor: COLORS.AKCRUBLUE,
+                                                    }}
+                                                    onPress={() => setShowUpgradeModal(false)}>
+                                                    <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: 10,
+                                                        borderRadius: 4,
+                                                        alignItems: 'center',
+                                                        marginHorizontal: 5,
+                                                        backgroundColor: canAfford ? COLORS.PURPLE : COLORS.DARKGREY,
+                                                    }}
+                                                    onPress={handleUpgrade}
+                                                    disabled={loadingUpgrade || price == null || !canAfford}>
+                                                    <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>
+                                                        {loadingUpgrade ? 'Loading...' : 'Confirm'}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </Modal>
+
+                                {/* Upgrade Result Modal */}
+                                <Modal animationType="fade" transparent={true} visible={showResultModal}>
+                                    <View
+                                        style={{
+                                            flex: 1,
+                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}>
+                                        <View
+                                            style={{
+                                                width: '80%',
+                                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                                borderRadius: 8,
+                                                padding: 20,
+                                            }}>
+                                            <Text style={{...FONTS.Title2, marginBottom: 15, textAlign: 'center'}}>
+                                                {upgradeResult === 'success'
+                                                    ? 'Upgrade successful!'
+                                                    : 'Upgrade failed. Please try again.'}
+                                            </Text>
                                         </View>
                                     </View>
                                 </Modal>

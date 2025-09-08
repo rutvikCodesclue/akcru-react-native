@@ -14,6 +14,7 @@ import {ISeries} from '../../../../types';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {COLORS} from '../../../../assets/constants';
 import ComfirmationModal from '../../../components/ConfirmationModal';
+import Orientation from 'react-native-orientation-locker';
 
 type SeriesDetailScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>;
 
@@ -39,6 +40,17 @@ export default function SeriesDetailScreen() {
     const rawBalance = useAuthStore(s => s.walletBalance);
     const setWalletBalance = useAuthStore(s => s.setWalletBalance);
     const balance = rawBalance != null ? Number(rawBalance) : 0;
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // Force portrait when this screen comes into focus
+            Orientation.lockToPortrait();
+
+            return () => {
+                // Optional cleanup if needed
+            };
+        }, []),
+    );
 
     // 1) load wallet & reactions once
     useEffect(() => {
@@ -99,22 +111,32 @@ export default function SeriesDetailScreen() {
     const primaryText = purchaseStatus.active
         ? 'Play'
         : alwaysFree
-        ? 'Play for Free'
-        : rentable && !buyable
-        ? rentalLabel!
-        : buyable && !rentable
-        ? buyLabel!
-        : 'Buy or Rent';
+          ? 'Play for Free'
+          : rentable && !buyable
+            ? rentalLabel!
+            : buyable && !rentable
+              ? buyLabel!
+              : 'Buy or Rent';
 
     // 6) helper to play first ep
+    // Debug the episode structure
+    console.log('Current season:', cur);
+    console.log('Episodes in season:', cur.episodes);
+    console.log('First episode:', cur.episodes[0]);
+    console.log('First episode ID:', cur.episodes[0]?.id);
+
     const playFirstEpisode = () => {
-        const ep = cur.episodes[0]!;
+        const ep = cur.episodes[0];
+        if (!ep || !ep.id) {
+            console.error('Episode or episode.id is missing:', ep);
+            return;
+        }
+
+        console.log('Navigating with episode:', ep);
         navigation.navigate('EpisodePlayer', {
             seriesId: series.id,
             seasonId: cur.id,
             episodeId: ep.id,
-            episodeURL: ep.episodeURL,
-            landscapeURL: ep.landscapeURL,
         });
     };
 
