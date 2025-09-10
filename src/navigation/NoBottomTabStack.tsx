@@ -68,6 +68,7 @@ import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
 import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebCheckout';
 import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest';
+import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -86,6 +87,7 @@ export type NoBottomTabStackParams = {
     ContentDetailScreen: any;
     StartMITDate: any;
     StartWatchPartyView: any;
+    VisionaryWatchParty: any;
     WatchPartyPreview: any;
     Signin: any;
     AkcruButtonStack: any;
@@ -316,6 +318,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="StartWatchPartyView"
                 component={StartWatchPartyView}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+            />
+            <NoBottom.Screen
+                name="VisionaryWatchParty"
+                component={VisionaryWatchParty}
                 options={{
                     headerShown: false,
                     gestureEnabled: false,
