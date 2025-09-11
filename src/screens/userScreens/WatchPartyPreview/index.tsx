@@ -102,7 +102,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
         if (viewtype === 'MITInvite') {
             return true
         } else if (viewtype === 'VisionaryRoom') {
-            return false
+            return user?.visionaryStatus
         } else {
             return route.params?.videoRoomPrivileges
         }
@@ -379,7 +379,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
             const leaveRoomSuccessful = await _handleRoomLeave();
 
             if (leaveRoomSuccessful) {
-                navigation.navigate('StartWatchPartyView', {
+                navigation.navigate('VisionaryWatchParty', {
                     type,
                     movieId,
                     roomId: roomIdFrom100ms,
@@ -396,6 +396,23 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                     cru,
                     videoRoomPrivileges,
                 });
+                // navigation.navigate('StartWatchPartyView', {
+                //     type,
+                //     movieId,
+                //     roomId: roomIdFrom100ms,
+                //     roomAuthToken,
+                //     micInitialState: false,
+                //     cameraInitialState: isUserVideoOn,
+                //     isHost,
+                //     inviteId,
+                //     creator,
+                //     creatorId,
+                //     invitee,
+                //     Timezone,
+                //     Movietime,
+                //     cru,
+                //     videoRoomPrivileges,
+                // });
             }
         }
     };

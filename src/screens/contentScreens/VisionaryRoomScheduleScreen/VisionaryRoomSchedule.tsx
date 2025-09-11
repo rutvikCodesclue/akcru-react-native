@@ -41,8 +41,9 @@ import BackButton from '../../../components/General/backbutton';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 import SearchUserCard from './SearchUserCard';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ClientStackParams } from '../../../navigation/ClientStack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {ClientStackParams} from '../../../navigation/ClientStack';
+import { createVisionaryRoom } from '../../../lib/api/visionary.lib';
 
 type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
@@ -54,16 +55,16 @@ type Props = {
 };
 
 const VisionaryRoomSchedule = ({route, navigation}: Props) => {
-    const [loading, setLoading] = useState(false)
-    const [showResponseModal, setShowResponseModal] = useState(false)
-    const [modalMessage, setModalMessage] = useState('')
+    const [loading, setLoading] = useState(false);
+    const [showResponseModal, setShowResponseModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
     const id: string | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const [data, setData] = useState<IUserProfile[] | []>([]);
     const [selectedUsers, setSelectedUsers] = useState<IUserProfile[]>([]);
 
-    const navigation2 = useNavigation<NativeStackNavigationProp<ClientStackParams>>()
+    const navigation2 = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
     // Interstitial setup
     const interstitialRef = useRef<InterstitialAd | null>(null);
@@ -242,27 +243,38 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
 
     const handleSubmit = async () => {
-        setIsSelectionDisabled(true);
-        setLoading(true)
-        if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUsers.length > 0) {
-            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
+        try {
+            setIsSelectionDisabled(true);
+            setLoading(true);
 
-            if (formattedSelectedDateTimeInISO) {
-                setTimeout(() => {
-                    setLoading(false);
+            if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUsers.length > 0) {
+                const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
-                    // 👇 fake success/failure toggle
-                    const isSuccess = Math.random() > 0.5; // 50/50 chance
+                if (formattedSelectedDateTimeInISO) {
+                    const data = await createVisionaryRoom(
+                        movie.id, 
+                        formattedSelectedDateTimeInISO,
+                        selectedTimeZone,
+                        selectedUsers,
+                    );
 
-                    if (isSuccess) {
-                        setModalMessage('Your visionary room has been requested successfully. Once approved by an admin, you will be notified.');
+                    if (data) {
+                        setModalMessage(
+                            'Your visionary room has been requested successfully. Once approved by an admin, you will be notified.',
+                        );
                     } else {
                         setModalMessage('Oops! Something went wrong. Please try again.');
                     }
 
                     setShowResponseModal(true);
-                }, 2000); // ⏳ simulate 2 second delay
+                }
             }
+        } catch (error) {
+            console.error('Error creating visionary room: ', error);
+            setModalMessage('Something went wrong. Please try again later.');
+            setShowResponseModal(true);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -726,9 +738,9 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                                 paddingHorizontal: 20,
                             }}
                             onPress={() => {
-                                setIsSelectionDisabled(false)
+                                setIsSelectionDisabled(false);
                                 setShowResponseModal(false);
-                                navigation2.navigate('HomeScreen')
+                                navigation2.navigate('HomeScreen');
                             }}>
                             <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>OK</Text>
                         </TouchableOpacity>
