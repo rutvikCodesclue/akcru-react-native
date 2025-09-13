@@ -2,6 +2,7 @@ import {getPost} from '../../../lib/api/post.lib';
 import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
 import {navigate} from '../../../util/RootNavigation';
+import { getVisionaryRoom } from '../../../lib/api/visionary.lib';
 
 export function navigateToScreen(screenname: string, params?: object) {
     if (screenname === 'UserProfileScreen') {
@@ -157,6 +158,11 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     username: senderUsername,
                 });
                 break;
+            case 'VisionaryRoomRequested':
+                console.log('here')
+                const roomId = notification.visionaryRoomId
+                console.log('roomID: ', roomId)
+                navigateToScreen('VisionaryRoomRequest', {roomId: roomId})
             default:
                 console.warn('Unhandled notification type:', notification.type);
                 break;

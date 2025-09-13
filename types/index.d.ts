@@ -215,7 +215,11 @@ export type INotification = {
         | 'UserTaggedOnPoll'
         | 'UserTaggedOnPollComment'
         | 'UserLikedPollComment'
-        | 'UserLikedPoll';
+        | 'UserLikedPoll'
+        | 'VisionaryRoomScheduled'
+        | 'VisionaryRoomRequested'
+        | 'VisionaryRoomRequestDeclined'
+        | 'VisionaryRoomRequestAccepted';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;

@@ -21,3 +21,23 @@ export const createVisionaryRoom = async (movieId: string, startDate: string, ti
         console.error('Something went wrong with creating the room: ', error)
     }
 }
+
+export const getVisionaryRoom = async (roomId: string) => {
+    try {
+        const {data} = await API.get(`v1/visionaryRoom/getVisionaryRoomById/${roomId}`)
+
+        return data
+    } catch (error) {
+        console.error('Something went wrong with fetching the visionary room: ', error)
+    }
+}
+
+export const requestDecision = async (creatorId: string, roomId: string, decision: 'ACCEPTED' | 'DECLINED') => {
+    try {
+        const {data} = await API.post(`v1/visionaryRoom/requestDecision`, {requesterId: creatorId, visionaryRoomId: roomId, decision})
+        console.log('data api: ', data)
+        return data
+    } catch (error) {
+        console.error('Something went wrong with sending decision: ', error)
+    }
+}

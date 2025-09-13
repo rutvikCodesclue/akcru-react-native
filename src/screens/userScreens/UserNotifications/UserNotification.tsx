@@ -88,6 +88,9 @@ const UserNotification = ({route}: Props) => {
             UserLikedGallery: 'New like on your photo',
             UserTaggedOnPoll: 'You were tagged in poll',
             UserTaggedOnPollComment: 'You were tagged in poll comment',
+            VisionaryRoomRequested: 'Visionary Room request received',
+            VisionaryRoomRequestAccepted: 'Visionary Room request accepted',
+            VisionaryRoomRequestDeclined: 'Visionary Room request declined',
         };
         return typeDisplayNames[type] || type;
     };
