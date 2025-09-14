@@ -16,7 +16,7 @@ import DateResultModal from '../MasterResultModal/MasterResultModal';
 import {UseTabMenu} from '../../context/TabContext';
 import {cancelMIT} from '../../lib/api/mit.lib';
 import {API} from '../../clients/api.client';
-import { cancelVisionaryRoom, checkMoviePurchase } from '../../lib/api/visionary.lib';
+import {cancelVisionaryRoom, checkMoviePurchase} from '../../lib/api/visionary.lib';
 
 type UserDatesCardProps = {
     id: string;
@@ -88,7 +88,7 @@ const UserDatesCard = ({
 
     const [dateMITResultModal, setDateMITResultModal] = useState(false);
     const [confirmCancelMITModal, setConfirmCancelMITModal] = useState(false);
-    const [confirmCancelRoomModal, setConfirmCancelRoomModal] = useState(false)
+    const [confirmCancelRoomModal, setConfirmCancelRoomModal] = useState(false);
     const [dateMITMessage, setDateMITMessage] = useState('');
     const [dateMITIcon, setDateMITIcon] = useState('');
     const [dateMITIconColor, setDateMITIconColor] = useState('');
@@ -96,25 +96,25 @@ const UserDatesCard = ({
 
     const handleCancelRoom = async () => {
         try {
-            setConfirmCancelRoomModal(false)
-    
-            const cancel = await cancelVisionaryRoom(id)
-    
+            setConfirmCancelRoomModal(false);
+
+            const cancel = await cancelVisionaryRoom(id);
+
             if (cancel.success) {
                 setRefetchDates(true);
-                    setDateType('Success');
-                    setDateResultModal(true);
-                    setDateMessage('Visionary Room cancelled successfully');
-                    setDateIcon('md-checkmark-circle');
-                    setDateIconColor('green');
+                setDateType('Success');
+                setDateResultModal(true);
+                setDateMessage('Visionary Room cancelled successfully');
+                setDateIcon('md-checkmark-circle');
+                setDateIconColor('green');
             } else {
                 setRefetchDates(true);
-                    setDateType('Fail');
-                    setDateResultModal(true);
-                    setDateMessage('Failed to cancel Visionary Room');
-                    setDateIcon('md-alert-circle');
-                    setDateIconColor('red');
-            } 
+                setDateType('Fail');
+                setDateResultModal(true);
+                setDateMessage('Failed to cancel Visionary Room');
+                setDateIcon('md-alert-circle');
+                setDateIconColor('red');
+            }
         } catch (error) {
             setRefetchDates(true);
             setConfirmCancelModal(false);
@@ -125,7 +125,7 @@ const UserDatesCard = ({
             setDateIconColor('red');
             console.error('Error cancelling visionary room:', error);
         }
-    }
+    };
 
     const handleCancelCruView = async () => {
         try {
@@ -249,7 +249,7 @@ const UserDatesCard = ({
                             timezone,
                             creator,
                             creatorId,
-                        })
+                        });
                     }
                 }
             } else {
@@ -281,18 +281,18 @@ const UserDatesCard = ({
                         cru,
                         videoRoomPrivileges,
                     });
-                }  else if (type === 'VisionaryRoom') {
-                        navigation.navigate('WatchPartyPreview', {
-                            id,
-                            type,
-                            movieId,
-                            isHost,
-                            scheduleTime,
-                            timezone,
-                            creator,
-                            creatorId,
-                        })
-                    }
+                } else if (type === 'VisionaryRoom') {
+                    navigation.navigate('WatchPartyPreview', {
+                        id,
+                        type,
+                        movieId,
+                        isHost,
+                        scheduleTime,
+                        timezone,
+                        creator,
+                        creatorId,
+                    });
+                }
             }
         } catch (error) {
             if (type == 'MITInvite') {
@@ -323,18 +323,18 @@ const UserDatesCard = ({
                     cru,
                     videoRoomPrivileges,
                 });
-            }  else if (type === 'VisionaryRoom') {
-                        navigation.navigate('WatchPartyPreview', {
-                            id,
-                            type,
-                            movieId,
-                            isHost,
-                            scheduleTime,
-                            timezone,
-                            creator,
-                            creatorId,
-                        })
-                    }
+            } else if (type === 'VisionaryRoom') {
+                navigation.navigate('WatchPartyPreview', {
+                    id,
+                    type,
+                    movieId,
+                    isHost,
+                    scheduleTime,
+                    timezone,
+                    creator,
+                    creatorId,
+                });
+            }
         }
     };
 
@@ -350,8 +350,8 @@ const UserDatesCard = ({
         //     setOwnershipMessage(verifyPurchase.message)
         //     return
         // }
-        checkTimeGate(type, scheduleTime, timezone, scheduleDate)
-    }
+        checkTimeGate(type, scheduleTime, timezone, scheduleDate);
+    };
 
     return (
         <View
@@ -502,7 +502,7 @@ const UserDatesCard = ({
                             disabled={false}
                         />
                     )}
-                    
+
                     {type === 'VisionaryRoom' && (
                         <AkcruButtons.SmallButton
                             onPress={() => handleStartVisionaryRoom()}
