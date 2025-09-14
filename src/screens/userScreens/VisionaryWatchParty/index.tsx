@@ -51,6 +51,7 @@ import {
     updateHost,
     updateMembersList,
 } from './PeersAndUserManagement';
+import { updateVisionaryRoomHost } from '../../../lib/api/visionary.lib';
 
 const VisionaryWatchParty = ({navigation, route}: WatchPartyViewProps) => {
     const {user} = useAuthStore();
@@ -197,20 +198,13 @@ const VisionaryWatchParty = ({navigation, route}: WatchPartyViewProps) => {
         }
     };
 
-    const updateHostId = async (newHostId: string | undefined) => {
-        if (viewtype === 'CRUView') {
-            const hostChangeSuccess = await updateCruViewHostId(viewId, newHostId);
-            return hostChangeSuccess;
-        }
-
-        if (viewtype === 'MITInvite') {
-            const hostChangeSuccess = await updateMITHostId(viewId, newHostId);
-            return hostChangeSuccess;
-        }
+    const updateHostId = async (roomId: string, newHostId: string | undefined) => {
+        const hostChangeSuccess = await updateVisionaryRoomHost(roomId, newHostId ?? '')
+        return hostChangeSuccess
     };
 
     const onHostSelect = async (newHostId: string | undefined) => {
-        const hostChangeSuccess = await updateHostId(newHostId);
+        const hostChangeSuccess = await updateHostId(viewId ?? '', newHostId);
 
         if (hostChangeSuccess) {
             // inform everyone that you changed the host and everyone should update their host
@@ -418,7 +412,7 @@ const VisionaryWatchParty = ({navigation, route}: WatchPartyViewProps) => {
 
     const handleEndRoom = async () => {
         if (hmsInstanceRef.current) {
-            const hostUpdateSuccess = await updateHostId(creatorID);
+            const hostUpdateSuccess = await updateHostId(viewId ?? '', creatorID);
 
             if (hostUpdateSuccess) {
                 sendRoomTermination();

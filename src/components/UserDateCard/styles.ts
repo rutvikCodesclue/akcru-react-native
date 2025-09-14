@@ -29,6 +29,10 @@ export default StyleSheet.create({
         ...FONTS.Username,
         color: COLORS.PINK,
     },
+    paragraphText4: {
+        ...FONTS.Username,
+        color: COLORS.PURPLE,
+    },
     paragraphText2label: {
         ...FONTS.Title3,
         color: COLORS.AKCRUBLUE,

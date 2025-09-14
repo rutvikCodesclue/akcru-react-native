@@ -188,6 +188,21 @@ export type IMITInvite = {
     updatedAt?: string;
 };
 
+export type IVisionaryRoom = {
+    creator: any;
+    id: string;
+    movieId: string;
+    movie: IMovie;
+    startDate: string;
+    timezone: string;
+    createdAt: string;
+    updatedAt: string;
+    hostId: string;
+    creator?: IUserProfile; 
+    invitees: IUserProfile[];
+    status: string;
+}
+
 export type INotification = {
     id: string;
     type:

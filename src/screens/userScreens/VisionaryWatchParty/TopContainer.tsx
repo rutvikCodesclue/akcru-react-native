@@ -51,7 +51,6 @@ const TopContainer = ({
         </TouchableOpacity>
 
         {/* Three Dots Menu (only visible for host) */}
-        {currentRoomHost === user?.id && (
           <TouchableOpacity
             activeOpacity={0.7}
             style={styles.topContainerButton}
@@ -64,7 +63,6 @@ const TopContainer = ({
               color={COLORS.LIGHTGREY}
             />
           </TouchableOpacity>
-        )}
       </View>
 
       {/* Leave Room Confirmation */}

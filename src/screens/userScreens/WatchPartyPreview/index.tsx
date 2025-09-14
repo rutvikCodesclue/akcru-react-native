@@ -24,7 +24,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {IMovie, IUserProfile} from '../../../../types';
 import {formatMovieDuration} from '../../../util/util';
-import {joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom} from '../../../lib/api/rooms.lib';
+import {joinARoom, joinMITRoom, joinMyMITRoom, joinMyRoom, joinMyVisionaryRoom, joinVisionaryRoom} from '../../../lib/api/rooms.lib';
 import {
     HMSConfig,
     HMSException,
@@ -61,11 +61,11 @@ type Props = {
     id?: string;
     movieTime?: any;
     timezone?: any;
-    type: 'MITInvite' | 'CRUView';
+    type: 'MITInvite' | 'CRUView' | 'VisionaryRoom';
     creator: any;
     creatorId: any;
-    invitee: any;
-    cru: any;
+    invitee?: any;
+    cru?: any;
 };
 
 const WatchPartyPreview = ({navigation, route}: Props) => {
@@ -76,7 +76,6 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const cruId = route.params?.cruId;
     const cru = route.params?.cru;
     const viewtype = route.params?.type;
-    console.log('view: ', videoRoomPrivileges)
 
     const userId = route.params?.userId;
     const isHost = route.params?.isHost;
@@ -98,15 +97,12 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
     const {user} = useAuthStore();
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
-    const videoRoomPrivileges = () => {
-        if (viewtype === 'MITInvite') {
-            return true
-        } else if (viewtype === 'VisionaryRoom') {
-            return user?.visionaryStatus
-        } else {
-            return route.params?.videoRoomPrivileges
-        }
-    }
+    const videoRoomPrivileges =
+    viewtype === 'MITInvite'
+        ? true
+        : viewtype === 'VisionaryRoom'
+        ? user?.visionaryStatus
+        : route.params?.videoRoomPrivileges;
 
     useEffect(() => {
         RestrictPartyRoom();
@@ -342,6 +338,10 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                 console.log('Generating auth token for room as HOST... [MITInvite]');
                 authTokenForRoom = await joinMyMITRoom();
                 setAuthRoomToken(authTokenForRoom);
+            } else if (type === 'VisionaryRoom') {
+                console.log('Generating auth token for room as HOST... [VisionaryRoom]')
+                authTokenForRoom = await joinMyVisionaryRoom()
+                setAuthRoomToken(authTokenForRoom)
             }
         } else {
             if (type === 'CRUView') {
@@ -352,6 +352,10 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                 console.log('Generating auth token for room as MEMBER... [MITInvite]');
                 authTokenForRoom = await joinMITRoom(inviteId);
                 setAuthRoomToken(authTokenForRoom);
+            } else if (type === 'VisionaryRoom') {
+                console.log('Generating auth token for room as MEMBER... [VisionaryRoom]')
+                authTokenForRoom = await joinVisionaryRoom(creatorId)
+                setAuthRoomToken(authTokenForRoom)
             }
         }
 
@@ -376,45 +380,50 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
 
     const _handleJoinRoom = async () => {
         if (roomIdFrom100ms && roomAuthToken) {
+            console.log('joining the room')
             const leaveRoomSuccessful = await _handleRoomLeave();
 
             if (leaveRoomSuccessful) {
-                navigation.navigate('VisionaryWatchParty', {
-                    type,
-                    movieId,
-                    roomId: roomIdFrom100ms,
-                    roomAuthToken,
-                    micInitialState: false,
-                    cameraInitialState: isUserVideoOn,
-                    isHost,
-                    inviteId,
-                    creator,
-                    creatorId,
-                    invitee,
-                    Timezone,
-                    Movietime,
-                    cru,
-                    videoRoomPrivileges,
-                });
-                // navigation.navigate('StartWatchPartyView', {
-                //     type,
-                //     movieId,
-                //     roomId: roomIdFrom100ms,
-                //     roomAuthToken,
-                //     micInitialState: false,
-                //     cameraInitialState: isUserVideoOn,
-                //     isHost,
-                //     inviteId,
-                //     creator,
-                //     creatorId,
-                //     invitee,
-                //     Timezone,
-                //     Movietime,
-                //     cru,
-                //     videoRoomPrivileges,
-                // });
+                if (type === 'VisionaryRoom') {
+                    navigation.navigate('VisionaryWatchParty', {
+                        type,
+                        movieId,
+                        roomId: roomIdFrom100ms,
+                        roomAuthToken,
+                        micInitialState: false,
+                        cameraInitialState: isUserVideoOn,
+                        isHost,
+                        inviteId,
+                        creator,
+                        creatorId,
+                        invitee,
+                        Timezone,
+                        Movietime,
+                        cru,
+                        videoRoomPrivileges,
+                    });
+                } else {
+                    navigation.navigate('StartWatchPartyView', {
+                        type,
+                        movieId,
+                        roomId: roomIdFrom100ms,
+                        roomAuthToken,
+                        micInitialState: false,
+                        cameraInitialState: isUserVideoOn,
+                        isHost,
+                        inviteId,
+                        creator,
+                        creatorId,
+                        invitee,
+                        Timezone,
+                        Movietime,
+                        cru,
+                        videoRoomPrivileges,
+                    });
+                }
             }
         }
+                    console.log('joining the rooooooom')
     };
 
     const _handleRoomLeave = async () => {

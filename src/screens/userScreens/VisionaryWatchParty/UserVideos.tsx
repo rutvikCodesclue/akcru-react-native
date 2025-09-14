@@ -15,6 +15,9 @@ const UserVideos = ({
     members,
     videoRoomPrivileges,
 }: UserVideosProps) => {
+    const filteredPeerTrackNodes = peerTrackNodes.filter(node =>
+  members.some(member => member.peerID === node.peer.peerID)
+);
     return (
         <View style={styles.container}>
             {currentHmsInstance ? (
@@ -23,7 +26,7 @@ const UserVideos = ({
                     style={styles.flatList}
                     key={peerTrackNodes.length}
                     numColumns={3}
-                    data={peerTrackNodes}
+                    data={filteredPeerTrackNodes}
                     keyExtractor={node => node.id}
                     contentContainerStyle={styles.contentContainer}
                     renderItem={({item}) => {

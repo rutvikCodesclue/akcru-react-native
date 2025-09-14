@@ -16,10 +16,11 @@ import DateResultModal from '../MasterResultModal/MasterResultModal';
 import {UseTabMenu} from '../../context/TabContext';
 import {cancelMIT} from '../../lib/api/mit.lib';
 import {API} from '../../clients/api.client';
+import { cancelVisionaryRoom, checkMoviePurchase } from '../../lib/api/visionary.lib';
 
 type UserDatesCardProps = {
     id: string;
-    type: 'MITInvite' | 'CRUView';
+    type: 'MITInvite' | 'CRUView' | 'VisionaryRoom';
     cruId?: string;
     userId?: string;
     isHost: boolean;
@@ -37,11 +38,13 @@ type UserDatesCardProps = {
     onPressin: () => void;
     timezone: string;
     onPress: () => void;
-    cru: any;
+    cru?: any;
     creator: any;
     creatorId: any;
-    invitee: any;
-    videoRoomPrivileges: boolean;
+    invitee?: any;
+    videoRoomPrivileges?: boolean;
+    setModalVisible: (v: boolean) => void;
+    setOwnershipMessage: (v: string) => void;
 };
 
 const UserDatesCard = ({
@@ -69,6 +72,8 @@ const UserDatesCard = ({
     creatorId,
     invitee,
     videoRoomPrivileges,
+    setModalVisible,
+    setOwnershipMessage,
 }: UserDatesCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
@@ -83,10 +88,44 @@ const UserDatesCard = ({
 
     const [dateMITResultModal, setDateMITResultModal] = useState(false);
     const [confirmCancelMITModal, setConfirmCancelMITModal] = useState(false);
+    const [confirmCancelRoomModal, setConfirmCancelRoomModal] = useState(false)
     const [dateMITMessage, setDateMITMessage] = useState('');
     const [dateMITIcon, setDateMITIcon] = useState('');
     const [dateMITIconColor, setDateMITIconColor] = useState('');
     const [dateMITType, setDateMITType] = useState('');
+
+    const handleCancelRoom = async () => {
+        try {
+            setConfirmCancelRoomModal(false)
+    
+            const cancel = await cancelVisionaryRoom(id)
+    
+            if (cancel.success) {
+                setRefetchDates(true);
+                    setDateType('Success');
+                    setDateResultModal(true);
+                    setDateMessage('Visionary Room cancelled successfully');
+                    setDateIcon('md-checkmark-circle');
+                    setDateIconColor('green');
+            } else {
+                setRefetchDates(true);
+                    setDateType('Fail');
+                    setDateResultModal(true);
+                    setDateMessage('Failed to cancel Visionary Room');
+                    setDateIcon('md-alert-circle');
+                    setDateIconColor('red');
+            } 
+        } catch (error) {
+            setRefetchDates(true);
+            setConfirmCancelModal(false);
+            setDateType('Error');
+            setDateResultModal(true);
+            setDateMessage('An error occurred while cancelling the visionary room');
+            setDateIcon('md-alert-circle');
+            setDateIconColor('red');
+            console.error('Error cancelling visionary room:', error);
+        }
+    }
 
     const handleCancelCruView = async () => {
         try {
@@ -200,6 +239,17 @@ const UserDatesCard = ({
                             cru,
                             videoRoomPrivileges,
                         });
+                    } else if (type === 'VisionaryRoom') {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            movieId,
+                            isHost,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            creatorId,
+                        })
                     }
                 }
             } else {
@@ -231,7 +281,18 @@ const UserDatesCard = ({
                         cru,
                         videoRoomPrivileges,
                     });
-                }
+                }  else if (type === 'VisionaryRoom') {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            movieId,
+                            isHost,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            creatorId,
+                        })
+                    }
             }
         } catch (error) {
             if (type == 'MITInvite') {
@@ -262,7 +323,18 @@ const UserDatesCard = ({
                     cru,
                     videoRoomPrivileges,
                 });
-            }
+            }  else if (type === 'VisionaryRoom') {
+                        navigation.navigate('WatchPartyPreview', {
+                            id,
+                            type,
+                            movieId,
+                            isHost,
+                            scheduleTime,
+                            timezone,
+                            creator,
+                            creatorId,
+                        })
+                    }
         }
     };
 
@@ -270,6 +342,16 @@ const UserDatesCard = ({
         checkTimeGate(type, scheduleTime, timezone, scheduleDate);
         handleStartCruViewNotification();
     };
+
+    const handleStartVisionaryRoom = async () => {
+        // const verifyPurchase = await checkMoviePurchase(movieId)
+        // if (!verifyPurchase.purchase) {
+        //     setModalVisible(true)
+        //     setOwnershipMessage(verifyPurchase.message)
+        //     return
+        // }
+        checkTimeGate(type, scheduleTime, timezone, scheduleDate)
+    }
 
     return (
         <View
@@ -321,7 +403,7 @@ const UserDatesCard = ({
                             </View>
                         )}
 
-                        {type === 'CRUView' && (
+                        {(type === 'CRUView' || type === 'VisionaryRoom') && (
                             <View style={{flex: 1, alignItems: 'flex-end'}}>
                                 <Image source={imageindex.NewCru} style={{width: '70%', height: '62%'}} />
                             </View>
@@ -340,6 +422,12 @@ const UserDatesCard = ({
                     {type === 'CRUView' && (
                         <View style={{marginHorizontal: 5}}>
                             <Text style={styles.paragraphText3}>CRU View</Text>
+                        </View>
+                    )}
+
+                    {type === 'VisionaryRoom' && (
+                        <View style={{marginHorizontal: 5}}>
+                            <Text style={styles.paragraphText3}>Visionary Room</Text>
                         </View>
                     )}
 
@@ -381,6 +469,14 @@ const UserDatesCard = ({
                             </View>
                         </TouchableOpacity>
                     )}
+
+                    {type === 'VisionaryRoom' && (
+                        <TouchableOpacity onPress={onPress}>
+                            <View>
+                                <Text style={styles.paragraphText4}> {scheduleWith}</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
                 </View>
                 <View
                     style={{
@@ -406,6 +502,15 @@ const UserDatesCard = ({
                             disabled={false}
                         />
                     )}
+                    
+                    {type === 'VisionaryRoom' && (
+                        <AkcruButtons.SmallButton
+                            onPress={() => handleStartVisionaryRoom()}
+                            btnname="Start Room"
+                            color={COLORS.PURPLE}
+                            disabled={false}
+                        />
+                    )}
                     {type === 'CRUView' && isHost && (
                         <AkcruButtons.SmallButton
                             onPress={() => setConfirmCancelModal(true)}
@@ -417,6 +522,14 @@ const UserDatesCard = ({
                     {type === 'MITInvite' && (
                         <AkcruButtons.SmallButton
                             onPress={() => setConfirmCancelMITModal(true)}
+                            btnname="Cancel"
+                            color={COLORS.CATREDLGT}
+                            disabled={false}
+                        />
+                    )}
+                    {type === 'VisionaryRoom' && isHost && (
+                        <AkcruButtons.SmallButton
+                            onPress={() => setConfirmCancelRoomModal(true)}
                             btnname="Cancel"
                             color={COLORS.CATREDLGT}
                             disabled={false}
@@ -470,6 +583,13 @@ const UserDatesCard = ({
                     confirmationText="Are you sure you want to cancel this Cru View?"
                     onPressNo={() => setConfirmCancelModal(false)}
                     onPressYes={handleCancelCruView}
+                />
+            </Modal>
+            <Modal visible={confirmCancelRoomModal} transparent={true} animationType="fade">
+                <ComfirmationModal
+                    confirmationText="Are you sure you want to cancel this Vsionary Room?"
+                    onPressNo={() => setConfirmCancelModal(false)}
+                    onPressYes={handleCancelRoom}
                 />
             </Modal>
             <Modal visible={confirmCancelMITModal} transparent={true} animationType="fade">

@@ -32,12 +32,65 @@ export const getVisionaryRoom = async (roomId: string) => {
     }
 }
 
+export const getMyVisionaryRooms = async (userId: string) => {
+    try {
+        const {data} = await API.get(`v1/visionaryRoom/getMyVisionaryRooms/${userId}`)
+
+        if (data) {
+            return data.visionaryRooms
+        } else {
+            return []
+        }
+    } catch (error) {
+        console.error('Something went wrong with fetching the visionary rooms: ', error)
+    }
+}
+
 export const requestDecision = async (creatorId: string, roomId: string, decision: 'ACCEPTED' | 'DECLINED') => {
     try {
         const {data} = await API.post(`v1/visionaryRoom/requestDecision`, {requesterId: creatorId, visionaryRoomId: roomId, decision})
-        console.log('data api: ', data)
         return data
     } catch (error) {
         console.error('Something went wrong with sending decision: ', error)
+    }
+}
+
+export const getVisionaryRoomHost = async (roomId: string) => {
+    try {
+        const {data} = await API.get(`v1/visionaryRoom/getVisionaryRoomHost/${roomId}`)
+
+        return data.hostId
+    } catch (error) {
+        console.error('Something went wrong with getting the room host: ', error)
+    }
+}
+
+export const updateVisionaryRoomHost = async (roomId: string, newHostId: string) => {
+    try {
+        const {data} = await API.post('v1/visionaryRoom/updateVisionaryRoomHost', {roomId, newHostId})
+
+        return data.success
+    } catch (error) {
+        console.error('Something went wrong with updating the room host: ', error)
+    }
+}
+
+export const checkMoviePurchase = async (movieId: string) => {
+    try {
+        const {data} = await API.get(`v1/visionaryRoom/checkMoviePurchase/${movieId}`)
+
+        return data
+    } catch (error) {
+        console.error('There was an error in checking the movie purchase: ', error)
+    }
+}
+
+export const cancelVisionaryRoom = async (roomId: string) => {
+    try {
+        const {data} = await API.delete(`v1/visionaryRoom/cancelVisionaryRoom/${roomId}`)
+
+        return data
+    } catch (error) {
+        console.error('There was an error cancelling the visionary room: ', error)
     }
 }

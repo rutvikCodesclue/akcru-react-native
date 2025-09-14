@@ -193,3 +193,24 @@ export const deleteMessage = async (messageId: string): Promise<undefined> => {
         console.error('Error deleting message:', error);
     }
 };
+
+export const joinMyVisionaryRoom = async () => {
+    try {
+        const {data} = await API.post('/v1/rooms/visionaryRoom/join/me')
+
+        return data.roomAuthToken.token
+    } catch (error) {
+        console.error('Error getting visionary room token: ', error)
+    }
+}
+
+export const joinVisionaryRoom = async (visionaryRoomHostId: string) => {
+    try {
+        console.log('visionaryRoom: ', visionaryRoomHostId)
+        const {data} = await API.post('/v1/rooms/visionaryRoom/join', {visionaryRoomHostId})
+
+        return data.roomAuthToken.token
+    } catch (error) {
+        console.error('Error getting visionary room token: ', error)
+    }
+}

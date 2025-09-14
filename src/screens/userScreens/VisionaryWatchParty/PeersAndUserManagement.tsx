@@ -4,6 +4,7 @@ import {findAUser} from '../../../lib/api/user.lib';
 import {Dispatch, SetStateAction} from 'react';
 import {getCruViewHostId} from '../../../lib/api/cru.lib';
 import {getMITHostId} from '../../../lib/api/mit.lib';
+import { getVisionaryRoomHost } from '../../../lib/api/visionary.lib';
 
 const getPeerTrackNodeId = (peer: HMSPeer, track: HMSTrack | undefined) => {
     return peer.peerID + (track?.source ?? HMSTrackSource.REGULAR);
@@ -122,16 +123,9 @@ export const updateMembersList = async (
     setMembers(membersWithInfo);
 };
 
-const getHostId = async (viewtype: string, viewId: string | null) => {
-    if (viewtype === 'CRUView') {
-        const hostId = await getCruViewHostId(viewId);
-        return hostId;
-    }
-
-    if (viewtype === 'MITInvite') {
-        const hostId = await getMITHostId(viewId);
-        return hostId;
-    }
+const getHostId = async (viewId: string | null) => {
+        const hostId = await getVisionaryRoomHost(viewId ?? '')
+        return hostId
 };
 
 export const updateHost = async (
@@ -143,7 +137,7 @@ export const updateHost = async (
     let attempts = 0;
 
     while (attempts < maxRetries) {
-        const hostId = await getHostId(viewtype, viewId);
+        const hostId = await getHostId(viewId);
 
         if (hostId) {
             setCurrentRoomHost(hostId);
