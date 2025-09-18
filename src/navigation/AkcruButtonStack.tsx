@@ -3,12 +3,13 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {COLORS} from '../../assets/constants';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
-import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork';
+import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork/index';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import {CrusaderStack} from './CrusaderStack';
 import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
+import VisionaryRooms from '../screens/CenterButtonScreens/VisionaryRooms';
 
 export type AkcruButtonStackParams = {
     PurchaseMITScreen: any;
@@ -20,6 +21,7 @@ export type AkcruButtonStackParams = {
     CrusaderStack: any;
     CrusaderScreen: any;
     PurchaseAdScreen: any;
+    VisionaryRooms: any;
 };
 
 const AkcruBtn = createStackNavigator<AkcruButtonStackParams>();
@@ -78,6 +80,13 @@ export default function AkcruButtonStack() {
             <AkcruBtn.Screen
                 name="AkcruNetworkScreen"
                 component={AkcruNetworkScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AkcruBtn.Screen 
+                name="VisionaryRooms"
+                component={VisionaryRooms}
                 options={{
                     headerShown: false,
                 }}
