@@ -11,7 +11,6 @@ import {
     Alert,
     RefreshControl,
     TouchableOpacity,
-    Platform,
 } from 'react-native';
 import Video from 'react-native-video';
 
@@ -44,9 +43,6 @@ import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
 import {isTablet} from '../../../../assets/constants/theme';
-import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
-import {NativeSyntheticEvent, NativeScrollEvent} from 'react-native';
-
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -89,97 +85,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const [refreshing, setRefreshing] = useState(false);
     const [skipped, setSkipped] = useState(false);
-
-    const [hasShownAd, setHasShownAd] = useState(false);
-    const [adLoaded, setAdLoaded] = useState(false);
-    const interstitialRef = useRef<InterstitialAd | null>(null);
-
-    // distance tracking (useRef to avoid re-renders on every scroll tick)
-    const lastAdPosRef = useRef(0);
-    const adLoadedRef = useRef(false); // useRef so we don't re-render
-    const pendingShowRef = useRef(false); // request to show once loaded
-    const cooldownRef = useRef(false); // safety: prevent double-fire
-
-    const PROD_IDS = Platform.select({
-        android: 'ca-app-pub-8264001768347242/5970565210', // <-- your real ANDROID id
-        ios: 'ca-app-pub-8264001768347242/4713688822', // <-- your real iOS id (make a separate unit in AdMob)
-    });
-
-    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
-
-    // --- keep your unit IDs as-is
-    useEffect(() => {
-        if (!interstitialUnitId) return;
-
-        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
-            requestNonPersonalizedAdsOnly: true,
-        });
-        interstitialRef.current = ad;
-
-        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-            adLoadedRef.current = true;
-            // auto-show if loadMore requested an ad
-            if (pendingShowRef.current && !cooldownRef.current) {
-                cooldownRef.current = true;
-                ad.show();
-                pendingShowRef.current = false;
-                // short cooldown to avoid accidental double show
-                setTimeout(() => (cooldownRef.current = false), 1500);
-            }
-        });
-
-        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
-            adLoadedRef.current = false;
-            // always prepare the next one
-            ad.load();
-        });
-
-        const offError = ad.addAdEventListener(AdEventType.ERROR, () => {
-            adLoadedRef.current = false;
-            // optional: retry load after a brief delay
-            setTimeout(() => ad.load(), 1000);
-        });
-
-        ad.load();
-
-        return () => {
-            offLoaded();
-            offClosed();
-            offError();
-            interstitialRef.current = null;
-        };
-    }, [interstitialUnitId]);
-
-    // 4) helper to show ad
-    const showInterstitialAd = () => {
-        console.log('showInterstitialAd called', {
-            adLoaded: adLoadedRef.current,
-            cooldown: cooldownRef.current,
-            hasAdRef: !!interstitialRef.current,
-        });
-
-        pendingShowRef.current = true;
-        const ad = interstitialRef.current;
-        if (!ad) {
-            console.log('No ad reference');
-            return;
-        }
-
-        if (adLoadedRef.current && !cooldownRef.current) {
-            console.log('Showing ad immediately');
-            cooldownRef.current = true;
-            ad.show();
-            pendingShowRef.current = false;
-            setTimeout(() => (cooldownRef.current = false), 1500);
-        } else {
-            console.log('Ad not ready, requesting load');
-            try {
-                ad.load();
-            } catch (error) {
-                console.log('Error loading ad:', error);
-            }
-        }
-    };
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
@@ -254,7 +159,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                 setPosts(prevPosts => [...prevPosts, ...combinedItems]);
             }
 
-            setHasMore(fetchedPosts.length === 20 || fetchedPolls.length === 20);
+            setHasMore(fetchedPosts.length === 10 || fetchedPolls.length === 10);
             setPage(pageNumber);
         } catch (error) {
             console.error('Failed to fetch posts or follow/block status:', error);
@@ -266,47 +171,25 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const handleScroll = ({nativeEvent}) => {
-        // Keep your existing infinite scroll logic
         if (isCloseToBottom(nativeEvent)) {
             loadMorePosts();
-        }
-
-        // Scroll-based ad logic
-        const scrollY = nativeEvent.contentOffset.y;
-        console.log('Current scroll position:', scrollY, 'Last ad position:', lastAdPosRef.current);
-
-        // Trigger ad every 5000px scrolled
-        if (scrollY - lastAdPosRef.current >= 5000) {
-            console.log('Triggering ad at scroll position:', scrollY);
-            showInterstitialAd();
-            lastAdPosRef.current = scrollY;
         }
     };
 
     const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
-        const paddingToBottom = contentSize.height * 0.35;
+        const paddingToBottom = contentSize.height * 0.25;
         return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
     };
 
-   const loadMorePosts = async () => {
-       if (!hasMore || isLoadingMore) return;
+    const loadMorePosts = async () => {
+        if (!hasMore || isLoadingMore) {
+            return;
+        }
 
-       console.log('loadMorePosts triggered');
-       setIsLoadingMore(true);
-
-       await fetchPostsAndPolls(page + 1, 'false');
-       setIsLoadingMore(false);
-   };
-
-    // const loadMorePosts = async () => {
-    //     if (!hasMore || isLoadingMore) {
-    //         return;
-    //     }
-
-    //     setIsLoadingMore(true);
-    //     await fetchPostsAndPolls(page + 1, 'false');
-    //     setIsLoadingMore(false);
-    // };
+        setIsLoadingMore(true);
+        await fetchPostsAndPolls(page + 1, 'false');
+        setIsLoadingMore(false);
+    };
 
     const handlePostPress = (postId: number) => {
         const selectedPost = posts.find(post => +post.id === postId);
@@ -551,217 +434,223 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     } else if (firstTimeUser && !skipped) {
         return (
             <TabContainer>
-                <Video
-                    source={{uri: 'https://d17ybuhl825fg.cloudfront.net/Intro+Videos/Crummuinty+feed-2.mp4'}}
-                    style={{height: '100%', width: '100%'}}
-                    paused={false} // make it start
-                    repeat={false}
-                    resizeMode="cover"
-                    onEnd={handleVideoEnd}
-                />
+                <SafeAreaView>
+                    <Video
+                        source={{uri: 'https://d1hre5rcnper1r.cloudfront.net/crummunity_guide2.mp4'}}
+                        style={{height: '100%', width: '100%'}}
+                        paused={false} // make it start
+                        repeat={false}
+                        resizeMode="cover"
+                        onEnd={handleVideoEnd}
+                    />
 
-                <TouchableOpacity
-                    style={styles.skipButton}
-                    onPress={() => {
-                        setSkipped(true);
-                        handleVideoEnd();
-                    }}>
-                    <Text style={styles.skipButtonText}>Skip</Text>
-                </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.skipButton}
+                        onPress={() => {
+                            setSkipped(true);
+                            handleVideoEnd();
+                        }}>
+                        <Text style={styles.skipButtonText}>Skip</Text>
+                    </TouchableOpacity>
+                </SafeAreaView>
             </TabContainer>
         );
     } else {
         return (
             <TabContainer>
-                <View>
-                    <ScrollView
-                        stickyHeaderIndices={[0]}
-                        style={{height: SIZES.ScreenHeight}}
-                        onScroll={handleScroll}
-                        scrollEventThrottle={16}
-                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
-                        <View>
-                            <View style={{zIndex: 100}}>
-                                <Header />
-                            </View>
-                            <View
-                                style={{
-                                    height: SIZES.ScreenHeight * 0.26,
-                                    marginTop: isTablet() ? -160 : -68,
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                }}>
-                                <LinearGradient
-                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        top: 0,
-                                        height: SIZES.ScreenHeight * 0.26,
-                                    }}
-                                />
-                                <Text style={styles.screenTitle}>What's the Skinny?</Text>
-
-                                <View style={{alignItems: 'center'}}>
-                                    <TouchableWithoutFeedback
-                                        onPress={() => {
-                                            navigation.navigate('CrummunityStack', {
-                                                screen: 'UserSearchResultScreen',
-                                            });
-                                        }}>
-                                        <View style={styles.searchinput}>
-                                            <Icon
-                                                name="magnify"
-                                                type="material-community"
-                                                color={COLORS.DARKGREY}
-                                                size={isTablet() ? 32 : 25}
-                                                style={{marginRight: '2%'}}
-                                            />
-                                            <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>Search users</Text>
-                                        </View>
-                                    </TouchableWithoutFeedback>
+                <SafeAreaView>
+                    <View>
+                        <ScrollView
+                            stickyHeaderIndices={[0]}
+                            style={{height: SIZES.ScreenHeight}}
+                            onScroll={handleScroll}
+                            scrollEventThrottle={16}
+                            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
+                            <View>
+                                <View style={{zIndex: 100}}>
+                                    <Header />
                                 </View>
                                 <View
                                     style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
+                                        height: SIZES.ScreenHeight * 0.26,
+                                        marginTop: isTablet() ? -160 : -68,
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
                                     }}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                                        Crummunity Feed
-                                    </Text>
-                                    <CustomIcon
-                                        name="account-group"
-                                        type="material-community"
-                                        color={COLORS.AKCRUBLUE}
-                                        baseSize={15}
+                                    <LinearGradient
+                                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                        style={{
+                                            position: 'absolute',
+                                            left: 0,
+                                            right: 0,
+                                            top: 0,
+                                            height: SIZES.ScreenHeight * 0.26,
+                                        }}
                                     />
+                                    <Text style={styles.screenTitle}>What's the Skinny?</Text>
+
+                                    <View style={{alignItems: 'center'}}>
+                                        <TouchableWithoutFeedback
+                                            onPress={() => {
+                                                navigation.navigate('CrummunityStack', {
+                                                    screen: 'UserSearchResultScreen',
+                                                });
+                                            }}>
+                                            <View style={styles.searchinput}>
+                                                <Icon
+                                                    name="magnify"
+                                                    type="material-community"
+                                                    color={COLORS.DARKGREY}
+                                                    size={isTablet() ? 32 : 25}
+                                                    style={{marginRight: '2%'}}
+                                                />
+                                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                                    Search users
+                                                </Text>
+                                            </View>
+                                        </TouchableWithoutFeedback>
+                                    </View>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
+                                            Crummunity Feed
+                                        </Text>
+                                        <CustomIcon
+                                            name="account-group"
+                                            type="material-community"
+                                            color={COLORS.AKCRUBLUE}
+                                            baseSize={15}
+                                        />
+                                    </View>
                                 </View>
                             </View>
-                        </View>
-                        <View style={{marginBottom: '23%'}}>
-                            {loadingPosts ? (
-                                <View style={{marginTop: '25%'}}>
-                                    <ActivityIndicator size="large" color={COLORS.PINK} />
-                                </View>
-                            ) : posts.length === 0 ? (
-                                <View>
-                                    <Text style={styles.noPostText}>No Post yet</Text>
-                                </View>
-                            ) : (
-                                <FlatList
-                                    data={posts}
-                                    style={styles.postcontainer}
-                                    keyExtractor={item => item.id}
-                                    // refreshing={refreshing}
-                                    // onRefresh={handleRefresh}
-                                    renderItem={({item}) =>
-                                        item.type === 'poll' ? (
-                                            <Pressable
-                                                onPress={() => handlePollPress(item.id)}
-                                                style={{marginBottom: 10}}>
-                                                <PollCard
-                                                    poll={item}
-                                                    onVote={handleVote}
-                                                    onDeletePoll={handleDeletePoll}
-                                                    currentUserID={currentUserID || ''}
-                                                    akcruBadge={item.user?.badge}
-                                                    akcruBadgeColor={selectAvatarBorderColor(
-                                                        item.user.badge ?? 'AKCRUIT',
-                                                    )}
-                                                    CommentOnPollButton={() =>
-                                                        navigation2.navigate('NewPollComment', {
-                                                            pollId: item.id,
-                                                        })
-                                                    }
-                                                    onLikeOrUnlikePoll={() => onLikeOrUnlikePoll(item.id)}
-                                                    openProfile={() =>
-                                                        navigation2.navigate('ViewUserScreen', {
-                                                            userID: item.user?.id,
-                                                        })
-                                                    }
-                                                    isAdmin={user?.isAdmin}
-                                                />
-                                            </Pressable>
-                                        ) : (
-                                            <Pressable
-                                                onPress={() => handlePostPress(+item.id)}
-                                                style={{marginBottom: 10}}>
-                                                <SkinnyPostCard
-                                                    post={item}
-                                                    loading={loadingPostIds[item.id] || false}
-                                                    openProfile={() =>
-                                                        navigation2.navigate('ViewUserScreen', {
-                                                            userID: item.author?.id,
-                                                        })
-                                                    }
-                                                    reportUser={() => handleReportUser(item.author)}
-                                                    onDeletePost={handleDeletePost}
-                                                    currentUserID={currentUserID || ''}
-                                                    akcruBadge={item.author?.badge}
-                                                    isPostLiked={item.isLikedByCurrentUser}
-                                                    onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
-                                                    CommentOnPostButton={() =>
-                                                        navigation2.navigate('NewComment', {postId: item.id})
-                                                    }
-                                                    isFollowing={item.author.isFollowed}
-                                                    onFollow={() =>
-                                                        handleFollow(item.author.id, item.author.isFollowed)
-                                                    }
-                                                    akcruBadgeColor={selectAvatarBorderColor(
-                                                        item.author.badge ?? 'AKCRUIT',
-                                                    )}
-                                                    onBlockUser={() =>
-                                                        handleToggleBlockUser(
-                                                            item.author.id,
-                                                            item.author.isCurrentlyBlocked,
-                                                        )
-                                                    }
-                                                    isOwner={item.author.ownerStatus}
-                                                    isPromo={item.author.promoUser}
-                                                    isAdmin={user?.isAdmin} // Pass isAdmin prop
-                                                    visionaryStatus={user?.visionaryStatus}
-                                                />
-                                            </Pressable>
-                                        )
-                                    }
-                                    ListFooterComponent={() =>
-                                        hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
-                                    }
-                                />
+                            <View style={{marginBottom: '23%'}}>
+                                {loadingPosts ? (
+                                    <View style={{marginTop: '25%'}}>
+                                        <ActivityIndicator size="large" color={COLORS.PINK} />
+                                    </View>
+                                ) : posts.length === 0 ? (
+                                    <View>
+                                        <Text style={styles.noPostText}>No Post yet</Text>
+                                    </View>
+                                ) : (
+                                    <FlatList
+                                        data={posts}
+                                        style={styles.postcontainer}
+                                        keyExtractor={item => item.id}
+                                        // refreshing={refreshing}
+                                        // onRefresh={handleRefresh}
+                                        renderItem={({item}) =>
+                                            item.type === 'poll' ? (
+                                                <Pressable
+                                                    onPress={() => handlePollPress(item.id)}
+                                                    style={{marginBottom: 10}}>
+                                                    <PollCard
+                                                        poll={item}
+                                                        onVote={handleVote}
+                                                        onDeletePoll={handleDeletePoll}
+                                                        currentUserID={currentUserID || ''}
+                                                        akcruBadge={item.user?.badge}
+                                                        akcruBadgeColor={selectAvatarBorderColor(
+                                                            item.user.badge ?? 'AKCRUIT',
+                                                        )}
+                                                        CommentOnPollButton={() =>
+                                                            navigation2.navigate('NewPollComment', {
+                                                                pollId: item.id,
+                                                            })
+                                                        }
+                                                        onLikeOrUnlikePoll={() => onLikeOrUnlikePoll(item.id)}
+                                                        openProfile={() =>
+                                                            navigation2.navigate('ViewUserScreen', {
+                                                                userID: item.user?.id,
+                                                            })
+                                                        }
+                                                        isAdmin={user?.isAdmin}
+                                                    />
+                                                </Pressable>
+                                            ) : (
+                                                <Pressable
+                                                    onPress={() => handlePostPress(+item.id)}
+                                                    style={{marginBottom: 10}}>
+                                                    <SkinnyPostCard
+                                                        post={item}
+                                                        loading={loadingPostIds[item.id] || false}
+                                                        openProfile={() =>
+                                                            navigation2.navigate('ViewUserScreen', {
+                                                                userID: item.author?.id,
+                                                            })
+                                                        }
+                                                        reportUser={() => handleReportUser(item.author)}
+                                                        onDeletePost={handleDeletePost}
+                                                        currentUserID={currentUserID || ''}
+                                                        akcruBadge={item.author?.badge}
+                                                        isPostLiked={item.isLikedByCurrentUser}
+                                                        onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
+                                                        CommentOnPostButton={() =>
+                                                            navigation2.navigate('NewComment', {postId: item.id})
+                                                        }
+                                                        isFollowing={item.author.isFollowed}
+                                                        onFollow={() =>
+                                                            handleFollow(item.author.id, item.author.isFollowed)
+                                                        }
+                                                        akcruBadgeColor={selectAvatarBorderColor(
+                                                            item.author.badge ?? 'AKCRUIT',
+                                                        )}
+                                                        onBlockUser={() =>
+                                                            handleToggleBlockUser(
+                                                                item.author.id,
+                                                                item.author.isCurrentlyBlocked,
+                                                            )
+                                                        }
+                                                        isOwner={item.author.ownerStatus}
+                                                        isPromo={item.author.promoUser}
+                                                        isAdmin={user?.isAdmin} // Pass isAdmin prop
+                                                        visionaryStatus={user?.visionaryStatus}
+                                                    />
+                                                </Pressable>
+                                            )
+                                        }
+                                        ListFooterComponent={() =>
+                                            hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
+                                        }
+                                    />
+                                )}
+                            </View>
+                        </ScrollView>
+                        <View style={styles.floatingbutton}>
+                            {pollCreator && (
+                                <Pressable onPress={() => navigation2.navigate('NewPoll')}>
+                                    <View>
+                                        <PollButton />
+                                    </View>
+                                </Pressable>
                             )}
-                        </View>
-                    </ScrollView>
-                    <View style={styles.floatingbutton}>
-                        {pollCreator && (
-                            <Pressable onPress={() => navigation2.navigate('NewPoll')}>
-                                <View>
-                                    <PollButton />
-                                </View>
-                            </Pressable>
-                        )}
 
-                        <View>
                             <View>
-                                <PostButton onPress={() => navigation2.navigate('NewPost')} />
+                                <View>
+                                    <PostButton onPress={() => navigation2.navigate('NewPost')} />
+                                </View>
                             </View>
                         </View>
                     </View>
-                </View>
-                <Modal
-                    animationType="fade"
-                    transparent={true}
-                    visible={blockUserModal}
-                    onRequestClose={() => {
-                        setBlockUserModal(!blockUserModal);
-                    }}>
-                    <BlockUserResultModal
-                        closeModal={closeModal}
-                        type={modalType}
-                        resultMessage={blockUserMessage}
-                        iconName={iconName}
-                    />
-                </Modal>
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={blockUserModal}
+                        onRequestClose={() => {
+                            setBlockUserModal(!blockUserModal);
+                        }}>
+                        <BlockUserResultModal
+                            closeModal={closeModal}
+                            type={modalType}
+                            resultMessage={blockUserMessage}
+                            iconName={iconName}
+                        />
+                    </Modal>
+                </SafeAreaView>
             </TabContainer>
         );
     }
