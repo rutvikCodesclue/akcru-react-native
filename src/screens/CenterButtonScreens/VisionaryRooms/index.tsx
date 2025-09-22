@@ -29,6 +29,8 @@ import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import UserDatesCard from '../../../components/UserDateCard';
 import { Icon } from '@rneui/base';
+import { getPendingResponseRooms } from '../../../lib/api/visionary.lib';
+import RoomCard from './RoomCard';
 
 type VisionaryRoom = {
     id: string;
@@ -51,40 +53,25 @@ const VisionaryRooms = () => {
     const {user} = useAuthStore();
 
     const [rooms, setRooms] = useState<VisionaryRoom[]>([]);
-    const [page, setPage] = useState(1);
-
     const [loadingRooms, setLoadingRooms] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
-    const [modalVisible, setModalVisible] = useState(false);
-    const [ownershipMessage, setOwnershipMessage] = useState('');
+    const [attendanceLoading, setAttendanceLoading] = useState(false);
+    const [attendanceMessage, setAtttendanceMessage] = useState('');
 
     useEffect(() => {
-        fetchVisionaryRooms(1);
+        fetchVisionaryRooms();
     }, []);
 
-    const fetchVisionaryRooms = async (pageNumber: number) => {
-        if (user && pageNumber) {
+    const fetchVisionaryRooms = async () => {
+        if (user) {
             setLoadingRooms(true);
-
             try {
-                const roomsResponse = await getPostsByUser(user?.id, pageNumber);
+                const roomsResponse = await getPendingResponseRooms(); // ignore pagination arg, backend should return all
 
-                if (roomsResponse.status === 200) {
-                    const fetchedRooms = roomsResponse.data;
-
-                    if (pageNumber === 1) {
-                        setRooms(fetchedRooms);
-                    } else {
-                        setRooms(prevRooms => [...prevRooms, ...fetchedRooms]);
-                    }
-
-                    setPage(pageNumber);
-                    setHasMore(fetchedRooms.length === 10);
+                if (roomsResponse && roomsResponse.status === 200) {
+                    setRooms(roomsResponse.data);
                 } else {
-                    setPage(1);
                     setRooms([]);
                 }
             } catch (error) {
@@ -95,40 +82,29 @@ const VisionaryRooms = () => {
         }
     };
 
-    // fetch visionary room requests here if user is an admin
-    // copy this screen and edit accordingly
-    // show the red dot on requests button if a list is returned
-    // send list to the above mentioned screen via props and display
-    // use UserDateCard except tapping on it will lead to the Accept/Decline visionary room screen
-    
-
-    const loadMoreRooms = async () => {
-        if (!hasMore || isLoadingMore) return;
-        setIsLoadingMore(true);
-        await fetchVisionaryRooms(page + 1);
-        setIsLoadingMore(false);
-    };
-
-    const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        if (isCloseToBottom(event.nativeEvent)) {
-            loadMoreRooms();
-            console.log('load more rooms');
-        }
-    };
-
-    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}: NativeScrollEvent) => {
-        const paddingToBottom = contentSize.height * 0.25;
-        return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
-    };
-
     const handleInviterPress = (creatorId: string) => {
         clientStackNav.navigate('ViewUserScreen', {userID: creatorId});
     };
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchVisionaryRooms(1);
+        await fetchVisionaryRooms();
         setRefreshing(false);
+    };
+
+    const handleAttendance = async (attending: boolean, roomId: string) => {
+        setAttendanceLoading(true); // show modal
+        setAtttendanceMessage(attending ? 'Marking attendance...' : 'Declining attendance...');
+
+        try {
+            // pretend API call
+            await new Promise(resolve => setTimeout(resolve, 2000)); 
+            console.log(`${attending ? 'attending' : 'declining'}`);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setAttendanceLoading(false); // hide modal
+        }
     };
 
     return (
@@ -138,7 +114,6 @@ const VisionaryRooms = () => {
                     <ScrollView
                         stickyHeaderIndices={[0]}
                         style={{height: SIZES.ScreenHeight}}
-                        onScroll={handleScroll}
                         scrollEventThrottle={16}>
                         <View>
                             <View style={{zIndex: 100}}>
@@ -170,7 +145,7 @@ const VisionaryRooms = () => {
                                 </View>
                             ) : rooms.length === 0 ? (
                                 <View>
-                                    <Text style={styles.noPostText}>No Visionary Rooms created yet</Text>
+                                    <Text style={styles.noPostText}>No Visionary Rooms found yet</Text>
                                 </View>
                             ) : (
                                 <FlatList
@@ -180,11 +155,7 @@ const VisionaryRooms = () => {
                                     refreshing={refreshing}
                                     onRefresh={handleRefresh}
                                     renderItem={({item}) => (
-                                        <Pressable style={{marginBottom: 10}}>
-                                            <UserDatesCard
-                                                id={item.id}
-                                                creator={item.creator}
-                                                isHost={user?.id === item.hostId}
+                                            <RoomCard
                                                 movieId={item.movie.id}
                                                 moviePoster={item.movie.portraitURL}
                                                 movieName={item.movie.title}
@@ -197,73 +168,44 @@ const VisionaryRooms = () => {
                                                 scheduleTime={item.startDate}
                                                 scheduleWith={item.creator?.username ?? ''}
                                                 timezone={item.timezone}
-                                                type="VisionaryRoom"
-                                                creatorId={item.hostId}
-                                                onPressin={() =>
+                                                seeMovie={() =>
                                                     clientStackNav.navigate('ContentDetailScreen', {
                                                         id: item.movie.id,
                                                         movie: item.movie.title,
                                                         _checkPermissions,
                                                     })
                                                 }
-                                                onPress={() => handleInviterPress(item.hostId)}
-                                                setModalVisible={setModalVisible}
-                                                setOwnershipMessage={setOwnershipMessage}
+                                                visitCreator={() => handleInviterPress(item.hostId)}
+                                                handleAttend={() => handleAttendance(true, item.id)}
+                                                handleDecline={() => handleAttendance(false, item.id)}
                                             />
-                                            <>Show your rooms here as movie dates components</>
-                                        </Pressable>
                                     )}
-                                    ListFooterComponent={() =>
-                                        hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
-                                    }
                                 />
                             )}
                         </View>
                     </ScrollView>
+
                     <Modal
                         animationType="fade"
                         transparent={true}
-                        visible={modalVisible}
-                        onRequestClose={() => setModalVisible(false)}>
-                        <View
-                            style={{
-                                flex: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                backgroundColor: 'rgba(0,0,0,0.5)',
-                            }}>
-                            <View
-                                style={{
-                                    width: '80%',
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    padding: 20,
-                                    borderRadius: 10,
-                                    alignItems: 'center',
-                                }}>
-                                <Text style={{...FONTS.Title2, marginBottom: 15}}>{ownershipMessage}</Text>
-                                <TouchableOpacity
-                                    onPress={() => setModalVisible(false)}
-                                    style={{
-                                        backgroundColor: COLORS.AKCRUBLUE,
-                                        padding: 10,
-                                        borderRadius: 8,
-                                    }}>
-                                    <Text style={{color: COLORS.WHITE}}>OK</Text>
-                                </TouchableOpacity>
+                        visible={attendanceLoading}
+                        onRequestClose={() => setAttendanceLoading(false)}>
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <ActivityIndicator size="large" color={COLORS.PINK} />
+                                <Text style={styles.modalText}>{attendanceMessage}</Text>
                             </View>
                         </View>
                     </Modal>
                 </View>
 
+                {/* Floating Button with Notification Dot */}
                 <TouchableOpacity
                     style={styles.floatingButton}
-                    onPress={() => console.log('floating button clicked')}
-                >
+                    onPress={() => console.log('floating button clicked')}>
                     <View>
-                        <Icon name="bell" type='material-community' size={28} color={COLORS.WHITE} />
-                        {true && ( // conditionally show dot
-                            <View style={styles.notificationDot} />
-                        )}
+                        <Icon name="bell" type="material-community" size={28} color={COLORS.WHITE} />
+                        {true && <View style={styles.notificationDot} />}
                     </View>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -334,5 +276,24 @@ const styles = StyleSheet.create({
         height: 10,
         borderRadius: 5,
         backgroundColor: 'red',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        width: '70%',
+    },
+    modalText: {
+        marginTop: 10,
+        ...FONTS.Title3,
+        color: COLORS.WHITE,
+        textAlign: 'center',
     },
 });

@@ -94,3 +94,13 @@ export const cancelVisionaryRoom = async (roomId: string) => {
         console.error('There was an error cancelling the visionary room: ', error)
     }
 }
+
+export const getPendingResponseRooms = async () => {
+    try {
+        const response = await API.get('v1/visionaryRoom/pendingResponseVisionaryRooms')
+
+        return response
+    } catch (error) {
+        console.error('There was an error fetching pending response rooms: ', error)
+    }
+}
