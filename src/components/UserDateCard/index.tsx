@@ -39,12 +39,12 @@ type UserDatesCardProps = {
     timezone: string;
     onPress: () => void;
     cru?: any;
-    creator: any;
+    creator?: any;
     creatorId: any;
     invitee?: any;
     videoRoomPrivileges?: boolean;
-    setModalVisible: (v: boolean) => void;
-    setOwnershipMessage: (v: string) => void;
+    setModalVisible?: (v: boolean) => void;
+    setOwnershipMessage?: (v: string) => void;
 };
 
 const UserDatesCard = ({

@@ -127,3 +127,13 @@ export const rsvpVisionaryRoom = async (roomId: string, status: "ACCEPTED" | "DE
         console.error('There was an error RSVPing to the room: ', error)
     }
 }
+
+export const getAttendingRooms = async () => {
+    try {
+        const response = await API.get('v1/visionaryRoom/attendingVisionaryRooms')
+
+        return response.data.attendingRooms
+    } catch (error) {
+        console.error('There was an error RSVPing to the room: ', error)
+    }
+}

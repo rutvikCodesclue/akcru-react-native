@@ -110,14 +110,7 @@ const UserProfileDatesTab = () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true}) ?? [];
                     const myMITs = await getMyMITInvites({accepted: true, me: true}) ?? [];
-                    const myVRs = await getMyVisionaryRooms(user?.id ?? '') ?? [];
-
-                    const myVisionaryRooms = await Promise.all(
-      myVRs.map(async (vr) => {
-        const creator = await findAUser({ id: vr.hostId });
-        return { ...vr, creator }; // attach creator object directly
-      })
-    );
+                    const myVisionaryRooms = await getMyVisionaryRooms(user?.id ?? '') ?? [];
 
                     if (myCRUViews && myMITs && myVisionaryRooms) {
                         let events = [...myCRUViews, ...myMITs, ...myVisionaryRooms];
@@ -199,7 +192,7 @@ const UserProfileDatesTab = () => {
                             />
                         </View>
                     );
-                } else if (item instanceof Object && 'invitees' in item) {
+                } else if (item instanceof Object && 'invites' in item) {
                     const isHost = user?.id === item.hostId
 
                     return (
