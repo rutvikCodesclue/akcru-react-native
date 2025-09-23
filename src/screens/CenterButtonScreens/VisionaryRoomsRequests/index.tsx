@@ -29,8 +29,9 @@ import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import UserDatesCard from '../../../components/UserDateCard';
 import { Icon } from '@rneui/base';
-import { getPendingResponseRooms, getPendingRooms, rsvpVisionaryRoom } from '../../../lib/api/visionary.lib';
+import { getPendingResponseRooms, getPendingRooms } from '../../../lib/api/visionary.lib';
 import RoomCard from './RoomCard';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 type VisionaryRoom = {
     id: string;
@@ -46,14 +47,14 @@ type VisionaryRoom = {
     status: string;
 };
 
-const VisionaryRooms = () => {
+const VisionaryRoomsRequests = () => {
     const AKCRUButtonNav = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
     const clientStackNav = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+    const noBottomStackNav = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const {user} = useAuthStore();
 
     const [rooms, setRooms] = useState<VisionaryRoom[]>([]);
-    const [pendingRooms, setPendingRooms] = useState<VisionaryRoom[]>([])
     const [loadingRooms, setLoadingRooms] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -61,31 +62,8 @@ const VisionaryRooms = () => {
     const [attendanceMessage, setAtttendanceMessage] = useState('');
 
     useEffect(() => {
-        if (user) {
-            fetchVisionaryRooms();
-
-            if (user.isAdmin) {
-                fetchPendingVisionaryRooms()
-            }
-        }
+        fetchPendingVisionaryRooms();
     }, []);
-
-    const fetchVisionaryRooms = async () => {
-            setLoadingRooms(true);
-            try {
-                const roomsResponse = await getPendingResponseRooms();
-
-                if (roomsResponse && roomsResponse.status === 200) {
-                    setRooms(roomsResponse.data.rooms);
-                } else {
-                    setRooms([]);
-                }
-            } catch (error) {
-                console.error('Failed to fetch pending response rooms:', error);
-            } finally {
-                setLoadingRooms(false);
-            }
-    };
 
     const fetchPendingVisionaryRooms = async () => {
             setLoadingRooms(true);
@@ -93,9 +71,9 @@ const VisionaryRooms = () => {
                 const pendingRoomsResponse = await getPendingRooms();
 
                 if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
-                    setPendingRooms(pendingRoomsResponse.data.pendingRooms);
+                    setRooms(pendingRoomsResponse.data.rooms);
                 } else {
-                    setPendingRooms([]);
+                    setRooms([]);
                 }
             } catch (error) {
                 console.error('Failed to fetch pending rooms:', error);
@@ -104,37 +82,18 @@ const VisionaryRooms = () => {
             }
     };
 
-    const handleViewRoomRequests = () => {
-        AKCRUButtonNav.navigate('VisionaryRoomsRequests')
-    }
-
     const handleInviterPress = (creatorId: string) => {
         clientStackNav.navigate('ViewUserScreen', {userID: creatorId});
     };
 
     const handleRefresh = async () => {
         setRefreshing(true);
-        await fetchVisionaryRooms();
         await fetchPendingVisionaryRooms();
         setRefreshing(false);
     };
 
-    const handleAttendance = async (attending: boolean, roomId: string) => {
-        setAttendanceLoading(true); 
-        setAtttendanceMessage(attending ? "Marking attendance..." : "Declining attendance...");
-
-        try {
-            const status = attending ? "ACCEPTED" : "DECLINED";
-            const result = await rsvpVisionaryRoom(roomId, status);
-
-            console.log("RSVP Success:", result?.data.message);
-            // Optionally show a toast/snackbar here
-        } catch (err) {
-            console.error("RSVP failed:", err);
-            // Show error toast/snackbar here
-        } finally {
-            setAttendanceLoading(false);
-        }
+    const handleViewRequest = async (room: VisionaryRoom) => {
+        noBottomStackNav.navigate('VisionaryRoomRequest', {room})
     };
 
     return (
@@ -205,46 +164,20 @@ const VisionaryRooms = () => {
                                                     })
                                                 }
                                                 visitCreator={() => handleInviterPress(item.hostId)}
-                                                handleAttend={() => handleAttendance(true, item.id)}
-                                                handleDecline={() => handleAttendance(false, item.id)}
+                                                viewRequest={() => handleViewRequest(item)}
                                             />
                                     )}
                                 />
                             )}
                         </View>
                     </ScrollView>
-
-                    <Modal
-                        animationType="fade"
-                        transparent={true}
-                        visible={attendanceLoading}
-                        onRequestClose={() => setAttendanceLoading(false)}>
-                        <View style={styles.modalOverlay}>
-                            <View style={styles.modalContent}>
-                                <ActivityIndicator size="large" color={COLORS.PINK} />
-                                <Text style={styles.modalText}>{attendanceMessage}</Text>
-                            </View>
-                        </View>
-                    </Modal>
                 </View>
-
-                {/* Floating Button with Notification Dot */}
-                {user && user.isAdmin && (
-                    <TouchableOpacity
-                        style={styles.floatingButton}
-                        onPress={() => handleViewRoomRequests()}>
-                        <View>
-                            <Icon name="bell" type="material-community" size={28} color={COLORS.WHITE} />
-                            {pendingRooms && pendingRooms.length && <View style={styles.notificationDot} />}
-                        </View>
-                    </TouchableOpacity>
-                )}
             </SafeAreaView>
         </TabContainer>
     );
 };
 
-export default VisionaryRooms;
+export default VisionaryRoomsRequests;
 
 const styles = StyleSheet.create({
     title: {

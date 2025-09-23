@@ -21,6 +21,7 @@ import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
+import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -44,6 +45,7 @@ export type ClientStackParams = {
     AkcruCenterButton: any;
     AwardScreen: any;
     PurchaseAdScreen: any;
+    ContentDetailScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -179,6 +181,13 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="PurchaseAdScreen"
                 component={PurchaseAdScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ClientSearch.Screen
+                name="ContentDetailScreen"
+                component={ContentDetailScreen}
                 options={{
                     headerShown: false,
                 }}

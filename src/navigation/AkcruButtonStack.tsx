@@ -10,6 +10,7 @@ import {CrusaderStack} from './CrusaderStack';
 import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
 import VisionaryRooms from '../screens/CenterButtonScreens/VisionaryRooms';
+import VisionaryRoomsRequests from '../screens/CenterButtonScreens/VisionaryRoomsRequests';
 
 export type AkcruButtonStackParams = {
     PurchaseMITScreen: any;
@@ -22,6 +23,7 @@ export type AkcruButtonStackParams = {
     CrusaderScreen: any;
     PurchaseAdScreen: any;
     VisionaryRooms: any;
+    VisionaryRoomsRequests: any;
 };
 
 const AkcruBtn = createStackNavigator<AkcruButtonStackParams>();
@@ -87,6 +89,13 @@ export default function AkcruButtonStack() {
             <AkcruBtn.Screen 
                 name="VisionaryRooms"
                 component={VisionaryRooms}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AkcruBtn.Screen 
+                name="VisionaryRoomsRequests"
+                component={VisionaryRoomsRequests}
                 options={{
                     headerShown: false,
                 }}

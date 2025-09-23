@@ -188,20 +188,29 @@ export type IMITInvite = {
     updatedAt?: string;
 };
 
-export type IVisionaryRoom = {
-    creator: any;
-    id: string;
-    movieId: string;
-    movie: IMovie;
-    startDate: string;
-    timezone: string;
-    createdAt: string;
-    updatedAt: string;
-    hostId: string;
-    creator?: IUserProfile; 
-    invitees: IUserProfile[];
-    status: string;
+export interface IVisionaryRoom {
+  id: string;
+  movieId: string;
+  movie: IMovie;
+  startDate: string;
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+  hostId: string;
+  creator: IUserProfile;
+  invites: Invite[];
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
 }
+
+export interface InvIVisionaryRoomInvite {
+  id: string;
+  userId: string;
+  user: IUserProfile;
+  visionaryRoomId: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type INotification = {
     id: string;

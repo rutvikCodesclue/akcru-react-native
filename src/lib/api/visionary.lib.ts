@@ -104,3 +104,26 @@ export const getPendingResponseRooms = async () => {
         console.error('There was an error fetching pending response rooms: ', error)
     }
 }
+
+export const getPendingRooms = async () => {
+    try {
+        const response = await API.get('v1/visionaryRoom/pendingVisionaryRooms')
+
+        return response
+    } catch (error) {
+        console.error('There was an error fetching pending response rooms: ', error)
+    }
+}
+
+export const rsvpVisionaryRoom = async (roomId: string, status: "ACCEPTED" | "DECLINED") => {
+    try {
+        const response = await API.post("v1/visionaryRoom/rsvpVisionaryRoom", {
+            roomId,
+            status,
+        });
+
+        return response
+    } catch (error) {
+        console.error('There was an error RSVPing to the room: ', error)
+    }
+}

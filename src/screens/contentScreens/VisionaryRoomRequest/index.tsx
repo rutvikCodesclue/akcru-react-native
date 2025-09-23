@@ -72,9 +72,10 @@ interface VisionaryRoom {
 
 const VisionaryRoomRequest = ({navigation, route}: Props) => {
     const navigation2 = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
-    const roomId = route.params?.roomId;
     const {user} = useAuthStore();
-    const [visionaryRoom, setVisionaryRoom] = useState<VisionaryRoom>();
+
+    const visionaryRoom = route.params?.room;
+
     const [creator, setCreator] = useState<IUserProfile>();
     const [movie, setMovie] = useState<IMovie | null>();
     const [isLoading, setIsLoading] = useState(true);
@@ -84,52 +85,52 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
     const [decisionMadeModal, setDecisionMadeModalVisible] = useState(false);
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Fetch the visionary room
-                const roomRes = await getVisionaryRoom(roomId);
-                console.log('Fetched room:', roomRes);
-                const room = roomRes?.visionaryRoom;
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             // Fetch the visionary room
+    //             const roomRes = await getVisionaryRoom(roomId);
+    //             console.log('Fetched room:', roomRes);
+    //             const room = roomRes?.visionaryRoom;
 
-                setVisionaryRoom(room);
+    //             setVisionaryRoom(room);
 
-                if (room) {
+    //             if (room) {
                     
-                    if (room.status !== 'PENDING') {
-                        setDecisionMadeModalVisible(true);
-                    } else {
-                        setDecisionMadeModalVisible(false);
-                    }
-                    // Fetch the creator
-                    try {
-                        const creatorRes = await findAUser({id: room.hostId});
-                        console.log('Creator:', creatorRes?.MITCount);
-                        setCreator(creatorRes);
-                    } catch (err) {
-                        console.error('Failed to fetch room creator:', err);
-                    }
+    //                 if (room.status !== 'PENDING') {
+    //                     setDecisionMadeModalVisible(true);
+    //                 } else {
+    //                     setDecisionMadeModalVisible(false);
+    //                 }
+    //                 // Fetch the creator
+    //                 try {
+    //                     const creatorRes = await findAUser({id: room.hostId});
+    //                     console.log('Creator:', creatorRes?.MITCount);
+    //                     setCreator(creatorRes);
+    //                 } catch (err) {
+    //                     console.error('Failed to fetch room creator:', err);
+    //                 }
 
-                    // Fetch the movie
-                    try {
-                        const movieRes = await findMovieById(room.movieId);
-                        console.log('Movie fetched:', movieRes);
-                        setMovie(movieRes);
-                    } catch (err) {
-                        console.error('Failed to fetch movie:', err);
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to fetch visionary room:', err);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+    //                 // Fetch the movie
+    //                 try {
+    //                     const movieRes = await findMovieById(room.movieId);
+    //                     console.log('Movie fetched:', movieRes);
+    //                     setMovie(movieRes);
+    //                 } catch (err) {
+    //                     console.error('Failed to fetch movie:', err);
+    //                 }
+    //             }
+    //         } catch (err) {
+    //             console.error('Failed to fetch visionary room:', err);
+    //         } finally {
+    //             setIsLoading(false);
+    //         }
+    //     };
 
-        if (roomId) {
-            fetchData();
-        }
-    }, [roomId]);
+    //     if (roomId) {
+    //         fetchData();
+    //     }
+    // }, [visionaryRoom.id]);
 
     // 👇 add to a list
     const users = [];
@@ -138,9 +139,6 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
 
     const [loading, setLoading] = useState(false);
     const [accepted, setAccepted] = useState(false);
-
-    const [invitedUsers, setInvitedUsers] = useState<IUserProfile[]>([]);
-    // var roomId = '';
 
     const hmsInstanceRef = useRef<HMSSDK | null>(null);
 
@@ -159,7 +157,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
             const apiDecision = decision === 'accept' ? 'ACCEPTED' : 'DECLINED';
 
             if (creator) {
-                const data = await requestDecision(creator.id, roomId, apiDecision);
+                const data = await requestDecision(creator.id, visionaryRoom.id, apiDecision);
                 console.log('data decision: ', data);
                 if (data.success) {
                     if (decision === 'accept') {
@@ -524,102 +522,6 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
                                             ".
                                         </Text>
                                     </View>
-                                    {/* Invited Users list */}
-                                    {invitedUsers.length > 0 && (
-                                        <>
-                                            <View style={{marginTop: 20}}></View>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.Title3,
-                                                    marginTop: 10,
-                                                    marginBottom: 10,
-                                                    marginRight: 10,
-                                                    textAlign: 'center',
-                                                    textDecorationLine: 'underline',
-                                                }}>
-                                                Invited Users
-                                            </Text>
-                                            <ScrollView
-                                                horizontal
-                                                showsHorizontalScrollIndicator={false}
-                                                contentContainerStyle={{
-                                                    paddingHorizontal: 10,
-                                                    marginTop: 10,
-                                                }}>
-                                                {invitedUsers.map(user => (
-                                                    <View
-                                                        key={user.id}
-                                                        style={{
-                                                            flexDirection: 'row',
-                                                            alignItems: 'center',
-                                                            justifyContent: 'center',
-                                                            marginRight: 10, // spacing between cards
-                                                        }}>
-                                                        <View
-                                                            style={{
-                                                                borderRadius: 5,
-                                                                backgroundColor: COLORS.TAGCOLOR,
-                                                                width: SIZES.ScreenWidth / 1.8,
-                                                                padding: 10,
-                                                            }}>
-                                                            <LinearGradient
-                                                                colors={[
-                                                                    COLORS.FADEDBLACK,
-                                                                    'transparent',
-                                                                    COLORS.FADEDBLACK,
-                                                                ]}
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    left: 0,
-                                                                    right: 0,
-                                                                    top: 0,
-                                                                    bottom: 0,
-                                                                    width: SIZES.ScreenWidth / 1.8,
-                                                                    borderRadius: 5,
-                                                                }}
-                                                            />
-                                                            <View
-                                                                style={{
-                                                                    flexDirection: 'row',
-                                                                    justifyContent: 'center',
-                                                                }}>
-                                                                <View>
-                                                                    <HexAvatar
-                                                                        source={
-                                                                            user.profilePicture
-                                                                                ? {uri: user.profilePicture}
-                                                                                : imageindex.Akcruplaceholder
-                                                                        }
-                                                                        size={MULTISIZES.Xlarge43}
-                                                                        bordercolor={selectAvatarBorderColor(
-                                                                            user.badge ?? '',
-                                                                        )}
-                                                                    />
-                                                                </View>
-                                                                <View style={{marginLeft: 10}}>
-                                                                    <Text style={{...FONTS.Title2}}>
-                                                                        {user.username}
-                                                                    </Text>
-                                                                    {user.badge === 'AKCRUIT' && (
-                                                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                                                    )}
-                                                                    {user.badge === 'GUARDIAN' && (
-                                                                        <AkcruLevels.AkcruBadgeGuardian />
-                                                                    )}
-                                                                    {user.badge === 'HERO' && (
-                                                                        <AkcruLevels.AkcruBadgeHero />
-                                                                    )}
-                                                                    {user.badge === 'SUPERHERO' && (
-                                                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                                                    )}
-                                                                </View>
-                                                            </View>
-                                                        </View>
-                                                    </View>
-                                                ))}
-                                            </ScrollView>
-                                        </>
-                                    )}
                                     <View style={{marginTop: 25}}>
                                         <MITSwipe
                                             decline={() => handleDecision('decline')}
