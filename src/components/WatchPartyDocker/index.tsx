@@ -19,6 +19,9 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
     const [screenWidth, setScreenWidth] = useState(width);
     const [isscreenWidthSet, setIsScreenWidthSet] = useState(false);
 
+    const filteredPeerTrackNodes = peerTrackNodes.filter(node =>
+  members.some(member => member.peerID === node.peer.peerID))
+
     const toggledrawer = () => {
         if (!isDrawer) {
             setIsDrawer(true);
@@ -36,7 +39,7 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
 
     const membersList = (
         <ScrollView showsVerticalScrollIndicator={false}>
-            {peerTrackNodes.map((item: any) => {
+            {filteredPeerTrackNodes.map((item: any) => {
                 // Determine whether to show the Host badge
                 let showHostBadge = false;
                 if (members.length > 0) {

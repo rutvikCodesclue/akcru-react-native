@@ -188,6 +188,30 @@ export type IMITInvite = {
     updatedAt?: string;
 };
 
+export interface IVisionaryRoom {
+  id: string;
+  movieId: string;
+  movie: IMovie;
+  startDate: string;
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+  hostId: string;
+  creator: IUserProfile;
+  invites: Invite[];
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+}
+
+export interface InvIVisionaryRoomInvite {
+  id: string;
+  userId: string;
+  user: IUserProfile;
+  visionaryRoomId: string;
+  status: "PENDING" | "ACCEPTED" | "DECLINED";
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type INotification = {
     id: string;
     type:
@@ -215,7 +239,12 @@ export type INotification = {
         | 'UserTaggedOnPoll'
         | 'UserTaggedOnPollComment'
         | 'UserLikedPollComment'
-        | 'UserLikedPoll';
+        | 'UserLikedPoll'
+        | 'VisionaryRoomScheduled'
+        | 'VisionaryRoomRequested'
+        | 'VisionaryRoomRequestDeclined'
+        | 'VisionaryRoomRequestAccepted'
+        | 'VisionaryRoomInvite';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;

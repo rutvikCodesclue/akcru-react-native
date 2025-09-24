@@ -32,7 +32,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     };
     const handlePressCalendar = () => {
         navigation.navigate('AkcruButtonStack', {
-            screen: 'AkcruNetworkScreen',
+            screen: 'VisionaryRooms',
         });
         toggleOpened();
     };

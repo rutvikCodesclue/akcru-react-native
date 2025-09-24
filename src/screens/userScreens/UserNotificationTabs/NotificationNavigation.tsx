@@ -6,7 +6,10 @@ import {navigate} from '../../../util/RootNavigation';
 export function navigateToScreen(screenname: string, params?: object) {
     if (screenname === 'UserProfileScreen') {
         navigate('UserProfileStack', {screen: 'UserProfileScreen', params: params});
-    } else {
+    } else if (screenname === 'VisionaryRooms') {
+        navigate('AkcruButtonStack', {screen: screenname})
+    }
+    else {
         navigate('NoBottomStack', {screen: screenname, params: params});
     }
 }
@@ -156,6 +159,16 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     profilePicture: senderProfilePicture,
                     username: senderUsername,
                 });
+                break;
+            case 'VisionaryRoomRequested':
+                const roomId = notification.visionaryRoomId
+                navigateToScreen('VisionaryRoomRequest', {roomId: roomId})
+                break;
+            case 'VisionaryRoomInvite':
+                navigateToScreen('VisionaryRooms')
+                break;
+            case 'VisionaryRoomRequestAccepted':
+                navigateToScreen('UserProfileScreen', {tabKey: 'second'})
                 break;
             default:
                 console.warn('Unhandled notification type:', notification.type);

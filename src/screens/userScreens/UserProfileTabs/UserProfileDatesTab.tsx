@@ -1,10 +1,10 @@
-import {View, Text, ScrollView, Platform} from 'react-native';
+import {View, Text, ScrollView, Platform, Modal, TouchableOpacity} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import UserDatesCard from '../../../components/UserDateCard';
 import {getMyCRUViews} from '../../../lib/api/cru.lib';
-import {ICruView, IMITInvite} from '../../../../types';
+import {ICruView, IMITInvite, IVisionaryRoom} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
 import {formatMovieDuration} from '../../../util/util';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
@@ -15,14 +15,19 @@ import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import {isAfter, isBefore} from 'date-fns';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {UseTabMenu} from '../../../context/TabContext';
+import { getAttendingRooms, getMyVisionaryRooms } from '../../../lib/api/visionary.lib';
+import { findAUser } from '../../../lib/api/user.lib';
 
 const UserProfileDatesTab = () => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
     const user = useAuthStore.getState().user;
-    const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
+    const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite | IVisionaryRoom)[]>([]);
     const {refetchDates, setRefetchDates} = UseTabMenu();
     const [cameraPermission, setCameraPermission] = useState<boolean>(false);
     const [micPermission, setMicPermission] = useState<boolean>(false);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [ownershipMessage, setOwnershipMessage] = useState('');
 
     const _checkPermissions = async () => {
         //check permissions for camera and microphone on android
@@ -103,10 +108,12 @@ const UserProfileDatesTab = () => {
         React.useCallback(() => {
             const fetchMyEvents = async () => {
                 try {
-                    const myCRUViews = await getMyCRUViews({upcoming: true});
-                    const myMITs = await getMyMITInvites({accepted: true, me: true});
-                    if (myCRUViews && myMITs) {
-                        let events = [...myCRUViews, ...myMITs];
+                    const myCRUViews = await getMyCRUViews({upcoming: true}) ?? [];
+                    const myMITs = await getMyMITInvites({accepted: true, me: true}) ?? [];
+                    const myVisionaryRooms = await getAttendingRooms() ?? [];
+
+                    if (myCRUViews && myMITs && myVisionaryRooms) {
+                        let events = [...myCRUViews, ...myMITs, ...myVisionaryRooms];
 
                         setMyEvents(
                             events.sort((a, b) => {
@@ -185,7 +192,7 @@ const UserProfileDatesTab = () => {
                             />
                         </View>
                     );
-                } else {
+                } else if (item instanceof Object && 'invitee' in item){
                     const scheduleWith =
                         item.creator.id === user?.id ? ` ${item.invitee.username}` : `${item.creator.username}`;
                     const isHost = item.creator.id === user?.id;
@@ -223,7 +230,44 @@ const UserProfileDatesTab = () => {
                             />
                         </View>
                     );
-                }
+                } else {
+                    const isHost = user?.id === item.hostId
+
+                    return (
+                        <View key={item.id} style={{marginBottom: 10}}>
+                            <UserDatesCard
+                                id={item.id}
+                                creator={item.creator}
+                                isHost={isHost}
+                                movieId={item.movie.id}
+                                moviePoster={item.movie.portraitURL}
+                                movieName={item.movie.title}
+                                length={formatMovieDuration(item.movie.duration)}
+                                movieYear={item.movie.year}
+                                movieRated={item.movie.rated}
+                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                movieRating={item.movie.rating}
+                                scheduleDate={item.startDate}
+                                scheduleTime={item.startDate}
+                                scheduleWith={item.creator.username}
+                                timezone={item.timezone}
+                                type="VisionaryRoom"
+                                creatorId={item.hostId}
+                                onPressin={() =>
+                                    navigation.navigate('ContentDetailScreen', {
+                                        id: item.movie.id,
+                                        movie: item.movie.title,
+                                        _checkPermissions,
+                                    })
+                                }
+                                onPress={() => handleInviterPress(item.hostId)}
+                                setModalVisible={setModalVisible}
+                                setOwnershipMessage={setOwnershipMessage}
+                            />
+                        </View>
+                    );
+                } 
+                
             });
         }
     };
@@ -236,6 +280,38 @@ const UserProfileDatesTab = () => {
                 </View>
                 <View style={{marginBottom: 75}}>{_renderMyEvents()}</View>
             </ScrollView>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}>
+                <View style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.5)'
+                }}>
+                    <View style={{
+                        width: '80%',
+                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                        padding: 20,
+                        borderRadius: 10,
+                        alignItems: 'center'
+                    }}>
+                        <Text style={{...FONTS.Title2, marginBottom: 15}}>{ownershipMessage}</Text>
+                        <TouchableOpacity
+                            onPress={() => setModalVisible(false)}
+                            style={{
+                                backgroundColor: COLORS.AKCRUBLUE,
+                                padding: 10,
+                                borderRadius: 8
+                            }}>
+                            <Text style={{color: COLORS.WHITE}}>OK</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
         </View>
     );
 };

@@ -33,6 +33,7 @@ import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResult
 import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MITDateSchedule';
+import VisionaryRoomSchedule from '../screens/contentScreens/VisionaryRoomScheduleScreen/VisionaryRoomSchedule'
 import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
 import SeriesDetailScreen from '../screens/contentScreens/SeriesDetailScreen';
 import SeriesTrailerPlayer from '../screens/contentScreens/PlaySeriesTrailer';
@@ -66,6 +67,9 @@ import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
 import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebCheckout';
+import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest';
+import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
+import { UserProfileStack } from './UserProfileStack';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -84,6 +88,7 @@ export type NoBottomTabStackParams = {
     ContentDetailScreen: any;
     StartMITDate: any;
     StartWatchPartyView: any;
+    VisionaryWatchParty: any;
     WatchPartyPreview: any;
     Signin: any;
     AkcruButtonStack: any;
@@ -115,6 +120,8 @@ export type NoBottomTabStackParams = {
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
     MITDateSchedule: any;
+    VisionaryRoomSchedule: any;
+    VisionaryRoomRequest: any;
     SearchMovieScreen: any;
     SeriesDetailScreen: any;
     SeriesTrailerPlayer: any;
@@ -145,6 +152,7 @@ export type NoBottomTabStackParams = {
     AdminWalletSearch: any;
     AdPurchaseSuccessScreen: any;
     StripeWebCheckout: any;
+    UserProfileStack: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -318,6 +326,14 @@ export default function NoBottomStack() {
                 }}
             />
             <NoBottom.Screen
+                name="VisionaryWatchParty"
+                component={VisionaryWatchParty}
+                options={{
+                    headerShown: false,
+                    gestureEnabled: false,
+                }}
+            />
+            <NoBottom.Screen
                 name="PostScreen"
                 component={PostScreen}
                 options={{
@@ -472,6 +488,22 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="MITDateSchedule"
                 component={MITDateSchedule}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="VisionaryRoomSchedule"
+                component={VisionaryRoomSchedule}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="VisionaryRoomRequest"
+                component={VisionaryRoomRequest}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
@@ -653,6 +685,11 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="StripeWebCheckout"
                 component={StripeWebCheckout}
+                options={() => ({headerShown: false})}
+            />
+            <NoBottom.Screen
+                name="UserProfileStack"
+                component={UserProfileStack}
                 options={() => ({headerShown: false})}
             />
         </NoBottom.Navigator>

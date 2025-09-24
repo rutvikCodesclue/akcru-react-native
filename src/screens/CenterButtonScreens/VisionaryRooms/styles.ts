@@ -1,5 +1,5 @@
 import {StyleSheet} from 'react-native';
-import {COLORS, FONTS} from '../../../assets/constants';
+import { COLORS, FONTS } from '../../../../assets/constants';
 
 export default StyleSheet.create({
     drawfonttag: {
