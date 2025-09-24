@@ -16,6 +16,7 @@ import {IGenreItem, IUserProfile} from '../../../../types';
 import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
+import {DEFAULT_GENRE_IMAGE} from '../../../../assets/constants/Data';
 type SendMITViewUserNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITViewUser'>;
 
 type SendMITViewUserRouteProp = RouteProp<CrummunityStackParams, 'SendMITViewUser'>;
@@ -44,14 +45,25 @@ const SendMITViewUser = ({route, navigation}: Props) => {
     const [loading, setIsLoading] = React.useState(true);
 
     const fetchGenres = async () => {
-                const serverGenres = await getMovieGenres(); // [{ id, genre, image }]
-                const normalized = (serverGenres ?? []).map(g => ({
-                    ...g,
-                    image: g.image && g.image.trim() ? g.image : DEFAULT_GENRE_IMAGE,
-                }));
-                setGenres(normalized);
-                setIsLoading(false);
-            };
+        const serverGenres = await getMovieGenres(); // [{ id, genre, image }]
+        const normalized = (serverGenres ?? []).map(g => ({
+            ...g,
+            id: (g.id ?? g.genre ?? '').toString(), // ensure string id
+            image: g.image && g.image.trim() ? g.image : DEFAULT_GENRE_IMAGE,
+        }));
+
+        const seen = new Set<string>();
+        const unique = normalized.filter(g => {
+            const k = (g.id || g.genre).toLowerCase();
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+        });
+
+        setGenres(unique);
+        setIsLoading(false);
+    };
+
 
     const handleGenrePress = (genre: IGenreItem) => {
         navigation.navigate('SendMITSearchResult', {
@@ -94,12 +106,18 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                                 alignSelf: 'center',
                             }}>
                             <FlatList
-                                data={loading ? undefined : genres}
+                                data={loading ? [] : genres}
                                 horizontal={false}
                                 numColumns={2}
                                 scrollEnabled={false}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
+                                keyExtractor={(item, index) => {
+                                    // Prefer a real id if present
+                                    const raw = (item?.id ?? item?.genre ?? '').toString().trim();
+                                    // Sanitize to avoid weird characters-only keys like ":" or ""
+                                    const base = raw.length > 0 ? raw : `genre-${index}`;
+                                    return `${base}-${index}`; // ensure uniqueness even if duplicates exist
+                                }}
+                                renderItem={({item}) => (
                                     <View>
                                         <GenreCard
                                             image={item.image}

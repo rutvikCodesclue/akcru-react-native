@@ -12,6 +12,7 @@ import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../util/uti
 import {API} from '../../clients/api.client';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import Orientation from 'react-native-orientation-locker';
+import { isTablet } from '../../../assets/constants/theme';
 
 type Episode = {
     id: string;
@@ -143,6 +144,8 @@ const SeriesDetailCard = ({
 
     // console.log('Filtered Episodes:', filteredEpisodes); // Check filtered episodes
 
+    // In the renderEpisode function, replace the navigation call:
+
     const renderEpisode = ({item}: {item: Episode}) => (
         <View style={{marginTop: 10}}>
             <View style={{flexDirection: 'row'}}>
@@ -150,10 +153,17 @@ const SeriesDetailCard = ({
                     <TouchableOpacity
                         onPress={() => {
                             if (seasonUnlocked) {
-                                navigation.navigate('EpisodePlayer', {
-                                    seriesId: id,
+                                console.log('Navigating to EpisodePlayer with:', {
+                                    seriesId: seriesId, // Use seriesId prop consistently
                                     seasonId: item.seasonId,
                                     episodeId: item.id,
+                                    episode: item, // Pass the full episode object
+                                });
+                                navigation.navigate('EpisodePlayer', {
+                                    seriesId: seriesId, // Changed from 'id' to 'seriesId'
+                                    seasonId: item.seasonId,
+                                    episodeId: item.id,
+                                    episode: item, // Pass the full episode object
                                 });
                             } else {
                                 onLockedPress();
@@ -164,7 +174,7 @@ const SeriesDetailCard = ({
                                 name={seasonUnlocked ? 'play-circle' : 'lock-closed'}
                                 color={seasonUnlocked ? COLORS.TRANSPINK : COLORS.TRANSPINK}
                                 type="ionicon"
-                                baseSize={60}
+                                baseSize={isTablet() ? 120 :60}
                             />
                         </View>
                         <Image

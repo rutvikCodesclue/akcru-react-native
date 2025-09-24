@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity, BackHandler} from 'react-native';
+import {ActivityIndicator, View, StatusBar, AppState, Text, TouchableOpacity, BackHandler, Platform} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -17,6 +17,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 import AkcruOpener from '../../../components/AkcruOpener';
+import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -29,7 +30,7 @@ type Props = {
 
 export default function ContentPlayer({navigation}: Props) {
     const [movie, setMovie] = useState<IMovie | null>(null);
-    const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(true);
+    const [isMoviePlaying, setIsMoviePlaying] = useState<boolean>(false);
     const [hasLottieFirstLoopCompleted, setHasLottieFirstLoopCompleted] = useState(false);
     const {startTimer, pauseTimer, resetTimer, setLastPlaybackPosition, getLastPlaybackPosition, syncWatchTime} =
         useWatchTimeStore();
@@ -42,6 +43,73 @@ export default function ContentPlayer({navigation}: Props) {
     const movieId = routeParams.params?.id;
     const isEpisode = routeParams.params?.isEpisode; // Add this line to get the isEpisode parameter
     let currentTime = 0;
+
+    const [adLoaded, setAdLoaded] = useState(false);
+    const interstitialRef = useRef<InterstitialAd | null>(null);
+
+    const [adDone, setAdDone] = useState(false); // interstitial finished (closed/error/fallback)
+    const adShownRef = useRef(false); // prevent double show
+    const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const PROD_IDS = Platform.select({
+        android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
+        ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
+    });
+
+    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
+
+    // Create & preload interstitial once per mount
+    useEffect(() => {
+        if (!interstitialUnitId) return;
+
+        const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
+            requestNonPersonalizedAdsOnly: true,
+        });
+        interstitialRef.current = ad;
+
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
+            if (!adShownRef.current) {
+                ad.show();
+                adShownRef.current = true;
+            }
+        });
+
+        const offOpened = ad.addAdEventListener(AdEventType.OPENED, () => {
+            // make sure content is paused while ad is up
+            setIsMoviePlaying(false);
+        });
+
+        const finishAdPhase = () => {
+            if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            setAdDone(true);
+        };
+
+        const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
+            finishAdPhase(); // proceed to opener
+            ad.load(); // optional: prepare next time
+        });
+
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => {
+            finishAdPhase(); // no ad available — proceed to opener
+        });
+
+        // Kick off load immediately on mount
+        ad.load();
+
+        // Fallback in case neither LOADED nor ERROR fires quickly
+        fallbackTimerRef.current = setTimeout(() => {
+            if (!adShownRef.current) finishAdPhase();
+        }, 2500);
+
+        return () => {
+            offLoaded();
+            offOpened();
+            offClosed();
+            offError();
+            if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            interstitialRef.current = null;
+        };
+    }, [interstitialUnitId]);
 
     const [loadingError, setLoadingError] = useState<string>('');
 
@@ -129,8 +197,6 @@ export default function ContentPlayer({navigation}: Props) {
                 }
             });
         }
-
-        setIsMoviePlaying(true);
     };
 
     const onProgress = (data: {currentTime: number}) => {
@@ -215,58 +281,65 @@ export default function ContentPlayer({navigation}: Props) {
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
-                {hasLottieFirstLoopCompleted ? (
-                    !loadingError ? (
-                        movie && movie.movieURL ? (
-                            <>
+                {!adDone ? (
+                    // PHASE 1: waiting/playing interstitial
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                        <Text style={{...FONTS.paragraph1, marginTop: 8}}>Loading ad…</Text>
+                    </View>
+                ) : !hasLottieFirstLoopCompleted ? (
+                    // PHASE 2: show opener AFTER ad finishes
+                    <AkcruOpener
+                        onAnimationFinish={() => {
+                            if (!hasLottieFirstLoopCompleted) {
+                                setHasLottieFirstLoopCompleted(true);
+                                setIsMoviePlaying(true); // start movie right after opener
+                            }
+                        }}
+                    />
+                ) : (
+                    // PHASE 3: player
+                    <>
+                        {!loadingError ? (
+                            movie && movie.movieURL ? (
                                 <VideoPlayer
                                     videoRef={videoRef}
                                     source={{
                                         uri: movie.movieURL,
                                         ad: {
-                                            adTagUrl: "https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/vmap_ad_samples&sz=640x480&cust_params=sample_ar%3Dpremidpostoptimizedpodbumper&ciu_szs=300x250&gdfp_req=1&ad_rule=1&output=vmap&unviewed_position_start=1&env=vp&impl=s&cmsid=496&vid=short_onecue&correlator="
-                                        }
+                                            adTagUrl:
+                                                'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480|640x360|640x480&iu=/23317898787/app_video_preroll&env=vp&impl=s&gdfp_req=1&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]',
+                                        },
                                     }}
                                     resizeMode="cover"
                                     tapAnywhereToPause={false}
                                     preventsDisplaySleepDuringVideoPlayback={true}
                                     toggleResizeModeOnFullscreen={false}
-                                    poster={movie.landscapeURL}
+                                    // poster={movie.landscapeURL}
                                     containerStyle={{zIndex: 100}}
                                     disableFullscreen={true}
                                     onBack={onBack}
-                                    paused={!isMoviePlaying}
+                                    paused={!isMoviePlaying} // ← stays paused until opener finished
                                     onPlay={onPlay}
                                     onPause={onPause}
                                     onEnd={onEnd}
                                     onLoad={onLoad}
                                     onProgress={onProgress}
-                                    onError={error => console.log('Video error:', error)}
+                                    onError={e => console.log('Video error:', e)}
                                     title={movie.title}
                                 />
-                            </>
-                        ) : (
-                            <>
-                                {console.log('error')}
+                            ) : (
                                 <ActivityIndicator size="large" color={COLORS.BLACK} />
-                            </>
-                        )
-                    ) : (
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Text style={{color: 'red', fontSize: 16}}>{loadingError}</Text>
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 20}}>
-                                <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>Go Back</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )
-                ) : (
-                    <AkcruOpener
-                        onAnimationFinish={() => {
-                            if (!hasLottieFirstLoopCompleted) {
-                                setHasLottieFirstLoopCompleted(true);
-                            }
-                        }}
-                    />
+                            )
+                        ) : (
+                            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                                <Text style={{color: 'red', fontSize: 16}}>{loadingError}</Text>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={{marginTop: 20}}>
+                                    <Text style={{...FONTS.Title1, color: COLORS.MIDORANGE}}>Go Back</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </>
                 )}
             </View>
         </View>
