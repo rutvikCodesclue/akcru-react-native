@@ -69,6 +69,7 @@ import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/V
 import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebCheckout';
 import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest';
 import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
+import { UserProfileStack } from './UserProfileStack';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -151,6 +152,7 @@ export type NoBottomTabStackParams = {
     AdminWalletSearch: any;
     AdPurchaseSuccessScreen: any;
     StripeWebCheckout: any;
+    UserProfileStack: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -683,6 +685,11 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="StripeWebCheckout"
                 component={StripeWebCheckout}
+                options={() => ({headerShown: false})}
+            />
+            <NoBottom.Screen
+                name="UserProfileStack"
+                component={UserProfileStack}
                 options={() => ({headerShown: false})}
             />
         </NoBottom.Navigator>

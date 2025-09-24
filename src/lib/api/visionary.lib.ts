@@ -1,7 +1,7 @@
 import { IUserProfile } from "../../../types"
 import { API } from "../../clients/api.client"
 
-export const createVisionaryRoom = async (movieId: string, startDate: string, timezone: string, invitees: IUserProfile[]) => {
+export const createVisionaryRoom = async (movieId: string, startDate: string, timezone: string) => {
     try {
         const dateObject = new Date(startDate);
         const now = new Date();
@@ -13,7 +13,7 @@ export const createVisionaryRoom = async (movieId: string, startDate: string, ti
         const formattedStartDate = dateObject.toISOString()
 
         const {data} = await API.post('v1/visionaryRoom/createVisionaryRoom', {
-            movieId, startDate: formattedStartDate, timezone, invitees
+            movieId, startDate: formattedStartDate, timezone
         })
 
         return data
