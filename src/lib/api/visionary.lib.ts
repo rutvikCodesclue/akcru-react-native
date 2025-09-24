@@ -13,7 +13,7 @@ export const createVisionaryRoom = async (movieId: string, startDate: string, ti
         const formattedStartDate = dateObject.toISOString()
 
         const {data} = await API.post('v1/visionaryRoom/createVisionaryRoom', {
-            movieId, startDate: formattedStartDate, timezone,
+            movieId, startDate: formattedStartDate, timezone
         })
 
         return data
