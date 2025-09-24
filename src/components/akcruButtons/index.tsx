@@ -256,6 +256,57 @@ const FollowButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =
     );
 };
 
+const CustomButton = ({
+  btnname,
+  onPress,
+  disabled,
+  color,
+  iconName,
+  iconColor = COLORS.WHITE,
+  iconSize = 18,
+}: BtnProps & {iconName?: string; iconColor?: string; iconSize?: number}) => {
+  return (
+    <View>
+      <TouchableOpacity onPress={onPress} disabled={disabled}>
+        <View
+          style={{
+            backgroundColor: color,
+            height: smallButtonHeight,
+            justifyContent: 'center',
+            borderRadius: 5,
+            alignItems: 'center',
+            flexDirection: 'row',
+            paddingHorizontal: 6,
+            alignSelf: 'flex-start', 
+          }}>
+          <LinearGradient
+            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: 0,
+              height: smallButtonHeight,
+              borderRadius: 5,
+            }}
+          />
+          {/* Icon */}
+          {iconName && (
+              <Icon
+                name={iconName}
+                size={iconSize}
+                color={iconColor}
+                style={{marginRight: 6}}
+              />
+          )}
+          {/* Text */}
+          <Text style={{...FONTS.Title2}}>{btnname}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
 const IconMedButton: React.FC<IconBtnProps> = ({btnname, onPress, color, disabled, icon, type}) => {
     return (
         <View>
@@ -303,6 +354,7 @@ const AkcruButtons = {
     MedButton,
     LrgButton,
     XSmallButton,
+    CustomButton,
     XlLrgButton,
     FollowButton,
     AutoButton,

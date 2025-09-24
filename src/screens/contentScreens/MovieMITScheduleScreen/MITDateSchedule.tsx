@@ -640,6 +640,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 const day = index + 1;
                                                 const isSelected = selectedDate.getDate() === day;
                                                 const currentDate = new Date();
+                                                currentDate.setHours(0, 0, 0, 0); // normalize to start of today
                                                 const currentDay = new Date(currentYear, currentMonth, day);
                                                 const currentDayOfWeek = currentDay.getDay();
 

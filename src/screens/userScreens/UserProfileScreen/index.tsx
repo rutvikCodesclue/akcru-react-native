@@ -40,7 +40,7 @@ import {getCRUInvites, getMyCRUViews} from '../../../lib/api/cru.lib';
 import {isAfter, isBefore} from 'date-fns';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import {getFollowers} from '../../../lib/api/user.lib';
+import {getFollowers, upgradeCRUView} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -90,6 +90,11 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [inviteCount, setInviteCount] = React.useState<number>(0);
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
     const [loading, setLoading] = useState(true); // Loading state
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [loadingUpgrade, setLoadingUpgrade] = useState(false);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [upgradeResult, setUpgradeResult] = useState<'success' | 'error' | null>(null);
+
     useFocusEffect(
         React.useCallback(() => {
             getRoomLimitRouteParam();
@@ -324,6 +329,33 @@ export default function UserProfileScreen({navigation, route}: Props) {
         );
     }
 
+    const handleUpgrade = async () => {
+        try {
+            setLoadingUpgrade(true);
+
+            const res = await upgradeCRUView()
+
+            if (res) {
+                setUpgradeResult('success')
+            } else {
+                setUpgradeResult('error')
+            }
+
+            setShowUpgradeModal(false);
+            setShowResultModal(true);
+            hydrateUser()
+
+            setTimeout(() => setShowResultModal(false), 2000);
+        } catch (err) {
+            setUpgradeResult('error');
+            setShowUpgradeModal(false);
+            setShowResultModal(true);
+            setTimeout(() => setShowResultModal(false), 2000);
+        } finally {
+            setLoadingUpgrade(false);
+        }
+    }
+
     const iconSize = isTablet() ? 18 : 12;
 
     return (
@@ -353,7 +385,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
                                     marginHorizontal: 15,
                                 }}>
-                                <View>
+                                {/* user profile pic, name, badges, */}
+                                <View style={{flex: 1, maxWidth: '25%'}}>
                                     <View style={{marginRight: 8}}>
                                         <TouchableOpacity
                                             onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
@@ -365,16 +398,20 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                            <View>
-                                                <Text style={{...FONTS.Title1}}>{user ? user?.username : 'Guest'}</Text>
-                                                {user?.firstName && (
-                                                    <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
-                                                        {user?.firstName ? user.firstName : ''}
-                                                    </Text>
-                                                )}
-                                            </View>
-
+                                        <View 
+                                            style={{
+                                                flexDirection: 'row',
+                                                flexWrap: 'wrap',
+                                                alignItems: 'center',
+                                                maxWidth: '100%',
+                                            }}
+                                        >
+                                            <Text
+                                                style={{...FONTS.Title1, flexShrink: 1}}
+                                                numberOfLines={2}
+                                                ellipsizeMode="tail">
+                                                {user ? user?.username : 'Guest'}
+                                            </Text>
                                             {user?.ownerStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
@@ -430,6 +467,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 />
                                             )}
                                         </View>
+                                        {user?.firstName && (
+                                            <Text
+                                            style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail">
+                                            {user.firstName}
+                                            </Text>
+                                        )}
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                             {user?.badge === 'AKCRUIT' && (
                                                 <View>
@@ -454,62 +499,83 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </View>
                                     </View>
                                 </View>
-
-                                <View
-                                    style={{
-                                        marginTop: '2%',
-                                        justifyContent: 'center',
-
-                                        alignItems: 'center',
-                                    }}>
-                                    <TouchableOpacity
-                                        onPress={() => navigation.navigate('FollowList')}
+                                
+                                <View style={{flex: 3, maxWidth: '75%'}}>
+                                    <View
+                                    style={{flexDirection: 'column', alignItems: 'flex-start', gap: 20}}
+                                    >
+                                        <View
                                         style={{
-                                            alignItems: 'center',
+                                            flexDirection: 'row',
+                                            width: '100%',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
                                         }}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View
-                                    style={{
-                                        marginTop: '2%',
-                                        justifyContent: 'flex-end',
-                                        alignItems: 'flex-end',
-                                    }}>
-                                    <TouchableOpacity
-                                        onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
-                                        style={{marginRight: '5%'}}>
-                                        <View>
-                                            <Image
-                                                source={imageindex.LrgMIT}
-                                                style={{width: isTablet() ? 85 : 55, height: isTablet() ? 42 : 25}}
-                                            />
-                                        </View>
-                                        <View style={{position: 'absolute', right: 0, bottom: isTablet() ? 20 : 10}}>
                                             <View
                                                 style={{
-                                                    alignItems: 'center',
+                                                    marginTop: '2%',
                                                     justifyContent: 'center',
-                                                    backgroundColor: COLORS.PURPLE,
-                                                    width: 20,
-                                                    height: 20,
-                                                    borderRadius: 15,
+                                                    alignItems: 'center',
+                                                    paddingStart: 55,
                                                 }}>
-                                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>
-                                                    {inviteCount}
-                                                </Text>
+                                                <TouchableOpacity
+                                                    onPress={() => navigation.navigate('FollowList')}
+                                                    style={{
+                                                        alignItems: 'center',
+                                                    }}>
+                                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
+                                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
+                                                </TouchableOpacity>
                                             </View>
+                                            <TouchableOpacity
+                                                onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
+                                                >
+                                                <View>
+                                                    <Image
+                                                        source={imageindex.LrgMIT}
+                                                        style={{width: isTablet() ? 85 : 55, height: isTablet() ? 42 : 25}}
+                                                    />
+                                                </View>
+                                                <View style={{position: 'absolute', right: 0, bottom: isTablet() ? 20 : 10}}>
+                                                    <View
+                                                        style={{
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            backgroundColor: COLORS.PURPLE,
+                                                            width: 20,
+                                                            height: 20,
+                                                            borderRadius: 15,
+                                                        }}>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>
+                                                            {inviteCount}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </TouchableOpacity>
                                         </View>
-                                    </TouchableOpacity>
 
-                                    <View style={{marginTop: '30%'}}>
-                                        <AkcruButtons.XSmallButton
-                                            btnname="Edit Profile"
-                                            onPress={() => navigation.navigate('EditProfile')}
-                                            color={COLORS.PINK}
-                                            disabled={false}
-                                        />
+                                        <View 
+                                        style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end'}}
+                                        >
+                                            {!user?.hasVideoPrivileges ? (
+                                                <View style={{paddingStart: 15}}>
+                                                <AkcruButtons.CustomButton
+                                                    btnname="Upgrade CRU View"
+                                                    onPress={() => setShowUpgradeModal(true)}
+                                                    color={COLORS.CATGREENLGT}
+                                                    disabled={false}
+                                                />
+                                                </View>
+                                            ) : (
+                                                <View style={{width: 1}} /> // placeholder so space-between still works
+                                            )}
+                                            <AkcruButtons.XSmallButton
+                                                btnname="Edit Profile"
+                                                onPress={() => navigation.navigate('EditProfile')}
+                                                color={COLORS.PINK}
+                                                disabled={false}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
                             </View>
@@ -575,6 +641,82 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         </View>
                     </View>
                 </Modal>
+                
+                {/* Upgrade Confirmation Modal */}
+                <Modal animationType="fade" transparent={true} visible={showUpgradeModal}>
+                    <View
+                        style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        }}>
+                        <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text style={{ ...FONTS.Title3, marginBottom: 20, textAlign: 'center' }}>
+                            {'Upgrade your audio CRU view to '}
+                            <Text style={{ color: COLORS.AKCRUBLUE }}>{'video'}</Text>
+                            {' for 100 '}
+                            <Image
+                                source={imageindex.AkcruHexLogo}
+                                style={{
+                                    width: FONTS.Title3.fontSize,
+                                    height: FONTS.Title3.fontSize,
+                                    marginBottom: -3,              
+                                }}
+                                resizeMode="contain"
+                            />
+                            {'? (This action is irreversible)'}
+                        </Text>
+
+                        {/* Buttons Row */}
+                        <View style={{flexDirection: 'row', gap: 20}}>
+                            <TouchableOpacity onPress={() => setShowUpgradeModal(false)} disabled={loadingUpgrade}>
+                            <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>Cancel</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={handleUpgrade} disabled={loadingUpgrade}>
+                            <Text style={{...FONTS.Title2, color: loadingUpgrade ? COLORS.MIDORANGE : COLORS.GREEN}}>
+                                {loadingUpgrade ? 'Loading...' : 'Confirm'}
+                            </Text>
+                            </TouchableOpacity>
+                        </View>
+                        </View>
+                    </View>
+                </Modal>
+                
+                {/* Upgrade Result Modal */}
+                <Modal animationType="fade" transparent={true} visible={showResultModal}>
+                    <View
+                        style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        }}>
+                        <View
+                        style={{
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            padding: 20,
+                            borderRadius: 10,
+                            alignItems: 'center',
+                            marginHorizontal: 15,
+                        }}>
+                        <Text style={{...FONTS.Title3, marginBottom: 10, textAlign: 'center'}}>
+                            {upgradeResult === 'success'
+                            ? 'Upgrade successful!'
+                            : 'Upgrade failed. Please try again.'}
+                        </Text>
+                        </View>
+                    </View>
+                </Modal>
+
             </View>
         </TabContainer>
     );

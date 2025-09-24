@@ -710,6 +710,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                 roomChannelRef={roomChannelRef}
                 videoPlayerRef={videoPlayerRef}
                 syncChannelRef={syncChannelRef}
+                videoRoomPrivileges={videoRoomPrivileges}
             />
 
             {currentRoomHost ? (
@@ -731,6 +732,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
                         peersMuteStatus={peersMuteStatus}
                         currentRoomHost={currentRoomHost}
                         peerTrackNodes={peerTrackNodes}
+                        videoRoomPrivileges={videoRoomPrivileges}
                     />
                 )
             ) : null}
