@@ -197,6 +197,10 @@ const MovieScreen = ({
                                             videoRef={videoPlayerRef}
                                             source={{
                                                 uri: movie?.movieURL,
+                                                ad: {
+                                                    adTagUrl:
+                                                        'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480|640x360|640x480&iu=/23317898787/app_video_preroll&env=vp&impl=s&gdfp_req=1&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]',
+                                                },
                                             }}
                                             mixWithOthers="mix"
                                             showHours={true}
