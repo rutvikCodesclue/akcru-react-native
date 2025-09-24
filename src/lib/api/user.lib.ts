@@ -777,17 +777,20 @@ export const fetchCrusaders = async (): Promise<IUserProfile[] | []> => {
     }
 };
 
-export const upgradeCRUView = async (): Promise<boolean> => {
-    try {
-        const {data} = await API.post('v1/user/unlock-video-cru-view')
-        
-        if (!data.success) {
-            return data.message
-        }
+type PurchaseResult =
+    | {success: true; message: string; purchase: {id: string; amountPaid: number; createdAt: string}; balance: number}
+    | {success: false; error: string; needed?: number; price?: number; balance?: number};
 
-        return data.success
-    } catch (error: any) {
-        console.error('Error upgrading CRU Views: ', error)
-        return false
-    }
-}
+export const upgradeCRUView = async (): Promise<PurchaseResult> => {
+  try {
+    const { data } = await API.post('v1/user/cru-video/purchase');
+    return data as PurchaseResult;
+  } catch {
+    return { success: false, error: 'Network error' };
+  }
+};
+
+export const getCruVideoPrice = async () => {
+    const {data} = await API.get('v1/user/video-cru-view-price');
+    return data as {success: boolean; price?: number; error?: string};
+};

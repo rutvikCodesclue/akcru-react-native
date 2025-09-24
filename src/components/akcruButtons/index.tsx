@@ -2,7 +2,8 @@ import {View, Text, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {FONTS, COLORS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
-import { isTablet } from '../../../assets/constants/theme';
+import {isTablet} from '../../../assets/constants/theme';
+import { Icon } from '@rneui/base';
 
 interface Props {
     btnname: string;
@@ -19,9 +20,19 @@ interface BtnProps {
     disabled?: boolean;
 }
 
+interface IconBtnProps {
+    btnname: string;
+    onPress: () => void;
+    color: string;
+    disabled?: boolean;
+    icon: string;
+    type: string
+}
+
 const buttonHeight = isTablet() ? 60 : 45;
 const smallButtonHeight = isTablet() ? 60 : 40;
 const smallButtonWidth = isTablet() ? 130 : 95;
+const iconsize = isTablet() ? 30 : 20;
 
 const SmallButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     return (
@@ -245,6 +256,48 @@ const FollowButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =
     );
 };
 
+const IconMedButton: React.FC<IconBtnProps> = ({btnname, onPress, color, disabled, icon, type}) => {
+    return (
+        <View>
+            <TouchableOpacity
+                style={{width: SIZES.ScreenWidth / 2.4, height: buttonHeight}}
+                onPress={onPress}
+                disabled={disabled}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: color,
+                        justifyContent: 'center',
+                        borderRadius: 5,
+                        alignItems: 'center'
+                    }}>
+                    <LinearGradient
+                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            height: buttonHeight,
+                            borderRadius: 5,
+                        }}
+                    />
+                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
+                        <Icon
+                            name={icon}
+                            type={type}
+                            color={COLORS.LIGHTGREY}
+                            size={iconsize}
+                            style={{marginRight: 5}}
+                        />
+                        <Text style={{...FONTS.Title1, textAlign: 'center'}}>{btnname}</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+};
+
 const AkcruButtons = {
     SmallButton,
     MedButton,
@@ -253,6 +306,7 @@ const AkcruButtons = {
     XlLrgButton,
     FollowButton,
     AutoButton,
+    IconMedButton,
 };
 
 export default AkcruButtons;

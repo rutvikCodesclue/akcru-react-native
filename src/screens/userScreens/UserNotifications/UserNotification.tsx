@@ -189,7 +189,7 @@ const UserNotification = ({route}: Props) => {
                 </View>
                 <View
                     style={{
-                        marginTop: isTablet() ? -100 : 60,
+                        marginTop: isTablet() ? -100 : -60,
                         backgroundColor: COLORS.AKCRUBACKGROUND,
                     }}>
                     <LinearGradient
