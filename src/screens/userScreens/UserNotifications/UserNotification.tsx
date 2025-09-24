@@ -91,6 +91,7 @@ const UserNotification = ({route}: Props) => {
             VisionaryRoomRequested: 'Visionary Room request received',
             VisionaryRoomRequestAccepted: 'Visionary Room request accepted',
             VisionaryRoomRequestDeclined: 'Visionary Room request declined',
+            VisionaryRoomInvite: 'Visionary Room invite',
         };
         return typeDisplayNames[type] || type;
     };

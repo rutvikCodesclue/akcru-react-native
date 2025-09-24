@@ -79,8 +79,6 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
     const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    
-
     useEffect(() => {
         if (!interstitialUnitId) return; // guard if iOS id not set yet
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
@@ -119,6 +117,7 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     useEffect(() => {
         const fetchMovieData = async () => {
             try {
+                setLoading(true)
                 if (id) {
                     const fetchedMovie: IMovie | null = await findMovieById(id);
                     if (fetchedMovie) {
@@ -127,22 +126,18 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                 }
             } catch (error) {
                 console.error('Error fetching movie data:', error);
+            } finally {
+                setLoading(false)
             }
         };
 
         fetchMovieData();
     }, [id]);
 
-    //Scheduling date states
-<<<<<<< HEAD
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [selectedTime, setSelectedTime] = useState<Date>(new Date());
-=======
     const today = new Date()
     today.setHours(0, 0, 0, 0);
     const [selectedDate, setSelectedDate] = useState(today);
     const [selectedTime, setSelectedTime] = useState(today);
->>>>>>> 7a832e380393873020f38679ecc5c2e8e1920f24
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const months = [
@@ -239,6 +234,18 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
 
     return (
         <View>
+            {loading && (
+                <View
+                    style={{
+                        ...StyleSheet.absoluteFillObject,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10,
+                    }}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                </View>
+            )}
             <ScrollView stickyHeaderIndices={[0]}>
                 <View
                     style={{
@@ -487,18 +494,6 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                     </View>
                 </View>
             </ScrollView>
-            {loading && (
-                <View
-                    style={{
-                        ...StyleSheet.absoluteFillObject,
-                        backgroundColor: 'rgba(0,0,0,0.4)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 10,
-                    }}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                </View>
-            )}
             <Modal visible={showResponseModal} transparent={true} animationType="fade" onRequestClose={() => {}}>
                 <View
                     style={{
