@@ -12,11 +12,11 @@ import {
     TouchableOpacity,
     Modal,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import {getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
@@ -28,10 +28,10 @@ import useAuthStore from '../../../stores/auth.store';
 import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import UserDatesCard from '../../../components/UserDateCard';
-import { Icon } from '@rneui/base';
-import { getPendingResponseRooms, getPendingRooms } from '../../../lib/api/visionary.lib';
+import {Icon} from '@rneui/base';
+import {getPendingResponseRooms, getPendingRooms} from '../../../lib/api/visionary.lib';
 import RoomCard from './RoomCard';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
 type VisionaryRoom = {
     id: string;
@@ -61,25 +61,28 @@ const VisionaryRoomsRequests = () => {
     const [attendanceLoading, setAttendanceLoading] = useState(false);
     const [attendanceMessage, setAtttendanceMessage] = useState('');
 
-    useEffect(() => {
-        fetchPendingVisionaryRooms();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            fetchPendingVisionaryRooms();
+        }, []),
+    );
 
     const fetchPendingVisionaryRooms = async () => {
-            setLoadingRooms(true);
-            try {
-                const pendingRoomsResponse = await getPendingRooms();
+        setLoadingRooms(true);
+        try {
+            const pendingRoomsResponse = await getPendingRooms();
 
-                if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
-                    setRooms(pendingRoomsResponse.data.rooms);
-                } else {
-                    setRooms([]);
-                }
-            } catch (error) {
-                console.error('Failed to fetch pending rooms:', error);
-            } finally {
-                setLoadingRooms(false);
+            if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
+                setRooms(pendingRoomsResponse.data.pendingRooms);
+                console.log('room: ', pendingRoomsResponse.data.pendingRooms)
+            } else {
+                setRooms([]);
             }
+        } catch (error) {
+            console.error('Failed to fetch pending rooms:', error);
+        } finally {
+            setLoadingRooms(false);
+        }
     };
 
     const handleInviterPress = (creatorId: string) => {
@@ -93,21 +96,24 @@ const VisionaryRoomsRequests = () => {
     };
 
     const handleViewRequest = async (room: VisionaryRoom) => {
-        noBottomStackNav.navigate('VisionaryRoomRequest', {room})
+        noBottomStackNav.navigate('VisionaryRoomRequest', {room});
     };
 
     return (
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
                 <View style={{flex: 1}}>
-                    <ScrollView
-                        stickyHeaderIndices={[0]}
-                        style={{height: SIZES.ScreenHeight}}
-                        scrollEventThrottle={16}>
+                    <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight}} scrollEventThrottle={16}>
                         <View>
                             <View style={{zIndex: 100}}>
                                 <Header />
                             </View>
+                            <TouchableOpacity
+                                style={styles.backButton}
+                                onPress={() => AKCRUButtonNav.navigate('VisionaryRooms')}>
+                                <Icon name="chevron-back" type="ionicon" size={22} color={COLORS.LIGHTGREY} />
+                                <Text style={styles.backText}>Back</Text>
+                            </TouchableOpacity>
                             <View
                                 style={{
                                     height: SIZES.ScreenHeight * 0.24,
@@ -124,7 +130,7 @@ const VisionaryRoomsRequests = () => {
                                         height: SIZES.ScreenHeight * 0.24,
                                     }}
                                 />
-                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Visionary Rooms</Text>
+                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Visionary Rooms Requests</Text>
                             </View>
                         </View>
                         <View style={{marginBottom: '23%'}}>
@@ -144,28 +150,28 @@ const VisionaryRoomsRequests = () => {
                                     refreshing={refreshing}
                                     onRefresh={handleRefresh}
                                     renderItem={({item}) => (
-                                            <RoomCard
-                                                movieId={item.movie.id}
-                                                moviePoster={item.movie.portraitURL}
-                                                movieName={item.movie.title}
-                                                length={formatMovieDuration(item.movie.duration)}
-                                                movieYear={item.movie.year}
-                                                movieRated={item.movie.rated}
-                                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                                                movieRating={item.movie.rating}
-                                                scheduleDate={item.startDate}
-                                                scheduleTime={item.startDate}
-                                                scheduleWith={item.creator?.username ?? ''}
-                                                timezone={item.timezone}
-                                                seeMovie={() =>
-                                                    clientStackNav.navigate('ContentDetailScreen', {
-                                                        id: item.movie.id,
-                                                        movie: item.movie.title,
-                                                    })
-                                                }
-                                                visitCreator={() => handleInviterPress(item.hostId)}
-                                                viewRequest={() => handleViewRequest(item)}
-                                            />
+                                        <RoomCard
+                                            movieId={item.movie.id}
+                                            moviePoster={item.movie.portraitURL}
+                                            movieName={item.movie.title}
+                                            length={formatMovieDuration(item.movie.duration)}
+                                            movieYear={item.movie.year}
+                                            movieRated={item.movie.rated}
+                                            movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                            movieRating={item.movie.rating}
+                                            scheduleDate={item.startDate}
+                                            scheduleTime={item.startDate}
+                                            scheduleWith={item.creator?.username ?? ''}
+                                            timezone={item.timezone}
+                                            seeMovie={() =>
+                                                clientStackNav.navigate('ContentDetailScreen', {
+                                                    id: item.movie.id,
+                                                    movie: item.movie.title,
+                                                })
+                                            }
+                                            visitCreator={() => handleInviterPress(item.hostId)}
+                                            viewRequest={() => handleViewRequest(item)}
+                                        />
                                     )}
                                 />
                             )}
@@ -180,11 +186,24 @@ const VisionaryRoomsRequests = () => {
 export default VisionaryRoomsRequests;
 
 const styles = StyleSheet.create({
+    backButton: {
+        position: 'absolute',
+        top: 60, // adjust for iOS/Android status bar
+        left: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        zIndex: 200, // make sure it's above gradient
+    },
+    backText: {
+        ...FONTS.Title3,
+        marginLeft: 5,
+        color: COLORS.LIGHTGREY,
+    },
     title: {
         ...FONTS.Title3,
         marginHorizontal: 15,
         marginBottom: 10,
-        marginTop: '20%',
+        marginTop: '30%',
         alignSelf: 'center',
     },
     title2: {
@@ -232,7 +251,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 5,
     },
-        notificationDot: {
+    notificationDot: {
         position: 'absolute',
         top: 3,
         right: 2,

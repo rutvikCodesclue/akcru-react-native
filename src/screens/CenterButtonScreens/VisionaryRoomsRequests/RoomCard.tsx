@@ -48,6 +48,7 @@ const UserDatesCard = ({
                 backgroundColor: '#1C202A',
                 borderRadius: 5,
                 justifyContent: 'center',
+                marginBottom: 15,
             }}>
             <LinearGradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}

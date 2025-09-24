@@ -1,7 +1,7 @@
 import { IUserProfile } from "../../../types"
 import { API } from "../../clients/api.client"
 
-export const createVisionaryRoom = async (movieId: string, startDate: string, timezone: string, invitees: IUserProfile[]) => {
+export const createVisionaryRoom = async (movieId: string, startDate: string, timezone: string) => {
     try {
         const dateObject = new Date(startDate);
         const now = new Date();
@@ -13,7 +13,7 @@ export const createVisionaryRoom = async (movieId: string, startDate: string, ti
         const formattedStartDate = dateObject.toISOString()
 
         const {data} = await API.post('v1/visionaryRoom/createVisionaryRoom', {
-            movieId, startDate: formattedStartDate, timezone, invitees
+            movieId, startDate: formattedStartDate, timezone,
         })
 
         return data
@@ -131,8 +131,8 @@ export const rsvpVisionaryRoom = async (roomId: string, status: "ACCEPTED" | "DE
 export const getAttendingRooms = async () => {
     try {
         const response = await API.get('v1/visionaryRoom/attendingVisionaryRooms')
-
-        return response.data.attendingRooms
+        console.log('response att: ', response.data.rooms)
+        return response.data.rooms
     } catch (error) {
         console.error('There was an error RSVPing to the room: ', error)
     }

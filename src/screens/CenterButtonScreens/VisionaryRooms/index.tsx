@@ -12,11 +12,11 @@ import {
     TouchableOpacity,
     Modal,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import {getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
@@ -60,21 +60,23 @@ const VisionaryRooms = () => {
     const [attendanceLoading, setAttendanceLoading] = useState(false);
     const [attendanceMessage, setAtttendanceMessage] = useState('');
 
-    useEffect(() => {
-        if (user) {
-            fetchVisionaryRooms();
+    useFocusEffect(
+        useCallback(() => {
+            if (user) {
+                fetchVisionaryRooms();
 
-            if (user.isAdmin) {
-                fetchPendingVisionaryRooms()
+                if (user.isAdmin) {
+                    fetchPendingVisionaryRooms()
+                }
             }
-        }
-    }, []);
+        }, []),
+    );
 
     const fetchVisionaryRooms = async () => {
             setLoadingRooms(true);
             try {
                 const roomsResponse = await getPendingResponseRooms();
-
+                console.log('roomsRes: ', roomsResponse?.data)
                 if (roomsResponse && roomsResponse.status === 200) {
                     setRooms(roomsResponse.data.rooms);
                 } else {
@@ -134,6 +136,7 @@ const VisionaryRooms = () => {
             // Show error toast/snackbar here
         } finally {
             setAttendanceLoading(false);
+            handleRefresh()
         }
     };
 
@@ -235,7 +238,9 @@ const VisionaryRooms = () => {
                         onPress={() => handleViewRoomRequests()}>
                         <View>
                             <Icon name="bell" type="material-community" size={28} color={COLORS.WHITE} />
-                            {pendingRooms && pendingRooms.length && <View style={styles.notificationDot} />}
+                            {pendingRooms && pendingRooms.length > 0 && (
+                                <View style={styles.notificationDot} />
+                            )}
                         </View>
                     </TouchableOpacity>
                 )}

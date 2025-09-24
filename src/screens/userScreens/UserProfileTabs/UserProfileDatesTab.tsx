@@ -15,7 +15,7 @@ import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import {isAfter, isBefore} from 'date-fns';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import {UseTabMenu} from '../../../context/TabContext';
-import { getMyVisionaryRooms } from '../../../lib/api/visionary.lib';
+import { getAttendingRooms, getMyVisionaryRooms } from '../../../lib/api/visionary.lib';
 import { findAUser } from '../../../lib/api/user.lib';
 
 const UserProfileDatesTab = () => {
@@ -110,7 +110,7 @@ const UserProfileDatesTab = () => {
                 try {
                     const myCRUViews = await getMyCRUViews({upcoming: true}) ?? [];
                     const myMITs = await getMyMITInvites({accepted: true, me: true}) ?? [];
-                    const myVisionaryRooms = await getMyVisionaryRooms(user?.id ?? '') ?? [];
+                    const myVisionaryRooms = await getAttendingRooms() ?? [];
 
                     if (myCRUViews && myMITs && myVisionaryRooms) {
                         let events = [...myCRUViews, ...myMITs, ...myVisionaryRooms];
@@ -192,43 +192,7 @@ const UserProfileDatesTab = () => {
                             />
                         </View>
                     );
-                } else if (item instanceof Object && 'invites' in item) {
-                    const isHost = user?.id === item.hostId
-
-                    return (
-                        <View key={item.id} style={{marginBottom: 10}}>
-                            <UserDatesCard
-                                id={item.id}
-                                creator={item.creator}
-                                isHost={isHost}
-                                movieId={item.movie.id}
-                                moviePoster={item.movie.portraitURL}
-                                movieName={item.movie.title}
-                                length={formatMovieDuration(item.movie.duration)}
-                                movieYear={item.movie.year}
-                                movieRated={item.movie.rated}
-                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                                movieRating={item.movie.rating}
-                                scheduleDate={item.startDate}
-                                scheduleTime={item.startDate}
-                                scheduleWith={item.creator.username}
-                                timezone={item.timezone}
-                                type="VisionaryRoom"
-                                creatorId={item.hostId}
-                                onPressin={() =>
-                                    navigation.navigate('ContentDetailScreen', {
-                                        id: item.movie.id,
-                                        movie: item.movie.title,
-                                        _checkPermissions,
-                                    })
-                                }
-                                onPress={() => handleInviterPress(item.hostId)}
-                                setModalVisible={setModalVisible}
-                                setOwnershipMessage={setOwnershipMessage}
-                            />
-                        </View>
-                    );
-                } else {
+                } else if (item instanceof Object && 'invitee' in item){
                     const scheduleWith =
                         item.creator.id === user?.id ? ` ${item.invitee.username}` : `${item.creator.username}`;
                     const isHost = item.creator.id === user?.id;
@@ -266,7 +230,44 @@ const UserProfileDatesTab = () => {
                             />
                         </View>
                     );
-                }
+                } else {
+                    const isHost = user?.id === item.hostId
+
+                    return (
+                        <View key={item.id} style={{marginBottom: 10}}>
+                            <UserDatesCard
+                                id={item.id}
+                                creator={item.creator}
+                                isHost={isHost}
+                                movieId={item.movie.id}
+                                moviePoster={item.movie.portraitURL}
+                                movieName={item.movie.title}
+                                length={formatMovieDuration(item.movie.duration)}
+                                movieYear={item.movie.year}
+                                movieRated={item.movie.rated}
+                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                movieRating={item.movie.rating}
+                                scheduleDate={item.startDate}
+                                scheduleTime={item.startDate}
+                                scheduleWith={item.creator.username}
+                                timezone={item.timezone}
+                                type="VisionaryRoom"
+                                creatorId={item.hostId}
+                                onPressin={() =>
+                                    navigation.navigate('ContentDetailScreen', {
+                                        id: item.movie.id,
+                                        movie: item.movie.title,
+                                        _checkPermissions,
+                                    })
+                                }
+                                onPress={() => handleInviterPress(item.hostId)}
+                                setModalVisible={setModalVisible}
+                                setOwnershipMessage={setOwnershipMessage}
+                            />
+                        </View>
+                    );
+                } 
+                
             });
         }
     };

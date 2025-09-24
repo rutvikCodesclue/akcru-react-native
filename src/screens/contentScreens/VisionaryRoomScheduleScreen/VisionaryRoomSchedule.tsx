@@ -80,6 +80,8 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
     const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+    
+
     useEffect(() => {
         if (!interstitialUnitId) return; // guard if iOS id not set yet
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
@@ -179,8 +181,8 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     };
 
     //Scheduling date states
-    const [selectedDate, setSelectedDate] = useState(new Date());
-    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [selectedTime, setSelectedTime] = useState<Date>(new Date());
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
@@ -255,7 +257,6 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                         movie.id, 
                         formattedSelectedDateTimeInISO,
                         selectedTimeZone,
-                        selectedUsers,
                     );
 
                     if (data) {
