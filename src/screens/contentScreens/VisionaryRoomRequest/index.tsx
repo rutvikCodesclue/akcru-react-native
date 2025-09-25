@@ -47,6 +47,7 @@ import LoadingComponent from '../../../components/Loading';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AkcruButtonStackParams } from '../../../navigation/AkcruButtonStack';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -71,14 +72,11 @@ interface VisionaryRoom {
 }
 
 const VisionaryRoomRequest = ({navigation, route}: Props) => {
+    const AKCRUButtonNav = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
     const navigation2 = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
     const {user} = useAuthStore();
 
     const visionaryRoom = route.params?.room;
-
-    const [creator, setCreator] = useState<IUserProfile>();
-    const [movie, setMovie] = useState<IMovie | null>();
-    const [isLoading, setIsLoading] = useState(true);
 
     const [modalVisible, setModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
@@ -156,8 +154,8 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
         try {
             const apiDecision = decision === 'accept' ? 'ACCEPTED' : 'DECLINED';
 
-            if (creator) {
-                const data = await requestDecision(creator.id, visionaryRoom.id, apiDecision);
+            if (visionaryRoom.creator) {
+                const data = await requestDecision(visionaryRoom.creator.id, visionaryRoom.id, apiDecision);
                 console.log('data decision: ', data);
                 if (data.success) {
                     if (decision === 'accept') {
@@ -178,7 +176,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
         } finally {
             setLoading(false);
             setTimeout(() => setModalVisible(false), 2000);
-            navigation2.navigate('HomeScreen');
+            AKCRUButtonNav.navigate('VisionaryRoomsRequests');
         }
     };
 
@@ -220,400 +218,396 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
 
     return (
         <TabContainer>
-            {isLoading && <LoadingComponent />}
-
-            {!isLoading && (
-                <View style={{flex: 1}}>
-                    <View style={styles.sheetcontainer}>
-                        <ScrollView stickyHeaderIndices={[0]}>
-                            <View>
-                                <Header />
-                            </View>
-                            <View>
-                                <View
-                                    //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                                    //   resizeMode="cover"
-                                    style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
-                                    <LinearGradient
-                                        // Background Linear Gradient
-                                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                                        style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            right: 0,
-                                            top: 0,
-                                            bottom: 0,
-                                            height: SIZES.ScreenHeight / 4,
-                                        }}
-                                    />
-                                    <View style={styles.topcontainer}>
-                                        <TouchableOpacity onPress={() => navigation.navigate('UserMITHubScreen')}>
-                                            <View
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    alignItems: 'center',
-                                                }}>
-                                                <Icon
-                                                    name="chevron-back"
-                                                    type="ionicon"
-                                                    size={20}
-                                                    color={COLORS.LIGHTGREY}
-                                                />
-                                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                            </View>
-                                        </TouchableOpacity>
+            <View style={{flex: 1}}>
+                <View style={styles.sheetcontainer}>
+                    <ScrollView stickyHeaderIndices={[0]}>
+                        <View>
+                            <Header />
+                        </View>
+                        <View>
+                            <View
+                                //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
+                                //   resizeMode="cover"
+                                style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                                <LinearGradient
+                                    // Background Linear Gradient
+                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                    style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        right: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        height: SIZES.ScreenHeight / 4,
+                                    }}
+                                />
+                                <View style={styles.topcontainer}>
+                                    <TouchableOpacity onPress={() => AKCRUButtonNav.navigate('VisionaryRoomsRequests')}>
                                         <View
                                             style={{
                                                 flexDirection: 'row',
                                                 alignItems: 'center',
-                                                justifyContent: 'space-between',
-                                                marginTop: 10,
                                             }}>
-                                            <Text style={styles.screenTitle}>Visionary Room Request</Text>
+                                            <Icon
+                                                name="chevron-back"
+                                                type="ionicon"
+                                                size={20}
+                                                color={COLORS.LIGHTGREY}
+                                            />
+                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                                         </View>
-                                    </View>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        marginTop: -60,
-                                        marginHorizontal: 15,
-                                    }}>
-                                    <View style={{flexDirection: 'row'}}>
-                                        <View style={{marginRight: 8}}>
-                                            <TouchableOpacity
-                                                onPress={() =>
-                                                    navigation.navigate('ViewUserScreen', {userID: creator?.id})
-                                                }>
-                                                <HexAvatar
-                                                    source={{uri: creator?.profilePicture}}
-                                                    size={58}
-                                                    bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
-                                                />
-                                            </TouchableOpacity>
-                                            <View />
-                                        </View>
-                                        <View>
-                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                                <Text style={{...FONTS.Username}}>{creator?.username}</Text>
-                                                {creator?.ownerStatus && (
-                                                    <CustomIcon
-                                                        name="ribbon"
-                                                        type="ionicon"
-                                                        color={COLORS.STARGOLD}
-                                                        baseSize={12}
-                                                        style={{marginRight: 5}}
-                                                    />
-                                                )}
-                                                {creator?.companyStatus && (
-                                                    <CustomIcon
-                                                        name="ribbon"
-                                                        type="ionicon"
-                                                        color={COLORS.WHITE}
-                                                        baseSize={12}
-                                                        style={{marginRight: 5}}
-                                                    />
-                                                )}
-                                                {creator?.influencerStatus && (
-                                                    <CustomIcon
-                                                        name="ribbon"
-                                                        type="ionicon"
-                                                        color={COLORS.AKCRUBLUE}
-                                                        baseSize={12}
-                                                        style={{marginRight: 5}}
-                                                    />
-                                                )}
-                                                {creator?.blackCloakStatus && (
-                                                    <CustomIcon
-                                                        name="ribbon"
-                                                        type="ionicon"
-                                                        color={COLORS.BLACKCLOAK}
-                                                        baseSize={12}
-                                                        style={{marginRight: 5}}
-                                                    />
-                                                )}
-                                            </View>
-                                            <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
-                                            {creator?.badge === 'AKCRUIT' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                                </View>
-                                            )}
-                                            {creator?.badge === 'GUARDIAN' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeGuardian />
-                                                </View>
-                                            )}
-                                            {creator?.badge === 'HERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeHero />
-                                                </View>
-                                            )}
-                                            {creator?.badge === 'SUPERHERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                                </View>
-                                            )}
-                                        </View>
-                                    </View>
-                                    <View style={{marginVertical: 20}}>
-                                        <View
-                                            style={{
-                                                alignItems: 'center',
-                                                borderLeftWidth: 1,
-                                                borderColor: COLORS.DARKGREY,
-                                                paddingLeft: 10,
-                                            }}>
-                                            <View
-                                                style={{
-                                                    width: 100,
-                                                    height: 60,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                }}>
-                                                <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
-                                                    {formatNumber(data.length)}
-                                                </Text>
-                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                    Followers
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View>
-                                    <View style={styles.bottomcontainer}>
-                                        <View style={{alignItems: 'center', marginBottom: 10}}>
-                                            <View style={{marginTop: 10}}>
-                                                <View style={{flexDirection: 'row', width: '75%'}}>
-                                                    <View style={{marginRight: 10}}>
-                                                        {/* <Image source={{uri: movie?.portraitURL}} style={styles.poster} /> */}
-                                                        <View style={styles.ticketContainer}>
-                                                            <ImageBackground
-                                                                source={{uri: movie?.portraitURL}}
-                                                                style={styles.ticketImage}
-                                                                resizeMode="cover">
-                                                                <LinearGradient
-                                                                    colors={['transparent', COLORS.AKCRUBLUE]}
-                                                                    style={styles.linearGradient}>
-                                                                    <View
-                                                                        style={[
-                                                                            styles.ticketCircle,
-                                                                            {
-                                                                                position: 'absolute',
-                                                                                bottom: -10,
-                                                                                left: -10,
-                                                                            },
-                                                                        ]}
-                                                                    />
-                                                                    <View
-                                                                        style={[
-                                                                            styles.ticketCircle,
-                                                                            {
-                                                                                position: 'absolute',
-                                                                                bottom: -10,
-                                                                                right: -10,
-                                                                            },
-                                                                        ]}
-                                                                    />
-                                                                </LinearGradient>
-                                                            </ImageBackground>
-                                                        </View>
-                                                        <View style={styles.ticketFooter}>
-                                                            <View
-                                                                style={[
-                                                                    styles.ticketCircle,
-                                                                    {position: 'absolute', top: -10, left: -10},
-                                                                ]}
-                                                            />
-                                                            <View
-                                                                style={[
-                                                                    styles.ticketCircle,
-                                                                    {position: 'absolute', top: -10, right: -10},
-                                                                ]}
-                                                            />
-                                                            <View style={{alignItems: 'center', marginVertical: 10}}>
-                                                                <Image
-                                                                    source={imageindex.barcode}
-                                                                    style={{
-                                                                        width: '75%',
-                                                                        height: '100%',
-                                                                    }}
-                                                                />
-                                                            </View>
-                                                        </View>
-                                                    </View>
-                                                    <View style={{}}>
-                                                        <Text style={{...FONTS.Username}}>{movie?.title}</Text>
-                                                        <View
-                                                            style={{
-                                                                flexDirection: 'row',
-                                                                marginBottom: 5,
-                                                                alignItems: 'center',
-                                                            }}>
-                                                            <Text style={{...FONTS.paragraph1}}>{movie?.year}</Text>
-                                                            <Text
-                                                                style={{
-                                                                    ...FONTS.paragraph1,
-
-                                                                    marginHorizontal: 10,
-                                                                }}>
-                                                                {formatMovieDuration(movie?.duration ?? 0)}
-                                                            </Text>
-                                                        </View>
-                                                        <View style={{flexDirection: 'row', marginVertical: 5}}>
-                                                            <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                                            <Text style={styles.drawfonttag}>
-                                                                {capitalizeFirstLetterOfString(movie?.genres[0] ?? '')}
-                                                            </Text>
-
-                                                            <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                                        </View>
-                                                        <AkcruButtons.SmallButton
-                                                            btnname="Play Trailer"
-                                                            onPress={() => {
-                                                                navigation.navigate('TrailerPlayer', {
-                                                                    id: movie?.id,
-                                                                    trailerURL: movie?.trailerURL,
-                                                                    landscapeURL: movie?.landscapeURL,
-                                                                });
-                                                            }}
-                                                            color={COLORS.PURPLE}
-                                                        />
-                                                        {visionaryRoom && (
-                                                            <View style={{marginVertical: 10}}>
-                                                                <View style={styles.datebox}>
-                                                                    <Text style={styles.datetext}>
-                                                                        {' '}
-                                                                        {moment(visionaryRoom?.startDate)
-                                                                            .tz(visionaryRoom?.timezone ?? '')
-                                                                            .format('ddd, MMM Do')}{' '}
-                                                                    </Text>
-                                                                    <Text style={styles.datetext}>@ </Text>
-                                                                    <Text style={styles.datetext}>
-                                                                        {/* render UTC Time w/ moment */}
-                                                                        {moment(visionaryRoom?.startDate)
-                                                                            .tz(visionaryRoom?.timezone ?? '')
-                                                                            .format('h:mm A')}{' '}
-                                                                        {getShortenedTimezone(
-                                                                            visionaryRoom?.timezone ?? '',
-                                                                        )}
-                                                                    </Text>
-
-                                                                    {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
-                                                                </View>
-                                                            </View>
-                                                        )}
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        </View>
-
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2,
-                                                color: COLORS.PINK,
-
-                                                textAlign: 'center',
-                                            }}>
-                                            "{creator?.firstName}" wants to create a Visionary Room for "{movie?.title}
-                                            ".
-                                        </Text>
-                                    </View>
-                                    <View style={{marginTop: 25}}>
-                                        <MITSwipe
-                                            decline={() => handleDecision('decline')}
-                                            accept={() => handleDecision('accept')}
-                                        />
-                                    </View>
-                                    <FingerAnimation />
-                                    <View>
-                                        <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
-                                            SWIPE BUTTON LEFT OR RIGHT.
-                                        </Text>
+                                    </TouchableOpacity>
+                                    <View
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            marginTop: 10,
+                                        }}>
+                                        <Text style={styles.screenTitle}>Visionary Room Request</Text>
                                     </View>
                                 </View>
                             </View>
-                            {loading && (
-                                <View
-                                    style={{
-                                        ...StyleSheet.absoluteFillObject,
-                                        backgroundColor: 'rgba(0,0,0,0.4)',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        zIndex: 10,
-                                    }}>
-                                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                                    <Text style={{marginTop: 10}}>{accepted ? 'Accepting...' : 'Declining...'}</Text>
-                                </View>
-                            )}
-                            {modalVisible && (
-                                <View
-                                    style={{
-                                        ...StyleSheet.absoluteFillObject,
-                                        backgroundColor: 'rgba(0,0,0,0.6)',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        zIndex: 20,
-                                    }}>
-                                    <View
-                                        style={{
-                                            backgroundColor: COLORS.WHITE,
-                                            padding: 20,
-                                            borderRadius: 12,
-                                            minWidth: '70%',
-                                            alignItems: 'center',
-                                        }}>
-                                        <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.BLACK}}>
-                                            {modalMessage}
-                                        </Text>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginTop: -60,
+                                    marginHorizontal: 15,
+                                }}>
+                                <View style={{flexDirection: 'row'}}>
+                                    <View style={{marginRight: 8}}>
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                navigation.navigate('ViewUserScreen', {userID: visionaryRoom.creator?.id})
+                                            }>
+                                            <HexAvatar
+                                                source={{uri: visionaryRoom.creator?.profilePicture}}
+                                                size={58}
+                                                bordercolor={selectAvatarBorderColor(visionaryRoom.creator?.badge ?? 'AKCRUIT')}
+                                            />
+                                        </TouchableOpacity>
+                                        <View />
+                                    </View>
+                                    <View>
+                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                            <Text style={{...FONTS.Username}}>{visionaryRoom.creator?.username}</Text>
+                                            {visionaryRoom.creator?.ownerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {visionaryRoom.creator?.companyStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {visionaryRoom.creator?.influencerStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                            {visionaryRoom.creator?.blackCloakStatus && (
+                                                <CustomIcon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.BLACKCLOAK}
+                                                    baseSize={12}
+                                                    style={{marginRight: 5}}
+                                                />
+                                            )}
+                                        </View>
+                                        <Text style={{...FONTS.paragraph1}}>{visionaryRoom.creator?.firstName}</Text>
+                                        {visionaryRoom.creator?.badge === 'AKCRUIT' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeAkcruit />
+                                            </View>
+                                        )}
+                                        {visionaryRoom.creator?.badge === 'GUARDIAN' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeGuardian />
+                                            </View>
+                                        )}
+                                        {visionaryRoom.creator?.badge === 'HERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeHero />
+                                            </View>
+                                        )}
+                                        {visionaryRoom.creator?.badge === 'SUPERHERO' && (
+                                            <View>
+                                                <AkcruLevels.AkcruBadgeSuperHero />
+                                            </View>
+                                        )}
                                     </View>
                                 </View>
-                            )}
-                        </ScrollView>
-                        {decisionMadeModal && (
+                                <View style={{marginVertical: 20}}>
+                                    <View
+                                        style={{
+                                            alignItems: 'center',
+                                            borderLeftWidth: 1,
+                                            borderColor: COLORS.DARKGREY,
+                                            paddingLeft: 10,
+                                        }}>
+                                        <View
+                                            style={{
+                                                width: 100,
+                                                height: 60,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                            <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                                {formatNumber(data.length)}
+                                            </Text>
+                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                Followers
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </View>
+                            <View>
+                                <View style={styles.bottomcontainer}>
+                                    <View style={{alignItems: 'center', marginBottom: 10}}>
+                                        <View style={{marginTop: 10}}>
+                                            <View style={{flexDirection: 'row', width: '75%'}}>
+                                                <View style={{marginRight: 10}}>
+                                                    {/* <Image source={{uri: movie?.portraitURL}} style={styles.poster} /> */}
+                                                    <View style={styles.ticketContainer}>
+                                                        <ImageBackground
+                                                            source={{uri: visionaryRoom.movie?.portraitURL}}
+                                                            style={styles.ticketImage}
+                                                            resizeMode="cover">
+                                                            <LinearGradient
+                                                                colors={['transparent', COLORS.AKCRUBLUE]}
+                                                                style={styles.linearGradient}>
+                                                                <View
+                                                                    style={[
+                                                                        styles.ticketCircle,
+                                                                        {
+                                                                            position: 'absolute',
+                                                                            bottom: -10,
+                                                                            left: -10,
+                                                                        },
+                                                                    ]}
+                                                                />
+                                                                <View
+                                                                    style={[
+                                                                        styles.ticketCircle,
+                                                                        {
+                                                                            position: 'absolute',
+                                                                            bottom: -10,
+                                                                            right: -10,
+                                                                        },
+                                                                    ]}
+                                                                />
+                                                            </LinearGradient>
+                                                        </ImageBackground>
+                                                    </View>
+                                                    <View style={styles.ticketFooter}>
+                                                        <View
+                                                            style={[
+                                                                styles.ticketCircle,
+                                                                {position: 'absolute', top: -10, left: -10},
+                                                            ]}
+                                                        />
+                                                        <View
+                                                            style={[
+                                                                styles.ticketCircle,
+                                                                {position: 'absolute', top: -10, right: -10},
+                                                            ]}
+                                                        />
+                                                        <View style={{alignItems: 'center', marginVertical: 10}}>
+                                                            <Image
+                                                                source={imageindex.barcode}
+                                                                style={{
+                                                                    width: '75%',
+                                                                    height: '100%',
+                                                                }}
+                                                            />
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                                <View style={{}}>
+                                                    <Text style={{...FONTS.Username}}>{visionaryRoom.movie?.title}</Text>
+                                                    <View
+                                                        style={{
+                                                            flexDirection: 'row',
+                                                            marginBottom: 5,
+                                                            alignItems: 'center',
+                                                        }}>
+                                                        <Text style={{...FONTS.paragraph1}}>{visionaryRoom.movie?.year}</Text>
+                                                        <Text
+                                                            style={{
+                                                                ...FONTS.paragraph1,
+
+                                                                marginHorizontal: 10,
+                                                            }}>
+                                                            {formatMovieDuration(visionaryRoom.movie?.duration ?? 0)}
+                                                        </Text>
+                                                    </View>
+                                                    <View style={{flexDirection: 'row', marginVertical: 5}}>
+                                                        <Text style={styles.drawfonttag}>{visionaryRoom.movie?.rated}</Text>
+                                                        <Text style={styles.drawfonttag}>
+                                                            {capitalizeFirstLetterOfString(visionaryRoom.movie?.genres[0] ?? '')}
+                                                        </Text>
+
+                                                        <Text style={styles.drawfonttag}>{visionaryRoom.movie?.rating}/10</Text>
+                                                    </View>
+                                                    <AkcruButtons.SmallButton
+                                                        btnname="Play Trailer"
+                                                        onPress={() => {
+                                                            navigation.navigate('TrailerPlayer', {
+                                                                id: movie?.id,
+                                                                trailerURL: movie?.trailerURL,
+                                                                landscapeURL: movie?.landscapeURL,
+                                                            });
+                                                        }}
+                                                        color={COLORS.PURPLE}
+                                                    />
+                                                    {visionaryRoom && (
+                                                        <View style={{marginVertical: 10}}>
+                                                            <View style={styles.datebox}>
+                                                                <Text style={styles.datetext}>
+                                                                    {' '}
+                                                                    {moment(visionaryRoom?.startDate)
+                                                                        .tz(visionaryRoom?.timezone ?? '')
+                                                                        .format('ddd, MMM Do')}{' '}
+                                                                </Text>
+                                                                <Text style={styles.datetext}>@ </Text>
+                                                                <Text style={styles.datetext}>
+                                                                    {/* render UTC Time w/ moment */}
+                                                                    {moment(visionaryRoom?.startDate)
+                                                                        .tz(visionaryRoom?.timezone ?? '')
+                                                                        .format('h:mm A')}{' '}
+                                                                    {getShortenedTimezone(
+                                                                        visionaryRoom?.timezone ?? '',
+                                                                    )}
+                                                                </Text>
+
+                                                                {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
+                                                            </View>
+                                                        </View>
+                                                    )}
+                                                </View>
+                                            </View>
+                                        </View>
+                                    </View>
+
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            color: COLORS.PINK,
+
+                                            textAlign: 'center',
+                                        }}>
+                                        "{visionaryRoom.creator?.firstName}" wants to create a Visionary Room for "{visionaryRoom.movie?.title}
+                                        ".
+                                    </Text>
+                                </View>
+                                <View style={{marginTop: 25}}>
+                                    <MITSwipe
+                                        decline={() => handleDecision('decline')}
+                                        accept={() => handleDecision('accept')}
+                                    />
+                                </View>
+                                <FingerAnimation />
+                                <View>
+                                    <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
+                                        SWIPE BUTTON LEFT OR RIGHT.
+                                    </Text>
+                                </View>
+                            </View>
+                        </View>
+                        {loading && (
+                            <View
+                                style={{
+                                    ...StyleSheet.absoluteFillObject,
+                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 10,
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{marginTop: 10}}>{accepted ? 'Accepting...' : 'Declining...'}</Text>
+                            </View>
+                        )}
+                        {modalVisible && (
                             <View
                                 style={{
                                     ...StyleSheet.absoluteFillObject,
                                     backgroundColor: 'rgba(0,0,0,0.6)',
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    zIndex: 30,
+                                    zIndex: 20,
                                 }}>
                                 <View
                                     style={{
                                         backgroundColor: COLORS.WHITE,
-                                        padding: 25,
-                                        borderRadius: 15,
-                                        minWidth: '75%',
+                                        padding: 20,
+                                        borderRadius: 12,
+                                        minWidth: '70%',
                                         alignItems: 'center',
                                     }}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.BLACK, textAlign: 'center'}}>
-                                        This Visionary Room request is already accepted/declined.
+                                    <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.BLACK}}>
+                                        {modalMessage}
                                     </Text>
-
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            setDecisionMadeModalVisible(false)
-                                            navigation2.navigate('HomeScreen');
-                                        }}
-                                        style={{
-                                            marginTop: 20,
-                                            paddingVertical: 8,
-                                            paddingHorizontal: 20,
-                                            borderRadius: 8,
-                                            backgroundColor: COLORS.AKCRUBLUE,
-                                        }}>
-                                        <Text style={{color: COLORS.WHITE, ...FONTS.Title3}}>Got it</Text>
-                                    </TouchableOpacity>
                                 </View>
                             </View>
                         )}
-                    </View>
+                    </ScrollView>
+                    {decisionMadeModal && (
+                        <View
+                            style={{
+                                ...StyleSheet.absoluteFillObject,
+                                backgroundColor: 'rgba(0,0,0,0.6)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 30,
+                            }}>
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.WHITE,
+                                    padding: 25,
+                                    borderRadius: 15,
+                                    minWidth: '75%',
+                                    alignItems: 'center',
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.BLACK, textAlign: 'center'}}>
+                                    This Visionary Room request is already accepted/declined.
+                                </Text>
+
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setDecisionMadeModalVisible(false)
+                                        AKCRUButtonNav.navigate('VisionaryRoomsRequests');
+                                    }}
+                                    style={{
+                                        marginTop: 20,
+                                        paddingVertical: 8,
+                                        paddingHorizontal: 20,
+                                        borderRadius: 8,
+                                        backgroundColor: COLORS.AKCRUBLUE,
+                                    }}>
+                                    <Text style={{color: COLORS.WHITE, ...FONTS.Title3}}>Got it</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
                 </View>
-            )}
+            </View>
         </TabContainer>
     );
 };

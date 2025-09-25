@@ -243,7 +243,8 @@ export type INotification = {
         | 'VisionaryRoomScheduled'
         | 'VisionaryRoomRequested'
         | 'VisionaryRoomRequestDeclined'
-        | 'VisionaryRoomRequestAccepted';
+        | 'VisionaryRoomRequestAccepted'
+        | 'VisionaryRoomInvite';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;

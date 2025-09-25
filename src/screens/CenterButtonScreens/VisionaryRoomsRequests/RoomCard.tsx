@@ -48,6 +48,7 @@ const UserDatesCard = ({
                 backgroundColor: '#1C202A',
                 borderRadius: 5,
                 justifyContent: 'center',
+                marginBottom: 15,
             }}>
             <LinearGradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
@@ -92,7 +93,7 @@ const UserDatesCard = ({
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
-                    <Text style={styles.paragraphText}>You are invited to a </Text>
+                    <Text style={styles.paragraphText}>You are invited to a</Text>
 
                     <View style={{marginHorizontal: 5}}>
                         <Text style={styles.paragraphText3}>Visionary Room</Text>

@@ -117,6 +117,7 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
     useEffect(() => {
         const fetchMovieData = async () => {
             try {
+                setLoading(true)
                 if (id) {
                     const fetchedMovie: IMovie | null = await findMovieById(id);
                     if (fetchedMovie) {
@@ -125,13 +126,14 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                 }
             } catch (error) {
                 console.error('Error fetching movie data:', error);
+            } finally {
+                setLoading(false)
             }
         };
 
         fetchMovieData();
     }, [id]);
 
-    //Scheduling date states
     const today = new Date()
     today.setHours(0, 0, 0, 0);
     const [selectedDate, setSelectedDate] = useState(today);
@@ -232,6 +234,18 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
 
     return (
         <View>
+            {loading && (
+                <View
+                    style={{
+                        ...StyleSheet.absoluteFillObject,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 10,
+                    }}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                </View>
+            )}
             <ScrollView stickyHeaderIndices={[0]}>
                 <View
                     style={{
@@ -480,18 +494,6 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                     </View>
                 </View>
             </ScrollView>
-            {loading && (
-                <View
-                    style={{
-                        ...StyleSheet.absoluteFillObject,
-                        backgroundColor: 'rgba(0,0,0,0.4)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 10,
-                    }}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                </View>
-            )}
             <Modal visible={showResponseModal} transparent={true} animationType="fade" onRequestClose={() => {}}>
                 <View
                     style={{
