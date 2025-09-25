@@ -110,8 +110,8 @@ API.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
-    );
+    },
+);
 
 function isNetworkError(error: unknown): error is AxiosError {
     if (error instanceof AxiosError) {
