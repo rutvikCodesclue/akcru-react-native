@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, Platform, Modal, TouchableOpacity} from 'react-native';
+import {View, Text, ScrollView, Platform, Modal, TouchableOpacity, ActivityIndicator} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -28,6 +28,7 @@ const UserProfileDatesTab = () => {
 
     const [modalVisible, setModalVisible] = useState(false);
     const [ownershipMessage, setOwnershipMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const _checkPermissions = async () => {
         //check permissions for camera and microphone on android
@@ -108,6 +109,7 @@ const UserProfileDatesTab = () => {
         React.useCallback(() => {
             const fetchMyEvents = async () => {
                 try {
+                    setLoading(true);
                     const myCRUViews = await getMyCRUViews({upcoming: true}) ?? [];
                     const myMITs = await getMyMITInvites({accepted: true, me: true}) ?? [];
                     const myVisionaryRooms = await getAttendingRooms() ?? [];
@@ -132,6 +134,8 @@ const UserProfileDatesTab = () => {
                     }
                 } catch (error) {
                     console.error('Error getting my Events:', error);
+                } finally {
+                    setLoading(false);
                 }
             };
             fetchMyEvents();
@@ -146,6 +150,16 @@ const UserProfileDatesTab = () => {
     };
 
     const _renderMyEvents = () => {
+        if (loading) {
+            return (
+                <View style={{ alignItems: 'center', marginTop: 50 }}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                    <Text style={{ marginTop: 10, color: COLORS.DARKGREY }}>
+                        Fetching your dates...
+                    </Text>
+                </View>
+            );
+        }
         if (myEvents.length === 0) {
             return (
                 <View style={{alignItems: 'center'}}>
