@@ -123,6 +123,7 @@ const VisionaryRoomsRequests = () => {
                 setShowDecisionModal(true);
                 setTimeout(() => setShowDecisionModal(false), 3000);
                 setSelectedRoom(null)
+                fetchPendingVisionaryRooms()
             }
         } else {
             console.log('No room was selected to make a decision on.')
@@ -215,46 +216,6 @@ const VisionaryRoomsRequests = () => {
                                 />
                             )}
                         </View>
-                        {decisionLoading && (
-                            <View
-                                style={{
-                                    ...StyleSheet.absoluteFillObject,
-                                    backgroundColor: 'rgba(0,0,0,0.4)',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    zIndex: 10,
-                                }}>
-                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                                <Text style={{marginTop: 10}}>{accepted ? 'Accepting...' : 'Declining...'}</Text>
-                            </View>
-                        )}
-                        {showConfirmModal && (
-                            <View style={styles.modalOverlay}>
-                                <View style={styles.modalContent}>
-                                    <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
-                                        {accepted
-                                            ? 'Are you sure you want to accept this request?'
-                                            : 'Are you sure you want to decline this request?'}
-                                    </Text>
-                                    <View style={{ flexDirection: 'row', marginTop: 20 }}>
-                                        <TouchableOpacity
-                                            style={{ marginRight: 15 }}
-                                            onPress={() => {
-                                                setSelectedRoom(null)
-                                                setShowConfirmModal(false)
-                                            }}>
-                                            <Text style={{ ...FONTS.Title3, color: COLORS.CATREDDRK, }}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => {
-                                            handleDecision(selectedRoom)
-                                            setShowConfirmModal(false)
-                                        }}>
-                                            <Text style={{ ...FONTS.Title3, color: COLORS.AKCRUBLUE, }}>Confirm</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                </View>
-                            </View>
-                        )}
                         {showDecisionModal && (
                             <View
                                 style={{
@@ -280,6 +241,82 @@ const VisionaryRoomsRequests = () => {
                         )}
                     </ScrollView>
                 </View>
+                {decisionLoading && (
+                    <View
+                        style={{
+                        ...StyleSheet.absoluteFillObject,
+                        backgroundColor: 'rgba(0,0,0,0.4)', // semi-transparent backdrop
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 999, // make sure it's above everything
+                        }}
+                    >
+                        <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                        <Text
+                        style={{
+                            marginTop: 10,
+                            color: COLORS.WHITE,
+                            backgroundColor: 'transparent', // prevents the black box
+                        }}
+                        >
+                        {accepted ? 'Accepting...' : 'Declining...'}
+                        </Text>
+                    </View>
+                )}
+                {showConfirmModal && (
+                    <Modal
+                        transparent
+                        animationType="fade"
+                        visible={showConfirmModal}
+                        onRequestClose={() => setShowConfirmModal(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
+                            {accepted
+                                ? 'Are you sure you want to accept this request?'
+                                : 'Are you sure you want to decline this request?'}
+                            </Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, width: '100%' }}>
+                                <TouchableOpacity
+                                    style={{ flex: 1, marginRight: 10, alignItems: 'center' }}
+                                    onPress={() => {
+                                    setSelectedRoom(null);
+                                    setShowConfirmModal(false);
+                                    }}
+                                >
+                                    <Text style={{ ...FONTS.Title3, color: COLORS.LIGHTGREY }}>Cancel</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={{ flex: 1, marginLeft: 10, alignItems: 'center' }}
+                                    onPress={() => {
+                                    handleDecision(selectedRoom);
+                                    setShowConfirmModal(false);
+                                    }}
+                                >
+                                    <Text style={{ ...FONTS.Title3, color: COLORS.AKCRUBLUE }}>Confirm</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        </View>
+                    </Modal>
+                )}
+                <Modal
+                    transparent
+                    animationType="fade"
+                    visible={showDecisionModal}
+                    onRequestClose={() => setShowDecisionModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
+                                {decisionMessage}
+                            </Text>
+                        </View>
+                    </View>
+                </Modal>
+
             </SafeAreaView>
         </TabContainer>
     );
