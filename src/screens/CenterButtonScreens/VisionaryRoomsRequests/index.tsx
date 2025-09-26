@@ -29,7 +29,7 @@ import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import UserDatesCard from '../../../components/UserDateCard';
 import {Icon} from '@rneui/base';
-import {getPendingResponseRooms, getPendingRooms} from '../../../lib/api/visionary.lib';
+import {getPendingResponseRooms, getPendingRooms, requestDecision} from '../../../lib/api/visionary.lib';
 import RoomCard from './RoomCard';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 
@@ -55,11 +55,15 @@ const VisionaryRoomsRequests = () => {
     const {user} = useAuthStore();
 
     const [rooms, setRooms] = useState<VisionaryRoom[]>([]);
+    const [selectedRoom, setSelectedRoom] = useState<VisionaryRoom | null>(null);
+    
     const [loadingRooms, setLoadingRooms] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-
-    const [attendanceLoading, setAttendanceLoading] = useState(false);
-    const [attendanceMessage, setAtttendanceMessage] = useState('');
+    const [accepted, setAccepted] = useState(false)
+    const [decisionLoading, setDecisionLoading] = useState(false);
+    const [decisionMessage, setDecisionMessage] = useState('');
+    const [showDecisionModal, setShowDecisionModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -95,8 +99,34 @@ const VisionaryRoomsRequests = () => {
         setRefreshing(false);
     };
 
-    const handleViewRequest = async (room: VisionaryRoom) => {
-        noBottomStackNav.navigate('VisionaryRoomRequest', {room});
+    const handleDecision = async (room: VisionaryRoom | null) => {
+        if (room) {
+            setDecisionLoading(true);
+            try {
+                const apiDecision = accepted ? 'ACCEPTED' : 'DECLINED';
+    
+                if (room.creator) {
+                    const data = await requestDecision(room.creator.id, room.id, apiDecision);
+    
+                    if (data.success) {
+                        setDecisionMessage(data.message || 'Success');
+                    } else {
+                        setDecisionMessage('Something went wrong');
+                        console.error('There was an error in recording the decision');
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to send decision:', err);
+                setDecisionMessage('Request failed. Please try again.');
+            } finally {
+                setDecisionLoading(false);
+                setShowDecisionModal(true);
+                setTimeout(() => setShowDecisionModal(false), 3000);
+                setSelectedRoom(null)
+            }
+        } else {
+            console.log('No room was selected to make a decision on.')
+        }
     };
 
     return (
@@ -170,12 +200,84 @@ const VisionaryRoomsRequests = () => {
                                                 })
                                             }
                                             visitCreator={() => handleInviterPress(item.hostId)}
-                                            viewRequest={() => handleViewRequest(item)}
+                                            acceptRequest={() => {
+                                                setSelectedRoom(item)
+                                                setAccepted(true)
+                                                setShowConfirmModal(true)
+                                            }}
+                                            declineRequest={() => {
+                                                setSelectedRoom(item)
+                                                setAccepted(false)
+                                                setShowConfirmModal(true)
+                                            }}
                                         />
                                     )}
                                 />
                             )}
                         </View>
+                        {decisionLoading && (
+                            <View
+                                style={{
+                                    ...StyleSheet.absoluteFillObject,
+                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 10,
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{marginTop: 10}}>{accepted ? 'Accepting...' : 'Declining...'}</Text>
+                            </View>
+                        )}
+                        {showConfirmModal && (
+                            <View style={styles.modalOverlay}>
+                                <View style={styles.modalContent}>
+                                    <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
+                                        {accepted
+                                            ? 'Are you sure you want to accept this request?'
+                                            : 'Are you sure you want to decline this request?'}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row', marginTop: 20 }}>
+                                        <TouchableOpacity
+                                            style={{ marginRight: 15 }}
+                                            onPress={() => {
+                                                setSelectedRoom(null)
+                                                setShowConfirmModal(false)
+                                            }}>
+                                            <Text style={{ ...FONTS.Title3, color: COLORS.CATREDDRK, }}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => {
+                                            handleDecision(selectedRoom)
+                                            setShowConfirmModal(false)
+                                        }}>
+                                            <Text style={{ ...FONTS.Title3, color: COLORS.AKCRUBLUE, }}>Confirm</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        )}
+                        {showDecisionModal && (
+                            <View
+                                style={{
+                                    ...StyleSheet.absoluteFillObject,
+                                    backgroundColor: 'rgba(0,0,0,0.6)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    zIndex: 20,
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 12,
+                                        minWidth: '70%',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.WHITE}}>
+                                        {decisionMessage}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
                     </ScrollView>
                 </View>
             </SafeAreaView>
