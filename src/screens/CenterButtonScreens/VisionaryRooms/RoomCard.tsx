@@ -121,7 +121,7 @@ const UserDatesCard = ({
                         <Text style={styles.paragraphText}>"{movieName}"</Text>
                     </View>
 
-                    <Text style={styles.paragraphText}>with </Text>
+                    <Text style={styles.paragraphText}>hosted by </Text>
 
                     <TouchableOpacity onPress={() => visitCreator()}>
                         <View>

@@ -28,8 +28,8 @@ import useAuthStore from '../../../stores/auth.store';
 import {capitalizeFirstLetterOfString, formatMovieDuration} from '../../../util/util';
 import {ClientStackParams} from '../../../navigation/ClientStack';
 import UserDatesCard from '../../../components/UserDateCard';
-import { Icon } from '@rneui/base';
-import { getPendingResponseRooms, getPendingRooms, rsvpVisionaryRoom } from '../../../lib/api/visionary.lib';
+import {Icon} from '@rneui/base';
+import {getPendingResponseRooms, getPendingRooms, rsvpVisionaryRoom} from '../../../lib/api/visionary.lib';
 import RoomCard from './RoomCard';
 
 type VisionaryRoom = {
@@ -53,7 +53,7 @@ const VisionaryRooms = () => {
     const {user} = useAuthStore();
 
     const [rooms, setRooms] = useState<VisionaryRoom[]>([]);
-    const [pendingRooms, setPendingRooms] = useState<VisionaryRoom[]>([])
+    const [pendingRooms, setPendingRooms] = useState<VisionaryRoom[]>([]);
     const [loadingRooms, setLoadingRooms] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -66,49 +66,49 @@ const VisionaryRooms = () => {
                 fetchVisionaryRooms();
 
                 if (user.isAdmin) {
-                    fetchPendingVisionaryRooms()
+                    fetchPendingVisionaryRooms();
                 }
             }
         }, []),
     );
 
     const fetchVisionaryRooms = async () => {
-            setLoadingRooms(true);
-            try {
-                const roomsResponse = await getPendingResponseRooms();
-                console.log('roomsRes: ', roomsResponse?.data)
-                if (roomsResponse && roomsResponse.status === 200) {
-                    setRooms(roomsResponse.data.rooms);
-                } else {
-                    setRooms([]);
-                }
-            } catch (error) {
-                console.error('Failed to fetch pending response rooms:', error);
-            } finally {
-                setLoadingRooms(false);
+        setLoadingRooms(true);
+        try {
+            const roomsResponse = await getPendingResponseRooms();
+            console.log('roomsRes: ', roomsResponse?.data);
+            if (roomsResponse && roomsResponse.status === 200) {
+                setRooms(roomsResponse.data.rooms);
+            } else {
+                setRooms([]);
             }
+        } catch (error) {
+            console.error('Failed to fetch pending response rooms:', error);
+        } finally {
+            setLoadingRooms(false);
+        }
     };
 
     const fetchPendingVisionaryRooms = async () => {
-            setLoadingRooms(true);
-            try {
-                const pendingRoomsResponse = await getPendingRooms();
+        setLoadingRooms(true);
+        try {
+            const pendingRoomsResponse = await getPendingRooms();
 
-                if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
-                    setPendingRooms(pendingRoomsResponse.data.pendingRooms);
-                } else {
-                    setPendingRooms([]);
-                }
-            } catch (error) {
-                console.error('Failed to fetch pending rooms:', error);
-            } finally {
-                setLoadingRooms(false);
+            if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
+                setPendingRooms(pendingRoomsResponse.data.pendingRooms);
+            } else {
+                setPendingRooms([]);
             }
+        } catch (error) {
+            console.error('Failed to fetch pending rooms:', error);
+        } finally {
+            setLoadingRooms(false);
+        }
     };
 
     const handleViewRoomRequests = () => {
-        AKCRUButtonNav.navigate('VisionaryRoomsRequests')
-    }
+        AKCRUButtonNav.navigate('VisionaryRoomsRequests');
+    };
 
     const handleInviterPress = (creatorId: string) => {
         clientStackNav.navigate('ViewUserScreen', {userID: creatorId});
@@ -122,21 +122,21 @@ const VisionaryRooms = () => {
     };
 
     const handleAttendance = async (attending: boolean, roomId: string) => {
-        setAttendanceLoading(true); 
-        setAtttendanceMessage(attending ? "Marking attendance..." : "Declining attendance...");
+        setAttendanceLoading(true);
+        setAtttendanceMessage(attending ? 'Marking attendance...' : 'Declining attendance...');
 
         try {
-            const status = attending ? "ACCEPTED" : "DECLINED";
+            const status = attending ? 'ACCEPTED' : 'DECLINED';
             const result = await rsvpVisionaryRoom(roomId, status);
 
-            console.log("RSVP Success:", result?.data.message);
+            console.log('RSVP Success:', result?.data.message);
             // Optionally show a toast/snackbar here
         } catch (err) {
-            console.error("RSVP failed:", err);
+            console.error('RSVP failed:', err);
             // Show error toast/snackbar here
         } finally {
             setAttendanceLoading(false);
-            handleRefresh()
+            handleRefresh();
         }
     };
 
@@ -144,18 +144,15 @@ const VisionaryRooms = () => {
         <TabContainer>
             <SafeAreaView style={{flex: 1}}>
                 <View style={{flex: 1}}>
-                    <ScrollView
-                        stickyHeaderIndices={[0]}
-                        style={{height: SIZES.ScreenHeight}}
-                        scrollEventThrottle={16}>
+                    <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight}} scrollEventThrottle={16}>
                         <View>
                             <View style={{zIndex: 100}}>
                                 <Header />
                             </View>
                             <View
                                 style={{
-                                    height: SIZES.ScreenHeight * 0.24,
-                                    marginTop: -68,
+                                    height: SIZES.ScreenHeight / 8,
+                                    marginTop: -60,
                                     backgroundColor: COLORS.AKCRUBACKGROUND,
                                 }}>
                                 <LinearGradient
@@ -165,10 +162,18 @@ const VisionaryRooms = () => {
                                         left: 0,
                                         right: 0,
                                         top: 0,
-                                        height: SIZES.ScreenHeight * 0.24,
+                                        height: SIZES.ScreenHeight / 8,
                                     }}
                                 />
-                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Events</Text>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginTop: '15%',
+                                        textAlign: 'center',
+                                        textDecorationLine: 'underline',
+                                    }}>
+                                    VISIONARY EVENTS
+                                </Text>
                             </View>
                         </View>
                         <View style={{marginBottom: '23%'}}>
@@ -188,29 +193,29 @@ const VisionaryRooms = () => {
                                     refreshing={refreshing}
                                     onRefresh={handleRefresh}
                                     renderItem={({item}) => (
-                                            <RoomCard
-                                                movieId={item.movie.id}
-                                                moviePoster={item.movie.portraitURL}
-                                                movieName={item.movie.title}
-                                                length={formatMovieDuration(item.movie.duration)}
-                                                movieYear={item.movie.year}
-                                                movieRated={item.movie.rated}
-                                                movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
-                                                movieRating={item.movie.rating}
-                                                scheduleDate={item.startDate}
-                                                scheduleTime={item.startDate}
-                                                scheduleWith={item.creator?.username ?? ''}
-                                                timezone={item.timezone}
-                                                seeMovie={() =>
-                                                    clientStackNav.navigate('ContentDetailScreen', {
-                                                        id: item.movie.id,
-                                                        movie: item.movie.title,
-                                                    })
-                                                }
-                                                visitCreator={() => handleInviterPress(item.hostId)}
-                                                handleAttend={() => handleAttendance(true, item.id)}
-                                                handleDecline={() => handleAttendance(false, item.id)}
-                                            />
+                                        <RoomCard
+                                            movieId={item.movie.id}
+                                            moviePoster={item.movie.portraitURL}
+                                            movieName={item.movie.title}
+                                            length={formatMovieDuration(item.movie.duration)}
+                                            movieYear={item.movie.year}
+                                            movieRated={item.movie.rated}
+                                            movieGenre={capitalizeFirstLetterOfString(item.movie.genres[0])}
+                                            movieRating={item.movie.rating}
+                                            scheduleDate={item.startDate}
+                                            scheduleTime={item.startDate}
+                                            scheduleWith={item.creator?.username ?? ''}
+                                            timezone={item.timezone}
+                                            seeMovie={() =>
+                                                clientStackNav.navigate('ContentDetailScreen', {
+                                                    id: item.movie.id,
+                                                    movie: item.movie.title,
+                                                })
+                                            }
+                                            visitCreator={() => handleInviterPress(item.hostId)}
+                                            handleAttend={() => handleAttendance(true, item.id)}
+                                            handleDecline={() => handleAttendance(false, item.id)}
+                                        />
                                     )}
                                 />
                             )}
@@ -233,14 +238,10 @@ const VisionaryRooms = () => {
 
                 {/* Floating Button with Notification Dot */}
                 {user && user.isAdmin && (
-                    <TouchableOpacity
-                        style={styles.floatingButton}
-                        onPress={() => handleViewRoomRequests()}>
+                    <TouchableOpacity style={styles.floatingButton} onPress={() => handleViewRoomRequests()}>
                         <View>
                             <Icon name="bell" type="material-community" size={28} color={COLORS.WHITE} />
-                            {pendingRooms && pendingRooms.length > 0 && (
-                                <View style={styles.notificationDot} />
-                            )}
+                            {pendingRooms && pendingRooms.length > 0 && <View style={styles.notificationDot} />}
                         </View>
                     </TouchableOpacity>
                 )}
@@ -304,7 +305,7 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 5,
     },
-        notificationDot: {
+    notificationDot: {
         position: 'absolute',
         top: 3,
         right: 2,

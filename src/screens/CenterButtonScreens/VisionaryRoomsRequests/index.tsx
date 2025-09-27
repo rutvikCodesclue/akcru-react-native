@@ -56,10 +56,10 @@ const VisionaryRoomsRequests = () => {
 
     const [rooms, setRooms] = useState<VisionaryRoom[]>([]);
     const [selectedRoom, setSelectedRoom] = useState<VisionaryRoom | null>(null);
-    
+
     const [loadingRooms, setLoadingRooms] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
-    const [accepted, setAccepted] = useState(false)
+    const [accepted, setAccepted] = useState(false);
     const [decisionLoading, setDecisionLoading] = useState(false);
     const [decisionMessage, setDecisionMessage] = useState('');
     const [showDecisionModal, setShowDecisionModal] = useState(false);
@@ -78,7 +78,7 @@ const VisionaryRoomsRequests = () => {
 
             if (pendingRoomsResponse && pendingRoomsResponse.status === 200) {
                 setRooms(pendingRoomsResponse.data.pendingRooms);
-                console.log('room: ', pendingRoomsResponse.data.pendingRooms)
+                console.log('room: ', pendingRoomsResponse.data.pendingRooms);
             } else {
                 setRooms([]);
             }
@@ -104,10 +104,10 @@ const VisionaryRoomsRequests = () => {
             setDecisionLoading(true);
             try {
                 const apiDecision = accepted ? 'ACCEPTED' : 'DECLINED';
-    
+
                 if (room.creator) {
                     const data = await requestDecision(room.creator.id, room.id, apiDecision);
-    
+
                     if (data.success) {
                         setDecisionMessage(data.message || 'Success');
                     } else {
@@ -122,11 +122,11 @@ const VisionaryRoomsRequests = () => {
                 setDecisionLoading(false);
                 setShowDecisionModal(true);
                 setTimeout(() => setShowDecisionModal(false), 3000);
-                setSelectedRoom(null)
-                fetchPendingVisionaryRooms()
+                setSelectedRoom(null);
+                fetchPendingVisionaryRooms();
             }
         } else {
-            console.log('No room was selected to make a decision on.')
+            console.log('No room was selected to make a decision on.');
         }
     };
 
@@ -161,7 +161,15 @@ const VisionaryRoomsRequests = () => {
                                         height: SIZES.ScreenHeight * 0.24,
                                     }}
                                 />
-                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Visionary Rooms Requests</Text>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginTop: '30%',
+                                        textAlign: 'center',
+                                        textDecorationLine: 'underline',
+                                    }}>
+                                    VISIONARY ROOM REQUESTS
+                                </Text>
                             </View>
                         </View>
                         <View style={{marginBottom: '23%'}}>
@@ -202,14 +210,14 @@ const VisionaryRoomsRequests = () => {
                                             }
                                             visitCreator={() => handleInviterPress(item.hostId)}
                                             acceptRequest={() => {
-                                                setSelectedRoom(item)
-                                                setAccepted(true)
-                                                setShowConfirmModal(true)
+                                                setSelectedRoom(item);
+                                                setAccepted(true);
+                                                setShowConfirmModal(true);
                                             }}
                                             declineRequest={() => {
-                                                setSelectedRoom(item)
-                                                setAccepted(false)
-                                                setShowConfirmModal(true)
+                                                setSelectedRoom(item);
+                                                setAccepted(false);
+                                                setShowConfirmModal(true);
                                             }}
                                         />
                                     )}
@@ -244,22 +252,20 @@ const VisionaryRoomsRequests = () => {
                 {decisionLoading && (
                     <View
                         style={{
-                        ...StyleSheet.absoluteFillObject,
-                        backgroundColor: 'rgba(0,0,0,0.4)', // semi-transparent backdrop
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 999, // make sure it's above everything
-                        }}
-                    >
+                            ...StyleSheet.absoluteFillObject,
+                            backgroundColor: 'rgba(0,0,0,0.4)', // semi-transparent backdrop
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            zIndex: 999, // make sure it's above everything
+                        }}>
                         <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
                         <Text
-                        style={{
-                            marginTop: 10,
-                            color: COLORS.WHITE,
-                            backgroundColor: 'transparent', // prevents the black box
-                        }}
-                        >
-                        {accepted ? 'Accepting...' : 'Declining...'}
+                            style={{
+                                marginTop: 10,
+                                color: COLORS.WHITE,
+                                backgroundColor: 'transparent', // prevents the black box
+                            }}>
+                            {accepted ? 'Accepting...' : 'Declining...'}
                         </Text>
                     </View>
                 )}
@@ -268,37 +274,40 @@ const VisionaryRoomsRequests = () => {
                         transparent
                         animationType="fade"
                         visible={showConfirmModal}
-                        onRequestClose={() => setShowConfirmModal(false)}
-                    >
+                        onRequestClose={() => setShowConfirmModal(false)}>
                         <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
-                            {accepted
-                                ? 'Are you sure you want to accept this request?'
-                                : 'Are you sure you want to decline this request?'}
-                            </Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20, width: '100%' }}>
-                                <TouchableOpacity
-                                    style={{ flex: 1, marginRight: 10, alignItems: 'center' }}
-                                    onPress={() => {
-                                    setSelectedRoom(null);
-                                    setShowConfirmModal(false);
-                                    }}
-                                >
-                                    <Text style={{ ...FONTS.Title3, color: COLORS.LIGHTGREY }}>Cancel</Text>
-                                </TouchableOpacity>
+                            <View style={styles.modalContent}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center'}}>
+                                    {accepted
+                                        ? 'Are you sure you want to accept this request?'
+                                        : 'Are you sure you want to decline this request?'}
+                                </Text>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        marginTop: 20,
+                                        width: '100%',
+                                    }}>
+                                    <TouchableOpacity
+                                        style={{flex: 1, marginRight: 10, alignItems: 'center'}}
+                                        onPress={() => {
+                                            setSelectedRoom(null);
+                                            setShowConfirmModal(false);
+                                        }}>
+                                        <Text style={{...FONTS.Title3, color: COLORS.LIGHTGREY}}>Cancel</Text>
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity
-                                    style={{ flex: 1, marginLeft: 10, alignItems: 'center' }}
-                                    onPress={() => {
-                                    handleDecision(selectedRoom);
-                                    setShowConfirmModal(false);
-                                    }}
-                                >
-                                    <Text style={{ ...FONTS.Title3, color: COLORS.AKCRUBLUE }}>Confirm</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={{flex: 1, marginLeft: 10, alignItems: 'center'}}
+                                        onPress={() => {
+                                            handleDecision(selectedRoom);
+                                            setShowConfirmModal(false);
+                                        }}>
+                                        <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE}}>Confirm</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
                         </View>
                     </Modal>
                 )}
@@ -306,17 +315,15 @@ const VisionaryRoomsRequests = () => {
                     transparent
                     animationType="fade"
                     visible={showDecisionModal}
-                    onRequestClose={() => setShowDecisionModal(false)}
-                >
+                    onRequestClose={() => setShowDecisionModal(false)}>
                     <View style={styles.modalOverlay}>
                         <View style={styles.modalContent}>
-                            <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center' }}>
+                            <Text style={{...FONTS.Title2, color: COLORS.WHITE, textAlign: 'center'}}>
                                 {decisionMessage}
                             </Text>
                         </View>
                     </View>
                 </Modal>
-
             </SafeAreaView>
         </TabContainer>
     );
