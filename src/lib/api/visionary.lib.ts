@@ -131,9 +131,8 @@ export const rsvpVisionaryRoom = async (roomId: string, status: "ACCEPTED" | "DE
 export const getAttendingRooms = async () => {
     try {
         const response = await API.get('v1/visionaryRoom/attendingVisionaryRooms')
-        console.log('response att: ', response.data.rooms)
         return response.data.rooms
     } catch (error) {
-        console.error('There was an error RSVPing to the room: ', error)
+        console.error('There was an error fetching visionary rooms: ', error)
     }
 }

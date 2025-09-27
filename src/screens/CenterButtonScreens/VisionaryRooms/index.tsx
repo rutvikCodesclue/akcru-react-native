@@ -168,7 +168,7 @@ const VisionaryRooms = () => {
                                         height: SIZES.ScreenHeight * 0.24,
                                     }}
                                 />
-                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Visionary Rooms</Text>
+                                <Text style={[styles.title, {color: COLORS.LIGHTGREY}]}>Events</Text>
                             </View>
                         </View>
                         <View style={{marginBottom: '23%'}}>
@@ -178,7 +178,7 @@ const VisionaryRooms = () => {
                                 </View>
                             ) : rooms.length === 0 ? (
                                 <View>
-                                    <Text style={styles.noPostText}>No Visionary Rooms found yet</Text>
+                                    <Text style={styles.noPostText}>No events happening right now</Text>
                                 </View>
                             ) : (
                                 <FlatList

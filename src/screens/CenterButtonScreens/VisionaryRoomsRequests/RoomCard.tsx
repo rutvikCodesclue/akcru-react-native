@@ -23,7 +23,8 @@ type UserDatesCardProps = {
     timezone: string;
     seeMovie: () => void;
     visitCreator: () => void;
-    viewRequest: () => void;
+    acceptRequest: () => void;
+    declineRequest: () => void;
 };
 
 const UserDatesCard = ({
@@ -40,7 +41,8 @@ const UserDatesCard = ({
     timezone,
     seeMovie,
     visitCreator,
-    viewRequest,
+    acceptRequest,
+    declineRequest,
 }: UserDatesCardProps) => {
     return (
         <View
@@ -93,7 +95,12 @@ const UserDatesCard = ({
                     </View>
                 </View>
                 <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 10}}>
-                    <Text style={styles.paragraphText}>You are invited to a</Text>
+                    <TouchableOpacity onPress={() => visitCreator()}>
+                        <View>
+                            <Text style={styles.paragraphText4}> {scheduleWith}</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <Text style={styles.paragraphText}>wants to create a</Text>
 
                     <View style={{marginHorizontal: 5}}>
                         <Text style={styles.paragraphText3}>Visionary Room</Text>
@@ -115,18 +122,10 @@ const UserDatesCard = ({
                         </Text>
                     </View>
 
-                    <Text style={styles.paragraphText}>to watch</Text>
+                    <Text style={styles.paragraphText}>. Would you like to accept or decline their request?</Text>
                     <View style={{marginHorizontal: 5}}>
                         <Text style={styles.paragraphText}>"{movieName}"</Text>
                     </View>
-
-                    <Text style={styles.paragraphText}>with </Text>
-
-                    <TouchableOpacity onPress={() => visitCreator()}>
-                        <View>
-                            <Text style={styles.paragraphText4}> {scheduleWith}</Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
                 <View
                     style={{
@@ -136,8 +135,14 @@ const UserDatesCard = ({
                         marginTop: 10,
                     }}>
                         <AkcruButtons.SmallButton
-                            onPress={() => viewRequest()}
-                            btnname="View Request"
+                            onPress={() => declineRequest()}
+                            btnname="Decline"
+                            color={COLORS.CATREDDRK}
+                            disabled={false}
+                        />
+                        <AkcruButtons.SmallButton
+                            onPress={() => acceptRequest()}
+                            btnname="Accept"
                             color={COLORS.AKCRUBLUE}
                             disabled={false}
                         />

@@ -93,6 +93,22 @@ API.interceptors.response.use(
             // console.log("ERR_NETWORK N");
             Alert.alert('Please check your internet connection and Try Again');
         }
+
+        if (error.response) {
+        // Server responded with a status code out of 2xx range
+            const statusCode = error.response.status;
+            const errorMessage = error.response.data.message || 'An error occurred';
+
+            // Handle different status codes accordingly
+            if (statusCode === 500) {
+                // Handle server errors
+                console.error('Server error - try again later');
+            } else {
+                // Handle other types of errors
+                console.error(`Error ${statusCode}: ${errorMessage}`);
+            }
+        }
+
         return Promise.reject(error);
     },
 );
