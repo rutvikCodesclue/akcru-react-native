@@ -2,6 +2,9 @@ import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import { isTablet } from '../../../../assets/constants/theme';
 
+const isIOS = Platform.OS === 'ios';
+const containerMargin = isIOS ? '-2%' : '-1%';
+
 export default StyleSheet.create({
     gallerycontainer: {
         marginBottom: 20,
@@ -20,6 +23,7 @@ export default StyleSheet.create({
     container: {
         marginBottom: '5%',
         marginHorizontal: SIZES.ScreenWidth * 0.03,
+        marginTop:containerMargin
     },
     verticallySpaced: {
         paddingTop: 4,
