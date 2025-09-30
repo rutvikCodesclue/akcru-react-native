@@ -14,6 +14,7 @@ import {
     ActivityIndicator,
     Alert,
     Modal,
+    Platform,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
@@ -35,7 +36,8 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
 import {IChatUser} from '../../../../types';
 import {getUsers} from '../../../lib/api/rooms.lib';
-import { getMitTiers, MitTier, purchaseMIT } from '../../../lib/api/mit.lib';
+import {getMitTiers, MitTier, purchaseMIT} from '../../../lib/api/mit.lib';
+import {isTablet} from '../../../../assets/constants/theme';
 
 type UserMITHubScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserMITHubScreen'>;
 
@@ -187,6 +189,10 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
         second: SecondRoute,
     });
 
+    const isIOS = Platform.OS === 'ios';
+    const heroHeight = SIZES.ScreenHeight * (isIOS ? 0.3 : 0.25);
+    const heroMargin = isIOS ? '-22%' : '-18%';
+
     return (
         <TabContainer>
             <SafeAreaView>
@@ -194,10 +200,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                     <View>
                         <Header />
                     </View>
-                    <View
-                        //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
-                        //   resizeMode="cover"
-                        style={{height: SIZES.ScreenHeight * 0.25, marginTop: '-15%'}}>
+                    <View style={{height: heroHeight, marginTop: heroMargin}}>
                         <LinearGradient
                             // Background Linear Gradient
                             colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
@@ -206,7 +209,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                 left: 0,
                                 right: 0,
                                 top: 0,
-                                height: SIZES.ScreenHeight * 0.25,
+                                height: heroHeight,
                             }}
                         />
                         <View style={styles.topcontainer}>
@@ -267,7 +270,7 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                             style={{alignItems: 'center', marginTop: 10, marginBottom: 10}}>
                             <View style={styles.MITbutton}>
                                 <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-                                <Text style={styles.buttonText}>Buy Movie Invite Tickets</Text>
+                                <Text style={styles.buttonText}>Get Movie Invite Tickets</Text>
                             </View>
                         </TouchableOpacity>
                         <View style={{flex: 1}}>
@@ -295,7 +298,17 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
             <Modal transparent visible={tierModalVisible} animationType="fade">
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Select bundle</Text>
+                        <View
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'row',
+                                marginBottom: 12,
+                            }}>
+                            <Text style={{...FONTS.Title2}}>Select MIT bundle</Text>
+                            <Image source={imageindex.MITticket} style={{marginLeft: 10}} />
+                        </View>
+
                         {tiers.map(t => (
                             <TouchableOpacity
                                 key={t.quantity}
@@ -304,9 +317,20 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                     selectedTier?.quantity === t.quantity && styles.optionRowSelected,
                                 ]}
                                 onPress={() => setSelectedTier(t)}>
-                                <Text style={styles.optionText}>
-                                    {t.quantity} for {t.cost} AD
-                                </Text>
+                                <View style={{flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                    <Text style={styles.optionText}>
+                                        {t.quantity} MIT(s) for {t.cost} AD
+                                    </Text>
+                                    <Image
+                                        source={imageindex.AkcruHexLogo}
+                                        style={{
+                                            width: isTablet() ? 28 : 21,
+                                            height: isTablet() ? 28 : 21,
+                                            marginLeft: 5,
+                                        }}
+                                        resizeMode="contain"
+                                    />
+                                </View>
                             </TouchableOpacity>
                         ))}
                         <View style={styles.modalButtonsRow}>
