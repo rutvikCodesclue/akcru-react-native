@@ -64,4 +64,47 @@ export default StyleSheet.create({
         width: 320,
         backgroundColor: 'white',
     },
+    modalBtn: {
+        flex: 1,
+        padding: 10,
+        marginHorizontal: 5,
+        borderRadius: 4,
+        alignItems: 'center',
+    },
+    cancelBtn: {
+        flex: 1,
+        padding: 10,
+        marginHorizontal: 5,
+        borderRadius: 4,
+        alignItems: 'center',
+        backgroundColor: COLORS.AKCRUBLUE,
+    },
+    confirmBtn: {
+        flex: 1,
+        padding: 10,
+        marginHorizontal: 5,
+        borderRadius: 4,
+        alignItems: 'center',
+        backgroundColor: COLORS.CATREDLGT,
+    },
+    modalBtnText: {
+        ...FONTS.Title3,
+        color: COLORS.WHITE,
+    },
+    modalButtonsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContent: {
+        width: '80%',
+        backgroundColor: COLORS.AKCRUBACKGROUND,
+        borderRadius: 8,
+        padding: 20,
+    },
 });

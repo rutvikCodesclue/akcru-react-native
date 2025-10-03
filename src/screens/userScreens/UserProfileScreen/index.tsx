@@ -386,7 +386,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     marginHorizontal: 15,
                                 }}>
                                 {/* user profile pic, name, badges, */}
-                                <View style={{flex: 1, maxWidth: '25%'}}>
+                                <View style={{flex: 1, maxWidth: '33%'}}>
                                     <View style={{marginRight: 8}}>
                                         <TouchableOpacity
                                             onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>

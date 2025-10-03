@@ -1,4 +1,4 @@
-import {View, Text, TextInput, Modal, SafeAreaView, Alert, Platform, Pressable} from 'react-native';
+import {View, Text, TextInput, Modal, SafeAreaView, Alert, Platform, Pressable, ActivityIndicator} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -13,6 +13,7 @@ import useAuthStore from '../../../stores/auth.store';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import BackButton from '../../../components/General/backbutton';
+import {deleteMyAccount} from '../../../lib/api/userDelete.lib';
 const date = new Date('2000-01-07');
 date.setHours(0, 0, 0, 0);
 
@@ -322,6 +323,26 @@ const AccountSettings = () => {
                 currentUser.password = password;
                 useAuthStore.setState({user: currentUser});
             }
+        }
+    };
+
+    const {logout} = useAuthStore();
+    const [busy, setBusy] = useState(false);
+    const [confirmationModalVisible, setConfirmationModalVisible] = useState(false);
+
+    const onDelete = async () => {
+        if (busy) return;
+        try {
+            setBusy(true);
+            const res = await deleteMyAccount();
+            setConfirmationModalVisible(false);
+            // Regardless of PENDING/DELETED, app should sign out locally.
+            await logout?.()
+            Alert.alert('Account deleted', `Status: ${res.status}`);
+        } catch (e: any) {
+            Alert.alert('Delete failed', e.message ?? 'Please try again.');
+        } finally {
+            setBusy(false);
         }
     };
 
@@ -1191,7 +1212,89 @@ const AccountSettings = () => {
                             alignSelf: 'center',
                         }}
                     />
+                    <View>
+                        <Text style={{...FONTS.Title2, color: COLORS.PINK, marginBottom: 8}}>Delete Account</Text>
+                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, marginBottom: 12}}>
+                            Permanently removes your account and can not be recovered.
+                        </Text>
+                        <TouchableOpacity
+                            onPress={() => setConfirmationModalVisible(true)}
+                            disabled={busy}
+                            style={{
+                                backgroundColor: busy ? COLORS.DARKGREY : COLORS.CATREDLGT,
+                                padding: 12,
+                                borderRadius: 5,
+                                alignSelf: 'flex-start',
+                            }}>
+                            {busy ? (
+                                <ActivityIndicator />
+                            ) : (
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Delete my account</Text>
+                            )}
+                        </TouchableOpacity>
+                    </View>
                 </View>
+                <Modal
+                    visible={confirmationModalVisible}
+                    transparent
+                    statusBarTranslucent
+                    presentationStyle="overFullScreen"
+                    animationType="fade"
+                    onRequestClose={() => setConfirmationModalVisible(false)}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text
+                                style={[
+                                    FONTS.Title2,
+                                    {marginBottom: 12, textAlign: 'center', color: COLORS.LIGHTGREY},
+                                ]}>
+                                Confirm Account Deletion?
+                            </Text>
+                            <Text
+                                style={[
+                                    FONTS.Title3,
+                                    {marginBottom: 20, textAlign: 'center', color: COLORS.LIGHTGREY},
+                                ]}>
+                                This will delete your account. Are you sure you want to proceed?
+                            </Text>
+
+                            <View style={styles.modalButtonsRow}>
+                                {Platform.OS === 'ios' ? (
+                                    <TouchableOpacity
+                                        style={styles.cancelBtn}
+                                        onPress={() => setConfirmationModalVisible(false)}
+                                        onPressIn={() => console.log('Cancel pressIn')}>
+                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Cancel</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Pressable
+                                        android_ripple={{borderless: false}}
+                                        style={styles.cancelBtn}
+                                        onPress={() => setConfirmationModalVisible(false)}
+                                        onPressIn={() => console.log('Cancel pressIn')}>
+                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Cancel</Text>
+                                    </Pressable>
+                                )}
+                                {Platform.OS === 'ios' ? (
+                                    <TouchableOpacity
+                                        style={styles.confirmBtn}
+                                        onPress={onDelete}
+                                        onPressIn={() => console.log('Confirm pressIn')}>
+                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Confirm</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Pressable
+                                        android_ripple={{borderless: false}}
+                                        style={styles.confirmBtn}
+                                        onPress={onDelete}
+                                        onPressIn={() => console.log('Confirm pressIn')}>
+                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Confirm</Text>
+                                    </Pressable>
+                                )}
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </ScrollView>
         </View>
     );

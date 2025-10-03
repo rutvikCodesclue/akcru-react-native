@@ -20,9 +20,20 @@ export interface MatchesResponse {
 
 // fetch matches (limited or full depending on unlock state)
 export const getMatches = async (): Promise<MatchesResponse> => {
-    const res = await API.get<MatchesResponse>('/v1/flickflirt/matches');
+    const res = await API.get<MatchesResponse>('/v1/flickflirt/matches', {validateStatus: () => true});
+    if (res.status !== 200 || !res.data?.success) {
+        return {
+            success: false,
+            matches: [],
+            hiddenCount: 0,
+            unlocked: false,
+            unlockOptions: [],
+            message: res.data?.message ?? 'Server error',
+        };
+    }
     return res.data;
 };
+
 
 // unlock for a given duration
 // export const unlockMatches = async (durationDays: number): Promise<MatchesResponse> => {
