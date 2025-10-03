@@ -1072,7 +1072,7 @@ PODS:
     - React-Core
   - react-native-orientation-locker (1.7.0):
     - React-Core
-  - react-native-pager-view (6.4.1):
+  - react-native-pager-view (6.9.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1269,7 +1269,9 @@ PODS:
     - React-perflogger (= 0.73.9)
   - RNCAsyncStorage (1.24.0):
     - React-Core
-  - RNCMaskedView (0.3.1):
+  - RNCMaskedView (0.3.2):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
     - React-Core
   - RNDateTimePicker (8.2.0):
     - React-Core
@@ -1306,7 +1308,7 @@ PODS:
     - React-Core
   - RNPermissions (4.1.5):
     - React-Core
-  - RNReanimated (3.6.2):
+  - RNReanimated (3.7.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1689,7 +1691,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: a742cb1f2cac58aa1baee8bb6484c716bd38c8b6
   react-native-netinfo: cec9c4e86083cb5b6aba0e0711f563e2fbbff187
   react-native-orientation-locker: cc6f357b289a2e0dd2210fea0c52cb8e0727fdaa
-  react-native-pager-view: 74e54090d1c8cb1c319b22409fd715e08cf617a0
+  react-native-pager-view: dc8aa7e791957bf93b34479f84855bb9d12dcae4
   react-native-progress-bar-android: 70caf8832e7a6378a3340bc81f361f65ad406a54
   react-native-progress-view: bae9c45202f3de868c63f536857f6a589cd78610
   react-native-safe-area-context: 17a482f540310e2209f884fd49472d9e1c0e73d6
@@ -1717,7 +1719,7 @@ SPEC CHECKSUMS:
   React-utils: 28bc17e3e21dc06646b45a003718e0fe6034c66f
   ReactCommon: e7f772a7660fc683a6ba0a0e0bebd45f4977ee57
   RNCAsyncStorage: b6410dead2732b5c72a7fdb1ecb5651bbcf4674b
-  RNCMaskedView: de80352547bd4f0d607bf6bab363d826822bd126
+  RNCMaskedView: 7c4535ed448458e86ff7113d1516d6912ab5c3c1
   RNDateTimePicker: 818460dc31b0dc5ec58289003e27dd8d022fb79c
   RNDeviceInfo: d863506092aef7e7af3a1c350c913d867d795047
   RNFBApp: 4e6da65e29a144d20bcb5bf264fc8e2055831bab
@@ -1728,7 +1730,7 @@ SPEC CHECKSUMS:
   RNLocalize: e7378161f0b6a6365407eb2377aab46cc38047d8
   RNNotifee: 8768d065bf1e2f9f8f347b4bd79147431c7eacd6
   RNPermissions: 95288143e8ac0508e26d2a5f61a62f535328b745
-  RNReanimated: b52188cfcc74e756b72ca48062fa7bb2c37a3baf
+  RNReanimated: 848e8aea77159407c2bfaafb21cc2debb9f19921
   RNScreens: da54176e30d05e30cf6d4dc7c1b72dd50e0513bb
   RNSound: 314cc5226453ef4a3314a196c65e8a65e5106a7b
   RNSVG: 38b927ba26d717c85522fbf9a04b87dcd2d8227a
