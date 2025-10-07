@@ -1259,38 +1259,19 @@ const AccountSettings = () => {
                             </Text>
 
                             <View style={styles.modalButtonsRow}>
-                                {Platform.OS === 'ios' ? (
-                                    <TouchableOpacity
+                                 <Pressable
                                         style={styles.cancelBtn}
-                                        onPress={() => setConfirmationModalVisible(false)}
-                                        onPressIn={() => console.log('Cancel pressIn')}>
-                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Cancel</Text>
-                                    </TouchableOpacity>
-                                ) : (
-                                    <Pressable
-                                        android_ripple={{borderless: false}}
-                                        style={styles.cancelBtn}
-                                        onPress={() => setConfirmationModalVisible(false)}
-                                        onPressIn={() => console.log('Cancel pressIn')}>
+                                        onPress={() => setConfirmationModalVisible(false)}>
                                         <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Cancel</Text>
                                     </Pressable>
-                                )}
-                                {Platform.OS === 'ios' ? (
-                                    <TouchableOpacity
-                                        style={styles.confirmBtn}
-                                        onPress={onDelete}
-                                        onPressIn={() => console.log('Confirm pressIn')}>
-                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Confirm</Text>
-                                    </TouchableOpacity>
-                                ) : (
                                     <Pressable
-                                        android_ripple={{borderless: false}}
                                         style={styles.confirmBtn}
                                         onPress={onDelete}
-                                        onPressIn={() => console.log('Confirm pressIn')}>
+                                        >
                                         <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Confirm</Text>
                                     </Pressable>
-                                )}
+                            
+                                
                             </View>
                         </View>
                     </View>

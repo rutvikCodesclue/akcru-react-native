@@ -16,6 +16,7 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import useWatchTimeStore from './src/stores/watchTime.store';
 import mobileAds from 'react-native-google-mobile-ads';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {handleAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -28,8 +29,33 @@ function App(): JSX.Element {
     const {isInternetReachable: isConnected} = useNetInfo();
 
     useEffect(() => {
-        // optional: add request config (test devices, npa, etc.)
-        mobileAds().initialize();
+        const initializeAdsAndTracking = async () => {
+            try {
+                // Request App Tracking Transparency permission first (iOS 14.5+)
+                const trackingResult = await handleAppTrackingFlow();
+                console.log('App Tracking Permission Status:', trackingResult.status);
+                console.log('Can Track User:', trackingResult.canTrack);
+
+                // Initialize mobile ads with tracking status
+                const adConfig = {
+                    // You can configure ads based on tracking permission
+                    requestNonPersonalizedAdsOnly: !trackingResult.canTrack,
+                };
+
+                await mobileAds().initialize();
+                
+                // If tracking is not authorized, you might want to request non-personalized ads
+                if (!trackingResult.canTrack) {
+                    console.log('Tracking not authorized - showing non-personalized ads');
+                }
+            } catch (error) {
+                console.error('Error initializing ads and tracking:', error);
+                // Fallback: still initialize ads even if tracking fails
+                await mobileAds().initialize();
+            }
+        };
+
+        initializeAdsAndTracking();
     }, []);
 
     const loadRewardInterval = useWatchTimeStore(state => state.loadRewardInterval);

@@ -100,6 +100,8 @@
 	<string>This is used to be use Siri in app</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This is used to be able to use speech recognition in app</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized ads to you.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>
