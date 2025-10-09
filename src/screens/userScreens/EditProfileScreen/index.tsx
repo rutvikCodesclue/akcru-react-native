@@ -31,6 +31,7 @@ import {MOVIE_GENRES, appVersion} from '../../../../assets/constants/Data';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import {updateUserProfilePicture, updateUser, searchForUsers, upgradeCRUView} from '../../../lib/api/user.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import { AuthStackParams } from '../../../navigation/AuthNavigation'
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import {selectAvatarBorderColor} from '../../../util/util';
@@ -45,6 +46,7 @@ export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const authNav = useNavigation<NativeStackNavigationProp<AuthStackParams>>()
 
     const user = useAuthStore(state => state.user);
     const canGrantAD = useAuthStore(state => state.user?.canGrantAD);
@@ -929,8 +931,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <TouchableOpacity
                                 onPress={() => {
                                     handleLogout();
-
-                                    navigation2.navigate('Signin');
+                                    authNav.navigate('Welcome');
                                 }}>
                                 <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
                             </TouchableOpacity>

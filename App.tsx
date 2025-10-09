@@ -16,7 +16,8 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import useWatchTimeStore from './src/stores/watchTime.store';
 import mobileAds from 'react-native-google-mobile-ads';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
-import {handleAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
+import {handleDelayedAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
+import {isTablet} from './assets/constants/theme';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -31,27 +32,33 @@ function App(): JSX.Element {
     useEffect(() => {
         const initializeAdsAndTracking = async () => {
             try {
-                // Request App Tracking Transparency permission first (iOS 14.5+)
-                const trackingResult = await handleAppTrackingFlow();
+                console.log('Initializing mobile ads first...');
+                // Initialize mobile ads first
+                await mobileAds().initialize();
+                console.log('Mobile ads initialized successfully');
+                
+                // Then request App Tracking Transparency permission with delay (iOS 14.5+)
+                // Delay helps ensure the app is fully loaded before showing the ATT prompt
+                console.log('Starting delayed ATT request...');
+                const trackingResult = await handleDelayedAppTrackingFlow(3000); // 3 second delay
                 console.log('App Tracking Permission Status:', trackingResult.status);
                 console.log('Can Track User:', trackingResult.canTrack);
 
-                // Initialize mobile ads with tracking status
-                const adConfig = {
-                    // You can configure ads based on tracking permission
-                    requestNonPersonalizedAdsOnly: !trackingResult.canTrack,
-                };
-
-                await mobileAds().initialize();
-                
-                // If tracking is not authorized, you might want to request non-personalized ads
+                // Configure ads based on tracking permission
                 if (!trackingResult.canTrack) {
-                    console.log('Tracking not authorized - showing non-personalized ads');
+                    console.log('Tracking not authorized - ads will be non-personalized');
+                } else {
+                    console.log('Tracking authorized - ads can be personalized');
                 }
             } catch (error) {
                 console.error('Error initializing ads and tracking:', error);
                 // Fallback: still initialize ads even if tracking fails
-                await mobileAds().initialize();
+                try {
+                    await mobileAds().initialize();
+                    console.log('Fallback: Mobile ads initialized without ATT');
+                } catch (adsError) {
+                    console.error('Error initializing ads as fallback:', adsError);
+                }
             }
         };
 
@@ -223,6 +230,11 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: COLORS.AKCRUBACKGROUND,
+        // iPad-specific adjustments
+        ...(isTablet() && {
+            paddingHorizontal: 20,
+            paddingTop: 10,
+        }),
     },
 });
 
