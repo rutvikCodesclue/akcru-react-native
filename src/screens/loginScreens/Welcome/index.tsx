@@ -77,7 +77,7 @@ const Welcome = params => {
             setTimeout(() => {
                 setShowOpener(false);
                 resolve();
-            }, 5000);
+            }, 10000);
         });
     };
 

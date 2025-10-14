@@ -44,6 +44,8 @@ import {getFollowers, upgradeCRUView} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 import AkcruButtons from '../../../components/akcruButtons';
+import {newVisitUserProfile, newVisitUserProfileUpdate} from '../../../lib/api/userProfile.lib';
+import Video from 'react-native-video';
 
 type UserProfileScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserProfileScreen'>;
 
@@ -284,6 +286,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
     ]);
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+    const [skipped, setSkipped] = useState(false); // ⬅️ moved above returns
+    const [firstTimeVisit, setFirstTimeVisit] = useState<any>(null);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -307,6 +311,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     );
 
     const followersCount = formatNumber(followersData.length);
+
     useEffect(() => {
         const loadData = async () => {
             try {
@@ -320,8 +325,30 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
         loadData();
     }, []);
-    if (loading) {
-        // Display a spinner while loading
+
+    useEffect(() => {
+        async function checkFirstTimeVisit() {
+            try {
+                const isNewVisit = await newVisitUserProfile();
+                setFirstTimeVisit(!!isNewVisit);
+            } catch {
+                setFirstTimeVisit(false);
+            }
+        }
+        checkFirstTimeVisit();
+    }, []);
+
+    const handleNewVisitVideoEnd = React.useCallback(async () => {
+        try {
+            const updateResponse = await newVisitUserProfileUpdate();
+            if (updateResponse.success) setFirstTimeVisit(false);
+        } catch {}
+    }, []);
+
+    const showSpinner = loading || firstTimeVisit === null;
+    const showIntro = !showSpinner && firstTimeVisit && !skipped;
+
+    if (showSpinner) {
         return (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -329,21 +356,55 @@ export default function UserProfileScreen({navigation, route}: Props) {
         );
     }
 
+    if (showIntro) {
+        return (
+            <TabContainer>
+                <SafeAreaView>
+                    <Video
+                        source={{uri: 'https://d17ybuhl825fg.cloudfront.net/HelpVideo/Profile+Hub+Intro.mp4'}}
+                        style={{height: '100%', width: '100%'}}
+                        paused={false}
+                        repeat={false}
+                        resizeMode="cover"
+                        onEnd={handleNewVisitVideoEnd}
+                    />
+                    <TouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            top: 30,
+                            right: 20,
+                            backgroundColor: '#ffffff',
+                            paddingVertical: 10,
+                            paddingHorizontal: 20,
+                            borderRadius: 20,
+                        }}
+                        onPress={() => {
+                            setSkipped(true);
+                            handleNewVisitVideoEnd();
+                        }}>
+                        <Text style={{color: '#000', fontWeight: 'bold'}}>Skip</Text>
+                    </TouchableOpacity>
+                </SafeAreaView>
+            </TabContainer>
+        );
+    }
+
+
     const handleUpgrade = async () => {
         try {
             setLoadingUpgrade(true);
 
-            const res = await upgradeCRUView()
+            const res = await upgradeCRUView();
 
             if (res) {
-                setUpgradeResult('success')
+                setUpgradeResult('success');
             } else {
-                setUpgradeResult('error')
+                setUpgradeResult('error');
             }
 
             setShowUpgradeModal(false);
             setShowResultModal(true);
-            hydrateUser()
+            hydrateUser();
 
             setTimeout(() => setShowResultModal(false), 2000);
         } catch (err) {
@@ -354,7 +415,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
         } finally {
             setLoadingUpgrade(false);
         }
-    }
+    };
 
     const iconSize = isTablet() ? 18 : 12;
 
