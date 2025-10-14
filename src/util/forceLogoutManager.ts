@@ -59,6 +59,7 @@ class ForceLogoutManager {
 
             // Execute the actual logout
             const { handleForceLogout } = await import('../../lib/pushNotifications');
+            console.log('Calling handleForceLogout...');
             await handleForceLogout();
             
             console.log('✅ Force logout completed');

@@ -11,6 +11,13 @@ export default StyleSheet.create({
         alignSelf: 'center',
         height: 40,
     },
+    cancelButton: {
+        ...FONTS.paragraph1,
+        backgroundColor: COLORS.AKCRUPINK,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        borderRadius: 5,
+    },
     textinput: {
         ...FONTS.paragraph1,
         color: COLORS.WHITE,
@@ -86,6 +93,7 @@ export default StyleSheet.create({
         borderRadius: 4,
         alignItems: 'center',
         backgroundColor: COLORS.CATREDLGT,
+        color: COLORS.WHITE,
     },
     modalBtnText: {
         ...FONTS.Title3,

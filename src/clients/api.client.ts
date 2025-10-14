@@ -81,9 +81,13 @@ API.interceptors.response.use(
     async error => {
         // Handle 401 responses globally
         if (error.response?.status === 401) {
+            console.log("ERR 401 in API client");
+            
             try {
                 const { forceLogoutManager } = await import('../util/forceLogoutManager');
-                await forceLogoutManager.executeForceLogout();
+                if (!error.config.url.includes("watchtime/config")) {
+                    await forceLogoutManager.executeForceLogout();
+                }
             } catch (logoutError) {
                 console.error('Error during force logout:', logoutError);
             }

@@ -184,12 +184,13 @@ const OnboardPassword = ({route}) => {
                                 />
                                 <TextInput
                                     placeholder="Choose New Password"
-                                    style={styles1.input}
+                                    style={[styles1.input, {color: COLORS.WHITE}]}
                                     secureTextEntry={!isPasswordVisible}
                                     onChangeText={handlePassword}
                                     value={password}
                                     editable={!loading}
-                                    placeholderTextColor={COLORS.DARKGREY}
+                                    placeholderTextColor={COLORS.LIGHTGREY}
+                                    
                                 />
                                 <TouchableOpacity
                                     onPress={() => setPasswordVisible(!isPasswordVisible)}
@@ -215,7 +216,7 @@ const OnboardPassword = ({route}) => {
                                 />
                                 <TextInput
                                     placeholder={'Confirm New Password'}
-                                    style={styles1.input}
+                                    style={[styles1.input, {color: COLORS.WHITE}]}
                                     secureTextEntry={!isConfirmPasswordVisible}
                                     onChangeText={handleConfirmPassword}
                                     value={confirmPassword}

@@ -442,10 +442,10 @@ const Signin = () => {
                                 </Text>
                             </TouchableOpacity>
 
-                            <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
+                            <View style={{flex: 1, justifyContent: 'center', marginBottom: 50}}>
                                 <View
                                     style={{
-                                        marginBottom: 25,
+                                        marginBottom: 0,
                                         flexDirection: 'row',
                                     }}>
                                     <Text

@@ -57,6 +57,7 @@ export async function requestUserPermission() {
 
 // Handle force logout notifications
 export const handleForceLogout = async () => {
+    console.log('Handling force logout due to login from another device');
     try {
         // Import auth store dynamically to avoid circular dependency
         const useAuthStore = (await import('../src/stores/auth.store')).default;

@@ -62,44 +62,46 @@
 		</dict>
 	</dict>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>This is to be able access your Apple Music data in the app</string>
+	<string>Akcru accesses your Apple Music library to sync your favorite songs and playlists for shared listening experiences during watch parties. For example, when you create a watch party, the app will display your music library so you and your friends can select songs to play together while watching content.</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This is to be able to use your Bluetooth in the background</string>
+	<string>Akcru uses Bluetooth to connect with your wireless audio devices like AirPods or Bluetooth speakers for an enhanced watch party experience. For example, when you join a watch party, the app can automatically route audio to your paired Bluetooth headphones for better sound quality during active viewing sessions.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
-	<string>This is to be able to use your Bluetooth in the app</string>
+	<string>Akcru uses Bluetooth to connect with your wireless audio devices like headphones, speakers, or AirPods for an enhanced watch party experience. For example, when you join a watch party, the app can automatically route audio to your paired Bluetooth headphones for better sound quality.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>This is to be able to use your Calendar in the app</string>
+	<string>Akcru accesses your calendar to help you schedule watch parties with friends and set reminders for upcoming events. For example, when you create a watch party, the app can add the event to your calendar and send you reminders so you don't miss watching with your friends.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This is used for sharing your camera during a Watchparty</string>
+	<string>Akcru uses your camera to enable video sharing during watch parties so you can see your friends' reactions while watching content together. For example, when you join a watch party, you can turn on your camera to share your live video feed with other participants, creating a more interactive viewing experience.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>This is to be able to use your contacts in the app</string>
+	<string>Akcru accesses your contacts to help you easily invite friends to watch parties and discover which of your contacts are already using the app. For example, when creating a watch party, you can select friends from your contact list to send them invitations, making it simple to connect with people you know.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>This is to be able to use your Face ID</string>
+	<string>Akcru uses Face ID to provide secure and convenient access to your account and protect your personal watch party history. For example, instead of entering your password each time, you can use Face ID to quickly unlock the app and access your private watch parties and personal content.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This is to be able to use your location in the background and in app</string>
+	<string>Akcru uses your location to help you discover nearby friends who are available for watch parties and to suggest location-based content. For example, the app can show you friends in your area who are currently online and available to watch content together, even when the app is running in the background.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This is to be able to use your location in the background</string>
+	<string>Akcru uses your location in the background to provide location-based notifications about nearby friends and local watch party events. For example, you'll receive notifications when friends near your location start a watch party that you might want to join, even when the app isn't actively open.</string>
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>Nearby Users</key>
 		<string>Your Location is Used to Find Nearby Users</string>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This is used to access your Location</string>
+	<string>Akcru uses your location while using the app to help you find nearby friends for watch parties and discover local content recommendations. For example, when you're browsing for people to watch with, the app can show you friends who are currently nearby and available for an in-person or virtual watch party.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This is used for sharing audio during a Watchparty</string>
+	<string>Akcru needs microphone access to enable voice communication during watch parties so you can talk with your friends while watching content together. For example, when you join a watch party, you can unmute your microphone to have conversations, share reactions, or discuss the content in real-time with other participants.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>This is used to track motion</string>
+	<string>Akcru uses motion data to detect when you're actively engaging with the app during watch parties, such as gestures for reactions or interactions. For example, the app can detect when you shake your phone to send a reaction to your friends during an exciting moment in the content you're watching together.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>This is used to be able to add your photos to the Akcru app</string>
+	<string>Akcru saves screenshots and memorable moments from your watch parties directly to your photo library so you can keep and share these memories. For example, when you capture a funny reaction or special moment during a watch party with friends, the app will save it to your Photos app for you to share later.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This is used to access your photos for Akcru</string>
+	<string>Akcru accesses your photo library to let you share images and create custom profile pictures for your watch party experience. For example, you can select photos from your library to set as your profile picture or share images with friends during watch party conversations.</string>
 	<key>NSRemindersUsageDescription</key>
-	<string>This is used to be able to send you reminders for the Akcru app</string>
+	<string>Akcru accesses your reminders to help you schedule and remember upcoming watch parties with friends. For example, when you plan a watch party for later, the app can create a reminder in your Reminders app so you don't forget to join your friends at the scheduled time.</string>
 	<key>NSSiriUsageDescription</key>
-	<string>This is used to be use Siri in app</string>
+	<string>Akcru integrates with Siri to let you quickly start watch parties and control playback using voice commands. For example, you can say "Hey Siri, start a watch party on Akcru" or "Hey Siri, pause the watch party" to control your viewing experience hands-free while watching with friends.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This is used to be able to use speech recognition in app</string>
+	<string>Akcru uses speech recognition to enable voice commands for controlling watch parties and converting your voice messages to text during conversations. For example, you can speak voice messages to your friends during a watch party, and the app will convert them to text for friends who prefer reading or are in quiet environments.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Akcru uses this identifier to deliver personalized ads and content recommendations based on your watch party preferences and viewing history. For example, you'll see ads for movies and shows that match your interests, and receive recommendations for content that you and your friends might enjoy watching together.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Montserrat-Black.ttf</string>
@@ -119,7 +121,6 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
-		<string>audio</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

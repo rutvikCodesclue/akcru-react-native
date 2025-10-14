@@ -84,6 +84,7 @@ class SessionValidationService {
           jwt: jwt
         });
         if (!sessionTestResponse.data.success || !sessionTestResponse.data.sessionValid) {
+          console.log('Session invalid according to server response:', sessionTestResponse.data);
           await this.handleForceLogout();
           return;
         }
@@ -92,6 +93,7 @@ class SessionValidationService {
         if (error.response?.status === 401 || 
             error.response?.data?.code === 'SESSION_INVALIDATED' ||
             error.response?.data?.code === 'DEVICE_TOKEN_REVOKED') {
+          console.log('Session invalidated by server:', error.response?.data);
           await this.handleForceLogout();
           return;
         }
@@ -138,7 +140,7 @@ class SessionValidationService {
     } catch (error) {
       console.error('Error during force logout:', error);
       // Force navigate to signin even if cleanup fails
-      RootNavigation.navigate('Signin', {});
+      // RootNavigation.navigate('Signin', {});
     }
   }
 

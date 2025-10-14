@@ -1082,6 +1082,8 @@ PODS:
     - React-Core
   - react-native-safe-area-context (4.11.1):
     - React-Core
+  - react-native-tracking-transparency (0.1.2):
+    - React
   - react-native-video (6.16.1):
     - glog
     - RCT-Folly (= 2022.05.16.00)
@@ -1379,6 +1381,7 @@ DEPENDENCIES:
   - "react-native-progress-bar-android (from `../node_modules/@react-native-community/progress-bar-android`)"
   - "react-native-progress-view (from `../node_modules/@react-native-community/progress-view`)"
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - react-native-tracking-transparency (from `../node_modules/react-native-tracking-transparency`)
   - react-native-video (from `../node_modules/react-native-video`)
   - react-native-volume-manager (from `../node_modules/react-native-volume-manager`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -1541,6 +1544,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/progress-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-tracking-transparency:
+    :path: "../node_modules/react-native-tracking-transparency"
   react-native-video:
     :path: "../node_modules/react-native-video"
   react-native-volume-manager:
@@ -1695,6 +1700,7 @@ SPEC CHECKSUMS:
   react-native-progress-bar-android: 70caf8832e7a6378a3340bc81f361f65ad406a54
   react-native-progress-view: bae9c45202f3de868c63f536857f6a589cd78610
   react-native-safe-area-context: 17a482f540310e2209f884fd49472d9e1c0e73d6
+  react-native-tracking-transparency: 15eb319f2b982070eb9831582af27d87badfa624
   react-native-video: 099f84c4ca64dfa542bfa12615cf8bd8ed2c90ad
   react-native-volume-manager: d9d2863a2374420af89c89662333ea6adf506988
   react-native-webview: f365e63af37e551073a08ec7c43815b6a6314233
