@@ -51,7 +51,7 @@ export default function PurchaseAdScreen() {
                 const txId = await purchaseADInApp(selectedTier.tier);
                 if (txId){
                     Alert.alert('Purchase Successful', 'Thank you for your purchase of AD!');
-                    }
+                }
             } else {
                 const checkoutUrl = await purchaseAD(selectedTier.tier);
                 navigation.navigate('StripeWebCheckout', {checkoutUrl});

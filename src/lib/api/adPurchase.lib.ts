@@ -6,30 +6,26 @@ import useAuthStore from '../../stores/auth.store';
 import Purchases from 'react-native-purchases';
 
 export type AdPackInfo = {
-    tier: string; // e.g. "MICRO", "STARTER", …
-    label: string; // "Micro Pack", …
-    priceUSD: number; // e.g. 1.99
-    adGiven: number; // e.g. 1000
-    dollarsPerAD: number; // e.g. 0.00199
-    baselineAd: number; // e.g. 1000
-    bonusAD: number; // e.g. 0
-    bonusPercent: number; // e.g. 0.0
+    tier: string;
+    label: string;
+    priceUSD: number;
+    adGiven: number;
+    dollarsPerAD: number;
+    baselineAd: number;
+    bonusAD: number;
+    bonusPercent: number;
 };
 
-/**
- * Fetch all AD-pack tiers from the server.
- */
+
 export async function getAdPacks(): Promise<AdPackInfo[]> {
     await useAuthStore.getState().hydrateAuth();
 
     try {
-        // don’t destructure immediately—grab the full response
         const resp = await API.get<{
             success: boolean;
             data: AdPackInfo[];
         }>('/v1/ad-purchase/tiers');
 
-        // axios responses put the payload on resp.data
         const body = resp.data;
         if (!body) {
             console.error('getAdPacks: no response body', resp);
@@ -49,29 +45,21 @@ export async function getAdPacks(): Promise<AdPackInfo[]> {
         return body.data;
     } catch (err: any) {
         console.error('getAdPacks error:', err);
-        // re-throw so your component’s .catch can show an alert
         throw err;
     }
 }
 
-/**
- * Kick off a Stripe Checkout session for the chosen tier.
- * Returns the hosted Checkout URL.
- */
+
 export async function purchaseAD(tier: string): Promise<string> {
-    // ensure we’re logged in
     await useAuthStore.getState().hydrateAuth();
 
-    // For native platforms use in-app purchases via RevenueCat (react-native-purchases)
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
-        // prefer explicit in-app flow
         return purchaseADInApp(tier).then((tx) => tx || '');
     }
 
-    // Fallback / web path: create a Stripe checkout session
     const resp = await API.post<{url: string}>('/v1/ad-checkout/create-session', {
         tier,
-        platform: Platform.OS, // 👈 send 'android' or 'ios'
+        platform: Platform.OS,
     });
 
     if (!resp.data || typeof resp.data.url !== 'string') {
@@ -81,37 +69,28 @@ export async function purchaseAD(tier: string): Promise<string> {
     return resp.data.url;
 }
 
-/**
- * Perform an in-app purchase using react-native-purchases (RevenueCat).
- * On success POST to the server to create/ack the purchase.
- * Returns the transaction id (or empty string) on success.
- */
+
 export async function purchaseADInApp(tier: string): Promise<string> {
     await useAuthStore.getState().hydrateAuth();
 
-    // Map tiers to RevenueCat product identifiers.
-    // TODO: Replace these placeholders with the real product ids from App Store / Play Console
     const PRODUCT_MAP: Record<string, string> = {
         MICRO: 'micro_pack',
-        STARTER: 'akcru_dollars_2akd',
-        BOOSTER: 'akcru_dollars_2akd',
-        ELITE: 'akcru_dollars_2akd',
-        WHALE: 'akcru_dollars_2akd',
-        ULTRA: 'akcru_dollars_2akd',
+        STARTER: 'starter_pack',
+        BOOSTER: 'booster_pack',
+        ELITE: 'elite_pack',
+        WHALE: 'whale_pack',
+        ULTRA: 'ultra_pack',
     };
 
     const productId = PRODUCT_MAP[tier];
     if (!productId) throw new Error('Unknown product for tier: ' + tier);
 
     try {
-        console.log('Attempting Purchases.purchaseStoreProduct for', productId);
         const products = await Purchases.getProducts([productId]);
-        console.log('Products fetched for purchase:', products);
         await new Promise((r) => setTimeout(r, 500));
         
 
         const purchaseResult = await Purchases.purchaseStoreProduct(products[0]);
-        console.log('Purchases.purchaseProduct result ->', purchaseResult);
 
         // purchaseResult shape may vary between platforms / SDK versions; be defensive
         const anyRes: any = purchaseResult as any;
@@ -130,15 +109,11 @@ export async function purchaseADInApp(tier: string): Promise<string> {
         return transactionId;
     } catch (err: any) {
         console.error('In-app purchase failed:', err);
-        // Re-throw so caller can show UI
         throw err;
     }
 }
 
-/**
- * Confirm a completed Stripe session via session_id.
- * Returns `true` on success, throws on failure.
- */
+
 export async function verifyAdPurchaseSession(sessionId: string): Promise<boolean> {
     await useAuthStore.getState().hydrateAuth();
 
