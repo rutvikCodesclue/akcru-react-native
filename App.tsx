@@ -34,7 +34,7 @@ function App(): JSX.Element {
         Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
 
         if (Platform.OS === 'ios') {
-            Purchases.configure({ apiKey: process.env.REVENUE_CAT_API_KEY_TEST || "" });
+            Purchases.configure({ apiKey: process.env.REVENUE_CAT_API_KEY_IOS || "" });
         } else if (Platform.OS === 'android') {
             Purchases.configure({ apiKey: process.env.REVENUE_CAT_API_KEY_ANDROID || "" });
         }

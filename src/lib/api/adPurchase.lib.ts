@@ -92,7 +92,7 @@ export async function purchaseADInApp(tier: string): Promise<string> {
     // Map tiers to RevenueCat product identifiers.
     // TODO: Replace these placeholders with the real product ids from App Store / Play Console
     const PRODUCT_MAP: Record<string, string> = {
-        MICRO: 'akcru_dollars_2akd',
+        MICRO: 'micro_pack',
         STARTER: 'akcru_dollars_2akd',
         BOOSTER: 'akcru_dollars_2akd',
         ELITE: 'akcru_dollars_2akd',
@@ -104,29 +104,6 @@ export async function purchaseADInApp(tier: string): Promise<string> {
     if (!productId) throw new Error('Unknown product for tier: ' + tier);
 
     try {
-        // Optionally fetch product info first
-        try {
-            const products = await Purchases.getProducts([productId]);
-            console.log('RevenueCat.getProducts ->', products);
-            if (!products || products.length === 0) {
-                console.warn('No products returned from Purchases.getProducts for', productId);
-                // attempt to fetch offerings as a secondary check
-                try {
-                    const offs = await Purchases.getOfferings();
-                    console.log('RevenueCat.getOfferings ->', offs);
-                } catch (offErr) {
-                    console.warn('getOfferings failed', offErr);
-                }
-                // Fail fast so the UI can show an actionable error instead of appearing to do nothing
-                throw new Error(
-                    `No products found for ${productId}. Verify product id, App Store / Play Console setup, and that Purchases.configure was called with a valid RevenueCat API key.`,
-                );
-            }
-        } catch (e) {
-            // non-fatal — continue to attempt purchase
-            console.warn('getProducts failed', e);
-        }
-
         console.log('Attempting Purchases.purchaseStoreProduct for', productId);
         const products = await Purchases.getProducts([productId]);
         console.log('Products fetched for purchase:', products);
@@ -139,7 +116,7 @@ export async function purchaseADInApp(tier: string): Promise<string> {
         // purchaseResult shape may vary between platforms / SDK versions; be defensive
         const anyRes: any = purchaseResult as any;
         const transactionId = anyRes?.productIdentifier || anyRes?.transactionId || anyRes?.customerInfo?.originalAppUserId || anyRes?.customerInfo?.entitlements
-            ? JSON.stringify(anyRes?.customerInfo?.entitlements)
+            ? JSON.stringify(anyRes)
             : new Date().toISOString();
 
         // Notify our backend to create/ack the AD purchase

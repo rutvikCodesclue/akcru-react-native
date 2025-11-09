@@ -47,17 +47,18 @@ export default function PurchaseAdScreen() {
         setPurchaseInProgress(true);
         try {
             if (Platform.OS === 'ios' || Platform.OS === 'android') {
-                // native in-app flow via RevenueCat
-                Alert.alert('Purchase In-App', 'The in-app purchase flow will now begin.');
+                Alert.alert('Purchase In Progress', 'Please follow the in-app purchase prompts.');
                 const txId = await purchaseADInApp(selectedTier.tier);
-                // show a simple success alert / you can navigate to a dedicated screen
+                if (txId){
+                    Alert.alert('Purchase Successful', 'Thank you for your purchase of AD!');
+                    }
             } else {
                 const checkoutUrl = await purchaseAD(selectedTier.tier);
                 navigation.navigate('StripeWebCheckout', {checkoutUrl});
             }
         } catch (err: any) {
             console.error('Checkout session error:', err);
-            Alert.alert('Purchase Failed', err.message || 'Please try again.');
+            Alert.alert('Purchase Failed', "Some issue occurred during purchase. Please try again later.");
         } finally {
             setPurchaseInProgress(false);
         }
