@@ -17,8 +17,8 @@ android {
     applicationId "com.akcruapp"
     minSdkVersion 23
     targetSdkVersion 35
-    versionCode 1015
-    versionName "1.0.15"
+    versionCode 1017
+    versionName "1.0.17"
     multiDexEnabled true 
     manifestPlaceholders = [ appAuthRedirectScheme: "akcruapp" ]
   }
