@@ -55,6 +55,7 @@ interface IUserProfile {
     SeasonPurchase: ISeasonPurchase[];
     visionaryStatus: boolean;
     hasVideoPrivileges: boolean;
+    isNewVisitFlick: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';

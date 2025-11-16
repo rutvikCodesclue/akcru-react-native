@@ -1,14 +1,15 @@
 // src/screens/PurchaseAdScreen.tsx
 
 import React, {useEffect, useState} from 'react';
-import {View, Text, SafeAreaView, TouchableOpacity, Modal, Alert, Image} from 'react-native';
+import {View, Text, SafeAreaView, TouchableOpacity, Modal, Alert, Image, ActivityIndicator} from 'react-native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {COLORS, FONTS} from '../../../../assets/constants';
 import Header from '../../../components/header';
 
 import AkcruButtons from '../../../components/akcruButtons';
-import {getAdPacks, purchaseAD, AdPackInfo} from '../../../lib/api/adPurchase.lib';
+import {getAdPacks, purchaseAD, purchaseADInApp, AdPackInfo} from '../../../lib/api/adPurchase.lib';
+import { Platform } from 'react-native';
 
 import {ScrollView} from 'react-native-gesture-handler';
 import imageindex from '../../../../assets/images/imageindex';
@@ -21,6 +22,7 @@ export default function PurchaseAdScreen() {
     const [tiers, setTiers] = useState<AdPackInfo[]>([]);
     const [selectedTier, setSelectedTier] = useState<AdPackInfo | null>(null);
     const [confirmVisible, setConfirmVis] = useState(false);
+    const [purchaseInProgress, setPurchaseInProgress] = useState(false);
 
     useEffect(() => {
         getAdPacks()
@@ -42,12 +44,23 @@ export default function PurchaseAdScreen() {
         setConfirmVis(false);
         if (!selectedTier) return;
 
+        setPurchaseInProgress(true);
         try {
-            const checkoutUrl = await purchaseAD(selectedTier.tier);
-            navigation.navigate('StripeWebCheckout', {checkoutUrl});
+            if (Platform.OS === 'ios' || Platform.OS === 'android') {
+                Alert.alert('Purchase In Progress', 'Please follow the in-app purchase prompts.');
+                const txId = await purchaseADInApp(selectedTier.tier);
+                if (txId){
+                    Alert.alert('Purchase Successful', 'Thank you for your purchase of AD!');
+                }
+            } else {
+                const checkoutUrl = await purchaseAD(selectedTier.tier);
+                navigation.navigate('StripeWebCheckout', {checkoutUrl});
+            }
         } catch (err: any) {
             console.error('Checkout session error:', err);
-            Alert.alert('Purchase Failed', err.message || 'Please try again.');
+            Alert.alert('Purchase Failed', "Some issue occurred during purchase. Please try again later.");
+        } finally {
+            setPurchaseInProgress(false);
         }
     };
 

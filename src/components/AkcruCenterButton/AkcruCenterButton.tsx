@@ -93,7 +93,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                         />
                     </Animated.View>
                 </Pressable>
-                {/* <Pressable onPressIn={handlePressShop}>
+                <Pressable onPressIn={handlePressShop}>
                     <Animated.View
                         style={[
                             styles.item,
@@ -124,7 +124,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                             style={styles.itemIcon}
                         />
                     </Animated.View>
-                </Pressable> */}
+                </Pressable>
                 <Pressable onPressIn={handlePressWorld}>
                     <Animated.View
                         style={[

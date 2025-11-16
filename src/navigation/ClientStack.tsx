@@ -22,6 +22,7 @@ import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
+import ClientEntryDecider from '../screens/ClientDeciderScreen';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -46,6 +47,7 @@ export type ClientStackParams = {
     AwardScreen: any;
     PurchaseAdScreen: any;
     ContentDetailScreen: any;
+    ClientEntryDecider: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -58,6 +60,18 @@ export function ClientStack() {
                 cardOverlayEnabled: true,
                 cardStyle: {backgroundColor: COLORS.AKCRUBACKGROUND},
             }}>
+            <ClientSearch.Screen
+                name="ClientEntryDecider"
+                component={ClientEntryDecider}
+                options={{headerShown: false}}
+            />
+            <ClientSearch.Screen
+                name="FlickFlirtScreen"
+                component={FlickFlirtScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
             <ClientSearch.Screen
                 name="HomeScreen"
                 component={HomeScreen}
@@ -153,13 +167,6 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="PurchaseMITScreen"
                 component={PurchaseMITScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <ClientSearch.Screen
-                name="FlickFlirtScreen"
-                component={FlickFlirtScreen}
                 options={{
                     headerShown: false,
                 }}

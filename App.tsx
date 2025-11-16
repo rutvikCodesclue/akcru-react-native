@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {StatusBar, StyleSheet, View} from 'react-native';
+import {StatusBar, StyleSheet, View, Platform} from 'react-native';
 import RootNavigator from './src/navigation/RootNavigator';
 import {COLORS} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
@@ -18,6 +18,7 @@ import mobileAds from 'react-native-google-mobile-ads';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 import {handleDelayedAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
 import {isTablet} from './assets/constants/theme';
+import Purchases from 'react-native-purchases';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -30,6 +31,14 @@ function App(): JSX.Element {
     const {isInternetReachable: isConnected} = useNetInfo();
 
     useEffect(() => {
+        Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+
+        if (Platform.OS === 'ios') {
+            Purchases.configure({ apiKey: process.env.REVENUE_CAT_API_KEY_IOS || "" });
+        } else if (Platform.OS === 'android') {
+            Purchases.configure({ apiKey: process.env.REVENUE_CAT_API_KEY_ANDROID || "" });
+        }
+
         const initializeAdsAndTracking = async () => {
             try {
                 console.log('Initializing mobile ads first...');

@@ -423,6 +423,7 @@ const HomeScreen = () => {
                                     onLoad={handleVideoLoad}
                                     paused={!topBoxShouldAutoplay}
                                     muted={isMuted}
+                
                                 />
                             </View>
                             <View>

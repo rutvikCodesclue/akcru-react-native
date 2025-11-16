@@ -63,6 +63,7 @@ import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlir
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
+import FlickFlirtResults from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtResults';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
@@ -99,6 +100,7 @@ export type NoBottomTabStackParams = {
     FlickFlirtPrefD: any;
     FlickFlirtSwipe: any;
     FlickFlirtMatches: any;
+    FlickFlirtResults: {startedAt?: number};
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     TrailerPlayer: any;
@@ -661,6 +663,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtMatches"
                 component={FlickFlirtMatches}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtResults"
+                component={FlickFlirtResults}
                 options={() => ({
                     headerShown: false,
                 })}
