@@ -172,7 +172,7 @@ const FlickFlirtScreen = () => {
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.XlLrgButton
                                     btnname="Open FlickFlirt"
-                                    onPress={() => navigation.navigate('FlickFlirtPref')}
+                                    onPress={() => navigation.navigate('FlickFlirtSwipe')}
                                     color={COLORS.PURPLE}
                                 />
                             </View>
