@@ -1,5 +1,3 @@
-// src/lib/api/adPurchase.lib.ts
-
 import {Platform} from 'react-native';
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
@@ -73,7 +71,7 @@ export async function purchaseAD(tier: string): Promise<string> {
 export async function purchaseADInApp(tier: string): Promise<string> {
     await useAuthStore.getState().hydrateAuth();
 
-    const PRODUCT_MAP: Record<string, string> = {
+    const PRODUCT_MAP_IOS: Record<string, string> = {
         MICRO: 'micro_pack',
         STARTER: 'starter_pack',
         BOOSTER: 'booster_pack',
@@ -81,24 +79,30 @@ export async function purchaseADInApp(tier: string): Promise<string> {
         WHALE: 'whale_pack',
         ULTRA: 'ultra_pack',
     };
+    const PRODUCT_MAP_ANDROID: Record<string, string> = {
+        MICRO: '0001',
+        STARTER: '0002',
+        BOOSTER: '0003',
+        ELITE: '0004',
+        WHALE: '0005',
+        ULTRA: '0006',
+    };
 
-    const productId = PRODUCT_MAP[tier];
+    const productId = Platform.OS === 'ios' ? PRODUCT_MAP_IOS[tier] : PRODUCT_MAP_ANDROID[tier];
     if (!productId) throw new Error('Unknown product for tier: ' + tier);
 
     try {
-        const products = await Purchases.getProducts([productId]);
+        const products = await Purchases.getProducts([productId], Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION);
         await new Promise((r) => setTimeout(r, 500));
         
 
         const purchaseResult = await Purchases.purchaseStoreProduct(products[0]);
 
-        // purchaseResult shape may vary between platforms / SDK versions; be defensive
         const anyRes: any = purchaseResult as any;
         const transactionId = anyRes?.productIdentifier || anyRes?.transactionId || anyRes?.customerInfo?.originalAppUserId || anyRes?.customerInfo?.entitlements
             ? JSON.stringify(anyRes)
             : new Date().toISOString();
 
-        // Notify our backend to create/ack the AD purchase
         const resp = await API.post('/v1/ad-purchase/revenuecat/ack', { tier, transactionId, platform: Platform.OS });
 
         if (!resp.data || !resp.data.success) {
@@ -108,7 +112,7 @@ export async function purchaseADInApp(tier: string): Promise<string> {
 
         return transactionId;
     } catch (err: any) {
-        console.error('In-app purchase failed:', err);
+        console.error('In-app purchase failed:', JSON.stringify(err));
         throw err;
     }
 }
