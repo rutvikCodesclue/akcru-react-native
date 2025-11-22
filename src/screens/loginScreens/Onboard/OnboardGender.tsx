@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert, TextInput} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -16,19 +16,21 @@ import {capitalizeFirstLetterOfString} from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
-import { isTablet } from '../../../../assets/constants/theme';
+import {isTablet} from '../../../../assets/constants/theme';
 
-const TOTAL_STEPS = 11;
-const CURRENT_STEP = 5;
+const TOTAL_STEPS = 7; // updated total
+const CURRENT_STEP = 5; // gender + description step
 
 const OnboardGender = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const [userName, setUserName] = useState<string>('');
-    const [isFormComplete, setIsFormComplete] = useState(false);
+    const user = useAuthStore(state => state.user);
 
-    const [genders, setGenders] = useState([]);
+    const [userName, setUserName] = useState<string>('');
+    const [genders, setGenders] = useState<string[]>([]);
+    const [selectedGender, setSelectedGender] = useState<string | null>(null);
+    const [description, setDescription] = useState<string>(user?.description || '');
     const [loading, setLoading] = useState(false);
-    const [selectedGender, setSelectedGender] = useState(null);
+    const [isFormComplete, setIsFormComplete] = useState(false);
 
     useEffect(() => {
         const fetchGenders = async () => {
@@ -55,11 +57,12 @@ const OnboardGender = () => {
         fetchGenders();
     }, []);
 
-    const handleGenderSelect = (gender: any) => {
+    const handleGenderSelect = (gender: string) => {
         setSelectedGender(gender);
     };
 
     const checkFormCompletion = () => {
+        // Keep description optional; only require gender to move on
         if (selectedGender) {
             setIsFormComplete(true);
         } else {
@@ -71,23 +74,35 @@ const OnboardGender = () => {
         checkFormCompletion();
     }, [selectedGender]);
 
-    const GenderSet = async () => {
-        if (isFormComplete) {
-            try {
-                setLoading(true);
-                const updatedUser = await updateUser({gender: selectedGender});
-                if (updatedUser) {
-                    useAuthStore.setState({user: updatedUser});
-                    navigation.navigate('OnboardDescription', {userName});
+    const GenderAndDescriptionSet = async () => {
+        if (!isFormComplete || !selectedGender) return;
+
+        try {
+            setLoading(true);
+            const updatedUser = await updateUser({
+                gender: selectedGender,
+                description: description, // can be empty string, same as old screen
+            });
+
+            if (updatedUser) {
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser) {
+                    currentUser.gender = selectedGender;
+                    currentUser.description = description;
+                    useAuthStore.setState({user: currentUser});
                 } else {
-                    Alert.alert('Update Failed', 'Failed to update gender.');
+                    useAuthStore.setState({user: updatedUser});
                 }
-            } catch (error) {
-                console.error('Error updating gender:', error);
-                Alert.alert('Update Error', 'An error occurred while updating gender.');
-            } finally {
-                setLoading(false);
+
+                navigation.navigate('OnboardCruName', {userName});
+            } else {
+                Alert.alert('Update Failed', 'Failed to update gender and description.');
             }
+        } catch (error) {
+            console.error('Error updating gender/description:', error);
+            Alert.alert('Update Error', 'An error occurred while updating your profile.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -118,9 +133,13 @@ const OnboardGender = () => {
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>Please select your gender:</Text>
+                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                                Please select your gender and tell the crummunity a bit about yourself.
+                            </Text>
                         </View>
-                        <View style={{marginHorizontal: 15}}>
+
+                        {/* Gender selection */}
+                        <View style={{marginHorizontal: 15, marginTop: 10}}>
                             {genders.map(gender => (
                                 <View key={gender} style={styles.checkboxContainer}>
                                     <TouchableOpacity
@@ -139,13 +158,35 @@ const OnboardGender = () => {
                                 </View>
                             ))}
                         </View>
+
+                        {/* Description input */}
+                        <View style={{alignItems: 'center', marginTop: 15}}>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={'Tell us about yourself...'}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => {
+                                        if (text.length <= 250) {
+                                            setDescription(text);
+                                        }
+                                    }}
+                                    value={description}
+                                    multiline={true}
+                                    maxLength={200}
+                                    editable={!loading}
+                                />
+                            </View>
+                        </View>
+
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
                                     color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Next'}
-                                    onPress={() => GenderSet()}
-                                    disabled={!isFormComplete}
+                                    onPress={GenderAndDescriptionSet}
+                                    disabled={!isFormComplete || loading}
                                 />
                             </View>
                         </View>

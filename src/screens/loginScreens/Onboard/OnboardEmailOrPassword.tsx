@@ -27,7 +27,7 @@ import {AxiosError} from 'axios';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 7;
 const CURRENT_STEP = 2;
 const iconSize = isTablet() ? 28 : 20;
 

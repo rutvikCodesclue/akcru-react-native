@@ -21,8 +21,8 @@ import {isTablet} from '../../../../assets/constants/theme';
 
 const buttonMargin = isTablet() ? '10%' : '5%';
 
-const TOTAL_STEPS = 11;
-const CURRENT_STEP = 11;
+const TOTAL_STEPS = 7;
+const CURRENT_STEP = 7;
 
 const OnboardArchetype = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();

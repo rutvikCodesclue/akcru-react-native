@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -16,24 +16,41 @@ import LinearGradient from 'react-native-linear-gradient';
 import {ICru} from '../../../../types';
 import {searchCRUs, updateCRUInfo} from '../../../lib/api/cru.lib';
 import ProgressBar from '../../../components/ProgressBar';
-import { isTablet } from '../../../../assets/constants/theme';
+import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import HexAvatar from '../../../components/HexAvatar';
+import {updateUserProfilePicture} from '../../../lib/api/user.lib';
+import {Image as CompressorImage} from 'react-native-compressor';
+import {isTablet} from '../../../../assets/constants/theme';
 
-const TOTAL_STEPS = 11;
-const CURRENT_STEP = 7;
+const TOTAL_STEPS = 7;
+const CURRENT_STEP = 6;
+const profilePicture = isTablet() ? 150 : 100;
 
 const OnboardCruName = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-
     const [, setCRU] = useState<ICru | undefined>(undefined);
 
+    // Cru name
     const [cruName, setCruName] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [userNameError, setUserNameError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    const isCruNameValid = (cruName: string) => {
-        return cruName.length > 2;
-    };
+    // Profile picture
+    const [selectImage, setSelectImage] = useState('');
+    const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+
+    // Modal (kept for consistency with other onboarding screens)
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [resetResultType] = useState({
+        messageheader: '',
+        messageheadercolor: '',
+        message: '',
+        iconname: '',
+        iconcolor: '',
+    });
+
+    const isCruNameValid = (value: string) => value.length > 2;
 
     const checkFormCompletion = () => {
         if (cruName && isCruNameValid(cruName)) {
@@ -47,28 +64,21 @@ const OnboardCruName = () => {
         checkFormCompletion();
     }, [cruName]);
 
-    const [showEmailModal, setShowEmailModal] = useState(false);
-    const [resetResultType, _] = useState({
-        messageheader: '',
-        messageheadercolor: '',
-        message: '',
-        iconname: '',
-        iconcolor: '',
-    });
+    const handleCruNameChange = (text: string) => {
+        const trimmed = text.trim();
+        setCruName(trimmed);
+        setUserNameError(!isCruNameValid(trimmed));
+    };
 
-    const checkCruNameExists = async (cruName: string) => {
+    const checkCruNameExists = async (name: string) => {
         try {
-            const lowercaseCruName = cruName.toLowerCase();
-
+            const lowercaseCruName = name.toLowerCase();
             const response = await searchCRUs(lowercaseCruName);
 
             if (response && response.success) {
                 const currentCruName = useAuthStore.getState().user?.Cru?.name.toLowerCase();
-
                 const filteredCrus = response.data.filter(cru => cru.name.toLowerCase() !== currentCruName);
-
                 const cruNameExists = filteredCrus.some(cru => cru.name.toLowerCase() === lowercaseCruName);
-
                 return cruNameExists;
             }
             return false;
@@ -76,6 +86,60 @@ const OnboardCruName = () => {
             console.error('Error checking CRU name:', error);
             return false;
         }
+    };
+
+    const compressImage = async (imageUri: string) => {
+        const compressedImagePath = await CompressorImage.compress(imageUri, {
+            compressionMethod: 'auto',
+        });
+
+        return compressedImagePath;
+    };
+
+    const selectProfileImage = async () => {
+        const options = {
+            mediaType: 'photo' as MediaType,
+            storageOptions: {
+                path: 'image',
+            },
+        };
+
+        let callbackExecuted = false;
+
+        launchImageLibrary(options, async response => {
+            if (response && !response.didCancel && response.assets) {
+                if (callbackExecuted) return;
+                callbackExecuted = true;
+
+                const asset = response.assets[0];
+                if (!asset?.uri) return;
+
+                const selectedImageUncomp = asset.uri;
+                const selectedImage = await compressImage(selectedImageUncomp);
+
+                const imageType = asset.type;
+                const imageName = asset.fileName;
+                const imageSizeInBytes = asset.fileSize;
+
+                if (imageSizeInBytes !== undefined) {
+                    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
+
+                    if (imageSizeInBytes > maxSizeInBytes) {
+                        setShowSizeErrorModal(true);
+                    } else {
+                        const updatedUserProfilePicture = await updateUserProfilePicture({
+                            uri: selectedImage,
+                            type: imageType,
+                            name: imageName,
+                        });
+
+                        if (updatedUserProfilePicture) {
+                            setSelectImage(updatedUserProfilePicture.profilePicture || '');
+                        }
+                    }
+                }
+            }
+        });
     };
 
     const ConfirmChangeCruName = async () => {
@@ -95,7 +159,9 @@ const OnboardCruName = () => {
                 const updatedCRU = await updateCRUInfo({name: cruName});
                 if (updatedCRU) {
                     setCRU(updatedCRU);
-                    navigation.navigate('OnboardDOB');
+                    // Profile picture is already handled immediately on selection.
+                    // Move straight to Archetype screen.
+                    navigation.navigate('OnboardArchetype');
                 } else {
                     Alert.alert('Update Failed', 'Failed to update CRU name. Please try again.');
                 }
@@ -106,15 +172,6 @@ const OnboardCruName = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        checkFormCompletion();
-    }, [cruName]);
-
-    const handleCruNameChange = (text: string) => {
-        setCruName(text.trim());
-        setUserNameError(!isCruNameValid(text));
     };
 
     return (
@@ -144,8 +201,12 @@ const OnboardCruName = () => {
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>Now create a Cru name.</Text>
+                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                                Create your Cru name and add a profile picture.
+                            </Text>
                         </View>
+
+                        {/* Cru name input */}
                         <View style={{alignItems: 'center', marginTop: 10}}>
                             <Inputs
                                 placeholdername={'Create a Cru name'}
@@ -157,20 +218,82 @@ const OnboardCruName = () => {
                                 editable={!loading}
                             />
                             {userNameError && <Text style={styles.warningText}>Invalid Username format</Text>}
-                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
-                                Your Cru name must be unique and atleast 3 characters long.
+                            <Text
+                                style={{
+                                    ...FONTS.Title2,
+                                    textAlign: 'center',
+                                    color: COLORS.PINK,
+                                }}>
+                                Your Cru name must be unique and at least 3 characters long.
                             </Text>
                         </View>
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Next'}
-                                    onPress={() => ConfirmChangeCruName()}
-                                    disabled={!isFormComplete}
-                                />
-                            </View>
+
+                        {/* Profile picture selection */}
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <HexAvatar
+                                source={{uri: selectImage}}
+                                size={profilePicture}
+                                bordercolor={COLORS.AKCRUBLUE}
+                            />
                         </View>
+                        <View>
+                            <TouchableOpacity onPress={selectProfileImage}>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        marginTop: 10,
+                                        color: COLORS.PINK,
+                                        textAlign: 'center',
+                                    }}>
+                                    Pick a profile photo
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {/* Picture Size Error Modal */}
+                        <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                <View
+                                    style={{
+                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        padding: 20,
+                                        borderRadius: 10,
+                                        alignItems: 'center',
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title3,
+                                            marginBottom: 10,
+                                            textAlign: 'center',
+                                        }}>
+                                        Image is too large. Please select an image under 5MB.
+                                    </Text>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setShowSizeErrorModal(false);
+                                        }}>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginBottom: 10,
+                                                textAlign: 'center',
+                                                color: COLORS.MIDORANGE,
+                                            }}>
+                                            Close
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
+
+                        {/* Generic modal (kept, but currently unused) */}
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}
@@ -181,6 +304,18 @@ const OnboardCruName = () => {
                                 iconcolor={resetResultType.iconcolor}
                             />
                         </Modal>
+
+                        {/* Next button */}
+                        <View>
+                            <View style={{alignItems: 'center', marginTop: 20}}>
+                                <AkcruButtons.LrgButton
+                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                    btnname={'Next'}
+                                    onPress={ConfirmChangeCruName}
+                                    disabled={!isFormComplete || loading}
+                                />
+                            </View>
+                        </View>
                     </View>
                     <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
                 </KeyboardAvoidingView>
