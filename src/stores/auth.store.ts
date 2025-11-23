@@ -133,7 +133,7 @@ const useAuthStore = create<IAuthStore>()(
 
                     return {user, response: signUpResponse};
                 } catch (error) {
-                    console.error('Sign-up failed:', error);
+                    console.error('Sign-up failed:', JSON.stringify(error));
                     return {response: {} as AxiosResponse, user: null};
                 }
             },

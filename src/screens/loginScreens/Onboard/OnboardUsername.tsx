@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {Icon} from '@rneui/base';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -273,6 +274,16 @@ const OnboardUsername = ({route}) => {
                 />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                }}>
+                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            </View>
+                        </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <View style={{width: '90%'}}>

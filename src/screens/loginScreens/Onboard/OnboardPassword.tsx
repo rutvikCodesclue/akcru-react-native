@@ -97,18 +97,17 @@ const OnboardPassword = ({route}) => {
 
             setLoading(true);
 
-            const {user, error: signupError} = await useAuthStore.getState().signUpWithEmail(email, password);
-            if (signupError) {
-                throw new Error(signupError.message || 'Error during signup');
+            const { response, user } = await useAuthStore.getState().signUpWithEmail(email, password);
+            console.log('Signup response:', user, response);
+            // If no user was returned or the HTTP response indicates an error, surface an error
+            if (!user || (response && response.status >= 400)) {
+                const message = response?.data?.message || 'Error during signup';
+                throw new Error(message);
             }
 
-            const {
-                user: loggedInUser,
-                session,
-                error: loginError,
-            } = await useAuthStore.getState().loginWithEmail(user.email, password);
-            if (loginError || !loggedInUser || !session) {
-                throw new Error(loginError.message || 'Error logging in after signup');
+            const { user: loggedInUser, session } = await useAuthStore.getState().loginWithEmail(user.email, password);
+            if (!loggedInUser || !session) {
+                throw new Error('Error logging in after signup');
             }
 
             await useAuthStore.getState().hydrateAuth();
@@ -136,7 +135,7 @@ const OnboardPassword = ({route}) => {
             } else {
                 setSignupErrorMessage('An unexpected error occurred during signup.');
                 console.error('Non-Axios error during signup:', error);
-                Alert.alert('Signup Error', 'An unexpected error occurred during signup.');
+                
             }
         } finally {
             setLoading(false);
@@ -158,6 +157,16 @@ const OnboardPassword = ({route}) => {
                     }}
                 />
                 <View style={styles.container}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                     <View style={{flex: 1, alignItems: 'center'}}>
                         <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />

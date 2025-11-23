@@ -232,7 +232,11 @@ const Signin = () => {
             // Small delay to show success message
             setTimeout(() => {
                 setLoading(false);
-                navigation.navigate('NoBottomStack', {screen: 'ContentSwipe'});
+                // After login, open the main tab navigator and select the Crummunity tab
+                navigation.navigate('NoBottomStack', {
+                    screen: 'ClientTabNavigator',
+                    params: {screen: 'CrummunityStack'},
+                });
             }, 1000);
         } catch (error) {
             console.error('Error completing login:', error);

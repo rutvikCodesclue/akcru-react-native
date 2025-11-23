@@ -124,14 +124,14 @@ const OnboardPhone = () => {
                 />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.navigate('Signin')} style={styles.backbutton}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
                             <View
                                 style={{
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                 }}>
                                 <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back to Signin</Text>
+                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                             </View>
                         </TouchableOpacity>
                         <View style={{alignItems: 'center', marginTop: 20}}>

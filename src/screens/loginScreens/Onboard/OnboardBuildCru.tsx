@@ -1,4 +1,5 @@
 import {View, Text, ImageBackground, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
+import {Icon} from '@rneui/base';
 import React from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -37,7 +38,17 @@ const OnboardBuildCru = () => {
                 />
                 <View style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                    }}>
+                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                </View>
+                            </TouchableOpacity>
+                            <View style={{alignItems: 'center', marginTop: 20}}>
                             <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <Text style={{...FONTS.Title2, textAlign: 'center'}}>
                                 Last but not least our goal here at Akcru is to bring people together in a safe setting.
