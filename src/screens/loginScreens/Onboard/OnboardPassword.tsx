@@ -98,8 +98,6 @@ const OnboardPassword = ({route}) => {
             setLoading(true);
 
             const { response, user } = await useAuthStore.getState().signUpWithEmail(email, password);
-            console.log('Signup response:', user, response);
-            // If no user was returned or the HTTP response indicates an error, surface an error
             if (!user || (response && response.status >= 400)) {
                 const message = response?.data?.message || 'Error during signup';
                 throw new Error(message);

@@ -60,6 +60,7 @@ export type AuthStackParams = {
     OnboardBuildCru: any;
     OnboardCruBuilder: any;
     ViewUserScreen: any;
+    FlickFlirt: any;
 };
 
 const Auth = createStackNavigator<AuthStackParams>();

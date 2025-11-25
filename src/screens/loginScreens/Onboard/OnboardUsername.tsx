@@ -41,7 +41,7 @@ const OnboardUsername = ({route}) => {
     // Name + username
     const [firstName, setFirstName] = useState<string>(user?.firstName || '');
     const [lastName, setLastName] = useState<string>(user?.lastName || '');
-    const [userName, setUserName] = useState<string>(user?.username || '');
+    const [userName, setUserName] = useState<string>('');
 
     // DOB
     const [showPicker, setShowPicker] = useState(false);
@@ -49,9 +49,10 @@ const OnboardUsername = ({route}) => {
     const [dob, setDob] = useState<string | undefined>(user?.dateOfBirth);
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [userNameError, setUserNameError] = useState(false);
-    const [nameError, setNameError] = useState(false);
-    const [dobError, setDobError] = useState(false);
+    // store error messages (empty string = no error)
+    const [userNameError, setUserNameError] = useState<string>('');
+    const [nameError, setNameError] = useState<string>('');
+    const [dobError, setDobError] = useState<string>('');
     const [isFormComplete, setIsFormComplete] = useState(false);
 
     const isUserNameValid = (value: string) => value.length > 2;
@@ -78,7 +79,7 @@ const OnboardUsername = ({route}) => {
 
                 setDate(currentDate);
                 setDob(currentDate.toISOString()); // commit once
-                setDobError(false);
+                setDobError('');
                 setShowPicker(false); // close picker
             } else {
                 setShowPicker(false); // dismissed
@@ -102,7 +103,7 @@ const OnboardUsername = ({route}) => {
         const currentDate = new Date(selectedDate);
         currentDate.setHours(0, 0, 0, 0);
         setDob(currentDate.toISOString()); // commit once
-        setDobError(false);
+        setDobError('');
         setShowPicker(false); // close picker
     };
 
@@ -122,17 +123,21 @@ const OnboardUsername = ({route}) => {
             .replace(/\s/g, '')
             .replace(/[^a-z0-9._]/g, '');
         setUserName(formattedText);
-        setUserNameError(!isUserNameValid(formattedText));
+        if (!isUserNameValid(formattedText)) {
+            setUserNameError('Username must be at least 3 characters');
+        } else {
+            setUserNameError('');
+        }
     };
 
     const handleFirstNameChange = (text: string) => {
         setFirstName(text);
-        setNameError(!(isFirstNameValid(text) && isLastNameValid(lastName)));
+        setNameError(isFirstNameValid(text) && isLastNameValid(lastName) ? '' : 'Please enter both first and last name.');
     };
 
     const handleLastNameChange = (text: string) => {
         setLastName(text);
-        setNameError(!(isFirstNameValid(firstName) && isLastNameValid(text)));
+        setNameError(isFirstNameValid(firstName) && isLastNameValid(text) ? '' : 'Please enter both first and last name.');
     };
 
     const checkFormCompletion = () => {
@@ -188,38 +193,46 @@ const OnboardUsername = ({route}) => {
         try {
             const lowercaseUserName = userName.toLowerCase();
 
-            // Validate name
             if (!isFirstNameValid(firstName) || !isLastNameValid(lastName)) {
-                setNameError(true);
+                setNameError('Please enter a valid first and last name.');
+                setUserNameError('');
+                setDobError('');
                 Alert.alert('Invalid Name', 'Please enter a valid first and last name.');
                 return;
             }
 
-            // Validate DOB
             if (!dob) {
-                setDobError(true);
+                setDobError('Please select your date of birth.');
+                setUserNameError('');
+                setNameError('');
                 Alert.alert('Date of Birth', 'Please select your date of birth.');
                 return;
             }
 
             if (!isAtLeast17(dob)) {
-                setDobError(true);
+                setDobError('You must be at least 17 years old to use this app.');
+                setUserNameError('');
+                setNameError('');
                 Alert.alert('Age Requirement', 'You must be at least 17 years old to use this app.');
                 return;
             }
 
-            // Username validations
             const usernameExists = await checkUsernameExists(lowercaseUserName);
 
             if (usernameExists) {
-                Alert.alert('Username is already taken', 'Please choose a different username.');
+                setUserNameError('Username is already taken. Please choose a different username.');
+                setNameError('');
+                setDobError('');
                 return;
             } else if (lowercaseUserName.includes(' ')) {
-                Alert.alert('Username contains spaces', 'Please remove spaces from your username.');
+                setUserNameError('Username contains spaces. Please remove spaces from your username.');
+                setNameError('');
+                setDobError('');
                 return;
             } else if (!isUserNameValid(userName)) {
-                setUserNameError(true);
-                Alert.alert('Username must be at least 3 characters', 'Please choose a different username.');
+                setUserNameError('Username must be at least 3 characters. Please choose a different username.');
+                setNameError('');
+                setDobError('');
                 return;
             }
 
@@ -342,6 +355,7 @@ const OnboardUsername = ({route}) => {
                                 onChangeText={handleUserNameChange}
                                 value={userName}
                                 editable={!loading}
+                                
                             />
                             <Text
                                 style={{
@@ -415,10 +429,14 @@ const OnboardUsername = ({route}) => {
                                 You must be at least 17 years old to use this app.
                             </Text>
 
-                            {(nameError || userNameError || dobError) && (
-                                <Text style={styles.warningText}>
-                                    Please enter first name, last name, a valid username, and your date of birth.
-                                </Text>
+                            {nameError !== '' && (
+                                <Text style={styles.warningText}>{nameError}</Text>
+                            )}
+                            {userNameError !== '' && (
+                                <Text style={styles.warningText}>{userNameError}</Text>
+                            )}
+                            {dobError !== '' && (
+                                <Text style={styles.warningText}>{dobError}</Text>
                             )}
                         </View>
 

@@ -18,6 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
 const buttonMargin = isTablet() ? '10%' : '5%';
 
@@ -25,8 +26,8 @@ const TOTAL_STEPS = 7;
 const CURRENT_STEP = 7;
 
 const OnboardArchetype = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
 
+    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
     const [archetypeModal, setArchetypeModal] = useState(false);
@@ -91,7 +92,11 @@ const OnboardArchetype = () => {
 
                         setTimeout(() => {
                             setArchetypeModal(false);
-                            setTrinityModal(true);
+                            // setTrinityModal(true);
+                            navigation.navigate('NoBottomStack', {
+                                screen: 'ClientTabNavigator',
+                                params: {screen: 'FlickFlirtScreen'},
+                            });
                         }, 4000);
                     }
                 } catch (error) {
