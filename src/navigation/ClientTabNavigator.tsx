@@ -69,7 +69,7 @@ export default function ClientTabNavigator() {
     return (
         <ClientTabs.Navigator
             sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
-            initialRouteName="ClientStack"
+            initialRouteName="CrummunityStack"
             screenOptions={{
                 tabBarStyle: styles.tabBar,
                 tabBarActiveTintColor: COLORS.AKCRUBLUE,

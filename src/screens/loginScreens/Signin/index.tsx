@@ -20,6 +20,7 @@ import {getPushToken} from '../../../../lib/pushNotifications';
 import {isTablet} from '../../../../assets/constants/theme';
 import SessionManagementModal from '../../../components/SessionManagementModal';
 import messaging from '@react-native-firebase/messaging';
+import * as RootNavigation from '../../../util/RootNavigation';
 
 const iconSize = isTablet() ? 28 : 20;
 const inputHeight = isTablet() ? 60 : 50;
@@ -232,10 +233,19 @@ const Signin = () => {
             // Small delay to show success message
             setTimeout(() => {
                 setLoading(false);
-                // After login, open the main tab navigator and select the Crummunity tab
-                navigation.navigate('NoBottomStack', {
-                    screen: 'ClientTabNavigator',
-                    params: {screen: 'CrummunityStack'},
+                // After login, reset the navigation state and open the main tab navigator
+                // with the Crummunity tab selected so login ALWAYS lands on Crummunity.
+                RootNavigation.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: 'NoBottomStack',
+                            params: {
+                                screen: 'ClientTabNavigator',
+                                params: {screen: 'CrummunityStack'},
+                            },
+                        },
+                    ],
                 });
             }, 1000);
         } catch (error) {
@@ -347,7 +357,12 @@ const Signin = () => {
                             <AkcruButtons.LrgButton
                                 color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
-                                onPress={() => navigation.navigate('NoBottomStack', {screen: 'ClientTabNavigator'})}
+                                onPress={() =>
+                                    navigation.navigate('NoBottomStack', {
+                                        screen: 'ClientTabNavigator',
+                                        params: {screen: 'CrummunityStack'},
+                                    })
+                                }
                                 disabled={loading}
                             />
                             <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
