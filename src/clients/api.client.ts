@@ -102,6 +102,7 @@ API.interceptors.response.use(
         // Server responded with a status code out of 2xx range
             const statusCode = error.response.status;
             const errorMessage = error.response.data.message || 'An error occurred';
+            console.error(`API Error${statusCode}: ${errorMessage}`);
 
             // Handle different status codes accordingly
             if (statusCode === 500) {
