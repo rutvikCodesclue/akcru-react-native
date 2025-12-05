@@ -62,20 +62,46 @@ const RotatingAd: React.FC<Props> = ({
 
     const handlePress = async () => {
         if (!current) return;
+
+        // track click in backend
         onClick?.(current.id);
 
+        // INTERNAL route
         if (current.clickType === 'INTERNAL' && current.routeName) {
             // @ts-ignore: routeParams can be generic
             navigation.navigate(current.routeName as any, current.routeParams ?? {});
             return;
         }
-        if (current.clickType === 'EXTERNAL' && current.targetUrl) {
+
+        // EXTERNAL url
+        if (current.clickType === 'EXTERNAL') {
+            const raw = current.targetUrl ?? '';
+            const url = raw.trim();
+
+            console.log('Ad click – raw targetUrl:', raw, 'trimmed:', url);
+
+            if (!url) {
+                console.log('No URL set for this EXTERNAL ad, nothing to open.');
+                return;
+            }
+
             try {
-                const can = await Linking.canOpenURL(current.targetUrl);
-                if (can) Linking.openURL(current.targetUrl);
-            } catch {}
+                const supported = await Linking.canOpenURL(url);
+                console.log('canOpenURL ->', supported);
+
+                if (supported) {
+                    await Linking.openURL(url);
+                } else {
+                    // fallback: try anyway and log error if it fails
+                    console.log('canOpenURL returned false, trying openURL directly');
+                    await Linking.openURL(url);
+                }
+            } catch (e) {
+                console.log('Linking.openURL failed:', e);
+            }
         }
     };
+
 
     return (
         <Pressable onPress={handlePress} style={{width: '100%', height}}>

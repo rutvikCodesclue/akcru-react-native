@@ -33,7 +33,7 @@ export const getAds = async (placement: FetchAdsParams['placement']) => {
 };
 
 export const trackAdEvent = async (adId: string, type: AdEventType) => {
-    const path = type === 'IMPRESSION' ? `/v1/ads/${adId}/impression` : `/ads/${adId}/click`;
+    const path = type === 'IMPRESSION' ? `/v1/ads/${adId}/impression` : `/v1/ads/${adId}/click`;
     try {
         await API.post(path);
     } catch {}
