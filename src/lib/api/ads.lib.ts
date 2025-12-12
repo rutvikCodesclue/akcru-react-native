@@ -2,7 +2,7 @@ import { AdEventType, IGetAdsResponse } from '../../../types';
 import {API} from '../../clients/api.client';
 
 export interface FetchAdsParams {
-    placement: 'HOME_BETWEEN_CAROUSELS';
+    placement: 'HOME_BETWEEN_CAROUSELS' | 'WALLET_BILLBOARD';
 }
 
 export const getAds = async (placement: FetchAdsParams['placement']) => {

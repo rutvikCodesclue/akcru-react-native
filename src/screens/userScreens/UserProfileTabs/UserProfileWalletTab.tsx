@@ -12,6 +12,10 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
+import { IAd } from '../../../../types';
+import { getAds, trackAdEvent } from '../../../lib/api/ads.lib';
+import RotatingAd from '../../../components/Ads/RotatingAd';
+import { isTablet } from '../../../../assets/constants/theme';
 
 const UserProfileWalletTab = () => {
     // Use the useRoute hook to access the selected user data
@@ -36,6 +40,31 @@ const UserProfileWalletTab = () => {
 
     const walletBalance = useAuthStore(s => s.walletBalance);
     const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+
+    const [walletAds, setWalletAds] = useState<IAd[]>([]);
+        // const AD_HEIGHT = isTablet() ? Math.round((SIZES.ScreenWidth * 9) / 16) : Math.round((SIZES.ScreenWidth * 9) / 16);
+        const AD_HEIGHT = SIZES.ScreenWidth / 2.4;
+    
+        useEffect(() => {
+            (async () => {
+                try {
+                    const res = await getAds('WALLET_BILLBOARD'); // { ads: IAd[] }
+    
+                    // ✅ filter by start/end dates + active flag (client-side guard)
+                    const now = Date.now();
+                    const filtered = (res.ads ?? []).filter(a => {
+                        const s = a.startAt ? Date.parse(a.startAt) : -Infinity;
+                        const e = a.endAt ? Date.parse(a.endAt) : Infinity;
+                        return s <= now && now <= e && a.isActive;
+                    });
+    
+                    setWalletAds(filtered);
+                } catch (e) {
+                    console.log('Failed to load ads', e);
+                    setWalletAds([]); // safe fallback
+                }
+            })();
+        }, []);
 
     useEffect(() => {
         if (!isFocused) {
@@ -178,7 +207,6 @@ const UserProfileWalletTab = () => {
                         justifyContent: 'space-between',
                         width: SIZES.ScreenWidth * 0.93,
                         alignItems: 'center',
-                        marginBottom: '30%',
                     }}>
                     <AkcruButtons.FollowButton
                         btnname={'Clear'}
@@ -193,6 +221,17 @@ const UserProfileWalletTab = () => {
                         disabled={false}
                     />
                 </View>
+                {!!walletAds.length && (
+                    <View style={{marginTop: isTablet() ? 24 : 16, paddingHorizontal: '2%', marginBottom: '30%'}}>
+                        <RotatingAd
+                            ads={walletAds}
+                            height={AD_HEIGHT}
+                            pause={!isFocused}
+                            onImpression={id => trackAdEvent(id, 'IMPRESSION')}
+                            onClick={id => trackAdEvent(id, 'CLICK')}
+                        />
+                    </View>
+                )}
             </ScrollView>
             <Modal transparent={true} visible={confirmationVisible} animationType="fade">
                 <ComfirmationModal

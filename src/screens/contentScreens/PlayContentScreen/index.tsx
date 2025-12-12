@@ -18,6 +18,7 @@ import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-
 import {updateWatchTime} from '../../../lib/api/watchtime.lib';
 import AkcruOpener from '../../../components/AkcruOpener';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+import { DEV_API_URL } from '@env';
 
 type ContentPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -278,6 +279,8 @@ export default function ContentPlayer({navigation}: Props) {
         }
     };
 
+    const adTagUrl = `${DEV_API_URL}/v1/video-ads/vmap/main?movieId=${movieId}`;
+    console.log("VMAP_URL_USED:", adTagUrl);
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
@@ -307,8 +310,9 @@ export default function ContentPlayer({navigation}: Props) {
                                     source={{
                                         uri: movie.movieURL,
                                         ad: {
-                                            adTagUrl:
-                                                'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480|640x360|640x480&iu=/23317898787/app_video_preroll&env=vp&impl=s&gdfp_req=1&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]',
+                                            adTagUrl, 
+                                            // 'http://10.0.2.2:3000/v1/video-ads/vmap/main',
+                                            // 'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480|640x360|640x480&iu=/23317898787/app_video_preroll&env=vp&impl=s&gdfp_req=1&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]',
                                         },
                                     }}
                                     resizeMode="cover"

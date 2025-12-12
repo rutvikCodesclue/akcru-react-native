@@ -906,7 +906,7 @@ export interface ISeasonPurchase {
 // =========================
 
 export type AdClickType = 'EXTERNAL' | 'INTERNAL';
-export type AdPlacement = 'HOME_BETWEEN_CAROUSELS';
+export type AdPlacement = 'HOME_BETWEEN_CAROUSELS' | 'WALLET_BILLBOARD';
 export type AdEventType = 'IMPRESSION' | 'CLICK';
 
 export interface IAd {
