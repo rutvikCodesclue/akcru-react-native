@@ -50,6 +50,8 @@ const FlickFlirtResults = () => {
     // interstitial
     const [adLoaded, setAdLoaded] = useState(false);
     const interstitialRef = useRef<InterstitialAd | null>(null);
+    const showOncePerFocusRef = useRef(false);
+
     const PROD_IDS = Platform.select({
         android: 'ca-app-pub-8264001768347242/2150819252',
         ios: 'ca-app-pub-8264001768347242/1708251538',
@@ -61,10 +63,15 @@ const FlickFlirtResults = () => {
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {requestNonPersonalizedAdsOnly: true});
         interstitialRef.current = ad;
 
-        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
+        const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
+            // show only once per focus
+            if (!showOncePerFocusRef.current) {
+                showOncePerFocusRef.current = true;
+                ad.show();
+            }
+        });
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
             setAdLoaded(false);
-            ad.load();
         });
         const offError = ad.addAdEventListener(AdEventType.ERROR, () => setAdLoaded(false));
 
@@ -76,6 +83,18 @@ const FlickFlirtResults = () => {
             interstitialRef.current = null;
         };
     }, [interstitialUnitId]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // allow one show each time the screen is focused
+            showOncePerFocusRef.current = false;
+
+            // trigger load; LOADED handler will show it once
+            interstitialRef.current?.load();
+
+            return () => {};
+        }, []),
+    );
 
     // 
     const [phase, setPhase] = useState<'checking' | 'ready'>('checking');
@@ -147,13 +166,6 @@ const FlickFlirtResults = () => {
             hydrateUser();
         }, [hydrateUser]),
     );
-
-    // Optionally show an ad on entry
-    useEffect(() => {
-        if (adLoaded && interstitialRef.current) {
-            interstitialRef.current.show();
-        }
-    }, [adLoaded]);
 
     const openModal = () => {
         if (unlockOptions.length === 0) {
