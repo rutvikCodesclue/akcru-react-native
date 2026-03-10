@@ -118,17 +118,6 @@ const ForgotPassword = () => {
     return (
         <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={styles.container}>
                     <View style={styles.headerRow}>
                         <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
@@ -147,7 +136,7 @@ const ForgotPassword = () => {
                                 height={svgSize}
                                 width={svgSize}
                                 viewBox={`0 0 270 234`}
-                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.7}}>
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.9}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
@@ -155,7 +144,7 @@ const ForgotPassword = () => {
                                 type="ionicon"
                                 size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: iconMargin}}
+                                style={{marginBottom: iconMargin, opacity: 0.9}}
                             />
                         </View>
                         <Text  style={{

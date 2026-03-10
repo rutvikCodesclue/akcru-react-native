@@ -8,7 +8,6 @@ import {API} from '../clients/auth.client';
 import {IUserProfile} from '../../types';
 import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
-import * as RootNavigation from '../util/RootNavigation';
 import messaging from '@react-native-firebase/messaging';
 import {getUserWallet} from '../lib/api/wallet.lib';
 
@@ -215,11 +214,10 @@ const useAuthStore = create<IAuthStore>()(
                             // If session is still valid and not expiring soon, do nothing - keep existing session
                         } else {
                             await get().logout();
-                            RootNavigation.navigate('Signin', {});
+                            // Do not navigate here - Welcome screen (or current screen) handles showing sign-in UI
                         }
-                    } else {
-                        RootNavigation.navigate('Signin', {});
                     }
+                    // When no session: do not navigate - caller (e.g. Welcome) decides where to go
                 } catch (error) {
                     console.error('Error during session hydration:', error);
                 }

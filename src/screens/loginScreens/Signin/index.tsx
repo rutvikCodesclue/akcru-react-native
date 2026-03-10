@@ -337,16 +337,6 @@ const Signin = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode="cover">
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={styles.container}>
                     <View style={styles.logoTop}>
                         <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />

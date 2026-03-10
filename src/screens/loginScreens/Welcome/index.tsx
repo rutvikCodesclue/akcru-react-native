@@ -1,5 +1,5 @@
-import {View, Text, ImageBackground, TouchableOpacity, Modal} from 'react-native';
-import AkcruButtons from '../../../components/akcruButtons';
+import {View, Text, ImageBackground, TouchableOpacity, Modal, StatusBar, Dimensions, Platform, StyleSheet} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
@@ -11,21 +11,27 @@ import {AkcruLogo} from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
-import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
 import { isTablet } from '../../../../assets/constants/theme';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('screen');
+
+const loginButtonHeight = isTablet() ? 60 : 45;
 
 const Welcome = params => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const authStore = useAuthStore();
+    const insets = useSafeAreaInsets();
 
     const [showLoginError, setShowLoginError] = useState(false);
     const [loading, setLoading] = useState<boolean>(true);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const [showOpener, setShowOpener] = useState<boolean>(true);
 
+    // Defer permission requests so they don't run before the opener is shown (Android can skip welcome if we request here on mount)
     useEffect(() => {
         const _checkPermissions = async () => {
             if (Platform.OS === 'android') {
@@ -82,31 +88,66 @@ const Welcome = params => {
     };
 
     useEffect(() => {
+        let cancelled = false;
         const initiateLoading = async () => {
-            // Start both tasks in parallel
-            const authCheckPromise = checkAuth(); // Start the authentication check
-            const animationPromise = handleAnimation(); // Start the animation
+            const authCheckPromise = checkAuth();
+            const animationPromise = handleAnimation();
 
-            // Wait for both promises to complete
-            const [isLoggedIn] = await Promise.all([authCheckPromise, animationPromise]);
+            try {
+                const [isLoggedIn] = await Promise.all([authCheckPromise, animationPromise]);
+                if (cancelled) return;
 
-            // Navigate only after both processes complete
-            if (isLoggedIn) {
-                navigation.navigate('NoBottomStack', {
-                    screen: params.route.params.params.screenName,
-                    params: params.route.params.params.params,
-                });
-            } else {
-                setLoading(false);
+                if (isLoggedIn) {
+                    const routeParams = params?.route?.params?.params;
+                    if (routeParams?.screenName) {
+                        navigation.navigate('NoBottomStack', {
+                            screen: routeParams.screenName,
+                            params: routeParams.params ?? {},
+                        });
+                    } else {
+                        setLoading(false);
+                    }
+                } else {
+                    setLoading(false);
+                }
+            } catch (err) {
+                console.error('Welcome initiateLoading error:', err);
+                if (!cancelled) setLoading(false);
             }
         };
 
         initiateLoading();
+        return () => {
+            cancelled = true;
+        };
     }, [navigation, params]);
+
+    // Full-screen video under status bar: translucent status bar + extend container into inset area
+    useEffect(() => {
+        if (!loading || !showOpener) return;
+        if (Platform.OS === 'android') {
+            StatusBar.setTranslucent(true);
+            StatusBar.setBackgroundColor('transparent');
+        }
+        return () => {
+            if (Platform.OS === 'android') {
+                StatusBar.setTranslucent(false);
+                StatusBar.setBackgroundColor(COLORS.AKCRUBACKGROUND);
+            }
+        };
+    }, [loading, showOpener]);
 
     if (loading) {
         return (
-            <View>
+            <View
+                style={[
+                    styles.loadingFullScreen,
+                    {
+                        marginTop: -insets.top,
+                        height: SCREEN_HEIGHT + insets.top,
+                        width: SCREEN_WIDTH,
+                    },
+                ]}>
                 {showOpener && (
                     <AkcruAppOpener
                         onAnimationFinish={() => {
@@ -119,41 +160,56 @@ const Welcome = params => {
     }
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={styles.container}>
-                    <View>
-                        <View style={{alignItems: 'center'}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    <View style={styles.logoCenterWrapper}>
+                        <View style={styles.logoContainer}>
+                            <BlurView
+                                style={StyleSheet.absoluteFill}
+                                blurType="dark"
+                                blurAmount={Platform.OS === 'ios' ? 1 : 1}
+                                reducedTransparencyFallbackColor="rgba(13, 24, 42, 0.18)"
+                            />
+                            <View style={styles.logoContainerOverlay}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                                <Text style={styles.tagline}>The Social Platform for Creators</Text>
+                            </View>
                         </View>
-                        <View style={{flex: 1, justifyContent: 'flex-end', marginBottom: 50}}>
-                            <View style={{marginBottom: '15%'}}>
-                                <View style={{marginVertical: 15}}>
-                                    <AkcruButtons.LrgButton
-                                        color={COLORS.AKCRUBLUE}
-                                        btnname={'Sign in'}
-                                        onPress={() => navigation.navigate('Signin')}
-                                        disabled={false}
-                                    />
-                                </View>
-                                <View>
-                                    <AkcruButtons.LrgButton
-                                        color={COLORS.PURPLE}
-                                        btnname={'Create Account'}
-                                        onPress={() => navigation.navigate('OnboardEmail')}
-                                        disabled={false}
-                                    />
-                                </View>
+                    </View>
+                    <View style={styles.buttonsBottomWrapper}>
+                        <View style={[styles.buttonsInner, {marginBottom: Math.max(32, 70 + insets.bottom)}]}>
+                            <View style={{marginVertical: 10}}>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('Signin')}
+                                    style={[styles.welcomeButton, {height: loginButtonHeight}]}
+                                    activeOpacity={0.9}>
+                                    <LinearGradient
+                                        colors={[COLORS.PURPLE, COLORS.PINK]}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 0}}
+                                        style={styles.welcomeButtonGradient}>
+                                        <Text style={{...FONTS.Title1, textAlign: 'center', color: COLORS.WHITE}}>
+                                            Sign In
+                                        </Text>
+                                    </LinearGradient>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{marginVertical: 10}}>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('OnboardEmail')}
+                                    style={[styles.welcomeButton, {height: loginButtonHeight}]}
+                                    activeOpacity={0.9}>
+                                    <LinearGradient
+                                        colors={[COLORS.PURPLE, COLORS.PINK]}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 0}}
+                                        style={styles.welcomeButtonGradient}>
+                                        <Text style={{...FONTS.Title1, textAlign: 'center', color: COLORS.WHITE}}>
+                                            Create Account
+                                        </Text>
+                                    </LinearGradient>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>

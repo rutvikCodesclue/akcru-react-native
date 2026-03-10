@@ -11,15 +11,15 @@ const AkcruAppOpener = ({onAnimationFinish}: AkcruOpenerProps) => {
     return (
         <View style={styles.activitycontainer}>
             <Video
-                style={{
-                    width: '100%',
-                    height: '100%',
-                }}
+                style={styles.video}
                 source={require('../../../assets/video/AkcruLogoOpener_NoBkcd.mp4')}
                 repeat={false}
                 resizeMode="cover"
                 onEnd={onAnimationFinish}
-                onError={onAnimationFinish}
+                onError={(err) => {
+                    // On Android, video can fail to decode; don't hide opener immediately
+                    console.warn('AkcruAppOpener video error (may be Android codec):', err);
+                }}
             />
         </View>
     );
@@ -29,8 +29,10 @@ export default AkcruAppOpener;
 
 const styles = StyleSheet.create({
     activitycontainer: {
+        ...StyleSheet.absoluteFillObject,
         backgroundColor: COLORS.BLACK,
-        alignItems: 'center',
-        justifyContent: 'center',
+    },
+    video: {
+        ...StyleSheet.absoluteFillObject,
     },
 });
