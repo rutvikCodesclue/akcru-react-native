@@ -10,9 +10,9 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import { API } from '../../../clients/api.client';
+import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../../components/General/backbutton';
+import {AkcruLogo} from '../../../../assets/svg';
 
 const PhoneForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -21,7 +21,7 @@ const PhoneForgotPassword = () => {
     const [phoneError, setPhoneError] = useState(false);
     const [isFormComplete, setIsFormComplete] = useState(false);
 
-    
+
     const isPhoneValid = (phone: string) => {
         return /^\d{10}$/.test(phone);
     };
@@ -57,7 +57,7 @@ const PhoneForgotPassword = () => {
 
         setLoading(true);
         try {
-            
+
             const {data, error} = await API.post('/v1/user/sendOTP', {phoneNumber: phone});
 
             if (error) {
@@ -77,10 +77,10 @@ const PhoneForgotPassword = () => {
                      iconname: 'send',
                      iconcolor: COLORS.CATGREENLGT,
                  });
-                
+
                 setTimeout(() => {
                     navigation.navigate('OTPVerification', {phoneNumber: phone});
-                }, 3000); 
+                }, 3000);
             }
         } catch (error) {
             setResetResultType({
@@ -100,7 +100,7 @@ const PhoneForgotPassword = () => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    
+
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
@@ -111,8 +111,18 @@ const PhoneForgotPassword = () => {
                     }}
                 />
                 <View style={styles.container}>
-                    <BackButton navigation={navigation} />
-                    <View style={{flex: 1, alignItems: 'center', marginTop: '45%'}}>
+                    <View style={styles.headerRow}>
+                        <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <View style={styles.logoCenter}>
+                            <AkcruLogo width={200} height={60} />
+                        </View>
+                        <View style={[styles.backButton, {opacity: 0}]}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                        </View>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center', marginTop: '35%'}}>
                         <View>
                             <Svg
                                 height={150}
@@ -142,14 +152,14 @@ const PhoneForgotPassword = () => {
                                 />
                                 <Text style={styles.textinputprefix}>+1</Text>
                                 <TextInput
-                                    placeholder="234-456-7890" 
+                                    placeholder="234-456-7890"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
                                     secureTextEntry={false}
                                     onChangeText={handlePhoneNumberChange}
                                     value={phone}
                                     keyboardType="number-pad"
-                                    maxLength={10} 
+                                    maxLength={10}
                                     editable={true}
                                 />
                             </View>

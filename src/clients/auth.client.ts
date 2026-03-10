@@ -31,7 +31,7 @@ const API = axios.create({
 API.interceptors.request.use(
     async config => {
         const state = authStore.getState();
-        
+
         // If store hasn't hydrated yet, wait for it
         if (!state._hasHydrated && config.url && !config.url.includes('/auth/')) {
             // Wait for hydration to complete
@@ -41,14 +41,14 @@ API.interceptors.request.use(
                 attempts++;
             }
         }
-        
+
         const session = authStore.getState().getSession();
-        
+
         // Always set Authorization header if session exists
         if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
-        
+
         const endpoints = ['/v1/auth/signup', '/v1/auth/login', '/v1/auth/check-pre-session'];
 
         if (
@@ -76,7 +76,7 @@ API.interceptors.response.use(
     },
     async error => {
         const originalRequest = error.config;
-        
+
         if (error.response?.status === 401) {
             // Handle 401 responses globally first
             try {
@@ -85,22 +85,22 @@ API.interceptors.response.use(
             } catch (logoutError) {
                 console.error('Error during force logout:', logoutError);
             }
-            
+
             // If it's not a retry attempt and not currently logging out, try to refresh the session
             if (!originalRequest._retry) {
                 originalRequest._retry = true;
-                
+
                 try {
                     const { forceLogoutManager } = await import('../util/forceLogoutManager');
-                    
+
                     // Only attempt refresh if not currently logging out
                     if (!forceLogoutManager.isCurrentlyLoggingOut()) {
                         // Trigger session refresh through the auth store
                         await authStore.getState().hydrateAuth();
-                        
+
                         // Get the updated session
                         const refreshedSession = authStore.getState().getSession();
-                        
+
                         if (refreshedSession?.access_token) {
                             originalRequest.headers.Authorization = `Bearer ${refreshedSession.access_token}`;
                             return API(originalRequest);
@@ -111,7 +111,7 @@ API.interceptors.response.use(
                 }
             }
         }
-        
+
         return Promise.reject(error);
     },
 );

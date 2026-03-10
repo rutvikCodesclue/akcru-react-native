@@ -1,4 +1,5 @@
-import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, StyleSheet, TextInput, ActivityIndicator} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, StyleSheet, TextInput, ActivityIndicator, Platform} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -13,7 +14,6 @@ import {AkcruLogo} from '../../../../assets/svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
-import {Platform} from 'react-native';
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import {getPushToken} from '../../../../lib/pushNotifications';
@@ -24,6 +24,7 @@ import * as RootNavigation from '../../../util/RootNavigation';
 
 const iconSize = isTablet() ? 28 : 20;
 const inputHeight = isTablet() ? 60 : 50;
+const loginButtonHeight = isTablet() ? 60 : 45;
 
 const Signin = () => {
     useEffect(() => {
@@ -153,7 +154,7 @@ const Signin = () => {
         setLoading(true);
         setLoadingMessage('Validating...');
         setLoadingSubMessage('Checking your credentials');
-        
+
         // Early validation
         if (!email.trim() || !password.trim()) {
             setShowLoginError(true);
@@ -195,7 +196,7 @@ const Signin = () => {
             setLoadingSubMessage('Logging you in');
 
             const loginResponse = await authStore.loginWithEmail(email, password);
-            
+
             if (!loginResponse?.session || !loginResponse?.user) {
                 setShowLoginError(true);
                 setLoading(false);
@@ -224,12 +225,12 @@ const Signin = () => {
         try {
             setLoadingMessage('Almost done...');
             setLoadingSubMessage('Saving your session');
-            
+
             await AsyncStorage.setItem('access_token', accessToken);
-            
+
             setLoadingMessage('Success!');
             setLoadingSubMessage('Welcome back! Redirecting...');
-            
+
             // Small delay to show success message
             setTimeout(() => {
                 setLoading(false);
@@ -264,11 +265,11 @@ const Signin = () => {
         setLoading(true); // Show main loading modal
         setLoadingMessage('Logging out other devices...');
         setLoadingSubMessage('Closing sessions on other devices');
-        
+
         try {
             // Get current device token
             const deviceToken = await messaging().getToken();
-            
+
             // Close other sessions
             const success = await authStore.closeOtherSessions(
                 pendingLoginData.user.id,
@@ -278,10 +279,10 @@ const Signin = () => {
             if (success) {
                 setLoadingMessage('Completing login...');
                 setLoadingSubMessage('Logging you in');
-                
+
                 // Now perform the actual login after closing other sessions
                 const loginResponse = await authStore.loginWithEmail(email, password);
-                
+
                 if (!loginResponse?.session || !loginResponse?.user) {
                     setLoading(false);
                     Alert.alert('Error', 'Failed to complete login after closing sessions.');
@@ -289,10 +290,10 @@ const Signin = () => {
                 }
 
                 const accessToken = loginResponse.session.access_token;
-                
+
                 setLoadingMessage('Finalizing...');
                 setLoadingSubMessage('Setting up your session');
-                
+
                 await completeLogin(
                     loginResponse.session,
                     loginResponse.user,
@@ -317,11 +318,11 @@ const Signin = () => {
         setPendingLoginData(null);
         setLoading(false);
         setSessionModalLoading(false);
-        
+
         // Clear the form
         setEmail('');
         setPassword('');
-        
+
         // Show a message that login was cancelled
         setErrorMsg('Login cancelled. Please close other sessions first or contact support.');
         setShowLoginError(true);
@@ -335,7 +336,7 @@ const Signin = () => {
 
     return (
         <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode="cover">
                 <LinearGradient
                     colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
                     style={{
@@ -347,9 +348,12 @@ const Signin = () => {
                     }}
                 />
                 <View style={styles.container}>
+                    <View style={styles.logoTop}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={styles.contentCenter}>
                     {isLoggedIn ? (
                         <View style={styles.container2}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                             <Text style={{...FONTS.Title1, paddingBottom: 10}}>{`Welcome back, ${
                                 authStore.user?.username || 'User'
                             }`}</Text>
@@ -396,80 +400,116 @@ const Signin = () => {
                         </View>
                     ) : (
                         <>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{marginBottom: 10}}>
-                                <Text style={{...FONTS.Title1}}>Welcome back, sign in below</Text>
-                            </View>
-                            <View>
-                                <Inputs
-                                    placeholdername={'Email'}
-                                    iconname={'mail'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={false}
-                                    onChangeText={(text: string) => setEmail(text.trim().toLowerCase())}
-                                    value={email}
-                                    editable={true}
-                                />
-                                <View style={styles1.inputContainer}>
-                                    <Icon
-                                        name="lock-closed"
-                                        type="ionicon"
-                                        size={iconSize}
-                                        color={COLORS.LIGHTGREY}
-                                        style={{marginRight: 5}}
-                                    />
-                                    <TextInput
-                                        placeholder="Password"
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={[
-                                            styles1.input,
-                                            {color: COLORS.LIGHTGREY, fontSize: isTablet() ? 18 : 14},
-                                        ]}
-                                        secureTextEntry={!isPasswordVisible}
-                                        onChangeText={text => setPassword(text)}
-                                        value={password}
-                                        editable={true}
-                                    />
-                                    <TouchableOpacity
-                                        onPress={() => setPasswordVisible(!isPasswordVisible)}
-                                        style={styles1.iconContainer}>
-                                        <Icon
-                                            name={isPasswordVisible ? 'eye' : 'eye-off'}
-                                            type="ionicon"
-                                            size={iconSize}
-                                            color={COLORS.LIGHTGREY}
+                            <View style={styles.signInFormCenter}>
+                                <View style={{marginBottom: 10}}>
+                                    <Text style={{...FONTS.paragraph2}}>Welcome back, sign in below</Text>
+                                </View>
+                                <View>
+                                    <View style={styles.blurInputWrapper}>
+                                        <BlurView
+                                            style={StyleSheet.absoluteFill}
+                                            blurType="light"
+                                            blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                            reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                         />
+                                        <Inputs
+                                            placeholdername={'Email'}
+                                            iconname={'mail'}
+                                            iconcolor={COLORS.LIGHTGREY}
+                                            secureTextEntry={false}
+                                            onChangeText={(text: string) => setEmail(text.trim().toLowerCase())}
+                                            value={email}
+                                            editable={true}
+                                            containerStyle={{backgroundColor: 'transparent', marginVertical: 0, borderWidth: 0, height: inputHeight}}
+                                        />
+                                    </View>
+                                    <View style={styles.blurInputWrapper}>
+                                        <BlurView
+                                            style={StyleSheet.absoluteFill}
+                                              blurType="light"
+                                              blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                            reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                        />
+                                        <View style={[styles1.inputContainer, {backgroundColor: 'transparent', marginVertical: 0}]}>
+                                            <Icon
+                                                name="lock-closed"
+                                                type="ionicon"
+                                                size={iconSize}
+                                                color={COLORS.LIGHTGREY}
+                                                style={{marginRight: 5}}
+                                            />
+                                            <TextInput
+                                                placeholder="Password"
+                                                placeholderTextColor={COLORS.DARKGREY}
+                                                style={[
+                                                    styles1.input,
+                                                    {color: COLORS.LIGHTGREY, fontSize: isTablet() ? 18 : 14},
+                                                ]}
+                                                secureTextEntry={!isPasswordVisible}
+                                                onChangeText={text => setPassword(text)}
+                                                value={password}
+                                                editable={true}
+                                            />
+                                            <TouchableOpacity
+                                                onPress={() => setPasswordVisible(!isPasswordVisible)}
+                                                style={styles1.iconContainer}>
+                                                <Icon
+                                                    name={isPasswordVisible ? 'eye' : 'eye-off'}
+                                                    type="ionicon"
+                                                    size={iconSize}
+                                                    color={COLORS.LIGHTGREY}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={{marginVertical: 10}}>
+                                    <TouchableOpacity
+                                        onPress={() => attemptLogin()}
+                                        disabled={loading}
+                                        style={{
+                                            width: SIZES.ScreenWidth * 0.9,
+                                            height: loginButtonHeight,
+                                            borderRadius: 5,
+                                            overflow: 'hidden',
+                                            opacity: loading ? 0.6 : 1,
+                                        }}>
+                                        <LinearGradient
+                                            colors={[COLORS.PURPLE, COLORS.PINK]}
+                                            start={{x: 0, y: 0}}
+                                            end={{x: 1, y: 0}}
+                                            style={{
+                                                flex: 1,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                borderRadius: 5,
+                                            }}>
+                                            <Text style={{...FONTS.Title1, textAlign: 'center', color: COLORS.WHITE}}>
+                                                Login
+                                            </Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
+                                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title1,
+                                            color: COLORS.PINK,
+                                            marginTop: 30,
+                                        }}>
+                                        Forgot your password?
+                                    </Text>
+                                </TouchableOpacity>
                             </View>
-                            <View style={{marginVertical: 10}}>
-                                <AkcruButtons.LrgButton
-                                    color={COLORS.PURPLE}
-                                    btnname={'Login'}
-                                    onPress={() => attemptLogin()}
-                                    disabled={loading}
-                                />
-                            </View>
-                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2Orange,
-                                        color: COLORS.PINK,
-                                        marginTop: 10,
-                                    }}>
-                                    Forgot your password?
-                                </Text>
-                            </TouchableOpacity>
 
-                            <View style={{flex: 1, justifyContent: 'center', marginBottom: 50}}>
+                            <View style={{marginTop: 170, marginBottom: 50}}>
                                 <View
                                     style={{
-                                        marginBottom: 0,
                                         flexDirection: 'row',
                                     }}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title2White,
+                                            ...FONTS.Title1,
                                             marginRight: 5,
                                         }}>
                                         Not a subscriber?
@@ -478,7 +518,7 @@ const Signin = () => {
                                     <TouchableOpacity onPress={() => navigation.navigate('OnboardEmail')}>
                                         <Text
                                             style={{
-                                                ...FONTS.Title2Orange,
+                                                ...FONTS.Title1,
                                                 color: COLORS.PINK,
                                             }}>
                                             Sign up here
@@ -488,6 +528,7 @@ const Signin = () => {
                             </View>
                         </>
                     )}
+                    </View>
                     <Modal animationType="fade" transparent={true} visible={showLoginError}>
                         <View
                             style={{
@@ -559,8 +600,8 @@ const Signin = () => {
                                     alignItems: 'center',
                                     marginBottom: 20,
                                 }}>
-                                    <ActivityIndicator 
-                                        size="large" 
+                                    <ActivityIndicator
+                                        size="large"
                                         color={COLORS.PURPLE}
                                     />
                                 </View>
@@ -607,8 +648,7 @@ const styles1 = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'lightgrey',
+        borderWidth: 0,
         borderRadius: 5,
         paddingHorizontal: 10,
         marginVertical: 10,

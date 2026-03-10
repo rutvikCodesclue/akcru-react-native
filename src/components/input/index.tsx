@@ -1,4 +1,4 @@
-import {View, TextInput} from 'react-native';
+import {View, TextInput, ViewStyle} from 'react-native';
 import React from 'react';
 import styles from './styles';
 import {COLORS} from '../../../assets/constants';
@@ -16,6 +16,7 @@ interface Props {
     onChangeText: any;
     value: any;
     editable: boolean;
+    containerStyle?: ViewStyle;
 }
 
 const Inputs: React.FC<Props> = ({
@@ -26,9 +27,10 @@ const Inputs: React.FC<Props> = ({
     onChangeText,
     value,
     editable,
+    containerStyle,
 }) => {
     return (
-        <View style={styles.input}>
+        <View style={[styles.input, containerStyle]}>
             <Icon name={iconname} type="ionicon" size={iconSize} color={iconcolor} style={{marginRight: 5}} />
             <TextInput
                 autoCapitalize="none"

@@ -45,7 +45,7 @@ function App(): JSX.Element {
                 // Initialize mobile ads first
                 await mobileAds().initialize();
                 console.log('Mobile ads initialized successfully');
-                
+
                 // Then request App Tracking Transparency permission with delay (iOS 14.5+)
                 // Delay helps ensure the app is fully loaded before showing the ATT prompt
                 console.log('Starting delayed ATT request...');
@@ -97,7 +97,7 @@ function App(): JSX.Element {
                 const token = await messaging().getToken();
                 if (!token) {
                     await registerAppWithFCM();
-                } 
+                }
             }
             checkIfRegistered();
             const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
@@ -107,7 +107,7 @@ function App(): JSX.Element {
                     await handleForceLogout();
                     return;
                 }
-                
+
                 // Handle regular notifications
                 onDisplayNotification(remoteMessage);
             });
@@ -115,7 +115,7 @@ function App(): JSX.Element {
             // Handle background messages
             messaging().setBackgroundMessageHandler(async remoteMessage => {
                 console.log('Message handled in the background!', remoteMessage);
-                
+
                 // Handle force logout in background
                 if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
                     const { handleForceLogout } = await import('./lib/pushNotifications');
@@ -126,7 +126,7 @@ function App(): JSX.Element {
             // Handle notification clicks
             messaging().onNotificationOpenedApp(remoteMessage => {
                 console.log('Notification caused app to open from background state:', remoteMessage.data);
-                
+
                 // Handle force logout when app opened from notification
                 if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
                     import('./lib/pushNotifications').then(({ handleForceLogout }) => {
@@ -134,7 +134,7 @@ function App(): JSX.Element {
                     });
                     return;
                 }
-                
+
                 NotificationNavigation(remoteMessage.data, userId);
             });
 
@@ -144,7 +144,7 @@ function App(): JSX.Element {
                 .then(remoteMessage => {
                     if (remoteMessage && !initialNotificationHandled.current) {
                         console.log('Notification caused app to open from quit state:', remoteMessage.data);
-                        
+
                         // Handle force logout from quit state
                         if (remoteMessage.data?.type === 'FORCE_LOGOUT') {
                             import('./lib/pushNotifications').then(({ handleForceLogout }) => {
@@ -153,7 +153,7 @@ function App(): JSX.Element {
                             initialNotificationHandled.current = true;
                             return;
                         }
-                        
+
                         NotificationNavigation(remoteMessage.data, userId);
                         initialNotificationHandled.current = true;
                     }
@@ -168,12 +168,12 @@ function App(): JSX.Element {
 
             // Initial token registration
             getAndSendToken(userId);
-            
+
             // Initialize session validation service
             if (userId) {
                 sessionValidationService.initialize();
             }
-            
+
             return () => {
                 unsubscribeForeground();
                 unsubscribeTokenRefresh();

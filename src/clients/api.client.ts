@@ -31,7 +31,7 @@ const API = axios.create({
 API.interceptors.request.use(
     async config => {
         const state = authStore.getState();
-        
+
         // If store hasn't hydrated yet, wait for it
         if (!state._hasHydrated) {
             // Wait for hydration to complete
@@ -41,13 +41,13 @@ API.interceptors.request.use(
                 attempts++;
             }
         }
-        
+
         const session = authStore.getState().getSession();
 
         if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
-        
+
         const endpoints = [
             '/v1/user',
             // '/v1/auth/signup',
@@ -82,7 +82,7 @@ API.interceptors.response.use(
         // Handle 401 responses globally
         if (error.response?.status === 401) {
             console.log("ERR 401 in API client");
-            
+
             try {
                 const { forceLogoutManager } = await import('../util/forceLogoutManager');
                 if (!error.config.url.includes("watchtime/config")) {
@@ -92,7 +92,7 @@ API.interceptors.response.use(
                 console.error('Error during force logout:', logoutError);
             }
         }
-        
+
         if (isNetworkError(error)) {
             // console.log("ERR_NETWORK N");
             Alert.alert('Please check your internet connection and Try Again');

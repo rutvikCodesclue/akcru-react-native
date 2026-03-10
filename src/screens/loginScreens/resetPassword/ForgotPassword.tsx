@@ -1,7 +1,7 @@
-import {View, Text, ImageBackground, TouchableOpacity, ScrollView, Modal, Pressable} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Modal, Pressable, StyleSheet, Platform} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
-import AkcruButtons from '../../../components/akcruButtons';
 import Inputs from '../../../components/input';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import imageindex from '../../../../assets/images/imageindex';
@@ -14,11 +14,14 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
 import {isTablet} from '../../../../assets/constants/theme';
+import {AkcruLogo} from '../../../../assets/svg';
 
 const smlIconSize = isTablet() ? 28 : 20;
 const svgSize = isTablet() ? 200 : 150;
 const lrgIconSize = isTablet() ? 110 : 80;
 const iconMargin = isTablet() ? '5%' : '8%';
+const inputHeight = isTablet() ? 60 : 50;
+const loginButtonHeight = isTablet() ? 60 : 45;
 
 const ForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -113,7 +116,7 @@ const ForgotPassword = () => {
     };
 
     return (
-        <ScrollView>
+        <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
 
@@ -127,23 +130,24 @@ const ForgotPassword = () => {
                     }}
                 />
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.pop()} style={styles.backbutton}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
+                    <View style={styles.headerRow}>
+                        <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
                             <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back to Signin</Text>
+                        </TouchableOpacity>
+                        <View style={styles.logoCenter}>
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
                         </View>
-                    </TouchableOpacity>
-                    <View style={{flex: 1, alignItems: 'center', marginTop: '45%'}}>
+                        <View style={[styles.backButton, {opacity: 0}]}>
+                            <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
+                        </View>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center', marginTop: '35%'}}>
                         <View>
                             <Svg
                                 height={svgSize}
                                 width={svgSize}
                                 viewBox={`0 0 270 234`}
-                                style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.7}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
@@ -154,29 +158,67 @@ const ForgotPassword = () => {
                                 style={{marginBottom: iconMargin}}
                             />
                         </View>
-                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Forgot your password?</Text>
-                        <Text style={{...FONTS.Title2, marginBottom: '5%'}}>Enter your email below</Text>
+                        <Text  style={{
+                                                                          ...FONTS.Title1,
+                                                                          color: COLORS.PINK,
+                                                                          marginTop: 30,
+                                                                      }}>Forgot your password?</Text>
+                        <Text  style={{...FONTS.paragraph2,marginTop: 10,}}>Enter your email below</Text>
                         <View style={{marginBottom: 10}}>
-                            <Inputs
-                                placeholdername={'Enter Your Email'}
-                                iconname={'mail'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleEmailChange}
-                                value={email}
-                                editable={true}
-                            />
+                            <View style={styles.blurInputWrapper}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                />
+                                <Inputs
+                                    placeholdername={'Enter Your Email'}
+                                    iconname={'mail'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={handleEmailChange}
+                                    value={email}
+                                    editable={true}
+                                    containerStyle={{backgroundColor: 'transparent', marginVertical: 0, borderWidth: 0, height: inputHeight}}
+                                />
+                            </View>
                             {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
                         </View>
 
-                        <AkcruButtons.LrgButton
-                            color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                            btnname={'Send OTP'}
-                            onPress={SendOTP}
-                            disabled={!isFormComplete || loading}
-                        />
+                        <View style={{marginVertical: 10}}>
+                            <TouchableOpacity
+                                onPress={() => SendOTP()}
+                                disabled={!isFormComplete || loading}
+                                style={{
+                                    width: SIZES.ScreenWidth * 0.9,
+                                    height: loginButtonHeight,
+                                    borderRadius: 5,
+                                    overflow: 'hidden',
+//                                     opacity: !isFormComplete || loading ? 0.5 : 1,
+                                }}>
+                                <LinearGradient
+                                    colors={[COLORS.PURPLE, COLORS.PINK]}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 0}}
+                                    style={{
+                                        flex: 1,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        borderRadius: 5,
+                                    }}>
+                                    <Text style={{...FONTS.Title1, textAlign: 'center', color: COLORS.WHITE}}>
+                                        Send OTP
+                                    </Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        </View>
                         <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
-                            <Text style={{...FONTS.Title2, color: COLORS.PINK, marginTop: '5%'}}>
+                            <Text style={{
+                                                                                                            ...FONTS.Title1,
+                                                                                                            color: COLORS.PINK,
+                                                                                                            marginTop: 20,
+                                                                                                        }}>
                                 Enter your phone number
                             </Text>
                         </Pressable>
@@ -193,7 +235,7 @@ const ForgotPassword = () => {
                     </Modal>
                 </View>
             </ImageBackground>
-        </ScrollView>
+        </View>
     );
 };
 

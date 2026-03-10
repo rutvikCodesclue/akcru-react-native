@@ -27,4 +27,11 @@
 
 
 
+-keep class com.huawei.** { *; }
+-dontwarn com.reactnativehmssdk.**
+-dontwarn com.huawei.hms.**
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
 

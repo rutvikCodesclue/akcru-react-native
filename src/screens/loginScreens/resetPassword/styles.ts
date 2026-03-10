@@ -6,17 +6,39 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight,
         
     },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        paddingTop: SIZES.ScreenHeight * 0.03,
+        marginBottom: SIZES.ScreenHeight * 0.02,
+        paddingHorizontal: SIZES.ScreenWidth * 0.03,
+    },
+    backButton: {
+        padding: 8,
+    },
+    logoCenter: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    blurInputWrapper: {
+        width: SIZES.ScreenWidth * 0.9,
+        borderRadius: 5,
+        overflow: 'hidden',
+        marginVertical: 10,
+        borderWidth: 1,
+        borderColor: '#fff',
+    },
     container: {
         flex: 1,
-        marginTop: SIZES.ScreenHeight * 0.09,
-        marginHorizontal: SIZES.ScreenWidth * 0.03,
+        alignItems: 'center',
     },
     container2: {
         flex: 1,
         marginTop: SIZES.ScreenHeight * 0.09,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
-    backbutton: {},
     warningText: {
         ...FONTS.Title2,
         color: 'red',

@@ -64,7 +64,7 @@ export default function RootNavigator(params: any) {
                 }}>
             <PostHogProvider apiKey={POSTHOG_API_KEY} options={{
             host: "https://us.i.posthog.com",
-            
+
             // check https://posthog.com/docs/session-replay/installation?tab=React+Native
             // for more config and to learn about how we capture sessions on mobile
             // and what to expect
