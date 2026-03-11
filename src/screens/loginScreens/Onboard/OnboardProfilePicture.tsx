@@ -1,6 +1,8 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Keyboard} from 'react-native';
 import React, {useState} from 'react';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -9,7 +11,6 @@ import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import AkcruButtons from '../../../components/akcruButtons';
 import {appVersion} from '../../../../assets/constants/Data';
-import LinearGradient from 'react-native-linear-gradient';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import HexAvatar from '../../../components/HexAvatar';
 import {updateUserProfilePicture} from '../../../lib/api/user.lib';
@@ -91,32 +92,33 @@ const OnboardProfilePicture = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    // Background Linear Gradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Add a profile picture. Obscenity will not be tolerated and will be swiftly removed
                             </Text>
                         </View>
@@ -132,13 +134,7 @@ const OnboardProfilePicture = () => {
                                 onPress={() => {
                                     selectProfileImage();
                                 }}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        marginTop: 10,
-                                        color: COLORS.PINK,
-                                        textAlign: 'center',
-                                    }}>
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 10}]}>
                                     Pick a profile photo
                                 </Text>
                             </TouchableOpacity>
@@ -188,9 +184,13 @@ const OnboardProfilePicture = () => {
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={COLORS.PURPLE}
                                     btnname={'Next'}
-                                    onPress={() => PictureSet()}
+                                    onPress={() => {
+                                    Keyboard.dismiss();
+                                    PictureSet();
+                                }}
                                     disabled={false}
                                 />
                             </View>

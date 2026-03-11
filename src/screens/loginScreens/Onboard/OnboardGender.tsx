@@ -1,6 +1,8 @@
-import {View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert, TextInput} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Alert, TextInput, StyleSheet, Platform, Keyboard} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -13,7 +15,6 @@ import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
 import {API} from '../../../clients/api.client';
 import {capitalizeFirstLetterOfString} from '../../../util/util';
-import LinearGradient from 'react-native-linear-gradient';
 import {updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
@@ -109,83 +110,90 @@ const OnboardGender = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Please select your gender and tell the crummunity a bit about yourself.
                             </Text>
                         </View>
 
-                        {/* Gender selection */}
-                        <View style={{marginHorizontal: 15, marginTop: 10}}>
+                        {/* Gender selection - chips */}
+                        <View style={styles.chipContainer}>
                             {genders.map(gender => (
-                                <View key={gender} style={styles.checkboxContainer}>
-                                    <TouchableOpacity
-                                        onPress={() => handleGenderSelect(gender)}
-                                        style={styles.checkbox}>
-                                        {selectedGender === gender && (
-                                            <Icon
-                                                name="checkmark-sharp"
-                                                type="ionicon"
-                                                size={18}
-                                                color={COLORS.AKCRUBLUE}
-                                            />
-                                        )}
-                                    </TouchableOpacity>
-                                    <Text style={styles.checkboxText}>{capitalizeFirstLetterOfString(gender)}</Text>
-                                </View>
+                                <TouchableOpacity
+                                    key={gender}
+                                    onPress={() => handleGenderSelect(gender)}
+                                    style={selectedGender === gender ? styles.chipSelected : styles.chip}>
+                                    <Text style={selectedGender === gender ? styles.chipTextSelected : styles.chipText}>
+                                        {capitalizeFirstLetterOfString(gender)}
+                                    </Text>
+                                </TouchableOpacity>
                             ))}
                         </View>
 
                         {/* Description input */}
                         <View style={{alignItems: 'center', marginTop: 15}}>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={'Tell us about yourself...'}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => {
-                                        if (text.length <= 250) {
-                                            setDescription(text);
-                                        }
-                                    }}
-                                    value={description}
-                                    multiline={true}
-                                    maxLength={200}
-                                    editable={!loading}
+                            <View style={[AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle(), {height: undefined, minHeight: 100}]}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                 />
+                                <View style={AUTH_TEXT_FIELD_THEME.getMultilineInnerStyle()}>
+                                    <TextInput
+                                        placeholder={'Tell us about yourself...'}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => {
+                                            if (text.length <= 250) {
+                                                setDescription(text);
+                                            }
+                                        }}
+                                        value={description}
+                                        multiline={true}
+                                        maxLength={200}
+                                        editable={!loading}
+                                    />
+                                </View>
                             </View>
                         </View>
 
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Next'}
-                                    onPress={GenderAndDescriptionSet}
+                                    onPress={() => {
+                                    Keyboard.dismiss();
+                                    GenderAndDescriptionSet();
+                                }}
                                     disabled={!isFormComplete || loading}
                                 />
                             </View>

@@ -1,6 +1,9 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert, StyleSheet, Platform, Keyboard} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -12,7 +15,6 @@ import Inputs from '../../../components/input';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import LinearGradient from 'react-native-linear-gradient';
 import {ICru} from '../../../../types';
 import {searchCRUs, updateCRUInfo} from '../../../lib/api/cru.lib';
 import ProgressBar from '../../../components/ProgressBar';
@@ -177,53 +179,59 @@ const OnboardCruName = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Create your Cru name and add a profile picture.
                             </Text>
                         </View>
 
                         {/* Cru name input */}
                         <View style={{alignItems: 'center', marginTop: 10}}>
-                            <Inputs
-                                placeholdername={'Create a Cru name'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleCruNameChange}
-                                value={cruName}
-                                editable={!loading}
-                            />
-                            {userNameError && <Text style={styles.warningText}>Invalid Username format</Text>}
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    textAlign: 'center',
-                                    color: COLORS.PINK,
-                                }}>
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                />
+                                <Inputs
+                                    placeholdername={'Create a Cru name'}
+                                    iconname={'person'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={handleCruNameChange}
+                                    value={cruName}
+                                    editable={!loading}
+                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                />
+                            </View>
+                            {userNameError && <Text style={AUTH_TEXT_THEME.error}>Invalid Username format</Text>}
+                            <Text style={AUTH_TEXT_THEME.highlight}>
                                 Your Cru name must be unique and at least 3 characters long.
                             </Text>
                         </View>
@@ -238,13 +246,7 @@ const OnboardCruName = () => {
                         </View>
                         <View>
                             <TouchableOpacity onPress={selectProfileImage}>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        marginTop: 10,
-                                        color: COLORS.PINK,
-                                        textAlign: 'center',
-                                    }}>
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 10}]}>
                                     Pick a profile photo
                                 </Text>
                             </TouchableOpacity>
@@ -309,9 +311,13 @@ const OnboardCruName = () => {
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Next'}
-                                    onPress={ConfirmChangeCruName}
+                                    onPress={() => {
+                                    Keyboard.dismiss();
+                                    ConfirmChangeCruName();
+                                }}
                                     disabled={!isFormComplete || loading}
                                 />
                             </View>

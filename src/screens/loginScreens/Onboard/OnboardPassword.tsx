@@ -9,10 +9,14 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    Platform,
+    Keyboard,
 } from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useEffect, useState} from 'react';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -22,7 +26,6 @@ import Inputs from '../../../components/input';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import useAuthStore from '../../../stores/auth.store';
 import {AkcruLogo} from '../../../../assets/svg';
-import LinearGradient from 'react-native-linear-gradient';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import {getPushToken} from '../../../../lib/pushNotifications';
@@ -133,7 +136,7 @@ const OnboardPassword = ({route}) => {
             } else {
                 setSignupErrorMessage('An unexpected error occurred during signup.');
                 console.error('Non-Axios error during signup:', error);
-                
+
             }
         } finally {
             setLoading(false);
@@ -144,109 +147,118 @@ const OnboardPassword = ({route}) => {
     return (
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={styles.container}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <View style={{flex: 1, alignItems: 'center'}}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                        </View>
-                        <View style={{width: '90%'}}>
-                            <Text style={{...FONTS.Title2}}>
+                    <View style={styles.headerRow}>
+                        <View style={styles.headerLeft}>
+                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </TouchableOpacity>
+                            <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                 {CURRENT_STEP}/{TOTAL_STEPS}
                             </Text>
+                        </View>
+                        <View style={styles.logoCenter}>
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                        </View>
+                        <View style={[styles.backButton, {opacity: 0}]}>
+                            <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                        </View>
+                    </View>
+                    <View style={{flex: 1, alignItems: 'center'}}>
+                        <View style={{width: '90%'}}>
                             <ProgressBar currentStep={CURRENT_STEP} totalSteps={TOTAL_STEPS} style={styles.progress} />
                         </View>
-                        <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                        <Text style={AUTH_TEXT_THEME.instruction}>
                             Now that you've been verified, you can choose a new password. It is imperative that you do
                             not share this with anyone.
                         </Text>
 
                         <View style={{marginBottom: 10, alignItems: 'center'}}>
-                            <View style={styles1.inputContainer}>
-                                <Icon
-                                    name="lock-closed"
-                                    type="ionicon"
-                                    size={iconSize}
-                                    color={COLORS.LIGHTGREY}
-                                    style={{marginRight: 5}}
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                 />
-                                <TextInput
-                                    placeholder="Choose New Password"
-                                    style={[styles1.input, {color: COLORS.WHITE}]}
-                                    secureTextEntry={!isPasswordVisible}
-                                    onChangeText={handlePassword}
-                                    value={password}
-                                    editable={!loading}
-                                    placeholderTextColor={COLORS.LIGHTGREY}
-                                    
-                                />
-                                <TouchableOpacity
-                                    onPress={() => setPasswordVisible(!isPasswordVisible)}
-                                    style={styles1.iconContainer}>
+                                <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
                                     <Icon
-                                        name={isPasswordVisible ? 'eye' : 'eye-off'}
+                                        name="lock-closed"
                                         type="ionicon"
                                         size={iconSize}
                                         color={COLORS.LIGHTGREY}
+                                        style={{marginRight: 5}}
                                     />
-                                </TouchableOpacity>
+                                    <TextInput
+                                        placeholder="Choose New Password"
+                                        style={[styles1.input, {color: COLORS.WHITE}]}
+                                        secureTextEntry={!isPasswordVisible}
+                                        onChangeText={handlePassword}
+                                        value={password}
+                                        editable={!loading}
+                                        placeholderTextColor={COLORS.LIGHTGREY}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() => setPasswordVisible(!isPasswordVisible)}
+                                        style={styles1.iconContainer}>
+                                        <Icon
+                                            name={isPasswordVisible ? 'eye' : 'eye-off'}
+                                            type="ionicon"
+                                            size={iconSize}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                             {passwordLengthError && (
-                                <Text style={styles.warningText}>Password must be at least 8 characters long</Text>
+                                <Text style={AUTH_TEXT_THEME.error}>Password must be at least 8 characters long</Text>
                             )}
-                            <View style={styles1.inputContainer}>
-                                <Icon
-                                    name="lock-closed"
-                                    type="ionicon"
-                                    size={iconSize}
-                                    color={COLORS.LIGHTGREY}
-                                    style={{marginRight: 5}}
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                 />
-                                <TextInput
-                                    placeholder={'Confirm New Password'}
-                                    style={[styles1.input, {color: COLORS.WHITE}]}
-                                    secureTextEntry={!isConfirmPasswordVisible}
-                                    onChangeText={handleConfirmPassword}
-                                    value={confirmPassword}
-                                    editable={!loading}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                />
-                                <TouchableOpacity
-                                    onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
-                                    style={styles1.iconContainer}>
+                                <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
                                     <Icon
-                                        name={isConfirmPasswordVisible ? 'eye' : 'eye-off'}
+                                        name="lock-closed"
                                         type="ionicon"
                                         size={iconSize}
                                         color={COLORS.LIGHTGREY}
+                                        style={{marginRight: 5}}
                                     />
-                                </TouchableOpacity>
+                                    <TextInput
+                                        placeholder={'Confirm New Password'}
+                                        style={[styles1.input, {color: COLORS.WHITE}]}
+                                        secureTextEntry={!isConfirmPasswordVisible}
+                                        onChangeText={handleConfirmPassword}
+                                        value={confirmPassword}
+                                        editable={!loading}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() => setConfirmPasswordVisible(!isConfirmPasswordVisible)}
+                                        style={styles1.iconContainer}>
+                                        <Icon
+                                            name={isConfirmPasswordVisible ? 'eye' : 'eye-off'}
+                                            type="ionicon"
+                                            size={iconSize}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                            {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
+                            {passwordError && <Text style={AUTH_TEXT_THEME.error}>Passwords do not match.</Text>}
                         </View>
                         <AkcruButtons.LrgButton
+                            variant="auth"
                             color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                             btnname={'Confirm'}
-                            onPress={() => attemptSignup()}
+                            onPress={() => {
+                            Keyboard.dismiss();
+                            attemptSignup();
+                        }}
                             disabled={!isFormComplete}
                         />
                     </View>

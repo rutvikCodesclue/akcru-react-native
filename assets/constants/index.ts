@@ -1,3 +1,9 @@
 import {COLORS, SIZES, FONTS, AKCRUBADGES} from './theme';
 
 export {COLORS, SIZES, FONTS, AKCRUBADGES};
+export {
+  AUTH_TEXT_THEME,
+  AUTH_BUTTON_THEME,
+  AUTH_TEXT_FIELD_THEME,
+  HEXAGON_THEME,
+} from './authTheme';

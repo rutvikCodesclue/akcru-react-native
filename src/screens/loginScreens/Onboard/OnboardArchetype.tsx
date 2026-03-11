@@ -1,6 +1,7 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, FlatList, Image} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, Image, ScrollView, Keyboard} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -14,13 +15,12 @@ import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import Video from 'react-native-video';
 import {updateUser} from '../../../lib/api/user.lib';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
-import LinearGradient from 'react-native-linear-gradient';
 import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 
-const buttonMargin = isTablet() ? '10%' : '5%';
+const buttonMargin = isTablet() ? '20%' : '15%';
 
 const TOTAL_STEPS = 7;
 const CURRENT_STEP = 7;
@@ -168,24 +168,26 @@ const OnboardArchetype = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
@@ -194,55 +196,45 @@ const OnboardArchetype = () => {
                             </View>
                         </View>
 
-                        <Text style={{...FONTS.Title2, textAlign: 'center', marginHorizontal: 10}}>
-                            At Akcru, your movie-watching preferences shape your unique archetype. This personalized
-                            archetype guides us in curating the finest movie recommendations for you, as well as
-                            connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
-                            a simple streaming platform; we are a multifaceted streaming experience that caters to your
-                            individuality.
-                        </Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center', marginTop: 20}}>
-                            Please choose 2 genres to get you started:
-                        </Text>
+                        <ScrollView
+                            style={{flex: 1}}
+                            contentContainerStyle={{paddingBottom: 20}}
+                            showsVerticalScrollIndicator={false}>
+                            <Text style={[AUTH_TEXT_THEME.instruction, {marginHorizontal: 10}]}>
+                                At Akcru, your movie-watching preferences shape your unique archetype. This personalized
+                                archetype guides us in curating the finest movie recommendations for you, as well as
+                                connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
+                                a simple streaming platform; we are a multifaceted streaming experience that caters to your
+                                individuality.
+                            </Text>
+                            <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 20}]}>
+                                Please choose 2 genres to get you started:
+                            </Text>
 
-                        <View style={{marginBottom: 20, marginHorizontal: 10}}>
-                            <FlatList
-                                data={filteredGenres}
-                                horizontal={false}
-                                numColumns={3}
-                                showsHorizontalScrollIndicator={false}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <View>
-                                        <View style={styles.checkboxContainer2}>
-                                            <TouchableOpacity onPress={() => handleCheckboxChange(item.id)}>
-                                                <View style={styles.checkbox2}>
-                                                    {checkedGenres[item.id] && (
-                                                        <Icon
-                                                            name="checkmark-sharp"
-                                                            type="ionicon"
-                                                            size={18}
-                                                            color={COLORS.AKCRUBLUE}
-                                                            style={{marginTop: -3}}
-                                                        />
-                                                    )}
-                                                </View>
-                                            </TouchableOpacity>
-                                            <View>
-                                                <Text style={styles.checkboxText2}>{item.genre}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                )}
-                            />
-                        </View>
+                            <View style={[styles.chipContainer, {marginBottom: 20}]}>
+                                {filteredGenres.map(item => (
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        onPress={() => handleCheckboxChange(item.id)}
+                                        style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
+                                        <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
+                                            {item.genre}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </ScrollView>
                     </View>
                     <View>
                         <View style={{alignItems: 'center', marginBottom: buttonMargin}}>
                             <AkcruButtons.XlLrgButton
+                                variant="auth"
                                 color={COLORS.PURPLE}
                                 btnname={'Finish'}
-                                onPress={handleFinishButton}
+                                onPress={() => {
+                                Keyboard.dismiss();
+                                handleFinishButton();
+                            }}
                                 disabled={false}
                             />
                         </View>

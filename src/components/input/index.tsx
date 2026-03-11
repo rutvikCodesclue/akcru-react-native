@@ -17,6 +17,7 @@ interface Props {
     value: any;
     editable: boolean;
     containerStyle?: ViewStyle;
+    keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad' | 'decimal-pad';
 }
 
 const Inputs: React.FC<Props> = ({
@@ -28,6 +29,7 @@ const Inputs: React.FC<Props> = ({
     value,
     editable,
     containerStyle,
+    keyboardType = 'default',
 }) => {
     return (
         <View style={[styles.input, containerStyle]}>
@@ -36,6 +38,7 @@ const Inputs: React.FC<Props> = ({
                 autoCapitalize="none"
                 placeholder={placeholdername}
                 placeholderTextColor={COLORS.DARKGREY}
+                keyboardType={keyboardType}
                 style={[
                     styles.textinput,
                     {

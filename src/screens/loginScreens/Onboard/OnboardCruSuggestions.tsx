@@ -6,7 +6,6 @@ import {useNavigation} from '@react-navigation/native';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/themed';
 import {IUserProfile} from '../../../../types';
 import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
@@ -78,16 +77,6 @@ const OnboardCruSuggestions = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={{flex: 1}}>
                     <View style={styles.container}>
                         {/* <BackButton navigation={navigation} /> */}

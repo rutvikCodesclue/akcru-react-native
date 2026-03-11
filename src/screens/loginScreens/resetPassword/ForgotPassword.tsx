@@ -12,16 +12,15 @@ import {Icon} from '@rneui/base';
 import Svg, {Path} from 'react-native-svg';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import {API} from '../../../clients/api.client';
-import LinearGradient from 'react-native-linear-gradient';
 import {isTablet} from '../../../../assets/constants/theme';
 import {AkcruLogo} from '../../../../assets/svg';
+import AkcruButtons from '../../../components/akcruButtons';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 
 const smlIconSize = isTablet() ? 28 : 20;
 const svgSize = isTablet() ? 200 : 150;
 const lrgIconSize = isTablet() ? 110 : 80;
 const iconMargin = isTablet() ? '5%' : '8%';
-const inputHeight = isTablet() ? 60 : 50;
-const loginButtonHeight = isTablet() ? 60 : 45;
 
 const ForgotPassword = () => {
     const hexagonPath = 'M202.5,0,270,117,202.5,234H67.5L0,117,67.5,0Z';
@@ -154,7 +153,7 @@ const ForgotPassword = () => {
                                                                       }}>Forgot your password?</Text>
                         <Text  style={{...FONTS.paragraph2,marginTop: 10,}}>Enter your email below</Text>
                         <View style={{marginBottom: 10}}>
-                            <View style={styles.blurInputWrapper}>
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
                                 <BlurView
                                     style={StyleSheet.absoluteFill}
                                     blurType="light"
@@ -169,45 +168,21 @@ const ForgotPassword = () => {
                                     onChangeText={handleEmailChange}
                                     value={email}
                                     editable={true}
-                                    containerStyle={{backgroundColor: 'transparent', marginVertical: 0, borderWidth: 0, height: inputHeight}}
+                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
                                 />
                             </View>
                             {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
                         </View>
 
-                        <View style={{marginVertical: 10}}>
-                            <TouchableOpacity
-                                onPress={() => SendOTP()}
-                                disabled={!isFormComplete || loading}
-                                style={{
-                                    width: SIZES.ScreenWidth * 0.9,
-                                    height: loginButtonHeight,
-                                    borderRadius: 5,
-                                    overflow: 'hidden',
-//                                     opacity: !isFormComplete || loading ? 0.5 : 1,
-                                }}>
-                                <LinearGradient
-                                    colors={[COLORS.PURPLE, COLORS.PINK]}
-                                    start={{x: 0, y: 0}}
-                                    end={{x: 1, y: 0}}
-                                    style={{
-                                        flex: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: 5,
-                                    }}>
-                                    <Text style={{...FONTS.Title1, textAlign: 'center', color: COLORS.WHITE}}>
-                                        Send OTP
-                                    </Text>
-                                </LinearGradient>
-                            </TouchableOpacity>
-                        </View>
+                        <AkcruButtons.LrgButton
+                            variant="auth"
+                            btnname="Send OTP"
+                            onPress={() => SendOTP()}
+                            disabled={!isFormComplete || loading}
+                            color={COLORS.PURPLE}
+                        />
                         <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
-                            <Text style={{
-                                                                                                            ...FONTS.Title1,
-                                                                                                            color: COLORS.PINK,
-                                                                                                            marginTop: 20,
-                                                                                                        }}>
+                            <Text style={AUTH_TEXT_THEME.link}>
                                 Enter your phone number
                             </Text>
                         </Pressable>

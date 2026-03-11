@@ -38,11 +38,11 @@ const ResetPassword = () => {
         iconcolor: '',
     });
 
-    
+
     const email = route.params?.email;
     const phoneNumber = route.params?.phoneNumber;
 
-    
+
 
     const handlePasswordChange = (text: string) => {
         setPassword(text);
@@ -93,7 +93,7 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            
+
             const payload = email ? {email} : {phoneNumber};
 
             const response = await API.post('/v1/user/resetPassword', {
@@ -105,7 +105,7 @@ const ResetPassword = () => {
             const data = response.data;
 
             if (data.success) {
-                
+
                 setResetResultType({
                     messageheader: 'Success',
                     messageheadercolor: COLORS.CATGREENDRK,
@@ -114,12 +114,12 @@ const ResetPassword = () => {
                     iconcolor: COLORS.CATGREENLGT,
                 });
                 setShowConfirmNewPasswordModal(true);
-                
+
                 setTimeout(() => {
                     navigation.navigate('Signin');
                 }, 3000);
             } else {
-                
+
                 setResetResultType({
                     messageheader: 'Failed',
                     messageheadercolor: COLORS.CATREDDRK,
@@ -213,6 +213,7 @@ const ResetPassword = () => {
                             {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
                         </View>
                         <AkcruButtons.LrgButton
+                            variant="auth"
                             color={isFormComplete ? COLORS.MIDORANGE : COLORS.DARKGREY}
                             btnname={'Confirm'}
                             onPress={() => handleConfirmNewPassword()}

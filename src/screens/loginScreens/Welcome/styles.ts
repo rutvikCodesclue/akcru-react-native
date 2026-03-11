@@ -24,15 +24,16 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     logoContainer: {
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         paddingHorizontal: 32,
         paddingVertical: 24,
         borderRadius: 12,
         overflow: 'hidden',
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(19, 31, 54, 0.0)',
         borderWidth: 1,
-        borderColor: 'rgba(47, 191, 241, 0.45)',
+        borderColor: 'rgba(47, 191, 241, 0.0)',
         ...Platform.select({
             ios: {
                 shadowColor: COLORS.AKCRUBLUE,
@@ -41,7 +42,7 @@ export default StyleSheet.create({
                 shadowRadius: 20,
             },
             android: {
-                elevation: 12,
+                elevation: 0,
             },
         }),
     },

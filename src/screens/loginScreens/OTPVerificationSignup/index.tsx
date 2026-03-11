@@ -1,6 +1,7 @@
-import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, TextInput} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, TextInput, StyleSheet, ActivityIndicator} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
@@ -13,10 +14,10 @@ import CodeInput from '../../../components/CodeInput/CodeInput';
 import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import {API} from '../../../clients/api.client';
-import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../../components/General/backbutton';
-import { isTablet } from '../../../../assets/constants/theme';
+import {AkcruLogo} from '../../../../assets/svg';
+import {isTablet} from '../../../../assets/constants/theme';
 
+const smlIconSize = isTablet() ? 28 : 20;
 const svgSize = isTablet() ? 200 : 150;
 const lrgIconSize = isTablet() ? 110 : 80;
 const iconMargin = isTablet() ? '5%' : '8%';
@@ -41,6 +42,7 @@ const OTPVerificationSignup = ({route}) => {
     //OTP Modal
     const [showVerifiedModal, setShowVerifiedModal] = useState(false);
     const [typeOTPModal, setTypeOTPModal] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleShowOTPModal = (typeOTPModal: React.SetStateAction<string>) => {
         setTypeOTPModal(typeOTPModal);
@@ -76,9 +78,10 @@ const OTPVerificationSignup = ({route}) => {
     };
 
     const handleOTPVerification = async () => {
+        if (loading) return;
+        setLoading(true);
+        setVerify(true);
         try {
-            setVerify(true);
-
             const payload = email ? {email} : {phoneNumber};
 
             const response = await API.post('/v1/auth/verify', {
@@ -89,7 +92,6 @@ const OTPVerificationSignup = ({route}) => {
             const data = response.data;
 
             if (data.success) {
-                //console.log('Verification successful', data);
                 setVerify(false);
                 handleShowOTPModal('success');
 
@@ -104,43 +106,45 @@ const OTPVerificationSignup = ({route}) => {
             console.error('Verification failed', error);
             setVerify(false);
             handleShowOTPModal('failed');
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <View style={styles.container}>
-                    <BackButton navigation={navigation} />
+                    <View style={styles.headerRow}>
+                        <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <View style={styles.logoCenter}>
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                        </View>
+                        <View style={[styles.backButton, {opacity: 0}]}>
+                            <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
+                        </View>
+                    </View>
                     <View style={{flex: 1, alignItems: 'center', marginTop: '30%'}}>
                         <View>
                             <Svg
                                 height={svgSize}
                                 width={svgSize}
                                 viewBox={`0 0 270 234`}
-                                style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.9}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
-                                name="lock-open"
+                                name="key"
                                 type="ionicon"
                                 size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: iconMargin}}
+                                style={{marginBottom: iconMargin, opacity: 0.9}}
                             />
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Enter the 6-digit code sent to your email/phone
                             </Text>
                         </View>
@@ -155,14 +159,16 @@ const OTPVerificationSignup = ({route}) => {
                         <View>
                             {!verify && pinReady && (
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={COLORS.PURPLE}
                                     btnname={'Verify'}
                                     onPress={handleOTPVerification}
-                                    disabled={false}
+                                    disabled={loading}
                                 />
                             )}
                             {!verify && !pinReady && (
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={COLORS.DARKGREY}
                                     btnname={'Verify'}
                                     onPress={() => ''}
@@ -181,10 +187,25 @@ const OTPVerificationSignup = ({route}) => {
                             </View>
                         </View>
                     </View>
-                    <Modal animationType="fade" transparent={true} visible={false}>
+                    <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>
                         <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} />
                     </Modal>
                 </View>
+                {loading && (
+                    <View
+                        style={[
+                            StyleSheet.absoluteFillObject,
+                            {
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 1000,
+                            },
+                        ]}
+                        pointerEvents="auto">
+                        <ActivityIndicator size="large" color={COLORS.PURPLE} style={{transform: [{scale: 2}]}} />
+                    </View>
+                )}
             </ImageBackground>
         </View>
     );

@@ -1,6 +1,6 @@
-
 import {StyleSheet} from 'react-native';
 import {SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 
 export default StyleSheet.create({
     bgimage: {
@@ -27,12 +27,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     blurInputWrapper: {
-        width: SIZES.ScreenWidth * 0.9,
-        borderRadius: 5,
-        overflow: 'hidden',
-        marginVertical: 10,
-        borderWidth: 1,
-        borderColor: '#fff',
+        ...AUTH_TEXT_FIELD_THEME,
     },
     container2: {
         flex: 1,

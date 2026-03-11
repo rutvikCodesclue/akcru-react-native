@@ -1,7 +1,9 @@
-import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, TouchableOpacity} from 'react-native';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, TouchableOpacity, StyleSheet, Platform, Keyboard} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import {Icon} from '@rneui/base';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -13,7 +15,6 @@ import Inputs from '../../../components/input';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import LinearGradient from 'react-native-linear-gradient';
 import {updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import { isTablet } from '../../../../assets/constants/theme';
@@ -99,72 +100,86 @@ const OnboardName = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>Enter your first and last name.</Text>
+                            <Text style={AUTH_TEXT_THEME.instruction}>Enter your first and last name.</Text>
                         </View>
                         <View style={{alignItems: 'center', marginTop: 10}}>
-                            <Inputs
-                                placeholdername={'First Name'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleFirstNameChange}
-                                value={firstName}
-                                editable={!loading}
-                            />
-                            <Inputs
-                                placeholdername={'Last Name'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleLastNameChange}
-                                value={lastName}
-                                editable={!loading}
-                            />
-                            {nameError && <Text style={styles.warningText}>Please input first and last name</Text>}
-                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                />
+                                <Inputs
+                                    placeholdername={'First Name'}
+                                    iconname={'person'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={handleFirstNameChange}
+                                    value={firstName}
+                                    editable={!loading}
+                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                />
+                            </View>
+                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                <BlurView
+                                    style={StyleSheet.absoluteFill}
+                                    blurType="light"
+                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                />
+                                <Inputs
+                                    placeholdername={'Last Name'}
+                                    iconname={'person'}
+                                    iconcolor={COLORS.LIGHTGREY}
+                                    secureTextEntry={false}
+                                    onChangeText={handleLastNameChange}
+                                    value={lastName}
+                                    editable={!loading}
+                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                />
+                            </View>
+                            {nameError && <Text style={AUTH_TEXT_THEME.error}>Please input first and last name</Text>}
+                            <Text style={AUTH_TEXT_THEME.highlight}>
                                 We will not display your last name publicly.
                             </Text>
                         </View>
                         <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Next'}
-                                    onPress={() => UserNameSet()}
+                                    onPress={() => {
+                                    Keyboard.dismiss();
+                                    UserNameSet();
+                                }}
                                     disabled={!isFormComplete}
                                 />
                             </View>

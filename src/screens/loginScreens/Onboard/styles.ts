@@ -45,8 +45,27 @@ export default StyleSheet.create({
     },
     container: {
         flex: 1,
-        marginTop: SIZES.ScreenHeight * 0.01,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        paddingTop: SIZES.ScreenHeight * 0.03,
+        marginBottom: SIZES.ScreenHeight * 0.02,
+        paddingHorizontal: SIZES.ScreenWidth * 0.03,
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    backButton: {
+        padding: 8,
+    },
+    logoCenter: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     mastercontainer: {
         height: SIZES.ScreenHeight,
@@ -94,6 +113,38 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
         marginLeft: 10,
+    },
+    chipContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginHorizontal: 15,
+        marginTop: 10,
+        gap: 10,
+    },
+    chip: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 24,
+        borderWidth: 2,
+        borderColor: COLORS.PINK,
+        backgroundColor: 'transparent',
+    },
+    chipSelected: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 24,
+        borderWidth: 2,
+        borderColor: COLORS.PINK,
+        backgroundColor: COLORS.PINK,
+    },
+    chipText: {
+        ...FONTS.Title2,
+        color: COLORS.LIGHTGREY,
+    },
+    chipTextSelected: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
     },
     phonenuminput: {
         color: COLORS.WHITE,

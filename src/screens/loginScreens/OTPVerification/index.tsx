@@ -129,15 +129,15 @@ const OTPVerification = ({route}) => {
                                 height={svgSize}
                                 width={svgSize}
                                 viewBox={`0 0 270 234`}
-                                style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.9}}>
                                 <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
                             </Svg>
                             <Icon
-                                name="lock-open"
+                                name="key"
                                 type="ionicon"
                                 size={lrgIconSize}
                                 color={COLORS.LIGHTGREY}
-                                style={{marginBottom: iconMargin}}
+                                style={{marginBottom: iconMargin, opacity: 0.9}}
                             />
                         </View>
                         <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
@@ -156,6 +156,7 @@ const OTPVerification = ({route}) => {
                         <View>
                             {!verify && pinReady && (
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={COLORS.MIDORANGE}
                                     btnname={'Verify'}
                                     onPress={handleOTPVerification}
@@ -164,6 +165,7 @@ const OTPVerification = ({route}) => {
                             )}
                             {!verify && !pinReady && (
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={COLORS.DARKGREY}
                                     btnname={'Verify'}
                                     onPress={() => ''}

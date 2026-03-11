@@ -18,6 +18,7 @@ import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import LinearGradient from 'react-native-linear-gradient';
 import {getPushToken} from '../../../../lib/pushNotifications';
 import {isTablet} from '../../../../assets/constants/theme';
+import {AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import SessionManagementModal from '../../../components/SessionManagementModal';
 import messaging from '@react-native-firebase/messaging';
 import * as RootNavigation from '../../../util/RootNavigation';
@@ -349,6 +350,7 @@ const Signin = () => {
                             }`}</Text>
 
                             <AkcruButtons.LrgButton
+                                variant="auth"
                                 color={COLORS.PURPLE}
                                 btnname="Enter Akcru"
                                 onPress={() =>
@@ -395,7 +397,7 @@ const Signin = () => {
                                     <Text style={{...FONTS.paragraph2}}>Welcome back, sign in below</Text>
                                 </View>
                                 <View>
-                                    <View style={styles.blurInputWrapper}>
+                                    <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
                                         <BlurView
                                             style={StyleSheet.absoluteFill}
                                             blurType="light"
@@ -410,17 +412,17 @@ const Signin = () => {
                                             onChangeText={(text: string) => setEmail(text.trim().toLowerCase())}
                                             value={email}
                                             editable={true}
-                                            containerStyle={{backgroundColor: 'transparent', marginVertical: 0, borderWidth: 0, height: inputHeight}}
+                                            containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
                                         />
                                     </View>
-                                    <View style={styles.blurInputWrapper}>
+                                    <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
                                         <BlurView
                                             style={StyleSheet.absoluteFill}
-                                              blurType="light"
-                                              blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                            blurType="light"
+                                            blurAmount={Platform.OS === 'ios' ? 10 : 10}
                                             reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                         />
-                                        <View style={[styles1.inputContainer, {backgroundColor: 'transparent', marginVertical: 0}]}>
+                                        <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
                                             <Icon
                                                 name="lock-closed"
                                                 type="ionicon"

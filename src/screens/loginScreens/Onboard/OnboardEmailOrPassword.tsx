@@ -8,9 +8,14 @@ import {
     TextInput,
     Alert,
     TouchableOpacity,
+    StyleSheet,
+    Platform,
+    Keyboard,
 } from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -22,7 +27,6 @@ import Inputs from '../../../components/input';
 import {Icon} from '@rneui/base';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
 import {AxiosError} from 'axios';
 import ProgressBar from '../../../components/ProgressBar';
@@ -85,34 +89,26 @@ const OnboardEmailOrPassword = ({route}) => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
@@ -121,66 +117,84 @@ const OnboardEmailOrPassword = ({route}) => {
                             </View>
                             {email && !phoneNumber && (
                                 <View>
-                                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                                    <Text style={AUTH_TEXT_THEME.instruction}>
                                         Enter your mobile number below.
                                     </Text>
                                 </View>
                             )}
                             {!email && phoneNumber && (
                                 <View>
-                                    <Text style={{...FONTS.Title2, textAlign: 'center'}}>Enter your email below.</Text>
+                                    <Text style={AUTH_TEXT_THEME.instruction}>Enter your email below.</Text>
                                 </View>
                             )}
                         </View>
                         {email && !phoneNumber && (
                             <View style={{alignItems: 'center', marginTop: 10}}>
-                                <View style={styles.phoneinput}>
-                                    <Icon
-                                        name={'call'}
-                                        type="ionicon"
-                                        size={iconSize}
-                                        color={COLORS.LIGHTGREY}
-                                        style={{marginRight: 5}}
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                     />
-                                    <Text style={styles.textinputprefix}>+1</Text>
-
-                                    <TextInput
-                                        placeholder="234-456-7890"
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.textinput}
-                                        secureTextEntry={false}
-                                        onChangeText={handlePhoneNumberChange}
-                                        value={phone}
-                                        keyboardType="number-pad"
-                                        maxLength={10}
-                                        editable={true}
-                                    />
+                                    <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
+                                        <Icon
+                                            name={'call'}
+                                            type="ionicon"
+                                            size={iconSize}
+                                            color={COLORS.LIGHTGREY}
+                                            style={{marginRight: 5}}
+                                        />
+                                        <Text style={styles.textinputprefix}>+1</Text>
+                                        <TextInput
+                                            placeholder="234-456-7890"
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.textinput}
+                                            secureTextEntry={false}
+                                            onChangeText={handlePhoneNumberChange}
+                                            value={phone}
+                                            keyboardType="number-pad"
+                                            maxLength={10}
+                                            editable={true}
+                                        />
+                                    </View>
                                 </View>
-                                {phoneError && <Text style={styles.warningText}>Invalid mobile number</Text>}
+                                {phoneError && <Text style={AUTH_TEXT_THEME.error}>Invalid mobile number</Text>}
                             </View>
                         )}
 
                         {!email && phoneNumber && (
                             <View style={{alignItems: 'center', marginTop: 10}}>
-                                <Inputs
-                                    placeholdername={'Email'}
-                                    iconname={'mail'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={false}
-                                    onChangeText={handleEmailChange}
-                                    value={Email}
-                                    editable={!loading}
-                                />
-                                {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <Inputs
+                                        placeholdername={'Email'}
+                                        iconname={'mail'}
+                                        iconcolor={COLORS.LIGHTGREY}
+                                        secureTextEntry={false}
+                                        onChangeText={handleEmailChange}
+                                        value={Email}
+                                        editable={!loading}
+                                        containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                    />
+                                </View>
+                                {emailError && <Text style={AUTH_TEXT_THEME.error}>Invalid email format</Text>}
                             </View>
                         )}
                         <View>
                             {email && !phoneNumber && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
                                     <AkcruButtons.LrgButton
+                                        variant="auth"
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your mobile number'}
                                         onPress={async () => {
+                                            Keyboard.dismiss();
                                             try {
                                                 type CheckPhoneResponse = {success: true; message: string};
                                                 const response = await API.post<CheckPhoneResponse>(
@@ -221,14 +235,16 @@ const OnboardEmailOrPassword = ({route}) => {
                             {!email && phoneNumber && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
                                     <AkcruButtons.LrgButton
+                                        variant="auth"
                                         color={COLORS.PURPLE}
                                         btnname={'Confirm your email'}
-                                        onPress={() =>
+                                        onPress={() => {
+                                            Keyboard.dismiss();
                                             navigation.navigate('OnboardPassword', {
                                                 email: Email,
                                                 phoneNumber: phoneNumber,
-                                            })
-                                        }
+                                            });
+                                        }}
                                         disabled={emailError || !Email}
                                     />
                                 </View>

@@ -1,10 +1,11 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 
 export default StyleSheet.create({
     bgimage: {
         height: SIZES.ScreenHeight,
-        
+
     },
     headerRow: {
         flexDirection: 'row',
@@ -23,12 +24,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
     },
     blurInputWrapper: {
-        width: SIZES.ScreenWidth * 0.9,
-        borderRadius: 5,
-        overflow: 'hidden',
-        marginVertical: 10,
-        borderWidth: 1,
-        borderColor: '#fff',
+        ...AUTH_TEXT_FIELD_THEME,
     },
     container: {
         flex: 1,

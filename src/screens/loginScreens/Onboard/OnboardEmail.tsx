@@ -7,9 +7,15 @@ import {
     Pressable,
     Modal,
     KeyboardAvoidingView,
+    StyleSheet,
+    Platform,
+    Keyboard,
+    ActivityIndicator,
 } from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -22,7 +28,6 @@ import {Icon} from '@rneui/base';
 import Tos from './tos';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import LinearGradient from 'react-native-linear-gradient';
 import {API} from '../../../clients/api.client';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
@@ -98,6 +103,7 @@ const OnboardEmail = () => {
     });
 
     const SendOTP = async () => {
+        if (loading) return;
         if (!isEmailValid(email)) {
             setEmailError(true);
             return;
@@ -127,10 +133,10 @@ const OnboardEmail = () => {
 
                 setTimeout(() => {
                     navigation.navigate('OTPVerificationSignup', {email});
-                }, 3000);
+                }, 10);
             }
 
-           
+
         } catch (error) {
             setResetResultType({
                 messageheader: 'Error',
@@ -148,112 +154,123 @@ const OnboardEmail = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            {/* Progress bar at the top */}
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Welcome to Akcru first things first, lets verify you through your email below.
                             </Text>
                         </View>
-                        <View style={{alignItems: 'center', marginTop: 10}}>
-                            <Inputs
-                                placeholdername={'Email'}
-                                iconname={'mail'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleEmailChange}
-                                value={email}
-                                editable={!loading}
-                            />
-                            {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                            <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.PINK}}>
-                                You will be sent a one-time-password to this email address.
-                            </Text>
-                        </View>
-                        <View>
-                            <View style={styles.checkboxContainer}>
-                                <TouchableOpacity onPress={() => handleCheckboxChange(!isChecked)}>
-                                    <View style={styles.checkbox}>
-                                        {isChecked && (
-                                            <Icon
-                                                name="checkmark-sharp"
-                                                type="ionicon"
-                                                size={18}
-                                                color={COLORS.AKCRUBLUE}
-                                                style={{marginTop: -3}}
-                                            />
-                                        )}
+                        <ScrollView
+                            style={{flex: 1}}
+                            contentContainerStyle={{paddingTop: '20%', paddingBottom: 24, alignItems: 'center'}}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}>
+                            <View style={{width: '90%', alignItems: 'center'}}>
+                                <View style={[AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle(),{marginTop: 50}]}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <Inputs
+                                        placeholdername={'Email'}
+                                        iconname={'mail'}
+                                        iconcolor={COLORS.LIGHTGREY}
+                                        secureTextEntry={false}
+                                        onChangeText={handleEmailChange}
+                                        value={email}
+                                        editable={!loading}
+                                        containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                        keyboardType="email-address"
+                                    />
+                                </View>
+                                {emailError && <Text style={AUTH_TEXT_THEME.error}>Invalid email format</Text>}
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 50}]}>
+                                    You will be sent a one-time-password to this email address.
+                                </Text>
+                                <View style={[styles.checkboxContainer, {justifyContent: 'flex-start', width: '100%'}]}>
+                                    <TouchableOpacity onPress={() => handleCheckboxChange(!isChecked)}>
+                                        <View style={styles.checkbox}>
+                                            {isChecked && (
+                                                <Icon
+                                                    name="checkmark-sharp"
+                                                    type="ionicon"
+                                                    size={18}
+                                                    color={COLORS.AKCRUBLUE}
+                                                    style={{marginTop: -3}}
+                                                />
+                                            )}
+                                        </View>
+                                    </TouchableOpacity>
+                                    <View style={{alignItems: 'center'}}>
+                                        <Text style={styles.checkboxText}>I have read and I agree to the</Text>
+                                        <Pressable onPress={() => setVisible(true)}>
+                                            <Text style={AUTH_TEXT_THEME.linkSmall}>terms and conditions</Text>
+                                        </Pressable>
                                     </View>
-                                </TouchableOpacity>
-                                <View style={{alignItems: 'center'}}>
-                                    <Text style={styles.checkboxText}>I have read and I agree to the</Text>
-                                    <Pressable onPress={() => setVisible(true)}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.PINK}}>terms and conditions</Text>
-                                    </Pressable>
+                                </View>
+                                <TOSModal visible={visible}>
+                                    <View>
+                                        <Pressable onPress={() => setVisible(false)}>
+                                            <Icon name={'close'} color={COLORS.LIGHTGREY} />
+                                        </Pressable>
+                                    </View>
+                                    <ScrollView>
+                                        <Tos />
+                                    </ScrollView>
+                                    <View style={{height: 20}} />
+                                </TOSModal>
+                                <View style={{alignItems: 'center', marginTop: 20, width: '100%'}}>
+                                    <AkcruButtons.LrgButton
+                                        variant="auth"
+                                        color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                        btnname={'Send OTP'}
+                                        onPress={() => {
+                                            Keyboard.dismiss();
+                                            SendOTP();
+                                        }}
+                                        disabled={!isFormComplete || loading}
+                                    />
+                                </View>
+                                <View style={{alignItems: 'center', marginTop: 20, width: '100%'}}>
+                                    <AkcruButtons.LrgButton
+                                        variant="auth"
+                                        color={COLORS.PINK}
+                                        btnname={'Verify with mobile number'}
+                                        onPress={() => {
+                                        Keyboard.dismiss();
+                                        navigation.navigate('OnboardPhone', {email});
+                                    }}
+                                        disabled={false}
+                                    />
                                 </View>
                             </View>
-                            <TOSModal visible={visible}>
-                                <View>
-                                    <Pressable onPress={() => setVisible(false)}>
-                                        <Icon name={'close'} color={COLORS.LIGHTGREY} />
-                                    </Pressable>
-                                </View>
-                                <ScrollView>
-                                    <Tos />
-                                </ScrollView>
-                                <View style={{height: 20}} />
-                            </TOSModal>
-                        </View>
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Send OTP'}
-                                    onPress={() => SendOTP()}
-                                    disabled={!isFormComplete}
-                                />
-                            </View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    color={COLORS.PINK}
-                                    btnname={'Verify with mobile number'}
-                                    onPress={() => navigation.navigate('OnboardPhone', {email})}
-                                    disabled={false}
-                                />
-                            </View>
-                        </View>
+                        </ScrollView>
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}
@@ -267,6 +284,21 @@ const OnboardEmail = () => {
                     </View>
                     <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
                 </KeyboardAvoidingView>
+                {loading && (
+                    <View
+                        style={[
+                            StyleSheet.absoluteFillObject,
+                            {
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                zIndex: 1000,
+                            },
+                        ]}
+                        pointerEvents="auto">
+                        <ActivityIndicator size="large" color={COLORS.PURPLE} style={{transform: [{scale: 2}]}} />
+                    </View>
+                )}
             </ImageBackground>
         </View>
     );

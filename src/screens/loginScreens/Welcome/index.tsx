@@ -1,5 +1,4 @@
 import {View, Text, ImageBackground, TouchableOpacity, Modal, StatusBar, Dimensions, Platform, StyleSheet} from 'react-native';
-import {BlurView} from '@react-native-community/blur';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import React, {useState, useEffect} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
@@ -165,16 +164,8 @@ const Welcome = params => {
                 <View style={styles.container}>
                     <View style={styles.logoCenterWrapper}>
                         <View style={styles.logoContainer}>
-                            <BlurView
-                                style={StyleSheet.absoluteFill}
-                                blurType="dark"
-                                blurAmount={Platform.OS === 'ios' ? 1 : 1}
-                                reducedTransparencyFallbackColor="rgba(13, 24, 42, 0.18)"
-                            />
-                            <View style={styles.logoContainerOverlay}>
-                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                                <Text style={styles.tagline}>The Social Platform for Creators</Text>
-                            </View>
+                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            <Text style={styles.tagline}>Connect through what you watch.</Text>
                         </View>
                     </View>
                     <View style={styles.buttonsBottomWrapper}>

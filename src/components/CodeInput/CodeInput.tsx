@@ -15,13 +15,30 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
     const [inputFocused, setInputFocused] = useState(false);
 
     const textInputRef = useRef(null);
+    const isRefocusingRef = useRef(false);
 
     const handleOnPress = () => {
-        setInputFocused(true);
-        textInputRef?.current?.focus();
+        const input = textInputRef?.current;
+        if (input) {
+            isRefocusingRef.current = true;
+            input.blur();
+            setTimeout(() => {
+                setInputFocused(true);
+                input.focus();
+                isRefocusingRef.current = false;
+            }, 0);
+        } else {
+            setInputFocused(true);
+            textInputRef?.current?.focus();
+        }
     };
     const handleOnSubmitEditing = () => {
         setInputFocused(false);
+    };
+    const handleOnBlur = () => {
+        if (!isRefocusingRef.current) {
+            setInputFocused(false);
+        }
     };
 
     useEffect(() => {
@@ -70,6 +87,7 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
                 onChangeText={setCode}
                 maxLength={maxLength}
                 onSubmitEditing={handleOnSubmitEditing}
+                onBlur={handleOnBlur}
                 style={{position: 'absolute', width: 1, height: 1, opacity: 0}}
             />
         </View>

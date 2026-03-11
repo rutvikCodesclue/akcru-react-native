@@ -19,7 +19,6 @@ import AkcruButtons from '../../../components/akcruButtons';
 import useAuthStore from '../../../stores/auth.store';
 import {API} from '../../../clients/api.client';
 import {selectAvatarBorderColor} from '../../../util/util';
-import LinearGradient from 'react-native-linear-gradient';
 import Contacts from 'react-native-contacts';
 
 import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
@@ -75,7 +74,7 @@ const OnboardContactList = () => {
             }
 
             let finalNumber = cleanedNumber.slice(-10);
-        
+
             if (finalNumber.length >= 10) {
                 cleanedNumbers.push(finalNumber);
             }
@@ -234,17 +233,6 @@ const OnboardContactList = () => {
     return (
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
-
                 {isContactPermission === true ? (
                     <>
                         <>

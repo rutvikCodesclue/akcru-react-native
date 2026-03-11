@@ -9,9 +9,14 @@ import {
     Platform,
     TouchableOpacity,
     Pressable,
+    StyleSheet,
+    ScrollView,
+    Keyboard,
 } from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
@@ -24,7 +29,6 @@ import Inputs from '../../../components/input';
 import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
-import LinearGradient from 'react-native-linear-gradient';
 import {searchForUsers, updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -275,184 +279,218 @@ const OnboardUsername = ({route}) => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                    style={{
-                        position: 'absolute',
-                        left: 0,
-                        right: 0,
-                        top: 0,
-                        height: SIZES.ScreenHeight,
-                    }}
-                />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
-                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backbutton}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                }}>
-                                <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <View style={{alignItems: 'center', marginTop: 20}}>
-                            <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>
+                        <View style={styles.headerRow}>
+                            <View style={styles.headerLeft}>
+                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                                </TouchableOpacity>
+                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
                                     {CURRENT_STEP}/{TOTAL_STEPS}
                                 </Text>
+                            </View>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
+                        <View style={{alignItems: 'center'}}>
+                            <View style={{width: '90%'}}>
                                 <ProgressBar
                                     currentStep={CURRENT_STEP}
                                     totalSteps={TOTAL_STEPS}
                                     style={styles.progress}
                                 />
                             </View>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
+                            <Text style={AUTH_TEXT_THEME.instruction}>
                                 Tell us your name, username, and date of birth.
                             </Text>
                         </View>
 
-                        <View style={{alignItems: 'center', marginTop: 10}}>
-                            {/* First Name */}
-                            <Inputs
-                                placeholdername={'First Name'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleFirstNameChange}
-                                value={firstName}
-                                editable={!loading}
-                            />
+                        <ScrollView
+                            style={{flex: 1}}
+                            contentContainerStyle={{paddingBottom: 24, alignItems: 'center'}}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}>
+                            <View style={{alignItems: 'center', marginTop: 10}}>
+                                {/* First Name */}
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <Inputs
+                                        placeholdername={'First Name'}
+                                        iconname={'person'}
+                                        iconcolor={COLORS.LIGHTGREY}
+                                        secureTextEntry={false}
+                                        onChangeText={handleFirstNameChange}
+                                        value={firstName}
+                                        editable={!loading}
+                                        containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                    />
+                                </View>
 
-                            {/* Last Name */}
-                            <Inputs
-                                placeholdername={'Last Name'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleLastNameChange}
-                                value={lastName}
-                                editable={!loading}
-                            />
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    textAlign: 'center',
-                                    color: COLORS.PINK,
-                                    marginTop: 5,
-                                }}>
-                                We will not display your last name publicly.
-                            </Text>
+                                {/* Last Name */}
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <Inputs
+                                        placeholdername={'Last Name'}
+                                        iconname={'person'}
+                                        iconcolor={COLORS.LIGHTGREY}
+                                        secureTextEntry={false}
+                                        onChangeText={handleLastNameChange}
+                                        value={lastName}
+                                        editable={!loading}
+                                        containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                    />
+                                </View>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        textAlign: 'center',
+                                        color: COLORS.PINK,
+                                        marginTop: 5,
+                                    }}>
+                                    We will not display your last name publicly.
+                                </Text>
 
-                            {/* Username */}
-                            <Inputs
-                                placeholdername={'Choose Username'}
-                                iconname={'person'}
-                                iconcolor={COLORS.LIGHTGREY}
-                                secureTextEntry={false}
-                                onChangeText={handleUserNameChange}
-                                value={userName}
-                                editable={!loading}
-                                
-                            />
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    textAlign: 'center',
-                                    color: COLORS.PINK,
-                                }}>
-                                Username must be unique and at least 3 characters long.
-                            </Text>
+                                {/* Username */}
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <Inputs
+                                        placeholdername={'Choose Username'}
+                                        iconname={'person'}
+                                        iconcolor={COLORS.LIGHTGREY}
+                                        secureTextEntry={false}
+                                        onChangeText={handleUserNameChange}
+                                        value={userName}
+                                        editable={!loading}
+                                        containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                    />
+                                </View>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        textAlign: 'center',
+                                        color: COLORS.PINK,
+                                    }}>
+                                    Username must be unique and at least 3 characters long.
+                                </Text>
 
-                            {/* DOB */}
-                            {showPicker && Platform.OS === 'android' && (
-                                <DateTimePicker
-                                    display="spinner"
-                                    mode="date"
-                                    value={date}
-                                    onChange={onChange}
-                                    style={styles.datepicker}
-                                />
-                            )}
-
-                            {showPicker && Platform.OS === 'ios' && (
-                                <View>
+                                {/* DOB */}
+                                {showPicker && Platform.OS === 'android' && (
                                     <DateTimePicker
                                         display="spinner"
                                         mode="date"
                                         value={date}
                                         onChange={onChange}
-                                        textColor="white"
+                                        style={styles.datepicker}
                                     />
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'space-around',
-                                        }}>
-                                        <TouchableOpacity
-                                            style={[styles.iosbutton, styles.iospickerbutton]}
-                                            onPress={toggleDatePicker}>
-                                            <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Cancel</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={[styles.iosbutton, styles.iospickerbutton]}
-                                            onPress={confirmIOSDate}>
-                                            <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Confirm</Text>
-                                        </TouchableOpacity>
+                                )}
+
+                                {showPicker && Platform.OS === 'ios' && (
+                                    <View>
+                                        <DateTimePicker
+                                            display="spinner"
+                                            mode="date"
+                                            value={date}
+                                            onChange={onChange}
+                                            textColor="white"
+                                        />
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-around',
+                                            }}>
+                                            <TouchableOpacity
+                                                style={[styles.iosbutton, styles.iospickerbutton]}
+                                                onPress={toggleDatePicker}>
+                                                <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Cancel</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                style={[styles.iosbutton, styles.iospickerbutton]}
+                                                onPress={confirmIOSDate}>
+                                                <Text style={{...FONTS.paragraph1, color: COLORS.BLACK}}>Confirm</Text>
+                                            </TouchableOpacity>
+                                        </View>
                                     </View>
-                                </View>
-                            )}
+                                )}
 
-                            {!showPicker && (
-                                <TouchableOpacity onPress={toggleDatePicker} activeOpacity={0.8}>
-                                    <Inputs
-                                        placeholdername={'DOB'}
-                                        iconname={'calendar'}
-                                        iconcolor={COLORS.LIGHTGREY}
-                                        secureTextEntry={false}
-                                        // do NOT let user type in DOB; picker only
-                                        onChangeText={() => {}}
-                                        value={dob ? formatDateToDayMonthYear(new Date(dob)) : 'Select date'}
-                                        editable={false}
-                                    />
-                                </TouchableOpacity>
-                            )}
+                                {!showPicker && (
+                                    <TouchableOpacity onPress={toggleDatePicker} activeOpacity={0.8}>
+                                        <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                            <BlurView
+                                                style={StyleSheet.absoluteFill}
+                                                blurType="light"
+                                                blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                                reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                            />
+                                            <Inputs
+                                                placeholdername={'DOB'}
+                                                iconname={'calendar'}
+                                                iconcolor={COLORS.LIGHTGREY}
+                                                secureTextEntry={false}
+                                                onChangeText={() => {}}
+                                                value={dob ? formatDateToDayMonthYear(new Date(dob)) : 'Select date'}
+                                                editable={false}
+                                                containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
+                                )}
 
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    textAlign: 'center',
-                                    color: COLORS.PINK,
-                                }}>
-                                You must be at least 17 years old to use this app.
-                            </Text>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        textAlign: 'center',
+                                        color: COLORS.PINK,
+                                    }}>
+                                    You must be at least 17 years old to use this app.
+                                </Text>
 
-                            {nameError !== '' && (
-                                <Text style={styles.warningText}>{nameError}</Text>
-                            )}
-                            {userNameError !== '' && (
-                                <Text style={styles.warningText}>{userNameError}</Text>
-                            )}
-                            {dobError !== '' && (
-                                <Text style={styles.warningText}>{dobError}</Text>
-                            )}
-                        </View>
+                                {nameError !== '' && (
+                                    <Text style={AUTH_TEXT_THEME.error}>{nameError}</Text>
+                                )}
+                                {userNameError !== '' && (
+                                    <Text style={AUTH_TEXT_THEME.error}>{userNameError}</Text>
+                                )}
+                                {dobError !== '' && (
+                                    <Text style={AUTH_TEXT_THEME.error}>{dobError}</Text>
+                                )}
+                            </View>
 
-                        <View>
                             <View style={{alignItems: 'center', marginTop: 20}}>
                                 <AkcruButtons.LrgButton
+                                    variant="auth"
                                     color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
                                     btnname={'Next'}
-                                    onPress={handleNext}
+                                    onPress={() => {
+                                    Keyboard.dismiss();
+                                    handleNext();
+                                }}
                                     disabled={!isFormComplete || loading}
                                 />
                             </View>
                             {loading && (
                                 <ActivityIndicator size="large" color={COLORS.PURPLE} style={{marginTop: 10}} />
                             )}
-                        </View>
+                        </ScrollView>
 
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
