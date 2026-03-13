@@ -19,6 +19,7 @@ import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import LinearGradient from 'react-native-linear-gradient';
 
 const buttonMargin = isTablet() ? '20%' : '15%';
 
@@ -168,6 +169,16 @@ const OnboardArchetype = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <View style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>

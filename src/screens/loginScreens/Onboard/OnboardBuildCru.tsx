@@ -11,6 +11,7 @@ import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import { isTablet } from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const OnboardBuildCru = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -26,6 +27,16 @@ const OnboardBuildCru = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <View style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>

@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, TextInput, TouchableOpacity, StyleSheet, Platform, Keyboard} from 'react-native';
+import {View, Text, ImageBackground, Modal, KeyboardAvoidingView, Alert, TextInput, TouchableOpacity, StyleSheet, Platform, Keyboard, ActivityIndicator} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -17,6 +17,7 @@ import {updateUser} from '../../../lib/api/user.lib';
 import {Icon} from '@rneui/base';
 import ProgressBar from '../../../components/ProgressBar';
 import { isTablet } from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 6;
@@ -66,6 +67,16 @@ const OnboardDescription = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
@@ -137,6 +148,18 @@ const OnboardDescription = () => {
                                 />
                             </View>
                         </View>
+                        <Modal animationType="fade" transparent={true} visible={loading}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
+                            </View>
+                        </Modal>
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}

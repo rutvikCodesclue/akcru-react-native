@@ -12,6 +12,7 @@ import {fetchRandomUsers, searchForUsers} from '../../../lib/api/user.lib';
 import UserCruBuilderCard from '../../../components/UserCruBuilderCard';
 import useAuthStore from '../../../stores/auth.store';
 import {getCruInviteStatus, createACRUInvite, checkUserMembership} from '../../../lib/api/cru.lib';
+import LinearGradient from 'react-native-linear-gradient';
 
 const OnboardCruSuggestions = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -77,6 +78,16 @@ const OnboardCruSuggestions = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <View style={{flex: 1}}>
                     <View style={styles.container}>
                         {/* <BackButton navigation={navigation} /> */}

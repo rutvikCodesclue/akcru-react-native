@@ -16,6 +16,7 @@ import {isTablet} from '../../../../assets/constants/theme';
 import {AkcruLogo} from '../../../../assets/svg';
 import AkcruButtons from '../../../components/akcruButtons';
 import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const smlIconSize = isTablet() ? 28 : 20;
 const svgSize = isTablet() ? 200 : 150;
@@ -117,6 +118,16 @@ const ForgotPassword = () => {
     return (
         <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                           <LinearGradient
+                                             colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                             style={{
+                                                 position: 'absolute',
+                                                 left: 0,
+                                                 right: 0,
+                                                 top: 0,
+                                                 height: SIZES.ScreenHeight,
+                                             }}
+                                         />
                 <View style={styles.container}>
                     <View style={styles.headerRow}>
                         <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>

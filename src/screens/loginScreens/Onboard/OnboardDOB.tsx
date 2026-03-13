@@ -10,6 +10,7 @@ import {
     Platform,
     StyleSheet,
     Keyboard,
+    ActivityIndicator,
 } from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
@@ -31,6 +32,7 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import {updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import { isTablet } from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 11;
 const CURRENT_STEP = 8;
@@ -39,7 +41,11 @@ const OnboardDOB = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const user = useAuthStore(state => state.user);
     const [showPicker, setShowPicker] = useState(false);
-    const [date, setDate] = useState<Date>(new Date());
+    const [date, setDate] = useState<Date>(() => {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 18);
+        return d;
+    });
     const [dob, setDob] = useState(user?.dateOfBirth);
     const formatDateToDayMonthYear = (date_val: Date) => {
         const day = date_val.getDate();
@@ -153,6 +159,16 @@ const OnboardDOB = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
@@ -257,10 +273,22 @@ const OnboardDOB = () => {
                                     Keyboard.dismiss();
                                     DOBSet();
                                 }}
-                                    disabled={!isFormComplete}
+                                    disabled={!isFormComplete || isLoading}
                                 />
                             </View>
                         </View>
+                        <Modal animationType="fade" transparent={true} visible={isLoading}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
+                            </View>
+                        </Modal>
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}

@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert, StyleSheet, Platform, Keyboard} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert, StyleSheet, Platform, Keyboard, ActivityIndicator} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {Icon} from '@rneui/base';
@@ -23,6 +23,7 @@ import HexAvatar from '../../../components/HexAvatar';
 import {updateUserProfilePicture} from '../../../lib/api/user.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 7;
 const CURRENT_STEP = 6;
@@ -179,6 +180,16 @@ const OnboardCruName = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
@@ -305,6 +316,19 @@ const OnboardCruName = () => {
                                 iconname={resetResultType.iconname}
                                 iconcolor={resetResultType.iconcolor}
                             />
+                        </Modal>
+
+                        <Modal animationType="fade" transparent={true} visible={loading}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
+                            </View>
                         </Modal>
 
                         {/* Next button */}

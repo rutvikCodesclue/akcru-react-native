@@ -31,6 +31,7 @@ import {API} from '../../../clients/api.client';
 import {AxiosError} from 'axios';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 7;
 const CURRENT_STEP = 2;
@@ -89,6 +90,16 @@ const OnboardEmailOrPassword = ({route}) => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>

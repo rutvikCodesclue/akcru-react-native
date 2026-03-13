@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, Modal, Pressable, StyleSheet, Platform, TextInput} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Modal, Pressable, StyleSheet, Platform, TextInput, ActivityIndicator} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState} from 'react';
 import styles from './styles';
@@ -106,6 +106,16 @@ const PhoneForgotPassword = () => {
     return (
         <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 <View style={styles.container}>
                     <View style={styles.headerRow}>
                         <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
@@ -198,6 +208,18 @@ const PhoneForgotPassword = () => {
                             </Text>
                         </Pressable>
                     </View>
+                    <Modal animationType="fade" transparent={true} visible={loading}>
+                        <View
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            }}>
+                            <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                            <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Sending OTP...</Text>
+                        </View>
+                    </Modal>
                     <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
                         <ResetPasswordResultModal
                             closeModal={() => setShowPasswordResetModal(false)}

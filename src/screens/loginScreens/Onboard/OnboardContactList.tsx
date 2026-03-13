@@ -25,6 +25,7 @@ import {PERMISSIONS, RESULTS, check, request} from 'react-native-permissions';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
+import LinearGradient from 'react-native-linear-gradient';
 
 const OnboardContactList = () => {
     const [contactsData, setContacts] = useState<any>([]);
@@ -233,6 +234,16 @@ const OnboardContactList = () => {
     return (
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
                 {isContactPermission === true ? (
                     <>
                         <>

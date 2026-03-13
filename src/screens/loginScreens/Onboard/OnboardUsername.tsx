@@ -33,6 +33,7 @@ import {searchForUsers, updateUser} from '../../../lib/api/user.lib';
 import ProgressBar from '../../../components/ProgressBar';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 7; // username+name+DOB on one screen, remove old DOB + Name steps
 const CURRENT_STEP = 4;
@@ -47,9 +48,14 @@ const OnboardUsername = ({route}) => {
     const [lastName, setLastName] = useState<string>(user?.lastName || '');
     const [userName, setUserName] = useState<string>('');
 
-    // DOB
+    // DOB - default picker to 18 years ago when no existing date
     const [showPicker, setShowPicker] = useState(false);
-    const [date, setDate] = useState<Date>(user?.dateOfBirth ? new Date(user.dateOfBirth) : new Date());
+    const [date, setDate] = useState<Date>(() => {
+        if (user?.dateOfBirth) return new Date(user.dateOfBirth);
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 18);
+        return d;
+    });
     const [dob, setDob] = useState<string | undefined>(user?.dateOfBirth);
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -277,9 +283,19 @@ const OnboardUsername = ({route}) => {
     };
 
     return (
-        <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+        <View style={{flex: 1}}>
+            <ImageBackground style={[styles.bgimage, {flex: 1}]} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerLeft}>
@@ -312,7 +328,7 @@ const OnboardUsername = ({route}) => {
 
                         <ScrollView
                             style={{flex: 1}}
-                            contentContainerStyle={{paddingBottom: 24, alignItems: 'center'}}
+                            contentContainerStyle={{flexGrow: 1, paddingBottom: 24, alignItems: 'center'}}
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}>
                             <View style={{alignItems: 'center', marginTop: 10}}>
@@ -487,11 +503,20 @@ const OnboardUsername = ({route}) => {
                                     disabled={!isFormComplete || loading}
                                 />
                             </View>
-                            {loading && (
-                                <ActivityIndicator size="large" color={COLORS.PURPLE} style={{marginTop: 10}} />
-                            )}
                         </ScrollView>
 
+                        <Modal animationType="fade" transparent={true} visible={loading}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                }}>
+                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
+                            </View>
+                        </Modal>
                         <Modal animationType="fade" transparent={true} visible={showEmailModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowEmailModal(false)}

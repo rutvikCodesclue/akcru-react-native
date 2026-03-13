@@ -10,6 +10,7 @@ import {
     StyleSheet,
     Platform,
     Keyboard,
+    ScrollView,
 } from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState} from 'react';
@@ -28,6 +29,7 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import {API} from '../../../clients/api.client';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const iconSize = isTablet() ? 28 : 20;
 
@@ -114,9 +116,19 @@ const OnboardPhone = () => {
     };
 
     return (
-        <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+        <View style={{flex: 1}}>
+            <ImageBackground style={[styles.bgimage, {flex: 1}]} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                          <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
                             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -129,76 +141,82 @@ const OnboardPhone = () => {
                                 <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
                             </View>
                         </View>
-                        <View style={{alignItems: 'center'}}>
-                            <View style={{width: '90%'}}>
-                                <Text style={{...FONTS.Title2}}>1/{TOTAL_STEPS}</Text>
-                                <ProgressBar currentStep={1} totalSteps={TOTAL_STEPS} style={styles.progress} />
+                        <ScrollView
+                            style={{flex: 1}}
+                            contentContainerStyle={{flexGrow: 1, paddingBottom: 24, alignItems: 'center'}}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}>
+                            <View style={{alignItems: 'center'}}>
+                                <View style={{width: '90%'}}>
+                                    <Text style={{...FONTS.Title2}}>1/{TOTAL_STEPS}</Text>
+                                    <ProgressBar currentStep={1} totalSteps={TOTAL_STEPS} style={styles.progress} />
+                                </View>
+                                <Text style={AUTH_TEXT_THEME.instruction}>
+                                    Welcome to Akcru first things first, lets verify you through your mobile number below.
+                                </Text>
                             </View>
-                            <Text style={AUTH_TEXT_THEME.instruction}>
-                                Welcome to Akcru first things first, lets verify you through your mobile number below.
-                            </Text>
-                        </View>
-                        <View style={{alignItems: 'center', marginTop: 10}}>
-                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
-                                <BlurView
-                                    style={StyleSheet.absoluteFill}
-                                    blurType="light"
-                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
-                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
-                                />
-                                <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
-                                    <Icon
-                                        name={'call'}
-                                        type="ionicon"
-                                        size={iconSize}
-                                        color={COLORS.LIGHTGREY}
-                                        style={{marginRight: 5}}
+                            <View style={{alignItems: 'center', marginTop: 10}}>
+                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                     />
-                                    <Text style={styles.textinputprefix}>+1</Text>
-                                    <TextInput
-                                        placeholder="123-456-7890"
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.phonenuminput}
-                                        secureTextEntry={false}
-                                        onChangeText={handlePhoneNumberChange}
-                                        value={phone}
-                                        keyboardType="phone-pad"
-                                        maxLength={10}
-                                        editable={true}
+                                    <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
+                                        <Icon
+                                            name={'call'}
+                                            type="ionicon"
+                                            size={iconSize}
+                                            color={COLORS.LIGHTGREY}
+                                            style={{marginRight: 5}}
+                                        />
+                                        <Text style={styles.textinputprefix}>+1</Text>
+                                        <TextInput
+                                            placeholder="123-456-7890"
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.phonenuminput}
+                                            secureTextEntry={false}
+                                            onChangeText={handlePhoneNumberChange}
+                                            value={phone}
+                                            keyboardType="phone-pad"
+                                            maxLength={10}
+                                            editable={true}
+                                        />
+                                    </View>
+                                </View>
+                                {phoneError && <Text style={AUTH_TEXT_THEME.error}>Invalid mobile number</Text>}
+                                <Text style={AUTH_TEXT_THEME.highlight}>
+                                    You will be sent a one-time-password to this mobile number.
+                                </Text>
+                            </View>
+                            <View>
+                                <View style={{alignItems: 'center', marginTop: 20}}>
+                                    <AkcruButtons.LrgButton
+                                        variant="auth"
+                                        color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                        btnname={'Send OTP'}
+                                        onPress={() => {
+                                            Keyboard.dismiss();
+                                            SendOTP();
+                                        }}
+                                        disabled={!isFormComplete}
+                                    />
+                                </View>
+                                <View style={{alignItems: 'center', marginTop: 20}}>
+                                    <AkcruButtons.LrgButton
+                                        variant="auth"
+                                        color={COLORS.PINK}
+                                        btnname={'Verify with email'}
+                                        onPress={() => {
+                                            Keyboard.dismiss();
+                                            navigation.navigate('OnboardEmail');
+                                        }}
+                                        disabled={false}
                                     />
                                 </View>
                             </View>
-                            {phoneError && <Text style={AUTH_TEXT_THEME.error}>Invalid mobile number</Text>}
-                            <Text style={AUTH_TEXT_THEME.highlight}>
-                                You will be sent a one-time-password to this mobile number.
-                            </Text>
-                        </View>
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    variant="auth"
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Send OTP'}
-                                    onPress={() => {
-                                    Keyboard.dismiss();
-                                    SendOTP();
-                                }}
-                                    disabled={!isFormComplete}
-                                />
-                            </View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    variant="auth"
-                                    color={COLORS.PINK}
-                                    btnname={'Verify with email'}
-                                    onPress={() => {
-                                    Keyboard.dismiss();
-                                    navigation.navigate('OnboardEmail');
-                                }}
-                                    disabled={false}
-                                />
-                            </View>
-                        </View>
+                        </ScrollView>
                         <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
                             <ResetPasswordResultModal
                                 closeModal={() => setShowPasswordResetModal(false)}
@@ -209,7 +227,7 @@ const OnboardPhone = () => {
                                 iconcolor={resetResultType.iconcolor}
                             />
                         </Modal>
-                        <Modal animationType="fade" transparent={true} visible={isLoading}>
+                        <Modal animationType="fade" transparent={true} visible={loading || isLoading}>
                             <View
                                 style={{
                                     flex: 1,
@@ -219,7 +237,7 @@ const OnboardPhone = () => {
                                 }}>
                                 <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
                                 <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>
-                                    Signing up...
+                                    {loading ? 'Sending OTP...' : 'Signing up...'}
                                 </Text>
                             </View>
                         </Modal>

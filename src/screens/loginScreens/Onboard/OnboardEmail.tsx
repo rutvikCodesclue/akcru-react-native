@@ -31,6 +31,7 @@ import ResetPasswordResultModal from '../../../components/ResetPasswordResultMod
 import {API} from '../../../clients/api.client';
 import ProgressBar from '../../../components/ProgressBar';
 import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 7;
 const CURRENT_STEP = 1;
@@ -152,9 +153,19 @@ const OnboardEmail = () => {
     };
 
     return (
-        <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
+        <View style={{flex: 1}}>
+            <ImageBackground style={[styles.bgimage, {flex: 1}]} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight,
+                                            }}
+                                        />
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, marginBottom: 50}}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
                             <View style={styles.headerLeft}>
@@ -186,7 +197,7 @@ const OnboardEmail = () => {
                         </View>
                         <ScrollView
                             style={{flex: 1}}
-                            contentContainerStyle={{paddingTop: '20%', paddingBottom: 24, alignItems: 'center'}}
+                            contentContainerStyle={{flexGrow: 1, paddingTop: '20%', paddingBottom: 24, alignItems: 'center'}}
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}>
                             <View style={{width: '90%', alignItems: 'center'}}>
@@ -210,10 +221,10 @@ const OnboardEmail = () => {
                                     />
                                 </View>
                                 {emailError && <Text style={AUTH_TEXT_THEME.error}>Invalid email format</Text>}
-                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 50}]}>
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 20}]}>
                                     You will be sent a one-time-password to this email address.
                                 </Text>
-                                <View style={[styles.checkboxContainer, {justifyContent: 'flex-start', width: '100%'}]}>
+                                <View style={[styles.checkboxContainer, {justifyContent: 'center', width: '100%'}]}>
                                     <TouchableOpacity onPress={() => handleCheckboxChange(!isChecked)}>
                                         <View style={styles.checkbox}>
                                             {isChecked && (
@@ -284,21 +295,18 @@ const OnboardEmail = () => {
                     </View>
                     <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
                 </KeyboardAvoidingView>
-                {loading && (
+                <Modal animationType="fade" transparent={true} visible={loading}>
                     <View
-                        style={[
-                            StyleSheet.absoluteFillObject,
-                            {
-                                backgroundColor: 'rgba(0,0,0,0.5)',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                zIndex: 1000,
-                            },
-                        ]}
-                        pointerEvents="auto">
-                        <ActivityIndicator size="large" color={COLORS.PURPLE} style={{transform: [{scale: 2}]}} />
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        }}>
+                        <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                        <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Sending OTP...</Text>
                     </View>
-                )}
+                </Modal>
             </ImageBackground>
         </View>
     );
