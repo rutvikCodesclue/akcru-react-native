@@ -3,7 +3,6 @@ import {
     Text,
     TouchableOpacity,
     ImageBackground,
-    ActivityIndicator,
     Platform,
     StyleSheet,
     Modal,
@@ -26,6 +25,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
 import HexAvatar from '../../../components/HexAvatar';
 import LinearGradient from 'react-native-linear-gradient';
+import LoadingComponent from '../../../components/Loading';
 
 const OnboardContactList = () => {
     const [contactsData, setContacts] = useState<any>([]);
@@ -235,22 +235,14 @@ const OnboardContactList = () => {
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                           <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
+                                            colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                                            style={StyleSheet.absoluteFill}
                                         />
                 {isContactPermission === true ? (
                     <>
                         <>
                             {isLoading === true && sections.length === 0 ? (
-                                <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '45%'}}>
-                                    <ActivityIndicator size="large" color={COLORS.PURPLE} />
-                                </View>
+                                <LoadingComponent />
                             ) : (
                                 <>
                                     {sections.length >= 1 ? (

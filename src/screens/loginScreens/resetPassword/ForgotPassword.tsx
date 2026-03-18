@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, TouchableOpacity, Modal, Pressable, StyleSheet, Platform} from 'react-native';
+import {View, Text, ImageBackground, TouchableOpacity, Modal, Pressable, StyleSheet, Platform, ScrollView, KeyboardAvoidingView} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
@@ -118,16 +118,22 @@ const ForgotPassword = () => {
     return (
         <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                           <LinearGradient
-                                             colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                             style={{
-                                                 position: 'absolute',
-                                                 left: 0,
-                                                 right: 0,
-                                                 top: 0,
-                                                 height: SIZES.ScreenHeight,
-                                             }}
-                                         />
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                <KeyboardAvoidingView
+                    style={{flex: 1}}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                <ScrollView
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}>
                 <View style={styles.container}>
                     <View style={styles.headerRow}>
                         <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
@@ -140,81 +146,82 @@ const ForgotPassword = () => {
                             <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
                         </View>
                     </View>
-                    <View style={{flex: 1, alignItems: 'center', marginTop: '35%'}}>
-                        <View>
-                            <Svg
-                                height={svgSize}
-                                width={svgSize}
-                                viewBox={`0 0 270 234`}
-                                style={{position: 'absolute', bottom: 0, alignSelf: 'center', opacity: 0.9}}>
-                                <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
-                            </Svg>
-                            <Icon
-                                name="key"
-                                type="ionicon"
-                                size={lrgIconSize}
-                                color={COLORS.LIGHTGREY}
-                                style={{marginBottom: iconMargin, opacity: 0.9}}
+                </View>
+                <View style={{width: '90%', alignItems: 'center',marginBottom:100}}>
+                    <View style={{marginTop: 40, marginBottom: 30}}>
+                        <Svg
+                            height={svgSize}
+                            width={svgSize}
+                            viewBox={`0 0 270 234`}
+                            style={{position: 'absolute', bottom: 0, alignSelf: 'center'}}>
+                            <Path d={hexagonPath} fill={COLORS.AKCRUBLUE} />
+                        </Svg>
+                        <Icon
+                            name="key"
+                            type="ionicon"
+                            size={lrgIconSize}
+                            color={COLORS.WHITE}
+                            style={{marginBottom: iconMargin}}
+                        />
+                    </View>
+                    <Text style={{
+                        ...FONTS.Title1,
+                        color: COLORS.PINK,
+                        marginBottom: 10,
+                        textAlign: 'center',
+                    }}>Forgot your password?</Text>
+                    <Text style={{
+                        ...FONTS.paragraph2,
+                        marginBottom: 20,
+                        textAlign: 'center',
+                        color: 'rgba(255,255,255,0.9)',
+                    }}>Enter your email below</Text>
+                    <View style={{marginBottom: 10, width: '100%'}}>
+                        <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                            <BlurView
+                                style={StyleSheet.absoluteFill}
+                                blurType="light"
+                                blurAmount={Platform.OS === 'ios' ? 10 : 10}
+                                reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                            />
+                            <Inputs
+                                placeholdername={'Enter Your Email'}
+                                iconname={'mail'}
+                                iconcolor={COLORS.LIGHTGREY}
+                                secureTextEntry={false}
+                                onChangeText={handleEmailChange}
+                                value={email}
+                                editable={!loading}
+                                containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
                             />
                         </View>
-                        <Text  style={{
-                                                                          ...FONTS.Title1,
-                                                                          color: COLORS.PINK,
-                                                                          marginTop: 30,
-                                                                      }}>Forgot your password?</Text>
-                        <Text  style={{...FONTS.paragraph2,marginTop: 10,}}>Enter your email below</Text>
-                        <View style={{marginBottom: 10}}>
-                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
-                                <BlurView
-                                    style={StyleSheet.absoluteFill}
-                                    blurType="light"
-                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
-                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
-                                />
-                                <Inputs
-                                    placeholdername={'Enter Your Email'}
-                                    iconname={'mail'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={false}
-                                    onChangeText={handleEmailChange}
-                                    value={email}
-                                    editable={true}
-                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
-                                />
-                            </View>
-                            {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
-                        </View>
-
-                        <AkcruButtons.LrgButton
-                            variant="auth"
-                            btnname="Send OTP"
-                            onPress={() => SendOTP()}
-                            disabled={!isFormComplete || loading}
-                            color={COLORS.PURPLE}
-                        />
-                        <Pressable onPress={() => navigation.navigate('PhoneForgotPassword')}>
-                            <Text style={AUTH_TEXT_THEME.link}>
-                                Enter your phone number
-                            </Text>
-                        </Pressable>
+                        {emailError && <Text style={styles.warningText}>Invalid email format</Text>}
                     </View>
-                    <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
-                        <ResetPasswordResultModal
-                            closeModal={() => setShowPasswordResetModal(false)}
-                            messageheader={resetResultType.messageheader}
-                            messageheadercolor={resetResultType.messageheadercolor}
-                            message={resetResultType.message}
-                            iconname={resetResultType.iconname}
-                            iconcolor={resetResultType.iconcolor}
-                        />
-                    </Modal>
+
+                    <AkcruButtons.LrgButton
+                        variant="auth"
+                        btnname="Send OTP"
+                        onPress={() => SendOTP()}
+                        disabled={!isFormComplete}
+                        loading={loading}
+                        color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                    />
                 </View>
+                <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
+                    <ResetPasswordResultModal
+                        closeModal={() => setShowPasswordResetModal(false)}
+                        messageheader={resetResultType.messageheader}
+                        messageheadercolor={resetResultType.messageheadercolor}
+                        message={resetResultType.message}
+                        iconname={resetResultType.iconname}
+                        iconcolor={resetResultType.iconcolor}
+                    />
+                </Modal>
+                </ScrollView>
+                </KeyboardAvoidingView>
             </ImageBackground>
         </View>
     );
 };
 
 export default ForgotPassword;
-function alert(arg0: string) {
-    throw new Error('Function not implemented.');
-}

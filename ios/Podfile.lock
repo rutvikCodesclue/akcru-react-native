@@ -1044,6 +1044,10 @@ PODS:
   - React-Mapbuffer (0.73.9):
     - glog
     - React-debug
+  - react-native-blur (4.4.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
   - react-native-castle (2.1.1):
     - Castle (= 3.0.13)
     - React-Core
@@ -1304,6 +1308,19 @@ PODS:
     - GoogleUserMessagingPlatform (= 2.6.0)
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
+  - RNImageCropPicker (0.51.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - React-RCTImage
+    - RNImageCropPicker/QBImagePickerController (= 0.51.1)
+    - TOCropViewController (~> 2.8.0)
+  - RNImageCropPicker/QBImagePickerController (0.51.1):
+    - glog
+    - RCT-Folly (= 2022.05.16.00)
+    - React-Core
+    - React-RCTImage
+    - TOCropViewController (~> 2.8.0)
   - RNLocalize (3.2.1):
     - React-Core
   - RNNotifee (7.8.2):
@@ -1334,6 +1351,7 @@ PODS:
   - RNSVG (15.7.1):
     - React-Core
   - SocketRocket (0.6.1)
+  - TOCropViewController (2.8.0)
   - Yoga (1.14.0)
 
 DEPENDENCIES:
@@ -1374,6 +1392,7 @@ DEPENDENCIES:
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector-modern`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
+  - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - "react-native-castle (from `../node_modules/@castleio/react-native-castle`)"
   - react-native-compressor (from `../node_modules/react-native-compressor`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
@@ -1420,6 +1439,7 @@ DEPENDENCIES:
   - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
+  - RNImageCropPicker (from `../node_modules/react-native-image-crop-picker`)
   - RNLocalize (from `../node_modules/react-native-localize`)
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -1464,6 +1484,7 @@ SPEC REPOS:
     - PurchasesHybridCommon
     - RevenueCat
     - SocketRocket
+    - TOCropViewController
 
 EXTERNAL SOURCES:
   boost:
@@ -1527,6 +1548,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/logger"
   React-Mapbuffer:
     :path: "../node_modules/react-native/ReactCommon"
+  react-native-blur:
+    :path: "../node_modules/@react-native-community/blur"
   react-native-castle:
     :path: "../node_modules/@castleio/react-native-castle"
   react-native-compressor:
@@ -1619,6 +1642,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleMobileAds:
     :path: "../node_modules/react-native-google-mobile-ads"
+  RNImageCropPicker:
+    :path: "../node_modules/react-native-image-crop-picker"
   RNLocalize:
     :path: "../node_modules/react-native-localize"
   RNNotifee:
@@ -1699,6 +1724,7 @@ SPEC CHECKSUMS:
   React-jsinspector: aee04d04ef553d5e30e52a4de2af958cb060069f
   React-logger: ef76a6d8e04672f19be9b3a49f6ecc4c7141399b
   React-Mapbuffer: 30deaceab523707646f5f35efad961133e4e1f25
+  react-native-blur: bdb7704e0b3a6ff2165d8caa4ece3f8679295ddc
   react-native-castle: 3afd463c583e0a40ded9447e428292d666e57618
   react-native-compressor: d51ca1213cde765d0cc6764a9e0b105f8301c438
   react-native-contacts: f551920b74ebfc5f7f6df307495f085e504a4369
@@ -1746,6 +1772,7 @@ SPEC CHECKSUMS:
   RNFlashList: a45fcc4a6b5e7d9b14690cb3a66c2f59dec183d8
   RNGestureHandler: 483c65c2a942f4f6cdc3440f1465874ed2129c16
   RNGoogleMobileAds: 6c9fcb66bedc88bd71946719a05907a0f9d99015
+  RNImageCropPicker: f88d220c238ab6f967f6cfccc0655ce29c18e857
   RNLocalize: e7378161f0b6a6365407eb2377aab46cc38047d8
   RNNotifee: 8768d065bf1e2f9f8f347b4bd79147431c7eacd6
   RNPermissions: c4c6bb70d393171dd15b13245b70052f0f90c7a5
@@ -1755,6 +1782,7 @@ SPEC CHECKSUMS:
   RNSound: 314cc5226453ef4a3314a196c65e8a65e5106a7b
   RNSVG: 38b927ba26d717c85522fbf9a04b87dcd2d8227a
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
+  TOCropViewController: 797deaf39c90e6e9ddd848d88817f6b9a8a09888
   Yoga: fb61b2337c7688c81a137e5560b3cbb515289f91
 
 PODFILE CHECKSUM: c3bcaf3b6c9eae3164086f7608d392a0833fcefb

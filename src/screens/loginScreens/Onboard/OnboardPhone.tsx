@@ -4,18 +4,17 @@ import {
     TouchableOpacity,
     ImageBackground,
     Modal,
-    KeyboardAvoidingView,
-    ActivityIndicator,
     TextInput,
     StyleSheet,
     Platform,
     Keyboard,
     ScrollView,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -27,13 +26,14 @@ import {Icon} from '@rneui/base';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import {API} from '../../../clients/api.client';
-import ProgressBar from '../../../components/ProgressBar';
+import StepperDots from '../../../components/StepperDots';
 import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 
 const iconSize = isTablet() ? 28 : 20;
 
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 5;
+const CURRENT_STEP = 1;
 
 const OnboardPhone = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -117,53 +117,61 @@ const OnboardPhone = () => {
 
     return (
         <View style={{flex: 1}}>
-            <ImageBackground style={[styles.bgimage, {flex: 1}]} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                          <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
-                                        />
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1, marginBottom: 50}}>
-                    <View style={styles.container}>
-                        <View style={styles.headerRow}>
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                            </TouchableOpacity>
-                            <View style={styles.logoCenter}>
-                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            </View>
-                            <View style={[styles.backButton, {opacity: 0}]}>
-                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                            </View>
-                        </View>
-                        <ScrollView
-                            style={{flex: 1}}
-                            contentContainerStyle={{flexGrow: 1, paddingBottom: 24, alignItems: 'center'}}
-                            keyboardShouldPersistTaps="handled"
-                            showsVerticalScrollIndicator={false}>
-                            <View style={{alignItems: 'center'}}>
-                                <View style={{width: '90%'}}>
-                                    <Text style={{...FONTS.Title2}}>1/{TOTAL_STEPS}</Text>
-                                    <ProgressBar currentStep={1} totalSteps={TOTAL_STEPS} style={styles.progress} />
-                                </View>
-                                <Text style={AUTH_TEXT_THEME.instruction}>
-                                    Welcome to Akcru first things first, lets verify you through your mobile number below.
-                                </Text>
-                            </View>
-                            <View style={{alignItems: 'center', marginTop: 10}}>
-                                <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                {/* Fixed Header Section */}
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepIndicator}>
+                            {CURRENT_STEP}/{TOTAL_STEPS}
+                        </Text>
+                    </View>
+                    <View style={styles.logoCenter}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                </View>
+                <View style={{alignItems: 'center', marginBottom: 16}}>
+                    <StepperDots
+                        currentStep={CURRENT_STEP}
+                        totalSteps={TOTAL_STEPS}
+                    />
+                </View>
+
+                {/* Centered Content Section */}
+                <KeyboardAvoidingView
+                    style={{flex: 1}}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                <ScrollView
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: 24,
+                    }}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}>
+                    <View style={{width: '90%', alignItems: 'center'}}>
+                        <Text style={[AUTH_TEXT_THEME.instruction, {marginBottom: 20, paddingHorizontal: 16, textAlign: 'center'}]}>
+                            Welcome to Akcru first things first, lets verify you through your mobile number below.
+                        </Text>
+                        <View style={styles.blurInputWrapper}>
                                     <BlurView
                                         style={StyleSheet.absoluteFill}
                                         blurType="light"
                                         blurAmount={Platform.OS === 'ios' ? 10 : 10}
                                         reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
                                     />
-                                    <View style={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}>
+                                    <View style={styles.inputRow}>
                                         <Icon
                                             name={'call'}
                                             type="ionicon"
@@ -185,64 +193,55 @@ const OnboardPhone = () => {
                                         />
                                     </View>
                                 </View>
-                                {phoneError && <Text style={AUTH_TEXT_THEME.error}>Invalid mobile number</Text>}
-                                <Text style={AUTH_TEXT_THEME.highlight}>
+                                {phoneError && <Text style={styles.errorText}>Invalid mobile number</Text>}
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 12}]}>
                                     You will be sent a one-time-password to this mobile number.
                                 </Text>
+                            <View style={{alignItems: 'center', marginTop: 20, width: '100%'}}>
+                                <AkcruButtons.LrgButton
+                                    variant="auth"
+                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                    btnname={'Send OTP'}
+                                    onPress={() => {
+                                        Keyboard.dismiss();
+                                        SendOTP();
+                                    }}
+                                    disabled={!isFormComplete}
+                                    loading={loading}
+                                />
                             </View>
-                            <View>
-                                <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.LrgButton
-                                        variant="auth"
-                                        color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                        btnname={'Send OTP'}
-                                        onPress={() => {
-                                            Keyboard.dismiss();
-                                            SendOTP();
-                                        }}
-                                        disabled={!isFormComplete}
-                                    />
+                            <View style={{alignItems: 'center', marginTop: 12, width: '100%'}}>
+                                <TouchableOpacity
+                                    style={{
+                                        width: SIZES.ScreenWidth * 0.9,
+                                        height: isTablet() ? 60 : 50,
+                                        borderRadius: 12,
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(255,255,255,0.18)',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}
+                                    onPress={() => {
+                                        Keyboard.dismiss();
+                                        navigation.navigate('OnboardEmail');
+                                    }}>
+                                    <Text style={{...FONTS.Title1, color: COLORS.WHITE}}>Verify with email</Text>
+                                    </TouchableOpacity>
                                 </View>
-                                <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.LrgButton
-                                        variant="auth"
-                                        color={COLORS.PINK}
-                                        btnname={'Verify with email'}
-                                        onPress={() => {
-                                            Keyboard.dismiss();
-                                            navigation.navigate('OnboardEmail');
-                                        }}
-                                        disabled={false}
-                                    />
-                                </View>
                             </View>
-                        </ScrollView>
-                        <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
-                            <ResetPasswordResultModal
-                                closeModal={() => setShowPasswordResetModal(false)}
-                                messageheader={resetResultType.messageheader}
-                                messageheadercolor={resetResultType.messageheadercolor}
-                                message={resetResultType.message}
-                                iconname={resetResultType.iconname}
-                                iconcolor={resetResultType.iconcolor}
-                            />
-                        </Modal>
-                        <Modal animationType="fade" transparent={true} visible={loading || isLoading}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                }}>
-                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>
-                                    {loading ? 'Sending OTP...' : 'Signing up...'}
-                                </Text>
-                            </View>
-                        </Modal>
-                    </View>
-                    <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
+                    <Modal animationType="fade" transparent={true} visible={showPasswordResetModal}>
+                        <ResetPasswordResultModal
+                            closeModal={() => setShowPasswordResetModal(false)}
+                            messageheader={resetResultType.messageheader}
+                            messageheadercolor={resetResultType.messageheadercolor}
+                            message={resetResultType.message}
+                            iconname={resetResultType.iconname}
+                            iconcolor={resetResultType.iconcolor}
+                        />
+                    </Modal>
+                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>
         </View>

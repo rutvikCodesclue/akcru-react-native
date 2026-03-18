@@ -5,18 +5,18 @@ import {
     ImageBackground,
     Pressable,
     Modal,
-    KeyboardAvoidingView,
     Alert,
     Platform,
     StyleSheet,
     Keyboard,
-    ActivityIndicator,
+    ScrollView,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -30,12 +30,12 @@ import useAuthStore from '../../../stores/auth.store';
 import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import {updateUser} from '../../../lib/api/user.lib';
-import ProgressBar from '../../../components/ProgressBar';
+import StepperDots from '../../../components/StepperDots';
 import { isTablet } from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 
-const TOTAL_STEPS = 11;
-const CURRENT_STEP = 8;
+const TOTAL_STEPS = 5;
+const CURRENT_STEP = 6;
 
 const OnboardDOB = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -157,47 +157,50 @@ const OnboardDOB = () => {
     };
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                           <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
+                                            colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                                            style={StyleSheet.absoluteFill}
                                         />
-                <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
-                    <View style={styles.container}>
-                        <View style={styles.headerRow}>
-                            <View style={styles.headerLeft}>
-                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                                </TouchableOpacity>
-                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
-                                    {CURRENT_STEP}/{TOTAL_STEPS}
-                                </Text>
-                            </View>
-                            <View style={styles.logoCenter}>
-                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            </View>
-                            <View style={[styles.backButton, {opacity: 0}]}>
-                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                            </View>
-                        </View>
-                        <View style={{alignItems: 'center'}}>
-                            <View style={{width: '90%'}}>
-                                <ProgressBar
-                                    currentStep={CURRENT_STEP}
-                                    totalSteps={TOTAL_STEPS}
-                                    style={styles.progress}
-                                />
-                            </View>
-                            <Text style={AUTH_TEXT_THEME.instruction}>Enter your date of birth.</Text>
-                        </View>
-                        <View style={{alignItems: 'center', marginTop: 10}}>
+                {/* Fixed Header Section */}
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepIndicator}>
+                            {CURRENT_STEP}/{TOTAL_STEPS}
+                        </Text>
+                    </View>
+                    <View style={styles.logoCenter}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                </View>
+                <View style={{alignItems: 'center', marginBottom: 16}}>
+                    <StepperDots
+                        currentStep={CURRENT_STEP}
+                        totalSteps={TOTAL_STEPS}
+                    />
+                </View>
+
+                {/* Centered Content Section */}
+                <KeyboardAvoidingView
+                    style={{flex: 1}}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                <ScrollView contentContainerStyle={{
+                    flexGrow: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingBottom: 24,
+                }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                    <View style={{width: '90%', alignItems: 'center'}}>
+                        <Text style={[AUTH_TEXT_THEME.instruction, {marginBottom: 20, paddingHorizontal: 16, textAlign: 'center'}]}>Enter your date of birth.</Text>
+                    <View style={{alignItems: 'center', marginTop: 10}}>
                             {showPicker && Platform.OS === 'android' && (
                                 <DateTimePicker
                                     display="spinner"
@@ -236,7 +239,7 @@ const OnboardDOB = () => {
                             )}
                             {!showPicker && (
                                 <Pressable onPress={toggleDatePicker}>
-                                    <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
+                                    <View style={styles.blurInputWrapper}>
                                         <BlurView
                                             style={StyleSheet.absoluteFill}
                                             blurType="light"
@@ -254,53 +257,41 @@ const OnboardDOB = () => {
                                             value={dob ? formatDateToDayMonthYear(new Date(dob)) : 'Select date'}
                                             editable={false}
                                             onPress={toggleDatePicker}
-                                            containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
+                                            containerStyle={styles.inputRow}
                                         />
                                     </View>
                                 </Pressable>
                             )}
-                            <Text style={AUTH_TEXT_THEME.highlight}>
+                            <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 12}]}>
                                 You must be atleast 17 years old to use this app.
                             </Text>
                         </View>
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    variant="auth"
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Next'}
-                                    onPress={() => {
-                                    Keyboard.dismiss();
-                                    DOBSet();
-                                }}
-                                    disabled={!isFormComplete || isLoading}
-                                />
-                            </View>
-                        </View>
-                        <Modal animationType="fade" transparent={true} visible={isLoading}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                }}>
-                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
-                            </View>
-                        </Modal>
-                        <Modal animationType="fade" transparent={true} visible={showEmailModal}>
-                            <ResetPasswordResultModal
-                                closeModal={() => setShowEmailModal(false)}
-                                messageheader={resetResultType.messageheader}
-                                messageheadercolor={resetResultType.messageheadercolor}
-                                message={resetResultType.message}
-                                iconname={resetResultType.iconname}
-                                iconcolor={resetResultType.iconcolor}
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <AkcruButtons.LrgButton
+                                variant="auth"
+                                color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                btnname={'Next'}
+                                onPress={() => {
+                                Keyboard.dismiss();
+                                DOBSet();
+                            }}
+                                disabled={!isFormComplete || isLoading}
+                                loading={isLoading}
                             />
-                        </Modal>
+                        </View>
                     </View>
-                    <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
+                    <Modal animationType="fade" transparent={true} visible={showEmailModal}>
+                        <ResetPasswordResultModal
+                            closeModal={() => setShowEmailModal(false)}
+                            messageheader={resetResultType.messageheader}
+                            messageheadercolor={resetResultType.messageheadercolor}
+                            message={resetResultType.message}
+                            iconname={resetResultType.iconname}
+                            iconcolor={resetResultType.iconcolor}
+                        />
+                    </Modal>
+                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>
         </View>

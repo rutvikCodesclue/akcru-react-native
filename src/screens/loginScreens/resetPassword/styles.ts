@@ -36,9 +36,11 @@ export default StyleSheet.create({
         marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     warningText: {
-        ...FONTS.Title2,
-        color: 'red',
-        textAlign: 'center',
+        color: '#FF6B6B',
+        fontSize: 12,
+        marginTop: 4,
+        marginBottom: 8,
+        alignSelf: 'flex-start',
     },
     warningText2: {
         ...FONTS.Title2,

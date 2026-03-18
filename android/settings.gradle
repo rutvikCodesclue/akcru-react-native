@@ -30,12 +30,13 @@ dependencyResolutionManagement {
       }
     }
 
-    // JitPack (AndroidLame-kotlin for react-native-compressor; Dimezis BlurView for @react-native-community/blur)
+    // JitPack (AndroidLame-kotlin for react-native-compressor; Dimezis BlurView; yalantis/ucrop for react-native-image-crop-picker)
     maven {
       url = uri("https://jitpack.io")
       content {
         includeGroup("com.github.banketree")
         includeGroup("com.github.Dimezis")
+        includeGroup("com.github.yalantis")
       }
     }
   }

@@ -1,9 +1,9 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, KeyboardAvoidingView, Alert, StyleSheet, Platform, Keyboard, ActivityIndicator} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet, Platform, Keyboard, ScrollView, KeyboardAvoidingView} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {AUTH_TEXT_THEME, AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -17,16 +17,16 @@ import {appVersion} from '../../../../assets/constants/Data';
 import ResetPasswordResultModal from '../../../components/ResetPasswordResultModal/ResetPasswordResultModal';
 import {ICru} from '../../../../types';
 import {searchCRUs, updateCRUInfo} from '../../../lib/api/cru.lib';
-import ProgressBar from '../../../components/ProgressBar';
-import {MediaType, launchImageLibrary} from 'react-native-image-picker';
+import StepperDots from '../../../components/StepperDots';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import HexAvatar from '../../../components/HexAvatar';
 import {updateUserProfilePicture} from '../../../lib/api/user.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 
-const TOTAL_STEPS = 7;
-const CURRENT_STEP = 6;
+const TOTAL_STEPS = 5;
+const CURRENT_STEP = 5;
 const profilePicture = isTablet() ? 150 : 100;
 
 const OnboardCruName = () => {
@@ -42,6 +42,7 @@ const OnboardCruName = () => {
     // Profile picture
     const [selectImage, setSelectImage] = useState('');
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
+    const [isSelectingImage, setIsSelectingImage] = useState(false);
 
     // Modal (kept for consistency with other onboarding screens)
     const [showEmailModal, setShowEmailModal] = useState(false);
@@ -100,152 +101,132 @@ const OnboardCruName = () => {
     };
 
     const selectProfileImage = async () => {
-        const options = {
-            mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'image',
-            },
-        };
+        try {
+            setIsSelectingImage(true);
+            const image = await ImageCropPicker.openPicker({
+                cropping: true,
+                cropperCircleOverlay: true,
+                width: 400,
+                height: 400,
+                mediaType: 'photo',
+            });
 
-        let callbackExecuted = false;
+            const selectedImageUncomp = image.path || (image as any).sourceURL || (image as any).uri;
+            const selectedImage = await compressImage(selectedImageUncomp);
 
-        launchImageLibrary(options, async response => {
-            if (response && !response.didCancel && response.assets) {
-                if (callbackExecuted) return;
-                callbackExecuted = true;
+            const imageType = image.mime || 'image/jpeg';
+            const imageName = image.filename || `profile_${Date.now()}.jpg`;
+            const imageSizeInBytes = image.size;
 
-                const asset = response.assets[0];
-                if (!asset?.uri) return;
+            const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
 
-                const selectedImageUncomp = asset.uri;
-                const selectedImage = await compressImage(selectedImageUncomp);
+            if (imageSizeInBytes !== undefined && imageSizeInBytes > maxSizeInBytes) {
+                setShowSizeErrorModal(true);
+            } else {
+                const updatedUserProfilePicture = await updateUserProfilePicture({
+                    uri: selectedImage,
+                    type: imageType,
+                    name: imageName,
+                });
 
-                const imageType = asset.type;
-                const imageName = asset.fileName;
-                const imageSizeInBytes = asset.fileSize;
-
-                if (imageSizeInBytes !== undefined) {
-                    const maxSizeInBytes = 5 * 1024 * 1024; // 5 MB
-
-                    if (imageSizeInBytes > maxSizeInBytes) {
-                        setShowSizeErrorModal(true);
-                    } else {
-                        const updatedUserProfilePicture = await updateUserProfilePicture({
-                            uri: selectedImage,
-                            type: imageType,
-                            name: imageName,
-                        });
-
-                        if (updatedUserProfilePicture) {
-                            setSelectImage(updatedUserProfilePicture.profilePicture || '');
-                        }
-                    }
+                if (updatedUserProfilePicture) {
+                    setSelectImage(updatedUserProfilePicture.profilePicture || '');
+                     setIsFormComplete(true);
                 }
             }
-        });
+        } catch (e: any) {
+            if (e?.code !== 'E_PICKER_CANCELLED') {
+                console.error('Profile image pick/crop error:', e);
+            }
+        } finally {
+            setIsSelectingImage(false);
+        }
     };
 
     const ConfirmChangeCruName = async () => {
-        if (!isCruNameValid(cruName)) {
-            Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            const cruNameExists = await checkCruNameExists(cruName);
-
-            if (cruNameExists) {
-                Alert.alert('CRU Name Taken', 'This CRU name is already in use. Please choose a different name.');
-            } else {
-                const updatedCRU = await updateCRUInfo({name: cruName});
-                if (updatedCRU) {
-                    setCRU(updatedCRU);
-                    // Profile picture is already handled immediately on selection.
-                    // Move straight to Archetype screen.
-                    navigation.navigate('OnboardArchetype');
-                } else {
-                    Alert.alert('Update Failed', 'Failed to update CRU name. Please try again.');
-                }
-            }
-        } catch (error) {
-            console.error('Error during CRU name confirmation:', error);
-            Alert.alert('Error', 'An error occurred while checking the CRU name.');
-        } finally {
-            setLoading(false);
-        }
+        navigation.navigate('NoBottomStack', {
+            screen: 'ClientTabNavigator',
+            params: {screen: 'FlickFlirtScreen'},
+        });
+        ///remove cruName
+//         if (!isCruNameValid(cruName)) {
+//             Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');
+//             return;
+//         }
+//
+//         setLoading(true);
+//
+//         try {
+//             const cruNameExists = await checkCruNameExists(cruName);
+//
+//             if (cruNameExists) {
+//                 Alert.alert('CRU Name Taken', 'This CRU name is already in use. Please choose a different name.');
+//             } else {
+//                 const updatedCRU = await updateCRUInfo({name: cruName});
+//                 if (updatedCRU) {
+//                     setCRU(updatedCRU);
+//                     // Profile picture is already handled immediately on selection.
+//                     // Move straight to Archetype screen.
+//                     navigation.navigate('OnboardArchetype');
+//                 } else {
+//                     Alert.alert('Update Failed', 'Failed to update CRU name. Please try again.');
+//                 }
+//             }
+//         } catch (error) {
+//             console.error('Error during CRU name confirmation:', error);
+//             Alert.alert('Error', 'An error occurred while checking the CRU name.');
+//         } finally {
+//             setLoading(false);
+//         }
     };
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                          <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
-                                        />
-                <KeyboardAvoidingView behavior="padding" style={{flex: 1, marginBottom: 50}}>
-                    <View style={styles.container}>
-                        <View style={styles.headerRow}>
-                            <View style={styles.headerLeft}>
-                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                                </TouchableOpacity>
-                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
-                                    {CURRENT_STEP}/{TOTAL_STEPS}
-                                </Text>
-                            </View>
-                            <View style={styles.logoCenter}>
-                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            </View>
-                            <View style={[styles.backButton, {opacity: 0}]}>
-                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                            </View>
-                        </View>
-                        <View style={{alignItems: 'center'}}>
-                            <View style={{width: '90%'}}>
-                                <ProgressBar
-                                    currentStep={CURRENT_STEP}
-                                    totalSteps={TOTAL_STEPS}
-                                    style={styles.progress}
-                                />
-                            </View>
-                            <Text style={AUTH_TEXT_THEME.instruction}>
-                                Create your Cru name and add a profile picture.
-                            </Text>
-                        </View>
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                {/* Fixed Header Section */}
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepIndicator}>
+                            {CURRENT_STEP}/{TOTAL_STEPS}
+                        </Text>
+                    </View>
+                    <View style={styles.logoCenter}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                </View>
+                <View style={{alignItems: 'center', marginBottom: 16}}>
+                    <StepperDots
+                        currentStep={CURRENT_STEP}
+                        totalSteps={TOTAL_STEPS}
+                    />
+                </View>
 
-                        {/* Cru name input */}
-                        <View style={{alignItems: 'center', marginTop: 10}}>
-                            <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>
-                                <BlurView
-                                    style={StyleSheet.absoluteFill}
-                                    blurType="light"
-                                    blurAmount={Platform.OS === 'ios' ? 10 : 10}
-                                    reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
-                                />
-                                <Inputs
-                                    placeholdername={'Create a Cru name'}
-                                    iconname={'person'}
-                                    iconcolor={COLORS.LIGHTGREY}
-                                    secureTextEntry={false}
-                                    onChangeText={handleCruNameChange}
-                                    value={cruName}
-                                    editable={!loading}
-                                    containerStyle={AUTH_TEXT_FIELD_THEME.getInnerRowStyle()}
-                                />
-                            </View>
-                            {userNameError && <Text style={AUTH_TEXT_THEME.error}>Invalid Username format</Text>}
-                            <Text style={AUTH_TEXT_THEME.highlight}>
-                                Your Cru name must be unique and at least 3 characters long.
-                            </Text>
-                        </View>
+                {/* Centered Content Section */}
+                <KeyboardAvoidingView
+                    style={{flex: 1}}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                <ScrollView contentContainerStyle={{
+                    flexGrow: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    paddingBottom: 24,
+                }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+                    <View style={{width: '90%', alignItems: 'center'}}>
+                        <Text style={[AUTH_TEXT_THEME.instruction, {marginBottom: 20, paddingHorizontal: 16, textAlign: 'center'}]}>
+                             Add a profile picture.
+                        </Text>
+                    {/* Cru name input */}
 
                         {/* Profile picture selection */}
                         <View style={{alignItems: 'center', marginTop: 20}}>
@@ -256,98 +237,83 @@ const OnboardCruName = () => {
                             />
                         </View>
                         <View>
-                            <TouchableOpacity onPress={selectProfileImage}>
-                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 10}]}>
-                                    Pick a profile photo
+                            <TouchableOpacity
+                                onPress={() => selectProfileImage()}
+                                disabled={isSelectingImage}>
+                                <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 10, opacity: isSelectingImage ? 0.6 : 1}]}>
+                                    {isSelectingImage ? 'Opening...' : 'Pick a profile photo'}
                                 </Text>
                             </TouchableOpacity>
                         </View>
 
-                        {/* Picture Size Error Modal */}
-                        <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        {/* Next button */}
+                        <View style={{alignItems: 'center', marginTop: 20}}>
+                            <AkcruButtons.LrgButton
+                                variant="auth"
+                                color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
+                                btnname={'Next'}
+                                onPress={() => {
+                                Keyboard.dismiss();
+                                ConfirmChangeCruName();
+                            }}
+                                disabled={!isFormComplete || loading}
+                                loading={loading}
+                            />
+                        </View>
+                    </View>
+                    <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
+                        <View
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'rgba(0,0,0,0.55)',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
                             <View
                                 style={{
-                                    flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                    justifyContent: 'center',
+                                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                                    padding: 20,
+                                    borderRadius: 10,
                                     alignItems: 'center',
+                                    marginHorizontal: 15,
                                 }}>
-                                <View
+                                <Text
                                     style={{
-                                        backgroundColor: COLORS.AKCRUBACKGROUND,
-                                        padding: 20,
-                                        borderRadius: 10,
-                                        alignItems: 'center',
-                                        marginHorizontal: 15,
+                                        ...FONTS.Title3,
+                                        marginBottom: 10,
+                                        textAlign: 'center',
+                                    }}>
+                                    Image is too large. Please select an image under 5MB.
+                                </Text>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setShowSizeErrorModal(false);
                                     }}>
                                     <Text
                                         style={{
-                                            ...FONTS.Title3,
+                                            ...FONTS.Title2,
                                             marginBottom: 10,
                                             textAlign: 'center',
+                                            color: COLORS.MIDORANGE,
                                         }}>
-                                        Image is too large. Please select an image under 5MB.
+                                        Close
                                     </Text>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            setShowSizeErrorModal(false);
-                                        }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2,
-                                                marginBottom: 10,
-                                                textAlign: 'center',
-                                                color: COLORS.MIDORANGE,
-                                            }}>
-                                            Close
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </Modal>
-
-                        {/* Generic modal (kept, but currently unused) */}
-                        <Modal animationType="fade" transparent={true} visible={showEmailModal}>
-                            <ResetPasswordResultModal
-                                closeModal={() => setShowEmailModal(false)}
-                                messageheader={resetResultType.messageheader}
-                                messageheadercolor={resetResultType.messageheadercolor}
-                                message={resetResultType.message}
-                                iconname={resetResultType.iconname}
-                                iconcolor={resetResultType.iconcolor}
-                            />
-                        </Modal>
-
-                        <Modal animationType="fade" transparent={true} visible={loading}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                }}>
-                                <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                                <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Saving...</Text>
-                            </View>
-                        </Modal>
-
-                        {/* Next button */}
-                        <View>
-                            <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.LrgButton
-                                    variant="auth"
-                                    color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                    btnname={'Next'}
-                                    onPress={() => {
-                                    Keyboard.dismiss();
-                                    ConfirmChangeCruName();
-                                }}
-                                    disabled={!isFormComplete || loading}
-                                />
+                                </TouchableOpacity>
                             </View>
                         </View>
-                    </View>
-                    <Text style={{...FONTS.Title2White, textAlign: 'center'}}>version {appVersion[0].version}</Text>
+                    </Modal>
+                    <Modal animationType="fade" transparent={true} visible={showEmailModal}>
+                        <ResetPasswordResultModal
+                            closeModal={() => setShowEmailModal(false)}
+                            messageheader={resetResultType.messageheader}
+                            messageheadercolor={resetResultType.messageheadercolor}
+                            message={resetResultType.message}
+                            iconname={resetResultType.iconname}
+                            iconcolor={resetResultType.iconcolor}
+                        />
+                    </Modal>
+                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>
         </View>

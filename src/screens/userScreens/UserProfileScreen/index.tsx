@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { navigate } from '../../../util/RootNavigation';
+
 import {
     View,
     useWindowDimensions,
@@ -611,7 +613,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     <View style={{marginTop: '30%'}}>
                                         <AkcruButtons.XSmallButton
                                             btnname="Edit Profile"
-                                            onPress={() => navigation.navigate('EditProfile')}
+onPress={() => navigate('NoBottomStack', { screen: 'EditProfile' })}
                                             color={COLORS.PINK}
                                             disabled={false}
                                         />

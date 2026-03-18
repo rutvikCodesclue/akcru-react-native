@@ -118,6 +118,38 @@ export default StyleSheet.create({
         color: COLORS.LIGHTGREY,
         marginLeft: 10,
     },
+    chipContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginHorizontal: 15,
+        marginTop: 10,
+        gap: 10,
+    },
+    chip: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.3)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
+    },
+    chipSelected: {
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 24,
+        borderWidth: 1.5,
+        borderColor: COLORS.PINK,
+        backgroundColor: COLORS.PINK,
+    },
+    chipText: {
+        ...FONTS.Title2,
+        color: 'rgba(255,255,255,0.9)',
+    },
+    chipTextSelected: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+    },
     bgimage: {
         height: SIZES.ScreenHeight,
     },

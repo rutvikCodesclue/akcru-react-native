@@ -2,20 +2,23 @@ import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {isTablet} from '../../../../assets/constants/theme';
 
-const phoneInput = isTablet() ? 60 : 45;
+const inputHeight = isTablet() ? 60 : 50;
 
 export default StyleSheet.create({
+    // Modal styles matching Welcome/Signin
     tosmodal: {
         flex: 1,
-        backgroundColor: COLORS.FADEDBLACK,
+        backgroundColor: 'rgba(0,0,0,0.55)',
         justifyContent: 'center',
         alignItems: 'center',
     },
     tosmodalcontainer: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
-        width: SIZES.ScreenWidth * 0.8,
+        width: SIZES.ScreenWidth * 0.88,
+        maxWidth: 500,
         height: SIZES.ScreenHeight * 0.8,
-        paddingHorizontal: 10,
+        paddingHorizontal: 20,
+        borderRadius: 18,
     },
     tostitle: {
         ...FONTS.Title2,
@@ -45,7 +48,6 @@ export default StyleSheet.create({
     },
     container: {
         flex: 1,
-        marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     headerRow: {
         flexDirection: 'row',
@@ -53,7 +55,7 @@ export default StyleSheet.create({
         width: '100%',
         paddingTop: SIZES.ScreenHeight * 0.03,
         marginBottom: SIZES.ScreenHeight * 0.02,
-        paddingHorizontal: SIZES.ScreenWidth * 0.03,
+        paddingHorizontal: 0,
     },
     headerLeft: {
         flexDirection: 'row',
@@ -126,21 +128,21 @@ export default StyleSheet.create({
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 24,
-        borderWidth: 2,
-        borderColor: COLORS.PINK,
-        backgroundColor: 'transparent',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255,255,255,0.3)',
+        backgroundColor: 'rgba(255,255,255,0.05)',
     },
     chipSelected: {
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 24,
-        borderWidth: 2,
+        borderWidth: 1.5,
         borderColor: COLORS.PINK,
         backgroundColor: COLORS.PINK,
     },
     chipText: {
         ...FONTS.Title2,
-        color: COLORS.LIGHTGREY,
+        color: 'rgba(255,255,255,0.9)',
     },
     chipTextSelected: {
         ...FONTS.Title2,
@@ -151,17 +153,21 @@ export default StyleSheet.create({
         width: '100%',
         fontSize: isTablet() ? 18 : 14,
     },
-    phoneinput: {
+    // Blur input wrapper matching Signin
+    blurInputWrapper: {
         width: SIZES.ScreenWidth * 0.9,
-        flexDirection: 'row',
+        height: inputHeight,
+        borderRadius: 12,
         borderWidth: 1,
-        borderColor: COLORS.LIGHTGREY,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
+        borderColor: 'rgba(255,255,255,0.25)',
+        overflow: 'hidden',
+        marginVertical: 8,
+    },
+    inputRow: {
+        flexDirection: 'row',
         alignItems: 'center',
-        height: phoneInput,
-        backgroundColor: COLORS.TRANSDARKGREY,
+        paddingHorizontal: 16,
+        height: inputHeight,
     },
     datepicker: {
         height: 120,
@@ -197,13 +203,21 @@ export default StyleSheet.create({
     input: {
         width: SIZES.ScreenWidth * 0.9,
         borderWidth: 1,
-        borderColor: COLORS.LIGHTGREY,
-        borderRadius: 5,
-        marginTop: 10,
+        borderColor: 'rgba(255,255,255,0.25)',
+        borderRadius: 12,
+        marginTop: 8,
         alignSelf: 'center',
         height: SIZES.ScreenHeight * 0.15,
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
     },
+    errorText: {
+        width: SIZES.ScreenWidth * 0.9,
+        color: '#FF6B6B',
+        fontSize: 12,
+        marginTop: -4,
+        marginBottom: 8,
+    },
+
     searchinput: {
         width: SIZES.ScreenWidth / 1.08,
         flexDirection: 'row',
@@ -233,6 +247,17 @@ export default StyleSheet.create({
         fontWeight: 'bold',
     },
     progress: {
-        marginBottom: 24,
+        marginBottom: 16,
+    },
+    stepIndicator: {
+        ...FONTS.Title2,
+        color: 'rgba(255,255,255,0.7)',
+        marginLeft: 8,
+    },
+    contentScrollCenter: {
+        flexGrow: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingBottom: 24,
     },
 });

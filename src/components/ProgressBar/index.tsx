@@ -2,9 +2,10 @@
 
 import React from 'react';
 import {View, StyleSheet, ViewStyle} from 'react-native';
+import {COLORS} from '../../../assets/constants';
 
 type ProgressBarProps = {
-    /** Zero-based index of the current step (e.g. 0, 1, 2…) */
+    /** Current step (1-based, e.g. 1, 2, 3…) */
     currentStep: number;
     /** Total number of steps in the flow */
     totalSteps: number;
@@ -21,12 +22,13 @@ type ProgressBarProps = {
 const ProgressBar: React.FC<ProgressBarProps> = ({
     currentStep,
     totalSteps,
-    height = 4,
-    fillColor = '#4F46E5', // Indigo-600
-    trackColor = '#E5E7EB', // Gray-200
+    height = 6,
+    fillColor = COLORS.PINK,
+    trackColor = 'rgba(255,255,255,0.2)',
     style,
 }) => {
-    const progress = Math.min(Math.max(currentStep / (totalSteps - 1), 0), 1);
+    // Calculate progress (1-based step)
+    const progress = totalSteps <= 1 ? 1 : Math.min(Math.max(currentStep / totalSteps, 0), 1);
 
     return (
         <View style={[styles.container, {backgroundColor: trackColor, height}, style]}>
@@ -38,11 +40,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
 const styles = StyleSheet.create({
     container: {
         width: '100%',
-        borderRadius: 2,
+        borderRadius: 8,
         overflow: 'hidden',
     },
     fill: {
         height: '100%',
+        borderRadius: 8,
     },
 });
 

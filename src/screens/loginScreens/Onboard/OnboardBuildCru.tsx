@@ -1,8 +1,7 @@
-import {View, Text, ImageBackground, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
+import {View, Text, ImageBackground, KeyboardAvoidingView, TouchableOpacity, StyleSheet, ScrollView} from 'react-native';
 import {Icon} from '@rneui/base';
 import React from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
@@ -28,16 +27,16 @@ const OnboardBuildCru = () => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                           <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
+                                            colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                                            style={StyleSheet.absoluteFill}
                                         />
                 <View style={{flex: 1, marginBottom: 50}}>
+                    <ScrollView contentContainerStyle={{
+                        flexGrow: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: 24,
+                    }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
                     <View style={styles.container}>
                         <View style={styles.headerRow}>
                             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -51,7 +50,7 @@ const OnboardBuildCru = () => {
                             </View>
                         </View>
                         <View style={{alignItems: 'center'}}>
-                            <Text style={AUTH_TEXT_THEME.instruction}>
+                            <Text style={[FONTS.Title2, {textAlign: 'center', marginTop: 8, paddingHorizontal: 16}]}>
                                 Last but not least our goal here at Akcru is to bring people together in a safe setting.
                                 Here is where you can start building your "Cru" that you'll be able to watch your
                                 favorite content with. (You will have the option to do this later if you decide to skip
@@ -60,17 +59,18 @@ const OnboardBuildCru = () => {
                         </View>
                         <View style={{alignItems: 'center'}}>
                             <TouchableOpacity onPress={() => handleNavigateCruBuilder()}>
-                                <Text style={[AUTH_TEXT_THEME.linkSmall, {paddingTop: SIZES.ScreenHeight * 0.1}]}>
+                                <Text style={[FONTS.Title2, {color: COLORS.PINK, paddingTop: SIZES.ScreenHeight * 0.1}]}>
                                     Start building your Cru
                                 </Text>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => handleNavigateToSwipe()}>
-                                <Text style={[AUTH_TEXT_THEME.linkSmall, {paddingTop: SIZES.ScreenHeight * 0.025}]}>
+                                <Text style={[FONTS.Title2, {color: COLORS.PINK, paddingTop: SIZES.ScreenHeight * 0.025}]}>
                                     Skip to watch content
                                 </Text>
                             </TouchableOpacity>
                         </View>
                     </View>
+                    </ScrollView>
                 </View>
             </ImageBackground>
         </View>

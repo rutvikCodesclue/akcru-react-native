@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
 import React from 'react';
 import {FONTS, COLORS, SIZES} from '../../../assets/constants';
 import {AUTH_BUTTON_THEME, AUTH_TEXT_THEME} from '../../../assets/constants/authTheme';
@@ -21,6 +21,8 @@ interface BtnProps {
     disabled?: boolean;
     /** Use auth theme (purple-pink gradient, theme dimensions) */
     variant?: 'default' | 'auth';
+    /** Show loading spinner inside button */
+    loading?: boolean;
 }
 
 interface IconBtnProps {
@@ -101,7 +103,7 @@ const MedButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     );
 };
 
-const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default'}) => {
+const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default', loading = false}) => {
     if (variant === 'auth') {
         return (
             <View style={{marginVertical: 10}}>
@@ -111,10 +113,10 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, varia
                         height: AUTH_BUTTON_THEME.getHeight(),
                         borderRadius: AUTH_BUTTON_THEME.borderRadius,
                         overflow: 'hidden',
-                        opacity: disabled ? 1 : 1,
+                        opacity: disabled ? 0.5 : 1,
                     }}
                     onPress={onPress}
-                    disabled={disabled}>
+                    disabled={disabled || loading}>
                     <LinearGradient
                         colors={AUTH_BUTTON_THEME.colors}
                         start={AUTH_BUTTON_THEME.start}
@@ -125,7 +127,11 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, varia
                             alignItems: 'center',
                             borderRadius: AUTH_BUTTON_THEME.borderRadius,
                         }}>
-                        <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                        {loading ? (
+                            <ActivityIndicator color={COLORS.WHITE} />
+                        ) : (
+                            <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                        )}
                     </LinearGradient>
                 </TouchableOpacity>
             </View>

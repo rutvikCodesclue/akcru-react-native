@@ -6,19 +6,13 @@ const inputHeight = isTablet() ? 60 : 45;
 
 export default StyleSheet.create({
     input: {
-        width: SIZES.ScreenWidth * 0.9,
         flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: COLORS.LIGHTGREY,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginVertical: 10,
         alignItems: 'center',
-        height: inputHeight,
-        backgroundColor: COLORS.TRANSDARKGREY,
+        height: '100%',
+        backgroundColor: 'transparent',
     },
     textinput: {
+        flex: 1,
         color: COLORS.WHITE,
-        width: '100%',
     },
 });

@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, Image, ScrollView, Keyboard} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, Image, ScrollView, Keyboard, StyleSheet} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
@@ -16,15 +16,15 @@ import Video from 'react-native-video';
 import {updateUser} from '../../../lib/api/user.lib';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
-import ProgressBar from '../../../components/ProgressBar';
+import StepperDots from '../../../components/StepperDots';
 import {isTablet} from '../../../../assets/constants/theme';
 import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import LinearGradient from 'react-native-linear-gradient';
 
 const buttonMargin = isTablet() ? '20%' : '15%';
 
-const TOTAL_STEPS = 7;
-const CURRENT_STEP = 7;
+const TOTAL_STEPS = 6;
+const CURRENT_STEP = 6;
 
 const OnboardArchetype = () => {
 
@@ -33,6 +33,7 @@ const OnboardArchetype = () => {
 
     const [archetypeModal, setArchetypeModal] = useState(false);
     const [showSkip, setShowSkip] = useState(true);
+    const [isUpdatingArchetype, setIsUpdatingArchetype] = useState(false);
 
     const handleCheckboxChange = (genreId: string) => {
         if (checkedGenres[genreId]) {
@@ -71,6 +72,7 @@ const OnboardArchetype = () => {
 
             if (selectedArchetype) {
                 setArchetypeModal(true);
+                setIsUpdatingArchetype(true);
                 const newArchetypeName = selectedArchetype.name;
                 const newArchetypeImage = selectedArchetype.image;
                 const newArchetypeDescription = selectedArchetype.description;
@@ -90,6 +92,7 @@ const OnboardArchetype = () => {
                     const updatedUser = await updateUser({archetype: archetypeData});
                     if (updatedUser) {
                         useAuthStore.setState({user: updatedUser});
+                        setIsUpdatingArchetype(false);
 
                         setTimeout(() => {
                             setArchetypeModal(false);
@@ -102,6 +105,7 @@ const OnboardArchetype = () => {
                     }
                 } catch (error) {
                     console.error('Error updating archetype:', error);
+                    setIsUpdatingArchetype(false);
                 }
             } else {
             }
@@ -110,6 +114,9 @@ const OnboardArchetype = () => {
     };
 
     const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
+
+    const selectedGenresCount = Object.values(checkedGenres).filter(Boolean).length;
+    const isFinishEnabled = selectedGenresCount === 2;
 
     const [trinityModal, setTrinityModal] = useState(false);
     const [videoError, setVideoError] = useState(false);
@@ -169,88 +176,79 @@ const OnboardArchetype = () => {
     return (
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
-                          <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
-                                        />
-                <View style={{flex: 1, marginBottom: 50}}>
-                    <View style={styles.container}>
-                        <View style={styles.headerRow}>
-                            <View style={styles.headerLeft}>
-                                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                                    <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                                </TouchableOpacity>
-                                <Text style={AUTH_TEXT_THEME.stepIndicator}>
-                                    {CURRENT_STEP}/{TOTAL_STEPS}
-                                </Text>
-                            </View>
-                            <View style={styles.logoCenter}>
-                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
-                            </View>
-                            <View style={[styles.backButton, {opacity: 0}]}>
-                                <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
-                            </View>
-                        </View>
-                        <View style={{alignItems: 'center'}}>
-                            <View style={{width: '90%'}}>
-                                <ProgressBar
-                                    currentStep={CURRENT_STEP}
-                                    totalSteps={TOTAL_STEPS}
-                                    style={styles.progress}
-                                />
-                            </View>
-                        </View>
-
-                        <ScrollView
-                            style={{flex: 1}}
-                            contentContainerStyle={{paddingBottom: 20}}
-                            showsVerticalScrollIndicator={false}>
-                            <Text style={[AUTH_TEXT_THEME.instruction, {marginHorizontal: 10}]}>
-                                At Akcru, your movie-watching preferences shape your unique archetype. This personalized
-                                archetype guides us in curating the finest movie recommendations for you, as well as
-                                connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
-                                a simple streaming platform; we are a multifaceted streaming experience that caters to your
-                                individuality.
-                            </Text>
-                            <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 20}]}>
-                                Please choose 2 genres to get you started:
-                            </Text>
-
-                            <View style={[styles.chipContainer, {marginBottom: 20}]}>
-                                {filteredGenres.map(item => (
-                                    <TouchableOpacity
-                                        key={item.id}
-                                        onPress={() => handleCheckboxChange(item.id)}
-                                        style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
-                                        <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
-                                            {item.genre}
-                                        </Text>
-                                    </TouchableOpacity>
-                                ))}
-                            </View>
-                        </ScrollView>
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                {/* Fixed Header Section */}
+                <View style={styles.headerRow}>
+                    <View style={styles.headerLeft}>
+                        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                            <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                        </TouchableOpacity>
+                        <Text style={styles.stepIndicator}>
+                            {CURRENT_STEP}/{TOTAL_STEPS}
+                        </Text>
                     </View>
-                    <View>
-                        <View style={{alignItems: 'center', marginBottom: buttonMargin}}>
+                    <View style={styles.logoCenter}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                </View>
+                <View style={{alignItems: 'center', marginBottom: 16}}>
+                    <StepperDots
+                        currentStep={CURRENT_STEP}
+                        totalSteps={TOTAL_STEPS}
+                    />
+                </View>
+
+                {/* Centered Content Section */}
+                <ScrollView
+                    style={{flex: 1}}
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: 40,
+                    }}
+                    showsVerticalScrollIndicator={false}>
+                    <View style={{width: '90%', alignItems: 'center'}}>
+                        <Text style={[AUTH_TEXT_THEME.instruction, {marginBottom: 12, paddingHorizontal: 16, textAlign: 'center', fontSize: isTablet() ? 16 : 14}]}>
+                            Your movie preferences shape your unique archetype, guiding our recommendations and connecting you with like-minded users.
+                        </Text>
+                        <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 8, marginBottom: 20}]}>
+                            Please choose 2 genres to get you started:
+                        </Text>
+
+                        <View style={[styles.chipContainer, {marginBottom: 30}]}>
+                            {filteredGenres.map(item => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => handleCheckboxChange(item.id)}
+                                    style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
+                                    <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
+                                        {item.genre}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <View style={{alignItems: 'center', width: '100%'}}>
                             <AkcruButtons.XlLrgButton
                                 variant="auth"
-                                color={COLORS.PURPLE}
+                                color={isFinishEnabled ? COLORS.PURPLE : COLORS.DARKGREY}
                                 btnname={'Finish'}
                                 onPress={() => {
-                                Keyboard.dismiss();
-                                handleFinishButton();
-                            }}
-                                disabled={false}
+                                    Keyboard.dismiss();
+                                    handleFinishButton();
+                                }}
+                                disabled={!isFinishEnabled}
                             />
                         </View>
                     </View>
-                </View>
+                </ScrollView>
 
                 <Modal animationType="fade" transparent={true} visible={archetypeModal}>
                     <View
@@ -258,7 +256,7 @@ const OnboardArchetype = () => {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                            backgroundColor: 'rgba(0,0,0,0.55)',
                         }}>
                         <Text style={{...FONTS.Title1}}>Your Archetype is:</Text>
 
@@ -299,6 +297,15 @@ const OnboardArchetype = () => {
                                 {archetypeDescription}
                             </Text>
                         )}
+
+                        {isUpdatingArchetype && (
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+                                <ActivityIndicator size="small" color={COLORS.PINK} />
+                                <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY, marginLeft: 10}}>
+                                    Saving your archetype...
+                                </Text>
+                            </View>
+                        )}
                     </View>
                 </Modal>
 
@@ -312,7 +319,7 @@ const OnboardArchetype = () => {
                         }}>
                         {!isVideoLoaded && (
                             <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
-                                <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                                <ActivityIndicator size="large" color={COLORS.PINK} />
                             </View>
                         )}
                         <Video

@@ -1,6 +1,7 @@
-import {View, Text, TextInput, Pressable} from 'react-native';
+import {View, Text, TextInput, Pressable, StyleSheet} from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
+import {BlurView} from '@react-native-community/blur';
 
 type CodeInputProps = {
     maxLength: number;
@@ -59,14 +60,26 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
         return (
             <View
                 style={{
-                    width: '18%',
-                    padding: 12,
-                    borderBottomWidth: 5,
-                    borderRadius: 10,
-                    borderColor: inputFocused && isDigitFocused ? COLORS.PINK : COLORS.DARKERGREY,
+                    width: '15%',
+                    height: 60,
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: inputFocused && isDigitFocused ? COLORS.PINK : 'rgba(255,255,255,0.3)',
+                    overflow: 'hidden',
+                    backgroundColor: 'rgba(255,255,255,0.05)',
                 }}
                 key={index}>
-                <Text style={{...FONTS.Title2, fontSize: 18, textAlign: 'center'}}>{digit}</Text>
+                <BlurView
+                    style={StyleSheet.absoluteFill}
+                    blurType="light"
+                    blurAmount={10}
+                    reducedTransparencyFallbackColor="rgba(255,255,255,0.1)"
+                />
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{...FONTS.Title2, fontSize: 24, textAlign: 'center', color: COLORS.WHITE}}>
+                        {digit}
+                    </Text>
+                </View>
             </View>
         );
     };
@@ -74,7 +87,7 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
     return (
         <View style={{alignItems: 'center'}}>
             <Pressable
-                style={{width: '80%', flexDirection: 'row', justifyContent: 'space-between'}}
+                style={{width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 8}}
                 onPress={handleOnPress}>
                 {codeDigitArray.map(toCodeDigitInput)}
             </Pressable>

@@ -1,4 +1,4 @@
-import {View, Text, ImageBackground, KeyboardAvoidingView, TextInput, FlatList, ScrollView} from 'react-native';
+import {View, Text, ImageBackground, KeyboardAvoidingView, TextInput, FlatList, ScrollView, StyleSheet} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import styles from './styles';
@@ -79,14 +79,8 @@ const OnboardCruSuggestions = () => {
         <View>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                           <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                                            style={{
-                                                position: 'absolute',
-                                                left: 0,
-                                                right: 0,
-                                                top: 0,
-                                                height: SIZES.ScreenHeight,
-                                            }}
+                                            colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                                            style={StyleSheet.absoluteFill}
                                         />
                 <View style={{flex: 1}}>
                     <View style={styles.container}>
@@ -121,7 +115,12 @@ const OnboardCruSuggestions = () => {
                                 </View>
                             </View>
                         </View>
-                        <ScrollView>
+                        <ScrollView contentContainerStyle={{
+                            flexGrow: 1,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            paddingBottom: 24,
+                        }}>
                             {searchInput.length === 0 && (
                                 <View style={{marginBottom: '35%'}}>
                                     <FlatList

@@ -7,6 +7,8 @@ import {
     useWindowDimensions,
     ViewStyle,
     TextStyle,
+    ImageBackground,
+    StyleSheet,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -21,6 +23,8 @@ import OnboardContactList from './OnboardContactList';
 import useAuthStore from '../../../stores/auth.store';
 import BackButton from '../../../components/General/backbutton';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
+import LinearGradient from 'react-native-linear-gradient';
+import imageindex from '../../../../assets/images/imageindex';
 
 const FirstRoute = () => (
     <View style={{marginBottom: '3%'}}>
@@ -130,27 +134,33 @@ const OnboardCruBuilder = () => {
     };
 
     return (
-        <View style={{flex: 1}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                <BackButton navigation={navigation} />
-                <View>
-                    <TouchableOpacity
-                        style={{flexDirection: 'row', alignItems: 'center'}}
-                        onPress={handleNavigateToSwipe}>
-                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>Watch Content</Text>
-                        <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.AKCRUPINK} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <TabView
-                navigationState={{index, routes}}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={{width: layout.width}}
-                swipeEnabled={true}
-                renderTabBar={renderTabBar}
+        <ImageBackground style={{flex: 1}} source={imageindex.BgImageSM} resizeMode={'cover'}>
+            <LinearGradient
+                colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                style={StyleSheet.absoluteFill}
             />
-        </View>
+            <View style={{flex: 1}}>
+                <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <BackButton navigation={navigation} />
+                    <View>
+                        <TouchableOpacity
+                            style={{flexDirection: 'row', alignItems: 'center'}}
+                            onPress={handleNavigateToSwipe}>
+                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUPINK}}>Watch Content</Text>
+                            <Icon name="chevron-forward" type="ionicon" size={20} color={COLORS.AKCRUPINK} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                <TabView
+                    navigationState={{index, routes}}
+                    renderScene={renderScene}
+                    onIndexChange={setIndex}
+                    initialLayout={{width: layout.width}}
+                    swipeEnabled={true}
+                    renderTabBar={renderTabBar}
+                />
+            </View>
+        </ImageBackground>
     );
 };
 

@@ -63,6 +63,7 @@ const useAuthStore = create<IAuthStore>()(
                     const data = loginResponse.data as ILoginResponse;
                     const session = data.session;
                     const user = data.user;
+
                     const hasOtherSessions = data.hasOtherSessions;
                     const otherSessionsCount = data.otherSessionsCount;
 
@@ -118,6 +119,7 @@ const useAuthStore = create<IAuthStore>()(
                     });
 
                     if (signUpResponse.status !== 200) {
+
                         return {response: signUpResponse, user: null};
                     }
 

@@ -12,7 +12,6 @@ import PhoneForgotPassword from '../screens/loginScreens/resetPassword/PhoneForg
 import Welcome from '../screens/loginScreens/Welcome';
 import OnboardEmail from '../screens/loginScreens/Onboard/OnboardEmail';
 import OnboardPhone from '../screens/loginScreens/Onboard/OnboardPhone';
-import OnboardPassword from '../screens/loginScreens/Onboard/OnboardPassword';
 import OnboardUsername from '../screens/loginScreens/Onboard/OnboardUsername';
 import OnboardName from '../screens/loginScreens/Onboard/OnboardName';
 import OnboardDOB from '../screens/loginScreens/Onboard/OnboardDOB';
@@ -43,10 +42,6 @@ export type AuthStackParams = {
     };
     OnboardEmail: any;
     OnboardPhone: any;
-    OnboardPassword: {
-        email?: string;
-        phoneNumber?: string;
-    };
     OnboardUsername: any;
     OnboardName: any;
     OnboardDOB: any;
@@ -125,14 +120,6 @@ export default function AuthStack(params: any) {
             <Auth.Screen
                 name="OnboardPhone"
                 component={OnboardPhone}
-                options={{
-                    headerShown: false,
-                    gestureDirection: 'horizontal',
-                }}
-            />
-            <Auth.Screen
-                name="OnboardPassword"
-                component={OnboardPassword}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
