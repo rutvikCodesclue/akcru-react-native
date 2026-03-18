@@ -62,6 +62,26 @@ API.interceptors.request.use(
             };
         }
 
+        if (!isProduction) {
+            const base = config.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${config.url ?? ''}`;
+            const safeBody =
+                config.data && typeof config.data === 'object'
+                    ? {
+                          ...config.data,
+                          password: config.data.password ? '***' : config.data.password,
+                      }
+                    : config.data;
+
+            console.log('[AUTH API REQUEST]', {
+                method: config.method,
+                url,
+                baseURL: base,
+                headers: config.headers,
+                body: safeBody,
+            });
+        }
+
         return config;
     },
     error => {
@@ -72,10 +92,34 @@ API.interceptors.request.use(
 // Response interceptor to handle token expiry
 API.interceptors.response.use(
     response => {
+        if (!isProduction) {
+            const base = response.config.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${response.config.url ?? ''}`;
+
+            console.log('[AUTH API RESPONSE]', {
+                url,
+                status: response.status,
+                headers: response.headers,
+                data: response.data,
+            });
+        }
+
         return response;
     },
     async error => {
         const originalRequest = error.config;
+
+        if (!isProduction && originalRequest) {
+            const base = originalRequest.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${originalRequest.url ?? ''}`;
+
+            console.log('[AUTH API ERROR]', {
+                url,
+                status: error.response?.status,
+                headers: error.response?.headers,
+                data: error.response?.data,
+            });
+        }
 
         if (error.response?.status === 401) {
             // Handle 401 responses globally first

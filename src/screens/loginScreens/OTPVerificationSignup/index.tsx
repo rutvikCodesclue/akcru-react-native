@@ -99,13 +99,6 @@ const OTPVerificationSignup = ({route}) => {
         }
         console.log('attemptSignup:', user);
 
-        const {user: loggedInUser, session} = await useAuthStore.getState().loginWithEmail(user.email, signupPassword);
-         console.log('loggedInUser', session);
-        if (!loggedInUser || !session) {
-            throw new Error('Error logging in after signup');
-        }
-        await useAuthStore.getState().hydrateAuth();
-        await useAuthStore.getState().hydrateUser();
         getPushToken(signupEmail);
     };
 

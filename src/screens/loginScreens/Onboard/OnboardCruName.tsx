@@ -251,7 +251,7 @@ const OnboardCruName = () => {
                             <AkcruButtons.LrgButton
                                 variant="auth"
                                 color={isFormComplete ? COLORS.PURPLE : COLORS.DARKGREY}
-                                btnname={'Next'}
+                                btnname={'Finish'}
                                 onPress={() => {
                                 Keyboard.dismiss();
                                 ConfirmChangeCruName();

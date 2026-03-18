@@ -69,6 +69,26 @@ API.interceptors.request.use(
             };
         }
 
+        if (!isProduction) {
+            const base = config.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${config.url ?? ''}`;
+            const safeBody =
+                config.data && typeof config.data === 'object'
+                    ? {
+                          ...config.data,
+                          password: config.data.password ? '***' : config.data.password,
+                      }
+                    : config.data;
+
+            console.log('[API REQUEST]', {
+                method: config.method,
+                url,
+                baseURL: base,
+                headers: config.headers,
+                body: safeBody,
+            });
+        }
+
         return config;
     },
     error => {
@@ -77,8 +97,34 @@ API.interceptors.request.use(
 );
 
 API.interceptors.response.use(
-    response => response,
+    response => {
+        if (!isProduction) {
+            const base = response.config.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${response.config.url ?? ''}`;
+
+            console.log('[API RESPONSE]', {
+                url,
+                status: response.status,
+                headers: response.headers,
+                data: response.data,
+            });
+        }
+
+        return response;
+    },
     async error => {
+        if (!isProduction && error.config) {
+            const base = error.config.baseURL ?? API.defaults.baseURL ?? API.defaults.baseURL ?? '';
+            const url = `${base}${error.config.url ?? ''}`;
+
+            console.log('[API ERROR]', {
+                url,
+                status: error.response?.status,
+                headers: error.response?.headers,
+                data: error.response?.data,
+            });
+        }
+
         // Handle 401 responses globally
         if (error.response?.status === 401) {
             console.log("ERR 401 in API client");
