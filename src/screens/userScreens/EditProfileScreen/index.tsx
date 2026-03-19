@@ -373,20 +373,45 @@ export default function EditProfile({session}: {session: Session}) {
                         <View>
                             <Text style={styles.title}>EDIT PROFILE</Text>
                             <View style={{alignItems: 'center'}}>
-                                <HexAvatar
-                                    source={{uri: selectImage}}
-                                    size={isTablet() ? 140 : 100}
-                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                />
-                                <Text
-                                    style={{
-                                        ...FONTS.paragraph2,
-                                        color: COLORS.PINK,
-                                        marginTop: 10,
-                                        opacity: isSelectingImage ? 0.6 : 1,
-                                    }}>
-                                    {isSelectingImage ? 'Opening...' : 'Select a photo'}
-                                </Text>
+                                {/* Profile picture - tap HexAvatar to pick (same as OnboardCruName) */}
+                                <TouchableOpacity
+                                    onPress={() => selectProfileImage()}
+                                    disabled={isSelectingImage}
+                                    style={{alignItems: 'center', justifyContent: 'center'}}
+                                    activeOpacity={0.8}>
+                                    <View style={{width: isTablet() ? 140 : 100, height: isTablet() ? 140 : 100, alignItems: 'center', justifyContent: 'center'}}>
+                                        <HexAvatar
+                                            source={{uri: selectImage}}
+                                            size={isTablet() ? 140 : 100}
+                                            bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        />
+                                        {isSelectingImage && (
+                                            <View
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0,
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                                    borderRadius: 8,
+                                                }}>
+                                                <ActivityIndicator size="large" color={COLORS.PINK} />
+                                            </View>
+                                        )}
+                                    </View>
+                                    <Text
+                                        style={{
+                                            ...FONTS.paragraph2,
+                                            color: COLORS.PINK,
+                                            marginTop: 10,
+                                            opacity: isSelectingImage ? 0.6 : 1,
+                                        }}>
+                                        {isSelectingImage ? 'Opening...' : 'Tap to pick a profile photo'}
+                                    </Text>
+                                </TouchableOpacity>
                                 <View>
                                     <TouchableOpacity
                                         style={{flexDirection: 'row', alignItems: 'center'}}

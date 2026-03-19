@@ -28,7 +28,6 @@ import useAuthStore from '../../../stores/auth.store';
 import {AkcruLogo} from '../../../../assets/svg';
 import axios from 'axios';
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
-import {getPushToken} from '../../../../lib/pushNotifications';
 import {Icon} from '@rneui/base';
 import ProgressBar from '../../../components/ProgressBar';
 import { isTablet } from '../../../../assets/constants/theme';
@@ -114,8 +113,6 @@ const OnboardPassword = ({route}) => {
 
             await useAuthStore.getState().hydrateAuth();
             await useAuthStore.getState().hydrateUser();
-
-            getPushToken(email);
 
             navigation.navigate('OnboardUsername', {phoneNumber: phoneNumber});
         } catch (error) {

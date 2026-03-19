@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet, Platform, Keyboard, ScrollView, KeyboardAvoidingView} from 'react-native';
+import {View, Text, TouchableOpacity, ImageBackground, Modal, Alert, StyleSheet, Platform, Keyboard, ScrollView, KeyboardAvoidingView, ActivityIndicator} from 'react-native';
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {Icon} from '@rneui/base';
@@ -228,20 +228,38 @@ const OnboardCruName = () => {
                         </Text>
                     {/* Cru name input */}
 
-                        {/* Profile picture selection */}
+                        {/* Profile picture selection - tap HexAvatar to pick */}
                         <View style={{alignItems: 'center', marginTop: 20}}>
-                            <HexAvatar
-                                source={{uri: selectImage}}
-                                size={profilePicture}
-                                bordercolor={COLORS.AKCRUBLUE}
-                            />
-                        </View>
-                        <View>
                             <TouchableOpacity
                                 onPress={() => selectProfileImage()}
-                                disabled={isSelectingImage}>
+                                disabled={isSelectingImage}
+                                style={{alignItems: 'center', justifyContent: 'center'}}
+                                activeOpacity={0.8}>
+                                <View style={{width: profilePicture, height: profilePicture, alignItems: 'center', justifyContent: 'center'}}>
+                                    <HexAvatar
+                                        source={{uri: selectImage}}
+                                        size={profilePicture}
+                                        bordercolor={COLORS.AKCRUBLUE}
+                                    />
+                                    {isSelectingImage && (
+                                        <View
+                                            style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                backgroundColor: 'rgba(0,0,0,0.4)',
+                                                borderRadius: 8,
+                                            }}>
+                                            <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                                        </View>
+                                    )}
+                                </View>
                                 <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 10, opacity: isSelectingImage ? 0.6 : 1}]}>
-                                    {isSelectingImage ? 'Opening...' : 'Pick a profile photo'}
+                                    {isSelectingImage ? 'Opening...' : 'Tap to pick a profile photo'}
                                 </Text>
                             </TouchableOpacity>
                         </View>

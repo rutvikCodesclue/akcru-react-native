@@ -19,7 +19,6 @@ import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import StepperDots from '../../../components/StepperDots';
 import useAuthStore from '../../../stores/auth.store';
-import {getPushToken} from '../../../../lib/pushNotifications';
 const TOTAL_STEPS = 5;
 const CURRENT_STEP = 2; // Verify OTP is step 2 in onboard flow
 
@@ -98,8 +97,6 @@ const OTPVerificationSignup = ({route}) => {
             throw new Error(message);
         }
         console.log('attemptSignup:', user);
-
-        getPushToken(signupEmail);
     };
 
     const handleOTPVerification = async () => {
