@@ -49,6 +49,7 @@ const FlickFlirtResults = () => {
 
     // interstitial
     const [adLoaded, setAdLoaded] = useState(false);
+    const [showEntryOverlay, setShowEntryOverlay] = useState(true);
     const interstitialRef = useRef<InterstitialAd | null>(null);
     const showOncePerFocusRef = useRef(false);
 
@@ -64,6 +65,7 @@ const FlickFlirtResults = () => {
         interstitialRef.current = ad;
 
         const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
+            setAdLoaded(true);
             // show only once per focus
             if (!showOncePerFocusRef.current) {
                 showOncePerFocusRef.current = true;
@@ -72,8 +74,12 @@ const FlickFlirtResults = () => {
         });
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
             setAdLoaded(false);
+            setShowEntryOverlay(false);
         });
-        const offError = ad.addAdEventListener(AdEventType.ERROR, () => setAdLoaded(false));
+        const offError = ad.addAdEventListener(AdEventType.ERROR, () => {
+            setAdLoaded(false);
+            setShowEntryOverlay(false);
+        });
 
         ad.load();
         return () => {
@@ -88,15 +94,21 @@ const FlickFlirtResults = () => {
         React.useCallback(() => {
             // allow one show each time the screen is focused
             showOncePerFocusRef.current = false;
+            setShowEntryOverlay(true);
 
             // trigger load; LOADED handler will show it once
             interstitialRef.current?.load();
 
-            return () => {};
+            // Fallback: don't block UI indefinitely if ad callbacks delay/fail.
+            const timeout = setTimeout(() => {
+                setShowEntryOverlay(false);
+            }, 5000);
+
+            return () => clearTimeout(timeout);
         }, []),
     );
 
-    // 
+    //
     const [phase, setPhase] = useState<'checking' | 'ready'>('checking');
 
     const load = async () => {
@@ -294,6 +306,32 @@ const FlickFlirtResults = () => {
                             />
                         </View>
                     </View>
+
+                    {showEntryOverlay && (
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                            }}>
+                            <ImageBackground
+                                source={imageindex.BgImageSM}
+                                resizeMode="cover"
+                                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                                <LinearGradient
+                                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                                    style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
+                                />
+                                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                                    <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY, marginBottom: 12}]}>
+                                        Loading...
+                                    </Text>
+                                </View>
+                            </ImageBackground>
+                        </View>
+                    )}
                 </SafeAreaView>
             </ImageBackground>
 

@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Text, SafeAreaView, ImageBackground} from 'react-native';
+import React, {useState, useRef, useCallback} from 'react';
+import {View, Text, SafeAreaView, ImageBackground, Image, Modal, ActivityIndicator} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,22 +17,45 @@ import useAuthStore from '../../../../stores/auth.store';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {Icon} from '@rneui/base';
 import {isTablet} from '../../../../../assets/constants/theme';
+import {archetypeMapping} from '../../../../../assets/constants/archetypeMapping';
+import {MOVIE_GENRES} from '../../../../../assets/constants/Data';
+
+/** Normalize API genre string to match archetypeMapping keys (e.g. "SciFi", "Drama") */
+function normalizeGenre(genre: string | undefined): string | null {
+    if (!genre || !genre.trim()) return null;
+    const g = genre.trim();
+    const found = MOVIE_GENRES.find(item => item.id !== '0' && item.genre.toLowerCase() === g.toLowerCase());
+    if (found) return found.genre;
+    return g.charAt(0).toUpperCase() + g.slice(1).toLowerCase();
+}
 
 const FlickFlirtSwipe = () => {
     const [movies, setMovies] = useState<IMovie[]>([]);
     const [swipeResult, setSwipeResult] = useState<null | 'LIKE' | 'NOPE'>(null);
+    const [isLoadingMovies, setIsLoadingMovies] = useState(true);
+    const [isIntroLoading, setIsIntroLoading] = useState(true);
+    const showLoader = isIntroLoading || isLoadingMovies;
+    const rightSwipedGenreCounts = useRef<Record<string, number>>({});
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const {hydrateUser} = useAuthStore();
 
     useFocusEffect(
-        React.useCallback(() => {
-            findFlickFlirtMovies().then(setMovies).catch(console.error);
+        useCallback(() => {
+            setIsIntroLoading(true);
+            setIsLoadingMovies(true);
+            const introTimer = setTimeout(() => setIsIntroLoading(false), 3000);
+            findFlickFlirtMovies()
+                .then(setMovies)
+                .catch(console.error)
+                .finally(() => setIsLoadingMovies(false));
+            rightSwipedGenreCounts.current = {};
+            return () => clearTimeout(introTimer);
         }, []),
     );
 
     useFocusEffect(
-        React.useCallback(() => {
+        useCallback(() => {
             hydrateUser();
             return () => {
                 hydrateUser();
@@ -40,39 +63,77 @@ const FlickFlirtSwipe = () => {
         }, [hydrateUser]),
     );
 
-    const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE') => {
+    const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE', movie?: IMovie) => {
         try {
             await API.post('v1/flickflirt/swipe', {movieId, type});
+            if (type === 'LIKE' && movie?.genres?.length) {
+                const counts = rightSwipedGenreCounts.current;
+                [movie.genres[0], movie.genres[1]].forEach(g => {
+                    const norm = normalizeGenre(g);
+                    if (norm) counts[norm] = (counts[norm] ?? 0) + 1;
+                });
+            }
         } catch (error) {
             console.error('Error recording swipe:', error);
         }
     };
 
-    const onSwipedAll = () => {
-        // After swiping, go to the preferences flow
+    const onSwipedAll = async () => {
+        const counts = rightSwipedGenreCounts.current;
+        const sorted = Object.entries(counts)
+            .filter(([, c]) => c > 0)
+            .sort((a, b) => b[1] - a[1]);
+        const topTwo = sorted.slice(0, 2).map(([genre]) => genre);
+        console.log("topTwo----",topTwo);
+        if (topTwo.length >= 2) {
+            const archetypeKey = [...topTwo].sort().join(', ');
+            const selectedArchetype = archetypeMapping[archetypeKey];
+            if (selectedArchetype) {
+                console.log('[FlickFlirt Archetype]', {
+                    archetypeName: selectedArchetype.name,
+                    likedGenres: topTwo,
+                    genreCounts: Object.fromEntries(sorted.slice(0, 2)),
+                });
+                navigation.navigate('FlickFlirtArchetypeResult', {
+                    name: selectedArchetype.name,
+                    image: selectedArchetype.image,
+                    description: selectedArchetype.description,
+                    genres: topTwo,
+                });
+                return;
+            }
+        }
         navigation.navigate('FlickFlirtPref');
     };
 
     return (
-        <View>
+        <View style={{flex: 1}}>
             <ImageBackground
-                source={imageindex.FLickFlirt}
+                source={showLoader ? imageindex.BgImageSM : imageindex.FLickFlirt}
                 resizeMode="cover"
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView style={{flex: 1}}>
                     <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        colors={
+                            showLoader
+                                ? ['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']
+                                : [COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]
+                        }
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
 
-                    <Header />
-                    <BackButton navigation={navigation} />
+                    {!showLoader && (
+                        <>
+                            <Header />
+                            <BackButton navigation={navigation} />
+                        </>
+                    )}
 
                     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                        {movies.length > 0 ? (
+                        {!showLoader && movies.length > 0 ? (
                             <Swiper
                                 cards={movies}
-                                renderCard={(movie: IMovie) => (
+                                renderCard={(movie: IMovie, cardIndex: number) => (
                                     <View style={styles.card}>
                                         <ImageBackground source={{uri: movie.portraitURL}} style={styles.cardImage}>
                                             <LinearGradient
@@ -85,6 +146,9 @@ const FlickFlirtSwipe = () => {
                                                     height: '100%',
                                                 }}
                                             />
+                                            <View style={styles.cardIndexBadge} pointerEvents="none">
+                                                <Text style={styles.cardIndexText}>{cardIndex + 1}</Text>
+                                            </View>
                                             <View style={{padding: isTablet() ? 30 : 10}}>
                                                 <Text style={styles.bigTitle}>{movie.title}</Text>
                                                 <View style={{flexDirection: 'row', marginVertical: 10}}>
@@ -104,12 +168,12 @@ const FlickFlirtSwipe = () => {
                                 )}
                                 onSwipedLeft={cardIndex => {
                                     setSwipeResult('NOPE');
-                                    handleSwipe(movies[cardIndex].id, 'DISLIKE');
+                                    handleSwipe(movies[cardIndex].id, 'DISLIKE', movies[cardIndex]);
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
                                 onSwipedRight={cardIndex => {
                                     setSwipeResult('LIKE');
-                                    handleSwipe(movies[cardIndex].id, 'LIKE');
+                                    handleSwipe(movies[cardIndex].id, 'LIKE', movies[cardIndex]);
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
                                 backgroundColor="transparent"
@@ -168,22 +232,37 @@ const FlickFlirtSwipe = () => {
                                 }}
                                 animateOverlayLabelsOpacity
                             />
-                        ) : (
-                            <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>Loading movies...</Text>
-                        )}
+                        ) : !showLoader ? (
+                            <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>No movies available.</Text>
+                        ) : null}
                     </View>
 
-                    <View style={{alignItems: 'center', marginBottom: '20%'}}>
-                        <Text style={[FONTS.Title3, {color: COLORS.AKCRUPINK}]}>
-                            Swipe right if you like, swipe left if you dislike
-                        </Text>
-                        <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '40%'}}>
-                            <Icon name="sad" type="ionicon" color={COLORS.CATREDLGT} size={isTablet() ? 60 : 40} />
-                            <Icon name="happy" type="ionicon" color={COLORS.AKCRUBLUE} size={isTablet() ? 60 : 40} />
+                    {!showLoader && (
+                        <View style={{alignItems: 'center', marginBottom: '20%'}}>
+                            <Text style={[FONTS.Title3, {color: COLORS.AKCRUPINK}]}>
+                                Swipe right if you like, swipe left if you dislike
+                            </Text>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '40%'}}>
+                                <Icon name="sad" type="ionicon" color={COLORS.CATREDLGT} size={isTablet() ? 60 : 40} />
+                                <Icon name="happy" type="ionicon" color={COLORS.AKCRUBLUE} size={isTablet() ? 60 : 40} />
+                            </View>
                         </View>
-                    </View>
+                    )}
                 </SafeAreaView>
             </ImageBackground>
+
+            <Modal animationType="fade" transparent visible={showLoader}>
+                <View
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    }}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                    <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Finding movies....</Text>
+                </View>
+            </Modal>
         </View>
     );
 };

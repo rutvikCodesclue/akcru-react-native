@@ -4,7 +4,7 @@ buildscript {
     compileSdkVersion       = 35
     targetSdkVersion        = 35
     minSdkVersion           = 23
-    ndkVersion              = "23.1.7779620"
+    ndkVersion              = "26.1.10909125"
     kotlinVersion           = "1.9.24"
 
     // any per-module overrides if you still need them
@@ -62,7 +62,7 @@ subprojects { proj ->
         }
         androidExt.namespace = ns
       }
-      
+
       // 3) Ensure compileSdkVersion is set
       if (!androidExt.hasProperty("compileSdkVersion") || !androidExt.compileSdkVersion) {
         androidExt.compileSdkVersion rootProject.ext.compileSdkVersion
@@ -110,19 +110,19 @@ subprojects { subproject ->
         subproject.android {
           // Explicitly set compileSdkVersion for HMS module
           compileSdkVersion rootProject.ext.compileSdkVersion
-          
+
           compileOptions {
             sourceCompatibility JavaVersion.VERSION_17
             targetCompatibility JavaVersion.VERSION_17
             coreLibraryDesugaringEnabled true
           }
-          
+
           // Ensure defaultConfig is properly set
           defaultConfig {
             minSdkVersion Math.max(21, rootProject.ext.minSdkVersion)
           }
         }
-        
+
         // Add desugar runtime dependency
         subproject.dependencies.add(
           "coreLibraryDesugaring",
@@ -167,12 +167,12 @@ subprojects { sp ->
         sp.android {
           // Explicitly set compileSdkVersion for Castle module
           compileSdkVersion rootProject.ext.compileSdkVersion
-          
+
           compileOptions {
             sourceCompatibility JavaVersion.VERSION_17
             targetCompatibility JavaVersion.VERSION_17
           }
-          
+
           // Ensure defaultConfig is properly set
           defaultConfig {
             minSdkVersion Math.max(21, rootProject.ext.minSdkVersion)

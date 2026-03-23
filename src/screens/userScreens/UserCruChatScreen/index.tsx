@@ -22,6 +22,7 @@ import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {navigate} from '../../../util/RootNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
@@ -245,7 +246,7 @@ const UserCruChatScreen = () => {
                                 alignItems: 'flex-end',
                             }}>
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
+                                onPress={() => navigate('NoBottomStack', { screen: 'UserMITHubScreen', params: { index: 0 } })} //Navigate to MITHub
                             >
                                 <View>
                                     <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />

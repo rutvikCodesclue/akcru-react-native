@@ -62,8 +62,10 @@ import FlickFlirtPrefB from '../screens/CenterButtonScreens/FlickFlirt/FlickFlir
 import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefC';
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
+import FlickFlirtArchetypeResult from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtArchetypeResult';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
 import FlickFlirtResults from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtResults';
+import DiscoverArchetypeScreen from '../screens/CenterButtonScreens/FlickFlirt/DiscoverArchetypeScreen';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
@@ -99,8 +101,15 @@ export type NoBottomTabStackParams = {
     FlickFlirtPrefC: any;
     FlickFlirtPrefD: any;
     FlickFlirtSwipe: any;
+    FlickFlirtArchetypeResult: {
+        name: string;
+        image: string;
+        description: string;
+        genres: string[];
+    };
     FlickFlirtMatches: any;
     FlickFlirtResults: {startedAt?: number};
+    DiscoverArchetypeScreen: any;
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     TrailerPlayer: any;
@@ -661,6 +670,13 @@ export default function NoBottomStack() {
                 })}
             />
             <NoBottom.Screen
+                name="FlickFlirtArchetypeResult"
+                component={FlickFlirtArchetypeResult}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
                 name="FlickFlirtMatches"
                 component={FlickFlirtMatches}
                 options={() => ({
@@ -670,6 +686,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtResults"
                 component={FlickFlirtResults}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="DiscoverArchetypeScreen"
+                component={DiscoverArchetypeScreen}
                 options={() => ({
                     headerShown: false,
                 })}

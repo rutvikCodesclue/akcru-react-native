@@ -297,6 +297,51 @@ export default function EditProfile({session}: {session: Session}) {
 
     const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
 
+    const FLICKFLIRT_TOP_GENRES_KEY = 'flickflirt_top_genres';
+
+    useFocusEffect(
+        React.useCallback(() => {
+            let isMounted = true;
+            (async () => {
+                try {
+                    const genreNames: string[] | null = (() => {
+                        if (user?.archetype) {
+                            try {
+                                const parsed = JSON.parse(user.archetype);
+                                if (Array.isArray(parsed?.genres) && parsed.genres.length >= 2) return parsed.genres;
+                            } catch (_) {}
+                        }
+                        return null;
+                    })();
+                    if (!isMounted) return;
+                    const namesToUse =
+                        genreNames ??
+                        (await AsyncStorage.getItem(FLICKFLIRT_TOP_GENRES_KEY).then(raw => {
+                            if (!raw) return null;
+                            try {
+                                const arr = JSON.parse(raw);
+                                return Array.isArray(arr) && arr.length >= 2 ? arr : null;
+                            } catch {
+                                return null;
+                            }
+                        }));
+                    if (!isMounted || !namesToUse || namesToUse.length < 2) return;
+                    const initial: Record<string, boolean> = {};
+                    namesToUse.forEach(name => {
+                        const item = MOVIE_GENRES.find(g => g.id !== '0' && g.genre.toLowerCase() === String(name).toLowerCase());
+                        if (item) initial[item.id] = true;
+                    });
+                    if (Object.keys(initial).length > 0) setCheckedGenres(initial);
+                } catch (e) {
+                    console.warn('EditProfile: could not load default genres', e);
+                }
+            })();
+            return () => {
+                isMounted = false;
+            };
+        }, [user?.archetype]),
+    );
+
     const [isArchetypeModalVisible, setArchetypeModalVisible] = useState(false);
     const [isHelpModalVisible, setHelpModalVisible] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);

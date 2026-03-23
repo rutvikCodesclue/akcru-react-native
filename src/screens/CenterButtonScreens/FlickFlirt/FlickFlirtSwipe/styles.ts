@@ -67,6 +67,21 @@ export default StyleSheet.create({
         ...FONTS.HeroTitle,
         width: '75%',
     },
+    /** Swipe card index — top right, large semi-transparent */
+    cardIndexBadge: {
+        position: 'absolute',
+        top: isTablet() ? 18 : 12,
+        right: isTablet() ? 18 : 12,
+        zIndex: 2,
+    },
+    cardIndexText: {
+        fontSize: isTablet() ? 60 : 60,
+        fontWeight: '800',
+        color: 'rgba(255, 255, 255, 0.72)',
+        textShadowColor: 'rgba(0, 0, 0, 0.55)',
+        textShadowOffset: {width: 0, height: 1},
+        textShadowRadius: 4,
+    },
     desc: {
         ...FONTS.paragraph1,
         marginBottom: 10,
