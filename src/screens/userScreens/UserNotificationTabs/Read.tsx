@@ -19,6 +19,7 @@ import {UseTabMenu} from '../../../context/TabContext';
 import useAuthStore from '../../../stores/auth.store';
 import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
+import {navigate} from '../../../util/RootNavigation';
 
 const LOAD_MORE_COUNT = 10;
 
@@ -65,13 +66,19 @@ const Read = () => {
             let currentUser;
             switch (notification.type) {
                 case 'MITReceived':
-                    navigation.navigate('UserMITHubScreen', {index: 0});
+                    navigate('NoBottomStack', {
+                        screen: 'UserMITHubScreen',
+                        params: {index: 0},
+                    });
                     break;
                 case 'MITAccepted':
                     navigation.navigate('UserProfileScreen', {index: 1});
                     break;
                 case 'MITDeclined':
-                    navigation.navigate('UserMITHubScreen', {index: 1});
+                    navigate('NoBottomStack', {
+                        screen: 'UserMITHubScreen',
+                        params: {index: 1},
+                    });
                     break;
                 case 'CruViewStarted':
                     navigation.navigate('UserProfileScreen', {index: 1});

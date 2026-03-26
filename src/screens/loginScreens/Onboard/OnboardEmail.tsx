@@ -177,7 +177,7 @@ const OnboardEmail = () => {
 
             setResetResultType({
                 messageheader: 'Error',
-                messageheadercolor: COLORS.CATREDDRK,
+                messageheadercolor: COLORS.BLACK,
                 message: error.response.data.message || 'Error while sending OTP',
                 iconname: 'alert-circle',
                 iconcolor: COLORS.CATREDLGT,

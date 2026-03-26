@@ -31,7 +31,7 @@ const ResetPasswordResultModal = ({
             }}>
             <View
                 style={{
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    backgroundColor: COLORS.WHITE,
                     padding: 20,
                     borderRadius: 10,
                     alignItems: 'center',
@@ -55,6 +55,7 @@ const ResetPasswordResultModal = ({
                     style={{
                         ...FONTS.Title3,
                         marginBottom: 10,
+                        color: COLORS.CATGREENDRK,
                         textAlign: 'center',
                     }}>
                     {message}

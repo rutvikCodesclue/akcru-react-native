@@ -36,6 +36,8 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import BackButton from '../../../components/General/backbutton';
+import {navigate} from '../../../util/RootNavigation';
+import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;
 
@@ -52,6 +54,7 @@ const SecondRoute = () => <Bulletin />;
 
 const UserCruChatScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+    useHideBottomTabBarWhileFocused(navigation);
     const {user} = useAuthStore();
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
@@ -245,8 +248,12 @@ const UserCruChatScreen = () => {
                                 alignItems: 'flex-end',
                             }}>
                             <TouchableOpacity
-                                onPress={() => navigation.navigate('UserMITHubScreen')} //Navigate to MITHub
-                            >
+                                onPress={() =>
+                                    navigate('NoBottomStack', {
+                                        screen: 'UserMITHubScreen',
+                                        params: {index: 0},
+                                    })
+                                }>
                                 <View>
                                     <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
                                 </View>
