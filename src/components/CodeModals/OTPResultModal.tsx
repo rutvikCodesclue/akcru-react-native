@@ -20,7 +20,7 @@ const OTPResultModal = ({closeModal, type}: OTPResultModalProps) => {
             }}>
             <View
                 style={{
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    backgroundColor: COLORS.WHITE,
                     padding: 20,
                     borderRadius: 10,
                     alignItems: 'center',
@@ -32,7 +32,7 @@ const OTPResultModal = ({closeModal, type}: OTPResultModalProps) => {
                         name={type === 'success' ? 'checkmark-circle' : 'close-circle'}
                         type="ionicon"
                         size={80}
-                        color={type === 'success' ? COLORS.GREEN : COLORS.CATREDLGT}
+                        color={type === 'success' ? COLORS.PURPLE : COLORS.CATREDLGT}
                     />
                 </View>
                 <Text
@@ -49,6 +49,7 @@ const OTPResultModal = ({closeModal, type}: OTPResultModalProps) => {
                     style={{
                         ...FONTS.Title3,
                         marginBottom: 10,
+                         color: COLORS.AKCRUBACKGROUND,
                         textAlign: 'center',
                     }}>
                     {type === 'success'

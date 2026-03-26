@@ -22,6 +22,7 @@ import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import {ChatList} from '../screens/ChatList';
+import {CruChat} from '../screens/ChatScreens';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
@@ -56,6 +57,7 @@ export type UserProfileStackParams = {
     FlickFlirtScreen: any;
     ViewUserFollowList: any;
     ViewUserScreen: any;
+    ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
     ChatList: any;
     AdminGrantADScreen: any;
     AdminWalletSearch: any;
@@ -226,13 +228,13 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            {/* <UserProfile.Screen
-              name="ViewChat"
-              component={CruChat}
-              options={() => ({
-                  headerShown: false,
-              })}
-          /> */}
+            <UserProfile.Screen
+                name="ViewChat"
+                component={CruChat}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
             <UserProfile.Screen
                 name="ChatList"
                 component={ChatList}

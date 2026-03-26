@@ -20,6 +20,7 @@ import {IMessage} from 'react-native-gifted-chat';
 import {HMSSDK} from '@100mslive/react-native-hms';
 import {getMitMessages} from '../../../lib/api/rooms.lib';
 import useAuthStore from '../../../stores/auth.store';
+import {navigate} from '../../../util/RootNavigation';
 import HexAvatar from '../../../components/HexAvatar';
 import {
     capitalizeFirstLetterOfString,
@@ -214,7 +215,13 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     }}
                                 />
                                 <View style={styles.topcontainer}>
-                                    <TouchableOpacity onPress={() => navigation.navigate('UserMITHubScreen')}>
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            navigate('NoBottomStack', {
+                                                screen: 'UserMITHubScreen'
+
+                                            })
+                                        }>
                                         <View
                                             style={{
                                                 flexDirection: 'row',

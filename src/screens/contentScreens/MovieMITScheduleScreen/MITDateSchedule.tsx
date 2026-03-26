@@ -76,7 +76,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             ticketTimerRef.current = setTimeout(() => {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
-                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+                navigation.navigate('UserMITHubScreen', {index: 1});
             }, TICKET_DISPLAY_MS);
 
             ad.load(); // preload next ad
@@ -177,6 +177,21 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedBorderColor(borderColor);
     };
 
+    const preFilledInviteeFromRoute = useRef(false);
+    useEffect(() => {
+        preFilledInviteeFromRoute.current = false;
+    }, [userID]);
+    useEffect(() => {
+        if (preFilledInviteeFromRoute.current || !userID || !user?.username) {
+            return;
+        }
+        if (String(user.id) !== String(userID)) {
+            return;
+        }
+        preFilledInviteeFromRoute.current = true;
+        handlePress(user.username, user.badge, user.profilePicture);
+    }, [user, userID]);
+
     //Scheduling date states
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -242,42 +257,51 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
 
     const handleSetDateTime = async () => {
+        if (
+            !selectedDate ||
+            !selectedTime ||
+            !selectedTimeZone?.trim() ||
+            !movie?.id ||
+            !selectedUserName?.trim()
+        ) {
+            return;
+        }
+
+        const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
+        if (!formattedSelectedDateTimeInISO) {
+            return;
+        }
+
         setIsSelectionDisabled(true);
-        if (selectedDate && selectedTime && selectedTimeZone && movie && selectedUserName) {
-            const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
+        try {
+            const response = await createAMITInvite({
+                movieId: movie.id,
+                username: selectedUserName.trim(),
+                startDate: formattedSelectedDateTimeInISO,
+                timezone: selectedTimeZone,
+            });
 
-            if (formattedSelectedDateTimeInISO) {
-                const response = await createAMITInvite({
-                    movieId: movie.id,
-                    username: selectedUserName,
-                    startDate: formattedSelectedDateTimeInISO,
-                    timezone: selectedTimeZone,
-                });
+            if (response) {
+                setIsDateTimeSelected(true);
+                setShowSendMIT(true);
 
-                if (response) {
-                    // show your success ticket UI under the ad
-                    setIsDateTimeSelected(true);
-                    setShowSendMIT(true);
-
-                    if (adLoaded && interstitialRef.current) {
-                        interstitialRef.current.show();
-                    } else {
-                        // show ticket now, then navigate after delay
-                        setShowSendMIT(true);
-
-                        if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-                        ticketTimerRef.current = setTimeout(() => {
-                            setShowSendMIT(false);
-                            setIsSelectionDisabled(true);
-                            navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
-                        }, TICKET_DISPLAY_MS);
-
-                        interstitialRef.current?.load?.();
-                    }
+                if (adLoaded && interstitialRef.current) {
+                    interstitialRef.current.show();
                 } else {
-                    setIsSelectionDisabled(false);
+                    if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+                    ticketTimerRef.current = setTimeout(() => {
+                        setShowSendMIT(false);
+                        setIsSelectionDisabled(true);
+                        navigation.navigate('UserMITHubScreen', {index: 1});
+                    }, TICKET_DISPLAY_MS);
+
+                    interstitialRef.current?.load?.();
                 }
+            } else {
+                setIsSelectionDisabled(false);
             }
+        } catch {
+            setIsSelectionDisabled(false);
         }
     };
 
@@ -780,7 +804,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         disabled={
                                                             !selectedDate ||
                                                             !selectedTime ||
-                                                            !selectedTimeZone ||
+                                                            !selectedTimeZone?.trim() ||
+                                                            !movie?.id ||
+                                                            !selectedUserName?.trim() ||
                                                             isSelectionDisabled
                                                         }
                                                     />

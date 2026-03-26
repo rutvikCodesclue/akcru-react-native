@@ -585,7 +585,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         alignItems: 'flex-end',
                                     }}>
                                     <TouchableOpacity
-                                        onPress={() => navigate('NoBottomStack', { screen: 'UserMITHubScreen', params: { index: 0 } })} //Navigate to MITHub
+                                        onPress={() =>
+                                            navigate('NoBottomStack', {
+                                                screen: 'UserMITHubScreen',
+                                                params: {index: 0},
+                                            })
+                                        } //Navigate to MITHub
                                         style={{marginRight: '5%'}}>
                                         <View>
                                             <Image

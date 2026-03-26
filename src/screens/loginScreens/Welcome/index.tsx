@@ -252,12 +252,11 @@ paddingBottom:Math.max(insets.bottom+40,70)
 <AkcruLogo width={logoWidth} height={logoHeight}/>
 
 <Text style={styles.headline}>
-Connect through what you watch.
+Connect Through What You Watch
 </Text>
 
 <Text style={styles.subtitle}>
-Discover a more immersive social entertainment experience with seamless access,
-elegant design, and a smoother start.
+Discover People. Send Movie Invites. Create Shared Experiences
 </Text>
 
 </View>
