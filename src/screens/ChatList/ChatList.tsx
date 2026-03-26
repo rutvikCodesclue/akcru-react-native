@@ -10,12 +10,14 @@ import {IChatUser} from '../../../types';
 import {COLORS, SIZES} from '../../../assets/constants';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import BackButton from '../../components/General/backbutton';
+import {useHideBottomTabBarWhileFocused} from '../ChatScreens/useHideBottomTabBarWhileFocused';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
     const {user} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    useHideBottomTabBarWhileFocused(navigation);
 
     useEffect(() => {
         const fetchChatUsers = async () => {

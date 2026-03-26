@@ -1,5 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {Fragment, useEffect, useState} from 'react';
+import {useHideBottomTabBarWhileFocused} from './useHideBottomTabBarWhileFocused';
 import {
     View,
     TouchableOpacity,
@@ -32,6 +33,7 @@ import { handleError } from '../../util/handleError';
 const CruGroupChatComponent = ({cru, members}: any) => {
     const [messages, setMessages] = useState<IMessage[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
+        useHideBottomTabBarWhileFocused(navigation);
     const cruId = cru.id || null;
     const [membersData, setMembersData] = useState({});
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -44,8 +46,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
     const [parentChannel, setParentChannel] = useState<RealtimeChannel | null>(null);
 
-    
-    
+
+
     membersData[user.id] = {
         profilePicture: user?.profilePicture,
         username: user?.username,
@@ -120,14 +122,14 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         }
     } catch (error) {
         console.log("Error fetching Cru Messages:", error);
-        
+
         handleError('Failed to fetch Cru messages. Please try again.');
     }
     };
 
     const messageReceived = (payload: any) => {
         if (payload.payload.deleteid != ""){
-            const deletemsgid =payload.payload.deleteid 
+            const deletemsgid =payload.payload.deleteid
             setMessages(prevMessages =>
                 prevMessages.filter(message => deletemsgid != message._id ),
             );
@@ -162,7 +164,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
 
     const onSendImage = async() => {
         if (!selectedImage && !imageMessageText) return;
-        
+
         const msgId = uuid.v4();
 
         try {
@@ -205,14 +207,14 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         console.error('Error sending image message:', error);
         }
     };
-    
+
     const handleSendMessage = () => {
         if (text.trim().length > 0) {
           onSendText([{ text, user: { _id: user.id } }]);
           setText('');
         }
     };
-    
+
     const onSendText = async (messages: IMessage[] = []) => {
         if (!channel) return;
 
@@ -314,7 +316,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                             setIsSelectionMode(false);
 
                             fetchMessages(cruId);
-                            
+
                         } catch (error) {
                             console.error('Error deleting messages:', error);
                             Alert.alert('Error', 'Failed to delete messages. Please try again.');

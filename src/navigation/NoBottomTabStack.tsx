@@ -32,6 +32,12 @@ import ResumePlayer from '../screens/contentScreens/ResumeContentScreen';
 import SearchMovieResultScreen from '../screens/contentScreens/SearchMovieResultScreen';
 import UserMITHubScreen from '../screens/userScreens/UserMITHubScreen';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
+import {
+    SendMITSchedule,
+    SendMITSearchInput,
+    SendMITSearchResult,
+    SendMITViewUser,
+} from '../screens/crummunityScreens/SendViewUserMITScreens';
 import MITDateSchedule from '../screens/contentScreens/MovieMITScheduleScreen/MITDateSchedule';
 import VisionaryRoomSchedule from '../screens/contentScreens/VisionaryRoomScheduleScreen/VisionaryRoomSchedule'
 import SearchMovieScreen from '../screens/contentScreens/SearchMovieScreen';
@@ -121,6 +127,10 @@ export type NoBottomTabStackParams = {
     ResumePlayer: any;
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
+    SendMITViewUser: any;
+    SendMITSearchInput: any;
+    SendMITSearchResult: any;
+    SendMITSchedule: any;
     MITDateSchedule: any;
     VisionaryRoomSchedule: any;
     VisionaryRoomRequest: any;
@@ -394,6 +404,38 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="ViewUserScreen"
                 component={ViewUserScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SendMITViewUser"
+                component={SendMITViewUser}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SendMITSearchInput"
+                component={SendMITSearchInput}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SendMITSearchResult"
+                component={SendMITSearchResult}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="SendMITSchedule"
+                component={SendMITSchedule}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

@@ -1,4 +1,4 @@
-import {View, StyleSheet, Platform} from 'react-native';
+import {View, StyleSheet} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 
 import {Icon} from '@rneui/base';
@@ -6,6 +6,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import {COLORS, SIZES} from '../../assets/constants';
 
+import {clientTabBarStyle} from './clientTabBarStyle';
 import {ClientStack} from './ClientStack';
 import {CrummunityStack} from './CrummunityStack';
 import {UserProfileStack} from './UserProfileStack';
@@ -71,7 +72,7 @@ export default function ClientTabNavigator() {
             sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
             initialRouteName="CrummunityStack"
             screenOptions={{
-                tabBarStyle: styles.tabBar,
+                tabBarStyle: clientTabBarStyle,
                 tabBarActiveTintColor: COLORS.AKCRUBLUE,
                 tabBarInactiveTintColor: COLORS.LIGHTGREY,
                 tabBarShowLabel: false,
@@ -186,26 +187,6 @@ export default function ClientTabNavigator() {
 }
 
 const styles = StyleSheet.create({
-    tabBar: {
-        position: 'absolute',
-        padding: 0,
-
-        bottom: Platform.OS === 'ios' ? 50 : 10,
-        height: isTablet() ? 80 : 60,
-        borderRadius: 16,
-        backgroundColor: COLORS.TRANSDARKGREY,
-        borderTopColor: 'transparent',
-        shadowColor: COLORS.FADEDBLACK,
-        shadowOffset: {
-            height: 6,
-            width: 0,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-        elevation: 3,
-        marginHorizontal: '3%',
-        alignSelf: 'center',
-    },
     tabIconContainer: {
         position: 'absolute',
         top: isTablet() ? 20 : 15,

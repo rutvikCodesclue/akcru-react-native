@@ -25,6 +25,12 @@ import OnboardCruName from '../screens/loginScreens/Onboard/OnboardCruName';
 import OnboardBuildCru from '../screens/loginScreens/Onboard/OnboardBuildCru';
 import OnboardCruBuilder from '../screens/loginScreens/Onboard/OnboardCruBuilder';
 import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
+import {
+    SendMITSchedule,
+    SendMITSearchInput,
+    SendMITSearchResult,
+    SendMITViewUser,
+} from '../screens/crummunityScreens/SendViewUserMITScreens';
 
 export type AuthStackParams = {
     Welcome: any;
@@ -55,6 +61,10 @@ export type AuthStackParams = {
     OnboardBuildCru: any;
     OnboardCruBuilder: any;
     ViewUserScreen: any;
+    SendMITViewUser: any;
+    SendMITSearchInput: any;
+    SendMITSearchResult: any;
+    SendMITSchedule: any;
     FlickFlirt: any;
 };
 
@@ -257,6 +267,38 @@ export default function AuthStack(params: any) {
             <Auth.Screen
                 name="ViewUserScreen"
                 component={ViewUserScreen}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="SendMITViewUser"
+                component={SendMITViewUser}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="SendMITSearchInput"
+                component={SendMITSearchInput}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="SendMITSearchResult"
+                component={SendMITSearchResult}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <Auth.Screen
+                name="SendMITSchedule"
+                component={SendMITSchedule}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

@@ -118,7 +118,7 @@ const MITUserSearchCard = ({
                         </View>
                     </View>
                     <View>
-                        <TouchableOpacity style={{alignItems: 'center'}} onPressOut={onPressOut}>
+                        <TouchableOpacity style={{alignItems: 'center'}} onPress={onPressOut}>
                             <Image source={imageindex.MITticket} />
                             <View>
                                 <Text style={{...FONTS.Title3, fontSize: 12}}>Send MIT</Text>

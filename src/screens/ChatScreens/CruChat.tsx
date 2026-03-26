@@ -6,7 +6,7 @@ import Header from '../../components/header';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruChatComponent from './CruChatComponent';
 import BackButton from '../../components/General/backbutton';
-
+import {useHideBottomTabBarWhileFocused} from './useHideBottomTabBarWhileFocused';
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
 
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
 
 const CruChat = ({route}: Props) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-
+    useHideBottomTabBarWhileFocused(navigation);
     return (
         <SafeAreaView style={{flex: 1, paddingBottom: 10}}>
             <View style={{zIndex: 20}}>
