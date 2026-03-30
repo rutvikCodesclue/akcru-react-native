@@ -9,6 +9,8 @@ import {
     Modal,
     ImageBackground,
     Platform,
+    StyleSheet,
+    Pressable,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -19,7 +21,6 @@ import imageindex from '../../../../../assets/images/imageindex';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
 import styles from './styles'; // reuse same style module if it contains modal styles; else copy those blocks here
-import {API} from '../../../../clients/api.client';
 import {IUserProfile} from '../../../../../types';
 import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
 import AkcruButtons from '../../../../components/akcruButtons';
@@ -27,7 +28,7 @@ import {isTablet} from '../../../../../assets/constants/theme';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 import useAuthStore from '../../../../stores/auth.store';
 import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
-import { UserProfileStackParams } from '../../../../navigation/UserProfileStack';
+import {Icon} from '@rneui/base';
 
 type Nav = NativeStackNavigationProp<NoBottomTabStackParams>;
 
@@ -35,13 +36,13 @@ const FlickFlirtResults = () => {
     const navigation = useNavigation<Nav>();
     const {hydrateUser} = useAuthStore();
 
-    const navi = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-
     const [matches, setMatches] = useState<IUserProfile[]>([]);
     const [hiddenCount, setHiddenCount] = useState(0);
     const [unlocked, setUnlocked] = useState(false);
     const [unlockOptions, setUnlockOptions] = useState<UnlockOption[]>([]);
     const [loading, setLoading] = useState(true);
+    const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
+    const [selectUserModalVisible, setSelectUserModalVisible] = useState(false);
 
     // unlock modal
     const [modalVisible, setModalVisible] = useState(false);
@@ -210,6 +211,41 @@ const FlickFlirtResults = () => {
         }
     };
 
+    const visibleMatches = matches.slice(0, 2);
+    /** Locked = matches beyond the 2 shown + server-reported hidden (same idea as FlickFlirtMatches). */
+    const lockedCardsCount = Math.max(0, matches.length - 2) + hiddenCount;
+    const selectedMatch = visibleMatches.find(m => m.id === selectedMatchId) ?? null;
+
+    const handleSendInviteTicket = () => {
+        if (!selectedMatch) {
+            setSelectUserModalVisible(true);
+            return;
+        }
+        navigation.reset({
+            index: 1,
+            routes: [
+                {
+                    name: 'ClientTabNavigator' as never,
+                    params: {screen: 'ClientStack', params: {screen: 'HomeScreen'}} as never,
+                },
+                {name: 'SendMITViewUser' as never, params: {userid: selectedMatch.id} as never},
+            ],
+        });
+    };
+
+    const handleSeeMoreMatches = () => {
+              navigation.reset({
+                   index: 1,
+                   routes: [
+                       {
+                           name: 'ClientTabNavigator' as never,
+                           params: {screen: 'ClientStack', params: {screen: 'HomeScreen'}} as never,
+                       },
+                       {name: 'FlickFlirtMatches' as never},
+                   ],
+               });
+    };
+
     return (
         <View>
             <ImageBackground
@@ -229,13 +265,13 @@ const FlickFlirtResults = () => {
                             <Text
                                 style={[
                                     FONTS.Title3,
-                                    {color: COLORS.LIGHTGREY, textAlign: 'center', marginTop: '40%'},
+                                    {color: COLORS.LIGHTGREY, textAlign: 'center', marginTop: '20%'},
                                 ]}>
                                 Loading matches…
                             </Text>
-                        ) : matches.length > 0 ? (
+                        ) : matches.length > 0  ? (
                             <FlatList
-                                data={matches}
+                                data={visibleMatches}
                                 numColumns={2}
                                 keyExtractor={item => item.id}
                                 ListHeaderComponent={() => (
@@ -246,28 +282,33 @@ const FlickFlirtResults = () => {
                                                 color: COLORS.LIGHTGREY,
                                                 textAlign: 'center',
                                                 marginBottom: 10,
-                                                marginTop: isTablet() ? '20%' : '40%',
+                                                marginTop: isTablet() ? '16%' : '34%',
                                             },
                                         ]}>
                                         You have matches.
                                     </Text>
                                 )}
-                                renderItem={({item}) => (
-                                    <View style={{marginVertical: 5}}>
-                                        <FlickFlirtMatchCard
-                                            userPicture={item.profilePicture}
-                                            userName={item.username}
-                                            onPress={() => navi.navigate('ViewUserScreen', {userID: item.id})}
-                                            influencer={false}
-                                            akcruBadge={item.badge}
-                                            userDesc={item.description}
-                                            matchLabel={item.matchLabel}
-                                        />
-                                    </View>
-                                )}
+                                renderItem={({item: match}) => {
+                                    const isSelected = selectedMatchId === match.id;
+                                    return (
+                                        <View style={localStyles.matchCardWrap}>
+                                            <FlickFlirtMatchCard
+                                                userPicture={match.profilePicture}
+                                                userName={match.username}
+                                                onPress={() => setSelectedMatchId(prev => (prev === match.id ? null : match.id))}
+                                                influencer={false}
+                                                selected={isSelected}
+                                                archetype={match.archetype}
+                                                akcruBadge={match.badge}
+                                                userDesc={match.description}
+                                                matchLabel={match.matchLabel}
+                                            />
+                                        </View>
+                                    );
+                                }}
                             />
-                        ) : (
-                            <View style={{alignItems: 'center', marginTop: '40%'}}>
+                        ) : !showEntryOverlay ? (
+                            <View style={{alignItems: 'center', marginTop: '34%'}}>
                                 <Text
                                     style={[
                                         FONTS.Title3,
@@ -281,28 +322,41 @@ const FlickFlirtResults = () => {
                                     color={COLORS.PURPLE}
                                 />
                             </View>
-                        )}
+                        ) : null}
                     </View>
 
                     {/* Bottom actions */}
                     <View style={{position: 'absolute', bottom: '15%', alignSelf: 'center'}}>
-                        {!unlocked && hiddenCount > 0 && (
+                        {!unlocked && lockedCardsCount > 0 && (
                             <View style={styles.unlockWrapper}>
                                 <Text style={styles.unlockText}>
-                                    {hiddenCount} more {hiddenCount > 1 ? 'matches' : 'match'} locked
+                                    {lockedCardsCount} {lockedCardsCount === 1 ? 'card' : 'cards'} locked
                                 </Text>
-                                <AkcruButtons.XlLrgButton
-                                    btnname="Unlock Matches"
-                                    onPress={openModal}
-                                    color={COLORS.PURPLE}
-                                />
+                                  <View style={{marginTop: 10}}>
+                                                            <AkcruButtons.XlLrgButton
+                                                                btnname="See More Matches"
+                                                                onPress={handleSeeMoreMatches}
+                                                                color={COLORS.PURPLE}
+                                                                variant="auth"
+                                                            />
+                                                        </View>
+                            {/*    <AkcruButtons.XlLrgButton
+                                                                 btnname="Unlock Matches"
+                                                                 onPress={openModal}
+                                                                 color={COLORS.PURPLE}
+                                                             /> */}
                             </View>
                         )}
                         <View style={styles.gotToStartWrapper}>
+
+                        </View>
+
+                        <View style={{marginTop: 10}}>
                             <AkcruButtons.XlLrgButton
-                                btnname="Go To Start"
-                                onPress={() => navigation.navigate('FlickFlirtScreen')}
+                                btnname="Send Movie Invite Ticket"
+                                onPress={handleSendInviteTicket}
                                 color={COLORS.PURPLE}
+                                variant="auth"
                             />
                         </View>
                     </View>
@@ -324,9 +378,9 @@ const FlickFlirtResults = () => {
                                     colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
                                     style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                                 />
-                                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+                                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60}}>
                                     <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY, marginBottom: 12}]}>
-                                        Loading...
+                                        Loading matches…
                                     </Text>
                                 </View>
                             </ImageBackground>
@@ -371,8 +425,65 @@ const FlickFlirtResults = () => {
                     </View>
                 </View>
             </Modal>
+
+            <Modal
+                visible={selectUserModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setSelectUserModalVisible(false)}>
+                <Pressable onPress={() => setSelectUserModalVisible(false)} style={localStyles.selectUserOverlay}>
+                    <View style={localStyles.selectUserModalContent}>
+                        <Icon name="close-circle" type="ionicon" size={72} color={COLORS.CATREDLGT} />
+                        <Text style={localStyles.selectUserTitle}>Select User</Text>
+                        <Text style={localStyles.selectUserMessage}>You have to select user first.</Text>
+                        <TouchableOpacity onPress={() => setSelectUserModalVisible(false)}>
+                            <Text style={localStyles.selectUserClose}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Pressable>
+            </Modal>
         </View>
     );
 };
+
+const localStyles = StyleSheet.create({
+    matchCardWrap: {
+        marginVertical: 5,
+        alignItems: 'center',
+    },
+    selectUserOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    selectUserModalContent: {
+        backgroundColor: COLORS.WHITE,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginHorizontal: 15,
+        width: '75%',
+    },
+    selectUserTitle: {
+        ...FONTS.Title3,
+        marginBottom: 5,
+        textAlign: 'center',
+        fontSize: 20,
+        color: COLORS.CATREDDRK,
+    },
+    selectUserMessage: {
+        ...FONTS.Title3,
+        marginBottom: 10,
+        color: COLORS.AKCRUBACKGROUND,
+        textAlign: 'center',
+    },
+    selectUserClose: {
+        ...FONTS.Title2,
+        marginBottom: 10,
+        textAlign: 'center',
+        color: COLORS.MIDORANGE,
+    },
+});
 
 export default FlickFlirtResults;

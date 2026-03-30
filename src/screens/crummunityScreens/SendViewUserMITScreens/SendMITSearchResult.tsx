@@ -24,7 +24,7 @@ type Props = {
 };
 
 const SendMITSearchResult = ({navigation, route}: Props) => {
-    const userID: string | undefined = route.params?.userID ?? null;
+    const userID: string | undefined = route.params?.userID ?? route.params?.userid ?? null;
 
     const [selectedGenre, setSelectedGenre] = useState('');
 

@@ -19,6 +19,8 @@ export default function RootNavigator(params: any) {
                     try {
                         await verifyAdPurchaseSession(sessionId);
                         Alert.alert('Success', 'Your AD purchase was verified!');
+
+
                         console.log('Deep link verification successful');
                         if (navigationRef.isReady()) {
                             navigationRef.navigate('NoBottomStack', {
@@ -28,6 +30,8 @@ export default function RootNavigator(params: any) {
                         }
                     } catch (err) {
                         Alert.alert('Verification Failed', 'Could not verify your purchase.');
+
+
                         console.error('Deep link verification error:', err);
                     }
                 }
@@ -50,6 +54,16 @@ export default function RootNavigator(params: any) {
         <TabContextProvider>
             <NavigationContainer
                 ref={navigationRef}
+                onStateChange={() => {
+                    if (!__DEV__) {
+                        return;
+                    }
+                    const route = navigationRef.getCurrentRoute();
+                    if (route) {
+
+                        console.log('\n\n[Navigation]', route.name, route.params);
+                    }
+                }}
                 linking={{
                     prefixes: ['akcruapp://'],
                     config: {

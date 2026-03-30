@@ -9,9 +9,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import {ImageBackground} from 'react-native';
 import imageindex from '../../../../../assets/images/imageindex';
 import styles from './styles';
+import {API} from '../../../../clients/api.client';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
-import {API} from '../../../../clients/api.client';
+import FlickFlirtPrefOnboardHeader from '../FlickFlirtPrefOnboardHeader';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {IAgeBracket} from '../../../../../types';
 
@@ -32,10 +33,15 @@ const FlickFlirtPrefB = () => {
 
     const [ageBrackets, setAgeBrackets] = useState<IAgeBracket[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [submitting, setSubmitting] = useState<boolean>(false);
     const [selectedAgeBrackets, setSelectedAgeBrackets] = useState<IAgeBracket[]>([]);
 
     const handleSubmitPreferences = async () => {
+        if (submitting) {
+            return;
+        }
         try {
+            setSubmitting(true);
             const payload = {
                 gender,
                 ageBrackets: selectedAgeBrackets,
@@ -58,6 +64,8 @@ const FlickFlirtPrefB = () => {
             }
         } catch (error) {
             console.error('Error submitting preferences:', error);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -98,20 +106,12 @@ const FlickFlirtPrefB = () => {
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView>
                     <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        // eslint-disable-next-line react-native/no-inline-styles
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: 0,
-                            height: SIZES.ScreenHeight,
-                        }}
+                        colors={['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']}
+                        style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
-                    <View>
-                        <Header />
-                    </View>
+                    <Header />
                     <BackButton navigation={navigation} />
+                    <FlickFlirtPrefOnboardHeader currentStep={2} />
                     <View style={{marginTop: 20, marginHorizontal: 15}}>
                         <Text style={[FONTS.Title2, {textAlign: 'center', marginBottom: 10}]}>
                             What age range(s) are you interested in?
@@ -147,10 +147,13 @@ const FlickFlirtPrefB = () => {
 
                     {selectedAgeBrackets.length > 0 && (
                         <View style={{alignItems: 'center', marginTop: 50}}>
-                            <AkcruButtons.XlLrgButton
+                            <AkcruButtons.LrgButton
                                 btnname={'Next'}
                                 onPress={handleSubmitPreferences}
                                 color={COLORS.PURPLE}
+                                variant="auth"
+                                disabled={submitting}
+                                loading={submitting}
                             />
                         </View>
                     )}

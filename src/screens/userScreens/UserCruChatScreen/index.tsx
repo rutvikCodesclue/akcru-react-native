@@ -37,7 +37,6 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import BackButton from '../../../components/General/backbutton';
-import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;

@@ -174,28 +174,31 @@ const FlickFlirtScreen = () => {
                             </View>
 
                             <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.XlLrgButton
+                                <AkcruButtons.LrgButton
                                     btnname="Open FlickFlirt"
                                     onPress={() => navigate('NoBottomStack', {screen: 'FlickFlirtSwipe'})}
                                     color={COLORS.PURPLE}
+                                    variant="auth"
                                 />
                             </View>
 
                             {hasMatches && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
+                                    <AkcruButtons.LrgButton
                                         btnname="You Have Matches"
                                         onPress={() => navigate('NoBottomStack', {screen: 'FlickFlirtMatches'})}
                                         color={COLORS.PURPLE}
+                                        variant="auth"
                                     />
                                 </View>
                             )}
                             {user?.hasSetFlirtPref && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
+                                    <AkcruButtons.LrgButton
                                         btnname="Reset Preferences"
                                         onPress={() => setResetModalVisible(true)}
                                         color={COLORS.PURPLE}
+                                        variant="auth"
                                     />
                                 </View>
                             )}

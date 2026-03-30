@@ -67,6 +67,7 @@ import FlickFlirtPref from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirt
 import FlickFlirtPrefB from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefB';
 import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefC';
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
+import FlickFlirtPrefAll from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefAll';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
 import FlickFlirtArchetypeResult from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtArchetypeResult';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
@@ -106,12 +107,15 @@ export type NoBottomTabStackParams = {
     FlickFlirtPrefB: any;
     FlickFlirtPrefC: any;
     FlickFlirtPrefD: any;
+    FlickFlirtPrefAll: any;
     FlickFlirtSwipe: any;
     FlickFlirtArchetypeResult: {
         name: string;
         image: string;
         description: string;
         genres: string[];
+        /** true when opened from OnboardArchetypeStandalone (genre picker) */
+        fromOnboardArchetypeStandalone?: boolean;
     };
     FlickFlirtMatches: any;
     FlickFlirtResults: {startedAt?: number};
@@ -700,6 +704,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtPrefD"
                 component={FlickFlirtPrefD}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtPrefAll"
+                component={FlickFlirtPrefAll}
                 options={() => ({
                     headerShown: false,
                 })}

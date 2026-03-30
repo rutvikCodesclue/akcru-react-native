@@ -9,9 +9,9 @@ import imageindex from '../../../../../assets/images/imageindex';
 import styles from './styles';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
-import {API} from '../../../../clients/api.client';
 import {IMovie} from '../../../../../types';
 import {findFlickFlirtMovies} from '../../../../lib/api/movies.lib';
+import {submitFlickFlirtSwipeBatch} from '../../../../lib/api/flickflirt.lib';
 import Swiper from 'react-native-deck-swiper';
 import useAuthStore from '../../../../stores/auth.store';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
@@ -36,6 +36,7 @@ const FlickFlirtSwipe = () => {
     const [isIntroLoading, setIsIntroLoading] = useState(true);
     const showLoader = isIntroLoading || isLoadingMovies;
     const rightSwipedGenreCounts = useRef<Record<string, number>>({});
+    const sessionSwipesRef = useRef<{movieId: string; type: 'LIKE' | 'DISLIKE'}[]>([]);
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const {hydrateUser} = useAuthStore();
@@ -50,6 +51,7 @@ const FlickFlirtSwipe = () => {
                 .catch(console.error)
                 .finally(() => setIsLoadingMovies(false));
             rightSwipedGenreCounts.current = {};
+            sessionSwipesRef.current = [];
             return () => clearTimeout(introTimer);
         }, []),
     );
@@ -63,22 +65,25 @@ const FlickFlirtSwipe = () => {
         }, [hydrateUser]),
     );
 
-    const handleSwipe = async (movieId: string, type: 'LIKE' | 'DISLIKE', movie?: IMovie) => {
-        try {
-            await API.post('v1/flickflirt/swipe', {movieId, type});
-            if (type === 'LIKE' && movie?.genres?.length) {
-                const counts = rightSwipedGenreCounts.current;
-                [movie.genres[0], movie.genres[1]].forEach(g => {
-                    const norm = normalizeGenre(g);
-                    if (norm) counts[norm] = (counts[norm] ?? 0) + 1;
-                });
-            }
-        } catch (error) {
-            console.error('Error recording swipe:', error);
+    const handleSwipe = (movieId: string, type: 'LIKE' | 'DISLIKE', movie?: IMovie) => {
+        sessionSwipesRef.current.push({movieId, type});
+        if (type === 'LIKE' && movie?.genres?.length) {
+            const counts = rightSwipedGenreCounts.current;
+            [movie.genres[0], movie.genres[1]].forEach(g => {
+                const norm = normalizeGenre(g);
+                if (norm) counts[norm] = (counts[norm] ?? 0) + 1;
+            });
         }
     };
 
     const onSwipedAll = async () => {
+        try {
+            if (sessionSwipesRef.current.length > 0) {
+                await submitFlickFlirtSwipeBatch(sessionSwipesRef.current);
+            }
+        } catch (error) {
+            console.error('Error submitting swipe batch:', error);
+        }
         const counts = rightSwipedGenreCounts.current;
         const sorted = Object.entries(counts)
             .filter(([, c]) => c > 0)
@@ -103,7 +108,7 @@ const FlickFlirtSwipe = () => {
                 return;
             }
         }
-        navigation.navigate('FlickFlirtPref');
+        navigation.navigate('FlickFlirtPrefAll');
     };
 
     return (

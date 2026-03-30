@@ -1,0 +1,348 @@
+import {View, Text, TouchableOpacity, ImageBackground, Modal, ActivityIndicator, Image, ScrollView, Keyboard, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
+import styles from './styles';
+import {useNavigation} from '@react-navigation/native';
+import {AkcruLogo} from '../../../../assets/svg';
+import imageindex from '../../../../assets/images/imageindex';
+import {AuthStackParams} from '../../../navigation/AuthNavigation';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import AkcruButtons from '../../../components/akcruButtons';
+import {Icon} from '@rneui/base';
+import useAuthStore from '../../../stores/auth.store';
+import {MOVIE_GENRES} from '../../../../assets/constants/Data';
+import Video from 'react-native-video';
+import {updateUser} from '../../../lib/api/user.lib';
+import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
+import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
+import {isTablet} from '../../../../assets/constants/theme';
+import LinearGradient from 'react-native-linear-gradient';
+
+const OnboardArchetypeStandalone = () => {
+
+    const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+    const [checkedGenres, setCheckedGenres] = useState<Record<string, boolean>>({});
+
+    const [archetypeModal, setArchetypeModal] = useState(false);
+    const [showSkip, setShowSkip] = useState(true);
+    const [isUpdatingArchetype, setIsUpdatingArchetype] = useState(false);
+
+    const handleCheckboxChange = (genreId: string) => {
+        if (checkedGenres[genreId]) {
+            setCheckedGenres(prevState => ({
+                ...prevState,
+                [genreId]: false,
+            }));
+        } else {
+            if (Object.values(checkedGenres).filter(Boolean).length < 2) {
+                setCheckedGenres(prevState => ({
+                    ...prevState,
+                    [genreId]: true,
+                }));
+            } else {
+            }
+        }
+    };
+
+    const [archetypeKey, setArchetypeKey] = useState('');
+    const [archetypeName, setArchetypeName] = useState('');
+    const [archetypeImage, setArchetypeImage] = useState<string | null>(null);
+    const [archetypeDescription, setArchetypeDescription] = useState('');
+
+    const handleFinishButton = async () => {
+        const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
+
+        if (selectedGenres.length === 2) {
+            const genreNames = selectedGenres.map(genreId => {
+                const genreObject = MOVIE_GENRES.find(item => item.id === genreId);
+                return genreObject ? genreObject.genre : '';
+            });
+
+            const newArchetypeKey = genreNames.sort().join(', ');
+
+            const selectedArchetype = archetypeMapping[newArchetypeKey];
+
+            if (selectedArchetype) {
+//                 setArchetypeModal(true);
+                setIsUpdatingArchetype(true);
+                const newArchetypeName = selectedArchetype.name;
+                const newArchetypeImage = selectedArchetype.image;
+                const newArchetypeDescription = selectedArchetype.description;
+
+                setArchetypeName(newArchetypeName);
+                setArchetypeImage(newArchetypeImage);
+                setArchetypeDescription(newArchetypeDescription);
+
+                const archetypeData = JSON.stringify({
+                    name: selectedArchetype.name,
+                    image: selectedArchetype.image,
+                    description: selectedArchetype.description,
+                    genres: genreNames,
+                });
+
+                try {
+                    const updatedUser = await updateUser({archetype: archetypeData});
+                    if (updatedUser) {
+                        useAuthStore.setState({user: updatedUser});
+                        setIsUpdatingArchetype(false);
+
+       navigation.navigate('NoBottomStack', {
+                                screen: 'FlickFlirtArchetypeResult',
+                                params: {
+                                    name: selectedArchetype.name,
+                                    image: selectedArchetype.image,
+                                    description: selectedArchetype.description,
+                                    genres: genreNames,
+                                    fromOnboardArchetypeStandalone: true,
+                                },
+                            });
+                        setTimeout(() => {
+//                             setArchetypeModal(false);
+                            navigation.navigate('NoBottomStack', {
+                                screen: 'FlickFlirtArchetypeResult',
+                                params: {
+                                    name: selectedArchetype.name,
+                                    image: selectedArchetype.image,
+                                    description: selectedArchetype.description,
+                                    genres: genreNames,
+                                    fromOnboardArchetypeStandalone: true,
+                                },
+                            });
+                        }, 4000);
+                    }
+                } catch (error) {
+                    console.error('Error updating archetype:', error);
+                    setIsUpdatingArchetype(false);
+                }
+            } else {
+            }
+        } else {
+        }
+    };
+
+    const filteredGenres = MOVIE_GENRES.filter(genre => genre.id !== '0');
+
+    const selectedGenresCount = Object.values(checkedGenres).filter(Boolean).length;
+    const isFinishEnabled = selectedGenresCount === 2;
+
+    const [trinityModal, setTrinityModal] = useState(false);
+    const [videoError, setVideoError] = useState(false);
+    const [skipVideo, setSkipVideo] = useState(false);
+
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [showSkipButton, setShowSkipButton] = useState(false);
+
+    const handleVideoLoad = () => {
+        const timeout = setTimeout(() => {
+            setShowSkipButton(true);
+        }, 10000);
+
+        setLoadingTimeout(timeout);
+
+        setIsVideoLoaded(true);
+    };
+
+    const handleVideoEnd = () => {
+        setTrinityModal(false);
+
+        if (!videoError) {
+            navigation.navigate('OnboardBuildCru');
+        } else {
+        }
+    };
+
+    const handleVideoError = () => {
+        setVideoError(true);
+        navigation.navigate('OnboardBuildCru');
+    };
+
+    const handleSkipVideo = () => {
+        if (loadingTimeout) {
+            clearTimeout(loadingTimeout);
+        }
+
+        setSkipVideo(true);
+        setTrinityModal(false);
+        navigation.navigate('OnboardBuildCru');
+    };
+    const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    const [videoURL, setVideoURL] = useState('');
+
+    useEffect(() => {
+        const fetchHelpVideo = async () => {
+            const video = await getHelpVideoById('a5e441f8-89b1-4e9a-ab70-66a8b5971513'); // Replace 'your_video_id' with the actual ID
+            if (video) {
+                setVideoURL(video.videoURL);
+            }
+        };
+
+        fetchHelpVideo();
+    }, []);
+
+    return (
+        <View>
+            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                {/* Fixed Header Section — no back button; spacers keep logo centered */}
+                <View style={styles.headerRow}>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                    <View style={styles.logoCenter}>
+                        <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                    </View>
+                    <View style={[styles.backButton, {opacity: 0}]}>
+                        <Icon name="chevron-back" type="ionicon" size={isTablet() ? 28 : 20} color={COLORS.LIGHTGREY} />
+                    </View>
+                </View>
+
+                {/* Centered Content Section */}
+                <ScrollView
+                    style={{flex: 1}}
+                    contentContainerStyle={{
+                        flexGrow: 1,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingBottom: 40,
+                    }}
+                    showsVerticalScrollIndicator={false}>
+                    <View style={{width: '90%', alignItems: 'center'}}>
+                        <Text style={[AUTH_TEXT_THEME.instruction, {marginBottom: 12, paddingHorizontal: 16, textAlign: 'center', fontSize: isTablet() ? 16 : 14}]}>
+                            Your movie preferences shape your unique archetype, guiding our recommendations and connecting you with like-minded users.
+                        </Text>
+                        <Text style={[AUTH_TEXT_THEME.highlight, {marginTop: 8, marginBottom: 20}]}>
+                            Please choose 2 genres to get you started:
+                        </Text>
+
+                        <View style={[styles.chipContainer, {marginBottom: 30}]}>
+                            {filteredGenres.map(item => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => handleCheckboxChange(item.id)}
+                                    style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
+                                    <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
+                                        {item.genre}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <View style={{alignItems: 'center', width: '100%'}}>
+                            <AkcruButtons.XlLrgButton
+                                variant="auth"
+                                color={isFinishEnabled ? COLORS.PURPLE : COLORS.DARKGREY}
+                                btnname={'Finish'}
+                                onPress={() => {
+                                    Keyboard.dismiss();
+                                    handleFinishButton();
+                                }}
+                                disabled={!isFinishEnabled}
+                            />
+                        </View>
+                    </View>
+                </ScrollView>
+
+                <Modal animationType="fade" transparent={true} visible={archetypeModal}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0,0,0,0.55)',
+                        }}>
+                        <Text style={{...FONTS.Title1}}>Your Archetype is:</Text>
+
+                        {archetypeName && (
+                            <Text
+                                style={{
+                                    ...FONTS.Title3,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    color: COLORS.PURPLE,
+                                }}>
+                                "{archetypeName}"
+                            </Text>
+                        )}
+                        <View>
+                            {archetypeImage && (
+                                <Image
+                                    source={{uri: archetypeImage}}
+                                    style={{
+                                        width: SIZES.ScreenWidth / 1.2,
+                                        height: SIZES.ScreenWidth / 1.2,
+                                        borderRadius: 5,
+                                        alignSelf: 'center',
+                                    }}
+                                />
+                            )}
+                        </View>
+
+                        {archetypeDescription && (
+                            <Text
+                                style={{
+                                    ...FONTS.paragraph1,
+                                    textAlign: 'center',
+                                    marginVertical: 10,
+                                    marginHorizontal: 15,
+                                    color: COLORS.LIGHTGREY,
+                                }}>
+                                {archetypeDescription}
+                            </Text>
+                        )}
+
+                        {isUpdatingArchetype && (
+                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+                                <ActivityIndicator size="small" color={COLORS.PINK} />
+                                <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY, marginLeft: 10}}>
+                                    Saving your archetype...
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                </Modal>
+
+                <Modal animationType="fade" transparent={true} visible={trinityModal}>
+                    <View
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            width: '100%',
+                        }}>
+                        {!isVideoLoaded && (
+                            <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}}>
+                                <ActivityIndicator size="large" color={COLORS.PINK} />
+                            </View>
+                        )}
+                        <Video
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                            }}
+                            source={{
+                                uri: videoURL,
+                            }}
+                            resizeMode="cover"
+                            onEnd={handleVideoEnd}
+                            repeat={false}
+                            onError={handleVideoError}
+                            onLoad={handleVideoLoad}
+                        />
+                        {showSkip && (
+                            <TouchableOpacity style={styles.skipButton} onPress={handleSkipVideo}>
+                                <Text style={styles.skipButtonText}>Skip</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </Modal>
+            </ImageBackground>
+        </View>
+    );
+};
+
+export default OnboardArchetypeStandalone;

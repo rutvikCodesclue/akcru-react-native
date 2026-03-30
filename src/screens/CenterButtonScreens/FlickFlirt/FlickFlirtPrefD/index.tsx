@@ -8,9 +8,10 @@ import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../../assets/images/imageindex';
 import styles from './styles';
+import {API} from '../../../../clients/api.client';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
-import {API} from '../../../../clients/api.client';
+import FlickFlirtPrefOnboardHeader from '../FlickFlirtPrefOnboardHeader';
 import AkcruButtons from '../../../../components/akcruButtons';
 
 export enum IHeightBracket {
@@ -44,9 +45,14 @@ const FlickFlirtPrefD = () => {
     const [heightBrackets, setHeightBrackets] = useState<IHeightBracket[]>([]);
     const [selectedHeight, setSelectedHeight] = useState<IHeightBracket | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [submitting, setSubmitting] = useState<boolean>(false);
 
     const handleSubmit = async () => {
+        if (submitting) {
+            return;
+        }
         try {
+            setSubmitting(true);
             const payload = {
                 gender,
                 ageBrackets,
@@ -62,6 +68,8 @@ const FlickFlirtPrefD = () => {
             }
         } catch (error) {
             console.error('Error submitting preferences:', error);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -93,11 +101,12 @@ const FlickFlirtPrefD = () => {
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView>
                     <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        colors={['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']}
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
                     <Header />
                     <BackButton navigation={navigation} />
+                    <FlickFlirtPrefOnboardHeader currentStep={4} />
                     <View style={{marginTop: 20, marginHorizontal: 15}}>
                         <Text style={[FONTS.Title2, {textAlign: 'center', marginBottom: 10}]}>Your Height?</Text>
                         {loading ? (
@@ -124,10 +133,13 @@ const FlickFlirtPrefD = () => {
 
                     {selectedHeight && (
                         <View style={{alignItems: 'center', marginTop: 50}}>
-                            <AkcruButtons.XlLrgButton
+                            <AkcruButtons.LrgButton
                                 btnname={'Set Preferences'}
                                 onPress={handleSubmit}
                                 color={COLORS.PURPLE}
+                                variant="auth"
+                                disabled={submitting}
+                                loading={submitting}
                             />
                         </View>
                     )}

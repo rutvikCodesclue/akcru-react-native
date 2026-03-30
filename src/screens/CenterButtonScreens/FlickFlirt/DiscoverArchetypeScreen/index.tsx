@@ -7,23 +7,17 @@ import {
     TouchableOpacity,
     SafeAreaView,
 } from 'react-native';
-import {Icon} from '@rneui/base';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {AUTH_TEXT_THEME} from '../../../../../assets/constants/authTheme';
-import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {navigate} from '../../../../util/RootNavigation';
 import {isTablet} from '../../../../../assets/constants/theme';
 
 const DiscoverArchetypeScreen = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
     const handleDiscover = () => {
-        navigate('NoBottomStack', {screen: 'FlickFlirtSwipe'});
+        navigate('OnboardArchetypeStandalone');
     };
 
     return (

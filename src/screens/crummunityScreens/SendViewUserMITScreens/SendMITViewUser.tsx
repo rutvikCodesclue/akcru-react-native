@@ -27,7 +27,7 @@ type Props = {
 };
 
 const SendMITViewUser = ({route, navigation}: Props) => {
-    const userID: string | undefined = route.params?.userID ?? null;
+    const userID: string | undefined = route.params?.userID ?? route.params?.userid ?? null;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -36,7 +36,7 @@ const SendMITViewUser = ({route, navigation}: Props) => {
             });
 
             return () => {};
-        }, []),
+        }, [userID]),
     );
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
@@ -68,7 +68,8 @@ const SendMITViewUser = ({route, navigation}: Props) => {
     const handleGenrePress = (genre: IGenreItem) => {
         navigation.navigate('SendMITSearchResult', {
             genre: capitalizeFirstLetterOfString(genre.genre),
-            userID: user?.id,
+            // Use route param directly so userID is always available.
+            userID: userID,
             userName: user?.username,
         });
     };

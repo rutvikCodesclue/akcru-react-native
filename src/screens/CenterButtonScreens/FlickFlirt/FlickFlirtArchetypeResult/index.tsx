@@ -30,7 +30,7 @@ type FlickFlirtArchetypeResultRouteProp = RouteProp<NoBottomTabStackParams, 'Fli
 const FlickFlirtArchetypeResult = () => {
     const navigation = useNavigation<FlickFlirtArchetypeResultNavProp>();
     const route = useRoute<FlickFlirtArchetypeResultRouteProp>();
-    const {name, image, description, genres} = route.params ?? {};
+    const {name, image, description, genres, fromOnboardArchetypeStandalone} = route.params ?? {};
     const [isSaving, setIsSaving] = useState(true);
     const [isIntroLoading, setIsIntroLoading] = useState(true);
     const showLoader = isIntroLoading || isSaving;
@@ -54,6 +54,13 @@ const FlickFlirtArchetypeResult = () => {
             } catch (e) {
                 console.warn('Could not save FlickFlirt genres to local storage', e);
             }
+            if (fromOnboardArchetypeStandalone) {
+                // Archetype already saved on OnboardArchetypeStandalone
+                if (!cancelled) {
+                    setIsSaving(false);
+                }
+                return;
+            }
             try {
                 const archetypeData = JSON.stringify({
                     name,
@@ -76,10 +83,29 @@ const FlickFlirtArchetypeResult = () => {
         return () => {
             cancelled = true;
         };
-    }, [name, image, description, genres, navigation]);
+    }, [name, image, description, genres, navigation, fromOnboardArchetypeStandalone]);
 
-    const goToPreferences = () => {
-        navigation.navigate('FlickFlirtPref');
+    const goToCrummunityFeed = () => {
+        navigation.navigate('ClientTabNavigator', {
+            screen: 'CrummunityStack',
+            params: {screen: 'CrummunityScreen'},
+        });
+    };
+
+    const goToPreferencesAll = () => {
+        if (fromOnboardArchetypeStandalone) {
+            goToCrummunityFeed();
+        } else {
+            navigation.navigate('FlickFlirtPref');
+        }
+    };
+
+    const goToPreferencesSteps = () => {
+        if (fromOnboardArchetypeStandalone) {
+            goToCrummunityFeed();
+        } else {
+            navigation.navigate('FlickFlirtPrefAll');
+        }
     };
 
     return (
@@ -122,9 +148,27 @@ const FlickFlirtArchetypeResult = () => {
                                     ) : null}
                                     <TouchableOpacity
                                         style={{backgroundColor: COLORS.PURPLE, borderRadius: 8, alignItems: 'center', paddingVertical: 16, paddingHorizontal: 32, minHeight: 52}}
-                                        onPress={goToPreferences}
+                                        onPress={goToPreferencesAll}
                                         disabled={showLoader}>
                                         <Text style={{...FONTS.Title3, color: COLORS.WHITE, fontSize: 18, fontWeight: '600'}}>Continue</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={{
+                                            marginTop: 14,
+                                            borderWidth: 1,
+                                            borderColor: COLORS.PURPLE,
+                                            borderRadius: 8,
+                                            alignItems: 'center',
+                                            paddingVertical: 14,
+                                            paddingHorizontal: 28,
+                                            minHeight: 48,
+                                            backgroundColor: 'transparent',
+                                        }}
+                                        onPress={goToPreferencesSteps}
+                                        disabled={showLoader}>
+                                        <Text style={{...FONTS.Title3, color: COLORS.PURPLE, fontSize: 16, fontWeight: '600'}}>
+                                            Step-by-step preferences
+                                        </Text>
                                     </TouchableOpacity>
                                 </View>
                             </ScrollView>

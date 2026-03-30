@@ -80,7 +80,7 @@ API.interceptors.request.use(
                       }
                     : config.data;
 
-            console.log('[API REQUEST]', {
+            console.log('\n\n[API REQUEST]', {
                 method: config.method,
                 url,
                 baseURL: base,
@@ -102,7 +102,7 @@ API.interceptors.response.use(
             const base = response.config.baseURL ?? API.defaults.baseURL ?? '';
             const url = `${base}${response.config.url ?? ''}`;
 
-            console.log('[API RESPONSE]', {
+            console.log('\n\n[API RESPONSE]', {
                 url,
                 status: response.status,
                 headers: response.headers,
@@ -117,7 +117,7 @@ API.interceptors.response.use(
             const base = error.config.baseURL ?? API.defaults.baseURL ?? API.defaults.baseURL ?? '';
             const url = `${base}${error.config.url ?? ''}`;
 
-            console.log('[API ERROR]', {
+            console.log('\n\n[API ERROR]', {
                 url,
                 status: error.response?.status,
                 headers: error.response?.headers,
