@@ -1,6 +1,8 @@
 import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import {AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
+import {isTablet} from '../../../../assets/constants/theme';
+
+const inputHeight = isTablet() ? 60 : 50;
 
 export default StyleSheet.create({
     bgimage: {
@@ -24,7 +26,26 @@ export default StyleSheet.create({
         justifyContent: 'center',
     },
     blurInputWrapper: {
-        ...AUTH_TEXT_FIELD_THEME,
+        width: SIZES.ScreenWidth * 0.9,
+        height: inputHeight,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.25)',
+        overflow: 'hidden',
+        marginVertical: 8,
+    },
+    inputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        height: inputHeight,
+    },
+    errorText: {
+        width: SIZES.ScreenWidth * 0.9,
+        color: '#FF6B6B',
+        fontSize: 12,
+        marginTop: -4,
+        marginBottom: 8,
     },
     container: {
         flex: 1,
