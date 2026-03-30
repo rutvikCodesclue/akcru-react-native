@@ -5,10 +5,25 @@ export default StyleSheet.create({
     bgimage: {
         height: SIZES.ScreenHeight,
     },
+    /** Match OnboardDescription header — same inset from top */
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        paddingTop: SIZES.ScreenHeight * 0.03,
+        marginBottom: SIZES.ScreenHeight * 0.02,
+        paddingHorizontal: SIZES.ScreenWidth * 0.03,
+    },
+    backButton: {
+        padding: 8,
+    },
+    logoCenter: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     container: {
         flex: 1,
-        marginTop: SIZES.ScreenHeight * 0.09,
-        marginHorizontal: SIZES.ScreenWidth * 0.03,
     },
     container2: {
         flex: 1,
@@ -29,5 +44,4 @@ export default StyleSheet.create({
         backgroundColor: COLORS.AKCRUBLUE,
         borderRadius: 5,
     },
-    backbutton: {},
 });

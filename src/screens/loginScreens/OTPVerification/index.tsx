@@ -1,13 +1,12 @@
-import {View, Text, ImageBackground, TouchableOpacity, Alert, Modal, TextInput, ScrollView, KeyboardAvoidingView, Platform} from 'react-native';
+import {View, Text, ImageBackground, Modal, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity} from 'react-native';
 import AkcruButtons from '../../../components/akcruButtons';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import useAuthStore from '../../../stores/auth.store';
 import Svg, {Path} from 'react-native-svg';
 import {Icon} from '@rneui/base';
 import CodeInput from '../../../components/CodeInput/CodeInput';
@@ -15,15 +14,15 @@ import ResendTimer from '../../../components/CodeResendTimer/ResendTimer';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import {API} from '../../../clients/api.client';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../../components/General/backbutton';
 import {isTablet} from '../../../../assets/constants/theme';
+import {AkcruLogo} from '../../../../assets/svg';
 
+const smlIconSize = isTablet() ? 28 : 20;
 const svgSize = isTablet() ? 200 : 150;
 const lrgIconSize = isTablet() ? 110 : 80;
 const iconMargin = isTablet() ? '5%' : '8%';
 
 const OTPVerification = ({route}) => {
-    const authStore = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
     const email = route.params?.email;
     const phoneNumber = route.params?.phoneNumber;
@@ -55,24 +54,29 @@ const OTPVerification = ({route}) => {
         setShowVerifiedModal(false);
     };
 
-    const resendEmail = async triggerTimer => {
+    const resendEmail = async (triggerTimer: (targetTimeSeconds?: number) => void) => {
+        if (!email && !phoneNumber) {
+            setResendStatus('Failed');
+            return;
+        }
+        setResendingEmail(true);
         try {
-            setResendingEmail(true);
+            const payload = email ? {email} : {phoneNumber};
+            const response = await API.post('/v1/user/sendOTP', payload);
+            const data = response.data;
 
-            //make request to backend
-            //update setResendStatus() to 'Failed' or 'Sent'
-
-            //hold briefly; hide loader when timer starts
-            setTimeout(() => {
-                setResendStatus('Resent');
+            if (data?.success === false) {
+                setResendStatus('Failed');
+            } else {
+                setResendStatus('Sent');
                 setActiveResend(false);
                 triggerTimer();
-                setResendingEmail(false);
-            }, 5000);
+            }
         } catch (error) {
-            setResendingEmail(false);
+            console.error('Resend OTP failed', error);
             setResendStatus('Failed');
-            Alert.error.message;
+        } finally {
+            setResendingEmail(false);
         }
     };
 
@@ -123,10 +127,20 @@ const OTPVerification = ({route}) => {
                 />
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{flex: 1}}>
                     <View style={styles.container}>
-                        <BackButton navigation={navigation} />
+                        <View style={styles.headerRow}>
+                            <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
+                                <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
+                            </TouchableOpacity>
+                            <View style={styles.logoCenter}>
+                                <AkcruLogo width={isTablet() ? 300 : 200} height={isTablet() ? 90 : 60} />
+                            </View>
+                            <View style={[styles.backButton, {opacity: 0}]}>
+                                <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
+                            </View>
+                        </View>
                         <ScrollView
                             style={{flex: 1}}
-                            contentContainerStyle={{flexGrow: 1, paddingTop: '15%', paddingBottom: 24, alignItems: 'center'}}
+                            contentContainerStyle={{flexGrow: 1, paddingTop: '8%', paddingBottom: 24, alignItems: 'center'}}
                             keyboardShouldPersistTaps="handled"
                             showsVerticalScrollIndicator={false}>
                             <View>
@@ -147,7 +161,7 @@ const OTPVerification = ({route}) => {
                             </View>
                             <View style={{marginBottom: 10, marginHorizontal: '5%'}}>
                                 <Text style={{...FONTS.Title1, textAlign: 'center'}}>
-                                    Enter the 6-digit code sent to your email/phone
+                                    Enter the 6-digit code sent to your email
                                 </Text>
                             </View>
                             <View style={{marginVertical: '15%'}}>
