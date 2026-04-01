@@ -10,8 +10,8 @@ import {
     Alert,
     Text,
     ScrollView,
-    KeyboardAvoidingView,
     Platform,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -29,8 +29,12 @@ import uuid from 'react-native-uuid';
 import styles from './CruGroupChatStyles';
 import {COLORS} from '../../../assets/constants';
 import { handleError } from '../../util/handleError';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useKeyboardBottomInset} from '../../hooks/useKeyboardBottomInset';
 
 const CruGroupChatComponent = ({cru, members}: any) => {
+    const insets = useSafeAreaInsets();
+    const keyboardBottomInset = useKeyboardBottomInset();
     const [messages, setMessages] = useState<IMessage[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
         useHideBottomTabBarWhileFocused(navigation);
@@ -285,7 +289,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
     const deleteMessages = async () => {
         Alert.alert(
             'Delete Messages',
-            'Are you sure you want to delete the selected messages?',
+            'dfgdfgfgdfgAre you sure you want to delete the selected messages?',
             [
                 {
                     text: 'Cancel',
@@ -329,8 +333,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
         );
     };
 
-    return (
-        <TouchableWithoutFeedback onPress={handleScreenPress}>
+    const screenContent = (
             <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
                 {selectedMessages.length > 0 && (
                     <View
@@ -349,22 +352,35 @@ const CruGroupChatComponent = ({cru, members}: any) => {
 
                 <View style={styles.container}>
                     {selectedImage ? (
-                        <ScrollView
-                            automaticallyAdjustKeyboardInsets
+                        <KeyboardAvoidingView
                             style={{flex: 1}}
-                            keyboardShouldPersistTaps="handled"
-                            contentContainerStyle={[styles.fullScreen, {width: '100%', paddingBottom: 20}]}>
-                            <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
-                                <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
-                            </TouchableOpacity>
-                            <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+                            behavior={Platform.OS === 'android' ? 'height' : 'padding'}
+                            enabled={Platform.OS === 'android'}>
+                        <View style={{flex: 1}}>
+                            <ScrollView
+                                style={{flex: 1}}
+                                keyboardShouldPersistTaps="handled"
+                                contentContainerStyle={{
+                                    flexGrow: 1,
+                                    padding: 10,
+                                    alignItems: 'center',
+                                }}>
+                                <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
+                                    <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                                <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+                            </ScrollView>
                             <View
                                 style={{
-                                    // flex: 1,
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     columnGap: 5,
+                                    paddingHorizontal: 10,
+                                    paddingTop: 8,
+                                    paddingBottom:
+                                        keyboardBottomInset + Math.max(insets.bottom, 8),
+                                    width: '100%',
                                 }}>
                                 <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
                                     <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
@@ -380,7 +396,8 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             </View>
-                        </ScrollView>
+                        </View>
+                        </KeyboardAvoidingView>
                     ) : (
                         <GiftedChat
                             renderActions={() => (
@@ -448,7 +465,12 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                     )}
                 </View>
             </View>
-        </TouchableWithoutFeedback>
+    );
+
+    return selectedImage ? (
+        screenContent
+    ) : (
+        <TouchableWithoutFeedback onPress={handleScreenPress}>{screenContent}</TouchableWithoutFeedback>
     );
 };
 

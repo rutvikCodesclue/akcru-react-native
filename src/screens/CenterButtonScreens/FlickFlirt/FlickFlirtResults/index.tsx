@@ -267,7 +267,7 @@ const FlickFlirtResults = () => {
                                     FONTS.Title3,
                                     {color: COLORS.LIGHTGREY, textAlign: 'center', marginTop: '20%'},
                                 ]}>
-                                Loading matches…
+                                Finding Your Movie Matches...
                             </Text>
                         ) : matches.length > 0  ? (
                             <FlatList
@@ -380,7 +380,7 @@ const FlickFlirtResults = () => {
                                 />
                                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60}}>
                                     <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY, marginBottom: 12}]}>
-                                        Loading matches…
+                                        Finding Your Movie Matches...
                                     </Text>
                                 </View>
                             </ImageBackground>

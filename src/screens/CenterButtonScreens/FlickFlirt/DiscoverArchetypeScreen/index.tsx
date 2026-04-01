@@ -47,7 +47,7 @@ const DiscoverArchetypeScreen = () => {
                                 <AkcruButtons.LrgButton
                                     variant="auth"
                                     color={COLORS.PURPLE}
-                                    btnname="Start swiping"
+                                    btnname="Get Started"
                                     onPress={handleDiscover}
                                 />
                             </View>

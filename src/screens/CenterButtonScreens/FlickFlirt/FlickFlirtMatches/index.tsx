@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         opacity: 0.9,
     },
-    listContent: {paddingHorizontal: 4, paddingBottom: 12},
+    listContent: {paddingHorizontal: 4, paddingBottom: 120},
     columnWrapper: {justifyContent: 'space-between'},
     cardWrapper: {marginVertical: 5, alignItems: 'center'},
     matchCardWrap: {marginVertical: 5, borderRadius: 18},
