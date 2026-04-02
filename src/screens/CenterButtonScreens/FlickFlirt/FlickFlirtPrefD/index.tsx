@@ -62,7 +62,9 @@ const FlickFlirtPrefD = () => {
             };
             const res = await API.post('v1/flickflirt/preferences', payload);
             if (res.data?.success) {
-                navigation.navigate('FlickFlirtResults', {startedAt: Date.now()});
+                navigation.navigate('FlickFlirtResults', {
+                    startedAt: Date.now(),
+                });
             } else {
                 console.error('Failed to submit preferences:', res.data.message);
             }

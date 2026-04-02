@@ -55,7 +55,11 @@ export type AuthStackParams = {
     OnboardContactList: any;
     OnboardGender: any;
     OnboardArchetype: any;
-    OnboardArchetypeStandalone: any;
+    OnboardArchetypeStandalone:
+        | {
+        fromOnboardArchetypeStandalone?: boolean;
+    }
+        | undefined;
     OnboardProfilePicture: any;
     OnboardEmailOrPassword: any;
     OnboardDescription: any;

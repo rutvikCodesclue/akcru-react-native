@@ -517,13 +517,11 @@ const UserProfileDetailsTab = () => {
                         ListHeaderComponent={
                             <View>
                                 <View>
-                                    <TouchableOpacity
-                                        activeOpacity={0.8}
-                                        onPress={() => navigate('OnboardArchetypeStandalone')}>
+
                                         <Text
                                             style={{
                                                 ...FONTS.Title2,
-                                                marginTop: 100,
+                                                marginTop: 10,
                                                 marginBottom: 20,
                                                 textAlign: 'center',
 
@@ -531,7 +529,7 @@ const UserProfileDetailsTab = () => {
                                             }}>
                                             PROFILE DETAILS
                                         </Text>
-                                    </TouchableOpacity>
+
                                 </View>
                                 <View style={{alignItems: 'center', marginBottom: 15}}>
                                     <FlatList

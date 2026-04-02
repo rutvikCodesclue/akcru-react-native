@@ -187,16 +187,16 @@ const FlickFlirtArchetypeResult = () => {
         outputRange: [0.84, 0.9, 0.92, 1, 1.02],
     });
 
-    const goToCrummunityFeed = () => {
+    const goToUserMatchModesScreen = () => {
         navigation.navigate('ClientTabNavigator', {
-            screen: 'CrummunityStack',
-            params: {screen: 'CrummunityScreen'},
+            screen: 'UserProfileStack',
+            params: {screen: 'UserMatchModesScreen'},
         });
     };
 
     const goToPreferencesAll = () => {
         if (fromOnboardArchetypeStandalone) {
-            goToCrummunityFeed();
+            goToUserMatchModesScreen();
         } else {
             navigation.navigate('FlickFlirtPref');
         }
@@ -204,7 +204,7 @@ const FlickFlirtArchetypeResult = () => {
 
     const goToPreferencesSteps = () => {
         if (fromOnboardArchetypeStandalone) {
-            goToCrummunityFeed();
+            goToUserMatchModesScreen();
         } else {
             navigation.navigate('FlickFlirtPrefAll');
         }
@@ -392,7 +392,7 @@ const FlickFlirtArchetypeResult = () => {
                     }}>
                     <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
                     <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10, textAlign: 'center', paddingHorizontal: 24}}>
-                        {isSaving ? 'Analyzing Your Movie Taste...' : 'Loading archetype art...'}
+                        {isSaving ? 'Analyzing Your Movie Taste...' : 'Loading archetype...'}
                     </Text>
                 </View>
             </Modal>

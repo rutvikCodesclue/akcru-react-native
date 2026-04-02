@@ -169,7 +169,9 @@ const FlickFlirtPrefAll = () => {
                 userHeight,
             });
             if (res3.data?.success) {
-                navigation.navigate('FlickFlirtResults', {startedAt: Date.now()});
+                navigation.navigate('FlickFlirtResults', {
+                    startedAt: Date.now(),
+                });
             } else {
                 console.error('Failed preferences (step 3):', res3.data?.message);
             }

@@ -168,7 +168,7 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, varia
     );
 };
 
-const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default'}) => {
+const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default', loading = false}) => {
     if (variant === 'auth') {
         return (
             <View style={{marginVertical: 10}}>
@@ -181,7 +181,7 @@ const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, var
                         opacity: disabled ? 1: 1,
                     }}
                     onPress={onPress}
-                    disabled={disabled}>
+                    disabled={disabled || loading}>
                     <LinearGradient
                         colors={AUTH_BUTTON_THEME.colors}
                         start={AUTH_BUTTON_THEME.start}
@@ -192,7 +192,11 @@ const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, var
                             alignItems: 'center',
                             borderRadius: AUTH_BUTTON_THEME.borderRadius,
                         }}>
-                        <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                        {loading ? (
+                            <ActivityIndicator color={COLORS.WHITE} />
+                        ) : (
+                            <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                        )}
                     </LinearGradient>
                 </TouchableOpacity>
             </View>

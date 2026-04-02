@@ -51,6 +51,10 @@ const OnboardArchetypeStandalone = () => {
     const [archetypeDescription, setArchetypeDescription] = useState('');
 
     const handleFinishButton = async () => {
+        if (isUpdatingArchetype) {
+            return;
+        }
+
         const selectedGenres = Object.keys(checkedGenres).filter(genreId => checkedGenres[genreId]);
 
         if (selectedGenres.length === 2) {
@@ -87,29 +91,16 @@ const OnboardArchetypeStandalone = () => {
                         useAuthStore.setState({user: updatedUser});
                         setIsUpdatingArchetype(false);
 
-       navigation.navigate('NoBottomStack', {
-                                screen: 'FlickFlirtArchetypeResult',
-                                params: {
-                                    name: selectedArchetype.name,
-                                    image: selectedArchetype.image,
-                                    description: selectedArchetype.description,
-                                    genres: genreNames,
-                                    fromOnboardArchetypeStandalone: true,
-                                },
-                            });
-                        setTimeout(() => {
-//                             setArchetypeModal(false);
-                            navigation.navigate('NoBottomStack', {
-                                screen: 'FlickFlirtArchetypeResult',
-                                params: {
-                                    name: selectedArchetype.name,
-                                    image: selectedArchetype.image,
-                                    description: selectedArchetype.description,
-                                    genres: genreNames,
-                                    fromOnboardArchetypeStandalone: true,
-                                },
-                            });
-                        }, 4000);
+                        navigation.navigate('NoBottomStack', {
+                            screen: 'FlickFlirtArchetypeResult',
+                            params: {
+                                name: selectedArchetype.name,
+                                image: selectedArchetype.image,
+                                description: selectedArchetype.description,
+                                genres: genreNames,
+                                fromOnboardArchetypeStandalone: true,
+                            },
+                        });
                     }
                 } catch (error) {
                     console.error('Error updating archetype:', error);
@@ -241,7 +232,8 @@ const OnboardArchetypeStandalone = () => {
                                     Keyboard.dismiss();
                                     handleFinishButton();
                                 }}
-                                disabled={!isFinishEnabled}
+                                disabled={!isFinishEnabled || isUpdatingArchetype}
+                                loading={isUpdatingArchetype}
                             />
                         </View>
                     </View>
