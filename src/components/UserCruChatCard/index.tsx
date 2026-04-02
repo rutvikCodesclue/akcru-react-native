@@ -1,88 +1,84 @@
 import {Image, Text, View} from 'react-native';
 import React from 'react';
 import styles from './styles';
-import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import HexAvatar from '../HexAvatar';
 import {selectAvatarBorderColor} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 
-type UserCruChatCardProps = {
+export type UserCruChatCardProps = {
     userPicture?: string;
     userName: string;
     CruChatDate: string;
     CruChatTime: string;
     CRUChat: string;
-    userID: any;
-    avatarbordercolor: string;
+    userID?: unknown;
+    avatarbordercolor?: string;
     movie: string;
     moviePoster?: string;
+    /** Receiver badge for avatar ring (e.g. AKCRUIT) */
+    badge?: string;
+    /** Show green online indicator on avatar */
+    isOnline?: boolean;
 };
 
 const UserCruChatCard = ({
     userPicture,
     userName,
-    CruChatDate,
     CruChatTime,
     CRUChat,
-    userID,
-    avatarbordercolor,
     movie,
     moviePoster,
+    badge,
+    isOnline = false,
 }: UserCruChatCardProps) => {
+    const movieTitle = movie?.trim() ?? '';
+    const hasMovieMeta = Boolean(movieTitle || moviePoster?.trim());
+
     return (
-        <View style={styles.cardcontainer}>
-            <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    borderRadius: 5,
-                }}
-            />
-
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View>
-                    <View style={{flexDirection: 'row', flex: 1}}>
-                        <View style={{paddingRight: 10}}>
-                            <HexAvatar
-                                source={{uri: userPicture}}
-                                size={45}
-                                bordercolor={selectAvatarBorderColor(userID?.badge ?? 'AKCRUIT')}
-                            />
-                        </View>
-
-                        <View style={{flex: 1}}>
-                            <Text style={{...FONTS.paragraph1, fontSize: 12, flexWrap: 'wrap'}} numberOfLines={3}>
-                                Chat with "{userName}" about watching "{movie}"
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{marginBottom: 10}}>
-                        <Image
-                            source={{uri: moviePoster}}
-                            style={{
-                                width: SIZES.ScreenWidth / 1.5,
-                                height: SIZES.ScreenWidth / 2.5,
-                                borderRadius: 5,
-                                marginTop: 10,
-                                alignSelf: 'center',
-                            }}
+        <LinearGradient
+            colors={['#FF2F92', '#A43EFF', '#5BE0FF']}
+            start={{x: 0, y: 0.5}}
+            end={{x: 1, y: 0.5}}
+            style={styles.cardGradientBorder}>
+            <View style={styles.card}>
+                <View style={styles.cardContent}>
+                    <View style={styles.avatarWrap}>
+                        <HexAvatar
+                            source={{uri: userPicture}}
+                            size={58}
+                            bordercolor={selectAvatarBorderColor(badge ?? 'AKCRUIT')}
                         />
                     </View>
-                </View>
-                <View style={{alignItems: 'flex-end', marginLeft: 8}}>
-                    <Text style={styles.stamps}>{CruChatDate}</Text>
-                    <Text style={styles.stamps2}>{CruChatTime}</Text>
+
+                    <View style={styles.body}>
+                        <View style={styles.topRow}>
+                            <Text style={styles.name} numberOfLines={1}>
+                                {userName}
+                            </Text>
+                            <Text style={styles.time}>{CruChatTime}</Text>
+                        </View>
+
+                        <View style={styles.movieRow}>
+                            <Text style={styles.movieTitle} numberOfLines={1}>
+                                {hasMovieMeta ? movieTitle || 'Movie' : 'Movie'}
+                            </Text>
+                            {moviePoster?.trim() ? (
+                                <Image
+                                    source={{uri: moviePoster.trim()}}
+                                    style={styles.poster}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <View style={styles.poster} />
+                            )}
+                        </View>
+                        <Text style={styles.preview} numberOfLines={1}>
+                            Message: {CRUChat?.trim() ? CRUChat : 'No messages yet'}
+                        </Text>
+                    </View>
                 </View>
             </View>
-            <View style={{flexDirection: 'row', flexWrap: 'wrap', alignItems: 'baseline'}}>
-                <Text style={[styles.cruchat, {color: COLORS.PURPLE}]}>Last message:</Text>
-                <Text style={[styles.cruchat, {color: COLORS.WHITE}]}>{CRUChat}</Text>
-            </View>
-        </View>
+        </LinearGradient>
     );
 };
 

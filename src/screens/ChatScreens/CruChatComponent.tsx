@@ -9,6 +9,8 @@ import {
     Alert,
     Text,
     ScrollView,
+    Platform,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS} from '../../../assets/constants';
@@ -26,8 +28,12 @@ import {supabase} from '../../../lib/supabase';
 import {RealtimeChannel} from '@supabase/supabase-js';
 import playMessageSound from '../../util/playMessageSound';
 import { handleError } from '../../util/handleError';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useKeyboardBottomInset} from '../../hooks/useKeyboardBottomInset';
 
 const CruChatComponent = ({route}: any) => {
+    const insets = useSafeAreaInsets();
+    const keyboardBottomInset = useKeyboardBottomInset();
     const [messages, setMessages] = useState<IMessage[]>([]);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userId ?? null;
@@ -51,7 +57,7 @@ const CruChatComponent = ({route}: any) => {
             cleanupChannels();
         };
     }, []);
-        
+
 
     const setupChannels = (cruId: string) => {
         const channelA = supabase.channel(mItInviteId);
@@ -72,7 +78,7 @@ const CruChatComponent = ({route}: any) => {
     const fetchMessages = async (mItInviteId: string) => {
         try {
         const response = await getMitMessages(mItInviteId!);
-        
+
         const chatMessages: IMessage[] = response!.map(item => ({
                 _id: item.id,
                 text: item.content,
@@ -84,23 +90,23 @@ const CruChatComponent = ({route}: any) => {
                 },
                 createdAt: new Date(item.createdAt),
             }));
-    
+
             if (chatMessages.length > 0) {
                 updateMessageStatus([chatMessages[0]._id]);
                 setMessages(chatMessages);
         }
         } catch (error) {
             console.error("Error fetching messages.", error);
-            
+
             handleError('Failed to fetch messages. Please try again.');
         }
     };
-    
+
 
     const messageReceived = (payload: any) => {
 
         if (payload.payload.deleteid != ""){
-            const deletemsgid =payload.payload.deleteid 
+            const deletemsgid =payload.payload.deleteid
             setMessages(prevMessages =>
                 prevMessages.filter(message => deletemsgid != message._id ),
             );
@@ -168,7 +174,7 @@ const CruChatComponent = ({route}: any) => {
             }
             setMessages(previousMessages => GiftedChat.append(previousMessages, [message]));
             // await deleteMessage(msgId); // Use appropriate method to delete
-            
+
             playMessageSound();
         } catch (error) {
             console.error('Error sending image message:', error);
@@ -298,8 +304,7 @@ const CruChatComponent = ({route}: any) => {
         );
     };
 
-    return (
-        <TouchableWithoutFeedback onPress={handleScreenPress}>
+    const screenContent = (
             <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
                 {selectedMessages.length > 0 && (
                     <View
@@ -318,21 +323,40 @@ const CruChatComponent = ({route}: any) => {
 
                 <View style={styles.container}>
                     {selectedImage ? (
-                        <ScrollView
-                            automaticallyAdjustKeyboardInsets
-                            style={{flexGrow: 1}}
-                            contentContainerStyle={[styles.fullScreen, {width: '100%'}]}>
-                            <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
-                                <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
-                            </TouchableOpacity>
-                            <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+                        <KeyboardAvoidingView
+                            style={{flex: 1}}
+                            behavior={Platform.OS === 'android' ? 'height' : undefined}
+                            enabled={Platform.OS === 'android'}>
+                        <View
+                            style={{
+                                flex: 1,
+                                minHeight: 0,
+                                paddingBottom:
+                                    keyboardBottomInset + Math.max(insets.bottom, 8),
+                            }}>
+                            <ScrollView
+                                keyboardShouldPersistTaps="handled"
+                                style={{flex: 1}}
+                                contentContainerStyle={{
+                                    flexGrow: 1,
+                                    padding: 10,
+                                    alignItems: 'center',
+                                }}>
+                                <TouchableOpacity onPress={resetImageSelection} style={styles.crossButton}>
+                                    <Icon name="close" size={30} color={COLORS.AKCRUBLUE} />
+                                </TouchableOpacity>
+                                <Image source={{uri: selectedImage}} style={styles.selectedImage} />
+                            </ScrollView>
                             <View
                                 style={{
-                                    // flex: 1,
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
                                     columnGap: 5,
+                                    paddingHorizontal: 10,
+                                    paddingTop: 8,
+                                    paddingBottom: 8,
+                                    width: '100%',
                                 }}>
                                 <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
                                     <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
@@ -348,7 +372,8 @@ const CruChatComponent = ({route}: any) => {
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             </View>
-                        </ScrollView>
+                        </View>
+                        </KeyboardAvoidingView>
                     ) : (
                         <GiftedChat
                             messages={messages}
@@ -422,7 +447,12 @@ const CruChatComponent = ({route}: any) => {
                     )}
                 </View>
             </View>
-        </TouchableWithoutFeedback>
+    );
+
+    return selectedImage ? (
+        screenContent
+    ) : (
+        <TouchableWithoutFeedback onPress={handleScreenPress}>{screenContent}</TouchableWithoutFeedback>
     );
 };
 

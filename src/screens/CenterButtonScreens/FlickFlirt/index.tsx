@@ -27,6 +27,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {newFlickUserUpdate, newVisitFlick} from '../../../lib/api/flickflirt.lib';
 import LoadingComponent from '../../../components/Loading';
 import Video from 'react-native-video';
+import {navigate} from '../../../util/RootNavigation';
 
 const FlickFlirtScreen = () => {
     const {user, hydrateUser} = useAuthStore();
@@ -107,6 +108,9 @@ const FlickFlirtScreen = () => {
             }
         } catch (error) {
             console.log(error);
+        } finally {
+            setFirstTimeFlickUser(false);
+            navigate('NoBottomStack', {screen: 'DiscoverArchetypeScreen'});
         }
     };
 
@@ -170,28 +174,31 @@ const FlickFlirtScreen = () => {
                             </View>
 
                             <View style={{alignItems: 'center', marginTop: 20}}>
-                                <AkcruButtons.XlLrgButton
+                                <AkcruButtons.LrgButton
                                     btnname="Open FlickFlirt"
-                                    onPress={() => navigation.navigate('FlickFlirtSwipe')}
+                                    onPress={() => navigate('NoBottomStack', {screen: 'FlickFlirtSwipe'})}
                                     color={COLORS.PURPLE}
+                                    variant="auth"
                                 />
                             </View>
 
                             {hasMatches && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
+                                    <AkcruButtons.LrgButton
                                         btnname="You Have Matches"
-                                        onPress={() => navigation.navigate('FlickFlirtMatches')}
+                                        onPress={() => navigate('NoBottomStack', {screen: 'FlickFlirtMatches'})}
                                         color={COLORS.PURPLE}
+                                        variant="auth"
                                     />
                                 </View>
                             )}
                             {user?.hasSetFlirtPref && (
                                 <View style={{alignItems: 'center', marginTop: 20}}>
-                                    <AkcruButtons.XlLrgButton
+                                    <AkcruButtons.LrgButton
                                         btnname="Reset Preferences"
                                         onPress={() => setResetModalVisible(true)}
                                         color={COLORS.PURPLE}
+                                        variant="auth"
                                     />
                                 </View>
                             )}

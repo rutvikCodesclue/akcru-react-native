@@ -392,6 +392,7 @@ const FlickFlirtSwipeold = () => {
                                                             akcruBadge={item.badge}
                                                             userDesc={item.description}
                                                             matchLabel={item.matchLabel}
+                                                            archetype={item.archetype}
                                                         />
                                                     </View>
                                                 )}

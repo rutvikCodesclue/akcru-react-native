@@ -67,9 +67,12 @@ import FlickFlirtPref from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirt
 import FlickFlirtPrefB from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefB';
 import FlickFlirtPrefC from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefC';
 import FlickFlirtPrefD from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefD';
+import FlickFlirtPrefAll from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtPrefAll';
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
+import FlickFlirtArchetypeResult from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtArchetypeResult';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
 import FlickFlirtResults from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtResults';
+import DiscoverArchetypeScreen from '../screens/CenterButtonScreens/FlickFlirt/DiscoverArchetypeScreen';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import AdPurchaseSuccessScreen from '../screens/CenterButtonScreens/PurchaseAD/VerifyPurchase';
@@ -104,9 +107,19 @@ export type NoBottomTabStackParams = {
     FlickFlirtPrefB: any;
     FlickFlirtPrefC: any;
     FlickFlirtPrefD: any;
+    FlickFlirtPrefAll: any;
     FlickFlirtSwipe: any;
+    FlickFlirtArchetypeResult: {
+        name: string;
+        image: string;
+        description: string;
+        genres: string[];
+        /** true when opened from OnboardArchetypeStandalone (genre picker) */
+        fromOnboardArchetypeStandalone?: boolean;
+    };
     FlickFlirtMatches: any;
     FlickFlirtResults: {startedAt?: number};
+    DiscoverArchetypeScreen: any;
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
     TrailerPlayer: any;
@@ -696,8 +709,22 @@ export default function NoBottomStack() {
                 })}
             />
             <NoBottom.Screen
+                name="FlickFlirtPrefAll"
+                component={FlickFlirtPrefAll}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
                 name="FlickFlirtSwipe"
                 component={FlickFlirtSwipe}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtArchetypeResult"
+                component={FlickFlirtArchetypeResult}
                 options={() => ({
                     headerShown: false,
                 })}
@@ -712,6 +739,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtResults"
                 component={FlickFlirtResults}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="DiscoverArchetypeScreen"
+                component={DiscoverArchetypeScreen}
                 options={() => ({
                     headerShown: false,
                 })}

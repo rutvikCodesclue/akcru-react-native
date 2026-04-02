@@ -2,11 +2,13 @@ import {View, StyleSheet} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 
 import {Icon} from '@rneui/base';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
+import {BottomTabBar, createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import {COLORS, SIZES} from '../../assets/constants';
 
 import {clientTabBarStyle} from './clientTabBarStyle';
+import {CLIENT_TAB_NAVIGATOR_ID} from './clientTabNavigatorId';
 import {ClientStack} from './ClientStack';
 import {CrummunityStack} from './CrummunityStack';
 import {UserProfileStack} from './UserProfileStack';
@@ -33,6 +35,21 @@ export type ClientTabsParams = {
 };
 
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
+
+type TabBarProps = React.ComponentProps<typeof BottomTabBar>;
+
+/** `setOptions({ tabBarStyle })` from nested screens is unreliable; hide bar from real navigation state. */
+function ClientTabBar(props: TabBarProps) {
+    const {state} = props;
+    const active = state.routes[state.index];
+    if (active?.name === 'UserProfileStack') {
+        const nestedFocused = getFocusedRouteNameFromRoute(active);
+        if (nestedFocused === 'ViewChat') {
+            return null;
+        }
+    }
+    return <BottomTabBar {...props} />;
+}
 
 export default function ClientTabNavigator() {
     const {opened, toggleOpened} = UseTabMenu();
@@ -69,6 +86,8 @@ export default function ClientTabNavigator() {
 
     return (
         <ClientTabs.Navigator
+            id={CLIENT_TAB_NAVIGATOR_ID}
+            tabBar={(tabBarProps) => <ClientTabBar {...tabBarProps} />}
             sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
             initialRouteName="CrummunityStack"
             screenOptions={{

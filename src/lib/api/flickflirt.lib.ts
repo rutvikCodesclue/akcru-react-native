@@ -97,3 +97,16 @@ export async function newFlickUserUpdate() {
         return response.data;
     }
 }
+
+export type FlickFlirtSwipeBatchType = 'LIKE' | 'DISLIKE';
+
+export interface FlickFlirtSwipeBatchItem {
+    movieId: string;
+    type: FlickFlirtSwipeBatchType;
+}
+
+/** POST /v1/flickflirt/swipe/batch — send all swipes from a session in one request */
+export async function submitFlickFlirtSwipeBatch(swipes: FlickFlirtSwipeBatchItem[]) {
+    const res = await API.post('v1/flickflirt/swipe/batch', {swipes});
+    return res.data;
+}

@@ -22,6 +22,7 @@ import {Avatar, Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
+import {navigate} from '../../../util/RootNavigation';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
@@ -36,7 +37,6 @@ import {selectAvatarBorderColor} from '../../../util/util';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import BackButton from '../../../components/General/backbutton';
-import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 
 type UserCruChatScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserCruChatScreen'>;

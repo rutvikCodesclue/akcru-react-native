@@ -590,7 +590,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                                 screen: 'UserMITHubScreen',
                                                 params: {index: 0},
                                             })
-                                        }
+                                        } //Navigate to MITHub
                                         style={{marginRight: '5%'}}>
                                         <View>
                                             <Image

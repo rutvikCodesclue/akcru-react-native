@@ -1,5 +1,17 @@
 import React, {useState, useEffect} from 'react';
-import {ActivityIndicator, FlatList, SafeAreaView, TouchableOpacity, View} from 'react-native';
+import {
+    ActivityIndicator,
+    FlatList,
+    ImageBackground,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import imageindex from '../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../stores/auth.store';
@@ -11,10 +23,15 @@ import {COLORS, SIZES} from '../../../assets/constants';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import BackButton from '../../components/General/backbutton';
 import {useHideBottomTabBarWhileFocused} from '../ChatScreens/useHideBottomTabBarWhileFocused';
+import {Icon} from '@rneui/base';
+import HexAvatar from '../../components/HexAvatar';
+import {selectAvatarBorderColor} from '../../util/util';
+import {BlurView} from '@react-native-community/blur';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const {user} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     useHideBottomTabBarWhileFocused(navigation);
@@ -51,79 +68,286 @@ const ChatList = () => {
         fetchChatUsers();
     }, []);
 
-    const renderItem = ({item}: {item: IChatUser}) => {
+    const getReceiverInfo = (item: IChatUser) => {
         const isCurrentUserCreator = user?.id === item.creatorId;
         const receiverUserId = isCurrentUserCreator ? item.inviteeId : item.creatorId;
-        const receiverProfilePicture = isCurrentUserCreator
-            ? item.invitee?.profilePicture
-            : item.creator?.profilePicture;
-        const receiverUsername = isCurrentUserCreator ? item.invitee?.username : item.creator?.username;
+        const receiver = isCurrentUserCreator ? item.invitee : item.creator;
+        return {receiverUserId, receiver};
+    };
+
+    const filteredChatUsers = chatUsersData.filter(item => {
+        const {receiver} = getReceiverInfo(item);
+        const receiverUsername = receiver?.username ?? '';
+        const lastMessage = item.lastMessage ?? '';
+        const query = searchQuery.trim().toLowerCase();
+        if (!query) {
+            return true;
+        }
+        return receiverUsername.toLowerCase().includes(query) || lastMessage.toLowerCase().includes(query);
+    });
+
+    const renderItem = ({item, index}: {item: IChatUser; index: number}) => {
+        const {receiverUserId, receiver} = getReceiverInfo(item);
+        const receiverProfilePicture = receiver?.profilePicture;
+        const receiverUsername = receiver?.username ?? 'User';
+        const isLastRow = index === filteredChatUsers.length - 1;
+        const lastAt = item.lastMessageAt ? new Date(item.lastMessageAt) : null;
+        const timeLabel =
+            lastAt != null && !Number.isNaN(lastAt.getTime())
+                ? lastAt
+                      .toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit', hour12: true})
+                      .toLowerCase()
+                : '';
 
         return (
-            <TouchableOpacity
-                onPress={() => {
-                    navigation.navigate('ViewChat', {
-                        mItInviteId: item.id,
-                        userId: receiverUserId,
-                        profilePicture: receiverProfilePicture,
-                        username: receiverUsername,
-                    });
-                }}
-                style={{marginHorizontal: 10, marginBottom: 10}}>
-                <UserCruChatCard
-                    userID={item.id}
-                    userName={receiverUsername}
-                    movie={item.movie.title | ''}
-                    moviePoster={item.movie.landscapeURL}
-                    CruChatDate={new Date(item.lastMessageAt).toLocaleDateString()}
-                    CruChatTime={new Date(item.lastMessageAt).toLocaleTimeString()}
-                    CRUChat={item.lastMessage}
-                    avatarbordercolor={''}
-                    userPicture={receiverProfilePicture}
+            <View style={[styles.chatPanelBody, isLastRow && styles.chatPanelBodyLast]}>
+                <BlurView
+                    style={StyleSheet.absoluteFill}
+                    blurType="light"
+                    blurAmount={5}
+                    reducedTransparencyFallbackColor="rgba(28,30,72,0.55)"
                 />
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        navigation.navigate('ViewChat', {
+                            mItInviteId: item.id,
+                            userId: receiverUserId,
+                            profilePicture: receiverProfilePicture,
+                            username: receiverUsername,
+                        });
+                    }}
+                    style={styles.chatCardTouch}>
+                    <UserCruChatCard
+                        userName={receiverUsername}
+                        movie={item.movie?.title ?? ''}
+                        moviePoster={item.movie?.landscapeURL}
+                        CruChatDate={lastAt ? lastAt.toLocaleDateString() : ''}
+                        CruChatTime={timeLabel}
+                        CRUChat={item.lastMessage}
+                        userPicture={receiverProfilePicture}
+                        badge={receiver?.badge}
+                    />
+                </TouchableOpacity>
+            </View>
         );
     };
 
     return (
-        <SafeAreaView style={{flex: 1}}>
-            {isListLoaded ? (
-                <FlatList
-                    stickyHeaderIndices={[0]}
-                    ListHeaderComponent={
-                        <View>
-                            <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                                <Header />
+        <View style={{flex: 1}}>
+            <ImageBackground style={{flex: 1}} source={imageindex.FLickFlirt} resizeMode="cover">
+                <LinearGradient
+                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
+                    style={StyleSheet.absoluteFill}
+                />
+                <SafeAreaView style={{flex: 1}}>
+                    {isListLoaded ? (
+                        <View style={styles.screenContainer}>
+                            <View style={styles.headerContainer}>
+                                <View style={{zIndex: 20, backgroundColor: 'transparent'}}>
+                                    <Header />
+                                </View>
+                                <View
+                                    style={{
+                                        marginBottom: 10,
+                                        zIndex: 21,
+                                        backgroundColor: 'transparent',
+                                        paddingBottom: 10,
+                                    }}>
+                                    <BackButton navigation={navigation} />
+                                </View>
+                                <View style={styles.searchWrap}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={10}
+                                        reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                    />
+                                    <View style={styles.searchRow}>
+                                        <Icon
+                                            name="search"
+                                            type="ionicon"
+                                            size={20}
+                                            color={COLORS.LIGHTGREY}
+                                            style={{marginRight: 8}}
+                                        />
+                                        <TextInput
+                                            value={searchQuery}
+                                            onChangeText={setSearchQuery}
+                                            placeholder="Search"
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.searchInput}
+                                        />
+                                    </View>
+                                </View>
+                                <FlatList
+                                    horizontal
+                                    data={filteredChatUsers}
+                                    keyExtractor={item => `avatar-${item.id}`}
+                                    showsHorizontalScrollIndicator={false}
+                                    contentContainerStyle={styles.avatarList}
+                                    renderItem={({item}) => {
+                                        const {receiverUserId, receiver} = getReceiverInfo(item);
+                                        const receiverName = receiver?.username ?? 'User';
+                                        return (
+                                            <TouchableOpacity
+                                                style={styles.avatarItem}
+                                                onPress={() =>
+                                                    navigation.navigate('ViewChat', {
+                                                        mItInviteId: item.id,
+                                                        userId: receiverUserId,
+                                                        profilePicture: receiver?.profilePicture,
+                                                        username: receiverName,
+                                                    })
+                                                }>
+                                                <HexAvatar
+                                                    source={{uri: receiver?.profilePicture}}
+                                                    size={52}
+                                                    bordercolor={selectAvatarBorderColor(receiver?.badge ?? 'AKCRUIT')}
+                                                />
+                                                <Text style={styles.avatarName} numberOfLines={1}>
+                                                    {receiverName}
+                                                </Text>
+                                            </TouchableOpacity>
+                                        );
+                                    }}
+                                />
                             </View>
-                            <View
-                                style={{
-                                    marginBottom: 10,
-                                    zIndex: 21,
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    paddingBottom: 10,
-                                }}>
-                                <BackButton navigation={navigation} />
+
+                            <View style={styles.chatPanelContainer}>
+                                <View style={styles.chatPanel}>
+                                    <BlurView
+                                        style={StyleSheet.absoluteFill}
+                                        blurType="light"
+                                        blurAmount={5}
+                                        reducedTransparencyFallbackColor="rgba(28,30,72,0.55)"
+                                    />
+                                    <Text style={styles.chatPanelTitle}>MIT Chats</Text>
+                                </View>
+
+                                <FlatList
+                                    style={styles.chatList}
+                                    contentContainerStyle={styles.chatListContent}
+                                    data={filteredChatUsers}
+                                    keyExtractor={item => item.id}
+                                    renderItem={renderItem}
+                                    showsVerticalScrollIndicator={false}
+                                    bounces={false}
+                                    overScrollMode="never"
+                                    nestedScrollEnabled
+                                />
                             </View>
                         </View>
-                    }
-                    ListFooterComponent={<View style={{height: SIZES.ScreenHeight * 0.1}} />}
-                    data={chatUsersData}
-                    keyExtractor={item => item.id}
-                    renderItem={renderItem}
-                />
-            ) : (
-                <View
-                    style={{
-                        height: SIZES.ScreenHeight,
-                        width: SIZES.ScreenWidth,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
-                    <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
-                </View>
-            )}
-        </SafeAreaView>
+                    ) : (
+                        <View
+                            style={{
+                                flex: 1,
+                                width: SIZES.ScreenWidth,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}>
+                            <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                        </View>
+                    )}
+                </SafeAreaView>
+            </ImageBackground>
+        </View>
     );
 };
+
+const styles = StyleSheet.create({
+    screenContainer: {
+        flex: 1,
+    },
+    headerContainer: {
+        paddingHorizontal: 10,
+    },
+    searchWrap: {
+        height: 50,
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.25)',
+        overflow: 'hidden',
+        marginVertical: 8,
+    },
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        height: 50,
+    },
+    searchInput: {
+        flex: 1,
+        color: COLORS.WHITE,
+        fontSize: 14,
+    },
+    avatarList: {
+        paddingVertical: 6,
+        paddingRight: 8,
+    },
+    avatarItem: {
+        width: 70,
+        marginRight: 8,
+        alignItems: 'center',
+    },
+    avatarName: {
+        color: 'rgba(255,255,255,0.9)',
+        fontSize: 12,
+        marginTop: 4,
+    },
+    chatPanel: {
+        overflow: 'hidden',
+        position: 'relative',
+        borderBottomWidth: 0,
+        borderColor: 'rgba(255,255,255,0.24)',
+        backgroundColor: 'rgba(62,70,130,0.22)',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+    },
+    chatPanelContainer: {
+        flex: 1,
+        minHeight: 0,
+        marginTop: 10,
+        marginHorizontal: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.28)',
+        backgroundColor: 'rgba(62,70,130,0.22)',
+    },
+    chatList: {
+        flex: 1,
+        minHeight: 0,
+    },
+    chatListContent: {
+        paddingBottom: SIZES.ScreenHeight * 0.16,
+    },
+    chatPanelBody: {
+        width: '100%',
+        alignSelf: 'stretch',
+        overflow: 'hidden',
+        position: 'relative',
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderColor: 'rgba(255,255,255,0.28)',
+        backgroundColor: 'rgba(62,70,130,0.22)',
+    },
+    chatPanelBodyLast: {
+        borderBottomWidth: 1,
+        borderBottomLeftRadius: 10,
+        borderBottomRightRadius: 10,
+        paddingBottom: 8,
+    },
+    chatPanelTitle: {
+        color: 'rgba(255,255,255,0.85)',
+        fontSize: 32 / 2,
+        fontWeight: '600',
+    },
+    chatCardTouch: {
+        width: '100%',
+        marginHorizontal: 0,
+        marginTop: 8,
+        marginBottom: 8,
+    },
+});
 
 export default ChatList;

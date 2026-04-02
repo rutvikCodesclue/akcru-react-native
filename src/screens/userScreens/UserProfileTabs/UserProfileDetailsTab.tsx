@@ -44,6 +44,7 @@ import PurchasedContent from '../../../components/PurchasedContent';
 import {isTablet} from '../../../../assets/constants/theme';
 import imageindex from '../../../../assets/images/imageindex';
 import { getUserWallet } from '../../../lib/api/wallet.lib';
+import {navigate} from '../../../util/RootNavigation';
 
 const UserProfileDetailsTab = () => {
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
@@ -516,17 +517,19 @@ const UserProfileDetailsTab = () => {
                         ListHeaderComponent={
                             <View>
                                 <View>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            marginTop: 10,
-                                            marginBottom: 20,
-                                            textAlign: 'center',
 
-                                            textDecorationLine: 'underline',
-                                        }}>
-                                        PROFILE DETAILS
-                                    </Text>
+                                        <Text
+                                            style={{
+                                                ...FONTS.Title2,
+                                                marginTop: 10,
+                                                marginBottom: 20,
+                                                textAlign: 'center',
+
+                                                textDecorationLine: 'underline',
+                                            }}>
+                                            PROFILE DETAILS
+                                        </Text>
+
                                 </View>
                                 <View style={{alignItems: 'center', marginBottom: 15}}>
                                     <FlatList

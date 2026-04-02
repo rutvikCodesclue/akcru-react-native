@@ -1,28 +1,19 @@
 import {useFocusEffect, NavigationProp, ParamListBase} from '@react-navigation/native';
 import React, {useCallback} from 'react';
 import {clientTabBarStyle} from '../../navigation/clientTabBarStyle';
+import {CLIENT_TAB_NAVIGATOR_ID} from '../../navigation/clientTabNavigatorId';
 
-const TAB_ROUTE_NAMES = new Set([
-    'ClientStack',
-    'CrummunityStack',
-    'AkcruButtonStack',
-    'FlickFlirtScreen',
-    'UserProfileStack',
-]);
-
+/** Prefer id-based lookup (RN docs); fall back to walking for older trees. */
 function findBottomTabNavigator(navigation: NavigationProp<ParamListBase>) {
+    const byId = navigation.getParent(CLIENT_TAB_NAVIGATOR_ID);
+    if (byId) {
+        return byId;
+    }
     let parent = navigation.getParent();
     while (parent) {
-        const state = parent.getState();
-        if (!state || !('routes' in state) || !Array.isArray(state.routes)) {
-            parent = parent.getParent();
-            continue;
-        }
-        const routeNames = state.routes.map((r: {name: string}) => r.name);
-        const isTab =
-            ('type' in state && (state as {type?: string}).type === 'tab') ||
-            (routeNames.length > 0 && routeNames.every((n: string) => TAB_ROUTE_NAMES.has(n)));
-        if (isTab) {
+        const state = parent.getState() as {type?: string} | undefined;
+        const maybeTab = parent as NavigationProp<ParamListBase> & {jumpTo?: (name: string) => void};
+        if (state?.type === 'tab' || typeof maybeTab.jumpTo === 'function') {
             return parent;
         }
         parent = parent.getParent();

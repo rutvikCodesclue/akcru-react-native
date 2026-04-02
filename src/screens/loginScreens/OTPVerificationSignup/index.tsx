@@ -204,7 +204,7 @@ const OTPVerificationSignup = ({route}) => {
                             </View>
                             <View style={{marginBottom: 30, paddingHorizontal: 16}}>
                                 <Text style={[AUTH_TEXT_THEME.instruction, {textAlign: 'center', color: 'rgba(255,255,255,0.9)'}]}>
-                                    Enter the 6-digit code sent to your email/phone
+                                    Enter the 6-digit code sent to your email
                                 </Text>
                             </View>
                             <View style={{marginBottom: 30, width: '100%'}}>

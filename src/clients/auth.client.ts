@@ -75,7 +75,7 @@ API.interceptors.request.use(
                       }
                     : config.data;
 
-            console.log('[AUTH API REQUEST]', {
+            console.log('\n\n[AUTH API REQUEST]', {
                 method: config.method,
                 url,
                 baseURL: base,
@@ -98,7 +98,7 @@ API.interceptors.response.use(
             const base = response.config.baseURL ?? API.defaults.baseURL ?? '';
             const url = `${base}${response.config.url ?? ''}`;
 
-            console.log('[AUTH API RESPONSE]', {
+            console.log('\n\n[AUTH API RESPONSE]', {
                 url,
                 status: response.status,
                 headers: response.headers,
