@@ -43,6 +43,7 @@ import BackButton from '../../../components/General/backbutton';
 import {reset as resetNavigation} from '../../../util/RootNavigation';
 import {Image as CompressorImage} from 'react-native-compressor';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import PreferenceChip from '../../../components/PreferenceChip';
 import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
 
 export default function EditProfile({session}: {session: Session}) {
@@ -1097,14 +1098,12 @@ export default function EditProfile({session}: {session: Session}) {
                         <View style={{flex: 1}}>
                             <View style={[styles.chipContainer, {marginBottom: 20}]}>
                                 {filteredGenres.map(item => (
-                                    <TouchableOpacity
+                                    <PreferenceChip
                                         key={item.id}
+                                        selected={Boolean(checkedGenres[item.id])}
                                         onPress={() => handleCheckboxChange(item.id)}
-                                        style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
-                                        <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
-                                            {item.genre}
-                                        </Text>
-                                    </TouchableOpacity>
+                                        label={item.genre}
+                                    />
                                 ))}
                             </View>
 

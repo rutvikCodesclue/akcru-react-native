@@ -1,26 +1,25 @@
 import {
     View,
     Text,
-    SafeAreaView,
-    TouchableOpacity,
     ActivityIndicator,
-    ImageBackground,
     ScrollView,
+    StyleSheet,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Icon} from '@rneui/base';
-import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {COLORS, FONTS} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
-import LinearGradient from 'react-native-linear-gradient';
-import imageindex from '../../../../../assets/images/imageindex';
 import styles from '../FlickFlirtPref/styles';
+import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
+import PreferenceChip from '../../../../components/PreferenceChip';
 import Header from '../../../../components/header';
 import {API} from '../../../../clients/api.client';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {IAgeBracket} from '../../../../../types';
+import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
 
 enum IHeightBracket {
     HEIGHT_0_48 = 'HEIGHT_0_48',
@@ -54,6 +53,8 @@ const HEIGHT_LABELS: Record<IHeightBracket, string> = {
 
 const FlickFlirtPrefAll = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const insets = useSafeAreaInsets();
+    useBackNavigatesToClientTab();
 
     const [genders, setGenders] = useState<string[]>([]);
     const [selectedGenders, setSelectedGenders] = useState<string[]>([]);
@@ -146,34 +147,19 @@ const FlickFlirtPrefAll = () => {
             const preferredHeight = selectedPreferredHeights;
             const userHeight = selectedUserHeight;
 
-            const res1 = await API.post('v1/flickflirt/preferences', {gender, ageBrackets: age, relationIntent});
-            if (!res1.data?.success) {
-                console.error('Failed preferences (step 1):', res1.data?.message);
-                return;
-            }
-            const res2 = await API.post('v1/flickflirt/preferences', {
-                gender,
-                ageBrackets: age,
-                relationIntent,
-                preferredHeight,
-            });
-            if (!res2.data?.success) {
-                console.error('Failed preferences (step 2):', res2.data?.message);
-                return;
-            }
-            const res3 = await API.post('v1/flickflirt/preferences', {
+            const res = await API.post('v1/flickflirt/preferences', {
                 gender,
                 ageBrackets: age,
                 relationIntent,
                 preferredHeight,
                 userHeight,
             });
-            if (res3.data?.success) {
+            if (res.data?.success) {
                 navigation.navigate('FlickFlirtResults', {
                     startedAt: Date.now(),
                 });
             } else {
-                console.error('Failed preferences (step 3):', res3.data?.message);
+                console.error('Failed preferences:', res.data?.message);
             }
         } catch (error) {
             console.error('Error submitting preferences:', error);
@@ -184,27 +170,15 @@ const FlickFlirtPrefAll = () => {
 
     return (
         <View style={{flex: 1}}>
-            <ImageBackground
-                source={imageindex.FLickFlirt}
-                resizeMode="cover"
-                style={{width: SIZES.ScreenWidth, minHeight: SIZES.ScreenHeight}}>
-                <SafeAreaView style={{flex: 1}}>
-                    <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: 0,
-                            height: SIZES.ScreenHeight,
-                        }}
-                    />
+            <FlickFlirtBlurredBackground>
                     <Header />
+                    <View style={{flex: 1}}>
                     <ScrollView
+                        style={{flex: 1}}
                         keyboardShouldPersistTaps="handled"
                         contentContainerStyle={{
                             paddingHorizontal: 15,
-                            paddingBottom: 48,
+                            paddingBottom: 24,
                         }}
                         showsVerticalScrollIndicator>
                         <Text style={[FONTS.Title2, {textAlign: 'center', marginBottom: 16}]}>
@@ -219,7 +193,7 @@ const FlickFlirtPrefAll = () => {
                             </View>
                         ) : (
                             <>
-                                <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY, marginBottom: 8}]}>
+                                <Text style={[FONTS.Title3, {textAlign: 'center',color: COLORS.LIGHTGREY, marginBottom: 8}]}>
                                     Why do you want to use Flick Flirt?
                                 </Text>
                                 {relationIntents.length === 0 ? (
@@ -227,20 +201,16 @@ const FlickFlirtPrefAll = () => {
                                         No relationship intents available.
                                     </Text>
                                 ) : (
-                                    relationIntents.map(intent => (
-                                        <TouchableOpacity
-                                            key={intent}
-                                            onPress={() => setSelectedIntent(intent)}
-                                            style={[
-                                                styles.intentOption,
-                                                selectedIntent === intent && styles.intentOptionSelected,
-                                            ]}>
-                                            <Text style={styles.intentText}>{formatEnumLabel(intent)}</Text>
-                                            {selectedIntent === intent && (
-                                                <Icon name="checkmark" type="ionicon" size={18} color={COLORS.AKCRUBLUE} />
-                                            )}
-                                        </TouchableOpacity>
-                                    ))
+                                    <View style={styles.chipContainer}>
+                                        {relationIntents.map(intent => (
+                                            <PreferenceChip
+                                                key={intent}
+                                                selected={selectedIntent === intent}
+                                                onPress={() => setSelectedIntent(intent)}
+                                                label={formatEnumLabel(intent)}
+                                            />
+                                        ))}
+                                    </View>
                                 )}
 
                                 <Text
@@ -250,20 +220,16 @@ const FlickFlirtPrefAll = () => {
                                     ]}>
                                     Preferred gender(s)
                                 </Text>
-                                {genders.map(gender => (
-                                    <TouchableOpacity
-                                        key={gender}
-                                        onPress={() => handleGenderSelect(gender)}
-                                        style={[
-                                            styles.intentOption,
-                                            selectedGenders.includes(gender) && styles.intentOptionSelected,
-                                        ]}>
-                                        <Text style={styles.intentText}>{capitalizeFirstLetterOfString(gender)}</Text>
-                                        {selectedGenders.includes(gender) && (
-                                            <Icon name="checkmark" type="ionicon" size={18} color={COLORS.AKCRUBLUE} />
-                                        )}
-                                    </TouchableOpacity>
-                                ))}
+                                <View style={styles.chipContainer}>
+                                    {genders.map(gender => (
+                                        <PreferenceChip
+                                            key={gender}
+                                            selected={selectedGenders.includes(gender)}
+                                            onPress={() => handleGenderSelect(gender)}
+                                            label={capitalizeFirstLetterOfString(gender)}
+                                        />
+                                    ))}
+                                </View>
 
                                 <Text
                                     style={[
@@ -277,20 +243,16 @@ const FlickFlirtPrefAll = () => {
                                         No age brackets available.
                                     </Text>
                                 ) : (
-                                    ageBrackets.map((bracket: IAgeBracket) => (
-                                        <TouchableOpacity
-                                            key={bracket}
-                                            onPress={() => handleAgeSelect(bracket)}
-                                            style={[
-                                                styles.intentOption,
-                                                selectedAgeBrackets.includes(bracket) && styles.intentOptionSelected,
-                                            ]}>
-                                            <Text style={styles.intentText}>{AGE_BRACKET_LABELS[bracket]}</Text>
-                                            {selectedAgeBrackets.includes(bracket) && (
-                                                <Icon name="checkmark" type="ionicon" size={18} color={COLORS.AKCRUBLUE} />
-                                            )}
-                                        </TouchableOpacity>
-                                    ))
+                                    <View style={styles.chipContainer}>
+                                        {ageBrackets.map((bracket: IAgeBracket) => (
+                                            <PreferenceChip
+                                                key={bracket}
+                                                selected={selectedAgeBrackets.includes(bracket)}
+                                                onPress={() => handleAgeSelect(bracket)}
+                                                label={AGE_BRACKET_LABELS[bracket]}
+                                            />
+                                        ))}
+                                    </View>
                                 )}
 
                                 <Text
@@ -300,20 +262,16 @@ const FlickFlirtPrefAll = () => {
                                     ]}>
                                     Preferred height range(s)
                                 </Text>
-                                {heightBrackets.map((bracket: IHeightBracket) => (
-                                    <TouchableOpacity
-                                        key={bracket}
-                                        onPress={() => togglePreferredHeight(bracket)}
-                                        style={[
-                                            styles.intentOption,
-                                            selectedPreferredHeights.includes(bracket) && styles.intentOptionSelected,
-                                        ]}>
-                                        <Text style={styles.intentText}>{HEIGHT_LABELS[bracket]}</Text>
-                                        {selectedPreferredHeights.includes(bracket) && (
-                                            <Icon name="checkmark" type="ionicon" size={18} color={COLORS.AKCRUBLUE} />
-                                        )}
-                                    </TouchableOpacity>
-                                ))}
+                                <View style={styles.chipContainer}>
+                                    {heightBrackets.map((bracket: IHeightBracket) => (
+                                        <PreferenceChip
+                                            key={bracket}
+                                            selected={selectedPreferredHeights.includes(bracket)}
+                                            onPress={() => togglePreferredHeight(bracket)}
+                                            label={HEIGHT_LABELS[bracket]}
+                                        />
+                                    ))}
+                                </View>
 
                                 <Text
                                     style={[
@@ -322,36 +280,39 @@ const FlickFlirtPrefAll = () => {
                                     ]}>
                                     Your height
                                 </Text>
-                                {heightBrackets.map((bracket: IHeightBracket) => (
-                                    <TouchableOpacity
-                                        key={`mine-${bracket}`}
-                                        onPress={() => setSelectedUserHeight(bracket)}
-                                        style={[
-                                            styles.intentOption,
-                                            selectedUserHeight === bracket && styles.intentOptionSelected,
-                                        ]}>
-                                        <Text style={styles.intentText}>{HEIGHT_LABELS[bracket]}</Text>
-                                        {selectedUserHeight === bracket && (
-                                            <Icon name="checkmark" type="ionicon" size={18} color={COLORS.AKCRUBLUE} />
-                                        )}
-                                    </TouchableOpacity>
-                                ))}
+                                <View style={styles.chipContainer}>
+                                    {heightBrackets.map((bracket: IHeightBracket) => (
+                                        <PreferenceChip
+                                            key={`mine-${bracket}`}
+                                            selected={selectedUserHeight === bracket}
+                                            onPress={() => setSelectedUserHeight(bracket)}
+                                            label={HEIGHT_LABELS[bracket]}
+                                        />
+                                    ))}
+                                </View>
                             </>
                         )}
-
-                        <View style={{alignItems: 'center', marginTop: 32,marginBottom:100}}>
-                            <AkcruButtons.LrgButton
-                                btnname="Set preferences"
-                                onPress={handleSubmitAll}
-                                color={COLORS.PURPLE}
-                                variant="auth"
-                                disabled={!canSubmit || submitting || loadingLists}
-                                loading={submitting}
-                            />
-                        </View>
                     </ScrollView>
-                </SafeAreaView>
-            </ImageBackground>
+                    <View
+                        style={{
+                            paddingHorizontal: 15,
+                            paddingTop: 12,
+                            paddingBottom: Math.max(insets.bottom, 12) + 70,
+                            borderTopWidth: StyleSheet.hairlineWidth,
+                            borderTopColor: 'rgba(255,255,255,0.12)',
+                            backgroundColor: 'rgba(5,3,35,0.35)',
+                        }}>
+                        <AkcruButtons.LrgButton
+                            btnname="Set preferences"
+                            onPress={handleSubmitAll}
+                            color={COLORS.PURPLE}
+                            variant="auth"
+                            disabled={!canSubmit || submitting || loadingLists}
+                            loading={submitting}
+                        />
+                    </View>
+                    </View>
+            </FlickFlirtBlurredBackground>
         </View>
     );
 };

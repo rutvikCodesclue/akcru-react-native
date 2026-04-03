@@ -2,7 +2,6 @@
 
 import React, {useState, useCallback, useEffect} from 'react';
 import {
-    ImageBackground,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -15,9 +14,8 @@ import {
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import LinearGradient from 'react-native-linear-gradient';
+import FlickFlirtBlurredBackground from '../../../components/FlickFlirtBlurredBackground';
 
-import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -148,15 +146,7 @@ const FlickFlirtScreen = () => {
     } else {
         return (
             <TabContainer>
-                <ImageBackground
-                    source={imageindex.FLickFlirt}
-                    resizeMode="cover"
-                    style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
-                    <SafeAreaView>
-                        <LinearGradient
-                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                            style={{position: 'absolute', top: 0, left: 0, right: 0, height: SIZES.ScreenHeight}}
-                        />
+                <FlickFlirtBlurredBackground>
                         <Header />
 
                         <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.6}}>
@@ -203,8 +193,7 @@ const FlickFlirtScreen = () => {
                                 </View>
                             )}
                         </View>
-                    </SafeAreaView>
-                </ImageBackground>
+                </FlickFlirtBlurredBackground>
 
                 {/* ── Reset Confirmation Modal ── */}
                 <Modal

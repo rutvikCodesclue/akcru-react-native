@@ -4,7 +4,6 @@ import {
     Text,
     Image,
     ImageBackground,
-    TouchableOpacity,
     SafeAreaView,
     ActivityIndicator,
     ScrollView,
@@ -24,6 +23,8 @@ import BackButton from '../../../../components/General/backbutton';
 import {updateUser} from '../../../../lib/api/user.lib';
 import useAuthStore from '../../../../stores/auth.store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AkcruButtons from '../../../../components/akcruButtons';
+import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
 
 const FLICKFLIRT_TOP_GENRES_KEY = 'flickflirt_top_genres';
 
@@ -35,6 +36,7 @@ type FlickFlirtArchetypeResultRouteProp = RouteProp<NoBottomTabStackParams, 'Fli
 
 const FlickFlirtArchetypeResult = () => {
     const navigation = useNavigation<FlickFlirtArchetypeResultNavProp>();
+    const goHome = useBackNavigatesToClientTab();
     const route = useRoute<FlickFlirtArchetypeResultRouteProp>();
     const {name, image, description, genres, fromOnboardArchetypeStandalone} = route.params ?? {};
     const [isSaving, setIsSaving] = useState(true);
@@ -198,7 +200,7 @@ const FlickFlirtArchetypeResult = () => {
         if (fromOnboardArchetypeStandalone) {
             goToUserMatchModesScreen();
         } else {
-            navigation.navigate('FlickFlirtPref');
+            navigation.navigate('FlickFlirtPrefAll');
         }
     };
 
@@ -298,7 +300,6 @@ const FlickFlirtArchetypeResult = () => {
                     {!showLoader && (
                         <>
                             <Header />
-                            <BackButton navigation={navigation} />
 
                             <ScrollView
                                 contentContainerStyle={{
@@ -351,30 +352,16 @@ const FlickFlirtArchetypeResult = () => {
                                             {description}
                                         </Text>
                                     ) : null}
-                                    <TouchableOpacity
-                                        style={{backgroundColor: COLORS.PURPLE, borderRadius: 8, alignItems: 'center', paddingVertical: 16, paddingHorizontal: 32, minHeight: 52}}
-                                        onPress={goToPreferencesAll}
-                                        disabled={showLoader}>
-                                        <Text style={{...FONTS.Title3, color: COLORS.WHITE, fontSize: 18, fontWeight: '600'}}>Continue</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={{
-                                            marginTop: 14,
-                                            borderWidth: 1,
-                                            borderColor: COLORS.PURPLE,
-                                            borderRadius: 8,
-                                            alignItems: 'center',
-                                            paddingVertical: 14,
-                                            paddingHorizontal: 28,
-                                            minHeight: 48,
-                                            backgroundColor: 'transparent',
-                                        }}
-                                        onPress={goToPreferencesSteps}
-                                        disabled={showLoader}>
-                                        <Text style={{...FONTS.Title3, color: COLORS.PURPLE, fontSize: 16, fontWeight: '600'}}>
-                                            Step-by-step preferences
-                                        </Text>
-                                    </TouchableOpacity>
+                                    <View style={{alignItems: 'center', marginTop: 8, width: '100%'}}>
+                                        <AkcruButtons.LrgButton
+                                            variant="auth"
+                                            color={showLoader ? COLORS.DARKGREY : COLORS.PURPLE}
+                                            btnname="Continue"
+                                            onPress={goToPreferencesAll}
+                                            disabled={showLoader}
+                                        />
+                                    </View>
+
                                 </View>
                             </ScrollView>
                         </>

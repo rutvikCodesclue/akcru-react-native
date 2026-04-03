@@ -44,23 +44,15 @@ export default StyleSheet.create({
         color: COLORS.LIGHTGREY,
     },
     card: {
-        width: isTablet() ? SIZES.ScreenWidth / 1.6 : SIZES.ScreenWidth / 1.2,
-        height: isTablet() ? SIZES.ScreenHeight / 1.7 : SIZES.ScreenHeight / 1.6,
-        borderRadius: 7,
-        shadowColor: '#000000',
-        shadowOffset: {
-            width: 0,
-            height: 6,
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 7,
-        elevation: 8,
+        width: SIZES.ScreenWidth,
+        height: SIZES.ScreenHeight,
+        borderRadius: 0,
         overflow: 'hidden',
     },
     cardImage: {
         width: '100%',
         height: '100%',
-        borderRadius: 7,
+        borderRadius: 0,
         justifyContent: 'flex-end',
     },
     bigTitle: {

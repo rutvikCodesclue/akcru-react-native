@@ -74,3 +74,4 @@ android/
 ios/
 gradle.properties
 android
+/package-lock.json

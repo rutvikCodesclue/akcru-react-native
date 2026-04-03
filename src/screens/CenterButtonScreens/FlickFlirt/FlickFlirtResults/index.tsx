@@ -2,19 +2,16 @@ import React, {useEffect, useRef, useState} from 'react';
 import {
     View,
     Text,
-    SafeAreaView,
     FlatList,
     Alert,
     TouchableOpacity,
     Modal,
-    ImageBackground,
     Platform,
     StyleSheet,
     Pressable,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
@@ -29,11 +26,14 @@ import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-a
 import useAuthStore from '../../../../stores/auth.store';
 import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
 import {Icon} from '@rneui/base';
+import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
+import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
 
 type Nav = NativeStackNavigationProp<NoBottomTabStackParams>;
 
 const FlickFlirtResults = () => {
     const navigation = useNavigation<Nav>();
+    const goHome = useBackNavigatesToClientTab();
     const {hydrateUser} = useAuthStore();
 
     const [matches, setMatches] = useState<IUserProfile[]>([]);
@@ -247,18 +247,10 @@ const FlickFlirtResults = () => {
     };
 
     return (
-        <View>
-            <ImageBackground
-                source={imageindex.FLickFlirt}
-                resizeMode="cover"
-                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
-                <SafeAreaView style={{flex: 1}}>
-                    <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
-                    />
+        <View style={{flex: 1}}>
+            <FlickFlirtBlurredBackground>
                     <Header />
-                    <BackButton navigation={navigation} />
+                    <BackButton navigation={navigation} onBack={goHome} />
 
                     <View style={{flex: 1, marginLeft: '3%', marginRight: '3%', paddingBottom: 150}}>
                         {loading ? (
@@ -362,32 +354,26 @@ const FlickFlirtResults = () => {
                     </View>
 
                     {showEntryOverlay && (
-                        <View
-                            style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                            }}>
-                            <ImageBackground
+                        <View style={StyleSheet.absoluteFillObject}>
+                            <FlickFlirtBlurredBackground
                                 source={imageindex.BgImageSM}
-                                resizeMode="cover"
-                                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
-                                <LinearGradient
-                                    colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
-                                    style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
-                                />
-                                <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60}}>
+                                wrapWithSafeArea={false}
+                                imageStyle={StyleSheet.absoluteFill}>
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        paddingBottom: 60,
+                                    }}>
                                     <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY, marginBottom: 12}]}>
                                         Finding Your Movie Matches...
                                     </Text>
                                 </View>
-                            </ImageBackground>
+                            </FlickFlirtBlurredBackground>
                         </View>
                     )}
-                </SafeAreaView>
-            </ImageBackground>
+            </FlickFlirtBlurredBackground>
 
             {/* Unlock modal */}
             <Modal

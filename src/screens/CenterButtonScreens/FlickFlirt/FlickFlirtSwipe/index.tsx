@@ -1,5 +1,5 @@
-import React, {useState, useRef, useCallback} from 'react';
-import {View, Text, SafeAreaView, ImageBackground, Image, Modal, ActivityIndicator} from 'react-native';
+import React, {useState, useRef, useCallback, useEffect} from 'react';
+import {View, Text, SafeAreaView, ImageBackground, Image, Modal, ActivityIndicator, Platform} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -7,15 +7,12 @@ import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
 import styles from './styles';
-import Header from '../../../../components/header';
-import BackButton from '../../../../components/General/backbutton';
 import {IMovie} from '../../../../../types';
 import {findFlickFlirtMovies} from '../../../../lib/api/movies.lib';
 import {submitFlickFlirtSwipeBatch} from '../../../../lib/api/flickflirt.lib';
 import Swiper from 'react-native-deck-swiper';
 import useAuthStore from '../../../../stores/auth.store';
 import {capitalizeFirstLetterOfString} from '../../../../util/util';
-import {Icon} from '@rneui/base';
 import {isTablet} from '../../../../../assets/constants/theme';
 import {archetypeMapping} from '../../../../../assets/constants/archetypeMapping';
 import {MOVIE_GENRES} from '../../../../../assets/constants/Data';
@@ -30,10 +27,16 @@ function normalizeGenre(genre: string | undefined): string | null {
 }
 
 const FlickFlirtSwipe = () => {
+    const bottomHintsHeight = isTablet() ? 100 : SIZES.ScreenHeight * 0.2;
+    const cardBottomGap = isTablet() ? 18 : 0;
+    const cardHeight = isTablet()
+        ? SIZES.ScreenHeight - bottomHintsHeight - cardBottomGap
+        : SIZES.ScreenHeight * 0.8;
     const [movies, setMovies] = useState<IMovie[]>([]);
     const [swipeResult, setSwipeResult] = useState<null | 'LIKE' | 'NOPE'>(null);
     const [isLoadingMovies, setIsLoadingMovies] = useState(true);
     const [isIntroLoading, setIsIntroLoading] = useState(true);
+    const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const showLoader = isIntroLoading || isLoadingMovies;
     const rightSwipedGenreCounts = useRef<Record<string, number>>({});
     const sessionSwipesRef = useRef<{movieId: string; type: 'LIKE' | 'DISLIKE'}[]>([]);
@@ -45,6 +48,7 @@ const FlickFlirtSwipe = () => {
         useCallback(() => {
             setIsIntroLoading(true);
             setIsLoadingMovies(true);
+            setCurrentCardIndex(0);
             const introTimer = setTimeout(() => setIsIntroLoading(false), 3000);
             findFlickFlirtMovies()
                 .then(setMovies)
@@ -55,6 +59,10 @@ const FlickFlirtSwipe = () => {
             return () => clearTimeout(introTimer);
         }, []),
     );
+
+    useEffect(() => {
+        if (movies.length > 0) setCurrentCardIndex(0);
+    }, [movies.length]);
 
     useFocusEffect(
         useCallback(() => {
@@ -127,22 +135,68 @@ const FlickFlirtSwipe = () => {
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
 
-                    {!showLoader && (
-                        <>
-                            <Header />
-                            <BackButton navigation={navigation} />
-                        </>
+                    {!showLoader && movies.length > 0 && (
+                        <View
+                            pointerEvents="none"
+                            style={{
+                                position: 'absolute',
+                                top: isTablet() ? 8 : 6,
+                                left: isTablet() ? 14 : 10,
+                                right: isTablet() ? 14 : 10,
+                                zIndex: 60,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                            }}>
+                            <View style={{flex: 1, flexDirection: 'row', marginRight: 10}}>
+                                {movies.map((_, index) => (
+                                    <View
+                                        key={`swipe-step-${index}`}
+                                        style={{
+                                            flex: 1,
+                                            height: 3,
+                                            borderRadius: 3,
+                                            marginHorizontal: 2,
+                                            backgroundColor:
+                                                index <= currentCardIndex ? COLORS.AKCRUBLUE : 'rgba(255,255,255,0.35)',
+                                        }}
+                                    />
+                                ))}
+                            </View>
+                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                {Math.min(currentCardIndex + 1, movies.length)}/{movies.length}
+                            </Text>
+                        </View>
+                    )}
+                    {!showLoader && movies.length > 0 && (
+                        <View
+                            pointerEvents="none"
+                            style={{
+                                position: 'absolute',
+                                top: isTablet() ? 48 : 44,
+                                left: 0,
+                                right: 0,
+                                alignItems: 'center',
+                                zIndex: 60,
+                            }}>
+                            <Text style={[FONTS.HeroTitle, {color: COLORS.WHITE, fontSize: isTablet() ? 40 : 20}]}>
+                                Pick what you'd watch
+                            </Text>
+                            <Text style={[FONTS.Title2, {color: COLORS.AKCRUBLUE}]}>Trust your instinct</Text>
+                        </View>
                     )}
 
-                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{flex: 1, paddingBottom: bottomHintsHeight + cardBottomGap}}>
                         {!showLoader && movies.length > 0 ? (
                             <Swiper
                                 cards={movies}
                                 renderCard={(movie: IMovie, cardIndex: number) => (
-                                    <View style={styles.card}>
-                                        <ImageBackground source={{uri: movie.portraitURL}} style={styles.cardImage}>
+                                    <View style={[styles.card, {height: cardHeight}]}>
+                                        <ImageBackground
+                                            source={{uri: movie.portraitURL}}
+                                            resizeMode="contain"
+                                            style={styles.cardImage}>
                                             <LinearGradient
-                                                colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                                colors={[COLORS.BLACK, 'transparent', COLORS.BLACK]}
                                                 style={{
                                                     position: 'absolute',
                                                     left: 0,
@@ -151,10 +205,13 @@ const FlickFlirtSwipe = () => {
                                                     height: '100%',
                                                 }}
                                             />
-                                            <View style={styles.cardIndexBadge} pointerEvents="none">
-                                                <Text style={styles.cardIndexText}>{cardIndex + 1}</Text>
-                                            </View>
-                                            <View style={{padding: isTablet() ? 30 : 10}}>
+
+                                            <View
+                                                style={{
+                                                    paddingHorizontal: isTablet() ? 30 : 12,
+                                                    paddingTop: isTablet() ? 30 : 16,
+                                                    paddingBottom: isTablet() ? 25 : 15,
+                                                }}>
                                                 <Text style={styles.bigTitle}>{movie.title}</Text>
                                                 <View style={{flexDirection: 'row', marginVertical: 10}}>
                                                     <Text style={styles.drawfonttag}>{movie?.rated}</Text>
@@ -173,11 +230,13 @@ const FlickFlirtSwipe = () => {
                                 )}
                                 onSwipedLeft={cardIndex => {
                                     setSwipeResult('NOPE');
+                                    setCurrentCardIndex(cardIndex + 1);
                                     handleSwipe(movies[cardIndex].id, 'DISLIKE', movies[cardIndex]);
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
                                 onSwipedRight={cardIndex => {
                                     setSwipeResult('LIKE');
+                                    setCurrentCardIndex(cardIndex + 1);
                                     handleSwipe(movies[cardIndex].id, 'LIKE', movies[cardIndex]);
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
@@ -185,9 +244,9 @@ const FlickFlirtSwipe = () => {
                                 stackSize={4}
                                 cardIndex={0}
                                 verticalSwipe={false}
+                                cardHorizontalMargin={0}
+                                cardVerticalMargin={0}
                                 cardStyle={{
-                                    marginTop: isTablet() ? 0 : '-10%',
-                                    marginLeft: isTablet() ? '17%' : '3%',
                                     alignSelf: 'center',
                                 }}
                                 onSwipedAll={onSwipedAll}
@@ -241,19 +300,52 @@ const FlickFlirtSwipe = () => {
                             <Text style={[FONTS.Title3, {color: COLORS.LIGHTGREY}]}>No movies available.</Text>
                         ) : null}
                     </View>
+                </SafeAreaView>
 
-                    {!showLoader && (
-                        <View style={{alignItems: 'center', marginBottom: '20%'}}>
-                            <Text style={[FONTS.Title3, {color: COLORS.AKCRUPINK}]}>
-                                Swipe right if you like, swipe left if you dislike
-                            </Text>
-                            <View style={{flexDirection: 'row', justifyContent: 'space-between', width: '40%'}}>
-                                <Icon name="sad" type="ionicon" color={COLORS.CATREDLGT} size={isTablet() ? 60 : 40} />
-                                <Icon name="happy" type="ionicon" color={COLORS.AKCRUBLUE} size={isTablet() ? 60 : 40} />
+                {!showLoader && (
+                    <View
+                        pointerEvents="none"
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: Platform.OS === 'ios' ? 12 : 10,
+                            height: bottomHintsHeight,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            paddingHorizontal: isTablet() ? 24 : 16,
+                            paddingTop: isTablet() ? 0 : 0,
+                            paddingBottom: isTablet() ? 50 : 50,
+                            backgroundColor: COLORS.BLACK,
+                            zIndex: 999,
+                            elevation: 30,
+                        }}>
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Image
+                                source={require('../../../../../assets/images/logo/akcru_logo_1024.png')}
+                                style={{width: 80, height: 80}}
+                                resizeMode="contain"
+                            />
+                            <View style={{marginLeft: 3}}>
+                                <Text style={[FONTS.Title2, {color: COLORS.WHITE}]}>SKIP</Text>
+                                <Text style={[FONTS.paragraph1, {color: COLORS.WHITE}]}>Pull left</Text>
                             </View>
                         </View>
-                    )}
-                </SafeAreaView>
+
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <View style={{marginRight: 3, alignItems: 'flex-end'}}>
+                                <Text style={[FONTS.Title2, {color: COLORS.WHITE}]}>WATCH</Text>
+                                <Text style={[FONTS.paragraph1, {color: COLORS.WHITE}]}>Pull Right</Text>
+                            </View>
+                            <Image
+                                source={require('../../../../../assets/images/logo/akcru_logo_1024.png')}
+                                style={{width: 80, height: 80}}
+                                resizeMode="contain"
+                            />
+                        </View>
+                    </View>
+                )}
             </ImageBackground>
 
             <Modal animationType="fade" transparent visible={showLoader}>

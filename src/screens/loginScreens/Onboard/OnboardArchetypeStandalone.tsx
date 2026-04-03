@@ -18,6 +18,7 @@ import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
+import PreferenceChip from '../../../components/PreferenceChip';
 
 const OnboardArchetypeStandalone = () => {
 
@@ -212,14 +213,12 @@ const OnboardArchetypeStandalone = () => {
 
                         <View style={[styles.chipContainer, {marginBottom: 30}]}>
                             {filteredGenres.map(item => (
-                                <TouchableOpacity
+                                <PreferenceChip
                                     key={item.id}
+                                    selected={Boolean(checkedGenres[item.id])}
                                     onPress={() => handleCheckboxChange(item.id)}
-                                    style={checkedGenres[item.id] ? styles.chipSelected : styles.chip}>
-                                    <Text style={checkedGenres[item.id] ? styles.chipTextSelected : styles.chipText}>
-                                        {item.genre}
-                                    </Text>
-                                </TouchableOpacity>
+                                    label={item.genre}
+                                />
                             ))}
                         </View>
 

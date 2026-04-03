@@ -16,7 +16,6 @@ import {
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
-import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import Header from '../../../../components/header';
@@ -25,7 +24,7 @@ import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
 import AkcruButtons from '../../../../components/akcruButtons';
 import useAuthStore from '../../../../stores/auth.store';
 import {isTablet} from '../../../../../assets/constants/theme';
-import {Icon} from '@rneui/base';
+import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
 
 import {getMatches, unlockMatches, MatchesResponse, UnlockOption} from '../../../../lib/api/flickflirt.lib';
 
@@ -132,16 +131,12 @@ const FlickFlirtMatches = () => {
 
     return (
         <View style={{flex: 1}}>
-            <ImageBackground source={imageindex.FLickFlirt} resizeMode="cover" style={styles.background}>
-                <SafeAreaView style={styles.container}>
-                    <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={StyleSheet.absoluteFill}
-                    />
+            <FlickFlirtBlurredBackground>
                     <Header />
                     <BackButton navigation={navigation} />
 
-                    <View style={styles.content}>
+                    <View style={styles.matchesPanelContainer}>
+                        <View style={styles.content}>
                         {matches.length > 0 ? (
                             <>
                                 <FlatList
@@ -168,10 +163,7 @@ const FlickFlirtMatches = () => {
                                                         resizeMode="cover"
                                                         style={styles.lockedCardBg}
                                                         imageStyle={styles.lockedCardBgImage}>
-                                                        <LinearGradient
-                                                            colors={['rgba(34,18,56,0.55)', 'rgba(14,13,38,0.75)', 'rgba(34,18,56,0.55)']}
-                                                            style={StyleSheet.absoluteFill}
-                                                        />
+                                                        <View style={styles.lockedCardDim} />
                                                         <View style={styles.lockedInner}>
                                                             <View style={styles.lockCircle}>
                                                                 <Text style={styles.lockIcon}>🔒</Text>
@@ -226,9 +218,9 @@ const FlickFlirtMatches = () => {
                                 />
                             </View>
                         )}
+                        </View>
                     </View>
-                </SafeAreaView>
-            </ImageBackground>
+            </FlickFlirtBlurredBackground>
 
             {/* 4) Unlock confirmation modal */}
             <Modal
@@ -281,8 +273,19 @@ const FlickFlirtMatches = () => {
 };
 
 const styles = StyleSheet.create({
-    background: {width: SIZES.ScreenWidth, height: SIZES.ScreenHeight},
-    container: {flex: 1},
+    /** Scroll region: light glass card on top of full-screen frosted bg */
+    matchesPanelContainer: {
+        flex: 1,
+        minHeight: 0,
+        marginTop: 10,
+        marginHorizontal: 10,
+        marginBottom: 8,
+        borderRadius: 12,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.22)',
+        backgroundColor: 'rgba(255,255,255,0.06)',
+    },
     content: {flex: 1, justifyContent: 'center'},
     headerText: {...FONTS.Title3, color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 6},
     lockedCountSubtext: {
@@ -313,6 +316,11 @@ const styles = StyleSheet.create({
     },
     lockedCardBgImage: {
         borderRadius: 16,
+    },
+    lockedCardDim: {
+        ...StyleSheet.absoluteFillObject,
+        borderRadius: 16,
+        backgroundColor: 'rgba(14,13,38,0.78)',
     },
     lockedInner: {
         alignItems: 'center',

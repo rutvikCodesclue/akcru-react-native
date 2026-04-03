@@ -5,14 +5,22 @@ import {Icon} from '@rneui/base';
 import styles from './styles';
 import {isTablet} from '../../../assets/constants/theme';
 
-const BackButton = ({navigation}: Props) => {
+type BackButtonProps = {
+    navigation: any;
+    /** When set, called instead of default pop / home navigation */
+    onBack?: () => void;
+};
+
+const BackButton = ({navigation, onBack}: BackButtonProps) => {
     const [isNavigating, setIsNavigating] = useState(false);
 
     const handleBackPress = () => {
         if (isNavigating) return;
         setIsNavigating(true);
 
-        if (navigation.getState().routes.length > 1) {
+        if (onBack) {
+            onBack();
+        } else if (navigation.getState().routes.length > 1) {
             navigation.pop();
         } else {
             navigation.navigate('NoBottomStack', { screen: 'ClientTabNavigator' });

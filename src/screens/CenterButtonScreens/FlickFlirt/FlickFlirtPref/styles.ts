@@ -42,4 +42,14 @@ export default StyleSheet.create({
         ...FONTS.Title3,
         color: COLORS.LIGHTGREY,
     },
+    /** Multi-select chips (OnboardArchetypeStandalone pattern) */
+    chipContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginHorizontal: 0,
+        marginTop: 4,
+        marginBottom: 8,
+        gap: 10,
+    },
 });
