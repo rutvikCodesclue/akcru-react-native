@@ -1,25 +1,124 @@
-import {createNavigationContainerRef} from '@react-navigation/native';
+import {
+    CommonActions,
+    createNavigationContainerRef,
+    NavigationProp,
+    ParamListBase,
+} from '@react-navigation/native';
 import {AuthStackParams} from '../navigation/AuthNavigation';
 
 export const navigationRef = createNavigationContainerRef<AuthStackParams>();
+
+/**
+ * Opens the UserNotification screen inside NoBottomStack (Auth root).
+ * Uses the container ref first; if not ready, walks parents to the stack that
+ * registers NoBottomStack (useNavigation often resolves to ClientStack, which
+ * cannot handle this route by name).
+ */
+export type UserMITHubNavigateParams = {index?: number};
+
+/**
+ * Opens UserMITHubScreen on NoBottomStack (same stack as UserNotification).
+ */
+export function navigateToUserMITHubScreen(
+    navigation?: NavigationProp<ParamListBase>,
+    hubParams?: UserMITHubNavigateParams,
+) {
+    const index = hubParams?.index ?? 0;
+    const action = CommonActions.navigate({
+        name: 'NoBottomStack',
+        merge: true,
+        params: {
+            screen: 'UserMITHubScreen',
+            params: {index},
+        },
+    });
+
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(action);
+        return;
+    }
+
+    if (navigation) {
+        let nav: NavigationProp<ParamListBase> | undefined = navigation;
+        for (let i = 0; i < 12 && nav; i++) {
+            const state = nav.getState?.();
+            const routeNames = state?.routeNames as string[] | undefined;
+            if (routeNames?.includes('NoBottomStack')) {
+                (nav as {navigate: (name: string, params?: object) => void}).navigate('NoBottomStack', {
+                    screen: 'UserMITHubScreen',
+                    params: {index},
+                });
+                return;
+            }
+            nav = nav.getParent?.();
+        }
+    }
+
+    navigate('NoBottomStack', {screen: 'UserMITHubScreen', params: {index}});
+}
+
+export function navigateToUserNotificationScreen(navigation?: NavigationProp<ParamListBase>) {
+    const action = CommonActions.navigate({
+        name: 'NoBottomStack',
+        merge: true,
+        params: {
+            screen: 'UserNotification',
+        },
+    });
+
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(action);
+        return;
+    }
+
+    if (navigation) {
+        let nav: NavigationProp<ParamListBase> | undefined = navigation;
+        for (let i = 0; i < 12 && nav; i++) {
+            const state = nav.getState?.();
+            const routeNames = state?.routeNames as string[] | undefined;
+            if (routeNames?.includes('NoBottomStack')) {
+                (nav as {navigate: (name: string, params?: object) => void}).navigate('NoBottomStack', {
+                    screen: 'UserNotification',
+                });
+                return;
+            }
+            nav = nav.getParent?.();
+        }
+    }
+
+    // Last resort: notifications list on ClientStack (same tab stack as Home)
+    if (navigation) {
+        const local = navigation.getState?.();
+        if (local?.routeNames?.includes('UserNotifications')) {
+            (navigation as {navigate: (name: string) => void}).navigate('UserNotifications');
+            return;
+        }
+    }
+
+    navigate('NoBottomStack', {screen: 'UserNotification'});
+}
 
 export function navigate(name: keyof AuthStackParams, params?: any) {
     console.log(`Attempting to navigate to: ${name}`, params);
     if (navigationRef.isReady()) {
         console.log('Navigation ref is ready, navigating...');
         navigationRef.navigate(name, params);
-    } else {
-        console.warn('Navigation ref is not ready!');
-        // Retry after a short delay
-        setTimeout(() => {
-            if (navigationRef.isReady()) {
-                console.log('Navigation ref ready after retry, navigating...');
-                navigationRef.navigate(name, params);
-            } else {
-                console.error('Navigation ref still not ready after retry');
-            }
-        }, 100);
+        return;
     }
+    console.warn('Navigation ref is not ready!');
+    let attempts = 0;
+    const maxAttempts = 25;
+    const id = setInterval(() => {
+        attempts++;
+        if (navigationRef.isReady()) {
+            clearInterval(id);
+            console.log('Navigation ref ready after retry, navigating...');
+            navigationRef.navigate(name, params);
+        } else if (attempts >= maxAttempts) {
+            clearInterval(id);
+            console.error('Navigation ref still not ready after retries');
+        }
+    }, 100);
 }
 
 export function reset(state: any) {

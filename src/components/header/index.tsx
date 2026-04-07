@@ -1,6 +1,6 @@
-import {View, Text, TouchableOpacity, Image, Pressable, AppState, AppStateStatus} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {Icon, withBadge} from '@rneui/base';
+import {View, Text, TouchableOpacity, Image, Pressable, AppState, AppStateStatus, StyleSheet} from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
@@ -8,9 +8,10 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthStackParams} from '../../navigation/AuthNavigation';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import useAuthStore from '../../stores/auth.store';
-import {getMyNotifications} from '../../lib/api/notify.lib';
-import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import {getNotifyMePayload} from '../../lib/api/notify.lib';
+import {navigateToUserNotificationScreen} from '../../util/RootNavigation';
 import {UseTabMenu} from '../../context/TabContext';
+import {emitHexagonShake} from '../../util/hexagonShake';
 import {getUserWallet} from '../../lib/api/wallet.lib';
 import {isTablet} from '../../../assets/constants/theme';
 
@@ -40,46 +41,22 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
         setRefetchReadNotifications,
         setRefetchUnreadNotifications,
         setDeletedNotifications,
+        notificationUnreadCount,
+        syncNotificationBadgeCounts,
     } = UseTabMenu();
 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
-    const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-
-    const [unreadCount, setUnreadCount] = useState('');
 
     const pollingInterval = useRef<NodeJS.Timeout | null>(null);
     const appState = useRef(AppState.currentState); // Track the app state (active, background, etc.)
 
     const fetchNotifications = async () => {
         try {
-            const notifications = await getMyNotifications();
-            if (notifications && notifications.length > 0) {
-                const specificTypes = [
-                    'MITReceived',
-                    'MITAccepted',
-                    'MITDeclined',
-                    'MITCanceled',
-                    'CruViewStarted',
-                    'CRUViewCanceled',
-                    'UserLikedGallery',
-                    'UserLikedComment',
-                    'UserLikedPost',
-                    'UserTaggedOnPost',
-                    'UserCommentedOnPost',
-                    'UserTaggedOnComment',
-                    'UserFollowed',
-                    'CruInviteReceived',
-                    'CruInviteAccepted',
-                    'CruInviteDeclined',
-                    'CruViewScheduled',
-                    'ADReceived',
-                    'GroupMessageReceived',
-                    'MsgRcvd',
-                ];
-                const unreadNotifications = notifications.filter(
-                    notification => !notification.isRead && specificTypes.includes(notification.type),
-                );
-                notifications.length ? setUnreadCount(unreadNotifications.length.toString()) : setUnreadCount('');
+            const payload = await getNotifyMePayload();
+            const notifications = payload?.notifications;
+            syncNotificationBadgeCounts(notifications);
+            if (payload?.indicator?.shouldShake === true) {
+                emitHexagonShake();
             }
         } catch (error) {
             console.error(error);
@@ -141,8 +118,6 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
         }
     }, [refetchReadNotifications, refetchUnreadNotifications, deletedNotifications]);
 
-    const NotificationBadgeIcon = withBadge(unreadCount)(Icon);
-
     return (
         <View
             style={{
@@ -180,14 +155,17 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                             />
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity onPress={() => navigation2.navigate('UserNotification')}>
-                        <NotificationBadgeIcon
+                    <TouchableOpacity
+                        onPress={() => navigateToUserNotificationScreen(navigation)}
+                        style={styles.headerNotificationWrap}
+                        activeOpacity={0.7}>
+                        <Icon
                             name="notifications-outline"
                             type="ionicon"
                             color={COLORS.LIGHTGREY}
                             size={isTablet() ? SIZES.MedIcon : SIZES.SmallIcon}
-                            onPress={() => navigation2.navigate('UserNotification')}
                         />
+                        {notificationUnreadCount > 0 ? <View style={styles.notificationRedDot} /> : null}
                     </TouchableOpacity>
                     <View>
                         <Image
@@ -207,5 +185,24 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    headerNotificationWrap: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    notificationRedDot: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: '#E53935',
+        borderWidth: 1.5,
+        borderColor: COLORS.AKCRUBACKGROUND,
+    },
+});
 
 export default Header;

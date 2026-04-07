@@ -1,6 +1,13 @@
 import React from 'react';
 import {PixelRatio, Dimensions} from 'react-native';
-import { isTablet } from '../../assets/constants/theme';
+import {isTablet} from '../../assets/constants/theme';
+import {emitHexagonShake} from '../util/hexagonShake';
+import {INotification} from '../../types';
+import {
+    computeMitUnreadNotificationCount,
+    computeMsgRcvdUnreadNotificationCount,
+    computeUnreadNotificationCount,
+} from '../util/notificationUnreadCount';
 
 interface TabContextType {
     opened: boolean;
@@ -24,9 +31,25 @@ interface TabContextType {
 
     updateMITs: boolean;
     setUpdateMITs: (value: boolean) => void;
+
+    /** Unread count for header + center hex badge (synced when notifications are fetched). */
+    notificationUnreadCount: number;
+    setNotificationUnreadCount: (value: number) => void;
+
+    /** Unread MITReceived / MITAccepted / MITDeclined (hex ticket dot + center hex dot + shake). */
+    mitNotificationUnreadCount: number;
+    setMitNotificationUnreadCount: (value: number) => void;
+
+    /** Unread MsgRcvd (hex chat-list satellite dot + center hex dot + shake). */
+    msgRcvdNotificationUnreadCount: number;
+    setMsgRcvdNotificationUnreadCount: (value: number) => void;
+
+    /** Updates total + MIT + MsgRcvd badge counts from a notification list (preferred at fetch points). */
+    syncNotificationBadgeCounts: (notifications: INotification[] | undefined) => void;
 }
 
-const TabContext = React.createContext<TabContextType>({
+/** Single source of defaults for createContext + UseTabMenu merge (avoids undefined setters after partial context). */
+const defaultTabContextValue: TabContextType = {
     opened: false,
     toggleOpened: () => {},
     getAdjustedIconSize: (baseSize: number) => baseSize,
@@ -48,7 +71,19 @@ const TabContext = React.createContext<TabContextType>({
 
     updateMITs: false,
     setUpdateMITs: () => {},
-});
+
+    notificationUnreadCount: 0,
+    setNotificationUnreadCount: () => {},
+
+    mitNotificationUnreadCount: 0,
+    setMitNotificationUnreadCount: () => {},
+
+    msgRcvdNotificationUnreadCount: 0,
+    setMsgRcvdNotificationUnreadCount: () => {},
+    syncNotificationBadgeCounts: () => {},
+};
+
+const TabContext = React.createContext<TabContextType>(defaultTabContextValue);
 
 export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
     const [opened, setOpened] = React.useState(false);
@@ -65,41 +100,118 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
 
     const [updateMITs, setUpdateMITs] = React.useState(false);
 
-    const toggleOpened = () => {
-        setOpened(!opened);
-    };
+    const [notificationUnreadCount, setNotificationUnreadCountState] = React.useState(0);
 
-    const getAdjustedIconSize = (baseSize: number) => {
+    const [mitNotificationUnreadCount, setMitNotificationUnreadCountState] = React.useState(0);
+
+    const [msgRcvdNotificationUnreadCount, setMsgRcvdNotificationUnreadCountState] = React.useState(0);
+
+    /** After first sync, hex shakes when MIT hex unread or MsgRcvd unread count rises (vibration runs in hex listener). */
+    const notificationBadgeCountsHydratedRef = React.useRef(false);
+    const lastSyncedMitHexRef = React.useRef(0);
+    const lastSyncedMsgRcvdRef = React.useRef(0);
+
+    const setNotificationUnreadCount = React.useCallback((value: number) => {
+        setNotificationUnreadCountState(value);
+    }, []);
+
+    const setMitNotificationUnreadCount = React.useCallback((value: number) => {
+        setMitNotificationUnreadCountState(value);
+    }, []);
+
+    const setMsgRcvdNotificationUnreadCount = React.useCallback((value: number) => {
+        setMsgRcvdNotificationUnreadCountState(value);
+    }, []);
+
+    const syncNotificationBadgeCounts = React.useCallback((notifications: INotification[] | undefined) => {
+        const nextTotal = computeUnreadNotificationCount(notifications);
+        const nextMitHex = computeMitUnreadNotificationCount(notifications);
+        const nextMsgRcvd = computeMsgRcvdUnreadNotificationCount(notifications);
+
+        if (notificationBadgeCountsHydratedRef.current) {
+            if (
+                nextMitHex > lastSyncedMitHexRef.current ||
+                nextMsgRcvd > lastSyncedMsgRcvdRef.current
+            ) {
+                emitHexagonShake();
+            }
+        } else {
+            notificationBadgeCountsHydratedRef.current = true;
+        }
+
+        lastSyncedMitHexRef.current = nextMitHex;
+        lastSyncedMsgRcvdRef.current = nextMsgRcvd;
+
+        setMitNotificationUnreadCountState(nextMitHex);
+        setMsgRcvdNotificationUnreadCountState(nextMsgRcvd);
+        setNotificationUnreadCountState(nextTotal);
+    }, []);
+
+    const toggleOpened = React.useCallback(() => {
+        setOpened(prev => !prev);
+    }, []);
+
+    const getAdjustedIconSize = React.useCallback((baseSize: number) => {
         const {width} = Dimensions.get('window');
         const adjustmentFactor = PixelRatio.get();
 
         const adjustedSize = baseSize * (isTablet() ? 1.5 : width > 400 ? 1.1 : 1) * adjustmentFactor;
         return Math.min(adjustedSize, baseSize * 1.5);
+    }, []);
 
-    };
-
-    return (
-        <TabContext.Provider
-            value={{
-                opened,
-                toggleOpened,
-                getAdjustedIconSize,
-                refetchCrus,
-                setRefetchCrus,
-                refetchDates,
-                setRefetchDates,
-                refetchReadNotifications,
-                setRefetchReadNotifications,
-                refetchUnreadNotifications,
-                setRefetchUnreadNotifications,
-                deletedNotifications,
-                setDeletedNotifications,
-                updateMITs,
-                setUpdateMITs,
-            }}>
-            {children}
-        </TabContext.Provider>
+    const contextValue = React.useMemo(
+        (): TabContextType => ({
+            opened,
+            toggleOpened,
+            getAdjustedIconSize,
+            refetchCrus,
+            setRefetchCrus,
+            refetchDates,
+            setRefetchDates,
+            refetchReadNotifications,
+            setRefetchReadNotifications,
+            refetchUnreadNotifications,
+            setRefetchUnreadNotifications,
+            deletedNotifications,
+            setDeletedNotifications,
+            updateMITs,
+            setUpdateMITs,
+            notificationUnreadCount,
+            setNotificationUnreadCount,
+            mitNotificationUnreadCount,
+            setMitNotificationUnreadCount,
+            msgRcvdNotificationUnreadCount,
+            setMsgRcvdNotificationUnreadCount,
+            syncNotificationBadgeCounts,
+        }),
+        [
+            opened,
+            toggleOpened,
+            getAdjustedIconSize,
+            refetchCrus,
+            setRefetchCrus,
+            refetchDates,
+            setRefetchDates,
+            refetchReadNotifications,
+            setRefetchReadNotifications,
+            refetchUnreadNotifications,
+            setRefetchUnreadNotifications,
+            deletedNotifications,
+            setDeletedNotifications,
+            updateMITs,
+            setUpdateMITs,
+            notificationUnreadCount,
+            mitNotificationUnreadCount,
+            msgRcvdNotificationUnreadCount,
+            setNotificationUnreadCount,
+            setMitNotificationUnreadCount,
+            setMsgRcvdNotificationUnreadCount,
+            syncNotificationBadgeCounts,
+        ],
     );
+
+    return <TabContext.Provider value={contextValue}>{children}</TabContext.Provider>;
 };
 
-export const UseTabMenu = () => React.useContext(TabContext);
+/** Return the tab context from the nearest provider (Hermes-safe: no manual spread merge). */
+export const UseTabMenu = (): TabContextType => React.useContext(TabContext);

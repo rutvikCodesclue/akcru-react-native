@@ -38,6 +38,9 @@ import {IChatUser} from '../../../../types';
 import {getUsers} from '../../../lib/api/rooms.lib';
 import {getMitTiers, MitTier, purchaseMIT} from '../../../lib/api/mit.lib';
 import {isTablet} from '../../../../assets/constants/theme';
+import {batchMarkNotificationsRead, getNotifyMePayload} from '../../../lib/api/notify.lib';
+import {getUnreadMitNotificationIds} from '../../../util/notificationUnreadCount';
+import {UseTabMenu} from '../../../context/TabContext';
 
 type UserMITHubScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserMITHubScreen'>;
 
@@ -54,6 +57,7 @@ const SecondRoute = () => <MITSent />;
 
 const UserMITHubScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
+    const {syncNotificationBadgeCounts} = UseTabMenu();
 
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
@@ -78,6 +82,32 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
             };
         }, []),
     );
+
+    /** When popping the hub (not when pushing e.g. ChooseMIT), mark MIT push notifications read so the hex dot clears. */
+    useEffect(() => {
+        const markMitNotificationsSeenOnLeave = () => {
+            void (async () => {
+                try {
+                    const payload = await getNotifyMePayload();
+                    const list = payload?.notifications ?? [];
+                    const ids = getUnreadMitNotificationIds(list);
+                    if (ids.length === 0) {
+                        return;
+                    }
+                    const res = await batchMarkNotificationsRead(ids);
+                    if (!res.success) {
+                        return;
+                    }
+                    const fresh = await getNotifyMePayload();
+                    syncNotificationBadgeCounts(fresh?.notifications);
+                } catch {
+                    // ignore
+                }
+            })();
+        };
+        const unsub = navigation.addListener('beforeRemove', markMitNotificationsSeenOnLeave);
+        return unsub;
+    }, [navigation, syncNotificationBadgeCounts]);
 
     // MIT purchase flow
     const [tiers, setTiers] = useState<MitTier[]>([]);

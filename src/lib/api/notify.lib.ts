@@ -1,19 +1,41 @@
 import {API} from '../../clients/api.client';
 import {INotification} from '../../../types';
-import useAuthStore from '../../stores/auth.store';
 
-export const getMyNotifications = async (): Promise<INotification[] | undefined> => {
+/** Extra UI hints from GET /v1/notify/me (e.g. center hex shake). */
+export type NotifyMeIndicator = {
+    shouldShake?: boolean;
+    hasConversationUpdate?: boolean;
+    hasNewMessage?: boolean;
+    hasNewMovieInviteTicket?: boolean;
+    counts?: Record<string, unknown>;
+};
+
+export type NotifyMePayload = {
+    notifications: INotification[];
+    indicator?: NotifyMeIndicator;
+};
+
+export async function getNotifyMePayload(): Promise<NotifyMePayload | undefined> {
     try {
         const {data} = await API.get('/v1/notify/me');
         if (data.success === false) {
-            return [];
+            return {notifications: [], indicator: undefined};
         }
 
-        return data.notifications;
+        return {
+            notifications: Array.isArray(data.notifications) ? data.notifications : [],
+            indicator: data.indicator,
+        };
     } catch (error) {
         console.error(error);
     }
-};
+}
+
+/** Function declaration avoids TDZ / missing export with circular module loads (Hermes). */
+export async function getMyNotifications(): Promise<INotification[] | undefined> {
+    const payload = await getNotifyMePayload();
+    return payload?.notifications;
+}
 
 export const markNotificationRead = async (params: {id: string}): Promise<INotification | undefined> => {
     try {
@@ -113,6 +135,7 @@ export const deleteAllReadNotifications = async (): Promise<{success: boolean; m
 };
 
 export const deleteNotification = async (notificationId: string) => {
+    const {default: useAuthStore} = await import('../../stores/auth.store');
     await useAuthStore.getState().hydrateAuth();
     try {
         const {data} = await API.delete(`/v1/notify/deleteNotification/${notificationId}`);

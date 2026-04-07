@@ -16,7 +16,7 @@ import useAuthStore from '../../../stores/auth.store';
 const Unread = () => {
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const {setRefetchUnreadNotifications, setRefetchReadNotifications} = UseTabMenu();
+    const {setRefetchUnreadNotifications, setRefetchReadNotifications, syncNotificationBadgeCounts} = UseTabMenu();
     const userID = useAuthStore().user?.id;
 
     useEffect(() => {
@@ -24,6 +24,7 @@ const Unread = () => {
             try {
                 const fetchedNotifications = await getMyNotifications();
                 setNotifications(fetchedNotifications || []);
+                syncNotificationBadgeCounts(fetchedNotifications);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -97,6 +98,11 @@ const Unread = () => {
                         notification.id === notificationId ? {...notification, isRead: true} : notification,
                     ),
                 );
+                syncNotificationBadgeCounts(
+                    notifications.map(notification =>
+                        notification.id === notificationId ? {...notification, isRead: true} : notification,
+                    ),
+                );
             } else {
                 console.error(`Failed to mark notification ${notificationId} as read.`);
             }
@@ -114,7 +120,9 @@ const Unread = () => {
                 if (response.success) {
                     setRefetchReadNotifications(prevState => !prevState);
                     setRefetchUnreadNotifications(prevState => !prevState);
-                    setNotifications(notifications.map(notif => ({...notif, isRead: true})));
+                    const updatedNotifications = notifications.map(notif => ({...notif, isRead: true}));
+                    setNotifications(updatedNotifications);
+                    syncNotificationBadgeCounts(updatedNotifications);
                 } else {
                     console.error('Failed to mark all notifications as read');
                 }

@@ -155,7 +155,12 @@ export default function ClientTabNavigator() {
                     headerShown: false,
                     tabBarIcon: ({color}) => (
                         <View style={styles.tabIconContainer}>
-                            <View style={{marginTop: isTablet() ? -20 : -15}}>
+                            <View
+                                style={{
+                                    marginTop: isTablet() ? -20 : -15,
+                                    overflow: 'visible',
+                                    alignItems: 'center',
+                                }}>
                                 <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />
                             </View>
                         </View>
@@ -203,9 +208,15 @@ export default function ClientTabNavigator() {
                         </View>
                     ),
                 }}
-                listeners={{
-                    tabPress: closeCenterButtonIfOpen,
-                }}
+                listeners={({navigation: tabNavigation}) => ({
+                    tabPress: e => {
+                        closeCenterButtonIfOpen(e);
+                        // Show profile home when selecting this tab (e.g. after opening ChatList from hex).
+                        tabNavigation.navigate('UserProfileStack', {
+                            screen: 'UserProfileScreen',
+                        });
+                    },
+                })}
             />
         </ClientTabs.Navigator>
     );
@@ -218,6 +229,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: isTablet() ? '120%' : '95%',
+        overflow: 'visible',
     },
     redDot: {
         position: 'absolute',

@@ -17,12 +17,14 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getPost} from '../../../lib/api/post.lib';
 import BackButton from '../../../components/General/backbutton';
 import { getPollById } from '../../../lib/api/poll.lib';
+import {UseTabMenu} from '../../../context/TabContext';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [notifications, setNotifications] = useState<INotification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const {syncNotificationBadgeCounts} = UseTabMenu();
 
     useEffect(() => {
         async function fetchNotifications() {
@@ -30,6 +32,7 @@ const UserNotifications = () => {
                 const fetchedNotifications = await getMyNotifications();
                 //console.log('Fetched Notifications:', fetchedNotifications);
                 setNotifications(fetchedNotifications || []);
+                syncNotificationBadgeCounts(fetchedNotifications);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -159,11 +162,11 @@ const UserNotifications = () => {
             //console.log('API Response:', updatedNotification);
 
             if (updatedNotification) {
-                setNotifications(prevNotifications =>
-                    prevNotifications.map(notification =>
-                        notification.id === notificationId ? {...notification, isRead: true} : notification,
-                    ),
+                const updatedNotifications = notifications.map(notification =>
+                    notification.id === notificationId ? {...notification, isRead: true} : notification,
                 );
+                setNotifications(updatedNotifications);
+                syncNotificationBadgeCounts(updatedNotifications);
             } else {
                 console.error(`Failed to mark notification ${notificationId} as read.`);
             }
@@ -179,7 +182,9 @@ const UserNotifications = () => {
             try {
                 const response = await batchMarkNotificationsRead(unreadNotificationIds);
                 if (response.success) {
-                    setNotifications(notifications.map(notif => ({...notif, isRead: true})));
+                    const updatedNotifications = notifications.map(notif => ({...notif, isRead: true}));
+                    setNotifications(updatedNotifications);
+                    syncNotificationBadgeCounts(updatedNotifications);
                     //console.log('All notifications marked as read');
                 } else {
                     console.error('Failed to mark all notifications as read');
