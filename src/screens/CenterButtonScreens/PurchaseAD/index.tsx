@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     View,
     Text,
@@ -10,13 +10,13 @@ import {
     StyleSheet,
     Platform,
     ScrollView,
-    BackHandler,
 } from 'react-native';
 import {useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../../assets/constants';
+import BackButton from '../../../components/General/backbutton';
 import AkcruButtons from '../../../components/akcruButtons';
 import {getAdPacks, purchaseAD, purchaseADInApp, AdPackInfo} from '../../../lib/api/adPurchase.lib';
 import {GoldenCoinCoins} from '../../../../assets/svg';
@@ -24,6 +24,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
 import {UnlockOption} from '../../../lib/api/flickflirt.lib';
+import {navigationRef} from '../../../util/RootNavigation';
 
 const ACCENT_PURPLE = '#BF5AF2';
 const ACCENT_BLUE = '#0A84FF';
@@ -102,8 +103,6 @@ export default function PurchaseAdScreen() {
     useFocusEffect(
         useCallback(() => {
             hydrateUser();
-            const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
-            return () => sub.remove();
         }, [hydrateUser]),
     );
 
@@ -173,27 +172,39 @@ export default function PurchaseAdScreen() {
         }
     };
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            gestureEnabled: false,
-        });
-    }, [navigation]);
-
-    /** Block OS / system back (POP, GO_BACK, etc.); allow forward navigation (checkout, unlock screen). */
-    useEffect(() => {
-        const unsub = navigation.addListener('beforeRemove', e => {
-            const type = (e.data as {action?: {type?: string}} | undefined)?.action?.type;
-            if (type === 'RESET' || type === 'NAVIGATE' || type === 'REPLACE') {
+    /** Safe back: default BackButton can call invalid routes when stack depth is 1; fall back to app home. */
+    const handlePurchaseBack = useCallback(() => {
+        try {
+            if (navigation.canGoBack()) {
+                navigation.goBack();
                 return;
             }
-            e.preventDefault();
-        });
-        return unsub;
+        } catch {
+            // fall through to home
+        }
+
+        const routeNames = navigation.getState()?.routeNames as string[] | undefined;
+        const navAny = navigation as unknown as {navigate: (name: string, params?: object) => void};
+
+        if (routeNames?.includes('ClientTabNavigator')) {
+            navAny.navigate('ClientTabNavigator');
+            return;
+        }
+        if (routeNames?.includes('HomeScreen')) {
+            navAny.navigate('HomeScreen');
+            return;
+        }
+
+        if (navigationRef.isReady()) {
+            navigationRef.navigate('ClientTabNavigator');
+        }
     }, [navigation]);
 
     return (
         <TabContainer style={styles.tabWrap}>
             <SafeAreaView style={styles.safe}>
+                <BackButton navigation={navigation} onBack={handlePurchaseBack} />
+
                 {loadingTiers ? (
                     <View style={styles.loaderWrap}>
                         <ActivityIndicator size="large" color={ACCENT_PURPLE} />

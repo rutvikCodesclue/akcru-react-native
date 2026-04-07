@@ -1,12 +1,13 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, Animated, Easing, Image} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import {View, Text, StyleSheet, SafeAreaView, Animated, Easing, Image, BackHandler} from 'react-native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import MaskedView from '@react-native-masked-view/masked-view';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import imageindex from '../../../../../assets/images/imageindex';
-import BackButton from '../../../../components/General/backbutton';
 import FlickFlirtLockedPlaceholderCard from '../../../../components/FlickFlirtLockedPlaceholderCard';
 
 const ACCENT_PURPLE = '#A855F7';
@@ -26,11 +27,41 @@ const LOCK_CARD_ASPECT_MEDIUM = 1 / 2.65;
 const LOCK_CARD_ASPECT_CENTER = 1 / 2.75;
 
 export default function UnlockingMatchesScreen() {
-    const navigation = useNavigation();
+    const navigation = useNavigation<StackNavigationProp<NoBottomTabStackParams>>();
     const progress = useRef(new Animated.Value(0)).current;
     const [progressPercent, setProgressPercent] = useState(0);
+    /** When true, POP/goBack is allowed (after progress reaches 100%). */
+    const allowExitRef = useRef(false);
 
     const cards = useMemo(() => [0, 1, 2, 3, 4], []);
+
+    useFocusEffect(
+        useCallback(() => {
+            const sub = BackHandler.addEventListener('hardwareBackPress', () => !allowExitRef.current);
+            return () => sub.remove();
+        }, []),
+    );
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            gestureEnabled: false,
+        });
+    }, [navigation]);
+
+    /** Block back until progress completes; then allow POP for automatic goBack(). */
+    useEffect(() => {
+        const unsub = navigation.addListener('beforeRemove', e => {
+            if (allowExitRef.current) {
+                return;
+            }
+            const type = (e.data as {action?: {type?: string}} | undefined)?.action?.type;
+            if (type === 'RESET' || type === 'NAVIGATE' || type === 'REPLACE') {
+                return;
+            }
+            e.preventDefault();
+        });
+        return unsub;
+    }, [navigation]);
 
     useEffect(() => {
         const id = progress.addListener(({value}: {value: number}) => {
@@ -58,10 +89,12 @@ export default function UnlockingMatchesScreen() {
             }),
         ]);
         anim.start(({finished}) => {
-            if (finished) {
-                if (navigation.canGoBack()) {
-                    navigation.goBack();
-                }
+            if (!finished) {
+                return;
+            }
+            allowExitRef.current = true;
+            if (navigation.canGoBack()) {
+                navigation.goBack();
             }
         });
         return () => {
