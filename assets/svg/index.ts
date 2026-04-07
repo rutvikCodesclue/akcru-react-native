@@ -4,7 +4,8 @@ import Googlelogo from './Googlelogo.svg';
 import AkcruLogo from './AkcruLogo.svg';
 import AkcruHexLogo from './AkcruHexLogo.svg'
 import AkcruControlBtn from './AkcruControlBtn.svg'
-import LrgMIT from './LrgMIT.svg'
+import LrgMIT from './LrgMIT.svg';
+import GoldenCoinCoins from './golden-coin-coins.svg';
 
 export {
   AkcruLogo,
@@ -14,4 +15,5 @@ export {
   AkcruHexLogo,
   AkcruControlBtn,
   LrgMIT,
+  GoldenCoinCoins,
 };

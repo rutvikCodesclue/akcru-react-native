@@ -32,13 +32,17 @@ export function useBackNavigatesToClientTab() {
     useEffect(() => {
         const unsub = navigation.addListener('beforeRemove', e => {
             const type = e.data?.action?.type;
+            /** Let normal navigations complete; only skip intercept for these. */
             if (type === 'RESET' || type === 'NAVIGATE' || type === 'REPLACE') {
                 return;
             }
-            if (type === 'POP' || type === 'GO_BACK' || type === 'POP_TO_TOP') {
-                e.preventDefault();
-                goHome();
-            }
+            /**
+             * Stack back / gesture / OS back can emit POP, GO_BACK, POP_TO_TOP, or other
+             * router-specific types — and sometimes no type. If we only handled POP/GO_BACK,
+             * the default pop still ran (e.g. back to FlickFlirtPrefAll). Intercept everything else.
+             */
+            e.preventDefault();
+            goHome();
         });
         return unsub;
     }, [navigation, goHome]);

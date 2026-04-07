@@ -16,7 +16,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import FlickFlirtBlurredBackground from '../../../components/FlickFlirtBlurredBackground';
 
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -146,7 +146,8 @@ const FlickFlirtScreen = () => {
     } else {
         return (
             <TabContainer>
-                <FlickFlirtBlurredBackground>
+                <View style={{flex: 1}}>
+                    <FlickFlirtBlurredBackground archetypeStyleGradients>
                         <Header />
 
                         <View style={{justifyContent: 'center', height: SIZES.ScreenHeight * 0.6}}>
@@ -193,7 +194,8 @@ const FlickFlirtScreen = () => {
                                 </View>
                             )}
                         </View>
-                </FlickFlirtBlurredBackground>
+                    </FlickFlirtBlurredBackground>
+                </View>
 
                 {/* ── Reset Confirmation Modal ── */}
                 <Modal

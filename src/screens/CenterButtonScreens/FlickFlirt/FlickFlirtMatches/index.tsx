@@ -1,12 +1,10 @@
 // src/screens/FlickFlirtMatches.tsx
 
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useMemo} from 'react';
 import {
     View,
     Text,
-    SafeAreaView,
     FlatList,
-    ImageBackground,
     StyleSheet,
     Alert,
     Modal,
@@ -16,7 +14,6 @@ import {
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
-import imageindex from '../../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
@@ -25,12 +22,29 @@ import AkcruButtons from '../../../../components/akcruButtons';
 import useAuthStore from '../../../../stores/auth.store';
 import {isTablet} from '../../../../../assets/constants/theme';
 import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
+import FlickFlirtLockedPlaceholderCard from '../../../../components/FlickFlirtLockedPlaceholderCard';
 
 import {getMatches, unlockMatches, MatchesResponse, UnlockOption} from '../../../../lib/api/flickflirt.lib';
+import {getMyMITs} from '../../../../lib/api/mit.lib';
+import {IMITInvite} from '../../../../../types';
+
+function findMitWithPeer(
+    invites: IMITInvite[] | undefined,
+    peerId: string,
+    myId: string | undefined,
+): IMITInvite | undefined {
+    if (!invites?.length || !myId) {
+        return undefined;
+    }
+    return invites.find(i => {
+        const otherId = i.creatorId === myId ? i.inviteeId : i.creatorId;
+        return otherId === peerId && (i.status === 'ACCEPTED' || i.status === 'PENDING');
+    });
+}
 
 const FlickFlirtMatches = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-    const {hydrateUser} = useAuthStore();
+    const {hydrateUser, user: authUser} = useAuthStore();
 
     // UI state
     const [matches, setMatches] = useState<MatchesResponse['matches']>([]);
@@ -38,6 +52,7 @@ const FlickFlirtMatches = () => {
     const [unlocked, setUnlocked] = useState<boolean>(false);
     const [unlockOptions, setUnlockOptions] = useState<UnlockOption[]>([]);
     const [showLoader, setShowLoader] = useState<boolean>(true);
+    const [midChatLoadingId, setMidChatLoadingId] = useState<string | null>(null);
 
     // Confirmation modal state
     const [modalVisible, setModalVisible] = useState(false);
@@ -77,7 +92,7 @@ const FlickFlirtMatches = () => {
         }, []),
     );
 
-    // 2) Open the unlock confirmation
+    // 2) Open the unlock confirmation (e.g. bottom CTA)
     const openModal = () => {
         if (unlockOptions.length === 0) {
             return Alert.alert('Error', 'No unlock options available.');
@@ -85,6 +100,14 @@ const FlickFlirtMatches = () => {
         // default to first option
         setSelectedOpt(unlockOptions[0]);
         setModalVisible(true);
+    };
+
+    const goToUnlockScreen = () => {
+        if (unlockOptions.length === 0) {
+            Alert.alert('Error', 'No unlock options available.');
+            return;
+        }
+        navigation.navigate('FlickFlirtUnlockMatches', {unlockOptions});
     };
 
     // 3) Confirm unlock
@@ -125,13 +148,50 @@ const FlickFlirtMatches = () => {
         })),
     ];
 
-    const handleSendInviteTicket = () => {
-        Alert.alert('Info', 'Open a profile card and send invite from there.');
-    };
+    const matchHandlers = useMemo(() => {
+        const start = async (match: MatchesResponse['matches'][number]) => {
+            setMidChatLoadingId(match.id);
+            try {
+                const invites = await getMyMITs();
+                const invite = findMitWithPeer(invites, match.id, authUser?.id);
+                if (!invite) {
+                    Alert.alert(
+                        'Mid-Chat',
+                        'You need an active Movie Invite with this person to open Mid-Chat. Send a MIT first.',
+                    );
+                    return;
+                }
+                navigation.navigate('ViewChat', {
+                    mItInviteId: invite.id,
+                    userId: match.id,
+                    profilePicture: match.profilePicture ?? '',
+                    username: match.username,
+                });
+            } catch (e) {
+                console.error(e);
+                Alert.alert('Mid-Chat', 'Could not open chat. Try again.');
+            } finally {
+                setMidChatLoadingId(null);
+            }
+        };
+        const sendMit = (match: MatchesResponse['matches'][number]) => {
+            navigation.reset({
+                index: 1,
+                routes: [
+                    {
+                        name: 'ClientTabNavigator' as never,
+                        params: {screen: 'ClientStack', params: {screen: 'HomeScreen'}} as never,
+                    },
+                    {name: 'SendMITViewUser' as never, params: {userid: match.id} as never},
+                ],
+            });
+        };
+        return {start, sendMit};
+    }, [authUser?.id, navigation]);
 
     return (
         <View style={{flex: 1}}>
-            <FlickFlirtBlurredBackground>
+            <FlickFlirtBlurredBackground archetypeStyleGradients>
                     <Header />
                     <BackButton navigation={navigation} />
 
@@ -146,7 +206,6 @@ const FlickFlirtMatches = () => {
                                     ListHeaderComponent={
                                         <View style={{marginTop: isTablet() ? '16%' : '5%'}}>
                                             <Text style={styles.headerText}>You have matches.</Text>
-
                                         </View>
                                     }
                                     columnWrapperStyle={styles.columnWrapper}
@@ -154,25 +213,10 @@ const FlickFlirtMatches = () => {
                                     renderItem={({item}) => {
                                         if (item.type === 'locked') {
                                             return (
-                                                <TouchableOpacity
-                                                    activeOpacity={0.9}
-                                                    onPress={openModal}
-                                                    style={styles.lockedCardWrap}>
-                                                    <ImageBackground
-                                                        source={imageindex.BgImageSM}
-                                                        resizeMode="cover"
-                                                        style={styles.lockedCardBg}
-                                                        imageStyle={styles.lockedCardBgImage}>
-                                                        <View style={styles.lockedCardDim} />
-                                                        <View style={styles.lockedInner}>
-                                                            <View style={styles.lockCircle}>
-                                                                <Text style={styles.lockIcon}>🔒</Text>
-                                                            </View>
-                                                            <Text style={styles.lockedTitle}>LOCKED MATCH</Text>
-                                                            <Text style={styles.lockedSubTitle}>Unlock to view profile</Text>
-                                                        </View>
-                                                    </ImageBackground>
-                                                </TouchableOpacity>
+                                                <FlickFlirtLockedPlaceholderCard
+                                                    size="full"
+                                                    onPress={goToUnlockScreen}
+                                                />
                                             );
                                         }
 
@@ -182,12 +226,20 @@ const FlickFlirtMatches = () => {
                                                 <FlickFlirtMatchCard
                                                     userPicture={match.profilePicture}
                                                     userName={match.username}
-                                                    onPress={() => navigation.navigate('ViewUserScreen', {userID: match.id})}
+                                                    onPress={() =>
+                                                        navigation.navigate('ViewUserScreen', {
+                                                            userID: match.id,
+                                                            imageURL: '',
+                                                        })
+                                                    }
                                                     influencer={false}
                                                     akcruBadge={match.badge}
                                                     userDesc={match.description}
                                                     matchLabel={match.matchLabel}
                                                     archetype={match.archetype}
+                                                    onStartMidChat={() => matchHandlers.start(match)}
+                                                    onSendMit={() => matchHandlers.sendMit(match)}
+                                                    midChatLoading={midChatLoadingId === match.id}
                                                 />
                                             </View>
                                         );
@@ -273,18 +325,13 @@ const FlickFlirtMatches = () => {
 };
 
 const styles = StyleSheet.create({
-    /** Scroll region: light glass card on top of full-screen frosted bg */
+    /** Scroll region — transparent so the screen background shows through (no glass panel) */
     matchesPanelContainer: {
         flex: 1,
         minHeight: 0,
         marginTop: 10,
         marginHorizontal: 10,
         marginBottom: 8,
-        borderRadius: 12,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.22)',
-        backgroundColor: 'rgba(255,255,255,0.06)',
     },
     content: {flex: 1, justifyContent: 'center'},
     headerText: {...FONTS.Title3, color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 6},
@@ -299,60 +346,6 @@ const styles = StyleSheet.create({
     columnWrapper: {justifyContent: 'space-between'},
     cardWrapper: {marginVertical: 5, alignItems: 'center'},
     matchCardWrap: {marginVertical: 5, borderRadius: 18},
-    lockedCardWrap: {
-        width: SIZES.ScreenWidth / 2.1,
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    lockedCardBg: {
-        width: SIZES.ScreenWidth / 2.3,
-        height: (SIZES.ScreenWidth / 2.3) * 1.42,
-        borderRadius: 16,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    lockedCardBgImage: {
-        borderRadius: 16,
-    },
-    lockedCardDim: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 16,
-        backgroundColor: 'rgba(14,13,38,0.78)',
-    },
-    lockedInner: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingHorizontal: 12,
-    },
-    lockCircle: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.35)',
-        backgroundColor: 'rgba(255,255,255,0.08)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: 10,
-    },
-    lockIcon: {
-        fontSize: 22,
-    },
-    lockedTitle: {
-        ...FONTS.Title2,
-        color: COLORS.WHITE,
-        letterSpacing: 0.8,
-        textAlign: 'center',
-    },
-    lockedSubTitle: {
-        ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.85)',
-        textAlign: 'center',
-        marginTop: 6,
-    },
     noMatchWrapper: {flex: 1, justifyContent: 'center', alignItems: 'center'},
     noMatchText: {...FONTS.Title3, color: COLORS.LIGHTGREY, textAlign: 'center', marginBottom: 20},
     unlockWrapper: {marginTop: 20, alignItems: 'center'},

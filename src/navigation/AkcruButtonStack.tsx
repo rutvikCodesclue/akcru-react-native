@@ -9,6 +9,7 @@ import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton
 import {CrusaderStack} from './CrusaderStack';
 import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
+import UnlockingMatchesScreen from '../screens/CenterButtonScreens/FlickFlirt/UnlockingMatches';
 import VisionaryRooms from '../screens/CenterButtonScreens/VisionaryRooms';
 import VisionaryRoomsRequests from '../screens/CenterButtonScreens/VisionaryRoomsRequests';
 
@@ -22,6 +23,7 @@ export type AkcruButtonStackParams = {
     CrusaderStack: any;
     CrusaderScreen: any;
     PurchaseAdScreen: any;
+    UnlockingMatches: undefined;
     VisionaryRooms: any;
     VisionaryRoomsRequests: any;
 };
@@ -60,6 +62,13 @@ export default function AkcruButtonStack() {
             <AkcruBtn.Screen
                 name="PurchaseAdScreen"
                 component={PurchaseAdScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <AkcruBtn.Screen
+                name="UnlockingMatches"
+                component={UnlockingMatchesScreen}
                 options={{
                     headerShown: false,
                 }}

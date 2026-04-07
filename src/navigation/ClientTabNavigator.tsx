@@ -48,6 +48,12 @@ function ClientTabBar(props: TabBarProps) {
             return null;
         }
     }
+    if (active?.name === 'ClientStack' || active?.name === 'AkcruButtonStack') {
+        const nestedFocused = getFocusedRouteNameFromRoute(active);
+        if (nestedFocused === 'PurchaseAdScreen' || nestedFocused === 'UnlockingMatches') {
+            return null;
+        }
+    }
     return <BottomTabBar {...props} />;
 }
 

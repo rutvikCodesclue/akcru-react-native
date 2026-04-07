@@ -21,6 +21,7 @@ import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
+import UnlockingMatchesScreen from '../screens/CenterButtonScreens/FlickFlirt/UnlockingMatches';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ClientEntryDecider from '../screens/ClientDeciderScreen';
 
@@ -46,6 +47,7 @@ export type ClientStackParams = {
     AkcruCenterButton: any;
     AwardScreen: any;
     PurchaseAdScreen: any;
+    UnlockingMatches: undefined;
     ContentDetailScreen: any;
     ClientEntryDecider: any;
 };
@@ -188,6 +190,13 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="PurchaseAdScreen"
                 component={PurchaseAdScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ClientSearch.Screen
+                name="UnlockingMatches"
+                component={UnlockingMatchesScreen}
                 options={{
                     headerShown: false,
                 }}

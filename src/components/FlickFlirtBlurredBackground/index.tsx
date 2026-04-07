@@ -2,28 +2,24 @@ import React from 'react';
 import {
     ImageBackground,
     ImageSourcePropType,
-    Platform,
     SafeAreaView,
     StyleProp,
     StyleSheet,
+    View,
     ViewStyle,
 } from 'react-native';
-import {BlurView} from '@react-native-community/blur';
+import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
-import {SIZES} from '../../../assets/constants';
-
-/** Default blur tuned for Flick Flirt screens (image → blur → content) */
-export const FLICK_FLIRT_BLUR_DEFAULT = {
-    blurType: 'dark' as const,
-    blurAmountIos: 10,
-    blurAmountAndroid: 5,
-    reducedTransparencyFallbackColor: 'rgba(22, 14, 48, 0.72)',
-    androidOverlayColor: 'rgba(45, 28, 72, 0.28)',
-};
+import {
+    FLICK_FLIRT_BG_BASE_COLORS,
+    FLICK_FLIRT_IMAGE_OVERLAY_BOTTOM_COLORS,
+    FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS,
+    SIZES,
+} from '../../../assets/constants';
 
 export type FlickFlirtBlurredBackgroundProps = {
     children: React.ReactNode;
-    /** Defaults to `imageindex.FLickFlirt` */
+    /** Defaults to `imageindex.FLickFlirtBG` */
     source?: ImageSourcePropType;
     resizeMode?: 'cover' | 'contain' | 'stretch' | 'center';
     /** Merged with default full-screen size */
@@ -31,53 +27,96 @@ export type FlickFlirtBlurredBackgroundProps = {
     /** When true (default), children are wrapped in `SafeAreaView` with `flex: 1` */
     wrapWithSafeArea?: boolean;
     safeAreaStyle?: StyleProp<ViewStyle>;
-    blurAmountIos?: number;
-    blurAmountAndroid?: number;
+    /**
+     * Full Flick Flirt bg treatment: base fill behind the image + vertical + bottom washes
+     * (same stack as `FlickFlirtArchetypeResult`). No extra `LinearGradient` needed in parents.
+     */
+    archetypeStyleGradients?: boolean;
 };
 
 /**
- * Full-screen Flick Flirt artwork with a frosted blur layer, then your UI.
- * Same stack as FlickFlirtMatches: ImageBackground → BlurView → (SafeAreaView) → children
+ * Full-screen Flick Flirt background image, then your UI.
+ * Use a pre-blurred asset for the background; no runtime blur layer.
  */
 const FlickFlirtBlurredBackground = ({
     children,
-    source = imageindex.FLickFlirt,
+    source = imageindex.FLickFlirtBG,
     resizeMode = 'cover',
     imageStyle,
     wrapWithSafeArea = true,
     safeAreaStyle,
-    blurAmountIos = FLICK_FLIRT_BLUR_DEFAULT.blurAmountIos,
-    blurAmountAndroid = FLICK_FLIRT_BLUR_DEFAULT.blurAmountAndroid,
+    archetypeStyleGradients = false,
 }: FlickFlirtBlurredBackgroundProps) => {
-    const inner =
-        wrapWithSafeArea ? (
-            <SafeAreaView style={[styles.safeArea, safeAreaStyle]}>{children}</SafeAreaView>
-        ) : (
-            children
-        );
-
-    return (
-        <ImageBackground source={source} resizeMode={resizeMode} style={[styles.imageBg, imageStyle]}>
-            <BlurView
-                pointerEvents="none"
-                style={StyleSheet.absoluteFill}
-                blurType={FLICK_FLIRT_BLUR_DEFAULT.blurType}
-                blurAmount={Platform.OS === 'ios' ? blurAmountIos : blurAmountAndroid}
-                reducedTransparencyFallbackColor={FLICK_FLIRT_BLUR_DEFAULT.reducedTransparencyFallbackColor}
-                overlayColor={Platform.OS === 'android' ? FLICK_FLIRT_BLUR_DEFAULT.androidOverlayColor : undefined}
+    const gradientOverlays = archetypeStyleGradients ? (
+        <>
+            <LinearGradient
+                colors={[...FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS]}
+                style={styles.archetypeFullGradient}
             />
+            <LinearGradient
+                pointerEvents="none"
+                colors={[...FLICK_FLIRT_IMAGE_OVERLAY_BOTTOM_COLORS]}
+                style={styles.archetypeBottomGradient}
+            />
+        </>
+    ) : null;
+
+    const inner = wrapWithSafeArea ? (
+        <SafeAreaView style={[styles.safeArea, safeAreaStyle]}>
+            {gradientOverlays}
+            {children}
+        </SafeAreaView>
+    ) : archetypeStyleGradients ? (
+        <View style={styles.safeArea}>
+            {gradientOverlays}
+            {children}
+        </View>
+    ) : (
+        children
+    );
+
+    const imageBackground = (
+        <ImageBackground source={source} resizeMode={resizeMode} style={[styles.imageBg, imageStyle]}>
             {inner}
         </ImageBackground>
     );
+
+    if (archetypeStyleGradients) {
+        return (
+            <View style={styles.rootWithBase}>
+                <LinearGradient colors={[...FLICK_FLIRT_BG_BASE_COLORS]} style={StyleSheet.absoluteFillObject} />
+                {imageBackground}
+            </View>
+        );
+    }
+
+    return imageBackground;
 };
 
 const styles = StyleSheet.create({
+    rootWithBase: {
+        flex: 1,
+    },
     imageBg: {
         width: SIZES.ScreenWidth,
         height: SIZES.ScreenHeight,
     },
     safeArea: {
         flex: 1,
+    },
+    archetypeFullGradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        height: SIZES.ScreenHeight,
+    },
+    archetypeBottomGradient: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: SIZES.ScreenHeight * 0.42,
     },
 });
 

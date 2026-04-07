@@ -15,7 +15,14 @@ import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 
-import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {
+    COLORS,
+    FLICK_FLIRT_BG_BASE_COLORS,
+    FLICK_FLIRT_IMAGE_OVERLAY_BOTTOM_COLORS,
+    FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS,
+    FONTS,
+    SIZES,
+} from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
 import Header from '../../../../components/header';
@@ -214,7 +221,7 @@ const FlickFlirtArchetypeResult = () => {
     return (
         <View style={{flex: 1}}>
             <LinearGradient
-                colors={['#0A0C2A', '#050723', '#02030F']}
+                colors={[...FLICK_FLIRT_BG_BASE_COLORS]}
                 style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0}}
             />
             <ImageBackground
@@ -228,15 +235,7 @@ const FlickFlirtArchetypeResult = () => {
                 }}
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView style={{flex: 1}}>
-                    <LinearGradient
-                        colors={['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']}
-                        style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
-                    />
-                    <LinearGradient
-                        pointerEvents="none"
-                        colors={['rgba(5,7,35,0)', 'rgba(5,7,35,0.55)', 'rgba(5,7,35,0.9)', '#050723']}
-                        style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: SIZES.ScreenHeight * 0.42}}
-                    />
+
                     {showRevealFx && (
                         <Animated.View
                             pointerEvents="none"

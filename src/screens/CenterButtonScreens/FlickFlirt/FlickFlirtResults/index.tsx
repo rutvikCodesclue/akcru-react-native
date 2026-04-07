@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -8,41 +8,67 @@ import {
     Modal,
     Platform,
     StyleSheet,
-    Pressable,
 } from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {AUTH_BUTTON_THEME, AUTH_TEXT_THEME} from '../../../../../assets/constants/authTheme';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
 import styles from './styles'; // reuse same style module if it contains modal styles; else copy those blocks here
-import {IUserProfile} from '../../../../../types';
+import {IUserProfile, IMITInvite} from '../../../../../types';
 import FlickFlirtMatchCard from '../../../../components/FlickFlirtMatchCard';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {isTablet} from '../../../../../assets/constants/theme';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 import useAuthStore from '../../../../stores/auth.store';
 import {getMatches, unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
+import {getMyMITs} from '../../../../lib/api/mit.lib';
 import {Icon} from '@rneui/base';
 import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
 import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
+import FlickFlirtLockedPlaceholderCard from '../../../../components/FlickFlirtLockedPlaceholderCard';
+import LinearGradient from 'react-native-linear-gradient';
 
 type Nav = NativeStackNavigationProp<NoBottomTabStackParams>;
+
+const SEE_MORE_BORDER_RADIUS = 14;
+const SEE_MORE_BORDER_PAD = 1.5;
+const SEE_MORE_INNER_RADIUS = SEE_MORE_BORDER_RADIUS - SEE_MORE_BORDER_PAD;
+/** Same purple → blue as FlickFlirt match actions */
+const SEE_MORE_GRADIENT = {
+    colors: [COLORS.PURPLE, COLORS.AKCRUBLUE] as const,
+    start: {x: 0, y: 0.5},
+    end: {x: 1, y: 0.5},
+};
+
+function findMitWithPeer(
+    invites: IMITInvite[] | undefined,
+    peerId: string,
+    myId: string | undefined,
+): IMITInvite | undefined {
+    if (!invites?.length || !myId) {
+        return undefined;
+    }
+    return invites.find(i => {
+        const otherId = i.creatorId === myId ? i.inviteeId : i.creatorId;
+        return otherId === peerId && (i.status === 'ACCEPTED' || i.status === 'PENDING');
+    });
+}
 
 const FlickFlirtResults = () => {
     const navigation = useNavigation<Nav>();
     const goHome = useBackNavigatesToClientTab();
-    const {hydrateUser} = useAuthStore();
+    const {hydrateUser, user: authUser} = useAuthStore();
 
     const [matches, setMatches] = useState<IUserProfile[]>([]);
     const [hiddenCount, setHiddenCount] = useState(0);
     const [unlocked, setUnlocked] = useState(false);
     const [unlockOptions, setUnlockOptions] = useState<UnlockOption[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedMatchId, setSelectedMatchId] = useState<string | null>(null);
-    const [selectUserModalVisible, setSelectUserModalVisible] = useState(false);
+    const [midChatLoadingId, setMidChatLoadingId] = useState<string | null>(null);
 
     // unlock modal
     const [modalVisible, setModalVisible] = useState(false);
@@ -214,24 +240,6 @@ const FlickFlirtResults = () => {
     const visibleMatches = matches.slice(0, 2);
     /** Locked = matches beyond the 2 shown + server-reported hidden (same idea as FlickFlirtMatches). */
     const lockedCardsCount = Math.max(0, matches.length - 2) + hiddenCount;
-    const selectedMatch = visibleMatches.find(m => m.id === selectedMatchId) ?? null;
-
-    const handleSendInviteTicket = () => {
-        if (!selectedMatch) {
-            setSelectUserModalVisible(true);
-            return;
-        }
-        navigation.reset({
-            index: 1,
-            routes: [
-                {
-                    name: 'ClientTabNavigator' as never,
-                    params: {screen: 'ClientStack', params: {screen: 'HomeScreen'}} as never,
-                },
-                {name: 'SendMITViewUser' as never, params: {userid: selectedMatch.id} as never},
-            ],
-        });
-    };
 
     const handleSeeMoreMatches = () => {
               navigation.reset({
@@ -246,11 +254,66 @@ const FlickFlirtResults = () => {
                });
     };
 
+    const matchHandlers = useMemo(() => {
+        const start = async (match: IUserProfile) => {
+            setMidChatLoadingId(match.id);
+            try {
+                const invites = await getMyMITs();
+                const invite = findMitWithPeer(invites, match.id, authUser?.id);
+                if (!invite) {
+                    Alert.alert(
+                        'Mid-Chat',
+                        'You need an active Movie Invite with this person to open Mid-Chat. Send a MIT first.',
+                    );
+                    return;
+                }
+                navigation.navigate('ViewChat', {
+                    mItInviteId: invite.id,
+                    userId: match.id,
+                    profilePicture: match.profilePicture ?? '',
+                    username: match.username,
+                });
+            } catch (e) {
+                console.error(e);
+                Alert.alert('Mid-Chat', 'Could not open chat. Try again.');
+            } finally {
+                setMidChatLoadingId(null);
+            }
+        };
+        const sendMit = (match: IUserProfile) => {
+            navigation.reset({
+                index: 1,
+                routes: [
+                    {
+                        name: 'ClientTabNavigator' as never,
+                        params: {screen: 'ClientStack', params: {screen: 'HomeScreen'}} as never,
+                    },
+                    {name: 'SendMITViewUser' as never, params: {userid: match.id} as never},
+                ],
+            });
+        };
+        return {start, sendMit};
+    }, [authUser?.id, navigation]);
+
     return (
         <View style={{flex: 1}}>
-            <FlickFlirtBlurredBackground>
+            <FlickFlirtBlurredBackground archetypeStyleGradients>
                     <Header />
-                    <BackButton navigation={navigation} onBack={goHome} />
+                    {!loading && matches.length > 0 ? (
+                        <View style={localStyles.resultsIntro}>
+                            <View style={localStyles.resultsIntroTitleRow}>
+                                <Text style={localStyles.resultsIntroTitle}>Your matches are ready</Text>
+                                <Icon
+                                    name="sparkles"
+                                    type="ionicon"
+                                    color={COLORS.PURPLE}
+                                    size={isTablet() ? 22 : 18}
+                                    containerStyle={localStyles.resultsIntroSparkle}
+                                />
+                            </View>
+                            <Text style={localStyles.resultsIntroSub}>These are just the beginning...</Text>
+                        </View>
+                    ) : null}
 
                     <View style={{flex: 1, marginLeft: '3%', marginRight: '3%', paddingBottom: 150}}>
                         {loading ? (
@@ -266,34 +329,22 @@ const FlickFlirtResults = () => {
                                 data={visibleMatches}
                                 numColumns={2}
                                 keyExtractor={item => item.id}
-                                ListHeaderComponent={() => (
-                                    <Text
-                                        style={[
-                                            FONTS.Title3,
-                                            {
-                                                color: COLORS.LIGHTGREY,
-                                                textAlign: 'center',
-                                                marginBottom: 10,
-                                                marginTop: isTablet() ? '16%' : '34%',
-                                            },
-                                        ]}>
-                                        You have matches.
-                                    </Text>
-                                )}
+                                contentContainerStyle={localStyles.resultsListContent}
                                 renderItem={({item: match}) => {
-                                    const isSelected = selectedMatchId === match.id;
                                     return (
                                         <View style={localStyles.matchCardWrap}>
                                             <FlickFlirtMatchCard
+                                                pressable={false}
                                                 userPicture={match.profilePicture}
                                                 userName={match.username}
-                                                onPress={() => setSelectedMatchId(prev => (prev === match.id ? null : match.id))}
                                                 influencer={false}
-                                                selected={isSelected}
                                                 archetype={match.archetype}
                                                 akcruBadge={match.badge}
                                                 userDesc={match.description}
                                                 matchLabel={match.matchLabel}
+                                                onStartMidChat={() => matchHandlers.start(match)}
+                                                onSendMit={() => matchHandlers.sendMit(match)}
+                                                midChatLoading={midChatLoadingId === match.id}
                                             />
                                         </View>
                                     );
@@ -318,44 +369,78 @@ const FlickFlirtResults = () => {
                     </View>
 
                     {/* Bottom actions */}
-                    <View style={{position: 'absolute', bottom: '15%', alignSelf: 'center'}}>
+                    <View style={{position: 'absolute', bottom: '10%', alignSelf: 'center'}}>
                         {!unlocked && lockedCardsCount > 0 && (
                             <View style={styles.unlockWrapper}>
-                                <Text style={styles.unlockText}>
-                                    {lockedCardsCount} {lockedCardsCount === 1 ? 'card' : 'cards'} locked
+                                <Text style={localStyles.seeMoreLockedTagline}>
+                                    ✨ These matches are just your starting point ✨
                                 </Text>
-                                  <View style={{marginTop: 10}}>
-                                                            <AkcruButtons.XlLrgButton
-                                                                btnname="See More Matches"
-                                                                onPress={handleSeeMoreMatches}
-                                                                color={COLORS.PURPLE}
-                                                                variant="auth"
-                                                            />
-                                                        </View>
-                            {/*    <AkcruButtons.XlLrgButton
-                                                                 btnname="Unlock Matches"
-                                                                 onPress={openModal}
-                                                                 color={COLORS.PURPLE}
-                                                             /> */}
+                                <LinearGradient
+                                    colors={[...SEE_MORE_GRADIENT.colors]}
+                                    start={SEE_MORE_GRADIENT.start}
+                                    end={SEE_MORE_GRADIENT.end}
+                                    style={localStyles.seeMoreLockedGradientOuter}>
+                                    <View style={localStyles.seeMoreLockedGradientInner}>
+                                        <View style={localStyles.seeMoreLockedBlock}>
+                                            <View style={localStyles.seeMoreLockedTitleRow}>
+                                                <Text style={localStyles.seeMoreLockedTitle}>
+                                                    Your best matches are still locked
+                                                </Text>
+                                                <Icon
+                                                    name="lock-closed"
+                                                    type="ionicon"
+                                                    color={COLORS.PURPLE}
+                                                    size={isTablet() ? 20 : 17}
+                                                    containerStyle={localStyles.seeMoreLockedIcon}
+                                                />
+                                            </View>
+                                            <Text style={localStyles.seeMoreLockedSub}>
+                                                Unlock to see who they are
+                                            </Text>
+                                        </View>
+                                        <View style={localStyles.locksRowOuter}>
+                                            <View style={localStyles.locksRow}>
+                                                {[0, 1, 2, 3].map(i => (
+                                                    <FlickFlirtLockedPlaceholderCard
+                                                        key={i}
+                                                        size="compact"
+                                                        hideText
+                                                    />
+                                                ))}
+                                            </View>
+                                        </View>
+                                        <View style={localStyles.seeMoreLockedButtonWrap}>
+                                            <TouchableOpacity
+                                                activeOpacity={0.88}
+                                                onPress={handleSeeMoreMatches}
+                                                style={[
+                                                    localStyles.seeMoreLockedCta,
+                                                    {height: AUTH_BUTTON_THEME.getHeight()},
+                                                ]}>
+                                                <LinearGradient
+                                                    colors={AUTH_BUTTON_THEME.colors}
+                                                    start={AUTH_BUTTON_THEME.start}
+                                                    end={AUTH_BUTTON_THEME.end}
+                                                    style={localStyles.seeMoreLockedCtaGradient}>
+                                                    <Text style={AUTH_TEXT_THEME.buttonLabel}>
+                                                        See More Matches
+                                                    </Text>
+                                                </LinearGradient>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
                             </View>
                         )}
                         <View style={styles.gotToStartWrapper}>
 
-                        </View>
-
-                        <View style={{marginTop: 10}}>
-                            <AkcruButtons.XlLrgButton
-                                btnname="Send Movie Invite Ticket"
-                                onPress={handleSendInviteTicket}
-                                color={COLORS.PURPLE}
-                                variant="auth"
-                            />
                         </View>
                     </View>
 
                     {showEntryOverlay && (
                         <View style={StyleSheet.absoluteFillObject}>
                             <FlickFlirtBlurredBackground
+                                archetypeStyleGradients
                                 source={imageindex.BgImageSM}
                                 wrapWithSafeArea={false}
                                 imageStyle={StyleSheet.absoluteFill}>
@@ -411,64 +496,124 @@ const FlickFlirtResults = () => {
                     </View>
                 </View>
             </Modal>
-
-            <Modal
-                visible={selectUserModalVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setSelectUserModalVisible(false)}>
-                <Pressable onPress={() => setSelectUserModalVisible(false)} style={localStyles.selectUserOverlay}>
-                    <View style={localStyles.selectUserModalContent}>
-                        <Icon name="close-circle" type="ionicon" size={72} color={COLORS.CATREDLGT} />
-                        <Text style={localStyles.selectUserTitle}>Select User</Text>
-                        <Text style={localStyles.selectUserMessage}>You have to select user first.</Text>
-                        <TouchableOpacity onPress={() => setSelectUserModalVisible(false)}>
-                            <Text style={localStyles.selectUserClose}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-                </Pressable>
-            </Modal>
         </View>
     );
 };
 
 const localStyles = StyleSheet.create({
+    /** Fixed below BackButton — not scrolled with FlatList */
+    resultsIntro: {
+        paddingHorizontal: 16,
+        paddingTop: 4,
+        paddingBottom: 10,
+        alignSelf: 'stretch',
+    },
+    resultsIntroTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    resultsIntroSparkle: {
+        marginLeft: 6,
+    },
+    resultsIntroTitle: {
+        ...FONTS.Title1,
+        color: COLORS.WHITE,
+        fontWeight: '700',
+    },
+    resultsIntroSub: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        marginTop: 6,
+    },
+    resultsListContent: {
+        paddingTop: 4,
+        paddingBottom: 24,
+    },
+    seeMoreLockedTagline: {
+        ...FONTS.chart,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+        width: SIZES.ScreenWidth * 0.92,
+        alignSelf: 'center',
+        marginBottom: 12,
+        paddingHorizontal: 8,
+        opacity: 0.95,
+        fontSize: isTablet() ? 12 : 11,
+    },
+    /** Four `FlickFlirtLockedPlaceholderCard` compact cells (same UI as FlickFlirtMatches locked) */
+    locksRowOuter: {
+        width: '100%',
+        marginTop: 12,
+        alignSelf: 'stretch',
+    },
+    locksRow: {
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        width: '100%',
+    },
+    /** Gradient stroke + dark inset — wraps copy + See More Matches */
+    seeMoreLockedGradientOuter: {
+        width: SIZES.ScreenWidth * 0.92,
+        maxWidth: '100%',
+        borderRadius: SEE_MORE_BORDER_RADIUS,
+        padding: SEE_MORE_BORDER_PAD,
+        overflow: 'hidden',
+        alignSelf: 'center',
+    },
+    seeMoreLockedGradientInner: {
+        borderRadius: SEE_MORE_INNER_RADIUS,
+        backgroundColor: 'rgba(0,0,0,0.82)',
+        paddingVertical: 16,
+        paddingHorizontal: 14,
+        alignItems: 'center',
+    },
+    seeMoreLockedButtonWrap: {
+        marginTop: 14,
+        alignSelf: 'stretch',
+        width: '100%',
+        paddingHorizontal: 16,
+    },
+    seeMoreLockedCta: {
+        width: '100%',
+        borderRadius: AUTH_BUTTON_THEME.borderRadius,
+        overflow: 'hidden',
+    },
+    seeMoreLockedCtaGradient: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: AUTH_BUTTON_THEME.borderRadius,
+    },
+    /** Above “See More Matches” when additional matches are locked */
+    seeMoreLockedBlock: {
+        alignItems: 'center',
+        paddingHorizontal: 4,
+    },
+    seeMoreLockedTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+    },
+    seeMoreLockedIcon: {
+        marginLeft: 6,
+    },
+    seeMoreLockedTitle: {
+        ...FONTS.Title1,
+        color: COLORS.WHITE,
+        fontWeight: '700',
+        textAlign: 'center',
+    },
+    seeMoreLockedSub: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        textAlign: 'center',
+        marginTop: 8,
+    },
     matchCardWrap: {
         marginVertical: 5,
         alignItems: 'center',
-    },
-    selectUserOverlay: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    selectUserModalContent: {
-        backgroundColor: COLORS.WHITE,
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        marginHorizontal: 15,
-        width: '75%',
-    },
-    selectUserTitle: {
-        ...FONTS.Title3,
-        marginBottom: 5,
-        textAlign: 'center',
-        fontSize: 20,
-        color: COLORS.CATREDDRK,
-    },
-    selectUserMessage: {
-        ...FONTS.Title3,
-        marginBottom: 10,
-        color: COLORS.AKCRUBACKGROUND,
-        textAlign: 'center',
-    },
-    selectUserClose: {
-        ...FONTS.Title2,
-        marginBottom: 10,
-        textAlign: 'center',
-        color: COLORS.MIDORANGE,
     },
 });
 

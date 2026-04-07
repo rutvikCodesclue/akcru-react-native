@@ -60,8 +60,12 @@ export default function RootNavigator(params: any) {
                     }
                     const route = navigationRef.getCurrentRoute();
                     if (route) {
-
-                        console.log('\n\n[Navigation]', route.name, route.params);
+                        const p = route.params;
+                        console.log(
+                            '\n\n[Navigation]',
+                            route.name,
+                            p !== undefined ? p : '(no params)',
+                        );
                     }
                 }}
                 linking={{

@@ -1,7 +1,7 @@
 import {View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {Icon} from '@rneui/base';
-import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {COLORS, FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation, RouteProp, useRoute} from '@react-navigation/native';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
@@ -111,7 +111,7 @@ const FlickFlirtPrefC = () => {
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView>
                     <LinearGradient
-                        colors={['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']}
+                        colors={[...FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS]}
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
                     <Header />

@@ -3,7 +3,7 @@ import {View, Text, SafeAreaView, ImageBackground, Image, Modal, ActivityIndicat
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
+import {COLORS, FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
 import styles from './styles';
@@ -129,7 +129,7 @@ const FlickFlirtSwipe = () => {
                     <LinearGradient
                         colors={
                             showLoader
-                                ? ['rgba(5,7,35,0.7)', 'rgba(5,7,35,0.2)', 'rgba(5,7,35,0.92)']
+                                ? [...FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS]
                                 : [COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]
                         }
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}

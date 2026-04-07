@@ -169,8 +169,7 @@ const FlickFlirtPrefAll = () => {
     };
 
     return (
-        <View style={{flex: 1}}>
-            <FlickFlirtBlurredBackground>
+            <FlickFlirtBlurredBackground archetypeStyleGradients>
                     <Header />
                     <View style={{flex: 1}}>
                     <ScrollView
@@ -313,7 +312,6 @@ const FlickFlirtPrefAll = () => {
                     </View>
                     </View>
             </FlickFlirtBlurredBackground>
-        </View>
     );
 };
 

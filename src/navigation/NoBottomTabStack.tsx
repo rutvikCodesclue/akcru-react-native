@@ -71,6 +71,9 @@ import FlickFlirtPrefAll from '../screens/CenterButtonScreens/FlickFlirt/FlickFl
 import FlickFlirtSwipe from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtSwipe';
 import FlickFlirtArchetypeResult from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtArchetypeResult';
 import FlickFlirtMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtMatches';
+import FlickFlirtUnlockMatches from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtUnlockMatches';
+import UnlockingMatchesScreen from '../screens/CenterButtonScreens/FlickFlirt/UnlockingMatches';
+import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
 import FlickFlirtResults from '../screens/CenterButtonScreens/FlickFlirt/FlickFlirtResults';
 import DiscoverArchetypeScreen from '../screens/CenterButtonScreens/FlickFlirt/DiscoverArchetypeScreen';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
@@ -80,6 +83,7 @@ import StripeWebCheckout from '../screens/CenterButtonScreens/PurchaseAD/WebChec
 import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest';
 import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
 import { UserProfileStack } from './UserProfileStack';
+import {UnlockOption} from '../lib/api/flickflirt.lib';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -118,6 +122,13 @@ export type NoBottomTabStackParams = {
         fromOnboardArchetypeStandalone?: boolean;
     };
     FlickFlirtMatches: any;
+    FlickFlirtUnlockMatches: {unlockOptions: UnlockOption[]};
+    UnlockingMatches: undefined;
+    PurchaseAdScreen: {
+        passCostAd?: number;
+        passDays?: number;
+        unlockOptions?: UnlockOption[];
+    };
     FlickFlirtResults: {startedAt?: number};
     DiscoverArchetypeScreen: any;
     AkcruNetworkScreen: any;
@@ -732,6 +743,27 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="FlickFlirtMatches"
                 component={FlickFlirtMatches}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="FlickFlirtUnlockMatches"
+                component={FlickFlirtUnlockMatches}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="UnlockingMatches"
+                component={UnlockingMatchesScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="PurchaseAdScreen"
+                component={PurchaseAdScreen}
                 options={() => ({
                     headerShown: false,
                 })}

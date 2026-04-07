@@ -7,3 +7,8 @@ export {
   AUTH_TEXT_FIELD_THEME,
   HEXAGON_THEME,
 } from './authTheme';
+export {
+  FLICK_FLIRT_BG_BASE_COLORS,
+  FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS,
+  FLICK_FLIRT_IMAGE_OVERLAY_BOTTOM_COLORS,
+} from './flickFlirtBackgroundGradients';

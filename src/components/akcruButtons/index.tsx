@@ -23,6 +23,8 @@ interface BtnProps {
     variant?: 'default' | 'auth';
     /** Show loading spinner inside button */
     loading?: boolean;
+    /** Auth variant only: override default width (e.g. footer row next to balance) */
+    authButtonWidth?: number;
 }
 
 interface IconBtnProps {
@@ -103,13 +105,22 @@ const MedButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
     );
 };
 
-const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default', loading = false}) => {
+const LrgButton: React.FC<BtnProps> = ({
+    btnname,
+    onPress,
+    color,
+    disabled,
+    variant = 'default',
+    loading = false,
+    authButtonWidth,
+}) => {
     if (variant === 'auth') {
+        const authW = authButtonWidth ?? AUTH_BUTTON_THEME.width;
         return (
-            <View style={{marginVertical: 10}}>
+            <View style={{marginVertical: authButtonWidth !== undefined ? 0 : 10}}>
                 <TouchableOpacity
                     style={{
-                        width: AUTH_BUTTON_THEME.width,
+                        width: authW,
                         height: AUTH_BUTTON_THEME.getHeight(),
                         borderRadius: AUTH_BUTTON_THEME.borderRadius,
                         overflow: 'hidden',
@@ -168,13 +179,22 @@ const LrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, varia
     );
 };
 
-const XlLrgButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled, variant = 'default', loading = false}) => {
+const XlLrgButton: React.FC<BtnProps> = ({
+    btnname,
+    onPress,
+    color,
+    disabled,
+    variant = 'default',
+    loading = false,
+    authButtonWidth,
+}) => {
     if (variant === 'auth') {
+        const authW = authButtonWidth ?? AUTH_BUTTON_THEME.width;
         return (
-            <View style={{marginVertical: 10}}>
+            <View style={{marginVertical: authButtonWidth !== undefined ? 0 : 10}}>
                 <TouchableOpacity
                     style={{
-                        width: AUTH_BUTTON_THEME.width,
+                        width: authW,
                         height: AUTH_BUTTON_THEME.getHeight(),
                         borderRadius: AUTH_BUTTON_THEME.borderRadius,
                         overflow: 'hidden',

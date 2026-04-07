@@ -34,6 +34,8 @@ const hexbg = require('./hexbg.png');
 const Trinity = require('./Trinity.png');
 const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
+const FLickFlirtBG = require('./blurred_ff_background.png');
+const UnlockingCards = require('./unlocking_cards.png');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
 const barcode = require('./barcode.png');
@@ -78,4 +80,6 @@ export default {
     Akcrunetwork,
     Akcrunetwork2,
     barcode,
+    FLickFlirtBG,
+    UnlockingCards,
 };
