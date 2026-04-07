@@ -1,5 +1,6 @@
 import {
     Animated,
+    DeviceEventEmitter,
     Easing,
     Image,
     InteractionManager,
@@ -19,7 +20,7 @@ import {NavigationProp, useNavigation} from '@react-navigation/native';
 import {ClientTabsParams} from '../../navigation/ClientTabNavigator';
 import {isTablet} from '../../../assets/constants/theme';
 import {UseTabMenu} from '../../context/TabContext';
-import {subscribeHexagonShake} from '../../util/hexagonShake';
+import {HEXAGON_SHAKE_EVENT} from '../../util/hexagonShakeEvent';
 import {navigateToUserMITHubScreen} from '../../util/RootNavigation';
 
 const SHAKE_STEPS_MS = 55;
@@ -95,7 +96,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     }, [shakeRotation]);
 
     React.useEffect(() => {
-        const sub = subscribeHexagonShake(runHexagonShake);
+        const sub = DeviceEventEmitter.addListener(HEXAGON_SHAKE_EVENT, runHexagonShake);
         return () => sub.remove();
     }, [runHexagonShake]);
 

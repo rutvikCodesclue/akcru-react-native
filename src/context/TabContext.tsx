@@ -1,13 +1,26 @@
 import React from 'react';
-import {PixelRatio, Dimensions} from 'react-native';
+import {PixelRatio, Dimensions, DeviceEventEmitter} from 'react-native';
 import {isTablet} from '../../assets/constants/theme';
-import {emitHexagonShake} from '../util/hexagonShake';
+import {HEXAGON_SHAKE_EVENT} from '../util/hexagonShakeEvent';
 import {INotification} from '../../types';
 import {
     computeMitUnreadNotificationCount,
     computeMsgRcvdUnreadNotificationCount,
     computeUnreadNotificationCount,
 } from '../util/notificationUnreadCount';
+
+/** Debounced emit; event name comes from hexagonShakeEvent only (no import of hexagonShake.ts). */
+let lastContextHexShakeMs = 0;
+const CONTEXT_HEX_SHAKE_DEBOUNCE_MS = 700;
+
+function emitHexagonShakeFromTabContext(): void {
+    const now = Date.now();
+    if (now - lastContextHexShakeMs < CONTEXT_HEX_SHAKE_DEBOUNCE_MS) {
+        return;
+    }
+    lastContextHexShakeMs = now;
+    DeviceEventEmitter.emit(HEXAGON_SHAKE_EVENT);
+}
 
 interface TabContextType {
     opened: boolean;
@@ -106,7 +119,7 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
 
     const [msgRcvdNotificationUnreadCount, setMsgRcvdNotificationUnreadCountState] = React.useState(0);
 
-    /** After first sync, hex shakes when MIT hex unread or MsgRcvd unread count rises (vibration runs in hex listener). */
+    /** After first sync, hex shakes only when unread count rises for MITReceived/MITAccepted/MITDeclined or MsgRcvd (see sync). */
     const notificationBadgeCountsHydratedRef = React.useRef(false);
     const lastSyncedMitHexRef = React.useRef(0);
     const lastSyncedMsgRcvdRef = React.useRef(0);
@@ -133,7 +146,7 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
                 nextMitHex > lastSyncedMitHexRef.current ||
                 nextMsgRcvd > lastSyncedMsgRcvdRef.current
             ) {
-                emitHexagonShake();
+                emitHexagonShakeFromTabContext();
             }
         } else {
             notificationBadgeCountsHydratedRef.current = true;

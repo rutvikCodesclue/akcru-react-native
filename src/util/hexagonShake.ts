@@ -1,6 +1,7 @@
 import {DeviceEventEmitter} from 'react-native';
+import {HEXAGON_SHAKE_EVENT} from './hexagonShakeEvent';
 
-export const HEXAGON_SHAKE_EVENT = 'akcru.hexagonShake';
+export {HEXAGON_SHAKE_EVENT} from './hexagonShakeEvent';
 
 let lastEmitMs = 0;
 const DEBOUNCE_MS = 700;

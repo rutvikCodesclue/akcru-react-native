@@ -11,7 +11,6 @@ import useAuthStore from '../../stores/auth.store';
 import {getNotifyMePayload} from '../../lib/api/notify.lib';
 import {navigateToUserNotificationScreen} from '../../util/RootNavigation';
 import {UseTabMenu} from '../../context/TabContext';
-import {emitHexagonShake} from '../../util/hexagonShake';
 import {getUserWallet} from '../../lib/api/wallet.lib';
 import {isTablet} from '../../../assets/constants/theme';
 
@@ -55,9 +54,6 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
             const payload = await getNotifyMePayload();
             const notifications = payload?.notifications;
             syncNotificationBadgeCounts(notifications);
-            if (payload?.indicator?.shouldShake === true) {
-                emitHexagonShake();
-            }
         } catch (error) {
             console.error(error);
         }
