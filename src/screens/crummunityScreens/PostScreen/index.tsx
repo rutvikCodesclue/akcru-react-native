@@ -1,4 +1,13 @@
-import {View, Text, SafeAreaView, ScrollView, FlatList, Pressable, ActivityIndicator, Platform} from 'react-native';
+import {
+    View,
+    Text,
+    SafeAreaView,
+    ScrollView,
+    FlatList,
+    Pressable,
+    ActivityIndicator,
+    Platform,
+} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
@@ -28,6 +37,7 @@ import {getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/
 import {selectAvatarBorderColor} from '../../../util/util';
 import PostButton from '../../../components/AkcruPostButton';
 import BackButton from '../../../components/General/backbutton';
+import {navigateToNewComment} from '../../../util/RootNavigation';
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
@@ -292,8 +302,8 @@ const PostScreen = ({navigation, route}: Props) => {
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight}}>
+            <SafeAreaView style={{flex: 1, backgroundColor: '#050508'}}>
+                <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight, backgroundColor: '#050508'}}>
                     <View style={{zIndex: 100}}>
                         <View style={{zIndex: 101}}>
                             <Header />
@@ -303,11 +313,10 @@ const PostScreen = ({navigation, route}: Props) => {
                             style={{
                                 height: SIZES.ScreenHeight * 0.15,
                                 marginTop: isTablet() ? -150 : -68,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                backgroundColor: '#050508',
                             }}>
                             <LinearGradient
-                                // Background Linear Gradient
-                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                colors={['#0a1628', '#0d0d18', '#050508']}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -333,22 +342,24 @@ const PostScreen = ({navigation, route}: Props) => {
                             isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
                             akcruBadge={post.author?.badge}
-                            CommentOnPostButton={() => navigation2.navigate('NewComment', {postId: post.id})}
+                            CommentOnPostButton={() => navigateToNewComment(post.id)}
                             onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
                             isFollowing={post.author.isFollowed}
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
                             isAdmin={user?.isAdmin}
                         />
                     </View>
-                    <View style={{marginBottom: '5%'}}>
+                    <View style={{marginBottom: '5%', backgroundColor: '#050508'}}>
                         {loadingComments ? (
                             <View style={{marginTop: '25%'}}>
-                                <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                                <ActivityIndicator size="large" color="#9b59b6" />
                             </View>
                         ) : // You can customize the size and color
                         comments.length === 0 ? (
                             <View>
-                                <Text style={styles.noCommentsText}>No comments yet</Text>
+                                <Text style={[styles.noCommentsText, {color: 'rgba(255,255,255,0.45)'}]}>
+                                    No comments yet
+                                </Text>
                             </View>
                         ) : (
                             <FlatList
@@ -387,7 +398,7 @@ const PostScreen = ({navigation, route}: Props) => {
                 </ScrollView>
 
                 <View style={styles.floatingbuttonContainer}>
-                    <PostButton onPress={() => navigation2.navigate('NewComment', {postId: post.id})} />
+                    <PostButton onPress={() => navigateToNewComment(post.id)} />
                 </View>
             </SafeAreaView>
         </TabContainer>

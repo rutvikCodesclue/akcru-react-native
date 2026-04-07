@@ -17,6 +17,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getPost} from '../../../lib/api/post.lib';
 import BackButton from '../../../components/General/backbutton';
 import { getPollById } from '../../../lib/api/poll.lib';
+import {navigateToPostScreen} from '../../../util/RootNavigation';
 
 const UserNotifications = () => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -54,7 +55,7 @@ const UserNotifications = () => {
                         const numericPostId = parseInt(postId, 10);
                         const post = await getPost(numericPostId);
                         if (post) {
-                            navigation.navigate('PostScreen', {post: post});
+                            navigateToPostScreen({post: post});
                         } else {
                             console.error('Post not found');
                         }

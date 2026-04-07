@@ -84,6 +84,9 @@ import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest
 import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
 import { UserProfileStack } from './UserProfileStack';
 import {UnlockOption} from '../lib/api/flickflirt.lib';
+import CrummunitySendMITScreen, {
+    CrummunitySendMITParams,
+} from '../screens/crummunityScreens/CrummunitySendMITScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -152,6 +155,7 @@ export type NoBottomTabStackParams = {
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
     SendMITViewUser: any;
+    CrummunitySendMITScreen: CrummunitySendMITParams;
     SendMITSearchInput: any;
     SendMITSearchResult: any;
     SendMITSchedule: any;
@@ -436,6 +440,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="SendMITViewUser"
                 component={SendMITViewUser}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="CrummunitySendMITScreen"
+                component={CrummunitySendMITScreen}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

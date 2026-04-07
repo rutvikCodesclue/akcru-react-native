@@ -73,6 +73,7 @@ import {
   getPollsByUser,
 } from '../../../lib/api/poll.lib';
 import PollCard from '../../../components/CrummunityPoll';
+import {navigateToNewComment, navigateToPostScreen} from '../../../util/RootNavigation';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
@@ -423,7 +424,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const openPost = (postId: number) => {
         const p = activity.find((it: any) => +it.id === postId);
         if (!p) return;
-        navigation.navigate('PostScreen', {post: p, isLikedByCurrentUser: (p as any).isLikedByCurrentUser});
+        navigateToPostScreen({post: p as IPost, isLikedByCurrentUser: (p as any).isLikedByCurrentUser});
     };
 
     const openPoll = (pollId: string) => {
@@ -715,7 +716,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         akcruBadge={item.author?.badge}
                         isPostLiked={item.isLikedByCurrentUser}
                         onLikeOrUnlike={() => onLikePostToggle(+item.id, !!item.isLikedByCurrentUser)}
-                        CommentOnPostButton={() => navigation2.navigate('NewComment', {postId: item.id})}
+                        CommentOnPostButton={() => navigateToNewComment(item.id)}
                         isFollowing={item.author?.isFollowed}
                         akcruBadgeColor={selectAvatarBorderColor(item.author?.badge ?? 'AKCRUIT')}
                         onBlockUser={() => {}}
