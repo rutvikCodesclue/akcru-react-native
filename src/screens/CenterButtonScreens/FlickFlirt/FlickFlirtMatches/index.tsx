@@ -253,7 +253,7 @@ const FlickFlirtMatches = () => {
                                         </Text>
                                         <AkcruButtons.XlLrgButton
                                             btnname="Unlock Matches"
-                                            onPress={openModal}
+                                            onPress={goToUnlockScreen}
                                             color={COLORS.PURPLE}
                                             variant="auth"
                                         />

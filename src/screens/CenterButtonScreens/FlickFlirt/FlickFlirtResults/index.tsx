@@ -324,9 +324,9 @@ const FlickFlirtResults = () => {
                                 ]}>
                                 Finding Your Movie Matches...
                             </Text>
-                        ) : matches.length > 0  ? (
+                        ) : matches.length > 0 ? (
                             <FlatList
-                                data={visibleMatches}
+                                data={unlocked ? matches : visibleMatches}
                                 numColumns={2}
                                 keyExtractor={item => item.id}
                                 contentContainerStyle={localStyles.resultsListContent}
@@ -368,9 +368,9 @@ const FlickFlirtResults = () => {
                         ) : null}
                     </View>
 
-                    {/* Bottom actions  !unlocked && lockedCardsCount > 0 */}
+                    {/* Bottom actions */}
                     <View style={{position: 'absolute', bottom: '10%', alignSelf: 'center'}}>
-                        {matches.length > 2 && (
+                        {!unlocked && lockedCardsCount > 0 && (
                             <View style={styles.unlockWrapper}>
                                 <Text style={localStyles.seeMoreLockedTagline}>
                                     ✨ These matches are just your starting point ✨
