@@ -17,6 +17,7 @@ import {COLORS, FONTS, SIZES} from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import BackButton from '../../../../components/General/backbutton';
 import AkcruButtons from '../../../../components/akcruButtons';
+import AdCoinIcon from '../../../../components/AdCoinIcon/AdCoinIcon';
 import useAuthStore from '../../../../stores/auth.store';
 import {unlockMatches, UnlockOption} from '../../../../lib/api/flickflirt.lib';
 
@@ -367,9 +368,7 @@ const FlickFlirtUnlockMatches = () => {
                     <View style={styles.balanceBlock}>
                         <Text style={styles.balanceLabel}>Your Balance</Text>
                         <View style={styles.balanceRow}>
-                            <View style={styles.adCoin}>
-                                <Text style={styles.adCoinText}>AD</Text>
-                            </View>
+                            <AdCoinIcon style={styles.adCoinBalanceSpacing} />
                             <Text style={styles.balanceValue} numberOfLines={1}>
                                 {balanceLabel}
                             </Text>
@@ -626,19 +625,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
     },
-    adCoin: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        backgroundColor: '#fbbf24',
-        alignItems: 'center',
-        justifyContent: 'center',
+    adCoinBalanceSpacing: {
         marginRight: 8,
-    },
-    adCoinText: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: '#1a1a2e',
     },
     balanceValue: {
         ...FONTS.Title2,

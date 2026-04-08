@@ -450,7 +450,9 @@ export default function NoBottomStack() {
                 component={CrummunitySendMITScreen}
                 options={{
                     headerShown: false,
+                    /** Use default `card` — `modal` uses iOS sheet-style margins (gap at top). */
                     gestureDirection: 'horizontal',
+                    cardStyle: {flex: 1},
                 }}
             />
             <NoBottom.Screen

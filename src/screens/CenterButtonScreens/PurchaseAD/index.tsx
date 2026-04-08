@@ -25,10 +25,10 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
 import {UnlockOption} from '../../../lib/api/flickflirt.lib';
 import {navigationRef} from '../../../util/RootNavigation';
+import AdCoinIcon from '../../../components/AdCoinIcon/AdCoinIcon';
 
 const ACCENT_PURPLE = '#BF5AF2';
 const ACCENT_BLUE = '#0A84FF';
-const GOLD = '#FFD700';
 const BEST_VALUE_ORANGE = '#FF9F0A';
 
 const CARD_RADIUS = 14;
@@ -219,9 +219,7 @@ export default function PurchaseAdScreen() {
                                 hitSlop={{top: 8, bottom: 8, left: 4, right: 4}}>
                                 <Text style={styles.title}>Get Akcru Dollars</Text>
                             </TouchableOpacity>
-                            <View style={styles.adCoinSmall}>
-                                <Text style={styles.adCoinSmallText}>AD</Text>
-                            </View>
+                            <AdCoinIcon size="small" />
                         </View>
                         <Text style={styles.subtitle}>
                             {passCostAd != null
@@ -345,9 +343,7 @@ export default function PurchaseAdScreen() {
                             <View style={styles.balanceCol}>
                                 <Text style={styles.balanceLabel}>Your Balance</Text>
                                 <View style={styles.balanceRow}>
-                                    <View style={styles.adCoin}>
-                                        <Text style={styles.adCoinText}>AD</Text>
-                                    </View>
+                                    <AdCoinIcon style={styles.adCoinBalanceSpacing} />
                                     <Text style={styles.balanceValue} numberOfLines={1}>
                                         {balanceLabel}
                                     </Text>
@@ -453,18 +449,8 @@ const styles = StyleSheet.create({
         fontSize: 22,
         color: COLORS.WHITE,
     },
-    adCoinSmall: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: GOLD,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    adCoinSmallText: {
-        fontSize: 11,
-        fontWeight: '900',
-        color: '#1a1a2e',
+    adCoinBalanceSpacing: {
+        marginRight: 8,
     },
     subtitle: {
         ...FONTS.Title3,
@@ -627,20 +613,6 @@ const styles = StyleSheet.create({
     balanceRow: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    adCoin: {
-        width: 30,
-        height: 30,
-        borderRadius: 15,
-        backgroundColor: '#fbbf24',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 8,
-    },
-    adCoinText: {
-        fontSize: 12,
-        fontWeight: '900',
-        color: '#1a1a2e',
     },
     balanceValue: {
         ...FONTS.Title2,
