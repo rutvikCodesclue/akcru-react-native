@@ -198,21 +198,7 @@ const FlickFlirtUnlockMatches = () => {
             });
             return;
         }
-        setSubmitting(true);
-        try {
-            const data = await unlockMatches(selected.durationDays);
-            if (!data.success) {
-                Alert.alert('Unable to unlock', data.message ?? 'Please try again.');
-                return;
-            }
-            await hydrateUser();
-            navigation.goBack();
-        } catch (e) {
-            console.error(e);
-            Alert.alert('Error', 'Network error. Please try again.');
-        } finally {
-            setSubmitting(false);
-        }
+      navigation.navigate('UnlockingMatches', {durationDays: selected.durationDays});
     };
 
     if (sortedOptions.length === 0) {

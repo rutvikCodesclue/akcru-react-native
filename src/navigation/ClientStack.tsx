@@ -47,7 +47,7 @@ export type ClientStackParams = {
     AkcruCenterButton: any;
     AwardScreen: any;
     PurchaseAdScreen: any;
-    UnlockingMatches: undefined;
+    UnlockingMatches: {durationDays?: number} | undefined;
     ContentDetailScreen: any;
     ClientEntryDecider: any;
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
 import {
     View,
     Text,
@@ -9,26 +9,106 @@ import {
     Image,
     Platform,
     useWindowDimensions,
+    FlatList,
+    ImageSourcePropType,
+    NativeSyntheticEvent,
+    NativeScrollEvent,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import Svg, {Defs, Rect, Stop, LinearGradient as SvgLinearGradient} from 'react-native-svg';
 import {StackScreenProps} from '@react-navigation/stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {AUTH_BUTTON_THEME, COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import imageindex from '../../../../assets/images/imageindex';
 import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
-import {isTablet} from '../../../../assets/constants/theme';
 
 type Props = StackScreenProps<UserProfileStackParams, 'BestMatchScreen'>;
 
-const INTERESTS = [
-    {label: 'Music', icon: 'headset' as const, type: 'ionicon' as const},
-    {label: 'Movies', icon: 'film-outline' as const, type: 'ionicon' as const},
-    {label: 'Travel', icon: 'airplane-outline' as const, type: 'ionicon' as const},
-    {label: 'Photography', icon: 'camera-outline' as const, type: 'ionicon' as const},
+type MatchProfile = {
+    id: string;
+    name: string;
+    matchPercent: number;
+    archetypeName: string;
+    image: ImageSourcePropType;
+};
+
+/** Carousel + page dots: length always matches (replace with API data later). */
+const BEST_MATCH_CARD_DATA: MatchProfile[] = [
+    {
+        id: '1',
+        name: 'Luna',
+        matchPercent: 72,
+        archetypeName: 'Laughing trailblazer',
+        image: imageindex.FLickFlirt,
+    },
+    {
+        id: '2',
+        name: 'Jordan',
+        matchPercent: 68,
+        archetypeName: 'Curious explorer',
+        image: imageindex.Drama,
+    },
+    {
+        id: '3',
+        name: 'Sam',
+        matchPercent: 81,
+        archetypeName: 'Playful realist',
+        image: imageindex.Comedy,
+    },
+    {
+        id: '4',
+        name: 'Riley',
+        matchPercent: 76,
+        archetypeName: 'Midnight muse',
+        image: imageindex.Action,
+    },
 ];
+
+const GRADIENT_CHIP_STROKE = 1.5;
+
+/** True outline only: SVG stroke shows through the card; inner has no fill color. */
+function GradientOutlineChip({children, gradientId}: {children: React.ReactNode; gradientId: string}) {
+    const [size, setSize] = useState<{w: number; h: number} | null>(null);
+    const halfStroke = GRADIENT_CHIP_STROKE / 2;
+    return (
+        <View style={styles.gradientChipWrap}>
+            <View
+                onLayout={(e) => {
+                    const {width, height} = e.nativeEvent.layout;
+                    if (width > 0 && height > 0) {
+                        setSize({w: width, h: height});
+                    }
+                }}
+                style={styles.gradientChipContent}>
+                {children}
+            </View>
+            {size ? (
+                <Svg pointerEvents="none" width={size.w} height={size.h} style={styles.gradientChipSvg}>
+                    <Defs>
+                        <SvgLinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+                            <Stop offset="0" stopColor={COLORS.PURPLE} />
+                            <Stop offset="1" stopColor={COLORS.AKCRUBLUE} />
+                        </SvgLinearGradient>
+                    </Defs>
+                    <Rect
+                        x={halfStroke}
+                        y={halfStroke}
+                        width={size.w - GRADIENT_CHIP_STROKE}
+                        height={size.h - GRADIENT_CHIP_STROKE}
+                        rx={(size.h - GRADIENT_CHIP_STROKE) / 2}
+                        ry={(size.h - GRADIENT_CHIP_STROKE) / 2}
+                        fill="none"
+                        stroke={`url(#${gradientId})`}
+                        strokeWidth={GRADIENT_CHIP_STROKE}
+                    />
+                </Svg>
+            ) : null}
+        </View>
+    );
+}
 
 function GradientTitleLine() {
     return (
@@ -49,143 +129,196 @@ function GradientTitleLine() {
     );
 }
 
+type MatchCardProps = {
+    profile: MatchProfile;
+    cardWidth: number;
+};
+
+function MatchCard({profile, cardWidth}: MatchCardProps) {
+    return (
+        <View style={[styles.cardGlowWrap, {width: cardWidth + 4}]}>
+            <LinearGradient
+                colors={['#ff2d9b', COLORS.PURPLE, COLORS.AKCRUBLUE]}
+                start={{x: 0, y: 0.5}}
+                end={{x: 1, y: 0.5}}
+                style={[styles.cardBorder, {width: cardWidth + 4}]}>
+                <View style={[styles.cardInner, {width: cardWidth}]}>
+                    <Image source={profile.image} style={styles.cardBgImage} resizeMode="cover" />
+                    <LinearGradient
+                        colors={[
+                            'rgba(2,0,16,0.35)',
+                            'rgba(5,3,68,0.55)',
+                            'rgba(2,0,24,0.88)',
+                            '#020018',
+                        ]}
+                        locations={[0, 0.35, 0.72, 1]}
+                        start={{x: 0.5, y: 0}}
+                        end={{x: 0.5, y: 1}}
+                        style={styles.cardBgGradient}
+                    />
+
+                    <View style={styles.cardContentColumn}>
+                        <View style={styles.bottomOverlay}>
+                            <Text style={styles.cardName}>{profile.name}</Text>
+                            <View style={styles.badgesRow}>
+                                <GradientOutlineChip gradientId={`chip-${profile.id}-match`}>
+                                    <Text style={styles.matchPillText}>{profile.matchPercent}% match</Text>
+                                </GradientOutlineChip>
+                                <GradientOutlineChip gradientId={`chip-${profile.id}-arc`}>
+                                    <Text style={styles.archetypePillText}>{profile.archetypeName}</Text>
+                                </GradientOutlineChip>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </LinearGradient>
+        </View>
+    );
+}
+
 export default function BestMatchScreen({navigation}: Props) {
     useHideBottomTabBarWhileFocused(navigation as any);
-    const {width} = useWindowDimensions();
-    const cardWidth = Math.min(width - 32, 400);
-    const iconBase = isTablet() ? 20 : 16;
+    const {width: windowWidth} = useWindowDimensions();
+    const cardWidth = Math.min(windowWidth - 32, 400);
+    const cards = BEST_MATCH_CARD_DATA;
+    const [activeIndex, setActiveIndex] = useState(0);
+    /** Card stack height ≈ inner minHeight + `cardBorder` padding (2+2); list taller than card caused the extra gap */
+    const carouselListHeight = SIZES.ScreenHeight * 0.62 + 4;
+    const scrollHorizontalPad = 16;
+    const actionsRowGap = 12;
+    const actionBtnWidth = (windowWidth - scrollHorizontalPad * 2 - actionsRowGap) / 2;
+
+    const onCarouselScrollEnd = useCallback(
+        (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+            if (cards.length === 0) {
+                return;
+            }
+            const x = e.nativeEvent.contentOffset.x;
+            const next = Math.round(x / windowWidth);
+            setActiveIndex(Math.min(Math.max(0, next), cards.length - 1));
+        },
+        [cards.length, windowWidth],
+    );
+
+    const renderMatchItem = useCallback(
+        ({item}: {item: MatchProfile}) => (
+            <View style={[styles.carouselPage, {width: windowWidth}]}>
+                <MatchCard profile={item} cardWidth={cardWidth} />
+            </View>
+        ),
+        [cardWidth, windowWidth],
+    );
+
+    const keyExtractor = useCallback((item: MatchProfile) => item.id, []);
+
+    const getItemLayout = useCallback(
+        (_list: ArrayLike<MatchProfile> | null | undefined, index: number) => ({
+            length: windowWidth,
+            offset: windowWidth * index,
+            index,
+        }),
+        [windowWidth],
+    );
 
     return (
         <SafeAreaView style={styles.safe}>
             <ScrollView
                 contentContainerStyle={styles.scrollContent}
                 showsVerticalScrollIndicator={false}
-                bounces={false}>
+                bounces={false}
+                nestedScrollEnabled>
                 <View style={styles.headerBlock}>
                     <Text style={styles.titlePlain}>Here's one of your</Text>
                     <GradientTitleLine />
-                    <Text style={styles.subtitle}>Swipe to see the rest {'>'}</Text>
+                    <Text style={styles.subtitle}>Swipe left to see more matches</Text>
                 </View>
 
-                <View style={[styles.cardGlowWrap, {width: cardWidth + 4}]}>
-                    <LinearGradient
-                        colors={['#ff2d9b', COLORS.PURPLE, COLORS.AKCRUBLUE]}
-                        start={{x: 0, y: 0.5}}
-                        end={{x: 1, y: 0.5}}
-                        style={[styles.cardBorder, {width: cardWidth + 4}]}>
-                        <View style={[styles.cardInner, {width: cardWidth}]}>
-                            <Image
-                                source={imageindex.FLickFlirt}
-                                style={styles.profileImage}
-                                resizeMode="cover"
+                <View style={styles.carouselOuter}>
+                    <FlatList
+                        data={cards}
+                        renderItem={renderMatchItem}
+                        keyExtractor={keyExtractor}
+                        horizontal
+                        pagingEnabled
+                        showsHorizontalScrollIndicator={false}
+                        onMomentumScrollEnd={onCarouselScrollEnd}
+                        getItemLayout={getItemLayout}
+                        style={[styles.carouselList, {height: carouselListHeight}]}
+                        nestedScrollEnabled
+                        initialNumToRender={cards.length}
+                        decelerationRate="fast"
+                    />
+                </View>
+
+                <View style={styles.belowCarousel}>
+                    <View style={styles.dots}>
+                        {cards.map((m, i) => (
+                            <View
+                                key={m.id}
+                                style={[styles.dot, i === activeIndex ? styles.dotActive : styles.dotInactive]}
                             />
+                        ))}
+                    </View>
+
+                    <View style={styles.actionsRow}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            style={[styles.actionTouchable, {width: actionBtnWidth}]}
+                            onPress={() =>
+                                navigate('NoBottomStack', {
+                                    screen: 'UserMITHubScreen',
+                                    params: {index: 0},
+                                })
+                            }>
                             <LinearGradient
-                                colors={['transparent', 'rgba(5,3,68,0.92)', '#020018']}
-                                style={styles.imageBottomFade}
-                            />
-
-                            <View style={styles.matchBadge}>
-                                <CustomIcon
-                                    name="flame"
-                                    type="ionicon"
-                                    color="#ffb86c"
-                                    baseSize={14}
-                                    style={{marginRight: 6}}
-                                />
-                                <Text style={styles.matchBadgeText}>72% Match</Text>
-                            </View>
-
-                            <TouchableOpacity style={styles.heartBtn} activeOpacity={0.8}>
-                                <CustomIcon name="heart-outline" type="ionicon" color={COLORS.WHITE} baseSize={22} />
-                            </TouchableOpacity>
-
-                            <View style={styles.bottomOverlay}>
-                                <View style={styles.nameRow}>
-                                    <Text style={styles.nameText}>Luna, 24</Text>
-                                    <CustomIcon
-                                        name="checkmark-circle"
-                                        type="ionicon"
-                                        color={COLORS.PURPLE}
-                                        baseSize={iconBase}
-                                    />
-                                </View>
-                                <Text style={styles.bio}>
-                                    Deep conversations, spontaneous adventures, and finding the best coffee in every
-                                    city.
-                                </Text>
-
-                                <View style={styles.chipsRow}>
-                                    {INTERESTS.map((item) => (
-                                        <View key={item.label} style={styles.chip}>
-                                            <CustomIcon name={item.icon} type={item.type} color={COLORS.LIGHTGREY} baseSize={13} />
-                                            <Text style={styles.chipLabel}>{item.label}</Text>
-                                        </View>
-                                    ))}
-                                </View>
-
-                                <Text style={styles.sharedHeading}>Shared favorites</Text>
-                                <View style={styles.sharedCard}>
-                                    <Image source={imageindex.Thriller} style={styles.sharedThumb} resizeMode="cover" />
-                                    <View style={styles.sharedMeta}>
-                                        <Text style={styles.sharedTitle}>Inception</Text>
-                                        <Text style={styles.sharedDesc}>Mind-bending thriller</Text>
+                                colors={AUTH_BUTTON_THEME.colors}
+                                start={AUTH_BUTTON_THEME.start}
+                                end={AUTH_BUTTON_THEME.end}
+                                style={styles.mitBtn}>
+                                <View style={styles.actionBtnRow}>
+                                    <CustomIcon name="paper-plane-outline" type="ionicon" color={COLORS.WHITE} baseSize={20} />
+                                    <View style={styles.actionTextBlock}>
+                                        <Text style={styles.mitTitle} numberOfLines={2}>
+                                            Send MIT
+                                        </Text>
+                                        <Text style={styles.mitSub} numberOfLines={2}>
+                                            Make it count
+                                        </Text>
                                     </View>
                                 </View>
-                            </View>
-                        </View>
-                    </LinearGradient>
-                </View>
+                            </LinearGradient>
+                        </TouchableOpacity>
 
-                <View style={styles.dots}>
-                    {[0, 1, 2, 3].map((i) => (
-                        <View
-                            key={i}
-                            style={[styles.dot, i === 0 ? styles.dotActive : styles.dotInactive]}
-                        />
-                    ))}
-                </View>
-
-                <View style={styles.actionsRow}>
-                    <TouchableOpacity
-                        activeOpacity={0.85}
-                        style={styles.midChatOuter}
-                        onPress={() => navigation.navigate('ChatList')}>
-                        <LinearGradient
-                            colors={['rgba(0,189,244,0.35)', 'rgba(101,48,252,0.35)']}
-                            start={{x: 0, y: 0}}
-                            end={{x: 1, y: 1}}
-                            style={styles.midChatGradientBorder}>
-                            <View style={styles.midChatInner}>
-                                <CustomIcon name="chatbubble-ellipses-outline" type="ionicon" color={COLORS.AKCRUBLUE} baseSize={22} />
-                                <Text style={styles.actionTitle}>Start Mid-Chat</Text>
-                                <Text style={styles.actionSub}>Break the ice</Text>
-                            </View>
-                        </LinearGradient>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        activeOpacity={0.9}
-                        onPress={() =>
-                            navigate('NoBottomStack', {
-                                screen: 'UserMITHubScreen',
-                                params: {index: 0},
-                            })
-                        }>
-                        <LinearGradient
-                            colors={[COLORS.AKCRUBLUE, COLORS.PINK]}
-                            start={{x: 0, y: 0.5}}
-                            end={{x: 1, y: 0.5}}
-                            style={styles.mitBtn}>
-                            <CustomIcon name="paper-plane-outline" type="ionicon" color={COLORS.WHITE} baseSize={20} />
-                            <Text style={styles.mitTitle}>Send a MIT</Text>
-                            <Text style={styles.mitSub}>Make it count</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-
-                <View style={styles.footerTrust}>
-                    <CustomIcon name="lock-closed-outline" type="ionicon" color={COLORS.DARKGREY} baseSize={14} />
-                    <Text style={styles.footerTrustText}>Your connection is private and secure</Text>
+                        <TouchableOpacity
+                            activeOpacity={0.85}
+                            style={[styles.actionTouchable, {width: actionBtnWidth}]}
+                            onPress={() => navigation.navigate('ChatList')}>
+                            <LinearGradient
+                                colors={['rgba(0,189,244,0.35)', 'rgba(101,48,252,0.35)']}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 1}}
+                                style={styles.midChatGradientBorder}>
+                                <View style={styles.midChatInner}>
+                                    <View style={styles.actionBtnRow}>
+                                        <CustomIcon
+                                            name="chatbubble-ellipses-outline"
+                                            type="ionicon"
+                                            color={COLORS.WHITE}
+                                            baseSize={22}
+                                        />
+                                        <View style={styles.actionTextBlock}>
+                                            <Text style={styles.actionTitle} numberOfLines={2}>
+                                                Send Chat
+                                            </Text>
+                                            <Text style={styles.actionSubLight} numberOfLines={2}>
+                                                Break the ice
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+                            </LinearGradient>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>
@@ -198,7 +331,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#020010',
     },
     scrollContent: {
-        paddingBottom: 28,
+        paddingBottom: 40,
         paddingHorizontal: 16,
         alignItems: 'center',
     },
@@ -236,6 +369,41 @@ const styles = StyleSheet.create({
         marginTop: 8,
         fontStyle: 'italic',
     },
+    carouselOuter: {
+        marginHorizontal: -16,
+        alignSelf: 'stretch',
+    },
+    carouselList: {
+        flexGrow: 0,
+    },
+    carouselPage: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
+    belowCarousel: {
+        alignSelf: 'stretch',
+        width: '100%',
+    },
+    dots: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 8,
+        marginTop: 20,
+        marginBottom: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dot: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+    },
+    dotActive: {
+        backgroundColor: COLORS.PURPLE,
+    },
+    dotInactive: {
+        backgroundColor: 'rgba(255,255,255,0.22)',
+    },
     cardGlowWrap: {
         alignSelf: 'center',
         ...Platform.select({
@@ -257,213 +425,138 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         backgroundColor: '#0a0520',
         alignSelf: 'center',
+        minHeight: SIZES.ScreenHeight * 0.62,
+        flexDirection: 'column',
     },
-    profileImage: {
-        width: '100%',
-        height: SIZES.ScreenHeight * 0.36,
+    cardBgImage: {
+        ...StyleSheet.absoluteFillObject,
     },
-    imageBottomFade: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        bottom: 0,
-        height: '55%',
+    cardBgGradient: {
+        ...StyleSheet.absoluteFillObject,
     },
-    matchBadge: {
-        position: 'absolute',
-        top: 14,
-        left: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'rgba(101,48,252,0.92)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 12,
-    },
-    matchBadgeText: {
-        ...FONTS.Title2,
-        color: COLORS.WHITE,
-        fontWeight: '700',
-        fontSize: 12,
-    },
-    heartBtn: {
-        position: 'absolute',
-        top: 12,
-        right: 12,
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        backgroundColor: 'rgba(0,0,0,0.35)',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
+    cardContentColumn: {
+        flex: 1,
+        justifyContent: 'flex-end',
     },
     bottomOverlay: {
         paddingHorizontal: 16,
         paddingTop: 12,
         paddingBottom: 18,
-        marginTop: -12,
     },
-    nameRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-    },
-    nameText: {
+    cardName: {
         ...FONTS.Title1,
         color: COLORS.WHITE,
         fontWeight: '800',
     },
-    bio: {
-        ...FONTS.paragraph1,
-        color: COLORS.LIGHTGREY,
-        fontStyle: 'italic',
-        marginTop: 8,
-        lineHeight: 22,
-    },
-    chipsRow: {
+    badgesRow: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 8,
-        marginTop: 14,
-    },
-    chip: {
-        flexDirection: 'row',
+        gap: 10,
+        marginTop: 10,
         alignItems: 'center',
-        gap: 6,
-        backgroundColor: 'rgba(34,40,53,0.95)',
+    },
+    gradientChipWrap: {
+        alignSelf: 'flex-start',
+        position: 'relative',
+    },
+    gradientChipContent: {
         paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 14,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        paddingVertical: 6,
     },
-    chipLabel: {
-        ...FONTS.Title2,
-        color: COLORS.LIGHTGREY,
-        fontSize: 12,
+    gradientChipSvg: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
     },
-    sharedHeading: {
+    matchPillText: {
         ...FONTS.Title2,
         color: COLORS.WHITE,
-        marginTop: 18,
-        marginBottom: 10,
-        opacity: 0.9,
+        fontWeight: '800',
+        fontSize: 12,
+        textTransform: 'lowercase',
     },
-    sharedCard: {
-        flexDirection: 'row',
-        backgroundColor: 'rgba(15,12,40,0.95)',
-        borderRadius: 14,
-        overflow: 'hidden',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.06)',
-    },
-    sharedThumb: {
-        width: 72,
-        height: 72,
-    },
-    sharedMeta: {
-        flex: 1,
-        justifyContent: 'center',
-        paddingHorizontal: 12,
-    },
-    sharedTitle: {
+    archetypePillText: {
         ...FONTS.Title2,
         color: COLORS.WHITE,
         fontWeight: '700',
-    },
-    sharedDesc: {
-        ...FONTS.paragraph1,
-        color: COLORS.DARKGREY,
-        marginTop: 4,
-        fontSize: 13,
-    },
-    dots: {
-        flexDirection: 'row',
-        gap: 8,
-        marginTop: 18,
-        marginBottom: 22,
-    },
-    dot: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
-    },
-    dotActive: {
-        backgroundColor: COLORS.PURPLE,
-    },
-    dotInactive: {
-        backgroundColor: 'rgba(255,255,255,0.22)',
+        fontSize: 12,
     },
     actionsRow: {
         flexDirection: 'row',
         gap: 12,
-        width: '100%',
-        maxWidth: 400,
+        alignSelf: 'stretch',
+        marginTop: 22,
         justifyContent: 'center',
     },
-    midChatOuter: {
-        flex: 1,
-        minHeight: 96,
+    actionTouchable: {
+        minHeight: 72,
+        borderRadius: 16,
+        overflow: 'hidden',
     },
     midChatGradientBorder: {
         borderRadius: 16,
         padding: 1.5,
-        flex: 1,
+        width: '100%',
+        minHeight: 72,
     },
     midChatInner: {
-        flex: 1,
         backgroundColor: '#0b0828',
         borderRadius: 15,
-        alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
-        paddingHorizontal: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        width: '100%',
+        minHeight: 69,
+    },
+    actionBtnRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        justifyContent: 'center',
+    },
+    actionTextBlock: {
+        flexShrink: 1,
+        justifyContent: 'center',
     },
     actionTitle: {
         ...FONTS.Title2,
         color: COLORS.WHITE,
         fontWeight: '700',
-        marginTop: 6,
-        textAlign: 'center',
+        textAlign: 'left',
     },
     actionSub: {
         ...FONTS.paragraph1,
         color: COLORS.DARKGREY,
         marginTop: 2,
         fontSize: 11,
+        textAlign: 'left',
+    },
+    actionSubLight: {
+        ...FONTS.paragraph1,
+        color: 'rgba(255,255,255,0.72)',
+        marginTop: 2,
+        fontSize: 11,
+        textAlign: 'left',
     },
     mitBtn: {
-        flex: 1,
-        minHeight: 96,
+        width: '100%',
+        minHeight: 72,
         borderRadius: 16,
-        alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 14,
-        paddingHorizontal: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
     },
     mitTitle: {
         ...FONTS.Title2,
         color: COLORS.WHITE,
         fontWeight: '800',
-        marginTop: 6,
+        textAlign: 'left',
     },
     mitSub: {
         ...FONTS.paragraph1,
         color: 'rgba(255,255,255,0.85)',
         marginTop: 2,
         fontSize: 11,
-    },
-    footerTrust: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 24,
-    },
-    footerTrustText: {
-        ...FONTS.paragraph1,
-        color: COLORS.DARKGREY,
-        fontSize: 12,
+        textAlign: 'left',
     },
 });

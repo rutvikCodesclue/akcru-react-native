@@ -622,14 +622,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             color={COLORS.PINK}
                                             disabled={false}
                                         />
-                                        <View style={{marginTop: 10}}>
+                                        {/*     <View style={{marginTop: 10}}>
                                             <AkcruButtons.XSmallButton
                                                 btnname="Best match"
                                                 onPress={() => navigation.navigate('BestMatchScreen')}
                                                 color={COLORS.AKCRUBLUE}
                                                 disabled={false}
                                             />
-                                        </View>
+                                        </View> */}
                                     </View>
                                 </View>
                             </View>

@@ -213,12 +213,7 @@ export default function PurchaseAdScreen() {
                     <View style={styles.contentColumn}>
                     <View style={styles.headerTrustBlock}>
                         <View style={styles.headerTitleRow}>
-                            <TouchableOpacity
-                                activeOpacity={0.75}
-                                onPress={() => navigation.navigate('UnlockingMatches')}
-                                hitSlop={{top: 8, bottom: 8, left: 4, right: 4}}>
                                 <Text style={styles.title}>Get Akcru Dollars</Text>
-                            </TouchableOpacity>
                             <AdCoinIcon size="small" />
                         </View>
                         <Text style={styles.subtitle}>

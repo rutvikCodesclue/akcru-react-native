@@ -368,9 +368,9 @@ const FlickFlirtResults = () => {
                         ) : null}
                     </View>
 
-                    {/* Bottom actions */}
+                    {/* Bottom actions  !unlocked && lockedCardsCount > 0 */}
                     <View style={{position: 'absolute', bottom: '10%', alignSelf: 'center'}}>
-                        {!unlocked && lockedCardsCount > 0 && (
+                        {matches.length > 2 && (
                             <View style={styles.unlockWrapper}>
                                 <Text style={localStyles.seeMoreLockedTagline}>
                                     ✨ These matches are just your starting point ✨
