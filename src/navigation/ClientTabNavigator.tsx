@@ -62,7 +62,7 @@ export default function ClientTabNavigator() {
     const [hasMatches, setHasMatches] = useState(false);
 
     const fetchMatches = useCallback(() => {
-        API.get('v1/flickflirt/matches')
+        API.get('/v1/flickflirt/matches')
             .then(res => {
                 // normalize payload
                 const payload = res?.data ?? res;
