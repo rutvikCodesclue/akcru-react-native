@@ -1,13 +1,16 @@
-import {Animated, Image, Pressable, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
+import {Animated, Pressable, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
 import React from 'react';
 import {AkcruControlBtn} from '../../../assets/svg';
-import imageindex from '../../../assets/images/imageindex';
 import {Icon} from '@rneui/base';
 import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {AkcruButtonStackParams} from '../../navigation/AkcruButtonStack';
 import {isTablet} from '../../../assets/constants/theme';
+
+import SatelliteAuthHex from './SatelliteAuthHex';
+
+const HEX_ASPECT = 234 / 270;
 
 const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
@@ -16,7 +19,8 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
 
     const centerButtonLift = isTablet() ? -40 : -28;
     const iconSize = isTablet() ? 32 : 25;
-    const hexSize = isTablet() ? 80 : 60;
+    const satelliteHexW = isTablet() ? 75 : 60;
+    const satelliteHexH = satelliteHexW * HEX_ASPECT;
 
     const handlePressShop = () => {
         navigation.navigate('AkcruButtonStack', {screen: 'PurchaseAdScreen'});
@@ -83,14 +87,18 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="calendar"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="calendar"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
+                        </View>
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressShop}>
@@ -115,14 +123,18 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="store"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="store"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
+                        </View>
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressWorld}>
@@ -147,14 +159,18 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="earth"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="earth"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
+                        </View>
                     </Animated.View>
                 </Pressable>
                 <TouchableWithoutFeedback onPressIn={handlePressCenterButton}>
@@ -184,12 +200,14 @@ const styles = StyleSheet.create({
     container: {
         alignItems: 'center',
         flex: 1,
+        overflow: 'visible',
     },
     box: {
         position: 'relative',
         width: 70,
         height: 60,
         marginTop: -3,
+        overflow: 'visible',
     },
     item: {
         position: 'absolute',
@@ -197,6 +215,17 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: isTablet() ? 75 : 60,
         height: isTablet() ? 75 : 60,
+    },
+    satelliteStack: {
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    satelliteIconOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     itemIcon: {
         marginBottom: 5,
