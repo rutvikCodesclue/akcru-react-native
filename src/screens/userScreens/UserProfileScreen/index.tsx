@@ -618,10 +618,18 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     <View style={{marginTop: '30%'}}>
                                         <AkcruButtons.XSmallButton
                                             btnname="Edit Profile"
-onPress={() => navigate('NoBottomStack', { screen: 'EditProfile' })}
+                                            onPress={() => navigate('NoBottomStack', {screen: 'EditProfile'})}
                                             color={COLORS.PINK}
                                             disabled={false}
                                         />
+                                        {/*     <View style={{marginTop: 10}}>
+                                            <AkcruButtons.XSmallButton
+                                                btnname="Best match"
+                                                onPress={() => navigation.navigate('BestMatchScreen')}
+                                                color={COLORS.AKCRUBLUE}
+                                                disabled={false}
+                                            />
+                                        </View> */}
                                     </View>
                                 </View>
                             </View>

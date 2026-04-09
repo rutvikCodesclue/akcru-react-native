@@ -27,6 +27,7 @@ import ViewUserScreen from '../screens/crummunityScreens/ViewUserScreen';
 import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import UserMatchModesScreen from '../screens/userScreens/UserMatchModesScreen';
+import BestMatchScreen from '../screens/userScreens/BestMatchScreen';
 
 
 export type UserProfileStackParams = {
@@ -63,6 +64,7 @@ export type UserProfileStackParams = {
     AdminGrantADScreen: any;
     AdminWalletSearch: any;
     UserMatchModesScreen: any;
+    BestMatchScreen: undefined;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -259,6 +261,11 @@ export function UserProfileStack() {
             <UserProfile.Screen
                 name="UserMatchModesScreen"
                 component={UserMatchModesScreen}
+                options={() => ({headerShown: false})}
+            />
+            <UserProfile.Screen
+                name="BestMatchScreen"
+                component={BestMatchScreen}
                 options={() => ({headerShown: false})}
             />
         </UserProfile.Navigator>

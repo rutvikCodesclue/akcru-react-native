@@ -1,7 +1,7 @@
 import {getPost} from '../../../lib/api/post.lib';
 import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
-import {navigate} from '../../../util/RootNavigation';
+import {navigate, navigateToPostScreen} from '../../../util/RootNavigation';
 
 export function navigateToScreen(screenname: string, params?: object) {
     if (screenname === 'UserProfileScreen') {
@@ -62,7 +62,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        navigateToPostScreen({post: post});
                     } else {
                         console.error('Post not found');
                     }
@@ -74,7 +74,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        navigateToPostScreen({post: post});
                     } else {
                         console.error('Post not found');
                     }
@@ -86,7 +86,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        navigateToPostScreen({post: post});
                     } else {
                         console.error('Post not found');
                     }
@@ -98,7 +98,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        navigateToPostScreen({post: post});
                     } else {
                         console.error('Post not found');
                     }
@@ -110,7 +110,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
                     const numericPostId = parseInt(postId, 10);
                     const post = await getPost(numericPostId);
                     if (post) {
-                        navigateToScreen('PostScreen', {post: post});
+                        navigateToPostScreen({post: post});
                     } else {
                         console.error('Post not found');
                     }

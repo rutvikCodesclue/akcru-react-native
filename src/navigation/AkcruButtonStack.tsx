@@ -95,14 +95,14 @@ export default function AkcruButtonStack() {
                     headerShown: false,
                 }}
             />
-            <AkcruBtn.Screen 
+            <AkcruBtn.Screen
                 name="VisionaryRooms"
                 component={VisionaryRooms}
                 options={{
                     headerShown: false,
                 }}
             />
-            <AkcruBtn.Screen 
+            <AkcruBtn.Screen
                 name="VisionaryRoomsRequests"
                 component={VisionaryRoomsRequests}
                 options={{

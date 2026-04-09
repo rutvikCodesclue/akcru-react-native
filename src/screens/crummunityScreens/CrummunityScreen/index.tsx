@@ -43,6 +43,8 @@ import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
 import {isTablet} from '../../../../assets/constants/theme';
+import {navigateToNewComment, navigateToNewPost, navigateToPostScreen} from '../../../util/RootNavigation';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -65,6 +67,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const author: IPost | null = route.params?.author ?? null;
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const insets = useSafeAreaInsets();
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
@@ -195,8 +198,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const selectedPost = posts.find(post => +post.id === postId);
 
         if (selectedPost) {
-            navigation2.navigate('PostScreen', {
-                post: selectedPost,
+            navigateToPostScreen({
+                post: selectedPost as IPost,
                 isLikedByCurrentUser: selectedPost.isLikedByCurrentUser,
             });
         } else {
@@ -460,11 +463,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     } else {
         return (
             <TabContainer>
-                <SafeAreaView>
-                    <View>
+                <SafeAreaView style={{flex: 1, backgroundColor: '#050508'}}>
+                    <View style={{flex: 1, backgroundColor: '#050508'}}>
                         <ScrollView
-                            stickyHeaderIndices={[0]}
-                            style={{height: SIZES.ScreenHeight}}
+                            style={{height: SIZES.ScreenHeight, backgroundColor: '#050508'}}
                             onScroll={handleScroll}
                             scrollEventThrottle={16}
                             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
@@ -476,10 +478,10 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                     style={{
                                         height: SIZES.ScreenHeight * 0.26,
                                         marginTop: isTablet() ? -160 : -68,
-                                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                                        backgroundColor: '#050508',
                                     }}>
                                     <LinearGradient
-                                        colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                        colors={['#0a1628', '#0d0d18', '#050508']}
                                         style={{
                                             position: 'absolute',
                                             left: 0,
@@ -501,11 +503,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                 <Icon
                                                     name="magnify"
                                                     type="material-community"
-                                                    color={COLORS.DARKGREY}
+                                                    color="#9b59b6"
                                                     size={isTablet() ? 32 : 25}
                                                     style={{marginRight: '2%'}}
                                                 />
-                                                <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>
+                                                <Text style={{...FONTS.Title2, color: 'rgba(255,255,255,0.45)'}}>
                                                     Search users
                                                 </Text>
                                             </View>
@@ -517,13 +519,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                         }}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                                            Crummunity Feed
-                                        </Text>
+                                        <Text style={styles.feedLabel}>Crummunity Feed</Text>
                                         <CustomIcon
                                             name="account-group"
                                             type="material-community"
-                                            color={COLORS.AKCRUBLUE}
+                                            color="#5dade2"
                                             baseSize={15}
                                         />
                                     </View>
@@ -592,7 +592,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                         isPostLiked={item.isLikedByCurrentUser}
                                                         onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
                                                         CommentOnPostButton={() =>
-                                                            navigation2.navigate('NewComment', {postId: item.id})
+                                                            navigateToNewComment(item.id)
                                                         }
                                                         isFollowing={item.author.isFollowed}
                                                         onFollow={() =>
@@ -622,7 +622,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 )}
                             </View>
                         </ScrollView>
-                        <View style={styles.floatingbutton}>
+                        <View
+                            style={[
+                                styles.floatingbutton,
+                                {paddingBottom: Math.max(10, insets.bottom + 6)},
+                            ]}>
                             {pollCreator && (
                                 <Pressable onPress={() => navigation2.navigate('NewPoll')}>
                                     <View>
@@ -633,7 +637,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
                             <View>
                                 <View>
-                                    <PostButton onPress={() => navigation2.navigate('NewPost')} />
+                                    <PostButton onPress={navigateToNewPost} />
                                 </View>
                             </View>
                         </View>

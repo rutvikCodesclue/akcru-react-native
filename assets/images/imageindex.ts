@@ -3,6 +3,7 @@ const BgImageSM = require('./BgImageSM.png');
 const AkcruLogo = require('./AkcruLogo.png');
 const AkcruHexLogo = require('./AkcruHexLogo.png');
 const MITticket = require('./MITticket.png');
+const mitTicketImage = require('./mit_ticket_image.png');
 const EatingPopcorn = require('./WomanEatingPopCorn.png');
 const CruChew3 = require('./CruChewlogo3.png');
 const Action = require('./movieaction.jpg');
@@ -35,6 +36,9 @@ const Trinity = require('./Trinity.png');
 const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const FLickFlirtBG = require('./blurred_ff_background.png');
+const CrummunitySendMITHero = require('./CrummunitySendMITHero.png');
+// const mitSendScreenBg = require('./mit_send_screen_bg.png');
+//const mitReferenceBg = require('./mit_reference_bg.png');
 const UnlockingCards = require('./unlocking_cards.png');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
@@ -46,6 +50,7 @@ export default {
     AkcruLogo,
     AkcruHexLogo,
     MITticket,
+    mitTicketImage,
     EatingPopcorn,
     CruChew3,
     Action,
@@ -81,5 +86,8 @@ export default {
     Akcrunetwork2,
     barcode,
     FLickFlirtBG,
+    CrummunitySendMITHero,
+   //mitSendScreenBg,
+    //mitReferenceBg,
     UnlockingCards,
 };

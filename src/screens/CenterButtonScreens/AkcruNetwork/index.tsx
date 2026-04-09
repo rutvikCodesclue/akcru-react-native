@@ -7,9 +7,11 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
 import {getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
+import type {IPost} from '../../../../types';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import AkcruNetworkPost from '../../../components/AkcruNetworkPost';
 import LinearGradient from 'react-native-linear-gradient';
+import {navigateToPostScreen} from '../../../util/RootNavigation';
 
 const userId = 'f35b2f80-9d35-47d5-9f80-48984308cb57';
 
@@ -64,7 +66,7 @@ const AkcruNetworkScreen = () => {
     const handlePostPress = (postId: number) => {
         const selectedPost = posts.find(post => +post.id === postId);
         if (selectedPost) {
-            navigation.navigate('PostScreen', {post: selectedPost});
+            navigateToPostScreen({post: selectedPost as IPost});
         } else {
             console.error('Error: Post not found');
         }

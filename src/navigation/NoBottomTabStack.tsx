@@ -84,6 +84,9 @@ import VisionaryRoomRequest from '../screens/contentScreens/VisionaryRoomRequest
 import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
 import { UserProfileStack } from './UserProfileStack';
 import {UnlockOption} from '../lib/api/flickflirt.lib';
+import CrummunitySendMITScreen, {
+    CrummunitySendMITParams,
+} from '../screens/crummunityScreens/CrummunitySendMITScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -152,6 +155,7 @@ export type NoBottomTabStackParams = {
     SearchMovieResultScreen: any;
     ViewUserFollowList: any;
     SendMITViewUser: any;
+    CrummunitySendMITScreen: CrummunitySendMITParams;
     SendMITSearchInput: any;
     SendMITSearchResult: any;
     SendMITSchedule: any;
@@ -439,6 +443,16 @@ export default function NoBottomStack() {
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="CrummunitySendMITScreen"
+                component={CrummunitySendMITScreen}
+                options={{
+                    headerShown: false,
+                    /** Use default `card` — `modal` uses iOS sheet-style margins (gap at top). */
+                    gestureDirection: 'horizontal',
+                    cardStyle: {flex: 1},
                 }}
             />
             <NoBottom.Screen

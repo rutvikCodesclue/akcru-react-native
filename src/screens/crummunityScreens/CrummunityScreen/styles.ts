@@ -2,6 +2,8 @@ import {Platform, StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {isTablet} from '../../../../assets/constants/theme';
 
+const NEON_BORDER = 'rgba(155, 89, 182, 0.65)';
+
 export default StyleSheet.create({
     input: {
         flexDirection: 'row',
@@ -23,19 +25,45 @@ export default StyleSheet.create({
     searchinput: {
         width: SIZES.ScreenWidth / 1.1,
         flexDirection: 'row',
-        borderWidth: 1,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
-        paddingHorizontal: 10,
+        borderWidth: 1.5,
+        borderColor: NEON_BORDER,
+        borderRadius: 22,
+        paddingHorizontal: 14,
         marginVertical: 10,
         alignItems: 'center',
-        height: isTablet() ? 60 : 40,
+        height: isTablet() ? 60 : 46,
+        backgroundColor: '#12121c',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#3498db',
+                shadowOffset: {width: 0, height: 0},
+                shadowOpacity: 0.35,
+                shadowRadius: 8,
+            },
+            android: {elevation: 4},
+        }),
     },
     screenTitle: {
         ...FONTS.Title3,
         marginHorizontal: isTablet() ? 40 : 15,
         marginBottom: 10,
         marginTop: '20%',
+        color: COLORS.WHITE,
+        fontWeight: '700',
+        ...Platform.select({
+            ios: {
+                textShadowColor: 'rgba(52, 152, 219, 0.85)',
+                textShadowOffset: {width: 0, height: 0},
+                textShadowRadius: 12,
+            },
+            android: {},
+        }),
+    },
+    feedLabel: {
+        ...FONTS.Title2,
+        color: '#5dade2',
+        marginRight: 10,
+        fontWeight: '700',
     },
     screenTitle2: {
         ...FONTS.Title3,
@@ -50,18 +78,12 @@ export default StyleSheet.create({
         marginBottom: 5,
     },
     floatingbutton: {
-        position: 'relative',
-        bottom:
-            Platform.OS === 'ios'
-                ? isTablet()
-                    ? '35%' // iPad
-                    : '35%' // iPhone
-                : isTablet()
-                ? '30%' // Android tablet
-                : '30%', // Android phone,
-        left: '0%',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 20,
         alignItems: 'flex-end',
-        width: '100%',
         justifyContent: 'flex-end',
         paddingRight: '5%',
     },
@@ -81,6 +103,7 @@ export default StyleSheet.create({
         marginBottom: 10,
         marginTop: '25%',
         textAlign: 'center',
+        color: 'rgba(255,255,255,0.55)',
     },
     skipButton: {
         position: 'absolute',

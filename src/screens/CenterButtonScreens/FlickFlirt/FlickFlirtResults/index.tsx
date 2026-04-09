@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
     View,
     Text,
@@ -135,75 +135,49 @@ const FlickFlirtResults = () => {
         }, []),
     );
 
-    //
-    const [phase, setPhase] = useState<'checking' | 'ready'>('checking');
-
-    const load = async () => {
-        const data = await getMatches();
-        if (!data.success) throw new Error(data.message || 'Failed');
-        setMatches(data.matches);
-        setHiddenCount(data.hiddenCount);
-        setUnlocked(data.unlocked);
-        setUnlockOptions(data.unlockOptions);
-    };
-
-    const loadWithRetry = async () => {
+    const loadMatchesWithRetry = useCallback(async () => {
+        const tryLoad = async () => {
+            const data = await getMatches();
+            if (!data.success) throw new Error(data.message || 'Failed');
+            setMatches(data.matches);
+            setHiddenCount(data.hiddenCount);
+            setUnlocked(data.unlocked);
+            setUnlockOptions(data.unlockOptions);
+        };
         const waits = [300, 800, 1500];
         for (let i = 0; i < waits.length; i++) {
             try {
-                await load();
+                await tryLoad();
                 return;
             } catch {
                 if (i < waits.length - 1) await new Promise(r => setTimeout(r, waits[i]));
             }
         }
-        await load(); // last attempt throws to error boundary if you have one
-    };
+        await tryLoad();
+    }, []);
 
     useFocusEffect(
         React.useCallback(() => {
             let alive = true;
-            setPhase('checking');
+            setLoading(true);
             (async () => {
                 try {
-                    await loadWithRetry();
+                    await loadMatchesWithRetry();
+                } catch (e) {
+                    if (!alive) return;
+                    const message = e instanceof Error ? e.message : '';
+                    Alert.alert('Error', message || 'Network error fetching matches.');
                 } finally {
-                    if (alive) setPhase('ready');
-                    hydrateUser();
+                    if (alive) {
+                        setLoading(false);
+                        hydrateUser();
+                    }
                 }
             })();
             return () => {
                 alive = false;
             };
-        }, [hydrateUser]),
-    );
-
-    /*fetch matches*/
-    const fetchMatches = async () => {
-        try {
-            setLoading(true);
-            const data = await getMatches();
-            if (!data.success) {
-                Alert.alert('Error', data.message || 'Could not load matches.');
-                return;
-            }
-            setMatches(data.matches);
-            setHiddenCount(data.hiddenCount);
-            setUnlocked(data.unlocked);
-            setUnlockOptions(data.unlockOptions);
-        } catch (e) {
-            Alert.alert('Error', 'Network error fetching matches.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Load on focus
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchMatches();
-            hydrateUser();
-        }, [hydrateUser]),
+        }, [hydrateUser, loadMatchesWithRetry]),
     );
 
     const openModal = () => {
@@ -324,9 +298,9 @@ const FlickFlirtResults = () => {
                                 ]}>
                                 Finding Your Movie Matches...
                             </Text>
-                        ) : matches.length > 0  ? (
+                        ) : matches.length > 0 ? (
                             <FlatList
-                                data={visibleMatches}
+                                data={unlocked ? matches : visibleMatches}
                                 numColumns={2}
                                 keyExtractor={item => item.id}
                                 contentContainerStyle={localStyles.resultsListContent}
@@ -363,6 +337,7 @@ const FlickFlirtResults = () => {
                                     btnname="Go To Start"
                                     onPress={() => navigation.navigate('FlickFlirtScreen')}
                                     color={COLORS.PURPLE}
+                                    variant="auth"
                                 />
                             </View>
                         ) : null}

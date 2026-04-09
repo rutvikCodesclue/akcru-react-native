@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity} from 'react-native';
+import {View, Text, TouchableOpacity, StyleProp, ViewStyle} from 'react-native';
 import React, {useState} from 'react';
 import {COLORS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -9,9 +9,11 @@ type BackButtonProps = {
     navigation: any;
     /** When set, called instead of default pop / home navigation */
     onBack?: () => void;
+    /** Merged with default wrapper (e.g. absolute overlay + marginTop: 0) */
+    containerStyle?: StyleProp<ViewStyle>;
 };
 
-const BackButton = ({navigation, onBack}: BackButtonProps) => {
+const BackButton = ({navigation, onBack, containerStyle}: BackButtonProps) => {
     const [isNavigating, setIsNavigating] = useState(false);
 
     const handleBackPress = () => {
@@ -32,7 +34,7 @@ const BackButton = ({navigation, onBack}: BackButtonProps) => {
     };
 
     return (
-        <View style={styles.backbutton}>
+        <View style={[styles.backbutton, containerStyle]}>
             <TouchableOpacity onPress={handleBackPress} style={styles.box}>
                 <View style={styles.flexCenter}>
                     <Icon name="chevron-back" type="ionicon" size={isTablet() ? 30 : 20} color={COLORS.LIGHTGREY} />

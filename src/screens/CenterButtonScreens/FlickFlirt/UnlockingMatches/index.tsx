@@ -1,8 +1,10 @@
 import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, Animated, Easing, Image, BackHandler} from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {View, Text, StyleSheet, SafeAreaView, Animated, Easing, Image, BackHandler, Alert} from 'react-native';
+import {useFocusEffect, useNavigation, useRoute, RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
+import {unlockMatches} from '../../../../lib/api/flickflirt.lib';
+import useAuthStore from '../../../../stores/auth.store';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import MaskedView from '@react-native-masked-view/masked-view';
@@ -28,10 +30,18 @@ const LOCK_CARD_ASPECT_CENTER = 1 / 2.75;
 
 export default function UnlockingMatchesScreen() {
     const navigation = useNavigation<StackNavigationProp<NoBottomTabStackParams>>();
+    const route = useRoute<RouteProp<NoBottomTabStackParams, 'UnlockingMatches'>>();
+    const durationDays = route.params?.durationDays;
+    const hydrateUser = useAuthStore(s => s.hydrateUser);
+
     const progress = useRef(new Animated.Value(0)).current;
     const [progressPercent, setProgressPercent] = useState(0);
     /** When true, POP/goBack is allowed (after progress reaches 100%). */
     const allowExitRef = useRef(false);
+    /** Running progress animation — stopped if unlock API fails early. */
+    const animRef = useRef<{stop: () => void} | null>(null);
+    const apiDoneRef = useRef(false);
+    const apiSuccessRef = useRef(false);
 
     const cards = useMemo(() => [0, 1, 2, 3, 4], []);
 
@@ -72,6 +82,47 @@ export default function UnlockingMatchesScreen() {
         };
     }, [progress]);
 
+    /** Unlock API runs in parallel with the progress animation when opened from FlickFlirt unlock flow. */
+    useEffect(() => {
+        if (durationDays == null || durationDays <= 0) {
+            return;
+        }
+        let cancelled = false;
+        unlockMatches(durationDays)
+            .then(data => {
+                if (cancelled) {
+                    return;
+                }
+                apiDoneRef.current = true;
+                apiSuccessRef.current = data.success;
+                if (!data.success) {
+                    animRef.current?.stop();
+                    allowExitRef.current = true;
+                    Alert.alert('Unable to unlock', data.message ?? 'Please try again.');
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    }
+                }
+            })
+            .catch(e => {
+                if (cancelled) {
+                    return;
+                }
+                console.error(e);
+                apiDoneRef.current = true;
+                apiSuccessRef.current = false;
+                animRef.current?.stop();
+                allowExitRef.current = true;
+                Alert.alert('Error', 'Network error. Please try again.');
+                if (navigation.canGoBack()) {
+                    navigation.goBack();
+                }
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [durationDays, navigation]);
+
     useEffect(() => {
         const anim = Animated.sequence([
             Animated.timing(progress, {
@@ -88,19 +139,36 @@ export default function UnlockingMatchesScreen() {
                 useNativeDriver: false,
             }),
         ]);
+        animRef.current = anim;
         anim.start(({finished}) => {
             if (!finished) {
                 return;
             }
-            allowExitRef.current = true;
-            if (navigation.canGoBack()) {
-                navigation.goBack();
-            }
+            void (async () => {
+                const hasUnlock = durationDays != null && durationDays > 0;
+                if (!hasUnlock) {
+                    allowExitRef.current = true;
+                    if (navigation.canGoBack()) {
+                        navigation.goBack();
+                    }
+                    return;
+                }
+                while (!apiDoneRef.current) {
+                    await new Promise<void>(resolve => setTimeout(resolve, 50));
+                }
+                if (!apiSuccessRef.current) {
+                    return;
+                }
+                await hydrateUser();
+                allowExitRef.current = true;
+                navigation.pop(2);
+            })();
         });
         return () => {
             anim.stop();
+            animRef.current = null;
         };
-    }, [progress, navigation]);
+    }, [progress, navigation, durationDays, hydrateUser]);
 
     const barWidth = progress.interpolate({
         inputRange: [0, 1],

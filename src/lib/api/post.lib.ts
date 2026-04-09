@@ -1,6 +1,34 @@
 import {API} from '../../clients/api.client';
 import {CRUMMUNITY} from '../../clients/crummunity.client';
 
+function normalizePostId(id: number | string): number {
+    const n = typeof id === 'string' ? parseInt(id, 10) : Number(id);
+    if (!Number.isFinite(n)) {
+        throw new Error('Invalid post id');
+    }
+    return n;
+}
+
+function messageFromAxiosError(error: unknown, fallback: string): string {
+    const err = error as {
+        response?: {data?: {message?: string; error?: string}; status?: number};
+        message?: string;
+    };
+    const d = err?.response?.data;
+    if (typeof d === 'string' && d.length) {
+        return d;
+    }
+    if (d && typeof d === 'object') {
+        if (typeof d.message === 'string' && d.message.length) {
+            return d.message;
+        }
+        if (typeof d.error === 'string' && d.error.length) {
+            return d.error;
+        }
+    }
+    return err?.message || fallback;
+}
+
 export async function getPosts(page = 1, skipCache: string) {
     try {
         const {data} = await CRUMMUNITY.get('/v1/post', {
@@ -203,33 +231,45 @@ export async function deletePost(id: number) {
     }
 }
 
-export async function likePost(id: number) {
+export async function likePost(id: number | string) {
+    const postId = normalizePostId(id);
     try {
         const {data} = await CRUMMUNITY.post('/v1/post/like', {
-            id,
+            id: postId,
+            /** Some Crummunity handlers expect `postId` (same as /v1/post/comment). */
+            postId,
         });
 
         if (data.success === false) {
-            throw new Error(data.message);
+            throw new Error(data.message || 'Like request rejected');
         }
     } catch (error) {
-        console.error(error);
-        throw new Error('Failed to like the post.');
+        console.error('likePost', postId, error);
+        if ((error as {response?: {status?: number}})?.response?.status) {
+            console.error('likePost response body:', (error as any).response?.data);
+        }
+        throw new Error(messageFromAxiosError(error, 'Failed to like the post.'));
     }
 }
 
-export async function unlikePost(id: number) {
+export async function unlikePost(id: number | string) {
+    const postId = normalizePostId(id);
     try {
         const {data} = await CRUMMUNITY.delete('/v1/post/unlike', {
-            data: {id},
+            /** DELETE bodies are dropped by some proxies; send id in query as well. */
+            params: {id: postId, postId},
+            data: {id: postId, postId},
         });
 
         if (data.success === false) {
-            throw new Error(data.message);
+            throw new Error(data.message || 'Unlike request rejected');
         }
     } catch (error) {
-        console.error(error);
-        throw new Error('Failed to unlike the post.');
+        console.error('unlikePost', postId, error);
+        if ((error as {response?: {status?: number}})?.response?.status) {
+            console.error('unlikePost response body:', (error as any).response?.data);
+        }
+        throw new Error(messageFromAxiosError(error, 'Failed to unlike the post.'));
     }
 }
 
