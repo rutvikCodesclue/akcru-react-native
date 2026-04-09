@@ -12,6 +12,7 @@ export default StyleSheet.create({
         borderRadius: 10,
         justifyContent: 'space-between',
         paddingHorizontal: 10,
+        overflow: 'hidden',
     },
     buttonContainer: {
         marginTop: 6,

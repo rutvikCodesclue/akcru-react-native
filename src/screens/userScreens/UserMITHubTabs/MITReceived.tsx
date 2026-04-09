@@ -97,6 +97,7 @@ const MITReceived = () => {
                                                         schedule: item.startDate,
                                                         timezone: item.timezone,
                                                         invitee: item.invitee,
+                                                        expiresAt: item.expiresAt,
                                                     })
                                                 }
                                             />

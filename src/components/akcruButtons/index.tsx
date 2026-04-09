@@ -41,7 +41,49 @@ const smallButtonHeight = isTablet() ? 60 : 40;
 const smallButtonWidth = isTablet() ? 130 : 95;
 const iconsize = isTablet() ? 30 : 20;
 
-const SmallButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
+const SmallButton: React.FC<BtnProps> = ({
+    btnname,
+    onPress,
+    color,
+    disabled,
+    variant = 'default',
+    loading = false,
+    authButtonWidth,
+}) => {
+    if (variant === 'auth') {
+        const authW = authButtonWidth ?? SIZES.ScreenWidth / 2.2;
+        return (
+            <View style={{marginVertical: authButtonWidth !== undefined ? 0 : 10}}>
+                <TouchableOpacity
+                    style={{
+                        width: authW,
+                        height: AUTH_BUTTON_THEME.getHeight(),
+                        borderRadius: AUTH_BUTTON_THEME.borderRadius,
+                        overflow: 'hidden',
+                        opacity: disabled ? 0.5 : 1,
+                    }}
+                    onPress={onPress}
+                    disabled={disabled || loading}>
+                    <LinearGradient
+                        colors={AUTH_BUTTON_THEME.colors}
+                        start={AUTH_BUTTON_THEME.start}
+                        end={AUTH_BUTTON_THEME.end}
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: AUTH_BUTTON_THEME.borderRadius,
+                        }}>
+                        {loading ? (
+                            <ActivityIndicator color={COLORS.WHITE} />
+                        ) : (
+                            <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                        )}
+                    </LinearGradient>
+                </TouchableOpacity>
+            </View>
+        );
+    }
     return (
         <View>
             <TouchableOpacity

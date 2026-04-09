@@ -185,6 +185,7 @@ export type IMITInvite = {
     invitee: IUserProfile;
     startDate: string;
     timezone: string;
+    expiresAt?: string;
     createdAt: string;
     updatedAt?: string;
 };
@@ -438,6 +439,7 @@ export type IMITInvite = {
     invitee: IUserProfile;
     startDate: string;
     timezone: string;
+    expiresAt?: string;
     createdAt: string;
     updatedAt?: string;
 };

@@ -10,6 +10,7 @@ import {AkcruControlBtn} from '../../../assets/svg';
 import {MULTISIZES} from '../../../assets/constants/theme';
 
 const {width} = Dimensions.get('window');
+const MAX_SWIPE_DISTANCE = width / 6;
 
 type MITSwipeProps = {
     decline: any;
@@ -23,19 +24,20 @@ const MITSwipe = ({decline, accept}: MITSwipeProps) => {
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
-        onPanResponderMove: Animated.event([null, {dx: swipeValue}], {
-            useNativeDriver: false,
-        }),
+        onPanResponderMove: (event, gesture) => {
+            const clampedDx = Math.max(-MAX_SWIPE_DISTANCE, Math.min(MAX_SWIPE_DISTANCE, gesture.dx));
+            swipeValue.setValue(clampedDx);
+        },
         onPanResponderRelease: (event, gesture) => {
             if (gesture.dx > 50) {
                 Animated.timing(swipeValue, {
-                    toValue: width / 5.5,
+                    toValue: MAX_SWIPE_DISTANCE,
                     duration: 400,
                     useNativeDriver: false,
                 }).start(() => accept());
             } else if (gesture.dx < -50) {
                 Animated.timing(swipeValue, {
-                    toValue: -width / 5.5,
+                    toValue: -MAX_SWIPE_DISTANCE,
                     duration: 400,
                     useNativeDriver: false,
                 }).start(() => {

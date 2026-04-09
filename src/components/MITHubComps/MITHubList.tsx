@@ -83,11 +83,15 @@ const MITHubList = () => {
                                                         creator: item.creator,
                                                         inviteDate: item.createdAt,
                                                         akcruBadge: item.invitee.badge,
+                                                        schedule: item.startDate,
+                                                        timezone: item.timezone,
+                                                        invitee: item.invitee,
+                                                        expiresAt: item.expiresAt,
                                                     })
                                                 }
-                                                scheduleDate={''}
-                                                scheduleTime={''}
-                                                timezone={''}
+                                                scheduleDate={item.startDate}
+                                                scheduleTime={item.startDate}
+                                                timezone={item.timezone}
                                             />
                                         </View>
                                     );

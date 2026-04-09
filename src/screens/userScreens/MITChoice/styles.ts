@@ -2,14 +2,8 @@ import {StyleSheet} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
-    screenTitle: {
-        ...FONTS.Title3,
-        marginTop: 10,
-        marginBottom: 10,
-        marginRight: 10,
-    },
     topcontainer: {
-        marginTop: 70,
+        marginTop: 46,
         marginHorizontal: 15,
     },
     bottomcontainer: {
@@ -18,20 +12,36 @@ export default StyleSheet.create({
     },
     poster: {width: 85, height: 115, borderRadius: 5},
     datebox: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: COLORS.TRANSAKCRUBLUE,
-
+        backgroundColor: COLORS.BLACK,
         borderRadius: 5,
         padding: 15,
     },
     datetext: {
         ...FONTS.Title2,
-        
-        color: COLORS.AKCRUBLUE,
+        color: COLORS.LIGHTGREY,
     },
     sheetcontainer: {
         flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    chooseMitScroll: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    chooseMitScrollContent: {
+        paddingBottom: 16,
+        flexGrow: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    chooseMitBottomBar: {
+        backgroundColor: COLORS.BLACK,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.12)',
+        paddingTop: 8,
     },
     sheetview: {},
     opensheet: {
@@ -81,7 +91,7 @@ export default StyleSheet.create({
     },
     //Ticket styles
     ticketContainer: {
-        width: SIZES.ScreenWidth / 4.3,
+        width: SIZES.ScreenWidth / 2.75,
         height: SIZES.ScreenWidth / 2.7,
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
@@ -92,7 +102,7 @@ export default StyleSheet.create({
     ticketImage: {
         overflow: 'hidden',
         alignSelf: 'center',
-        width: SIZES.ScreenWidth / 4.3,
+        width: SIZES.ScreenWidth / 2.75,
         height: SIZES.ScreenWidth / 2.7,
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
@@ -100,8 +110,8 @@ export default StyleSheet.create({
     },
     ticketFooter: {
         padding: 10,
-        backgroundColor: COLORS.AKCRUBLUE,
-        width: SIZES.ScreenWidth / 4.3,
+        backgroundColor: COLORS.BLACK,
+        width: SIZES.ScreenWidth / 2.75,
         height: SIZES.ScreenWidth / 7.3,
         borderBottomLeftRadius: 5,
         borderBottomRightRadius: 5,
@@ -118,5 +128,78 @@ export default StyleSheet.create({
         width: 20,
         borderRadius: 20,
         backgroundColor: COLORS.AKCRUBACKGROUND,
+    },
+    mitMovieCard: {
+        flexDirection: 'row',
+        width: SIZES.ScreenWidth * 0.93,
+        alignSelf: 'center',
+        alignItems: 'flex-start',
+        marginBottom: 8,
+    },
+    mitMovieCardContent: {
+        flex: 1,
+        marginLeft: 10,
+        minWidth: 0,
+    },
+    countdownContainer: {
+        marginTop: 25,
+        alignItems: 'center',
+        marginBottom: 12,
+        backgroundColor: '#111214',
+        borderRadius: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 0,
+        marginHorizontal: 5,
+    },
+    countdownContainerSticky: {
+        marginTop: 4,
+        marginBottom: 4,
+    },
+    countdownTitle: {
+        ...FONTS.Title1,
+        color: COLORS.WHITE,
+        marginBottom: 12,
+    },
+    countdownTimerRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        marginBottom: 15,
+        width: '100%',
+    },
+    countdownUnit: {
+        alignItems: 'center',
+        marginHorizontal: 4,
+    },
+    countdownDigitsRow: {
+        flexDirection: 'row',
+    },
+    countdownDigitBox: {
+        width: 36,
+        height: 54,
+        borderRadius: 10,
+        backgroundColor: '#1f2328',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 2,
+    },
+    countdownDigitText: {
+        ...FONTS.H1,
+        color: COLORS.WHITE,
+    },
+    countdownUnitLabel: {
+        ...FONTS.paragraph2,
+        color: COLORS.STARGOLD,
+        marginTop: 8,
+        letterSpacing: 1,
+    },
+    countdownMidLine: {
+        width: 74,
+        height: 1,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        marginTop: -27,
+        marginBottom: 26,
     },
 });

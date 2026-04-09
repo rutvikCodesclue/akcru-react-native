@@ -1,5 +1,5 @@
 import React, {useState, useCallback, useRef, useEffect} from 'react';
-import {View, Text, ScrollView, ImageBackground, Image, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, ScrollView, ImageBackground, Image, TouchableOpacity, Alert, Animated} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -29,9 +29,9 @@ import {
     getShortenedTimezone,
     selectAvatarBorderColor,
 } from '../../../util/util';
-import FingerAnimation from '../../../components/FingerAnimation';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {getFollowers} from '../../../lib/api/user.lib';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
 
@@ -42,9 +42,26 @@ type Props = {
     route: ChooseMITScreenRouteProp;
 };
 
+const DEFAULT_COUNTDOWN_SECONDS = 48 * 60 * 60;
+
+const getRemainingSecondsFromExpiry = (expiresAt?: string | null): number => {
+    if (!expiresAt) {
+        return DEFAULT_COUNTDOWN_SECONDS;
+    }
+
+    const expiresAtMs = new Date(expiresAt).getTime();
+    if (Number.isNaN(expiresAtMs)) {
+        return DEFAULT_COUNTDOWN_SECONDS;
+    }
+
+    const diffMs = expiresAtMs - Date.now();
+    return Math.max(0, Math.floor(diffMs / 1000));
+};
+
 const ChooseMITScreen = ({navigation, route}: Props) => {
-    const MITID: number | undefined = route.params?.MITID ?? null;
+    const insets = useSafeAreaInsets();
     const {user} = useAuthStore();
+    const MITID: number | undefined = route.params?.MITID ?? null;
 
     // Access other passed parameters
     const movie: IMovie | null = route.params?.movie ?? null;
@@ -56,8 +73,18 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const akcruBadge: IUserProfile = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
     const timezone: string | undefined = route.params?.timezone ?? null;
+    const expiresAt: string | undefined = route.params?.expiresAt ?? null;
+    const initialRemainingSeconds = getRemainingSecondsFromExpiry(expiresAt);
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
+    const [remainingSeconds, setRemainingSeconds] = useState<number>(initialRemainingSeconds);
+    const hourTensSwipeAnim = useRef(new Animated.Value(1)).current;
+    const hourOnesSwipeAnim = useRef(new Animated.Value(1)).current;
+    const minuteTensSwipeAnim = useRef(new Animated.Value(1)).current;
+    const minuteOnesSwipeAnim = useRef(new Animated.Value(1)).current;
+    const secondTensSwipeAnim = useRef(new Animated.Value(1)).current;
+    const secondOnesSwipeAnim = useRef(new Animated.Value(1)).current;
+    const previousRemainingSeconds = useRef<number>(initialRemainingSeconds);
 
     const [messages, setMessages] = useState<IMessage[]>([]);
 
@@ -118,6 +145,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             akcruBadge: akcruBadge,
             schedule: schedule,
             timezone: timezone,
+            expiresAt: expiresAt,
         });
     };
 
@@ -131,6 +159,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             akcruBadge: akcruBadge,
             schedule: schedule,
             timezone: timezone,
+            expiresAt: expiresAt,
         });
     };
 
@@ -149,26 +178,22 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         setPlaying(prev => !prev);
     }, []);
 
-    //Chat Room functions
-
-    const [showChat, setShowChat] = useState(false);
-
-    const handleAvatarPress = (user: any) => {
-        // Navigate to the user's profile screen
-        navigation.navigate('ViewUserScreen', {userID: user._id});
-    };
-
     const sayhi = () => {
         const isCurrentUserCreator = user?.id === creatorID;
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
         const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
 
+        if (MITID == null || receiverUserId == null || receiverUserId === '') {
+            Alert.alert('Chat unavailable', 'Missing invite or user information.');
+            return;
+        }
+
         navigation.navigate('ViewChat', {
-            mItInviteId: MITID,
-            userId: receiverUserId,
-            profilePicture: receiverProfilePicture,
-            username: receiverUsername, // Pass the receiver's username
+            mItInviteId: String(MITID),
+            userId: String(receiverUserId),
+            profilePicture: receiverProfilePicture ?? '',
+            username: receiverUsername ?? '',
         });
     };
 
@@ -189,11 +214,120 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         fetchData();
     }, [creatorID]);
 
+    useEffect(() => {
+        setRemainingSeconds(getRemainingSecondsFromExpiry(expiresAt));
+        previousRemainingSeconds.current = getRemainingSecondsFromExpiry(expiresAt);
+
+        if (!expiresAt) {
+            return () => {};
+        }
+
+        const intervalId = setInterval(() => {
+            const nextRemainingSeconds = getRemainingSecondsFromExpiry(expiresAt);
+            setRemainingSeconds(nextRemainingSeconds);
+
+            if (nextRemainingSeconds <= 0) {
+                clearInterval(intervalId);
+            }
+        }, 1000);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [expiresAt]);
+
+    useEffect(() => {
+        const animateUnitChange = (animValue: Animated.Value) => {
+            animValue.setValue(0);
+            Animated.timing(animValue, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        };
+
+        const previousHours = Math.floor(previousRemainingSeconds.current / 3600)
+            .toString()
+            .padStart(2, '0');
+        const previousMinutes = Math.floor((previousRemainingSeconds.current % 3600) / 60)
+            .toString()
+            .padStart(2, '0');
+        const previousSeconds = (previousRemainingSeconds.current % 60).toString().padStart(2, '0');
+
+        const nextHours = Math.floor(remainingSeconds / 3600)
+            .toString()
+            .padStart(2, '0');
+        const nextMinutes = Math.floor((remainingSeconds % 3600) / 60)
+            .toString()
+            .padStart(2, '0');
+        const nextSeconds = (remainingSeconds % 60).toString().padStart(2, '0');
+
+        if (nextHours[0] !== previousHours[0]) {
+            animateUnitChange(hourTensSwipeAnim);
+        }
+        if (nextHours[1] !== previousHours[1]) {
+            animateUnitChange(hourOnesSwipeAnim);
+        }
+        if (nextMinutes[0] !== previousMinutes[0]) {
+            animateUnitChange(minuteTensSwipeAnim);
+        }
+        if (nextMinutes[1] !== previousMinutes[1]) {
+            animateUnitChange(minuteOnesSwipeAnim);
+        }
+        if (nextSeconds[0] !== previousSeconds[0]) {
+            animateUnitChange(secondTensSwipeAnim);
+        }
+        if (nextSeconds[1] !== previousSeconds[1]) {
+            animateUnitChange(secondOnesSwipeAnim);
+        }
+
+        previousRemainingSeconds.current = remainingSeconds;
+    }, [
+        hourOnesSwipeAnim,
+        hourTensSwipeAnim,
+        minuteOnesSwipeAnim,
+        minuteTensSwipeAnim,
+        remainingSeconds,
+        secondOnesSwipeAnim,
+        secondTensSwipeAnim,
+    ]);
+
+    const countdownHours = Math.floor(remainingSeconds / 3600)
+        .toString()
+        .padStart(2, '0');
+    const countdownMinutes = Math.floor((remainingSeconds % 3600) / 60)
+        .toString()
+        .padStart(2, '0');
+    const countdownSeconds = (remainingSeconds % 60).toString().padStart(2, '0');
+    const hourDigits = countdownHours.split('');
+    const minuteDigits = countdownMinutes.split('');
+    const secondDigits = countdownSeconds.split('');
+    const getFoldDigitStyle = (animValue: Animated.Value) => ({
+        transform: [
+            {perspective: 1000},
+            {
+                rotateX: animValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['-90deg', '0deg'],
+                }),
+            },
+        ],
+        opacity: animValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.7, 1],
+        }),
+    });
+
     return (
         <TabContainer>
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
                 <View style={styles.sheetcontainer}>
-                    <ScrollView stickyHeaderIndices={[0]}>
+                    <ScrollView
+                        style={styles.chooseMitScroll}
+                        contentContainerStyle={styles.chooseMitScrollContent}
+                        stickyHeaderIndices={[0]}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}>
                         <View>
                             <Header />
                         </View>
@@ -204,7 +338,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
                                 <LinearGradient
                                     // Background Linear Gradient
-                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                    colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.BLACK]}
                                     style={{
                                         position: 'absolute',
                                         left: 0,
@@ -215,48 +349,41 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     }}
                                 />
                                 <View style={styles.topcontainer}>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            navigate('NoBottomStack', {
-                                                screen: 'UserMITHubScreen'
-
-                                            })
-                                        }>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignItems: 'center',
-                                            }}>
-                                            <Icon
-                                                name="chevron-back"
-                                                type="ionicon"
-                                                size={20}
-                                                color={COLORS.LIGHTGREY}
-                                            />
-                                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                                        </View>
-                                    </TouchableOpacity>
                                     <View
                                         style={{
                                             flexDirection: 'row',
                                             alignItems: 'center',
                                             justifyContent: 'space-between',
                                         }}>
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={styles.screenTitle}>Movie Invite Ticket</Text>
-                                            <Image source={imageindex.LrgMIT} style={{width: 55, height: 25}} />
-                                        </View>
-                                        <View style={{justifyContent: 'center', marginRight: 20}}>
-                                            <TouchableOpacity onPress={() => sayhi()}>
+                                        <TouchableOpacity
+                                            onPress={() =>
+                                                navigate('NoBottomStack', {
+                                                    screen: 'UserMITHubScreen',
+                                                })
+                                            }>
+                                            <View
+                                                style={{
+                                                    flexDirection: 'row',
+                                                    alignItems: 'center',
+                                                }}>
                                                 <Icon
-                                                    name="chatbox-ellipses"
+                                                    name="chevron-back"
                                                     type="ionicon"
-                                                    size={30}
-                                                    color={COLORS.PURPLE}
+                                                    size={20}
+                                                    color={COLORS.LIGHTGREY}
                                                 />
-                                            </TouchableOpacity>
+                                                <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                                            </View>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => sayhi()} style={{alignItems: 'center'}}>
+                                            <Icon
+                                                name="chatbox-ellipses"
+                                                type="ionicon"
+                                                size={30}
+                                                color={COLORS.PURPLE}
+                                            />
                                             <Text style={{...FONTS.paragraph1}}>Start Chat</Text>
-                                        </View>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
@@ -265,7 +392,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     flexDirection: 'row',
                                     justifyContent: 'space-between',
                                     alignItems: 'center',
-                                    marginTop: -60,
+                                    marginTop: -120,
                                     marginHorizontal: 15,
                                 }}>
                                 <View style={{flexDirection: 'row'}}>
@@ -345,7 +472,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         )}
                                     </View>
                                 </View>
-                                <View style={{marginVertical: 20}}>
+                                <View style={{marginVertical: 8}}>
                                     <View
                                         style={{
                                             alignItems: 'center',
@@ -356,7 +483,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         <View
                                             style={{
                                                 width: 100,
-                                                height: 60,
+                                                height: 52,
                                                 justifyContent: 'center',
                                                 alignItems: 'center',
                                             }}>
@@ -371,17 +498,16 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                             <View>
                                 <View style={styles.bottomcontainer}>
                                     <View style={{alignItems: 'center', marginBottom: 10}}>
-                                        <View style={{marginTop: 10}}>
-                                            <View style={{flexDirection: 'row', width: '75%'}}>
+                                        <View style={{marginTop: 20, width: '100%'}}>
+                                            <View style={styles.mitMovieCard}>
                                                 <View style={{marginRight: 10}}>
-                                                    {/* <Image source={{uri: movie?.portraitURL}} style={styles.poster} /> */}
                                                     <View style={styles.ticketContainer}>
                                                         <ImageBackground
                                                             source={{uri: movie?.portraitURL}}
                                                             style={styles.ticketImage}
                                                             resizeMode="cover">
                                                             <LinearGradient
-                                                                colors={['transparent', COLORS.AKCRUBLUE]}
+                                                                colors={['transparent', COLORS.BLACK]}
                                                                 style={styles.linearGradient}>
                                                                 <View
                                                                     style={[
@@ -422,34 +548,38 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                         </View>
                                                     </View>
                                                 </View>
-                                                <View style={{}}>
-                                                    <Text style={{...FONTS.Username}}>{movie?.title}</Text>
+                                                <View style={styles.mitMovieCardContent}>
+                                                    <Text style={{...FONTS.ContentTitle}} numberOfLines={3}>
+                                                        {movie?.title}
+                                                    </Text>
                                                     <View
                                                         style={{
                                                             flexDirection: 'row',
                                                             marginBottom: 5,
+                                                            marginTop: 6,
                                                             alignItems: 'center',
+                                                            flexWrap: 'wrap',
                                                         }}>
-                                                        <Text style={{...FONTS.paragraph1}}>{movie?.year}</Text>
+                                                        <Text style={{...FONTS.Title2}}>{movie?.year}</Text>
+                                                        <Text style={{...FONTS.Title2}}> | </Text>
                                                         <Text
                                                             style={{
-                                                                ...FONTS.paragraph1,
+                                                                ...FONTS.Title2,
 
-                                                                marginHorizontal: 10,
                                                             }}>
                                                             {formatMovieDuration(movie?.duration)}
                                                         </Text>
                                                     </View>
-                                                    <View style={{flexDirection: 'row', marginVertical: 5}}>
+                                                    <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
                                                         <Text style={styles.drawfonttag}>{movie?.rated}</Text>
                                                         <Text style={styles.drawfonttag}>
                                                             {capitalizeFirstLetterOfString(movie?.genres[0])}
                                                         </Text>
-
                                                         <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
                                                     </View>
                                                     <AkcruButtons.SmallButton
                                                         btnname="Play Trailer"
+                                                        variant="auth"
                                                         onPress={() => {
                                                             navigation.navigate('TrailerPlayer', {
                                                                 id: movie?.id,
@@ -459,24 +589,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                         }}
                                                         color={COLORS.PURPLE}
                                                     />
-                                                    <View style={{marginVertical: 10}}>
-                                                        <View style={styles.datebox}>
-                                                            <Text style={styles.datetext}>
-                                                                {' '}
-                                                                {moment(schedule)
-                                                                    .tz(timezone)
-                                                                    .format('ddd, MMM Do')}{' '}
-                                                            </Text>
-                                                            <Text style={styles.datetext}>@ </Text>
-                                                            <Text style={styles.datetext}>
-                                                                {/* render UTC Time w/ moment */}
-                                                                {moment(schedule).tz(timezone).format('h:mm A')}{' '}
-                                                                {getShortenedTimezone(timezone)}
-                                                            </Text>
 
-                                                            {/* <Text style={styles.datetext}>@ {MITTime}</Text> */}
-                                                        </View>
-                                                    </View>
                                                 </View>
                                             </View>
                                         </View>
@@ -486,24 +599,102 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         style={{
                                             ...FONTS.Title2,
                                             color: COLORS.PINK,
-
                                             textAlign: 'center',
                                         }}>
                                         "{creator?.firstName}" wants to watch "{movie?.title}" with you
                                     </Text>
-                                </View>
-                                <View style={{marginTop: 25}}>
-                                    <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
-                                </View>
-                                <FingerAnimation />
-                                <View>
-                                    <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
-                                        SWIPE BUTTON LEFT OR RIGHT.
-                                    </Text>
+                                      <View style={{marginVertical: 10}}>
+                                                                                            <View style={styles.datebox}>
+                                                                                                <Text style={styles.datetext}>
+                                                                                                    {' '}
+                                                                                                    {moment(schedule)
+                                                                                                        .tz(timezone)
+                                                                                                        .format('ddd, MMM Do')}{' '}
+                                                                                                </Text>
+                                                                                                <Text style={styles.datetext}>@ </Text>
+                                                                                                <Text style={styles.datetext}>
+                                                                                                    {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                                                                                    {getShortenedTimezone(timezone)}
+                                                                                                </Text>
+                                                                                            </View>
+                                                                                        </View>
                                 </View>
                             </View>
                         </View>
                     </ScrollView>
+                    <View
+                        style={[
+                            styles.chooseMitBottomBar,
+                            {paddingBottom: Math.max(insets.bottom, 10)},
+                        ]}>
+                        <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
+                            <Text style={styles.countdownTitle}>Expires in....</Text>
+                            <View style={styles.countdownTimerRow}>
+                                <View style={styles.countdownUnit}>
+                                    <View style={styles.countdownDigitsRow}>
+                                        <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                        <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                    </View>
+                                    <View style={styles.countdownMidLine} />
+                                    <Text style={styles.countdownUnitLabel}>HOURS</Text>
+                                </View>
+
+                                <View style={styles.countdownUnit}>
+                                    <View style={styles.countdownDigitsRow}>
+                                        <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                        <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                    </View>
+                                    <View style={styles.countdownMidLine} />
+                                    <Text style={styles.countdownUnitLabel}>MINUTES</Text>
+                                </View>
+
+                                <View style={styles.countdownUnit}>
+                                    <View style={styles.countdownDigitsRow}>
+                                        <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                        <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
+                                            <View style={styles.countdownDigitBox}>
+                                                <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
+                                            </View>
+                                        </Animated.View>
+                                    </View>
+                                    <View style={styles.countdownMidLine} />
+                                    <Text style={styles.countdownUnitLabel}>SECONDS</Text>
+                                </View>
+                            </View>
+                            <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                            <View>
+                                <Text
+                                    style={{
+                                        ...FONTS.Title2,
+                                        color: COLORS.PINK,
+                                        textAlign: 'center',
+                                        paddingTop: 10,
+                                    }}>
+                                    SWIPE BUTTON LEFT OR RIGHT.
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
                 </View>
             </View>
         </TabContainer>
