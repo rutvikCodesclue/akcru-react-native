@@ -39,4 +39,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         width: '100%',
     },
+    chatListPanel: {
+        backgroundColor: 'transparent',
+    },
 });

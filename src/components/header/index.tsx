@@ -161,7 +161,17 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                             color={COLORS.LIGHTGREY}
                             size={isTablet() ? SIZES.MedIcon : SIZES.SmallIcon}
                         />
-                        {notificationUnreadCount > 0 ? <View style={styles.notificationRedDot} /> : null}
+                        {notificationUnreadCount > 0 ? (
+                            <View
+                                style={[
+                                    styles.notificationBadge,
+                                    isTablet() ? styles.notificationBadgeTablet : null,
+                                ]}>
+                                <Text style={[styles.notificationBadgeText, isTablet() && styles.notificationBadgeTextTablet]} numberOfLines={1}>
+                                    {notificationUnreadCount > 9 ? '9+' : String(notificationUnreadCount)}
+                                </Text>
+                            </View>
+                        ) : null}
                     </TouchableOpacity>
                     <View>
                         <Image
@@ -188,16 +198,37 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    notificationRedDot: {
+    notificationBadge: {
         position: 'absolute',
-        top: 0,
-        right: 0,
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+        top: -2,
+        right: -6,
+        minWidth: 16,
+        height: 16,
+        paddingHorizontal: 4,
+        borderRadius: 8,
         backgroundColor: '#E53935',
         borderWidth: 1.5,
         borderColor: COLORS.AKCRUBACKGROUND,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    notificationBadgeTablet: {
+        top: -2,
+        right: -8,
+        minWidth: 20,
+        height: 20,
+        paddingHorizontal: 5,
+        borderRadius: 10,
+    },
+    notificationBadgeText: {
+        fontFamily: 'Montserrat-SemiBold',
+        fontSize: 9,
+        color: '#FFFFFF',
+        textAlign: 'center',
+        includeFontPadding: false,
+    },
+    notificationBadgeTextTablet: {
+        fontSize: 11,
     },
 });
 

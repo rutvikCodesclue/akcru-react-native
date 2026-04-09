@@ -1,4 +1,4 @@
-import {View, Text, ScrollView, TouchableOpacity, SafeAreaView, Pressable, Platform} from 'react-native';
+import {View, Text, ScrollView, SafeAreaView, Platform} from 'react-native';
 import React, {useEffect, useMemo, useState} from 'react';
 import Header from '../../../components/header';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -11,8 +11,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import styles from './styles';
 import BackButton from '../../../components/General/backbutton';
 import LoadingComponent from '../../../components/Loading';
-import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import AkcruButtons from '../../../components/akcruButtons';
+import NotificationMitStyleCard from '../../../components/NotificationMitStyleCard';
 import {
     batchMarkNotificationsRead,
     getMyNotifications,
@@ -238,79 +238,31 @@ const UserNotification = ({route}: Props) => {
                         ) : (
                             <>
                                 <ScrollView
-                                    style={{flex: 1}}
+                                    style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}
                                     contentContainerStyle={{
                                         paddingBottom: Platform.OS === 'ios' ? 24 : 16,
                                     }}>
-                                    <View style={{marginHorizontal: 15, marginTop: 10}}>
-                                        {visibleNotifications.map((notification, index) => {
-                                            const {id, type, message, isRead, createdAt} = notification;
-                                            const displayName = getNotificationDisplayName(type);
+                                    <View style={{marginHorizontal: 10, marginTop: 10}}>
+                                        <View style={styles.chatListPanel}>
+                                            {visibleNotifications.map((notification, index) => {
+                                                const {id, type, message, isRead, createdAt} = notification;
+                                                const displayName = getNotificationDisplayName(type);
+                                                const isLast = index === visibleNotifications.length - 1;
 
-                                            return (
-                                                <Pressable
-                                                    key={index}
-                                                    onPress={() => handleNotificationPress(notification)}>
-                                                    <View key={index} style={styles.cardcontainer}>
-                                                        <LinearGradient
-                                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                                            style={{
-                                                                position: 'absolute',
-                                                                left: 0,
-                                                                right: 0,
-                                                                top: 0,
-                                                                bottom: 0,
-                                                                borderRadius: 5,
-                                                            }}
-                                                        />
-                                                        <View
-                                                            style={{
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'space-between',
-                                                            }}>
-                                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                                {displayName}
-                                                            </Text>
-                                                            <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>
-                                                                {formatDatestamp(createdAt)}
-                                                            </Text>
-                                                        </View>
-                                                        <Text
-                                                            style={{
-                                                                ...FONTS.Title2,
-                                                                color: COLORS.DARKGREY,
-                                                                textAlign: 'right',
-                                                            }}>
-                                                            {formatTimestampToAMPM(createdAt)}
-                                                        </Text>
-
-                                                        <Text style={{...FONTS.Title2}}>{`${message}`}</Text>
-                                                        <View
-                                                            style={{
-                                                                marginTop: '5%',
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'space-between',
-                                                            }}>
-                                                            <View>
-                                                                <Text
-                                                                    style={{
-                                                                        ...FONTS.Title2,
-                                                                        color: isRead ? COLORS.PURPLE : COLORS.PINK, // Different color for read/unread
-                                                                    }}>
-                                                                    {isRead ? 'Read' : 'Unread'}
-                                                                </Text>
-                                                            </View>
-                                                            <TouchableOpacity
-                                                                onPress={() => handleDeleteNotification(id)}>
-                                                                <Text style={{...FONTS.Title2, color: COLORS.PINK}}>
-                                                                    Delete Notification
-                                                                </Text>
-                                                            </TouchableOpacity>
-                                                        </View>
-                                                    </View>
-                                                </Pressable>
-                                            );
-                                        })}
+                                                return (
+                                                    <NotificationMitStyleCard
+                                                        key={id}
+                                                        displayName={displayName}
+                                                        message={message}
+                                                        createdAt={createdAt}
+                                                        isRead={isRead}
+                                                        isLast={isLast}
+                                                        onPressCard={() => handleNotificationPress(notification)}
+                                                        onPressDelete={() => handleDeleteNotification(id)}
+                                                    />
+                                                );
+                                            })}
+                                        </View>
                                     </View>
                                     {visibleNotifications.length < sortedNotifications.length && (
                                         <View
@@ -320,6 +272,7 @@ const UserNotification = ({route}: Props) => {
                                                 marginBottom: Platform.OS === 'ios' ? 24 : 16,
                                             }}>
                                             <AkcruButtons.LrgButton
+                                                variant="auth"
                                                 btnname={'Load More'}
                                                 onPress={handleLoadMore}
                                                 color={COLORS.PURPLE}
