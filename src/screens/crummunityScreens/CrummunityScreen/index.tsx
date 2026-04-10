@@ -224,7 +224,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         if (postId in postLikedStatusTimer.current) {
             clearTimeout(postLikedStatusTimer.current[postId]);
         }
-        // optimistic update
         const postIndex = posts.findIndex(post => +post.id === postId);
         if (postIndex === -1) {
             return;
@@ -254,7 +253,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             } catch (exception: unknown) {
                 console.error('Error changing like status:', exception);
 
-                // undo optimistic update
                 updatedPosts[postIndex] = {
                     ...post,
                     isLikedByCurrentUser: isLiked,
