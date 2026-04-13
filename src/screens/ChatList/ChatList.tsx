@@ -13,35 +13,55 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {StackNavigationProp} from '@react-navigation/stack';
 import useAuthStore from '../../stores/auth.store';
 import Header from '../../components/header';
 import UserCruChatCard from '../../components/UserCruChatCard';
 import {getUsers} from '../../lib/api/rooms.lib'; // Ensure this fetches your chat users
 import {IChatUser} from '../../../types';
 import {COLORS, SIZES} from '../../../assets/constants';
-import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import BackButton from '../../components/General/backbutton';
-import {useHideBottomTabBarWhileFocused} from '../ChatScreens/useHideBottomTabBarWhileFocused';
 import {Icon} from '@rneui/base';
 import HexAvatar from '../../components/HexAvatar';
 import {selectAvatarBorderColor} from '../../util/util';
 import {BlurView} from '@react-native-community/blur';
+import {batchMarkNotificationsRead, getNotifyMePayload} from '../../lib/api/notify.lib';
+import {getUnreadMsgRcvdNotificationIds} from '../../util/notificationUnreadCount';
+import {UseTabMenu} from '../../context/TabContext';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const {user} = useAuthStore();
-    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const navigation = useNavigation<StackNavigationProp<UserProfileStackParams, 'ChatList'>>();
+    const {syncNotificationBadgeCounts} = UseTabMenu();
 
-    const handleBackPress = () => {
-        if (navigation.canGoBack()) {
-            navigation.goBack();
-            return;
-        }
-        navigation.navigate('ClientTabNavigator', {screen: 'CrummunityStack'});
-    };
+    useEffect(() => {
+            const markMsgRcvdSeenOnLeave = () => {
+                void (async () => {
+                    try {
+                        const payload = await getNotifyMePayload();
+                        const list = payload?.notifications ?? [];
+                        const ids = getUnreadMsgRcvdNotificationIds(list);
+                        if (ids.length === 0) {
+                            return;
+                        }
+                        const res = await batchMarkNotificationsRead(ids);
+                        if (!res.success) {
+                            return;
+                        }
+                        const fresh = await getNotifyMePayload();
+                        syncNotificationBadgeCounts(fresh?.notifications);
+                    } catch {
+                        // ignore
+                    }
+                })();
+            };
+            const unsub = navigation.addListener('beforeRemove', markMsgRcvdSeenOnLeave);
+            return unsub;
+        }, [navigation, syncNotificationBadgeCounts]);
 
     useEffect(() => {
         const fetchChatUsers = async () => {
@@ -160,7 +180,16 @@ const ChatList = () => {
                                         backgroundColor: 'transparent',
                                         paddingBottom: 10,
                                     }}>
-                                    <BackButton navigation={navigation} onBack={handleBackPress} />
+                                    <BackButton
+                                        navigation={navigation}
+                                        onBack={() => {
+                                            if (navigation.canGoBack()) {
+                                                navigation.goBack();
+                                            } else {
+                                                navigation.navigate('UserProfileScreen');
+                                            }
+                                        }}
+                                    />
                                 </View>
                                 <View style={styles.searchWrap}>
                                     <BlurView

@@ -1,11 +1,11 @@
 import React from 'react';
+import {View} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {COLORS} from '../../assets/constants';
 import PurchaseMITScreen from '../screens/CenterButtonScreens/PurchaseMIT';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import AkcruNetworkScreen from '../screens/CenterButtonScreens/AkcruNetwork/index';
 import AwardScreen from '../screens/CenterButtonScreens/Awards';
-import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import {CrusaderStack} from './CrusaderStack';
 import CrusaderScreen from '../screens/CenterButtonScreens/CrusaderScreen';
 import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
@@ -30,6 +30,11 @@ export type AkcruButtonStackParams = {
 
 const AkcruBtn = createStackNavigator<AkcruButtonStackParams>();
 
+/** Stack root only: the real center hex lives in the tab bar (`ClientTabNavigator`). Duplicating `AkcruCenterButton` here stacked a second hex and broke open/close toggling. */
+function AkcruButtonStackRootPlaceholder() {
+    return <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}} />;
+}
+
 export default function AkcruButtonStack() {
     return (
         <AkcruBtn.Navigator
@@ -40,7 +45,7 @@ export default function AkcruButtonStack() {
             }}>
             <AkcruBtn.Screen
                 name="AkcruCenterButton"
-                component={AkcruCenterButton}
+                component={AkcruButtonStackRootPlaceholder}
                 options={{
                     headerShown: false,
                 }}

@@ -7,7 +7,7 @@ import {
     type StyleProp,
     type ViewStyle,
 } from 'react-native';
-import React from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 import {Icon} from '@rneui/base';
 import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
@@ -15,17 +15,19 @@ import {BottomTabBar, createBottomTabNavigator, BottomTabBarButtonProps} from '@
 import LinearGradient from 'react-native-linear-gradient';
 import {BlurView} from '@react-native-community/blur';
 
-import {COLORS} from '../../assets/constants';
+import {COLORS, SIZES} from '../../assets/constants';
 
 import {clientTabBarStyle} from './clientTabBarStyle';
 import {CLIENT_TAB_NAVIGATOR_ID} from './clientTabNavigatorId';
-// import {ClientStack} from './ClientStack';
+import {ClientStack} from './ClientStack';
 import {CrummunityStack} from './CrummunityStack';
 import {UserProfileStack} from './UserProfileStack';
 import AkcruCenterButton from '../components/AkcruCenterButton/AkcruCenterButton';
 import {UseTabMenu} from '../context/TabContext';
 import AkcruButtonStack from './AkcruButtonStack';
 import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
+import {API} from '../clients/api.client';
+import {DeviceEventEmitter} from 'react-native';
 import {isTablet} from '../../assets/constants/theme';
 
 /** Selected tab only: gradient disk + glow; inactive tabs show icon only (no circle) */
@@ -110,6 +112,41 @@ function TabBarCircleButton({children, style, ...rest}: BottomTabBarButtonProps)
     );
 }
 
+/**
+ * Center hex: one press target for the whole tab slot (avoids nested Pressable vs inner Touchable fighting).
+ * Tapping only toggles the satellite hex menu + big-hex animation — does not switch tabs or navigate (e.g. MIT Hub).
+ */
+function CenterHexTabBarButton({children, style, onPress: _tabDefaultOnPress, ...rest}: BottomTabBarButtonProps) {
+    const {toggleOpened} = UseTabMenu();
+    const navStyle = style as
+        | StyleProp<ViewStyle>
+        | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>)
+        | undefined;
+    return (
+        <Pressable
+            {...rest}
+            onPress={e => {
+                e?.preventDefault?.();
+                toggleOpened();
+            }}
+            android_ripple={
+                Platform.OS === 'android'
+                    ? {
+                          borderless: true,
+                          radius: 26,
+                          color: 'rgba(255, 255, 255, 0.22)',
+                      }
+                    : undefined
+            }
+            style={state => [
+                styles.tabBarCircleButton,
+                typeof navStyle === 'function' ? navStyle(state) : navStyle,
+            ]}>
+            {children}
+        </Pressable>
+    );
+}
+
 /** `setOptions({ tabBarStyle })` from nested screens is unreliable; hide bar from real navigation state. */
 function ClientTabBar(props: TabBarProps) {
     const {state} = props;
@@ -131,6 +168,29 @@ function ClientTabBar(props: TabBarProps) {
 
 export default function ClientTabNavigator() {
     const {opened, toggleOpened} = UseTabMenu();
+    const [hasMatches, setHasMatches] = useState(false);
+
+    const fetchMatches = useCallback(() => {
+        API.get('/v1/flickflirt/matches')
+            .then(res => {
+                // normalize payload
+                const payload = res?.data ?? res;
+                const ok: boolean = !!payload.success;
+                const matches: any[] = Array.isArray(payload.matches) ? payload.matches : [];
+                setHasMatches(ok && matches.length > 0);
+            })
+            .catch(err => {
+                console.error('fetchMatches error:', err);
+                setHasMatches(false);
+            });
+    }, []);
+    // fetch once on mount
+    useEffect(fetchMatches, [fetchMatches]);
+
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('matchesUpdated', fetchMatches);
+        return () => sub.remove();
+    }, [fetchMatches]);
 
     const closeCenterButtonIfOpen = (e: any) => {
         if (opened) {
@@ -269,6 +329,7 @@ export default function ClientTabNavigator() {
                     },
                     headerShown: false,
                     tabBarLabel: () => null,
+                    tabBarButton: props => <CenterHexTabBarButton {...props} />,
                     tabBarIcon: () => (
                         <View style={styles.centerHexTabIconWrap} collapsable={false}>
                             <View style={styles.centerHexLift} collapsable={false}>
@@ -368,4 +429,13 @@ const styles = StyleSheet.create({
         shadowRadius: 17,
         elevation: 14,
     },
+        redDot: {
+            position: 'absolute',
+            top: 0,
+            right: 20,
+            width: 8,
+            height: 8,
+            borderRadius: 4,
+            backgroundColor: 'red',
+        },
 });
