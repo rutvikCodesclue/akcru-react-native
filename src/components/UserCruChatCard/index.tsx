@@ -4,6 +4,25 @@ import styles from './styles';
 import HexAvatar from '../HexAvatar';
 import {selectAvatarBorderColor} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import {COLORS} from '../../../assets/constants';
+
+function mitStatusValueColor(statusText: string): string {
+    const trimmed = statusText.trim();
+    if (!trimmed || trimmed === '—') {
+        return 'rgba(255,255,255,0.82)';
+    }
+    const s = trimmed.toUpperCase();
+    if (s === 'PENDING') {
+        return COLORS.GREEN;
+    }
+    if (s === 'ACCEPTED') {
+        return COLORS.STARGOLD;
+    }
+    if (s === 'DECLINED' || s === 'EXPIRED') {
+        return '#E53935';
+    }
+    return 'rgba(255,255,255,0.82)';
+}
 
 export type UserCruChatCardProps = {
     userPicture?: string;
@@ -19,20 +38,29 @@ export type UserCruChatCardProps = {
     badge?: string;
     /** Show green online indicator on avatar */
     isOnline?: boolean;
+    /** When `mitStatus`, preview line reads "MIT status: …" instead of "Message: …". */
+    previewKind?: 'message' | 'mitStatus';
 };
 
 const UserCruChatCard = ({
     userPicture,
     userName,
+    CruChatDate,
     CruChatTime,
     CRUChat,
     movie,
     moviePoster,
     badge,
     isOnline = false,
+    previewKind = 'message',
 }: UserCruChatCardProps) => {
     const movieTitle = movie?.trim() ?? '';
     const hasMovieMeta = Boolean(movieTitle || moviePoster?.trim());
+    const previewLabel = previewKind === 'mitStatus' ? 'MIT status:' : 'Message:';
+    const previewEmpty = previewKind === 'mitStatus' ? '—' : 'No messages yet';
+    const previewBody = CRUChat?.trim() ? CRUChat.trim() : previewEmpty;
+    const statusValueStyle =
+        previewKind === 'mitStatus' ? {color: mitStatusValueColor(previewBody)} : undefined;
 
     return (
         <LinearGradient
@@ -55,7 +83,14 @@ const UserCruChatCard = ({
                             <Text style={styles.name} numberOfLines={1}>
                                 {userName}
                             </Text>
-                            <Text style={styles.time}>{CruChatTime}</Text>
+                            <View style={styles.dateTimeCol}>
+                                {CruChatDate?.trim() ? (
+                                    <Text style={styles.dateAboveTime} numberOfLines={1}>
+                                        {CruChatDate.trim()}
+                                    </Text>
+                                ) : null}
+                                <Text style={styles.time}>{CruChatTime}</Text>
+                            </View>
                         </View>
 
                         <View style={styles.movieRow}>
@@ -73,7 +108,8 @@ const UserCruChatCard = ({
                             )}
                         </View>
                         <Text style={styles.preview} numberOfLines={1}>
-                            Message: {CRUChat?.trim() ? CRUChat : 'No messages yet'}
+                            <Text style={styles.preview}>{previewLabel} </Text>
+                            <Text style={[styles.preview, statusValueStyle]}>{previewBody}</Text>
                         </Text>
                     </View>
                 </View>

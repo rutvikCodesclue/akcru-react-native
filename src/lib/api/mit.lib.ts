@@ -14,7 +14,7 @@ export const getMyMITs = async (): Promise<IMITInvite[] | undefined> => {
     }
 };
 
-export const getMyMITInvites = async (params: {
+export const getMyMITInvites = async (params?: {
     pending?: boolean;
     accepted?: boolean;
     declined?: boolean;

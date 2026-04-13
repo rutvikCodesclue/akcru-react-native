@@ -24,6 +24,27 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         color: COLORS.LIGHTGREY,
     },
+    inviteStatusRow: {
+        ...FONTS.Title2,
+        textAlign: 'center',
+        marginTop: 8,
+        letterSpacing: 0.5,
+    },
+    inviteStatusPrefix: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+    },
+    inviteStatusValue: {
+        ...FONTS.Title2,
+        color: COLORS.STARGOLD,
+    },
+    inviteStatusSubtext: {
+        ...FONTS.paragraph1,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+        marginTop: 4,
+        paddingHorizontal: 12,
+    },
     sheetcontainer: {
         flex: 1,
         backgroundColor: COLORS.BLACK,

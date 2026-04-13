@@ -1,5 +1,16 @@
 import React, {useState, useCallback, useRef, useEffect} from 'react';
-import {View, Text, ScrollView, ImageBackground, Image, TouchableOpacity, Alert, Animated} from 'react-native';
+import {
+    View,
+    Text,
+    ScrollView,
+    ImageBackground,
+    Image,
+    TouchableOpacity,
+    Alert,
+    Animated,
+    Easing,
+    StyleSheet,
+} from 'react-native';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
@@ -44,6 +55,26 @@ type Props = {
 
 const DEFAULT_COUNTDOWN_SECONDS = 48 * 60 * 60;
 
+/** Fog + ghost: fade in, hold ~3s at peak, fade out (~4.5–5s total). */
+const FOG_FADE_IN_MS = 900;
+const FOG_HOLD_MS = 500;
+const FOG_FADE_OUT_MS = 1000;
+
+function getInviteStatusExplanation(statusUpper: string): string {
+    switch (statusUpper) {
+        case 'PENDING':
+            return 'Movie invite not accepted yet';
+        case 'ACCEPTED':
+            return 'Movie invite accepted';
+        case 'DECLINED':
+            return 'Movie invite declined';
+        case 'EXPIRED':
+            return 'This invite has expired';
+        default:
+            return '';
+    }
+}
+
 const getRemainingSecondsFromExpiry = (expiresAt?: string | null): number => {
     if (!expiresAt) {
         return DEFAULT_COUNTDOWN_SECONDS;
@@ -74,6 +105,14 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const schedule: string | undefined = route.params?.schedule ?? null;
     const timezone: string | undefined = route.params?.timezone ?? null;
     const expiresAt: string | undefined = route.params?.expiresAt ?? null;
+    const statusFromParams: string | undefined = route.params?.status;
+    const statusFromMovie =
+        movie && typeof movie === 'object' && 'status' in movie && typeof (movie as {status?: unknown}).status === 'string'
+            ? (movie as {status: string}).status
+            : undefined;
+    const displayMovieStatus = statusFromParams ?? statusFromMovie;
+    const inviteStatusCode = (displayMovieStatus ?? 'PENDING').toString().toUpperCase();
+    const inviteStatusExplanation = getInviteStatusExplanation(inviteStatusCode);
     const initialRemainingSeconds = getRemainingSecondsFromExpiry(expiresAt);
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -85,6 +124,69 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const secondTensSwipeAnim = useRef(new Animated.Value(1)).current;
     const secondOnesSwipeAnim = useRef(new Animated.Value(1)).current;
     const previousRemainingSeconds = useRef<number>(initialRemainingSeconds);
+
+    /** Hide entire bottom accept/decline section (timer + swipe + hint) when invite is done or window ended. */
+    const showAcceptDeclineSection = React.useMemo(
+        () =>
+            inviteStatusCode !== 'ACCEPTED' &&
+            inviteStatusCode !== 'EXPIRED' &&
+            inviteStatusCode !== 'DECLINED' &&
+            remainingSeconds > 0,
+        [inviteStatusCode, remainingSeconds],
+    );
+
+    /** Expired (status or response window) or declined → ghosted content + fog overlay. */
+    const isFogged = React.useMemo(() => {
+        if (inviteStatusCode === 'DECLINED' || inviteStatusCode === 'EXPIRED') {
+            return true;
+        }
+        if (inviteStatusCode === 'ACCEPTED') {
+            return false;
+        }
+        return Boolean(expiresAt) && remainingSeconds <= 0;
+    }, [inviteStatusCode, expiresAt, remainingSeconds]);
+
+    const fogFadeProgress = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        if (!isFogged) {
+            fogFadeProgress.setValue(0);
+            return;
+        }
+        fogFadeProgress.setValue(0);
+        const sequence = Animated.sequence([
+            Animated.timing(fogFadeProgress, {
+                toValue: 1,
+                duration: FOG_FADE_IN_MS,
+                easing: Easing.out(Easing.cubic),
+                useNativeDriver: true,
+            }),
+            Animated.delay(FOG_HOLD_MS),
+            Animated.timing(fogFadeProgress, {
+                toValue: 0,
+                duration: FOG_FADE_OUT_MS,
+                easing: Easing.in(Easing.cubic),
+                useNativeDriver: true,
+            }),
+        ]);
+        sequence.start();
+        return () => sequence.stop();
+    }, [isFogged, fogFadeProgress]);
+
+    const ghostContentStyle = {
+        opacity: fogFadeProgress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [1, 0.4],
+        }),
+        transform: [
+            {
+                scale: fogFadeProgress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0.98],
+                }),
+            },
+        ],
+    };
 
     const [messages, setMessages] = useState<IMessage[]>([]);
 
@@ -320,8 +422,8 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     return (
         <TabContainer>
-            <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
-                <View style={styles.sheetcontainer}>
+            <View style={{flex: 1, backgroundColor: COLORS.BLACK, position: 'relative'}}>
+                <Animated.View style={[styles.sheetcontainer, isFogged ? ghostContentStyle : null]}>
                     <ScrollView
                         style={styles.chooseMitScroll}
                         contentContainerStyle={styles.chooseMitScrollContent}
@@ -617,68 +719,85 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                                                                     {getShortenedTimezone(timezone)}
                                                                                                 </Text>
                                                                                             </View>
+                                                                                            <View style={{alignItems: 'center'}}>
+                                                                                                <Text style={styles.inviteStatusRow}>
+                                                                                                    <Text style={styles.inviteStatusPrefix}>
+                                                                                                        Status:{' '}
+                                                                                                    </Text>
+                                                                                                    <Text style={styles.inviteStatusValue}>
+                                                                                                        {inviteStatusCode}
+                                                                                                    </Text>
+                                                                                                </Text>
+                                                                                                {inviteStatusExplanation ? (
+                                                                                                    <Text style={styles.inviteStatusSubtext}>
+                                                                                                        {inviteStatusExplanation}
+                                                                                                    </Text>
+                                                                                                ) : null}
+                                                                                            </View>
                                                                                         </View>
                                 </View>
                             </View>
                         </View>
                     </ScrollView>
-                    <View
-                        style={[
-                            styles.chooseMitBottomBar,
-                            {paddingBottom: Math.max(insets.bottom, 10)},
-                        ]}>
-                        <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
-                            <Text style={styles.countdownTitle}>Expires in....</Text>
-                            <View style={styles.countdownTimerRow}>
-                                <View style={styles.countdownUnit}>
-                                    <View style={styles.countdownDigitsRow}>
-                                        <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
-                                            </View>
-                                        </Animated.View>
-                                        <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
-                                            </View>
-                                        </Animated.View>
+                    {showAcceptDeclineSection ? (
+                        <View
+                            style={[
+                                styles.chooseMitBottomBar,
+                                {paddingBottom: Math.max(insets.bottom, 10)},
+                            ]}>
+                            <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
+                                <Text style={styles.countdownTitle}>Expires in....</Text>
+                                <View style={styles.countdownTimerRow}>
+                                    <View style={styles.countdownUnit}>
+                                        <View style={styles.countdownDigitsRow}>
+                                            <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                            <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                        </View>
+                                        <View style={styles.countdownMidLine} />
+                                        <Text style={styles.countdownUnitLabel}>HOURS</Text>
                                     </View>
-                                    <View style={styles.countdownMidLine} />
-                                    <Text style={styles.countdownUnitLabel}>HOURS</Text>
-                                </View>
 
-                                <View style={styles.countdownUnit}>
-                                    <View style={styles.countdownDigitsRow}>
-                                        <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
-                                            </View>
-                                        </Animated.View>
-                                        <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
-                                            </View>
-                                        </Animated.View>
+                                    <View style={styles.countdownUnit}>
+                                        <View style={styles.countdownDigitsRow}>
+                                            <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                            <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                        </View>
+                                        <View style={styles.countdownMidLine} />
+                                        <Text style={styles.countdownUnitLabel}>MINUTES</Text>
                                     </View>
-                                    <View style={styles.countdownMidLine} />
-                                    <Text style={styles.countdownUnitLabel}>MINUTES</Text>
-                                </View>
 
-                                <View style={styles.countdownUnit}>
-                                    <View style={styles.countdownDigitsRow}>
-                                        <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
-                                            </View>
-                                        </Animated.View>
-                                        <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
-                                            <View style={styles.countdownDigitBox}>
-                                                <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
-                                            </View>
-                                        </Animated.View>
+                                    <View style={styles.countdownUnit}>
+                                        <View style={styles.countdownDigitsRow}>
+                                            <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                            <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
+                                                <View style={styles.countdownDigitBox}>
+                                                    <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
+                                                </View>
+                                            </Animated.View>
+                                        </View>
+                                        <View style={styles.countdownMidLine} />
+                                        <Text style={styles.countdownUnitLabel}>SECONDS</Text>
                                     </View>
-                                    <View style={styles.countdownMidLine} />
-                                    <Text style={styles.countdownUnitLabel}>SECONDS</Text>
                                 </View>
                             </View>
                             <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
@@ -694,9 +813,37 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 </Text>
                             </View>
                         </View>
-                    </View>
-                </View>
+                    ) : null}
+                </Animated.View>
+                {isFogged ? (
+                    <Animated.View
+                        pointerEvents="none"
+                        style={[
+                            StyleSheet.absoluteFill,
+                            {zIndex: 6},
+                            {
+                                opacity: fogFadeProgress.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, 0.82],
+                                }),
+                            },
+                        ]}>
+                        <LinearGradient
+                            colors={[
+                                'rgba(255,255,255,0.22)',
+                                'rgba(160,150,200,0.55)',
+                                'rgba(90,85,120,0.5)',
+                                'rgba(255,255,255,0.18)',
+                            ]}
+                            locations={[0, 0.35, 0.65, 1]}
+                            start={{x: 0.2, y: 0}}
+                            end={{x: 0.85, y: 1}}
+                            style={StyleSheet.absoluteFill}
+                        />
+                    </Animated.View>
+                ) : null}
             </View>
+
         </TabContainer>
     );
 };

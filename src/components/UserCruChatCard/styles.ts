@@ -26,7 +26,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
-        paddingHorizontal: 14,
+        paddingHorizontal: 5,
         zIndex: 2,
         minHeight: 102,
     },
@@ -62,8 +62,20 @@ export default StyleSheet.create({
     topRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         marginBottom: 3,
+    },
+    dateTimeCol: {
+        alignItems: 'flex-end',
+        maxWidth: '52%',
+    },
+    dateAboveTime: {
+        ...FONTS.paragraph1,
+        fontSize: 11,
+        color: 'rgba(255,255,255,0.72)',
+        fontWeight: '600',
+        marginBottom: 2,
+        textAlign: 'right',
     },
     name: {
         ...FONTS.Title3,
@@ -78,6 +90,7 @@ export default StyleSheet.create({
         fontSize: 32 / 2,
         color: 'rgba(255,255,255,0.86)',
         fontWeight: '600',
+        textAlign: 'right',
     },
     movieRow: {
         flexDirection: 'row',

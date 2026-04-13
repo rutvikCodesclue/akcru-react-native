@@ -87,6 +87,7 @@ const MITHubList = () => {
                                                         timezone: item.timezone,
                                                         invitee: item.invitee,
                                                         expiresAt: item.expiresAt,
+                                                        status: item.status,
                                                     })
                                                 }
                                                 scheduleDate={item.startDate}
