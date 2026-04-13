@@ -28,6 +28,7 @@ import {useNavigation} from '@react-navigation/native';
 import VideoPlayer from 'react-native-media-console';
 import EngagementStatRow from '../EngagementStatRow/EngagementStatRow';
 import {navigateToCrummunitySendMIT} from '../../util/RootNavigation';
+import useAuthStore from '../../stores/auth.store';
 
 const neonIconWrap = (color: string) =>
     Platform.select({
@@ -179,6 +180,7 @@ const SkinnyPostCard = ({
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const currentUserMITTickets = useAuthStore(s => s.user?.MITCount ?? 0);
 
     const handleDeletePost = () => {
         closePostOptions();
@@ -648,7 +650,7 @@ const SkinnyPostCard = ({
                     <EngagementStatRow
                         likes={post._count?.likes ?? 0}
                         comments={post._count?.comments ?? 0}
-                        mitCount={(post as any).mitCount ?? (post as any).impressions ?? 0}
+                        mitCount={currentUserMITTickets}
                         isLiked={!!post.isLikedByCurrentUser}
                         onLike={() => onLikeOrUnlike(+post.id)}
                         onComment={CommentOnPostButton}

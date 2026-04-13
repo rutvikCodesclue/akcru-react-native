@@ -7,7 +7,6 @@ import Header from '../../components/header';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import CruChatComponent from './CruChatComponent';
 import BackButton from '../../components/General/backbutton';
-import {useHideBottomTabBarWhileFocused} from './useHideBottomTabBarWhileFocused';
 type ViewUserFollowListRouteProp = RouteProp<UserProfileStackParams, 'ViewChat'>;
 
 type Props = {
@@ -17,7 +16,6 @@ type Props = {
 const CruChat = ({route}: Props) => {
     const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    useHideBottomTabBarWhileFocused(navigation);
 
     useEffect(() => {
         const showSubscription = Keyboard.addListener('keyboardDidShow', () => setIsKeyboardVisible(true));

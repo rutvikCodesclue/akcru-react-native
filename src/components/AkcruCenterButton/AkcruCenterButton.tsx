@@ -1,104 +1,26 @@
-import {
-    Animated,
-    DeviceEventEmitter,
-    Easing,
-    Image,
-    InteractionManager,
-    Platform,
-    Pressable,
-    StyleSheet,
-    TouchableWithoutFeedback,
-    Vibration,
-    View,
-} from 'react-native';
+import {Animated, Pressable, StyleSheet, TouchableWithoutFeedback, View} from 'react-native';
 import React from 'react';
 import {AkcruControlBtn} from '../../../assets/svg';
-import imageindex from '../../../assets/images/imageindex';
 import {Icon} from '@rneui/base';
 import {COLORS} from '../../../assets/constants';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
-import {ClientTabsParams} from '../../navigation/ClientTabNavigator';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
+import {AkcruButtonStackParams} from '../../navigation/AkcruButtonStack';
 import {isTablet} from '../../../assets/constants/theme';
-import {UseTabMenu} from '../../context/TabContext';
-import {HEXAGON_SHAKE_EVENT} from '../../util/hexagonShakeEvent';
-import {navigateToUserMITHubScreen} from '../../util/RootNavigation';
 
-const SHAKE_STEPS_MS = 55;
+import SatelliteAuthHex from './SatelliteAuthHex';
 
-/** Five satellite buttons along the upper semicircle (π → 0): bell left, shop top, globe right. */
-function getHalfCircleOffsets(isTabletDevice: boolean): {x: number; y: number}[] {
-    const radius = isTabletDevice ? 118 : 92;
-    const angles = [Math.PI, (3 * Math.PI) / 4, Math.PI / 2, Math.PI / 4, 0];
-    return angles.map(a => ({
-        x: radius * Math.cos(a),
-        y: -radius * Math.sin(a),
-    }));
-}
+const HEX_ASPECT = 234 / 270;
 
 const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
-    const shakeRotation = React.useRef(new Animated.Value(0)).current;
 
-    const navigation = useNavigation<NavigationProp<ClientTabsParams>>();
-    const {mitNotificationUnreadCount, msgRcvdNotificationUnreadCount} = UseTabMenu();
+    const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
 
-    const tablet = isTablet();
-    const menuLiftAboveNav = tablet ? -64 : -52;
-    const centerButtonLift = tablet ? -40 : -28;
-    const centerLiftWhenOpen = centerButtonLift + menuLiftAboveNav;
-    const iconSize = tablet ? 32 : 25;
-
-    const runHexagonShake = React.useCallback(() => {
-        try {
-            Vibration.cancel();
-            if (Platform.OS === 'ios') {
-                Vibration.vibrate([0, 70, 90, 70]);
-            } else {
-                Vibration.vibrate([0, 55, 45, 55, 45, 55]);
-            }
-        } catch {
-            // ignore
-        }
-        shakeRotation.setValue(0);
-        // useNativeDriver false: same Animated.View as open/close translateY (also false).
-        Animated.sequence([
-            Animated.timing(shakeRotation, {
-                toValue: 1,
-                duration: SHAKE_STEPS_MS,
-                easing: Easing.out(Easing.quad),
-                useNativeDriver: false,
-            }),
-            Animated.timing(shakeRotation, {
-                toValue: -1,
-                duration: SHAKE_STEPS_MS,
-                easing: Easing.inOut(Easing.quad),
-                useNativeDriver: false,
-            }),
-            Animated.timing(shakeRotation, {
-                toValue: 1,
-                duration: SHAKE_STEPS_MS,
-                easing: Easing.inOut(Easing.quad),
-                useNativeDriver: false,
-            }),
-            Animated.timing(shakeRotation, {
-                toValue: -1,
-                duration: SHAKE_STEPS_MS,
-                easing: Easing.inOut(Easing.quad),
-                useNativeDriver: false,
-            }),
-            Animated.timing(shakeRotation, {
-                toValue: 0,
-                duration: SHAKE_STEPS_MS + 20,
-                easing: Easing.out(Easing.quad),
-                useNativeDriver: false,
-            }),
-        ]).start();
-    }, [shakeRotation]);
-
-    React.useEffect(() => {
-        const sub = DeviceEventEmitter.addListener(HEXAGON_SHAKE_EVENT, runHexagonShake);
-        return () => sub.remove();
-    }, [runHexagonShake]);
+    const centerButtonLift = isTablet() ? -40 : -28;
+    const iconSize = isTablet() ? 32 : 25;
+    const satelliteHexW = isTablet() ? 75 : 60;
+    const satelliteHexH = satelliteHexW * HEX_ASPECT;
 
     const handlePressShop = () => {
         navigation.navigate('AkcruButtonStack', {screen: 'PurchaseAdScreen'});
@@ -119,20 +41,6 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         toggleOpened();
     };
 
-    const handlePressMITChat = () => {
-        // Ensure UserProfileScreen is under ChatList so Back / tab reset work (single-route stacks break BackButton).
-        navigation.navigate('UserProfileStack', {screen: 'UserProfileScreen'});
-        InteractionManager.runAfterInteractions(() => {
-            navigation.navigate('UserProfileStack', {screen: 'ChatList'});
-            toggleOpened();
-        });
-    };
-
-    const handlePressNotifications = () => {
-        navigateToUserMITHubScreen(navigation, {index: 0});
-        toggleOpened();
-    };
-
     const handlePressCenterButton = () => {
         toggleOpened();
         console.log('handlePressCenterButton');
@@ -142,6 +50,7 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         Animated.timing(animation, {
             toValue: opened ? 1 : 0,
             duration: 300,
+            friction: 2,
             useNativeDriver: false,
         }).start();
     }, [opened, animation]);
@@ -152,11 +61,6 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
             outputRange: [0, 0, 1],
         }),
     };
-
-    const arc = getHalfCircleOffsets(tablet);
-    // [0]=left … [4]=right — arc slots: bell, calendar, shop; then chat-slot=Crusader, globe-slot=MIT chat
-    const [bell, calendar, shopTop, chatSlot, globeSlot] = arc;
-    const liftY = (y: number) => y + menuLiftAboveNav;
 
     return (
         <View style={styles.container}>
@@ -171,26 +75,30 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, calendar.x],
+                                            outputRange: [0, isTablet() ? -108 : -78],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, liftY(calendar.y)],
+                                            outputRange: [0, -90],
                                         }),
                                     },
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="calendar"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="calendar"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
+                        </View>
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressShop}>
@@ -203,26 +111,30 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, shopTop.x],
+                                            outputRange: [0, 8],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, liftY(shopTop.y)],
+                                            outputRange: [0, isTablet() ? -180 : -150],
                                         }),
                                     },
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="store"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="store"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
+                        </View>
                     </Animated.View>
                 </Pressable>
                 <Pressable onPressIn={handlePressWorld}>
@@ -235,95 +147,29 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateX: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, chatSlot.x],
+                                            outputRange: [0, isTablet() ? 120 : 90],
                                         }),
                                     },
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, liftY(chatSlot.y)],
+                                            outputRange: [0, -90],
                                         }),
                                     },
                                 ],
                             },
                         ]}>
-                        <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                        <Icon
-                            name="earth"
-                            type="material-community"
-                            color={COLORS.WHITE}
-                            size={iconSize}
-                            style={styles.itemIcon}
-                        />
-                    </Animated.View>
-                </Pressable>
-                <Pressable onPressIn={handlePressMITChat}>
-                    <Animated.View
-                        style={[
-                            styles.item,
-                            opacity,
-                            {
-                                transform: [
-                                    {
-                                        translateX: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, globeSlot.x],
-                                        }),
-                                    },
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, liftY(globeSlot.y)],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <View style={styles.hexBadgeWrap}>
-                            <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                            <Icon
-                                name="message-text"
-                                type="material-community"
-                                color={COLORS.WHITE}
-                                size={iconSize}
-                                style={styles.itemIcon}
-                            />
-                            {msgRcvdNotificationUnreadCount > 0 ? (
-                                <View style={styles.notificationRedDot} />
-                            ) : null}
-                        </View>
-                    </Animated.View>
-                </Pressable>
-                <Pressable onPressIn={handlePressNotifications}>
-                    <Animated.View
-                        style={[
-                            styles.item,
-                            opacity,
-                            {
-                                transform: [
-                                    {
-                                        translateX: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, bell.x],
-                                        }),
-                                    },
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, liftY(bell.y)],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <View style={styles.hexBadgeWrap}>
-                            <Image source={imageindex.AkcruHexBlank} resizeMode="contain" style={styles.item} />
-                            <Image
-                                source={imageindex.MITticket}
-                                resizeMode="contain"
-                                style={[styles.itemIcon, styles.mitTicketIcon, {width: iconSize, height: iconSize}]}
-                            />
-                            {mitNotificationUnreadCount > 0 ? <View style={styles.notificationRedDot} /> : null}
+                        <View style={styles.satelliteStack}>
+                            <SatelliteAuthHex width={satelliteHexW} height={satelliteHexH} />
+                            <View style={styles.satelliteIconOverlay} pointerEvents="none">
+                                <Icon
+                                    name="earth"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={iconSize}
+                                    style={styles.itemIcon}
+                                />
+                            </View>
                         </View>
                     </Animated.View>
                 </Pressable>
@@ -336,24 +182,13 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                                     {
                                         translateY: animation.interpolate({
                                             inputRange: [0, 1],
-                                            outputRange: [0, centerLiftWhenOpen],
-                                        }),
-                                    },
-                                    {
-                                        rotate: shakeRotation.interpolate({
-                                            inputRange: [-1, 0, 1],
-                                            outputRange: ['-13deg', '0deg', '13deg'],
+                                            outputRange: [0, centerButtonLift],
                                         }),
                                     },
                                 ],
                             },
                         ]}>
-                        <View style={styles.centerHexWrap}>
-                            {tablet ? <AkcruControlBtn width={90} height={90} /> : <AkcruControlBtn />}
-                            {mitNotificationUnreadCount > 0 || msgRcvdNotificationUnreadCount > 0 ? (
-                                <View style={styles.centerHexRedDot} />
-                            ) : null}
-                        </View>
+                        {isTablet() ? <AkcruControlBtn width={90} height={90} /> : <AkcruControlBtn />}
                     </Animated.View>
                 </TouchableWithoutFeedback>
             </View>
@@ -381,43 +216,19 @@ const styles = StyleSheet.create({
         width: isTablet() ? 75 : 60,
         height: isTablet() ? 75 : 60,
     },
-    itemIcon: {
-        marginBottom: 5,
+    satelliteStack: {
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
-    mitTicketIcon: {
-        marginBottom: 4,
-    },
-    hexBadgeWrap: {
+    satelliteIconOverlay: {
         ...StyleSheet.absoluteFillObject,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    notificationRedDot: {
-        position: 'absolute',
-        top: 4,
-        right: 4,
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: '#E53935',
-        borderWidth: 1.5,
-        borderColor: COLORS.AKCRUBACKGROUND,
-    },
-    centerHexWrap: {
-        position: 'relative',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    centerHexRedDot: {
-        position: 'absolute',
-        top: isTablet() ? 6 : 4,
-        right: isTablet() ? 8 : 15,
-        width: isTablet() ? 12 : 10,
-        height: isTablet() ? 12 : 10,
-        borderRadius: isTablet() ? 6 : 5,
-        backgroundColor: '#E53935',
-        borderWidth: 1.5,
-        borderColor: COLORS.AKCRUBACKGROUND,
+    itemIcon: {
+        marginBottom: 5,
     },
 });
 

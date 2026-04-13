@@ -13,57 +13,35 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../stores/auth.store';
 import Header from '../../components/header';
 import UserCruChatCard from '../../components/UserCruChatCard';
 import {getUsers} from '../../lib/api/rooms.lib'; // Ensure this fetches your chat users
 import {IChatUser} from '../../../types';
 import {COLORS, SIZES} from '../../../assets/constants';
-import {UserProfileStackParams} from '../../navigation/UserProfileStack';
+import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import BackButton from '../../components/General/backbutton';
 import {useHideBottomTabBarWhileFocused} from '../ChatScreens/useHideBottomTabBarWhileFocused';
 import {Icon} from '@rneui/base';
 import HexAvatar from '../../components/HexAvatar';
 import {selectAvatarBorderColor} from '../../util/util';
 import {BlurView} from '@react-native-community/blur';
-import {batchMarkNotificationsRead, getNotifyMePayload} from '../../lib/api/notify.lib';
-import {getUnreadMsgRcvdNotificationIds} from '../../util/notificationUnreadCount';
-import {UseTabMenu} from '../../context/TabContext';
 
 const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const {user} = useAuthStore();
-    const navigation = useNavigation<StackNavigationProp<UserProfileStackParams, 'ChatList'>>();
-    const {syncNotificationBadgeCounts} = UseTabMenu();
-    useHideBottomTabBarWhileFocused(navigation);
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
-    useEffect(() => {
-        const markMsgRcvdSeenOnLeave = () => {
-            void (async () => {
-                try {
-                    const payload = await getNotifyMePayload();
-                    const list = payload?.notifications ?? [];
-                    const ids = getUnreadMsgRcvdNotificationIds(list);
-                    if (ids.length === 0) {
-                        return;
-                    }
-                    const res = await batchMarkNotificationsRead(ids);
-                    if (!res.success) {
-                        return;
-                    }
-                    const fresh = await getNotifyMePayload();
-                    syncNotificationBadgeCounts(fresh?.notifications);
-                } catch {
-                    // ignore
-                }
-            })();
-        };
-        const unsub = navigation.addListener('beforeRemove', markMsgRcvdSeenOnLeave);
-        return unsub;
-    }, [navigation, syncNotificationBadgeCounts]);
+    const handleBackPress = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+            return;
+        }
+        navigation.navigate('ClientTabNavigator', {screen: 'CrummunityStack'});
+    };
 
     useEffect(() => {
         const fetchChatUsers = async () => {
@@ -141,7 +119,7 @@ const ChatList = () => {
                         navigation.navigate('ViewChat', {
                             mItInviteId: item.id,
                             userId: receiverUserId,
-                            profilePicture: receiverProfilePicture,
+                            profilePicture: receiverProfilePicture ?? '',
                             username: receiverUsername,
                         });
                     }}
@@ -182,16 +160,7 @@ const ChatList = () => {
                                         backgroundColor: 'transparent',
                                         paddingBottom: 10,
                                     }}>
-                                    <BackButton
-                                        navigation={navigation}
-                                        onBack={() => {
-                                            if (navigation.canGoBack()) {
-                                                navigation.goBack();
-                                            } else {
-                                                navigation.navigate('UserProfileScreen');
-                                            }
-                                        }}
-                                    />
+                                    <BackButton navigation={navigation} onBack={handleBackPress} />
                                 </View>
                                 <View style={styles.searchWrap}>
                                     <BlurView
@@ -233,7 +202,7 @@ const ChatList = () => {
                                                     navigation.navigate('ViewChat', {
                                                         mItInviteId: item.id,
                                                         userId: receiverUserId,
-                                                        profilePicture: receiver?.profilePicture,
+                                                        profilePicture: receiver?.profilePicture ?? '',
                                                         username: receiverName,
                                                     })
                                                 }>
@@ -261,18 +230,26 @@ const ChatList = () => {
                                     />
                                     <Text style={styles.chatPanelTitle}>MIT Chats</Text>
                                 </View>
-
-                                <FlatList
-                                    style={styles.chatList}
-                                    contentContainerStyle={styles.chatListContent}
-                                    data={filteredChatUsers}
-                                    keyExtractor={item => item.id}
-                                    renderItem={renderItem}
-                                    showsVerticalScrollIndicator={false}
-                                    bounces={false}
-                                    overScrollMode="never"
-                                    nestedScrollEnabled
-                                />
+                                {chatUsersData.length === 0 ? (
+                                    <View style={styles.emptyChatState}>
+                                        <Text style={styles.emptyChatTitle}>No chats yet</Text>
+                                        <Text style={styles.emptyChatSubtitle}>
+                                            Start a movie invite to begin your first MIT chat.
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <FlatList
+                                        style={styles.chatList}
+                                        contentContainerStyle={styles.chatListContent}
+                                        data={filteredChatUsers}
+                                        keyExtractor={item => item.id}
+                                        renderItem={renderItem}
+                                        showsVerticalScrollIndicator={false}
+                                        bounces={false}
+                                        overScrollMode="never"
+                                        nestedScrollEnabled
+                                    />
+                                )}
                             </View>
                         </View>
                     ) : (
@@ -385,6 +362,24 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         marginTop: 8,
         marginBottom: 8,
+    },
+    emptyChatState: {
+        flex: 1,
+        minHeight: 180,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+    },
+    emptyChatTitle: {
+        color: COLORS.WHITE,
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    emptyChatSubtitle: {
+        color: 'rgba(255,255,255,0.75)',
+        fontSize: 14,
+        textAlign: 'center',
     },
 });
 

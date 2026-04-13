@@ -28,6 +28,7 @@ import CustomIcon from '../CustomIcon/CustomIcon';
 import {isTablet} from '../../../assets/constants/theme';
 import EngagementStatRow from '../EngagementStatRow/EngagementStatRow';
 import {IUserProfile} from '../../../types';
+import useAuthStore from '../../stores/auth.store';
 
 const neonIconWrap = (color: string) =>
     Platform.select({
@@ -158,6 +159,7 @@ const PostCard = ({
     const isCurrentUserAuthor = post.author.id === currentUserID;
 
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const currentUserMITTickets = useAuthStore(s => s.user?.MITCount ?? 0);
 
     const handleDeletePost = () => {
         closePostOptions();
@@ -556,7 +558,7 @@ const PostCard = ({
                     <EngagementStatRow
                         likes={post._count?.likes ?? 0}
                         comments={post._count?.comments ?? 0}
-                        mitCount={(post as any).mitCount ?? (post as any).impressions ?? 0}
+                        mitCount={currentUserMITTickets}
                         isLiked={!!post.isLikedByCurrentUser}
                         onLike={() => onLikeOrUnlike(+post.id)}
                         onComment={CommentOnPostButton}
