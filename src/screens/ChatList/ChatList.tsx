@@ -22,7 +22,6 @@ import {IChatUser} from '../../../types';
 import {COLORS, SIZES} from '../../../assets/constants';
 import {UserProfileStackParams} from '../../navigation/UserProfileStack';
 import BackButton from '../../components/General/backbutton';
-import {useHideBottomTabBarWhileFocused} from '../ChatScreens/useHideBottomTabBarWhileFocused';
 import {Icon} from '@rneui/base';
 import HexAvatar from '../../components/HexAvatar';
 import {selectAvatarBorderColor} from '../../util/util';
@@ -38,32 +37,31 @@ const ChatList = () => {
     const {user} = useAuthStore();
     const navigation = useNavigation<StackNavigationProp<UserProfileStackParams, 'ChatList'>>();
     const {syncNotificationBadgeCounts} = UseTabMenu();
-    useHideBottomTabBarWhileFocused(navigation);
 
     useEffect(() => {
-        const markMsgRcvdSeenOnLeave = () => {
-            void (async () => {
-                try {
-                    const payload = await getNotifyMePayload();
-                    const list = payload?.notifications ?? [];
-                    const ids = getUnreadMsgRcvdNotificationIds(list);
-                    if (ids.length === 0) {
-                        return;
+            const markMsgRcvdSeenOnLeave = () => {
+                void (async () => {
+                    try {
+                        const payload = await getNotifyMePayload();
+                        const list = payload?.notifications ?? [];
+                        const ids = getUnreadMsgRcvdNotificationIds(list);
+                        if (ids.length === 0) {
+                            return;
+                        }
+                        const res = await batchMarkNotificationsRead(ids);
+                        if (!res.success) {
+                            return;
+                        }
+                        const fresh = await getNotifyMePayload();
+                        syncNotificationBadgeCounts(fresh?.notifications);
+                    } catch {
+                        // ignore
                     }
-                    const res = await batchMarkNotificationsRead(ids);
-                    if (!res.success) {
-                        return;
-                    }
-                    const fresh = await getNotifyMePayload();
-                    syncNotificationBadgeCounts(fresh?.notifications);
-                } catch {
-                    // ignore
-                }
-            })();
-        };
-        const unsub = navigation.addListener('beforeRemove', markMsgRcvdSeenOnLeave);
-        return unsub;
-    }, [navigation, syncNotificationBadgeCounts]);
+                })();
+            };
+            const unsub = navigation.addListener('beforeRemove', markMsgRcvdSeenOnLeave);
+            return unsub;
+        }, [navigation, syncNotificationBadgeCounts]);
 
     useEffect(() => {
         const fetchChatUsers = async () => {
@@ -141,7 +139,7 @@ const ChatList = () => {
                         navigation.navigate('ViewChat', {
                             mItInviteId: item.id,
                             userId: receiverUserId,
-                            profilePicture: receiverProfilePicture,
+                            profilePicture: receiverProfilePicture ?? '',
                             username: receiverUsername,
                         });
                     }}
@@ -233,7 +231,7 @@ const ChatList = () => {
                                                     navigation.navigate('ViewChat', {
                                                         mItInviteId: item.id,
                                                         userId: receiverUserId,
-                                                        profilePicture: receiver?.profilePicture,
+                                                        profilePicture: receiver?.profilePicture ?? '',
                                                         username: receiverName,
                                                     })
                                                 }>
@@ -261,18 +259,26 @@ const ChatList = () => {
                                     />
                                     <Text style={styles.chatPanelTitle}>MIT Chats</Text>
                                 </View>
-
-                                <FlatList
-                                    style={styles.chatList}
-                                    contentContainerStyle={styles.chatListContent}
-                                    data={filteredChatUsers}
-                                    keyExtractor={item => item.id}
-                                    renderItem={renderItem}
-                                    showsVerticalScrollIndicator={false}
-                                    bounces={false}
-                                    overScrollMode="never"
-                                    nestedScrollEnabled
-                                />
+                                {chatUsersData.length === 0 ? (
+                                    <View style={styles.emptyChatState}>
+                                        <Text style={styles.emptyChatTitle}>No chats yet</Text>
+                                        <Text style={styles.emptyChatSubtitle}>
+                                            Start a movie invite to begin your first MIT chat.
+                                        </Text>
+                                    </View>
+                                ) : (
+                                    <FlatList
+                                        style={styles.chatList}
+                                        contentContainerStyle={styles.chatListContent}
+                                        data={filteredChatUsers}
+                                        keyExtractor={item => item.id}
+                                        renderItem={renderItem}
+                                        showsVerticalScrollIndicator={false}
+                                        bounces={false}
+                                        overScrollMode="never"
+                                        nestedScrollEnabled
+                                    />
+                                )}
                             </View>
                         </View>
                     ) : (
@@ -385,6 +391,24 @@ const styles = StyleSheet.create({
         marginHorizontal: 0,
         marginTop: 8,
         marginBottom: 8,
+    },
+    emptyChatState: {
+        flex: 1,
+        minHeight: 180,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+    },
+    emptyChatTitle: {
+        color: COLORS.WHITE,
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    emptyChatSubtitle: {
+        color: 'rgba(255,255,255,0.75)',
+        fontSize: 14,
+        textAlign: 'center',
     },
 });
 

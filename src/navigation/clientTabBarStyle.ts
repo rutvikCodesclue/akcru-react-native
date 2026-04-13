@@ -1,15 +1,25 @@
 import {Platform} from 'react-native';
 import {COLORS} from '../../assets/constants';
-import {isTablet} from '../../assets/constants/theme';
 
-/** Shared with ClientTabNavigator — used to restore the bar after chat screens blur */
+/** Shared with ClientTabNavigator — used to restore the bar after nested screens hide it */
 export const clientTabBarStyle = {
     position: 'absolute' as const,
-    padding: 0,
-    bottom: Platform.OS === 'ios' ? 50 : 10,
-    height: isTablet() ? 80 : 60,
+    paddingHorizontal: 0,
+    /** Pull row up vs dead space above; keeps labels off the bottom rim of the pill */
+    paddingTop: 0,
+    paddingBottom: 10,
+    /** Small lift from screen edge so navbar and home area don’t feel “stuck” together */
+    bottom: Platform.OS === 'ios' ? 22 : 6,
+    /** Pill height; keep room for center FAB lift so it is not clipped */
+    height: 72,
+    justifyContent: 'center' as const,
     borderRadius: 16,
-    backgroundColor: COLORS.TRANSDARKGREY,
+    /** Must stay visible so `AkcruCenterButton` satellite hexes can animate above the pill */
+    overflow: 'visible' as const,
+    /** Frosted look comes from `tabBarBackground` BlurView; keep bar shell transparent */
+    backgroundColor: 'transparent' as const,
+    borderWidth: 0 as const,
+    borderTopWidth: 0 as const,
     borderTopColor: 'transparent' as const,
     shadowColor: COLORS.FADEDBLACK,
     shadowOffset: {

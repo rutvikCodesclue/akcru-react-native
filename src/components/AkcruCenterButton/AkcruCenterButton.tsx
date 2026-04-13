@@ -3,11 +3,9 @@ import {
     DeviceEventEmitter,
     Easing,
     Image,
-    InteractionManager,
     Platform,
     Pressable,
     StyleSheet,
-    TouchableWithoutFeedback,
     Vibration,
     View,
 } from 'react-native';
@@ -34,6 +32,7 @@ function getHalfCircleOffsets(isTabletDevice: boolean): {x: number; y: number}[]
         y: -radius * Math.sin(a),
     }));
 }
+
 
 const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({opened, toggleOpened}) => {
     const animation = React.useRef(new Animated.Value(0)).current;
@@ -103,7 +102,6 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     const handlePressShop = () => {
         navigation.navigate('AkcruButtonStack', {screen: 'PurchaseAdScreen'});
         toggleOpened();
-        console.log('handlePressShop');
     };
     // new
     const handlePressWorld = () => {
@@ -120,12 +118,9 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     };
 
     const handlePressMITChat = () => {
-        // Ensure UserProfileScreen is under ChatList so Back / tab reset work (single-route stacks break BackButton).
-        navigation.navigate('UserProfileStack', {screen: 'UserProfileScreen'});
-        InteractionManager.runAfterInteractions(() => {
-            navigation.navigate('UserProfileStack', {screen: 'ChatList'});
-            toggleOpened();
-        });
+        // Single jump: MIT Chat tab + ChatList. A second navigate caused duplicate ChatList focus and double dev logs.
+        navigation.navigate('MITChatStack', {screen: 'ChatList'});
+        toggleOpened();
     };
 
     const handlePressNotifications = () => {
@@ -133,15 +128,11 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
         toggleOpened();
     };
 
-    const handlePressCenterButton = () => {
-        toggleOpened();
-        console.log('handlePressCenterButton');
-    };
-
     React.useEffect(() => {
         Animated.timing(animation, {
             toValue: opened ? 1 : 0,
             duration: 300,
+            friction: 2,
             useNativeDriver: false,
         }).start();
     }, [opened, animation]);
@@ -161,6 +152,9 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
     return (
         <View style={styles.container}>
             <View style={styles.box}>
+                {/* When closed, satellites sit at (0,0) under the big hex; without this, touches pass through
+                    `box-none` + `pointerEvents="none"` on the center art and hit the MIT satellite → UserMITHub. */}
+                <View pointerEvents={opened ? 'auto' : 'none'} style={styles.satelliteLayer}>
                 <Pressable onPressIn={handlePressCalendar}>
                     <Animated.View
                         style={[
@@ -327,35 +321,36 @@ const AkcruCenterButton: React.FC<{opened: any; toggleOpened: () => void}> = ({o
                         </View>
                     </Animated.View>
                 </Pressable>
-                <TouchableWithoutFeedback onPressIn={handlePressCenterButton}>
-                    <Animated.View
-                        style={[
-                            {
-                                zIndex: opened ? 0 : 1,
-                                transform: [
-                                    {
-                                        translateY: animation.interpolate({
-                                            inputRange: [0, 1],
-                                            outputRange: [0, centerLiftWhenOpen],
-                                        }),
-                                    },
-                                    {
-                                        rotate: shakeRotation.interpolate({
-                                            inputRange: [-1, 0, 1],
-                                            outputRange: ['-13deg', '0deg', '13deg'],
-                                        }),
-                                    },
-                                ],
-                            },
-                        ]}>
-                        <View style={styles.centerHexWrap}>
-                            {tablet ? <AkcruControlBtn width={90} height={90} /> : <AkcruControlBtn />}
-                            {mitNotificationUnreadCount > 0 || msgRcvdNotificationUnreadCount > 0 ? (
-                                <View style={styles.centerHexRedDot} />
-                            ) : null}
-                        </View>
-                    </Animated.View>
-                </TouchableWithoutFeedback>
+                </View>
+                {/* Center tap open/close is handled by `CenterHexTabBarButton` in ClientTabNavigator (single Pressable). */}
+                <Animated.View
+                    pointerEvents={opened ? 'box-none' : 'auto'}
+                    style={[
+                        {
+                            zIndex: opened ? 12 : 1,
+                            transform: [
+                                {
+                                    translateY: animation.interpolate({
+                                        inputRange: [0, 1],
+                                        outputRange: [0, centerLiftWhenOpen],
+                                    }),
+                                },
+                                {
+                                    rotate: shakeRotation.interpolate({
+                                        inputRange: [-1, 0, 1],
+                                        outputRange: ['-13deg', '0deg', '13deg'],
+                                    }),
+                                },
+                            ],
+                        },
+                    ]}>
+                    <View style={styles.centerHexWrap} pointerEvents="none">
+                        {tablet ? <AkcruControlBtn width={90} height={90} /> : <AkcruControlBtn />}
+                        {mitNotificationUnreadCount > 0 || msgRcvdNotificationUnreadCount > 0 ? (
+                            <View style={styles.centerHexRedDot} />
+                        ) : null}
+                    </View>
+                </Animated.View>
             </View>
         </View>
     );
@@ -374,12 +369,26 @@ const styles = StyleSheet.create({
         marginTop: -3,
         overflow: 'visible',
     },
+    satelliteLayer: {
+        ...StyleSheet.absoluteFillObject,
+    },
     item: {
         position: 'absolute',
         alignItems: 'center',
         justifyContent: 'center',
         width: isTablet() ? 75 : 60,
         height: isTablet() ? 75 : 60,
+    },
+    satelliteStack: {
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    satelliteIconOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     itemIcon: {
         marginBottom: 5,
