@@ -33,12 +33,12 @@ const MIT4 = require('./MIT4.png');
 const LrgMIT = require('./LrgMIT.png');
 const hexbg = require('./hexbg.png');
 const Trinity = require('./Trinity.png');
+const FindMyMatch = require('./find_my_match.jpg');
+const JustAVibe = require('./just_a_vibe.jpg');
 const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const FLickFlirtBG = require('./blurred_ff_background.png');
 const CrummunitySendMITHero = require('./CrummunitySendMITHero.png');
-// const mitSendScreenBg = require('./mit_send_screen_bg.png');
-//const mitReferenceBg = require('./mit_reference_bg.png');
 const UnlockingCards = require('./unlocking_cards.png');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
@@ -80,6 +80,8 @@ export default {
     hexbg,
     SpaceCrimePuzzler,
     Trinity,
+    FindMyMatch,
+    JustAVibe,
     AkcruHexBlank,
     FLickFlirt,
     Akcrunetwork,
@@ -87,7 +89,5 @@ export default {
     barcode,
     FLickFlirtBG,
     CrummunitySendMITHero,
-   //mitSendScreenBg,
-    //mitReferenceBg,
     UnlockingCards,
 };

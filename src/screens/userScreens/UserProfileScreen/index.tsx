@@ -622,14 +622,26 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             color={COLORS.PINK}
                                             disabled={false}
                                         />
-                                        {/*     <View style={{marginTop: 10}}>
+                                        <View style={{marginTop: 10}}>
                                             <AkcruButtons.XSmallButton
-                                                btnname="Best match"
-                                                onPress={() => navigation.navigate('BestMatchScreen')}
+                                                btnname="Match modes"
+                                                onPress={() => navigation.navigate('UserMatchModesScreen')}
                                                 color={COLORS.AKCRUBLUE}
                                                 disabled={false}
                                             />
-                                        </View> */}
+                                        </View>
+                                        <View style={{marginTop: 10}}>
+                                            <AkcruButtons.XSmallButton
+                                                btnname="Archetype Standalone"
+                                                onPress={() =>
+                                                    navigate('OnboardArchetypeStandalone', {
+                                                        fromOnboardArchetypeStandalone: true,
+                                                    })
+                                                }
+                                                color={COLORS.PURPLE}
+                                                disabled={false}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
                             </View>

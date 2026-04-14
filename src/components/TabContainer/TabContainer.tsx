@@ -22,6 +22,7 @@ const TabContainer = ({children}: any) => {
             {children}
             {opened && (
                 <Animated.View
+                    pointerEvents="none"
                     style={[
                         styles.overlay,
                         {

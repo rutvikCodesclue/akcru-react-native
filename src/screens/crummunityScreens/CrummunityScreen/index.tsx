@@ -621,6 +621,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             </View>
                         </ScrollView>
                         <View
+                            pointerEvents="box-none"
                             style={[
                                 styles.floatingbutton,
                                 {paddingBottom: Math.max(10, insets.bottom + 6)},

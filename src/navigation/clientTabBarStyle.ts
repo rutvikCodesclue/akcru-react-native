@@ -3,6 +3,8 @@ import {COLORS} from '../../assets/constants';
 
 /** Shared with ClientTabNavigator — used to restore the bar after nested screens hide it */
 export const clientTabBarStyle = {
+    /** Above in-scene bottom overlays (e.g. Crummunity floating post/poll strip uses zIndex 20) so tabs stay tappable */
+    zIndex: 50,
     position: 'absolute' as const,
     paddingHorizontal: 0,
     /** Pull row up vs dead space above; keeps labels off the bottom rim of the pill */

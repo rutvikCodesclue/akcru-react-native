@@ -261,7 +261,7 @@ export function UserProfileStack() {
             <UserProfile.Screen
                 name="UserMatchModesScreen"
                 component={UserMatchModesScreen}
-                options={() => ({headerShown: false})}
+                options={() => ({headerShown: false, gestureEnabled: false})}
             />
             <UserProfile.Screen
                 name="BestMatchScreen"

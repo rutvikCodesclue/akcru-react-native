@@ -29,6 +29,7 @@ import FlickFlirtScreen from '../screens/CenterButtonScreens/FlickFlirt';
 import {API} from '../clients/api.client';
 import {DeviceEventEmitter} from 'react-native';
 import {isTablet} from '../../assets/constants/theme';
+import {logTabBarTouch} from '../debug/tabBarTouchDebug';
 
 /** Selected tab only: gradient disk + glow; inactive tabs show icon only (no circle) */
 const ICON_FOCUSED_GRADIENT = ['rgba(232,205,255,0.96)', 'rgba(255,200,232,0.88)', 'rgba(118,95,145,1)'];
@@ -85,33 +86,6 @@ const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
 
 type TabBarProps = React.ComponentProps<typeof BottomTabBar>;
 
-/** Circular tap / ripple so the control reads as the gradient disk, not the icon glyph alone */
-function TabBarCircleButton({children, style, ...rest}: BottomTabBarButtonProps) {
-    const navStyle = style as
-        | StyleProp<ViewStyle>
-        | ((state: PressableStateCallbackType) => StyleProp<ViewStyle>)
-        | undefined;
-    return (
-        <Pressable
-            {...rest}
-            android_ripple={
-                Platform.OS === 'android'
-                    ? {
-                          borderless: true,
-                          radius: 26,
-                          color: 'rgba(255, 255, 255, 0.22)',
-                      }
-                    : undefined
-            }
-            style={state => [
-                styles.tabBarCircleButton,
-                typeof navStyle === 'function' ? navStyle(state) : navStyle,
-            ]}>
-            {children}
-        </Pressable>
-    );
-}
-
 /**
  * Center hex: one press target for the whole tab slot (avoids nested Pressable vs inner Touchable fighting).
  * Tapping only toggles the satellite hex menu + big-hex animation — does not switch tabs or navigate (e.g. MIT Hub).
@@ -126,9 +100,13 @@ function CenterHexTabBarButton({children, style, onPress: _tabDefaultOnPress, ..
         <Pressable
             {...rest}
             onPress={e => {
+                logTabBarTouch('centerHex onPress', {
+                    hasPreventDefault: typeof e?.preventDefault === 'function',
+                });
                 e?.preventDefault?.();
                 toggleOpened();
             }}
+            onPressIn={() => logTabBarTouch('centerHex onPressIn')}
             android_ripple={
                 Platform.OS === 'android'
                     ? {
@@ -154,12 +132,20 @@ function ClientTabBar(props: TabBarProps) {
     if (active?.name === 'UserProfileStack') {
         const nestedFocused = getFocusedRouteNameFromRoute(active);
         if (nestedFocused === 'ViewChat') {
+            logTabBarTouch('ClientTabBar render null', {
+                reason: 'UserProfileStack + ViewChat',
+            });
             return null;
         }
     }
     if (active?.name === 'ClientStack' || active?.name === 'AkcruButtonStack') {
         const nestedFocused = getFocusedRouteNameFromRoute(active);
         if (nestedFocused === 'PurchaseAdScreen' || nestedFocused === 'UnlockingMatches') {
+            logTabBarTouch('ClientTabBar render null', {
+                reason: 'PurchaseAdScreen or UnlockingMatches',
+                stack: active?.name,
+                nestedFocused,
+            });
             return null;
         }
     }
@@ -192,9 +178,14 @@ export default function ClientTabNavigator() {
         return () => sub.remove();
     }, [fetchMatches]);
 
-    const closeCenterButtonIfOpen = (e: any) => {
+    useEffect(() => {
+        logTabBarTouch('ClientTabNavigator mounted (debug tap logging active)');
+    }, []);
+
+    /** Close the hex menu when switching tabs; do not call `preventDefault` — that blocked navigation so the first tap only closed the menu. */
+    const closeCenterButtonIfOpen = () => {
         if (opened) {
-            e.preventDefault();
+            logTabBarTouch('closeCenterButtonIfOpen: toggling menu closed');
             toggleOpened();
         }
     };
@@ -205,6 +196,14 @@ export default function ClientTabNavigator() {
             tabBar={(tabBarProps) => <ClientTabBar {...tabBarProps} />}
             sceneContainerStyle={{backgroundColor: COLORS.AKCRUBACKGROUND}}
             initialRouteName="CrummunityStack"
+            screenListeners={({route}) => ({
+                tabPress: e => {
+                    logTabBarTouch('screenListeners tabPress', {
+                        routeName: route.name,
+                        defaultPrevented: e.defaultPrevented,
+                    });
+                },
+            })}
             screenOptions={{
                 tabBarStyle: clientTabBarStyle,
                 /** RN adds safe-area padding inside the bar; we already offset the whole pill via `bottom` */
@@ -220,10 +219,10 @@ export default function ClientTabNavigator() {
                     alignItems: 'center',
                     overflow: 'visible',
                 },
-                tabBarButton: props => <TabBarCircleButton {...props} />,
                 tabBarBackground: () => (
                     <View style={styles.tabBarBlurPill} pointerEvents="none">
                         <BlurView
+                            pointerEvents="none"
                             style={StyleSheet.absoluteFill}
                             blurType={Platform.OS === 'ios' ? 'regular' : 'dark'}
                             blurAmount={Platform.OS === 'ios' ? 10 : 12}
@@ -323,15 +322,13 @@ export default function ClientTabNavigator() {
                 component={AkcruButtonStack}
                 options={{
                     tabBarItemStyle: {
-                        height: 0,
                         overflow: 'visible',
-                        zIndex: 100,
                     },
                     headerShown: false,
                     tabBarLabel: () => null,
                     tabBarButton: props => <CenterHexTabBarButton {...props} />,
                     tabBarIcon: () => (
-                        <View style={styles.centerHexTabIconWrap} collapsable={false}>
+                        <View style={styles.centerHexTabIconWrap} pointerEvents="box-none" collapsable={false}>
                             <View style={styles.centerHexLift} collapsable={false}>
                                 <AkcruCenterButton opened={opened} toggleOpened={toggleOpened} />
                             </View>
