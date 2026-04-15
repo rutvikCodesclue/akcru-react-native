@@ -44,7 +44,9 @@ export default StyleSheet.create({
         marginBottom: 10,
     },
     bgimage: {
+        flex: 1,
         height: SIZES.ScreenHeight,
+        backgroundColor: COLORS.AKCRUBACKGROUND,
     },
     container: {
         flex: 1,

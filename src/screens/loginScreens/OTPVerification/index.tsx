@@ -41,9 +41,11 @@ const OTPVerification = ({route}) => {
     //OTP Modal
     const [showVerifiedModal, setShowVerifiedModal] = useState(false);
     const [typeOTPModal, setTypeOTPModal] = useState('');
+    const [otpResultMessage, setOtpResultMessage] = useState('');
 
-    const handleShowOTPModal = (typeOTPModal: React.SetStateAction<string>) => {
-        setTypeOTPModal(typeOTPModal);
+    const handleShowOTPModal = (modalType: string, message = '') => {
+        setOtpResultMessage(message);
+        setTypeOTPModal(modalType);
         setShowVerifiedModal(true);
     };
 
@@ -51,10 +53,13 @@ const OTPVerification = ({route}) => {
         if (typeOTPModal === 'success') {
             //do something
         }
+        setOtpResultMessage('');
         setShowVerifiedModal(false);
     };
 
     const resendEmail = async (triggerTimer: (targetTimeSeconds?: number) => void) => {
+        setCode('');
+        setPinReady(false);
         if (!email && !phoneNumber) {
             setResendStatus('Failed');
             return;
@@ -103,12 +108,14 @@ const OTPVerification = ({route}) => {
                     phoneNumber: phoneNumber,
                 });
             } else {
-                throw new Error(data.message || 'Verification failed');
+                handleShowOTPModal('failed', data?.message || 'Verification failed');
+                setVerify(false);
             }
         } catch (error) {
             console.error('Verification failed', error);
             setVerify(false);
-            handleShowOTPModal('failed');
+            const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+            handleShowOTPModal('failed', errorMessage);
         }
     };
 
@@ -204,7 +211,7 @@ const OTPVerification = ({route}) => {
                             </View>
                         </ScrollView>
                         <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>
-                            <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} />
+                            <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} message={otpResultMessage} />
                         </Modal>
                     </View>
                 </KeyboardAvoidingView>

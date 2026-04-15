@@ -46,15 +46,18 @@ const OTPVerificationSignup = ({route}) => {
     //OTP Modal
     const [showVerifiedModal, setShowVerifiedModal] = useState(false);
     const [typeOTPModal, setTypeOTPModal] = useState('');
+    const [otpResultMessage, setOtpResultMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [pendingAfterSuccess, setPendingAfterSuccess] = useState<'navigate_username' | 'navigate_email_or_password' | null>(null);
 
-    const handleShowOTPModal = (typeOTPModal: React.SetStateAction<string>) => {
-        setTypeOTPModal(typeOTPModal);
+    const handleShowOTPModal = (modalType: string, message = '') => {
+        setOtpResultMessage(message);
+        setTypeOTPModal(modalType);
         setShowVerifiedModal(true);
     };
 
     const handleCloseOTPModal = () => {
+        setOtpResultMessage('');
         setShowVerifiedModal(false);
         if (typeOTPModal === 'success' && pendingAfterSuccess === 'navigate_username') {
             setPendingAfterSuccess(null);
@@ -71,6 +74,8 @@ const OTPVerificationSignup = ({route}) => {
     };
 
     const resendOTP = async triggerTimer => {
+        setCode('');
+        setPinReady(false);
         setResendingEmail(true);
         try {
             const payload = email ? {email} : {phoneNumber: '1' + phoneNumber};
@@ -127,11 +132,12 @@ const OTPVerificationSignup = ({route}) => {
                     handleShowOTPModal('success');
                 }
             } else {
-                throw new Error(data.message || 'Verification failed');
+                handleShowOTPModal('failed', data?.message || 'Verification failed');
             }
         } catch (error) {
             console.error('Verification failed', error);
-            handleShowOTPModal('failed');
+            const errorMessage = error instanceof Error ? error.message : 'Verification failed';
+            handleShowOTPModal('failed', errorMessage);
         } finally {
             setLoading(false);
         }
@@ -237,7 +243,7 @@ const OTPVerificationSignup = ({route}) => {
                             </View>
                         </View>
                         <Modal animationType="fade" transparent={true} visible={showVerifiedModal}>
-                            <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} />
+                            <OTPResultModal closeModal={handleCloseOTPModal} type={typeOTPModal} message={otpResultMessage} />
                         </Modal>
                     </ScrollView>
                 </KeyboardAvoidingView>

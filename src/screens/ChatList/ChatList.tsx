@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
     ActivityIndicator,
     FlatList,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import useAuthStore from '../../stores/auth.store';
 import Header from '../../components/header';
@@ -63,37 +63,39 @@ const ChatList = () => {
             return unsub;
         }, [navigation, syncNotificationBadgeCounts]);
 
-    useEffect(() => {
-        const fetchChatUsers = async () => {
-            try {
-                const response = await getUsers();
-                if (response) {
-                    setChatUsersData(response);
-                    setIsListLoaded(true);
+    const fetchChatUsers = useCallback(async () => {
+        try {
+            const response = await getUsers();
+            if (response) {
+                setChatUsersData(response);
+                setIsListLoaded(true);
 
-                    response.forEach(item => {
-                        const movieScheduledTime = new Date(item.startDate).getTime();
-                        const currentTime = new Date().getTime();
+                response.forEach(item => {
+                    const movieScheduledTime = new Date(item.startDate).getTime();
+                    const currentTime = new Date().getTime();
 
-                        const threeHoursInMs = 3 * 60 * 60 * 1000;
-                        const timeToRemove = movieScheduledTime + threeHoursInMs - currentTime;
+                    const threeHoursInMs = 3 * 60 * 60 * 1000;
+                    const timeToRemove = movieScheduledTime + threeHoursInMs - currentTime;
 
-                        if (timeToRemove > 0) {
-                            const timeoutId = setTimeout(() => {
-                                setChatUsersData(prevChatUsersData => prevChatUsersData.filter(u => u.id !== item.id));
-                            }, timeToRemove);
+                    if (timeToRemove > 0) {
+                        const timeoutId = setTimeout(() => {
+                            setChatUsersData(prevChatUsersData => prevChatUsersData.filter(u => u.id !== item.id));
+                        }, timeToRemove);
 
-                            return () => clearTimeout(timeoutId);
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching chat users:', error);
+                        return () => clearTimeout(timeoutId);
+                    }
+                });
             }
-        };
-
-        fetchChatUsers();
+        } catch (error) {
+            console.error('Error fetching chat users:', error);
+        }
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            void fetchChatUsers();
+        }, [fetchChatUsers]),
+    );
 
     const getReceiverInfo = (item: IChatUser) => {
         const isCurrentUserCreator = user?.id === item.creatorId;

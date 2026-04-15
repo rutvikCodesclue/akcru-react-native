@@ -6,7 +6,9 @@ const inputHeight = isTablet() ? 60 : 50;
 
 export default StyleSheet.create({
     bgimage: {
+        flex: 1,
         height: SIZES.ScreenHeight,
+        backgroundColor: COLORS.AKCRUBACKGROUND,
 
     },
     headerRow: {

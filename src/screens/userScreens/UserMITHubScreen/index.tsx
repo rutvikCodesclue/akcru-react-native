@@ -254,7 +254,12 @@ const UserMITHubScreen = ({navigation, route}: Props) => {
                                         <View style={{marginRight: 20}}>
                                             <TouchableOpacity
                                                 onPress={() => {
-                                                    navigation.navigate('ChatList');
+                                                    navigation.navigate('ClientTabNavigator' as never, {
+                                                        screen: 'MITChatStack',
+                                                        params: {
+                                                            screen: 'ChatList',
+                                                        },
+                                                    } as never);
                                                 }}>
                                                 <Icon
                                                     name="chatbox-ellipses"

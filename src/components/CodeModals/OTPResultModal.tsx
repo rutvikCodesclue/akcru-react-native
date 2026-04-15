@@ -5,10 +5,11 @@ import {Icon} from '@rneui/base';
 
 type OTPResultModalProps = {
     closeModal: () => void;
-    type: any;
+    type: string;
+    message?: string;
 };
 
-const OTPResultModal = ({closeModal, type}: OTPResultModalProps) => {
+const OTPResultModal = ({closeModal, type, message}: OTPResultModalProps) => {
     return (
         <Pressable
             onPress={closeModal}
@@ -49,12 +50,12 @@ const OTPResultModal = ({closeModal, type}: OTPResultModalProps) => {
                     style={{
                         ...FONTS.Title3,
                         marginBottom: 10,
-                         color: COLORS.AKCRUBACKGROUND,
+                        color: COLORS.AKCRUBACKGROUND,
                         textAlign: 'center',
                     }}>
                     {type === 'success'
                         ? 'Thank you for verifying your Email'
-                        : 'Something went wrong, please check the code that was sent and retry'}
+                        : message || 'Something went wrong, please check the code that was sent and retry'}
                 </Text>
                 <TouchableOpacity onPress={closeModal}>
                     <Text

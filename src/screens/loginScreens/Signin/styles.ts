@@ -1,10 +1,12 @@
 import {StyleSheet} from 'react-native';
-import {SIZES} from '../../../../assets/constants';
+import {COLORS, SIZES} from '../../../../assets/constants';
 import {AUTH_TEXT_FIELD_THEME} from '../../../../assets/constants/authTheme';
 
 export default StyleSheet.create({
     bgimage: {
+        flex: 1,
         height: SIZES.ScreenHeight,
+        backgroundColor: COLORS.AKCRUBACKGROUND,
     },
     logoTop: {
         alignItems: 'center',
