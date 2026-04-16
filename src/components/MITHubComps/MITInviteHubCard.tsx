@@ -1,6 +1,7 @@
 import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
+import {AUTH_BUTTON_THEME} from '../../../assets/constants/authTheme';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './styles';
 import {IMovie, IUserProfile} from '../../../types';

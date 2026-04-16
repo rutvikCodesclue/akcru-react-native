@@ -1,6 +1,6 @@
 import {Text, View, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {COLORS, FONTS} from '../../../assets/constants';
+import {COLORS} from '../../../assets/constants';
 
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
@@ -44,98 +44,100 @@ const MITHubCard = ({
     companyStatus,
 }: MITHubCardProps) => {
     return (
-        <View style={styles.cardcontainer}>
-            <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    borderRadius: 5,
-                }}
-            />
-
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{flexDirection: 'row'}}>
-                    <View style={{marginRight: 8}}>
-                        <TouchableOpacity onPressIn={onPressIn}>
-                            <HexAvatar
-                                source={{uri: inviteePicture}}
-                                size={55}
-                                bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
-                            />
-                        </TouchableOpacity>
-                    </View>
-                    <View>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{...FONTS.Title2}}>{inviteeName}</Text>
-                            {ownerStatus && (
-                                <Icon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.STARGOLD}
-                                    size={18}
-                                    style={{marginRight: 5}}
-                                />
-                            )}
-                            {companyStatus && (
-                                <Icon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.WHITE}
-                                    size={18}
-                                    style={{marginRight: 5}}
-                                />
-                            )}
-                            {blackCloakStatus && (
-                                <Icon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.BLACKCLOAK}
-                                    size={18}
-                                    style={{marginRight: 5}}
-                                />
-                            )}
-                            {influencerStatus && (
-                                <Icon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.AKCRUBLUE}
-                                    size={18}
-                                    style={{marginRight: 5}}
-                                />
-                            )}
+        <View style={styles.panelBody}>
+            <View style={styles.cardTouch}>
+                <LinearGradient
+                    colors={['#FF2F92', '#A43EFF', '#5BE0FF']}
+                    start={{x: 0, y: 0.5}}
+                    end={{x: 1, y: 0.5}}
+                    style={styles.cardGradientBorder}>
+                    <View style={styles.cardcontainer}>
+                        <View style={styles.cardContent}>
+                            <View style={styles.topRow}>
+                                <View style={styles.leftSection}>
+                                    <View style={styles.avatarWrap}>
+                                        <TouchableOpacity onPressIn={onPressIn}>
+                                            <HexAvatar
+                                                source={{uri: inviteePicture}}
+                                                size={58}
+                                                bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                    <View style={styles.nameSection}>
+                                        <View style={styles.nameRow}>
+                                            <Text style={styles.name} numberOfLines={1}>
+                                                {inviteeName}
+                                            </Text>
+                                            {ownerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.STARGOLD}
+                                                    size={18}
+                                                    style={styles.ribbon}
+                                                />
+                                            )}
+                                            {companyStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.WHITE}
+                                                    size={18}
+                                                    style={styles.ribbon}
+                                                />
+                                            )}
+                                            {blackCloakStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.BLACKCLOAK}
+                                                    size={18}
+                                                    style={styles.ribbon}
+                                                />
+                                            )}
+                                            {influencerStatus && (
+                                                <Icon
+                                                    name="ribbon"
+                                                    type="ionicon"
+                                                    color={COLORS.AKCRUBLUE}
+                                                    size={18}
+                                                    style={styles.ribbon}
+                                                />
+                                            )}
+                                        </View>
+                                        <View style={styles.badgeWrap}>
+                                            <DisplayBadge akcruBadge={akcruBadge} />
+                                        </View>
+                                    </View>
+                                </View>
+                                <View style={styles.dateTimeCol}>
+                                    <Text style={styles.dateLine}>
+                                        {moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}
+                                    </Text>
+                                    <Text style={styles.time}>{moment(scheduleTime).tz(timezone).format('h:mm A')}</Text>
+                                </View>
+                            </View>
+                            <Text style={styles.previewText}>
+                                You invited {inviteeName} to watch "{MITMoviechoice}" scheduled for{' '}
+                                <Text style={styles.cruchat}>
+                                    {moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}
+                                </Text>{' '}
+                                at{' '}
+                                <Text style={styles.cruchat}>
+                                    {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
+                                </Text>
+                                .
+                            </Text>
+                            <View style={styles.footerRow}>
+                                <Text style={styles.statusLabel}>MIT Pending</Text>
+                                <TouchableOpacity onPress={cancel} style={styles.cancelButton}>
+                                    <Text style={styles.cancelText}>Cancel Invite</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-
-                        <DisplayBadge akcruBadge={akcruBadge} />
-                    </View>
-                </View>
-
-                <View>
-                    <TouchableOpacity onPress={cancel}>
-                        <Text style={{...FONTS.Title2AkcruBlue, color: COLORS.PINK}}>CANCEL</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-            <View style={{marginTop: 5, flexDirection: 'row', flexWrap: 'wrap'}}>
-                <Text style={styles.cruchat2}>
-                    You invited {inviteeName} to watch "{MITMoviechoice}".
-                </Text>
-
-                <Text style={styles.cruchat2}>scheduled for</Text>
-
-                <View style={{marginHorizontal: 5}}>
-                    <Text style={styles.cruchat}>{moment(scheduleDate).tz(timezone).format('ddd, MMM Do')}</Text>
-                </View>
-                <Text style={styles.cruchat2}>at </Text>
-
-                <View style={{marginRight: 5}}>
-                    <Text style={styles.cruchat}>
-                        {moment(scheduleTime).tz(timezone).format('h:mm A')} {getShortenedTimezone(timezone)}
-                    </Text>
-                </View>
+                        </View>
+                </LinearGradient>
             </View>
         </View>
     );

@@ -111,6 +111,13 @@ export default StyleSheet.create({
         marginBottom: 5,
     },
     //Ticket styles
+    ticketWrapper: {
+        marginRight: 10,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: COLORS.CATPURPDRK,
+        overflow: 'hidden',
+    },
     ticketContainer: {
         width: SIZES.ScreenWidth / 2.75,
         height: SIZES.ScreenWidth / 2.7,

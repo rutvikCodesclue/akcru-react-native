@@ -109,6 +109,27 @@ export function getShortenedTimezone(timezone: string): string {
     }
 }
 
+export function mitStatusValueColor(statusText: string): string {
+    const trimmed = statusText.trim();
+    if (!trimmed || trimmed === '—') {
+        return 'rgba(255,255,255,0.82)';
+    }
+    const statusUpper = trimmed.toUpperCase();
+    if (statusUpper === 'PENDING') {
+        return COLORS.GREEN;
+    }
+    if (statusUpper === 'ACCEPTED') {
+        return COLORS.STARGOLD;
+    }
+    if (statusUpper === 'DECLINED' || statusUpper === 'EXPIRED') {
+        return '#E53935';
+    }
+if (statusUpper === 'CANCELLED') {
+        return COLORS.AKCRUBLUE;
+    }
+    return 'rgba(255,255,255,0.82)';
+}
+
 export function formatDatestamp(timestamp: string | number | Date) {
     const date = new Date(timestamp);
 

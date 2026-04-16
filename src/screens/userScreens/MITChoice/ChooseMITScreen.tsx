@@ -38,6 +38,7 @@ import {
     formatMovieDuration,
     formatNumber,
     getShortenedTimezone,
+    mitStatusValueColor,
     selectAvatarBorderColor,
 } from '../../../util/util';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
@@ -113,6 +114,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const displayMovieStatus = statusFromParams ?? statusFromMovie;
     const inviteStatusCode = (displayMovieStatus ?? 'PENDING').toString().toUpperCase();
     const inviteStatusExplanation = getInviteStatusExplanation(inviteStatusCode);
+    const inviteStatusColor = mitStatusValueColor(inviteStatusCode);
     const initialRemainingSeconds = getRemainingSecondsFromExpiry(expiresAt);
 
     const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -128,9 +130,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     /** Hide entire bottom accept/decline section (timer + swipe + hint) when invite is done or window ended. */
     const showAcceptDeclineSection = React.useMemo(
         () =>
-            inviteStatusCode !== 'ACCEPTED' &&
-            inviteStatusCode !== 'EXPIRED' &&
-            inviteStatusCode !== 'DECLINED' &&
+            inviteStatusCode === 'PENDING' &&
             remainingSeconds > 0,
         [inviteStatusCode, remainingSeconds],
     );
@@ -602,7 +602,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     <View style={{alignItems: 'center', marginBottom: 10}}>
                                         <View style={{marginTop: 20, width: '100%'}}>
                                             <View style={styles.mitMovieCard}>
-                                                <View style={{marginRight: 10}}>
+                                                <View style={styles.ticketWrapper}>
                                                     <View style={styles.ticketContainer}>
                                                         <ImageBackground
                                                             source={{uri: movie?.portraitURL}}
@@ -724,7 +724,11 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                                                                     <Text style={styles.inviteStatusPrefix}>
                                                                                                         Status:{' '}
                                                                                                     </Text>
-                                                                                                    <Text style={styles.inviteStatusValue}>
+                                                                                                    <Text
+                                                                                                        style={[
+                                                                                                            styles.inviteStatusValue,
+                                                                                                            {color: inviteStatusColor},
+                                                                                                        ]}>
                                                                                                         {inviteStatusCode}
                                                                                                     </Text>
                                                                                                 </Text>

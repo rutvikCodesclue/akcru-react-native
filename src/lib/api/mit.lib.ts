@@ -116,16 +116,58 @@ export const cancelMIT = async (mitInviteId: string): Promise<any> => {
     }
 };
 
-export const cancelSentMIT = async (mitInviteId: string): Promise<{success: boolean; message?: string}> => {
+export type CancelSentMitResult = {
+    success: boolean;
+    message?: string;
+    code?: string;
+};
+
+type CancelSentMitBody = {
+    success?: boolean;
+    message?: string;
+    code?: string;
+};
+
+/** Parses API body whether the server returns 2xx or 4xx with `{ success, message, code }`. */
+export const cancelSentMIT = async (mitInviteId: string): Promise<CancelSentMitResult> => {
     try {
-        const {data} = await API.post('/v1/mit/cancel-sent-mit', {mitInviteId});
+        const {data} = await API.post<CancelSentMitBody>(
+            '/v1/mit/cancel-sent-mit',
+            {mitInviteId},
+            {validateStatus: () => true},
+        );
+
+        if (data?.success === true) {
+            return {success: true, message: data.message, code: data.code};
+        }
+
+        const message =
+            typeof data?.message === 'string' && data.message.trim() !== ''
+                ? data.message.trim()
+                : 'Could not cancel this Movie Invite.';
         return {
-            success: data.success,
-            message: data.message,
+            success: false,
+            message,
+            code: typeof data?.code === 'string' ? data.code : undefined,
         };
     } catch (error) {
         console.error('Error cancelling sent MIT:', error);
-        throw error;
+        if (axios.isAxiosError(error) && error.response?.data && typeof error.response.data === 'object') {
+            const d = error.response.data as CancelSentMitBody;
+            const message =
+                typeof d.message === 'string' && d.message.trim() !== ''
+                    ? d.message.trim()
+                    : 'Could not cancel this Movie Invite.';
+            return {
+                success: false,
+                message,
+                code: typeof d.code === 'string' ? d.code : undefined,
+            };
+        }
+        return {
+            success: false,
+            message: 'Network error. Please try again.',
+        };
     }
 };
 

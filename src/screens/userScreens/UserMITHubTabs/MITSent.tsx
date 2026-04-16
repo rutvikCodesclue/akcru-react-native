@@ -1,10 +1,10 @@
-import {View, FlatList, Text} from 'react-native';
+import {View, FlatList, Text, Modal} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import MITHubCard from '../../../components/MITHubComps/MITHubCard';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {cancelMIT, cancelSentMIT, getMyMITInvites, getMyMITs} from '../../../lib/api/mit.lib';
+import {cancelSentMIT, getMyMITs} from '../../../lib/api/mit.lib';
 import {ICruInvite, IMITInvite} from '../../../../types';
 import {MITInviteHubCard} from '../../../components/MITHubComps';
 import {COLORS, FONTS} from '../../../../assets/constants/theme';
@@ -12,12 +12,15 @@ import CruInviteCard from '../../../components/CruInviteCard';
 import {getCRUInvites} from '../../../lib/api/cru.lib';
 import useAuthStore from '../../../stores/auth.store';
 import { UseTabMenu } from '../../../context/TabContext';
+import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 
 
 const MITSent = () => {
     const [currentMITS, setCurrentMITS] = useState<IMITInvite[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
+    const [showCancelFailedModal, setShowCancelFailedModal] = useState(false);
+    const [cancelFailedMessage, setCancelFailedMessage] = useState('');
     const {user, hydrateUser} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const {setUpdateMITs} = UseTabMenu();
@@ -76,10 +79,15 @@ const MITSent = () => {
                 
                 
             } else {
-                console.error('Failed to cancel MIT:', response.message);
+                console.error('Failed to cancel MIT:', response.message, response.code);
+                const msg = response.message?.trim();
+                setCancelFailedMessage(msg ? msg : 'Failed to cancel MIT. Please try again.');
+                setShowCancelFailedModal(true);
             }
         } catch (error) {
             console.error('Error cancelling MIT:', error);
+            setCancelFailedMessage('Failed to cancel MIT. Please try again.');
+            setShowCancelFailedModal(true);
         } finally {
             setIsLoaded(false);
         }
@@ -87,57 +95,67 @@ const MITSent = () => {
 
 
     return (
-        <View style={{marginTop: 10, marginBottom: 75}}>
-            <Text style={{...FONTS.Title2, marginHorizontal: 15}}>
-                You have {user?.MITCount} Movie Invites Tickets left
-            </Text>
-            {isLoaded ? (
-                
-                <Text style={{...FONTS.Title1, textAlign: 'center', marginTop: '5%'}}>Loading...</Text>
-            ) : currentMITS.length === 0 ? (
-                
-                <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY, marginTop: '5%'}}>
-                    You have no sent Movie Invites Tickets
+        <>
+            <View style={{marginTop: 10, marginBottom: 75}}>
+                <Text style={{...FONTS.Title2, marginHorizontal: 15}}>
+                    You have {user?.MITCount} Movie Invites Tickets left
                 </Text>
-            ) : (
-                <View>
-                    <FlatList
-                        data={currentMITS}
-                        horizontal={false}
-                        scrollEnabled={false}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({ item }) => {
-                            const { username, profilePicture, badge, influencerStatus, companyStatus, ownerStatus, blackCloakStatus } = item.invitee;
-                            const startDate = item.startDate ?? '';
-                            
-                            // Safely access movie title only if item.movie exists and is not null
-                            const movieTitle = item.movie ? item.movie.title ?? 'N/A' : 'N/A';
-                            
-                            return (
-                              <View style={{ marginVertical: 5, marginHorizontal: 15 }}>
-                                <MITHubCard
-                                  inviteeName={username ?? 'Unknown User'}
-                                  inviteePicture={profilePicture ?? ''}
-                                  MITDate={startDate}
-                                  MITMoviechoice={movieTitle}
-                                  scheduleDate={startDate}
-                                  scheduleTime={startDate}
-                                  timezone={item.timezone ?? 'N/A'}
-                                  onPressIn={() => navigation.navigate('ViewUserScreen', { userID: item.inviteeId })}
-                                  akcruBadge={badge}
-                                  cancel={() => handleCancelMIT(item.id)}
-                                  influencerStatus={influencerStatus}
-                                  companyStatus={companyStatus}
-                                  ownerStatus={ownerStatus}
-                                  blackCloakStatus={blackCloakStatus}
-                                />
-                              </View>
-                            );
-                          }}
-                    />
-                </View>
-            )}
-        </View>
+                {isLoaded ? (
+                    <Text style={{...FONTS.Title1, textAlign: 'center', marginTop: '5%'}}>Loading...</Text>
+                ) : currentMITS.length === 0 ? (
+                    <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY, marginTop: '5%'}}>
+                        You have no sent Movie Invites Tickets
+                    </Text>
+                ) : (
+                    <View>
+                        <FlatList
+                            data={currentMITS}
+                            horizontal={false}
+                            scrollEnabled={false}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => {
+                                const { username, profilePicture, badge, influencerStatus, companyStatus, ownerStatus, blackCloakStatus } = item.invitee;
+                                const startDate = item.startDate ?? '';
+                                
+                                // Safely access movie title only if item.movie exists and is not null
+                                const movieTitle = item.movie ? item.movie.title ?? 'N/A' : 'N/A';
+                                
+                                return (
+                                  <View style={{ marginVertical: 5, marginHorizontal: 15 }}>
+                                    <MITHubCard
+                                      inviteeName={username ?? 'Unknown User'}
+                                      inviteePicture={profilePicture ?? ''}
+                                      MITDate={startDate}
+                                      MITMoviechoice={movieTitle}
+                                      scheduleDate={startDate}
+                                      scheduleTime={startDate}
+                                      timezone={item.timezone ?? 'N/A'}
+                                      onPressIn={() => navigation.navigate('ViewUserScreen', { userID: item.inviteeId })}
+                                      akcruBadge={badge}
+                                      cancel={() => handleCancelMIT(item.id)}
+                                      influencerStatus={influencerStatus}
+                                      companyStatus={companyStatus}
+                                      ownerStatus={ownerStatus}
+                                      blackCloakStatus={blackCloakStatus}
+                                    />
+                                  </View>
+                                );
+                              }}
+                        />
+                    </View>
+                )}
+            </View>
+            <Modal transparent visible={showCancelFailedModal} animationType="fade">
+                <OTPResultModal
+                    closeModal={() => {
+                        setShowCancelFailedModal(false);
+                        setCancelFailedMessage('');
+                    }}
+                    type="failed"
+                    message={cancelFailedMessage}
+                />
+            </Modal>
+        </>
     );
 };
 
