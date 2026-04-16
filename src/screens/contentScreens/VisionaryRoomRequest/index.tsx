@@ -43,7 +43,6 @@ import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {findAUser, getFollowers} from '../../../lib/api/user.lib';
 import {getVisionaryRoom, requestDecision} from '../../../lib/api/visionary.lib';
 import {MULTISIZES} from '../../../../assets/constants/theme';
-import LoadingComponent from '../../../components/Loading';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import { ClientStackParams } from '../../../navigation/ClientStack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

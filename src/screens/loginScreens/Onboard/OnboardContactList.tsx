@@ -242,7 +242,7 @@ const OnboardContactList = () => {
                     <>
                         <>
                             {isLoading === true && sections.length === 0 ? (
-                                <LoadingComponent />
+                                <LoadingComponent showBackground={false} />
                             ) : (
                                 <>
                                     {sections.length >= 1 ? (

@@ -1,17 +1,5 @@
 import React from 'react';
-import {
-    ActivityIndicator,
-    Animated,
-    BackHandler,
-    Easing,
-    Image,
-    ImageBackground,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    View,
-} from 'react-native';
+import {Animated, BackHandler, Easing, Image, ImageBackground, Pressable, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -24,6 +12,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import onboardStyles from '../../loginScreens/Onboard/styles';
 import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
+import {AppLoadingModal} from '../../../components/Loading';
 
 type Props = NativeStackScreenProps<UserProfileStackParams, 'UserMatchModesScreen'>;
 
@@ -458,13 +447,11 @@ export default function UserMatchModesScreen({navigation}: Props) {
                 </SafeAreaView>
             </ImageBackground>
 
-            {showArchetypeLoader && (
-                <View style={styles.loaderOverlay}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                    <Text style={styles.loaderText}>This is how you watch...</Text>
-                    <Text style={styles.loaderText}>Now let's see where you fit.</Text>
-                </View>
-            )}
+            <AppLoadingModal
+                visible={showArchetypeLoader}
+                message="This is how you watch..."
+                secondaryMessage="Now let's see where you fit."
+            />
         </View>
     );
 }
@@ -563,22 +550,5 @@ const styles = StyleSheet.create({
         height: 8,
         borderRadius: 4,
         backgroundColor: 'rgba(194,134,255,0.7)',
-    },
-    loaderOverlay: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom: 0,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    loaderText: {
-        ...FONTS.Title3,
-        color: COLORS.AKCRUBLUE,
-        marginTop: 10,
-        textAlign: 'center',
-        paddingHorizontal: 24,
     },
 });

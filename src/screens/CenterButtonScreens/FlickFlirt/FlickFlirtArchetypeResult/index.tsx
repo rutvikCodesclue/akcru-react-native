@@ -1,16 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {
-    View,
-    Text,
-    Image,
-    ImageBackground,
-    SafeAreaView,
-    ActivityIndicator,
-    ScrollView,
-    Modal,
-    Animated,
-    Easing,
-} from 'react-native';
+import {View, Text, Image, ImageBackground, SafeAreaView, ScrollView, Animated, Easing} from 'react-native';
 import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -33,6 +22,7 @@ import useAuthStore from '../../../../stores/auth.store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
+import {AppLoadingModal} from '../../../../components/Loading';
 
 const FLICKFLIRT_TOP_GENRES_KEY = 'flickflirt_top_genres';
 
@@ -377,20 +367,10 @@ const FlickFlirtArchetypeResult = () => {
                 </SafeAreaView>
             </ImageBackground>
 
-            <Modal animationType="fade" transparent visible={showLoader}>
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    }}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                    <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10, textAlign: 'center', paddingHorizontal: 24}}>
-                        {isSaving ? 'Analyzing Your Movie Taste...' : 'Loading archetype...'}
-                    </Text>
-                </View>
-            </Modal>
+            <AppLoadingModal
+                visible={showLoader}
+                message={isSaving ? 'Analyzing Your Movie Taste...' : 'Loading archetype...'}
+            />
         </View>
     );
 };

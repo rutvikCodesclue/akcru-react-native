@@ -1,5 +1,5 @@
 import React, {useState, useRef, useCallback, useEffect} from 'react';
-import {View, Text, SafeAreaView, ImageBackground, Image, Modal, ActivityIndicator, Platform} from 'react-native';
+import {View, Text, SafeAreaView, ImageBackground, Image, Platform} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,6 +16,7 @@ import {capitalizeFirstLetterOfString} from '../../../../util/util';
 import {isTablet} from '../../../../../assets/constants/theme';
 import {archetypeMapping} from '../../../../../assets/constants/archetypeMapping';
 import {MOVIE_GENRES} from '../../../../../assets/constants/Data';
+import {AppLoadingModal} from '../../../../components/Loading';
 
 /** Normalize API genre string to match archetypeMapping keys (e.g. "SciFi", "Drama") */
 function normalizeGenre(genre: string | undefined): string | null {
@@ -348,18 +349,7 @@ const FlickFlirtSwipe = () => {
                 )}
             </ImageBackground>
 
-            <Modal animationType="fade" transparent visible={showLoader}>
-                <View
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    }}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                    <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Finding movies....</Text>
-                </View>
-            </Modal>
+            <AppLoadingModal visible={showLoader} message="Finding movies...." />
         </View>
     );
 };

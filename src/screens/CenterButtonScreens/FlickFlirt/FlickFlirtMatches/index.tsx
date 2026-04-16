@@ -1,16 +1,7 @@
 // src/screens/FlickFlirtMatches.tsx
 
 import React, {useState, useCallback, useMemo} from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    StyleSheet,
-    Alert,
-    Modal,
-    TouchableOpacity,
-    ActivityIndicator,
-} from 'react-native';
+import {View, Text, FlatList, StyleSheet, Alert, Modal, TouchableOpacity} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
@@ -23,6 +14,7 @@ import useAuthStore from '../../../../stores/auth.store';
 import {isTablet} from '../../../../../assets/constants/theme';
 import FlickFlirtBlurredBackground from '../../../../components/FlickFlirtBlurredBackground';
 import FlickFlirtLockedPlaceholderCard from '../../../../components/FlickFlirtLockedPlaceholderCard';
+import {AppLoadingModal} from '../../../../components/Loading';
 
 import {getMatches, unlockMatches, MatchesResponse, UnlockOption} from '../../../../lib/api/flickflirt.lib';
 import {getMyMITs} from '../../../../lib/api/mit.lib';
@@ -313,12 +305,7 @@ const FlickFlirtMatches = () => {
                 </View>
             </Modal>
 
-            <Modal animationType="fade" transparent visible={showLoader}>
-                <View style={styles.loaderOverlay}>
-                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
-                    <Text style={styles.loaderText}>Loading matches...</Text>
-                </View>
-            </Modal>
+            <AppLoadingModal visible={showLoader} message="Loading matches..." />
 
         </View>
     );
@@ -364,17 +351,6 @@ const styles = StyleSheet.create({
     cancelBtn: {backgroundColor: COLORS.AKCRUBLUE},
     confirmBtn: {backgroundColor: COLORS.PURPLE},
     modalBtnText: {...FONTS.Title3, color: COLORS.WHITE},
-    loaderOverlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    loaderText: {
-        ...FONTS.Title3,
-        color: COLORS.AKCRUBLUE,
-        marginTop: 10,
-    },
 });
 
 export default FlickFlirtMatches;
